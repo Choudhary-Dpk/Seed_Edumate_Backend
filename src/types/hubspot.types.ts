@@ -437,6 +437,10 @@ export interface MappedEdumateContact {
   intakeMonth?: string;
   intakeYear?: string;
   loanAmount?: string;
+
+  utm_source?: string;
+  utm_medium?: string;
+  utm_campaign?: string;
 }
 
 // src/types/common.types.ts

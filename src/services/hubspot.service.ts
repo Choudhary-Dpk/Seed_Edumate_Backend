@@ -538,6 +538,9 @@ const mapToHubSpotProperties = (contactData: Partial<MappedEdumateContact>): Rec
   if (contactData.intakeMonth) properties.intake_month = contactData.intakeMonth;
   if (contactData.intakeYear) properties.intake_year = contactData.intakeYear;
   if (contactData.loanAmount) properties.loan_amount_required = contactData.loanAmount;
+  if (contactData.utm_campaign) properties.utm_campaign = contactData.utm_campaign;
+  if (contactData.utm_medium) properties.loan_amount_required = contactData.utm_medium;
+  if (contactData.utm_source) properties.loan_amount_required = contactData.utm_source;
 
 
 
