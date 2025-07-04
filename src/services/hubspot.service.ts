@@ -91,6 +91,79 @@ export const searchContactsByEmail = async (email: string): Promise<MappedContac
   }
 };
 
+export const getContactOwnerByPhone = async (phoneNumber: string): Promise<{
+  contactId: string;
+  contactEmail: string;
+  contactName: string;
+  ownerId: number;
+  ownerEmail: string;
+  ownerName: string;
+} | null> => {
+  try {
+    // Step 1: Search for contact by phone number
+    const searchRequest = hubspotClient.createSearchRequest([{
+      propertyName: 'phone',
+      operator: 'EQ',
+      value: phoneNumber
+    }], {
+      properties: ['email', 'firstname', 'lastname', 'phone', 'hubspot_owner_id'],
+      limit: 1
+    });
+    const contactResponse = await hubspotClient.searchContacts(searchRequest);
+    
+    if (!contactResponse.results || contactResponse.results.length === 0) {
+      logger.info('No contact found for phone number', { phoneNumber });
+      return null;
+    }
+
+    const contact = contactResponse.results[0];
+    const ownerId = parseInt(contact.properties.hubspot_owner_id || "");
+    
+    if (!ownerId) {
+      logger.info('Contact found but no owner assigned', { 
+        contactId: contact.id, 
+        phoneNumber 
+      });
+      return null;
+    }
+
+    // Step 2: Get owner information
+    const owner = await hubspotClient.getOwnerById(ownerId);
+    
+    if (!owner) {
+      logger.warn('Owner ID found but owner details not available', { 
+        ownerId, 
+        contactId: contact.id 
+      });
+      return null;
+    }
+
+    const result = {
+      contactId: contact.id,
+      contactEmail: contact.properties.email || '',
+      contactName: `${contact.properties.firstname || ''} ${contact.properties.lastname || ''}`.trim(),
+      ownerId: ownerId,
+      ownerEmail: owner.email,
+      ownerName: `${owner.firstName || ''} ${owner.lastName || ''}`.trim()
+    };
+
+    logger.info('Successfully retrieved contact owner information', { 
+      phoneNumber,
+      contactId: contact.id,
+      ownerId: ownerId
+    });
+
+    return result;
+  } catch (error) {
+    logger.error('Error in getContactOwnerByPhone service', { phoneNumber, error });
+    throw createHubSpotError(
+      error instanceof Error ? error.message : 'Unknown error',
+      error,
+      'getContactOwnerByPhone'
+    );
+  }
+};
+
 export const getCompanies = async (options: PaginationOptions = {}): Promise<{
   companies: MappedCompany[];
   hasMore: boolean;

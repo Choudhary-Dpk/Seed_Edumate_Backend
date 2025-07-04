@@ -61,6 +61,30 @@ export const searchContactsByEmail = asyncHandler(async (req: Request, res: Resp
   res.json(response);
 });
 
+export const getContactOwnerByPhone = asyncHandler(async (req: Request, res: Response) => {
+  const { phone } = req.query;
+  
+  if (!phone) {
+    throw createError('Phone number is required', 400);
+  }
+
+  const ownerInfo = await hubspotService.getContactOwnerByPhone(phone as string);
+  
+  if (!ownerInfo) {
+    throw createError('Contact not found or no owner assigned', 404);
+  }
+
+  const response: ApiResponse = {
+    success: true,
+    data: ownerInfo,
+    meta: {
+      operation: `Searched by phone number - ${phone}`
+    }
+  };
+
+  res.json(response);
+});
+
 export const getCompanies = asyncHandler(async (req: Request, res: Response) => {
   const { limit, after } = req.query;
   

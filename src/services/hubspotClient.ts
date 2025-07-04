@@ -128,6 +128,29 @@ export const getContactById = async (contactId: string, properties?: string[]): 
   }
 };
 
+export const getOwnerById = async (ownerId: number): Promise<{
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+} | null> => {
+  try {
+    const response = await hubspotClient.crm.owners.ownersApi.getById(ownerId);
+    
+    logger.debug('Retrieved owner by ID from HubSpot', { ownerId });
+    
+    return {
+      id: response?.id,
+      email: response?.email || '',
+      firstName: response?.firstName || '',
+      lastName: response?.lastName || ''
+    };
+  } catch (error) {
+    logger.error('Error retrieving owner by ID from HubSpot', { ownerId, error });
+    throw handleHubSpotError(error);
+  }
+};
+
 export const searchContacts = async (searchRequest: PublicObjectSearchRequest): Promise<HubSpotPaginatedResponse<HubSpotContact>> => {
   try {
     const response = await hubspotClient.crm.contacts.searchApi.doSearch(searchRequest);

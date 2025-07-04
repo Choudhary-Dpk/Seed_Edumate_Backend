@@ -30,6 +30,11 @@ router.get('/contacts/search',
   hubspotController.searchContactsByEmail
 );
 
+router.get('/contacts/search/phone-owner', 
+  // validateQuery(phoneQuerySchema), 
+  hubspotController.getContactOwnerByPhone
+);
+
 router.get('/contacts/:id', 
   validateParams(idParamSchema), 
   hubspotController.getContactById
