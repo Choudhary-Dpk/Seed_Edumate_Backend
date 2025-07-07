@@ -9,6 +9,7 @@ import { logger } from './utils/looger';
 import { errorHandler } from './middlewares/errorHandler';
 import { requestLogger } from './middlewares/requestLogger';
 import { hubspotRoutes } from './routes/hubspot.routes';
+import { gupshupRoutes } from './routes/gupshup.routes';
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use(requestLogger);
 
 // Routes
 app.use('/api/hubspot', hubspotRoutes);
+app.use('/api/gupshup', gupshupRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {

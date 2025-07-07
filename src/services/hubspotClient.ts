@@ -14,7 +14,8 @@ import {
   HubSpotDeal,
   HubSpotEdumateContact,
   HubSpotPaginatedResponse,
-  HubSpotError
+  HubSpotError,
+  HubSpotOwner
 } from '../types';
 
 // Initialize HubSpot client
@@ -449,4 +450,51 @@ export const createSearchRequest = (filters: any, options: any): PublicObjectSea
     limit: options?.limit || 10,
     after: options?.after || undefined
   };
+};
+
+export const getOwnersByEmail = async (email: string): Promise<HubSpotOwner[]> => {
+  try {
+    const response = await hubspotClient.crm.owners.ownersApi.getPage(
+      email, // email filter
+      undefined, // after
+      100, // limit
+      false // archived
+    );
+
+    const owners = response.results
+      .filter(owner => owner.email?.toLowerCase() === email.toLowerCase())
+      .map(owner => ({
+        id: owner.id!,
+        email: owner.email!,
+        firstName: owner.firstName || '',
+        lastName: owner.lastName || ''
+      }));
+
+    logger.debug('Retrieved owners by email from HubSpot', { 
+      email, 
+      count: owners.length 
+    });
+
+    return owners;
+  } catch (error) {
+    logger.error('Error retrieving owners by email from HubSpot', { email, error });
+    throw handleHubSpotError(error);
+  }
+};
+
+export const updateContactOwner = async (contactId: string, ownerId: string): Promise<void> => {
+  try {
+    const updateInput = {
+      properties: {
+        hubspot_owner_id: ownerId
+      }
+    };
+
+    await hubspotClient.crm.contacts.basicApi.update(contactId, updateInput);
+
+    logger.debug('Updated contact owner in HubSpot', { contactId, ownerId });
+  } catch (error) {
+    logger.error('Error updating contact owner in HubSpot', { contactId, ownerId, error });
+    throw handleHubSpotError(error);
+  }
 };

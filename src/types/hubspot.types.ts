@@ -457,6 +457,14 @@ export interface SearchOptions extends PaginationOptions {
   }[];
 }
 
+export interface HubSpotOwner {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+}
+
+
 // src/types/index.ts
 // Re-export all types for easier importing
 export * from './hubspot.types';
