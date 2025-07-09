@@ -33,20 +33,20 @@ const options: swaggerJsDoc.Options = {
             }
         ],
         components: {
-            securitySchemes: {
-                bearerAuth: {
-                    type: 'http',
-                    scheme: 'bearer',
-                    bearerFormat: 'JWT',
-                    description: 'JWT token for authentication'
-                },
-                ApiKeyAuth: {
-                    type: "apiKey",
-                    in: "header",
-                    name: "x-api-key",
-                    description: 'API key for authentication'
-                }
-            },
+            // securitySchemes: {
+            //     bearerAuth: {
+            //         type: 'http',
+            //         scheme: 'bearer',
+            //         bearerFormat: 'JWT',
+            //         description: 'JWT token for authentication'
+            //     },
+            //     ApiKeyAuth: {
+            //         type: "apiKey",
+            //         in: "header",
+            //         name: "x-api-key",
+            //         description: 'API key for authentication'
+            //     }
+            // },
             schemas: {
                 EdumateContact: {
                     type: 'object',
