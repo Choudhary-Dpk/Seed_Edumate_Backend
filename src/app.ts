@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import compression from 'compression';
 import { healthRoutes, hubspotRoutes } from './routes/hubspot.routes';
 import { swaggerRouter } from './config/swagger';
+import { checkPrismaConnection } from './config/prisma';
 
 const app = express();
 
@@ -50,8 +51,9 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 
 const PORT = process.env.PORT || 3031;
 
-app.listen(PORT, () => {
+app.listen(PORT, async() => {
     console.log(`Server is running on port ${PORT}`);
+    await checkPrismaConnection(); 
     // console.log(`API Documentation available at http://localhost:${PORT}/`);
 });
 
