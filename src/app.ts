@@ -15,19 +15,19 @@ app.use(compression());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// API Documentation - Make sure this comes before other routes
-app.use('/', swaggerRouter);
-
 // API Routes
-app.use('/api/v1/hubspot', hubspotRoutes);
-app.use('/api/v1/health', healthRoutes);
+app.use('/hubspot', hubspotRoutes);
+app.use('/health', healthRoutes);
+
+// API Documentation - Make sure this comes before other routes
+app.use('/docs', swaggerRouter);
 
 // Root route
 app.get('/', (req, res) => {
     res.json({
         success: true,
         message: 'Edumate Integration API',
-        documentation: '/',
+        documentation: '/docs',
         version: '1.0.0'
     });
 });

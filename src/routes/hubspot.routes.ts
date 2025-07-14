@@ -64,7 +64,7 @@ router.get('/deals/:id',
 // Edumate Contact Custom Object routes with Swagger documentation
 /**
  * @swagger
- * /api/v1/hubspot/edumate-contacts:
+ * /hubspot/edumate-contacts:
  *   get:
  *     tags: [Edumate Contacts]
  *     summary: Get a paginated list of Edumate Contacts
@@ -126,13 +126,13 @@ router.get('/deals/:id',
  *               $ref: '#/components/schemas/Error'
  */
 router.get('/edumate-contacts', 
-  validateQuery(paginationSchema), 
+  // validateQuery(paginationSchema), 
   hubspotController.getEdumateContacts
 );
 
 /**
  * @swagger
- * /api/v1/hubspot/edumate-contacts/{id}:
+ * /hubspot/edumate-contacts/{id}:
  *   get:
  *     tags: [Edumate Contacts]
  *     summary: Get an Edumate Contact by ID
@@ -178,7 +178,7 @@ router.get('/edumate-contacts/:id',
 
 /**
  * @swagger
- * /api/v1/hubspot/edumate-contacts:
+ * /hubspot/edumate-contacts:
  *   post:
  *     tags: [Edumate Contacts]
  *     summary: Create a new Edumate Contact
@@ -231,7 +231,7 @@ router.post('/edumate-contacts',
 
 /**
  * @swagger
- * /api/v1/hubspot/edumate-contacts/{id}:
+ * /hubspot/edumate-contacts/{id}:
  *   put:
  *     tags: [Edumate Contacts]
  *     summary: Update an existing Edumate Contact
@@ -292,7 +292,7 @@ router.put('/edumate-contacts/:id',
 
 /**
  * @swagger
- * /api/v1/hubspot/edumate-contacts/upsert:
+ * /hubspot/edumate-contacts/upsert:
  *   post:
  *     tags: [Edumate Contacts]
  *     summary: Upsert an Edumate Contact
@@ -343,7 +343,7 @@ router.post('/edumate-contacts/upsert',
 
 /**
  * @swagger
- * /api/v1/hubspot/edumate-contacts/{id}:
+ * /hubspot/edumate-contacts/{id}:
  *   delete:
  *     tags: [Edumate Contacts]
  *     summary: Delete an Edumate Contact
@@ -380,7 +380,7 @@ router.delete('/edumate-contacts/:id',
 // Batch operations
 /**
  * @swagger
- * /api/v1/hubspot/edumate-contacts/batch/create:
+ * /hubspot/edumate-contacts/batch/create:
  *   post:
  *     tags: [Edumate Contacts]
  *     summary: Batch create Edumate Contacts
@@ -447,7 +447,7 @@ router.post('/edumate-contacts/batch/create',
 
 /**
  * @swagger
- * /api/v1/hubspot/edumate-contacts/batch/update:
+ * /hubspot/edumate-contacts/batch/update:
  *   put:
  *     tags: [Edumate Contacts]
  *     summary: Batch update Edumate Contacts
@@ -516,7 +516,7 @@ router.put('/edumate-contacts/batch/update',
 // Search routes for Edumate Contacts
 /**
  * @swagger
- * /api/v1/hubspot/edumate-contacts/search/email:
+ * /hubspot/edumate-contacts/search/email:
  *   get:
  *     tags: [Edumate Contacts]
  *     summary: Search Edumate Contacts by email
@@ -563,7 +563,7 @@ router.get('/edumate-contacts/search/email',
 
 /**
  * @swagger
- * /api/v1/hubspot/edumate-contacts/search/phone:
+ * /hubspot/edumate-contacts/search/phone:
  *   get:
  *     tags: [Edumate Contacts]
  *     summary: Search Edumate Contacts by phone
@@ -609,7 +609,7 @@ router.get('/edumate-contacts/search/phone',
 
 /**
  * @swagger
- * /api/v1/hubspot/edumate-contacts/search/admission-status:
+ * /hubspot/edumate-contacts/search/admission-status:
  *   get:
  *     tags: [Edumate Contacts]
  *     summary: Search Edumate Contacts by admission status
@@ -656,7 +656,7 @@ router.get('/edumate-contacts/search/admission-status',
 
 /**
  * @swagger
- * /api/v1/hubspot/edumate-contacts/search/study-destination:
+ * /hubspot/edumate-contacts/search/study-destination:
  *   get:
  *     tags: [Edumate Contacts]
  *     summary: Search Edumate Contacts by study destination
@@ -703,7 +703,7 @@ router.get('/edumate-contacts/search/study-destination',
 
 /**
  * @swagger
- * /api/v1/hubspot/edumate-contacts/search/advanced:
+ * /hubspot/edumate-contacts/search/advanced:
  *   get:
  *     tags: [Edumate Contacts]
  *     summary: Advanced search for Edumate Contacts
