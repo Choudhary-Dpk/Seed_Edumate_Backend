@@ -20,6 +20,10 @@ const options: swaggerJsDoc.Options = {
             {
                 name: 'Edumate Contacts',
                 description: 'Custom Edumate contact object operations - CRUD, search, and batch operations for managing student contacts'
+            },
+            {
+                name: 'Loan',
+                description: 'Loan eligibility and currency conversion services for education financing'
             }
         ],
         servers: [
@@ -282,8 +286,13 @@ const options: swaggerJsDoc.Options = {
             }
         },
     },
-    // Updated file paths to correctly locate route files
-    apis: ["./src/routes/hubspot.routes.ts", "./dist/routes/hubspot.routes.js"]
+    // Updated file paths to include loan routes
+    apis: [
+        "./src/routes/hubspot.routes.ts", 
+        "./dist/routes/hubspot.routes.js",
+        "./src/routes/loan.routes.ts",
+        "./dist/routes/loan.routes.js"
+    ]
 };
 
 const swaggerSpecs = swaggerJsDoc(options);

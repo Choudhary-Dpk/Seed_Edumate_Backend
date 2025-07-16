@@ -611,6 +611,24 @@ const mapToHubSpotProperties = (contactData: Partial<MappedEdumateContact>): Rec
   if (contactData.intakeMonth) properties.intake_month = contactData.intakeMonth;
   if (contactData.intakeYear) properties.intake_year = contactData.intakeYear;
   if (contactData.loanAmount) properties.loan_amount_required = contactData.loanAmount;
+  
+  // if (contactData.loanAmount) properties.co_applicant_1_name = contactData.loanAmount;
+  if (contactData.coApplicant) properties.co_applicant_1_relationship = contactData.coApplicant;
+  if (contactData.coApplicantIncomeType) properties.co_applicant_1_occupation = contactData.coApplicantIncomeType;
+  if (contactData.coApplicantAnnualIncome) properties.co_applicant_1_income = contactData.coApplicantAnnualIncome;
+  if (contactData.coApplicantMobile) properties.co_applicant_1_mobile_number = contactData.coApplicantMobile;
+  if (contactData.coApplicantEmail) properties.co_applicant_1_email = contactData.coApplicantEmail;
+
+  if (contactData?.analyticalExam?.GRE) properties.gre_score = contactData?.analyticalExam?.GRE;
+  if (contactData?.analyticalExam?.GMAT) properties.gmat_score = contactData?.analyticalExam?.GMAT;
+  // if (contactData?.analyticalExam?.SAT) properties.sat_score = contactData?.analyticalExam?.SAT;
+  // if (contactData?.analyticalExam?.CAT) properties.cat_score = contactData?.analyticalExam?.CAT;
+  // if (contactData?.analyticalExam?.NMAT) properties.nmat_score = contactData?.analyticalExam?.NMAT;
+  // if (contactData?.analyticalExam?.XAT) properties.xat_score = contactData?.analyticalExam?.XAT;
+  if (contactData?.languageExam?.TOEFL) properties.toefl_score = contactData?.languageExam?.TOEFL;
+  if (contactData?.languageExam?.IELTS) properties.ielts_score = contactData?.languageExam?.IELTS;
+  // if (contactData?.languageExam?.Duolingo) properties.duolingo_score = contactData?.languageExam?.Duolingo;
+
   if (contactData.utm_campaign) properties.utm_campaign = contactData.utm_campaign;
   if (contactData.utm_medium) properties.loan_amount_required = contactData.utm_medium;
   if (contactData.utm_source) properties.loan_amount_required = contactData.utm_source;

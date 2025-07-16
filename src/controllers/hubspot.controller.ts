@@ -232,7 +232,6 @@ export const updateEdumateContact = asyncHandler(async (req: Request, res: Respo
 
 export const upsertEdumateContact = asyncHandler(async (req: Request, res: Response) => {
   const contactData = req.body;
-  
   // Validate that email is provided
   if (!contactData.email) {
     throw createError('Email is required.', 400);

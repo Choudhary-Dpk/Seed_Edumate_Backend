@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getAllUsers, createUser } from '../controllers/user.controller';
+import { getAllUsers, createUser, getIpInfo } from '../controllers/user.controller';
 import { createUserValidator } from '../validators/user.validator';
 // import { validateRequest } from '../middleware/validate';
 
@@ -9,4 +9,6 @@ router.get('/', getAllUsers);
 
 router.post('/', createUserValidator,  createUser);
 
-export default router;
+router.get('/ip-info', getIpInfo);
+
+export { router as userRoutes };

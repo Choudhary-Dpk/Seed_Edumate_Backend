@@ -5,6 +5,9 @@ import compression from 'compression';
 import { healthRoutes, hubspotRoutes } from './routes/hubspot.routes';
 import { swaggerRouter } from './config/swagger';
 import { checkPrismaConnection } from './config/prisma';
+import { gupshupRoutes } from './routes/gupshup.routes';
+import { loanRoutes } from './routes/loan.routes';
+import { userRoutes } from './routes/user.routes';
 
 const app = express();
 
@@ -16,8 +19,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // API Routes
+app.use('/loans', loanRoutes);
 app.use('/hubspot', hubspotRoutes);
+app.use('/gupshup', gupshupRoutes);
 app.use('/health', healthRoutes);
+app.use('/user', userRoutes);
 
 // API Documentation - Make sure this comes before other routes
 app.use('/docs', swaggerRouter);

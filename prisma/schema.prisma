@@ -7,9 +7,51 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// model User {
-//   id    Int     @id @default(autoincrement())
-//   name  String
-//   email String  @unique
-//   createdAt DateTime @default(now())
-// }
+model loan_eligibility_matrix {
+  id                      Int      @id @default(autoincrement())
+  country_of_study        String?  @db.VarChar(100)
+  level_of_education      String?  @db.VarChar(50)
+  course_type             String?  @db.VarChar(100)
+  is_stem_designated      Boolean?
+  analytical_exam_name    String?  @db.VarChar(50)
+  language_exam_name      String?  @db.VarChar(50)
+  preference              String?  @db.VarChar(20)
+  loan_amount             Decimal? @db.Decimal(12, 2)
+  loan_amount_currency    String?  @db.VarChar(3)
+  analytical_score_min    Decimal? @db.Decimal(6, 2)
+  analytical_score_max    Decimal? @db.Decimal(6, 2)
+  language_exam_score_min Decimal? @db.Decimal(6, 2)
+  language_exam_score_max Decimal? @db.Decimal(6, 2)
+
+  @@index([loan_amount, loan_amount_currency], map: "idx_amount_currency")
+  @@index([analytical_exam_name], map: "idx_analytical_exam")
+  @@index([country_of_study, level_of_education], map: "idx_country_education")
+  @@index([country_of_study], map: "idx_country_study")
+  @@index([course_type], map: "idx_course_type")
+  @@index([loan_amount_currency], map: "idx_currency")
+  @@index([level_of_education], map: "idx_education_level")
+  @@index([language_exam_name], map: "idx_language_exam")
+  @@index([loan_amount], map: "idx_loan_amount")
+  @@index([preference], map: "idx_preference")
+  @@index([is_stem_designated], map: "idx_stem_designated")
+  @@index([is_stem_designated, preference], map: "idx_stem_preference")
+  @@map("loan_eligibility_matrix")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
+
+model currency_conversion {
+  id            Int       @id @default(autoincrement())
+  from_currency String    @db.VarChar(3)
+  to_currency   String    @db.VarChar(3)
+  exchange_rate Decimal   @db.Decimal(12, 6)
+  last_updated  DateTime? @default(now()) @db.Timestamp(6)
+  is_active     Boolean?  @default(true)
+
+  @@unique([from_currency, to_currency])
+}

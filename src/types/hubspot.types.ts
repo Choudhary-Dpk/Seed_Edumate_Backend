@@ -438,6 +438,15 @@ export interface MappedEdumateContact {
   intakeYear?: string;
   loanAmount?: string;
 
+  coApplicant?: string,
+  coApplicantIncomeType?: string,
+  coApplicantAnnualIncome?: string,
+  coApplicantMobile?: string,
+  coApplicantEmail?: string,
+
+  analyticalExam?: { [examName: string]: string };
+  languageExam?: { [examName: string]: string };
+
   utm_source?: string;
   utm_medium?: string;
   utm_campaign?: string;
