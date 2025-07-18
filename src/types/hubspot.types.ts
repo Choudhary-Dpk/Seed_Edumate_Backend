@@ -425,6 +425,7 @@ export interface MappedEdumateContact {
   fullName: string;
   email?: string;
   phoneNumber?: string;
+  currency?: string;
   dateOfBirth?: Date;
   gender?: string;
   nationality?: string;

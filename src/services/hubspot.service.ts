@@ -10,6 +10,7 @@ import {
   PaginationOptions
 } from '../types';
 import { createHubSpotError, createNotFoundError } from '../middlewares/errorHandler';
+import { convertCurrency } from './loan.service';
 
 // Standard HubSpot Objects Service Functions
 
@@ -322,7 +323,7 @@ export const getEdumateContactById = async (contactId: string): Promise<MappedEd
 export const createEdumateContact = async (contactData: Partial<MappedEdumateContact>): Promise<MappedEdumateContact> => {
   try {
     // Convert mapped data back to HubSpot properties format
-    const properties = mapToHubSpotProperties(contactData);
+    const properties = await mapToHubSpotProperties(contactData);
     
     const hubspotContact = await hubspotClient.createEdumateContact(properties);
     const mappedContact = HubSpotMapper.mapEdumateContact(hubspotContact);
@@ -342,7 +343,7 @@ export const createEdumateContact = async (contactData: Partial<MappedEdumateCon
 export const updateEdumateContact = async (contactId: string, contactData: Partial<MappedEdumateContact>): Promise<MappedEdumateContact> => {
   try {
     // Convert mapped data back to HubSpot properties format
-    const properties = mapToHubSpotProperties(contactData);
+    const properties = await mapToHubSpotProperties(contactData);
     
     const hubspotContact = await hubspotClient.updateEdumateContact(contactId, properties);
     const mappedContact = HubSpotMapper.mapEdumateContact(hubspotContact);
@@ -391,9 +392,9 @@ export const batchCreateEdumateContacts = async (contactsData: Partial<MappedEdu
 }> => {
   try {
     // Convert all mapped data to HubSpot properties format
-    const propertiesArray = contactsData.map(contactData => 
+    const propertiesArray = await Promise.all(contactsData.map(contactData => 
       mapToHubSpotProperties(contactData)
-    );
+    ));
     
     const response = await hubspotClient.batchCreateEdumateContacts(propertiesArray);
     
@@ -434,10 +435,10 @@ export const batchUpdateEdumateContacts = async (updates: Array<{
 }> => {
   try {
     // Convert all mapped data to HubSpot format
-    const formattedUpdates = updates.map(update => ({
+    const formattedUpdates = await Promise.all(updates.map(async update => ({
       id: update.id,
-      properties: mapToHubSpotProperties(update.data)
-    }));
+      properties: await mapToHubSpotProperties(update.data)
+    })));
     
     const response = await hubspotClient.batchUpdateEdumateContacts(formattedUpdates);
     
@@ -593,9 +594,9 @@ export const searchEdumateContactsByStudyDestination = async (destination: strin
 /**
  * Convert mapped contact data back to HubSpot properties format
  */
-const mapToHubSpotProperties = (contactData: Partial<MappedEdumateContact>): Record<string, any> => {
+const mapToHubSpotProperties = async (contactData: Partial<MappedEdumateContact>): Promise<Record<string, any>> => {
   const properties: Record<string, any> = {};
-
+  const loanAmount = contactData?.currency != 'INR' ? await convertCurrency(parseInt(contactData?.loanAmount || ''), contactData?.currency || 'INR', 'INR') : contactData?.loanAmount;
   // Map personal information
   if (contactData.firstName) properties.first_name = contactData.firstName;
   if (contactData.lastName) properties.last_name = contactData.lastName;
@@ -610,7 +611,7 @@ const mapToHubSpotProperties = (contactData: Partial<MappedEdumateContact>): Rec
   if (contactData.loanPreference) properties.loan_type_preference = contactData.loanPreference;
   if (contactData.intakeMonth) properties.intake_month = contactData.intakeMonth;
   if (contactData.intakeYear) properties.intake_year = contactData.intakeYear;
-  if (contactData.loanAmount) properties.loan_amount_required = contactData.loanAmount;
+  if (contactData.loanAmount) properties.loan_amount_required = loanAmount;
   
   // if (contactData.loanAmount) properties.co_applicant_1_name = contactData.loanAmount;
   if (contactData.coApplicant) properties.co_applicant_1_relationship = contactData.coApplicant;

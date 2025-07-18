@@ -63,7 +63,7 @@ export const getConvertedCurrency = async (req: Request, res: Response) => {
   try {
     const amountParam = req.query.amount as string;
     const from = req.query.from as string;
-    const to = req.query.to as string;
+    const to = req.query.to as string || 'INR';
 
     if (!amountParam || !from || !to) {
       return res.status(400).json({ message: 'Missing required query params: amount, from, to' });
