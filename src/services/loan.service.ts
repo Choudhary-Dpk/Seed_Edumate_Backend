@@ -1,6 +1,7 @@
 // src/services/loan.service.ts
 import prisma from '../config/prisma';
 import { LoanEligibilityRequest } from '../middlewares/validators/loan.validator';
+import logger from '../utils/looger';
 
 export interface LoanEligibilityResult {
   loan_amount: number;
@@ -55,12 +56,22 @@ export const convertCurrency = async (
   amount: number,
   from: string,
   to: string
-): Promise<number> => {
-  const result = await prisma.$queryRawUnsafe<{ loan_amount_usd: number }[]>(
-    `SELECT convert_currency($1, $2, $3) as loan_amount_usd`,
-    amount,
-    from,
-    to
-  );
-  return result[0]?.loan_amount_usd ?? 0;
+): Promise<number | null> => {
+  try {
+    const result = await prisma.$queryRawUnsafe<{ loan_amount_usd: number }[]>(
+      `SELECT convert_currency($1, $2, $3) as loan_amount_usd`,
+      amount,
+      from,
+      to
+    );
+    return result[0]?.loan_amount_usd ?? 0;
+  } catch (error) {
+    logger.error('Error in currency change', { 
+          amount,
+          from,
+          to,
+          error 
+        });
+        return null
+  }
 };

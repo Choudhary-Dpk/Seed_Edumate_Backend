@@ -611,7 +611,7 @@ const mapToHubSpotProperties = async (contactData: Partial<MappedEdumateContact>
   if (contactData.loanPreference) properties.loan_type_preference = contactData.loanPreference;
   if (contactData.intakeMonth) properties.intake_month = contactData.intakeMonth;
   if (contactData.intakeYear) properties.intake_year = contactData.intakeYear;
-  if (contactData.loanAmount) properties.loan_amount_required = loanAmount;
+  if (contactData.loanAmount) properties.loan_amount_required = loanAmount || contactData?.loanAmount;
   
   // if (contactData.loanAmount) properties.co_applicant_1_name = contactData.loanAmount;
   if (contactData.coApplicant) properties.co_applicant_1_relationship = contactData.coApplicant;
