@@ -622,13 +622,13 @@ const mapToHubSpotProperties = async (contactData: Partial<MappedEdumateContact>
 
   if (contactData?.analyticalExam?.GRE) properties.gre_score = contactData?.analyticalExam?.GRE;
   if (contactData?.analyticalExam?.GMAT) properties.gmat_score = contactData?.analyticalExam?.GMAT;
-  // if (contactData?.analyticalExam?.SAT) properties.sat_score = contactData?.analyticalExam?.SAT;
-  // if (contactData?.analyticalExam?.CAT) properties.cat_score = contactData?.analyticalExam?.CAT;
-  // if (contactData?.analyticalExam?.NMAT) properties.nmat_score = contactData?.analyticalExam?.NMAT;
-  // if (contactData?.analyticalExam?.XAT) properties.xat_score = contactData?.analyticalExam?.XAT;
+  if (contactData?.analyticalExam?.SAT) properties.sat_score = contactData?.analyticalExam?.SAT;
+  if (contactData?.analyticalExam?.CAT) properties.cat_score = contactData?.analyticalExam?.CAT;
+  if (contactData?.analyticalExam?.NMAT) properties.nmat_score = contactData?.analyticalExam?.NMAT;
+  if (contactData?.analyticalExam?.XAT) properties.xat_score = contactData?.analyticalExam?.XAT;
   if (contactData?.languageExam?.TOEFL) properties.toefl_score = contactData?.languageExam?.TOEFL;
   if (contactData?.languageExam?.IELTS) properties.ielts_score = contactData?.languageExam?.IELTS;
-  // if (contactData?.languageExam?.Duolingo) properties.duolingo_score = contactData?.languageExam?.Duolingo;
+  if (contactData?.languageExam?.Duolingo) properties.duolingo_score = contactData?.languageExam?.Duolingo;
 
   if (contactData.utm_campaign) properties.utm_campaign = contactData.utm_campaign;
   if (contactData.utm_medium) properties.loan_amount_required = contactData.utm_medium;
