@@ -9,7 +9,7 @@ export interface LoanEligibilityResult {
 }
 
 export const findLoanEligibility = async (
-  params: LoanEligibilityRequest
+  data: LoanEligibilityRequest
 ): Promise<LoanEligibilityResult | null> => {
   try {
     const {
@@ -19,7 +19,7 @@ export const findLoanEligibility = async (
       analytical_exam_name,
       language_exam_name,
       preference,
-    } = params;
+    } = data;
 
     const loanRecord = await prisma.loan_eligibility_matrix.findFirst({
       where: {

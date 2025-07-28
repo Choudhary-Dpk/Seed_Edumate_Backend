@@ -596,7 +596,9 @@ export const searchEdumateContactsByStudyDestination = async (destination: strin
  */
 const mapToHubSpotProperties = async (contactData: Partial<MappedEdumateContact>): Promise<Record<string, any>> => {
   const properties: Record<string, any> = {};
-  const loanAmount = contactData?.currency != 'INR' ? await convertCurrency(parseInt(contactData?.loanAmount || ''), contactData?.currency || 'INR', 'INR') : contactData?.loanAmount;
+  const loanAmount = contactData?.selectedLoanCurrency != 'INR' && contactData?.loanAmount ? await convertCurrency(parseInt(contactData?.loanAmount) || 0, contactData?.selectedLoanCurrency || 'INR', 'INR') : contactData?.loanAmount;
+  const coApplicantAnnualIncome = contactData?.baseCurrency != 'INR' && contactData?.coApplicantAnnualIncome ? await convertCurrency(parseInt(contactData?.coApplicantAnnualIncome), contactData?.baseCurrency || 'INR', 'INR') : contactData?.coApplicantAnnualIncome;
+  
   // Map personal information
   if (contactData.firstName) properties.first_name = contactData.firstName;
   if (contactData.lastName) properties.last_name = contactData.lastName;
@@ -604,6 +606,10 @@ const mapToHubSpotProperties = async (contactData: Partial<MappedEdumateContact>
   if (contactData.phoneNumber) properties.phone_number = contactData.phoneNumber;
   if (contactData.dateOfBirth) properties.date_of_birth = contactData.dateOfBirth.toISOString().split('T')[0];
   if (contactData.gender) properties.gender = contactData.gender;
+  if (contactData.selectedLoanCurrency) properties.user_selected_currency = contactData.selectedLoanCurrency;
+  if (contactData.baseCurrency) properties.base_currency = contactData.baseCurrency;
+  if (contactData.studyDestinationCurrency) properties.study_destination_currency = contactData.studyDestinationCurrency;
+  
   if (contactData.levelOfEducation) properties.current_education_level = contactData.levelOfEducation;
   if (contactData.studyDestination) properties.preferred_study_destination = contactData.studyDestination;
   // if (contactData.nonUsaCountry) properties.nationality = contactData.nonUsaCountry;
@@ -616,7 +622,7 @@ const mapToHubSpotProperties = async (contactData: Partial<MappedEdumateContact>
   // if (contactData.loanAmount) properties.co_applicant_1_name = contactData.loanAmount;
   if (contactData.coApplicant) properties.co_applicant_1_relationship = contactData.coApplicant;
   if (contactData.coApplicantIncomeType) properties.co_applicant_1_occupation = contactData.coApplicantIncomeType;
-  if (contactData.coApplicantAnnualIncome) properties.co_applicant_1_income = contactData.coApplicantAnnualIncome;
+  if (contactData.coApplicantAnnualIncome) properties.co_applicant_1_income = coApplicantAnnualIncome;
   if (contactData.coApplicantMobile) properties.co_applicant_1_mobile_number = contactData.coApplicantMobile;
   if (contactData.coApplicantEmail) properties.co_applicant_1_email = contactData.coApplicantEmail;
 
