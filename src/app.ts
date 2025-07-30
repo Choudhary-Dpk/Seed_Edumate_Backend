@@ -8,6 +8,7 @@ import { checkPrismaConnection } from './config/prisma';
 import { gupshupRoutes } from './routes/gupshup.routes';
 import { loanRoutes } from './routes/loan.routes';
 import { userRoutes } from './routes/user.routes';
+import { eamilRouter } from './routes/email.routes';
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use('/hubspot', hubspotRoutes);
 app.use('/gupshup', gupshupRoutes);
 app.use('/health', healthRoutes);
 app.use('/user', userRoutes);
+app.use('/email', eamilRouter);
 
 // API Documentation - Make sure this comes before other routes
 app.use('/docs', swaggerRouter);
