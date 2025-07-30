@@ -26,7 +26,7 @@ export const EMAIL_TEMPLATES = {
     processing: '📋 Loan Application Received - Processing'
   },
   links: {
-    contactTeam: process.env.CONTACT_TEAM_URL || 'https://bit.ly/4iSmtux',
+    contactTeam: process.env.CONTACT_TEAM_URL || 'https://calendly.com/priyank-edumateglobal/speak-to-our-financing-expert?month=2025-07',
     checkEligibility: process.env.CHECK_ELIGIBILITY_URL || '#'
   }
 } as const;
