@@ -70,4 +70,4 @@ router.post('/bulk', validateBulkEmail, sendBulkEmails);
 router.post('/with-attachment', sendEmailWithAttachment);
 router.post('/template', sendTemplateEmail);
 
-export {router as eamilRouter};
+export {router as emailRouter};

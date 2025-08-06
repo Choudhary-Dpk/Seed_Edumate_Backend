@@ -1,23 +1,15 @@
-import express from 'express';
-import cors from 'cors';
-import helmet from 'helmet';
-import compression from 'compression';
-import { healthRoutes, hubspotRoutes } from './routes/hubspot.routes';
+import {  hubspotRoutes } from './routes/hubspot.routes';
 import { swaggerRouter } from './config/swagger';
 import { checkPrismaConnection } from './config/prisma';
 import { gupshupRoutes } from './routes/gupshup.routes';
 import { loanRoutes } from './routes/loan.routes';
 import { userRoutes } from './routes/user.routes';
-import { eamilRouter } from './routes/email.routes';
+import { emailRouter } from './routes/email.routes';
+import { healthRoutes } from './routes/health.routes';
+import { NextFunction, Response,Request } from "express";
+import app from './setup/express';
 
-const app = express();
-
-// Middleware
-app.use(helmet());
-app.use(cors());
-app.use(compression());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+const PORT = process.env.PORT || 3031;
 
 // API Routes
 app.use('/loans', loanRoutes);
@@ -25,7 +17,7 @@ app.use('/hubspot', hubspotRoutes);
 app.use('/gupshup', gupshupRoutes);
 app.use('/health', healthRoutes);
 app.use('/user', userRoutes);
-app.use('/email', eamilRouter);
+app.use('/email', emailRouter);
 
 // API Documentation - Make sure this comes before other routes
 app.use('/docs', swaggerRouter);
@@ -49,7 +41,7 @@ app.use('*', (req, res) => {
 });
 
 // Error handler
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     console.error(err.stack);
     res.status(500).json({
         success: false,
@@ -57,12 +49,8 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
     });
 });
 
-const PORT = process.env.PORT || 3031;
-
 app.listen(PORT, async() => {
     console.log(`Server is running on port ${PORT}`);
     await checkPrismaConnection(); 
     // console.log(`API Documentation available at http://localhost:${PORT}/`);
 });
-
-export default app;

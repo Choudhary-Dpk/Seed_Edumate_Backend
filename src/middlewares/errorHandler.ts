@@ -1,6 +1,6 @@
 // src/middleware/errorHandler.ts
 import { Request, Response, NextFunction } from 'express';
-import { logger } from '../utils/looger';
+import { logger } from "../utils/logger";
 import { ApiResponse } from '../types';
 
 export interface CustomError extends Error {

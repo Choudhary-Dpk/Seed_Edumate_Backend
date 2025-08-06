@@ -3,16 +3,16 @@ import { Request, Response } from 'express';
 import * as hubspotService from '../services/hubspot.service';
 import { ApiResponse } from '../types';
 import { asyncHandler, createError } from '../middlewares/errorHandler';
-import logger from '../utils/looger';
+import logger from "../utils/logger";
 
 // Standard HubSpot Objects Controllers
 
 export const getContacts = asyncHandler(async (req: Request, res: Response) => {
   const { limit, after } = req.query;
-  
+
   const result = await hubspotService.getContacts({
     limit: limit ? parseInt(limit as string) : undefined,
-    after: after as string
+    after: after as string,
   });
 
   const response: ApiResponse = {
@@ -21,114 +21,128 @@ export const getContacts = asyncHandler(async (req: Request, res: Response) => {
     meta: {
       total: result.contacts.length,
       hasNext: result.hasMore,
-      ...(result.nextCursor && { nextCursor: result.nextCursor })
+      ...(result.nextCursor && { nextCursor: result.nextCursor }),
+    },
+  };
+
+  res.json(response);
+});
+
+export const getContactById = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    const contact = await hubspotService.getContactById(id);
+
+    if (!contact) {
+      throw createError("Contact not found", 404);
     }
-  };
 
-  res.json(response);
-});
+    const response: ApiResponse = {
+      success: true,
+      data: contact,
+    };
 
-export const getContactById = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  
-  const contact = await hubspotService.getContactById(id);
-  
-  if (!contact) {
-    throw createError('Contact not found', 404);
+    res.json(response);
   }
+);
 
-  const response: ApiResponse = {
-    success: true,
-    data: contact
-  };
+export const searchContactsByEmail = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { email } = req.query;
 
-  res.json(response);
-});
+    const contacts = await hubspotService.searchContactsByEmail(
+      email as string
+    );
 
-export const searchContactsByEmail = asyncHandler(async (req: Request, res: Response) => {
-  const { email } = req.query;
-  
-  const contacts = await hubspotService.searchContactsByEmail(email as string);
+    const response: ApiResponse = {
+      success: true,
+      data: contacts,
+      meta: {
+        total: contacts.length,
+      },
+    };
 
-  const response: ApiResponse = {
-    success: true,
-    data: contacts,
-    meta: {
-      total: contacts.length
+    res.json(response);
+  }
+);
+
+export const getContactOwnerByPhone = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { phone } = req.query;
+
+    if (!phone) {
+      throw createError("Phone number is required", 400);
     }
-  };
 
-  res.json(response);
-});
+    const ownerInfo = await hubspotService.getContactOwnerByPhone(
+      phone as string
+    );
 
-export const getContactOwnerByPhone = asyncHandler(async (req: Request, res: Response) => {
-  const { phone } = req.query;
-  
-  if (!phone) {
-    throw createError('Phone number is required', 400);
-  }
-
-  const ownerInfo = await hubspotService.getContactOwnerByPhone(phone as string);
-  
-  if (!ownerInfo) {
-    throw createError('Contact not found or no owner assigned', 404);
-  }
-
-  const response: ApiResponse = {
-    success: true,
-    data: ownerInfo,
-    meta: {
-      operation: `Searched by phone number - ${phone}`
+    if (!ownerInfo) {
+      throw createError("Contact not found or no owner assigned", 404);
     }
-  };
 
-  res.json(response);
-});
+    const response: ApiResponse = {
+      success: true,
+      data: ownerInfo,
+      meta: {
+        operation: `Searched by phone number - ${phone}`,
+      },
+    };
 
-export const getCompanies = asyncHandler(async (req: Request, res: Response) => {
-  const { limit, after } = req.query;
-  
-  const result = await hubspotService.getCompanies({
-    limit: limit ? parseInt(limit as string) : undefined,
-    after: after as string
-  });
-
-  const response: ApiResponse = {
-    success: true,
-    data: result.companies,
-    meta: {
-      total: result.companies.length,
-      hasNext: result.hasMore,
-      ...(result.nextCursor && { nextCursor: result.nextCursor })
-    }
-  };
-
-  res.json(response);
-});
-
-export const getCompanyById = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  
-  const company = await hubspotService.getCompanyById(id);
-  
-  if (!company) {
-    throw createError('Company not found', 404);
+    res.json(response);
   }
+);
 
-  const response: ApiResponse = {
-    success: true,
-    data: company
-  };
+export const getCompanies = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { limit, after } = req.query;
 
-  res.json(response);
-});
+    const result = await hubspotService.getCompanies({
+      limit: limit ? parseInt(limit as string) : undefined,
+      after: after as string,
+    });
+
+    const response: ApiResponse = {
+      success: true,
+      data: result.companies,
+      meta: {
+        total: result.companies.length,
+        hasNext: result.hasMore,
+        ...(result.nextCursor && { nextCursor: result.nextCursor }),
+      },
+    };
+
+    res.json(response);
+  }
+);
+
+export const getCompanyById = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    const company = await hubspotService.getCompanyById(id);
+
+    if (!company) {
+      throw createError("Company not found", 404);
+    }
+
+    const response: ApiResponse = {
+      success: true,
+      data: company,
+    };
+
+    res.json(response);
+  }
+);
 
 export const getDeals = asyncHandler(async (req: Request, res: Response) => {
   const { limit, after } = req.query;
-  
+
   const result = await hubspotService.getDeals({
     limit: limit ? parseInt(limit as string) : undefined,
-    after: after as string
+    after: after as string,
   });
 
   const response: ApiResponse = {
@@ -137,8 +151,8 @@ export const getDeals = asyncHandler(async (req: Request, res: Response) => {
     meta: {
       total: result.deals.length,
       hasNext: result.hasMore,
-      ...(result.nextCursor && { nextCursor: result.nextCursor })
-    }
+      ...(result.nextCursor && { nextCursor: result.nextCursor }),
+    },
   };
 
   res.json(response);
@@ -146,148 +160,189 @@ export const getDeals = asyncHandler(async (req: Request, res: Response) => {
 
 export const getDealById = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
-  
+
   const deal = await hubspotService.getDealById(id);
-  
+
   if (!deal) {
-    throw createError('Deal not found', 404);
+    throw createError("Deal not found", 404);
   }
 
   const response: ApiResponse = {
     success: true,
-    data: deal
+    data: deal,
   };
 
   res.json(response);
 });
 
 // Edumate Contact Controllers
+export const getEdumateContacts = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { limit, after } = req.query;
 
-export const getEdumateContacts = asyncHandler(async (req: Request, res: Response) => {
-  const { limit, after } = req.query;
-  
-  const result = await hubspotService.getEdumateContacts({
-    limit: limit ? parseInt(limit as string) : undefined,
-    after: after as string
-  });
+    const result = await hubspotService.getEdumateContacts({
+      limit: limit ? parseInt(limit as string) : undefined,
+      after: after as string,
+    });
 
-  const response: ApiResponse = {
-    success: true,
-    data: result.contacts,
-    meta: {
-      total: result.contacts.length,
-      hasNext: result.hasMore,
-      ...(result.nextCursor && { nextCursor: result.nextCursor })
-    }
-  };
+    const response: ApiResponse = {
+      success: true,
+      data: result.contacts,
+      meta: {
+        total: result.contacts.length,
+        hasNext: result.hasMore,
+        ...(result.nextCursor && { nextCursor: result.nextCursor }),
+      },
+    };
 
-  res.json(response);
-});
-
-export const getEdumateContactById = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  
-  const contact = await hubspotService.getEdumateContactById(id);
-  
-  if (!contact) {
-    throw createError('Edumate contact not found', 404);
+    res.json(response);
   }
+);
 
-  const response: ApiResponse = {
-    success: true,
-    data: contact
-  };
+export const getEdumateContactById = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
 
-  res.json(response);
-});
+    const contact = await hubspotService.getEdumateContactById(id);
 
-export const createEdumateContact = asyncHandler(async (req: Request, res: Response) => {
-  const contactData = req.body;
-  
-  const contact = await hubspotService.createEdumateContact(contactData);
-
-  const response: ApiResponse = {
-    success: true,
-    data: contact,
-    message: 'Edumate contact created successfully'
-  };
-
-  res.status(201).json(response);
-});
-
-export const updateEdumateContact = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const contactData = req.body;
-  
-  const contact = await hubspotService.updateEdumateContact(id, contactData);
-
-  const response: ApiResponse = {
-    success: true,
-    data: contact,
-    message: 'Edumate contact updated successfully'
-  };
-
-  res.json(response);
-});
-
-export const upsertEdumateContact = asyncHandler(async (req: Request, res: Response) => {
-  const contactData = req.body;
-  // Validate that email is provided
-  if (!contactData.email) {
-    throw createError('Email is required.', 400);
-  }
-
-  try {
-    // Step 1: Check if contact exists by email
-    const existingContacts = await hubspotService.searchEdumateContactsByEmail(contactData.email);
-    
-    let result;
-    let isUpdate = false;
-    
-    if (existingContacts.length > 0) {
-      // Step 2: Contact exists - update the first match
-      const existingContact = existingContacts[0];
-      result = await hubspotService.updateEdumateContact(existingContact.id, contactData);
-      isUpdate = true;
-      
-      logger.info('Updated existing Edumate contact', { 
-        contactId: existingContact.id, 
-        email: contactData.email 
-      });
-    } else {
-      // Step 3: Contact doesn't exist - create new one
-      result = await hubspotService.createEdumateContact(contactData);
-      isUpdate = false;
-      
-      logger.info('Created new Edumate contact', { 
-        contactId: result.id, 
-        email: contactData.email 
-      });
+    if (!contact) {
+      throw createError("Edumate contact not found", 404);
     }
 
     const response: ApiResponse = {
       success: true,
-      data: result,
-      message: isUpdate 
-        ? 'Edumate contact updated successfully' 
-        : 'Edumate contact created successfully',
-      meta: {
-        operation: isUpdate ? 'update' : 'create',
-      }
+      data: contact,
     };
 
-    // Return 200 for updates, 201 for creates
-    const statusCode = isUpdate ? 200 : 201;
-    res.status(statusCode).json(response);
-
-  } catch (error) {
-    logger.error('Error in upsertEdumateContact', { 
-      email: contactData.email, 
-      error 
-    });
-    throw error; // Re-throw to be handled by asyncHandler
+    res.json(response);
   }
-});
+);
+
+export const createEdumateContact = asyncHandler(
+  async (req: Request, res: Response) => {
+    const contactData = req.body;
+
+    const contact = await hubspotService.createEdumateContact(contactData);
+
+    const response: ApiResponse = {
+      success: true,
+      data: contact,
+      message: "Edumate contact created successfully",
+    };
+
+    res.status(201).json(response);
+  }
+);
+
+export const updateEdumateContact = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const contactData = req.body;
+
+    const contact = await hubspotService.updateEdumateContact(id, contactData);
+
+    const response: ApiResponse = {
+      success: true,
+      data: contact,
+      message: "Edumate contact updated successfully",
+    };
+
+    res.json(response);
+  }
+);
+
+const EDUMATE_CONTACT_REQUIRED_FIELDS = [
+  "firstName",
+  "lastName",
+  "email",
+  "phoneNumber",
+  "baseCurrency",
+  "studyDestinationCurrency",
+  "selectedLoanCurrency",
+  "levelOfEducation",
+  "studyDestination",
+  "courseType",
+  "loanPreference",
+  "intakeMonth",
+  "intakeYear",
+  "loanAmount",
+  "coApplicant",
+  "coApplicantIncomeType",
+  // ❌ Removed "coApplicantAnnualIncome" from default required list
+  "formType",
+  "submissionDate",
+  "userAgent",
+];
+
+export const upsertEdumateContact = asyncHandler(
+  async (req: Request, res: Response) => {
+    const contactData = req.body;
+    const { email, coApplicantIncomeType } = contactData;
+
+    // Determine required fields dynamically
+    const requiredFields = [...EDUMATE_CONTACT_REQUIRED_FIELDS];
+
+    if (coApplicantIncomeType !== "Retired") {
+      requiredFields.push("coApplicantAnnualIncome");
+    }
+
+    // Validate missing fields
+    const missingFields = requiredFields.filter((field) => {
+      const value = contactData[field];
+      return value === undefined || value === null || value === "";
+    });
+
+    if (missingFields.length > 0) {
+      throw createError(
+        `Missing required field(s): ${missingFields.join(", ")}`,
+        400
+      );
+    }
+
+    try {
+      const existingContacts =
+        await hubspotService.searchEdumateContactsByEmail(email);
+
+      let result;
+      let operationType: "update" | "create";
+
+      if (existingContacts.length > 0) {
+        const existingContact = existingContacts[0];
+        result = await hubspotService.updateEdumateContact(
+          existingContact.id,
+          contactData
+        );
+        operationType = "update";
+        logger.info("Edumate contact updated successfully", {
+          contactId: existingContact.id,
+          email,
+        });
+      } else {
+        result = await hubspotService.createEdumateContact(contactData);
+        operationType = "create";
+        logger.info("Edumate contact created successfully", {
+          contactId: result.id,
+          email,
+        });
+      }
+
+      const response: ApiResponse = {
+        success: true,
+        data: result,
+        message: `Edumate contact ${operationType}d successfully`,
+        meta: { operation: operationType },
+      };
+
+      res.status(operationType === "update" ? 200 : 201).json(response);
+    } catch (error) {
+      logger.error("Failed to upsert Edumate Contact", {
+        email,
+        error,
+      });
+      throw error;
+    }
+  }
+);
 
 export const deleteEdumateContact = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
