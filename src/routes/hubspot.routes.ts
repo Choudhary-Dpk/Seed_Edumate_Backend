@@ -15,70 +15,82 @@ import {
   updateEdumateContactSchema,
   advancedSearchSchema
 } from '../middlewares/validation';
+import { validateEdumateContact } from "../middlewares/validators/contact.validator";
 
 const router = Router();
 
 // Standard HubSpot object routes (no swagger comments)
 // Contact routes
-router.get('/contacts', 
-  validateQuery(paginationSchema), 
+router.get(
+  "/contacts",
+  validateQuery(paginationSchema),
   hubspotController.getContacts
 );
 
-router.get('/contacts/search', 
-  validateQuery(emailQuerySchema), 
+router.get(
+  "/contacts/search",
+  validateQuery(emailQuerySchema),
   hubspotController.searchContactsByEmail
 );
 
-router.get('/contacts/search/phone-owner', 
+router.get(
+  "/contacts/search/phone-owner",
   hubspotController.getContactOwnerByPhone
 );
 
-router.get('/contacts/:id', 
-  validateParams(idParamSchema), 
+router.get(
+  "/contacts/:id",
+  validateParams(idParamSchema),
   hubspotController.getContactById
 );
 
 // Company routes
-router.get('/companies', 
-  validateQuery(paginationSchema), 
+router.get(
+  "/companies",
+  validateQuery(paginationSchema),
   hubspotController.getCompanies
 );
 
-router.get('/companies/:id', 
-  validateParams(idParamSchema), 
+router.get(
+  "/companies/:id",
+  validateParams(idParamSchema),
   hubspotController.getCompanyById
 );
 
 // Deal routes
-router.get('/deals', 
-  validateQuery(paginationSchema), 
+router.get(
+  "/deals",
+  validateQuery(paginationSchema),
   hubspotController.getDeals
 );
 
-router.get('/deals/:id', 
-  validateParams(idParamSchema), 
+router.get(
+  "/deals/:id",
+  validateParams(idParamSchema),
   hubspotController.getDealById
 );
 
-// Edumate routes 
-router.get('/edumate-contacts', 
-  // validateQuery(paginationSchema), 
+// Edumate routes
+router.get(
+  "/edumate-contacts",
+  // validateQuery(paginationSchema),
   hubspotController.getEdumateContacts
 );
-router.get('/edumate-contacts/:id', 
-  validateParams(idParamSchema), 
+router.get(
+  "/edumate-contacts/:id",
+  validateParams(idParamSchema),
   hubspotController.getEdumateContactById
 );
-router.post('/edumate-contacts', 
-  hubspotController.createEdumateContact
-);
-router.put('/edumate-contacts/:id', 
+router.post("/edumate-contacts", hubspotController.createEdumateContact);
+router.put(
+  "/edumate-contacts/:id",
   validateParams(idParamSchema),
-  validateBody(updateEdumateContactSchema), 
+  validateBody(updateEdumateContactSchema),
   hubspotController.updateEdumateContact
 );
-router.post('/edumate-contacts/upsert', 
+router.post(
+  "/edumate-contacts/upsert",
+  validateEdumateContact,
   hubspotController.upsertEdumateContact
 );
 router.delete('/edumate-contacts/:id', 

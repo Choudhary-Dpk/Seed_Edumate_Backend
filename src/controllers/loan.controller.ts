@@ -44,13 +44,9 @@ export const checkLoanEligibility = async (
     }
 
     // Return successful result
-    res.status(200).json({
-      success: true,
-      message: "Loan eligibility found",
-      data: {
-        loan_amount: result.loan_amount,
-        loan_amount_currency: result.loan_amount_currency,
-      },
+    sendResponse(res, 200, "Loan eligibility found", {
+      loan_amount: result.loan_amount,
+      loan_amount_currency: result.loan_amount_currency,
     });
   } catch (error) {
     console.error("Error in checkLoanEligibility:", error);
@@ -69,20 +65,22 @@ export const getConvertedCurrency = async (req: Request, res: Response) => {
     const to = (req.query.to as string) || "INR";
 
     if (!amountParam || !from || !to) {
-      return res
-        .status(400)
-        .json({ message: "Missing required query params: amount, from, to" });
+      return sendResponse(
+        res,
+        400,
+        "Missing required query params: amount, from, to"
+      );
     }
 
     const numericAmount = parseFloat(amountParam);
     if (isNaN(numericAmount)) {
-      return res.status(400).json({ message: "Amount must be a valid number" });
+      return sendResponse(res, 400, "Amount must be a valid number");
     }
 
     const converted = await convertCurrency(numericAmount, from, to);
     return res.status(200).json({ convertedAmount: converted });
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ message: "Currency conversion failed" });
+    return sendResponse(res, 500, "Currency conversion failed");
   }
 };
