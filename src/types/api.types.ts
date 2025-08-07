@@ -4,3 +4,7 @@ export type ServerResponse = {
   data: any[];
   errors: any[];
 };
+
+export interface RequestWithPayload<T> extends Request {
+  payload?: T;
+}
