@@ -295,3 +295,25 @@ export const logout = async (
   }
 };
 
+export const changePassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req.payload!;
+    const { newPassword } = req.body;
+
+    logger.debug(`Encrypting password for userId: ${id}`);
+    const hash = await hashPassword(newPassword);
+    logger.debug(`Password encrypted successfully`);
+
+    logger.debug(`Updating password for userId: ${id}`);
+    await updatePassword(id, hash);
+    logger.debug(`Password updated successfully`);
+
+    sendResponse(res, 200, "Password changed successfully");
+  } catch (error) {
+    next(error);
+  }
+};

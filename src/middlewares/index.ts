@@ -5,6 +5,8 @@ import { getUserById, getUserDetailsFromToken } from "../models/helpers/auth";
 import { getUserDetailsByEmail } from "../models/helpers";
 import { decodeToken, validateUserPassword } from "../utils/auth";
 import { JwtPayload } from "jsonwebtoken";
+import logger from "../utils/logger";
+import { RequestWithPayload } from "../types/api.types";
 
 export const validateCreateUser = async (
   req: Request,
@@ -88,7 +90,7 @@ export const validateEmail = async (
 };
 
 export const validatePassword = async (
-  req:Request,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
@@ -115,74 +117,78 @@ export const validatePassword = async (
   }
 };
 
-export const validateToken =
-  async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+export const validateToken = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { token } = req.body;
+    if (!token) {
+      return sendResponse(res, 401, "Missing Session Token");
+    }
+
+    let decodedToken: JwtPayload;
     try {
-      const {token} = req.body
-      if (!token) {
-        return sendResponse(res, 401, "Missing Session Token");
-      }
+      decodedToken = await decodeToken(token);
+    } catch (error) {
+      return sendResponse(res, 401, "Invalid token");
+    }
 
-      let decodedToken: JwtPayload;
-      try {
-        decodedToken = await decodeToken(token);
-      } catch (error) {
-        return sendResponse(res, 401, "Invalid token");
-      }
+    const user = await getUserById(decodedToken.id, false, true);
+    logger.debug(`user details`, user);
+    if (!user) {
+      return sendResponse(res, 403, "Invalid user");
+    }
 
-      const user = await getUserById(decodedToken.id, false, true);
-      if (!user) {
-        return sendResponse(res, 403, "Invalid user");
-      }
-
-      if (!user.activationStatus) {
-        return sendResponse(
-          res,
-          403,
-          "Your account has been disabled, please contact system administrator"
-        );
-      }
-
-      req.payload = {
-        id: user.id,
-        email: user.email,
-        passwordHash: user.passwordHash,
-      };
-
-      next();
-    } catch (error: any) {
+    if (!user.activationStatus) {
       return sendResponse(
         res,
-        500,
-        error?.message?.toString() || "Internal server error"
+        403,
+        "Your account has been disabled, please contact system administrator"
       );
     }
-  };
 
- export const validateChangePassword = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const { passwordHash } = req.payload!;
-      const { password } = req.body;
+    req.payload = {
+      id: user.id,
+      email: user.email,
+      passwordHash: user.passwordHash,
+    };
 
-      if (!passwordHash) {
-        return sendResponse(res, 403, "Password not set");
-      }
+    next();
+  } catch (error: any) {
+    return sendResponse(
+      res,
+      500,
+      error?.message?.toString() || "Internal server error"
+    );
+  }
+};
 
-      const isValid = await validatePassword(password, passwordHash);
-      if (!isValid) {
-        return sendResponse(res, 401, "Password not set");
-      }
+export const validateChangePassword = async (
+  req: RequestWithPayload,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    console.log("Payload in validateChangePassword", req.payload);
 
-      next();
-    } catch (error) {
-      return sendResponse(res, 500, "Internal server error");
+    const passwordHash = req.payload?.passwordHash;
+    const { password } = req.body;
+
+    console.log("passwordHash", passwordHash);
+
+    if (!passwordHash) {
+      return sendResponse(res, 403, "Password not set");
     }
-  };
+
+    const isValid = await validateUserPassword(password, passwordHash);
+    if (!isValid) {
+      return sendResponse(res, 401, "Invalid password");
+    }
+
+    next();
+  } catch (error) {
+    return sendResponse(res, 500, "Internal server error");
+  }
+};
