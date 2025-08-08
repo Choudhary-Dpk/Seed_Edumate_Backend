@@ -1,3 +1,5 @@
+import { Request } from "express";
+
 export type ServerResponse = {
   success: boolean;
   message: string;
@@ -5,16 +7,6 @@ export type ServerResponse = {
   errors: any[];
 };
 
-// export interface RequestWithPayload<T> extends Request {
-//   payload?: T;
-// }
-
-export interface ProtectedPayload {
-  id: number;
-  email: string;
-  passwordHash: string;
-}
-
-export interface RequestWithPayload<T = ProtectedPayload> extends Request {
+export interface RequestWithPayload<T> extends Request {
   payload?: T;
 }

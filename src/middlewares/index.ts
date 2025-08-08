@@ -5,8 +5,12 @@ import { getUserById, getUserDetailsFromToken } from "../models/helpers/auth";
 import { getUserDetailsByEmail } from "../models/helpers";
 import { decodeToken, validateUserPassword } from "../utils/auth";
 import { JwtPayload } from "jsonwebtoken";
-import logger from "../utils/logger";
 import { RequestWithPayload } from "../types/api.types";
+import {
+  LoginPayload,
+  ProtectedPayload,
+  ResetPasswordPayload,
+} from "../types/auth";
 
 export const validateCreateUser = async (
   req: Request,
@@ -34,7 +38,7 @@ export const validateCreateUser = async (
 };
 
 export const validateEmailToken = async (
-  req: Request,
+  req: RequestWithPayload<ResetPasswordPayload>,
   res: Response,
   next: NextFunction
 ) => {
@@ -61,7 +65,7 @@ export const validateEmailToken = async (
 };
 
 export const validateEmail = async (
-  req: Request,
+  req: RequestWithPayload<LoginPayload>,
   res: Response,
   next: NextFunction
 ) => {
@@ -90,7 +94,7 @@ export const validateEmail = async (
 };
 
 export const validatePassword = async (
-  req: Request,
+  req: RequestWithPayload<LoginPayload>,
   res: Response,
   next: NextFunction
 ) => {
@@ -118,7 +122,7 @@ export const validatePassword = async (
 };
 
 export const validateToken = async (
-  req: Request,
+  req: RequestWithPayload<ProtectedPayload>,
   res: Response,
   next: NextFunction
 ) => {
@@ -136,7 +140,6 @@ export const validateToken = async (
     }
 
     const user = await getUserById(decodedToken.id, false, true);
-    logger.debug(`user details`, user);
     if (!user) {
       return sendResponse(res, 403, "Invalid user");
     }
@@ -166,17 +169,13 @@ export const validateToken = async (
 };
 
 export const validateChangePassword = async (
-  req: RequestWithPayload,
+  req: RequestWithPayload<ProtectedPayload>,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    console.log("Payload in validateChangePassword", req.payload);
-
     const passwordHash = req.payload?.passwordHash;
     const { password } = req.body;
-
-    console.log("passwordHash", passwordHash);
 
     if (!passwordHash) {
       return sendResponse(res, 403, "Password not set");

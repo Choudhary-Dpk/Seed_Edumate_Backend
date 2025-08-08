@@ -8,16 +8,15 @@ import {
   validatePassword,
   validateToken,
 } from "../middlewares";
+import { changePassword, createUser } from "../controllers/user.controller";
 import {
-  changePassword,
-  createUser,
-  forgotPassword,
   login,
-  logout,
-  resetPassword,
   sendOtp,
+  forgotPassword,
+  resetPassword,
   setPassword,
-} from "../controllers/user.controller";
+  logout,
+} from "../controllers/common/auth.controller";
 
 const router = Router();
 
@@ -65,7 +64,6 @@ router.post(
   validateEmailToken,
   setPassword
 );
-router.post("/logout", validateToken, logout);
 router.put(
   "/change-password",
   changePasswordValidationRules(),
@@ -74,5 +72,6 @@ router.put(
   validateChangePassword,
   changePassword
 );
+router.post("/logout", validateToken, logout);
 
 export default router;
