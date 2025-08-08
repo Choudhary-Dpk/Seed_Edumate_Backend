@@ -204,3 +204,41 @@ export const changePasswordValidationRules = () => {
       ),
   ];
 };
+
+// Validation middleware
+export const validateEmail = [
+  body('to')
+    .isEmail()
+    .withMessage('Valid email address is required'),
+  body('subject')
+    .isLength({ min: 1, max: 200 })
+    .withMessage('Subject is required and must be less than 200 characters'),
+  body('message')
+    .optional()
+    .isLength({ max: 5000 })
+    .withMessage('Message must be less than 5000 characters'),
+];
+
+export const validateBulkEmail = [
+  body('recipients')
+    .isArray({ min: 1, max: 100 })
+    .withMessage('Recipients must be an array with 1-100 emails'),
+  body('recipients.*')
+    .isEmail()
+    .withMessage('All recipients must be valid email addresses'),
+  body('subject')
+    .isLength({ min: 1, max: 200 })
+    .withMessage('Subject is required and must be less than 200 characters'),
+  body('message')
+    .isLength({ min: 1, max: 5000 })
+    .withMessage('Message is required and must be less than 5000 characters'),
+];
+
+export const validatePasswordReset = [
+  body('email')
+    .isEmail()
+    .withMessage('Valid email address is required'),
+  body('resetLink')
+    .isURL()
+    .withMessage('Valid reset link URL is required'),
+];
