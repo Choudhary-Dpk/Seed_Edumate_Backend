@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import * as gupshupService from '../services/gupshup.service';
 import { ApiResponse } from '../types';
 import { asyncHandler } from '../middlewares/errorHandler';
-import logger from '../utils/looger';
+import logger from "../utils/logger";
 
 export const processAssignmentWebhook = asyncHandler(async (req: Request, res: Response) => {
   const { 

@@ -1,6 +1,6 @@
 // src/services/gupshup.service.ts
 import * as hubspotClient from './hubspotClient';
-import { logger } from '../utils/looger';
+import { logger } from "../utils/logger";
 import { createHubSpotError, createNotFoundError } from '../middlewares/errorHandler';
 
 interface AssignmentSyncParams {

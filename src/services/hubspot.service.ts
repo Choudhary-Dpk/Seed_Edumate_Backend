@@ -1,7 +1,7 @@
 // src/services/hubspotService.ts
 import * as hubspotClient from './hubspotClient';
 import { HubSpotMapper } from '../mappers/hubspotMapper';
-import { logger } from '../utils/looger';
+import { logger } from "../utils/logger";
 import { 
   MappedContact, 
   MappedCompany, 

@@ -1,68 +1,50 @@
-import express from 'express';
-import cors from 'cors';
-import helmet from 'helmet';
-import compression from 'compression';
-import { healthRoutes, hubspotRoutes } from './routes/hubspot.routes';
+import {  hubspotRoutes } from './routes/hubspot.routes';
 import { swaggerRouter } from './config/swagger';
 import { checkPrismaConnection } from './config/prisma';
 import { gupshupRoutes } from './routes/gupshup.routes';
 import { loanRoutes } from './routes/loan.routes';
 import { userRoutes } from './routes/user.routes';
-import { eamilRouter } from './routes/email.routes';
+import { emailRouter } from './routes/email.routes';
+import { healthRoutes } from "./routes/health.routes";
+import { errorHandler } from "./middlewares/error";
+import app from "./setup/express";
 
-const app = express();
-
-// Middleware
-app.use(helmet());
-app.use(cors());
-app.use(compression());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+const PORT = process.env.PORT || 3031;
 
 // API Routes
-app.use('/loans', loanRoutes);
-app.use('/hubspot', hubspotRoutes);
-app.use('/gupshup', gupshupRoutes);
-app.use('/health', healthRoutes);
-app.use('/user', userRoutes);
-app.use('/email', eamilRouter);
+app.use("/loans", loanRoutes);
+app.use("/hubspot", hubspotRoutes);
+app.use("/gupshup", gupshupRoutes);
+app.use("/health", healthRoutes);
+app.use("/user", userRoutes);
+app.use("/email", emailRouter);
 
 // API Documentation - Make sure this comes before other routes
-app.use('/docs', swaggerRouter);
+app.use("/docs", swaggerRouter);
 
 // Root route
-app.get('/', (req, res) => {
-    res.json({
-        success: true,
-        message: 'Edumate Integration API',
-        documentation: '/docs',
-        version: '1.0.0'
-    });
+app.get("/", (req, res) => {
+  res.json({
+    success: true,
+    message: "Edumate Integration API",
+    documentation: "/docs",
+    version: "1.0.0",
+  });
 });
 
 // 404 handler
-app.use('*', (req, res) => {
-    res.status(404).json({
-        success: false,
-        message: 'Route not found'
-    });
+app.use("*", (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "Route not found",
+  });
 });
 
 // Error handler
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-    console.error(err.stack);
-    res.status(500).json({
-        success: false,
-        message: 'Something went wrong!'
-    });
-});
-
-const PORT = process.env.PORT || 3031;
+app.use(errorHandler);
 
 app.listen(PORT, async() => {
     console.log(`Server is running on port ${PORT}`);
     await checkPrismaConnection(); 
     // console.log(`API Documentation available at http://localhost:${PORT}/`);
 });
-
-export default app;

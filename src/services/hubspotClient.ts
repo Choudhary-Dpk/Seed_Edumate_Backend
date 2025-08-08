@@ -7,7 +7,7 @@ import {
   SimplePublicObject
 } from '@hubspot/api-client/lib/codegen/crm/objects';
 import { config } from '../config/config';
-import { logger } from '../utils/looger';
+import { logger } from "../utils/logger";
 import { 
   HubSpotContact, 
   HubSpotCompany, 

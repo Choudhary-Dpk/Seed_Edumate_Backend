@@ -38,11 +38,52 @@ model loan_eligibility_matrix {
   @@map("loan_eligibility_matrix")
 }
 
-model User {
+model user {
+  id                            Int    @id @default(autoincrement())
+  email                         String    @unique
+  firstName                     String
+  lastName                      String
+  phone                         String
+  address                       String?
+  passwordHash                  String?
+  passwordSetOn                 DateTime?
+  createdOn                     DateTime  @default(now())
+  createdBy                     Int?
+  lastLoggedInOn                DateTime?
+  isDeleted                     Boolean   @default(false)
+  deletedOn                     DateTime?
+  deletedBy                     Int?
+  activationStatus              Boolean   @default(true)
+  activationStatusUpdatedOn     DateTime?
+  activationStatusUpdatedBy     Int?
+  sessionId                     String?
+
+  @@index([email])                          
+  @@index([phone])
+  @@index([firstName, lastName])
+  @@index([address])
+
+  @@unique([email, phone])
+
+  @@map("users")
+}
+
+model token {
   id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  createdAt DateTime @default(now())
+  token     String
+  userId    Int
+  createdOn DateTime @default(now())
+
+  @@map("tokens")
+}
+
+model userOtp {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  otp       String
+  createdOn DateTime     @default(now())
+
+  @@map("userOtps")
 }
 
 model currency_conversion {

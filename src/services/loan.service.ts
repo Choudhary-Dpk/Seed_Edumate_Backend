@@ -1,7 +1,7 @@
 // src/services/loan.service.ts
 import prisma from '../config/prisma';
 import { LoanEligibilityRequest } from '../middlewares/validators/loan.validator';
-import logger from '../utils/looger';
+import logger from "../utils/logger";
 
 export interface LoanEligibilityResult {
   loan_amount: number;
