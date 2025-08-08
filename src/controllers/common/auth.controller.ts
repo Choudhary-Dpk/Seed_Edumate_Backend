@@ -80,7 +80,7 @@ export const sendOtp = async (
     }
 
     const html = emailTemplate.replace(`{%otp%}`, otp);
-    const subject = "OSP - One time password";
+    const subject = "SEED - One time password";
 
     emailQueue.push({ to: email, subject, html, retry: 0 });
 
