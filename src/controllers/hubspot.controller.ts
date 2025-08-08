@@ -257,7 +257,6 @@ export const upsertEdumateContact = asyncHandler(
     const { email } = contactData;
 
     try {
-      throw Error("trying some new things...");
       const existingContacts =
         await hubspotService.searchEdumateContactsByEmail(email);
 
