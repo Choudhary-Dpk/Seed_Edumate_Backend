@@ -49,12 +49,17 @@ export const validateEdumateContact = (
     if (missingFields.length > 0) {
       throw createError(
         `Missing required field(s): ${missingFields.join(", ")}`,
-        400
+        400,
+        { missingFields }
       );
     }
 
     next();
-  } catch (error) {
-    sendResponse(res,500,"Error while validating contact fields")
+  } catch (error: any) {
+    const statusCode = error?.statusCode || 500;
+    const message = error?.message || "Error while validating contact fields";
+    const metadata = error?.metadata || [];
+
+    sendResponse(res, statusCode, message, [], [metadata]);
   }
 };
