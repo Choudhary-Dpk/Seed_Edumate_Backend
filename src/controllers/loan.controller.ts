@@ -24,7 +24,7 @@ export const checkLoanEligibility = async (
       res.status(400).json({
         success: false,
         message: "Validation failed",
-        errors: validation.error.issues.map((err) => ({
+        errors: validation?.error?.issues.map((err) => ({
           field: err.path.join("."),
           message: err.message,
         })),
@@ -45,8 +45,8 @@ export const checkLoanEligibility = async (
 
     // Return successful result
     sendResponse(res, 200, "Loan eligibility found", {
-      loan_amount: result.loan_amount,
-      loan_amount_currency: result.loan_amount_currency,
+      loan_amount: result?.loan_amount,
+      loan_amount_currency: result?.loan_amount_currency,
     });
   } catch (error) {
     console.error("Error in checkLoanEligibility:", error);
