@@ -19,16 +19,16 @@ export const login = async (
     const { email, id } = req.payload!;
     const { otp } = req.body;
 
-    logger.debug(`Validating otp ${otp} for userId: ${id}`);
-    const otpData = await validateOtp(id, otp);
-    if (!otpData) {
-      return sendResponse(res, 401, "Invalid otp");
-    }
-    logger.debug(`Otp validated successfully`);
+    // logger.debug(`Validating otp ${otp} for userId: ${id}`);
+    // const otpData = await validateOtp(id, otp);
+    // if (!otpData) {
+    //   return sendResponse(res, 401, "Invalid otp");
+    // }
+    // logger.debug(`Otp validated successfully`);
 
-    logger.debug(`Using otp ${otp} for userId: ${id}`);
-    await useOtp(id, otp);
-    logger.debug(`Otp used successfully`);
+    // logger.debug(`Using otp ${otp} for userId: ${id}`);
+    // await useOtp(id, otp);
+    // logger.debug(`Otp used successfully`);
 
     logger.debug(`Generating sessionId`);
     const sessionId = await generateRefreshToken(20);
