@@ -68,7 +68,7 @@ export const createUser = async (
     }
 
     const expiry = moment().add(2, "days").toDate().toISOString();
-    const redirectUri = `${process.env.FRONTEND_URL}/set-password?token=${emailToken}&expiry=${expiry}`;
+    const redirectUri = `${process.env.FRONTEND_URL}/partners/set-password?token=${emailToken}&expiry=${expiry}`;
     const html = content.replace("{%set-password-url%}", redirectUri);
     const subject = "Set Password";
 
