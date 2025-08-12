@@ -27,12 +27,22 @@ const generateHTMLTemplate = (
 ): string => {
   const { loanDetails, monthlySchedule } = calculationResult;
 
-  const formatCurrency = (amount: number): string =>
-    new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      minimumFractionDigits: 2,
-    }).format(amount);
+  // Updated currency formatting with fallback
+  const formatCurrency = (amount: number): string => {
+    try {
+      return new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR',
+        minimumFractionDigits: 2,
+      }).format(amount);
+    } catch (error) {
+      // Fallback formatting if Intl fails
+      return `₹ ${new Intl.NumberFormat('en-IN', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(amount)}`;
+    }
+  };
 
   const formatNumber = (num: number): string =>
     new Intl.NumberFormat('en-IN', {
@@ -85,6 +95,8 @@ const generateHTMLTemplate = (
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Loan Repayment Schedule - ${fromName}</title>
     <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+      
       * {
         box-sizing: border-box;
         margin: 0;
@@ -92,11 +104,13 @@ const generateHTMLTemplate = (
       }
       
       body {
-        font-family: 'Arial', 'Helvetica', sans-serif;
+        font-family: 'Inter', 'Arial', 'Helvetica', sans-serif;
         font-size: 11px;
         line-height: 1.3;
         color: #333;
         background: #fff;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
       }
       
       .document {
@@ -386,9 +400,6 @@ const generateHTMLTemplate = (
   </head>
   <body>
     <div class="document">
-      <!-- Header Bar -->
-    
-
       <!-- Company Header -->
       <div class="company-header">
         <div class="company-info">
@@ -538,7 +549,6 @@ const generateHTMLTemplate = (
 `;
 };
 
-
 export const generatePDF = async (
   calculationResult: CalculationResult,
   options: PDFGenerationOptions = {}
@@ -552,13 +562,35 @@ export const generatePDF = async (
   try {
     browser = await puppeteer.launch({
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      args: [
+        '--no-sandbox', 
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
+        '--no-first-run',
+        '--no-zygote',
+        '--single-process',
+        '--disable-gpu',
+        '--font-render-hinting=none',
+        '--disable-font-subpixel-positioning'
+      ],
     });
     
     const page = await browser.newPage();
     
+    // Set viewport and encoding
+    await page.setViewport({ width: 1920, height: 1080 });
+    
     const htmlContent = generateHTMLTemplate(calculationResult, fromName, customerDetails);
-    await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+    
+    // Set content with proper encoding
+    await page.setContent(htmlContent, { 
+      waitUntil: 'networkidle0',
+      timeout: 30000 
+    });
+    
+    // Wait for fonts to load
+    await page.evaluateHandle('document.fonts.ready');
     
     const pdfBuffer = Buffer.from(await page.pdf({
       format: 'A4',
@@ -571,11 +603,12 @@ export const generatePDF = async (
       printBackground: true,
       displayHeaderFooter: true,
       footerTemplate: `
-        <div style="font-size: 9px; color: #6c757d; text-align: center; width: 100%; margin: 0 15mm;">
+        <div style="font-size: 9px; color: #6c757d; text-align: center; width: 100%; margin: 0 15mm; font-family: Inter, Arial, sans-serif;">
           Page <span class="pageNumber"></span> of <span class="totalPages"></span>
         </div>
       `,
       headerTemplate: '<div></div>',
+      preferCSSPageSize: true,
     }));
     
     return {
