@@ -49,10 +49,10 @@ export const checkLoanEligibility = async (
     }
 
     // Return successful result
-    sendResponse(res, 200, "Loan eligibility found", {
+    sendResponse(res, 200, "Loan eligibility found", [{
       loan_amount: result?.loan_amount,
       loan_amount_currency: result?.loan_amount_currency,
-    });
+    }]);
   } catch (error) {
     console.error("Error in checkLoanEligibility:", error);
     res.status(500).json({
