@@ -159,6 +159,7 @@ export const generateRepaymentScheduleAndEmail = async (
 
         // Send email with PDF attachment
         await sendRepaymentScheduleEmail({
+          name,
           email,
           fromName,
           subject,

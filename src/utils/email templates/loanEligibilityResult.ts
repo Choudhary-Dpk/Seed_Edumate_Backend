@@ -1,6 +1,6 @@
-import { config } from "../config/config";
-import { EMAIL_TEMPLATES } from "../config/email-config";
-import { EligibilityResult, PersonalInfo, FormData, EmailData } from "../types/email.types";
+import { config } from "../../config/config";
+import { EMAIL_TEMPLATES } from "../../config/email-config";
+import { EligibilityResult, PersonalInfo, FormData, EmailData } from "../../types/email.types";
 
 const edumateLogo = config?.edumate?.logo;
 
