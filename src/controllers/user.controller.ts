@@ -15,6 +15,7 @@ import {
   saveEmailToken,
   updatePassword,
 } from "../models/helpers/auth";
+import { FRONTEND_URL } from "../setup/secrets";
 
 export const getIpInfo = async (req: Request, res: Response) => {
   try {
@@ -61,14 +62,18 @@ export const createUser = async (
     logger.debug(`Email token generated successfully`);
 
     logger.debug(`Getting template for set password`);
-    const content = await getEmailTemplate("set-password");
+    let content = await getEmailTemplate("set-password");
     logger.debug(`Email template fetched successfully`);
     if (!content) {
       throw new Error("set-password - Email template not found");
     }
 
     const expiry = moment().add(2, "days").toDate().toISOString();
-    const redirectUri = `${process.env.FRONTEND_URL}/partners/set-password?token=${emailToken}&expiry=${expiry}`;
+    const redirectUri = `${FRONTEND_URL}/partners/set-password?token=${emailToken}&expiry=${expiry}`;
+    content = content.replace(/{%currentYear%}/, moment().format("YYYY"));
+    const formattedName =
+      firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
+    content = content.replace(/{%name%}/g, formattedName);
     const html = content.replace("{%set-password-url%}", redirectUri);
     const subject = "Set Password";
 
