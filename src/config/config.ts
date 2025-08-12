@@ -22,10 +22,15 @@ interface LoggingConfig {
   maxSize: string;
 }
 
+interface edumateConfig {
+  logo: string;
+}
+
 interface AppConfig {
   server: ServerConfig;
   hubspot: HubSpotConfig;
   logging: LoggingConfig;
+  edumate: edumateConfig;
 }
 
 export const config: AppConfig = {
@@ -44,6 +49,9 @@ export const config: AppConfig = {
     level: process.env.LOG_LEVEL || 'info',
     maxFiles: process.env.LOG_MAX_FILES || '14d',
     maxSize: process.env.LOG_MAX_SIZE || '20m'
+  },
+  edumate: {
+    logo: process.env.EDUMATE_LOGO || 'https://edumateglobal.com/images/logos/edumate-logos/edumate_logo.png'
   }
 };
 

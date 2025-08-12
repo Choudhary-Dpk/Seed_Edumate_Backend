@@ -1,5 +1,8 @@
+import { config } from "../config/config";
 import { EMAIL_TEMPLATES } from "../config/email-config";
 import { EligibilityResult, PersonalInfo, FormData, EmailData } from "../types/email.types";
+
+const edumateLogo = config?.edumate?.logo;
 
 /**
  * Creates a standardized info item for the application summary (2-column layout within sections)
@@ -561,7 +564,7 @@ export const generateLoanApplicationEmail = (data: EmailData): string => {
                   <tr>
                     <td style="vertical-align: middle;">
                       <!-- Logo Image -->
-                      <img src="https://edumateglobal.com/images/logos/edumate-logos/edumate_logo.png" alt="${companyName}" style="height: 48px; width: auto; display: block; filter: brightness(1.1);" />
+                      <img src="${edumateLogo}" alt="${companyName}" style="height: 48px; width: auto; display: block; filter: brightness(1.1);" />
                     </td>
                     <td style="text-align: right; vertical-align: middle;">
                       <div style="font-size: 13px; color: #0f172a; font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 600;">

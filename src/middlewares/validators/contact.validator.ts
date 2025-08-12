@@ -1,4 +1,4 @@
-import { NextFunction,Response,Request } from "express";
+import { NextFunction, Response, Request } from "express";
 import { createError } from "../errorHandler";
 import { sendResponse } from "../../utils/api";
 

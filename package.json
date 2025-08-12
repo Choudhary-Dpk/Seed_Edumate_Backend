@@ -34,6 +34,7 @@
     "nodemailer": "^7.0.5",
     "pm2": "^6.0.8",
     "prisma": "^6.10.1",
+    "puppeteer": "^24.16.1",
     "reflect-metadata": "^0.1.13",
     "swagger-autogen": "^2.23.7",
     "swagger-jsdoc": "^6.2.8",

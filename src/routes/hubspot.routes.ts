@@ -5,70 +5,16 @@ import {
   validateQuery, 
   validateParams,
   validateBody,
-  paginationSchema,
   idParamSchema,
   emailQuerySchema,
   phoneQuerySchema,
   admissionStatusQuerySchema,
   studyDestinationQuerySchema,
-  createEdumateContactSchema,
   updateEdumateContactSchema,
-  advancedSearchSchema
 } from '../middlewares/validation';
 import { validateEdumateContact } from "../middlewares/validators/contact.validator";
 
 const router = Router();
-
-// Standard HubSpot object routes (no swagger comments)
-// Contact routes
-router.get(
-  "/contacts",
-  validateQuery(paginationSchema),
-  hubspotController.getContacts
-);
-
-router.get(
-  "/contacts/search",
-  validateQuery(emailQuerySchema),
-  hubspotController.searchContactsByEmail
-);
-
-router.get(
-  "/contacts/search/phone-owner",
-  hubspotController.getContactOwnerByPhone
-);
-
-router.get(
-  "/contacts/:id",
-  validateParams(idParamSchema),
-  hubspotController.getContactById
-);
-
-// Company routes
-router.get(
-  "/companies",
-  validateQuery(paginationSchema),
-  hubspotController.getCompanies
-);
-
-router.get(
-  "/companies/:id",
-  validateParams(idParamSchema),
-  hubspotController.getCompanyById
-);
-
-// Deal routes
-router.get(
-  "/deals",
-  validateQuery(paginationSchema),
-  hubspotController.getDeals
-);
-
-router.get(
-  "/deals/:id",
-  validateParams(idParamSchema),
-  hubspotController.getDealById
-);
 
 // Edumate routes
 router.get(

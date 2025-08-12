@@ -1,7 +1,7 @@
 // src/services/gupshup.service.ts
 import * as hubspotClient from './hubspotClient';
 import { logger } from "../utils/logger";
-import { createHubSpotError, createNotFoundError } from '../middlewares/errorHandler';
+import { createHubSpotError } from '../middlewares/errorHandler';
 
 interface AssignmentSyncParams {
   agentId: string;
@@ -179,17 +179,5 @@ export const updateContactOwner = async (contactId: string, ownerId: string): Pr
       error,
       'updateContactOwner'
     );
-  }
-};
-
-const getAgentEmailById = async (agentId: string): Promise<string | null> => {
-  try {
-    // TODO: Implement agent mapping lookup or Gupshup API call
-    // For now, return null if no email provided in webhook
-    logger.debug('Agent email resolution not implemented', { agentId });
-    return null;
-  } catch (error) {
-    logger.error('Error in getAgentEmailById', { agentId, error });
-    return null;
   }
 };
