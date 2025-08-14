@@ -4,6 +4,7 @@ import * as hubspotService from "../services/hubspot.service";
 import { ApiResponse } from "../types";
 import { asyncHandler, createError } from "../middlewares/errorHandler";
 import logger from "../utils/logger";
+import { sendResponse } from "../utils/api";
 
 // Edumate Contact Controllers
 export const getEdumateContacts = asyncHandler(
@@ -131,221 +132,277 @@ export const upsertEdumateContact = asyncHandler(
   }
 );
 
-export const deleteEdumateContact = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  
-  await hubspotService.deleteEdumateContact(id);
+export const deleteEdumateContact = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
 
-  const response: ApiResponse = {
-    success: true,
-    message: 'Edumate contact deleted successfully'
-  };
+    await hubspotService.deleteEdumateContact(id);
 
-  res.json(response);
-});
+    const response: ApiResponse = {
+      success: true,
+      message: "Edumate contact deleted successfully",
+    };
 
-export const batchCreateEdumateContacts = asyncHandler(async (req: Request, res: Response) => {
-  const { contacts } = req.body;
-  
-  if (!Array.isArray(contacts) || contacts.length === 0) {
-    throw createError('Contacts array is required and must not be empty', 400);
+    res.json(response);
   }
+);
 
-  const result = await hubspotService.batchCreateEdumateContacts(contacts);
+export const batchCreateEdumateContacts = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { contacts } = req.body;
 
-  const response: ApiResponse = {
-    success: true,
-    data: result,
-    message: `Batch created ${result.success} contacts successfully. ${result.failed} failed.`
-  };
+    if (!Array.isArray(contacts) || contacts.length === 0) {
+      throw createError(
+        "Contacts array is required and must not be empty",
+        400
+      );
+    }
 
-  res.status(201).json(response);
-});
+    const result = await hubspotService.batchCreateEdumateContacts(contacts);
 
-export const batchUpdateEdumateContacts = asyncHandler(async (req: Request, res: Response) => {
-  const { updates } = req.body;
-  
-  if (!Array.isArray(updates) || updates.length === 0) {
-    throw createError('Updates array is required and must not be empty', 400);
+    const response: ApiResponse = {
+      success: true,
+      data: result,
+      message: `Batch created ${result.success} contacts successfully. ${result.failed} failed.`,
+    };
+
+    res.status(201).json(response);
   }
+);
 
-  // Validate that each update has id and data
-  for (const update of updates) {
-    if (!update.id || !update.data) {
-      throw createError('Each update must have an id and data property', 400);
+export const batchUpdateEdumateContacts = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { updates } = req.body;
+
+    if (!Array.isArray(updates) || updates.length === 0) {
+      throw createError("Updates array is required and must not be empty", 400);
     }
+
+    // Validate that each update has id and data
+    for (const update of updates) {
+      if (!update.id || !update.data) {
+        throw createError("Each update must have an id and data property", 400);
+      }
+    }
+
+    const result = await hubspotService.batchUpdateEdumateContacts(updates);
+
+    const response: ApiResponse = {
+      success: true,
+      data: result,
+      message: `Batch updated ${result.success} contacts successfully. ${result.failed} failed.`,
+    };
+
+    res.json(response);
   }
+);
 
-  const result = await hubspotService.batchUpdateEdumateContacts(updates);
+export const searchEdumateContactsByEmail = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { email } = req.query;
 
-  const response: ApiResponse = {
-    success: true,
-    data: result,
-    message: `Batch updated ${result.success} contacts successfully. ${result.failed} failed.`
-  };
+    const contacts = await hubspotService.searchEdumateContactsByEmail(
+      email as string
+    );
 
-  res.json(response);
-});
+    const response: ApiResponse = {
+      success: true,
+      data: contacts,
+      meta: {
+        total: contacts.length,
+      },
+    };
 
-export const searchEdumateContactsByEmail = asyncHandler(async (req: Request, res: Response) => {
-  const { email } = req.query;
-  
-  const contacts = await hubspotService.searchEdumateContactsByEmail(email as string);
+    res.json(response);
+  }
+);
 
-  const response: ApiResponse = {
-    success: true,
-    data: contacts,
-    meta: {
-      total: contacts.length
-    }
-  };
+export const searchEdumateContactsByPhone = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { phone } = req.query;
 
-  res.json(response);
-});
+    const contacts = await hubspotService.searchEdumateContactsByPhone(
+      phone as string
+    );
 
-export const searchEdumateContactsByPhone = asyncHandler(async (req: Request, res: Response) => {
-  const { phone } = req.query;
-  
-  const contacts = await hubspotService.searchEdumateContactsByPhone(phone as string);
+    const response: ApiResponse = {
+      success: true,
+      data: contacts,
+      meta: {
+        total: contacts.length,
+      },
+    };
 
-  const response: ApiResponse = {
-    success: true,
-    data: contacts,
-    meta: {
-      total: contacts.length
-    }
-  };
+    res.json(response);
+  }
+);
 
-  res.json(response);
-});
+export const searchEdumateContactsByAdmissionStatus = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { status } = req.query;
 
-export const searchEdumateContactsByAdmissionStatus = asyncHandler(async (req: Request, res: Response) => {
-  const { status } = req.query;
-  
-  const contacts = await hubspotService.searchEdumateContactsByAdmissionStatus(status as string);
+    const contacts =
+      await hubspotService.searchEdumateContactsByAdmissionStatus(
+        status as string
+      );
 
-  const response: ApiResponse = {
-    success: true,
-    data: contacts,
-    meta: {
-      total: contacts.length
-    }
-  };
+    const response: ApiResponse = {
+      success: true,
+      data: contacts,
+      meta: {
+        total: contacts.length,
+      },
+    };
 
-  res.json(response);
-});
+    res.json(response);
+  }
+);
 
-export const searchEdumateContactsByStudyDestination = asyncHandler(async (req: Request, res: Response) => {
-  const { destination } = req.query;
-  
-  const contacts = await hubspotService.searchEdumateContactsByStudyDestination(destination as string);
+export const searchEdumateContactsByStudyDestination = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { destination } = req.query;
 
-  const response: ApiResponse = {
-    success: true,
-    data: contacts,
-    meta: {
-      total: contacts.length
-    }
-  };
+    const contacts =
+      await hubspotService.searchEdumateContactsByStudyDestination(
+        destination as string
+      );
 
-  res.json(response);
-});
+    const response: ApiResponse = {
+      success: true,
+      data: contacts,
+      meta: {
+        total: contacts.length,
+      },
+    };
+
+    res.json(response);
+  }
+);
 
 // Advanced search with multiple filters
-export const advancedSearchEdumateContacts = asyncHandler(async (req: Request, res: Response) => {
-  const { 
-    admissionStatus,
-    studyDestination,
-    educationLevel,
-    priorityLevel,
-    assignedCounselor,
-    leadSource
-  } = req.query;
+export const advancedSearchEdumateContacts = asyncHandler(
+  async (req: Request, res: Response) => {
+    const {
+      admissionStatus,
+      studyDestination,
+      educationLevel,
+      priorityLevel,
+      assignedCounselor,
+      leadSource,
+    } = req.query;
 
-  // Build filter groups based on provided parameters
-  const filters: Array<{
-    propertyName: string;
-    operator: string;
-    value: string;
-  }> = [];
-  
-  if (admissionStatus) {
-    filters.push({
-      propertyName: 'admission_status',
-      operator: 'EQ',
-      value: admissionStatus as string
-    });
-  }
-  
-  if (studyDestination) {
-    filters.push({
-      propertyName: 'preferred_study_destination',
-      operator: 'EQ',
-      value: studyDestination as string
-    });
-  }
-  
-  if (educationLevel) {
-    filters.push({
-      propertyName: 'current_education_level',
-      operator: 'EQ',
-      value: educationLevel as string
-    });
-  }
-  
-  if (priorityLevel) {
-    filters.push({
-      propertyName: 'priority_level',
-      operator: 'EQ',
-      value: priorityLevel as string
-    });
-  }
-  
-  if (assignedCounselor) {
-    filters.push({
-      propertyName: 'assigned_counselor',
-      operator: 'CONTAINS_TOKEN',
-      value: assignedCounselor as string
-    });
-  }
-  
-  if (leadSource) {
-    filters.push({
-      propertyName: 'lead_source',
-      operator: 'EQ',
-      value: leadSource as string
-    });
-  }
+    // Build filter groups based on provided parameters
+    const filters: Array<{
+      propertyName: string;
+      operator: string;
+      value: string;
+    }> = [];
 
-  if (filters.length === 0) {
-    throw createError('At least one search parameter is required', 400);
-  }
-
-  // For now, we'll use the first filter as an example
-  // In a real implementation, you'd want to build a proper multi-filter search
-  const firstFilter = filters[0];
-  let contacts;
-
-  switch (firstFilter.propertyName) {
-    case 'admission_status':
-      contacts = await hubspotService.searchEdumateContactsByAdmissionStatus(firstFilter.value);
-      break;
-    case 'preferred_study_destination':
-      contacts = await hubspotService.searchEdumateContactsByStudyDestination(firstFilter.value);
-      break;
-    default:
-      // For other properties, we'd need to implement generic search
-      throw createError('Search by this property is not yet implemented', 501);
-  }
-
-  const response: ApiResponse = {
-    success: true,
-    data: contacts,
-    meta: {
-      total: contacts.length,
-    //   searchCriteria: req.query
+    if (admissionStatus) {
+      filters.push({
+        propertyName: "admission_status",
+        operator: "EQ",
+        value: admissionStatus as string,
+      });
     }
-  };
 
-  res.json(response);
-});
+    if (studyDestination) {
+      filters.push({
+        propertyName: "preferred_study_destination",
+        operator: "EQ",
+        value: studyDestination as string,
+      });
+    }
+
+    if (educationLevel) {
+      filters.push({
+        propertyName: "current_education_level",
+        operator: "EQ",
+        value: educationLevel as string,
+      });
+    }
+
+    if (priorityLevel) {
+      filters.push({
+        propertyName: "priority_level",
+        operator: "EQ",
+        value: priorityLevel as string,
+      });
+    }
+
+    if (assignedCounselor) {
+      filters.push({
+        propertyName: "assigned_counselor",
+        operator: "CONTAINS_TOKEN",
+        value: assignedCounselor as string,
+      });
+    }
+
+    if (leadSource) {
+      filters.push({
+        propertyName: "lead_source",
+        operator: "EQ",
+        value: leadSource as string,
+      });
+    }
+
+    if (filters.length === 0) {
+      throw createError("At least one search parameter is required", 400);
+    }
+
+    // For now, we'll use the first filter as an example
+    // In a real implementation, you'd want to build a proper multi-filter search
+    const firstFilter = filters[0];
+    let contacts;
+
+    switch (firstFilter.propertyName) {
+      case "admission_status":
+        contacts = await hubspotService.searchEdumateContactsByAdmissionStatus(
+          firstFilter.value
+        );
+        break;
+      case "preferred_study_destination":
+        contacts = await hubspotService.searchEdumateContactsByStudyDestination(
+          firstFilter.value
+        );
+        break;
+      default:
+        // For other properties, we'd need to implement generic search
+        throw createError(
+          "Search by this property is not yet implemented",
+          501
+        );
+    }
+
+    const response: ApiResponse = {
+      success: true,
+      data: contacts,
+      meta: {
+        total: contacts.length,
+        //   searchCriteria: req.query
+      },
+    };
+
+    res.json(response);
+  }
+);
+
+export const getPartnerByEmail = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { email } = req.body;
+    try {
+      const existingEmail = await hubspotService.fetchPartnerByEmail(email);
+      if (existingEmail.length > 0) {
+        return sendResponse(res, 400, "Email already exists in hubsport");
+      }
+
+      next();
+    } catch (error) {
+      logger.error("Failed to get partner email", {
+        email,
+        error,
+      });
+      next(error);
+    }
+  }
+);

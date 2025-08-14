@@ -11,6 +11,7 @@ import {
   ProtectedPayload,
   ResetPasswordPayload,
 } from "../types/auth";
+import * as hubspotService from "../services/hubspot.service";
 
 export const validateCreateUser = async (
   req: Request,
@@ -19,6 +20,11 @@ export const validateCreateUser = async (
 ) => {
   try {
     const { email, phone } = req.body;
+
+    const existingEmail = await hubspotService.fetchPartnerByEmail(email);
+    if (existingEmail.total > 0 || existingEmail.results?.length > 0) {
+      return sendResponse(res, 400, "Email already exists in HubSpot");
+    }
 
     const userByEmail = await getUserByEmail(email, null);
     if (userByEmail) {

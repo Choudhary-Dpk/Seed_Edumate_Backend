@@ -16,6 +16,7 @@ import {
   updatePassword,
 } from "../models/helpers/auth";
 import { FRONTEND_URL } from "../setup/secrets";
+import { createPartner } from "../services/hubspot.service";
 
 export const getIpInfo = async (req: Request, res: Response) => {
   try {
@@ -47,6 +48,14 @@ export const createUser = async (
 ) => {
   try {
     const { firstName, lastName, email, phone, address } = req.body;
+
+    logger.debug(`Creating hubspot partner`);
+    const hubspotPartner = await createPartner(email, firstName, phone);
+    logger.debug(
+      `Hubsport partner created successfully for partnerId: ${hubspotPartner.id}`
+    );
+
+    logger.debug(`Creating user in database`);
     const user = await createUsers(
       null, // createdBy
       email,
@@ -56,6 +65,7 @@ export const createUser = async (
       phone,
       address
     );
+    logger.debug(`User created successfully`);
 
     logger.debug(`Generating refresh token`);
     const emailToken = await generateRefreshToken(30);

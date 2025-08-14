@@ -18,6 +18,7 @@ app.use("/gupshup", gupshupRoutes);
 app.use("/health", healthRoutes);
 app.use("/user", userRoutes);
 app.use("/email", emailRouter);
+// app.use("/leads",leadsRouter);
 
 // API Documentation - Make sure this comes before other routes
 app.use("/docs", swaggerRouter);

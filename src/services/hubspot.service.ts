@@ -386,3 +386,59 @@ const mapToHubSpotProperties = async (contactData: Partial<MappedEdumateContact>
 
   return properties;
 };
+
+/**
+ * Search B2B Partners By Email
+ */
+export const fetchPartnerByEmail = async (
+  email: string
+):Promise<any> => {
+ const searchRequest = hubspotClient.createSearchRequest(
+   [
+     {
+       propertyName: "primary_contact_email",
+       operator: "EQ",
+       value: email,
+     },
+   ],
+   {
+     properties: [
+       "partner_display_name",
+       "primary_contact_email",
+       "primary_contact_phone",
+     ],
+   }
+ );
+
+  try {
+    const response = await hubspotClient.getPartnerByEmail(searchRequest);
+    return response;
+  } catch (error) {
+    logger.error("Error in fetchPartnerByEmail service", { error });
+        throw createHubSpotError(
+          error instanceof Error ? error.message : "Unknown error",
+          error,
+          "fetchPartnerByEmail"
+        );
+  }
+};
+
+export const createPartner = async(email:string,name:string,phone:string)=>{
+  try {
+        const response = await hubspotClient.createHubspotPartner({
+          primary_contact_email: email,
+          partner_name: name,
+          primary_contact_phone: phone,
+        });
+        return response;
+  } catch (error) {
+        logger.error("Error in createPartner service", {
+          error,
+        });
+        throw createHubSpotError(
+          error instanceof Error ? error.message : "Unknown error",
+          error,
+          "createPartner"
+        );
+  }
+}
