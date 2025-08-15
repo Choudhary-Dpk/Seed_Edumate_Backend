@@ -6,6 +6,7 @@ import { loanRoutes } from './routes/loan.routes';
 import { userRoutes } from './routes/user.routes';
 import { emailRouter } from './routes/email.routes';
 import { healthRoutes } from "./routes/health.routes";
+import {leadsRouter} from "./routes/leads.route";
 import { errorHandler } from "./middlewares/error";
 import app from "./setup/express";
 
@@ -18,7 +19,7 @@ app.use("/gupshup", gupshupRoutes);
 app.use("/health", healthRoutes);
 app.use("/user", userRoutes);
 app.use("/email", emailRouter);
-// app.use("/leads",leadsRouter);
+app.use("/leads", leadsRouter);
 
 // API Documentation - Make sure this comes before other routes
 app.use("/docs", swaggerRouter);

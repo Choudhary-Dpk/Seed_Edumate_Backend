@@ -97,14 +97,19 @@ model currency_conversion {
   @@unique([from_currency, to_currency])
 }
 
-// model LoanApplication {
-//   id                    Int      @id @default(autoincrement())
-//   applicationStatus     String
-//   loanAmountRequested   Float
-//   loanAmountApproved    Float
-//   loanTenureYears       Int
-//   userId                Int
-//   user                  User     @relation(fields: [userId], references: [id])
-//   createdAt             DateTime @default(now())
-//   updatedAt             DateTime @updatedAt
-// }
+model loan_application {
+  id                    Int      @id @default(autoincrement())
+  email                String
+  applicationStatus     String
+  loanAmountRequested   Float
+  loanAmountApproved    Float
+  loanTenureYears       Int
+  userId                Int
+  deletedOn                     DateTime?
+  deletedBy                     Int?
+  createdBy                     Int?
+  createdAt             DateTime? @default(now())
+  updatedAt             DateTime? @updatedAt
+
+  @@map("loanApplications")
+}

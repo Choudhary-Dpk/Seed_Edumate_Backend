@@ -242,3 +242,60 @@ export const validatePasswordReset = [
     .isURL()
     .withMessage('Valid reset link URL is required'),
 ];
+
+export const createLeadValidationRules = () => [
+  body("email")
+    .not()
+    .isEmpty()
+    .withMessage("Email is required")
+    .bail()
+    .isLength({ max: 50 })
+    .withMessage("Email must be max 50 characters")
+    .bail()
+    .isEmail()
+    .withMessage("Provide a valid email")
+    .normalizeEmail()
+    .trim(),
+
+  body("applicationStatus")
+    .trim()
+    .notEmpty()
+    .bail()
+    .withMessage("Application status is required")
+    .isString()
+    .bail()
+    .withMessage("Application status must be a string")
+    .isIn([
+      "Pre-Approved",
+      "Approved",
+      "Sanction Letter Issued",
+      "Disbursement Pending",
+      "Disbursed",
+      "Rejected",
+      "On Hold",
+      "Withdrawn",
+      "Cancelled",
+    ])
+    .withMessage("Invalid application status"),
+
+  body("loanAmountRequested")
+    .notEmpty()
+    .bail()
+    .withMessage("Loan amount requested is required")
+    .isFloat({ min: 1 })
+    .withMessage("Loan amount requested must be a positive number"),
+
+  body("loanAmountApproved")
+    .notEmpty()
+    .bail()
+    .withMessage("Loan amount approved is required")
+    .isFloat({ min: 0 })
+    .withMessage("Loan amount approved must be a number >= 0"),
+
+  body("loanTenureYears")
+    .notEmpty()
+    .bail()
+    .withMessage("Loan tenure years is required")
+    .isInt({ min: 1 })
+    .withMessage("Loan tenure years must be at least 1"),
+];

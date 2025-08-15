@@ -133,10 +133,13 @@ export const validateToken = async (
   next: NextFunction
 ) => {
   try {
-    const { token } = req.body;
-    if (!token) {
-      return sendResponse(res, 401, "Missing Session Token");
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return sendResponse(res, 401, "Missing or invalid Authorization header");
     }
+
+    const token = authHeader.split(" ")[1];
 
     let decodedToken: JwtPayload;
     try {
