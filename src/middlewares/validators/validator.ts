@@ -25,27 +25,16 @@ export const validateReqParams = async (
 
 export const createUserValidationRules = () => {
   return [
-    body("firstName")
+    body("fullName")
       .not()
       .isEmpty()
-      .withMessage("First Name is required")
+      .withMessage("Full Name is required")
       .bail()
       .isString()
-      .withMessage("First Name must be of type String")
+      .withMessage("Full Name must be of type String")
       .bail()
       .isLength({ max: 50 })
-      .withMessage("First Name can have max. 50 characters")
-      .trim(),
-    body("lastName")
-      .not()
-      .isEmpty()
-      .withMessage("Last Name is required")
-      .bail()
-      .isString()
-      .withMessage("Last Name must be of type String")
-      .bail()
-      .isLength({ max: 50 })
-      .withMessage("Last Name can have max. 50 characters")
+      .withMessage("Full Name can have max. 50 characters")
       .trim(),
     body("email")
       .not()
@@ -60,17 +49,20 @@ export const createUserValidationRules = () => {
       .toLowerCase()
       .normalizeEmail()
       .trim(),
-    body("phone")
+    body("b2bId")
       .not()
       .isEmpty()
-      .withMessage("Phone is required")
+      .withMessage("B2B Partner ID is required")
       .bail()
-      .isString()
-      .withMessage("Phone must be of type String")
+      .isInt({ min: 1 })
+      .withMessage("B2B Partner ID must be a valid integer"),
+    body("roleId")
+      .not()
+      .isEmpty()
+      .withMessage("Role ID is required")
       .bail()
-      .matches(/^\d{10}$/)
-      .withMessage("Provide a valid mobile number")
-      .trim(),
+      .isInt({ min: 1 })
+      .withMessage("Role ID must be a valid integer"),
   ];
 };
 

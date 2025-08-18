@@ -1,22 +1,5 @@
 import prisma from "../../config/prisma"
 
-export const getLeadById = async(userId:number)=>{
- const lead = await prisma.loan_application.findFirst({
-    select:{
-        id:true,
-        applicationStatus:true,
-        loanAmountApproved:true,
-        loanAmountRequested:true,
-        loanTenureYears:true
-    },
-    where:{
-        userId
-    }
- });
-
- return lead;
-}
-
 export const createLead = async(
     id:number,
   applicationStatus:string,
@@ -40,3 +23,20 @@ export const createLead = async(
 
     return lead;
 }
+
+export const getLeadByEmail = async (email: string) => {
+  const lead = await prisma.loan_application.findFirst({
+    select: {
+      id: true,
+      applicationStatus: true,
+      loanAmountApproved: true,
+      loanAmountRequested: true,
+      loanTenureYears: true,
+    },
+    where: {
+      email,
+    },
+  });
+
+  return lead;
+};

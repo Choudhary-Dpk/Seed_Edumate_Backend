@@ -17,18 +17,18 @@ export const getEmailTemplate = async (title: string) => {
   return "";
 };
 
-export const getUserDetailsByEmail = async (email: string, deleted: boolean) => {
+export const getUserDetailsByEmail = async (email: string) => {
   const userData = await prisma.user.findFirst({
     where: {
       email,
-      isDeleted: deleted,
+      is_active: true,
     },
     select: {
       id: true,
-      activationStatus: true,
+      is_active: true,
       email: true,
-      passwordHash: true,
-      passwordSetOn: true,
+      password_hash: true,
+      updated_at: true,
     },
   });
 

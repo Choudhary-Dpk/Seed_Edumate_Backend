@@ -423,22 +423,21 @@ export const fetchPartnerByEmail = async (
   }
 };
 
-export const createPartner = async(email:string,name:string,phone:string)=>{
+export const createPartner = async (email: string, name: string) => {
   try {
-        const response = await hubspotClient.createHubspotPartner({
-          primary_contact_email: email,
-          partner_name: name,
-          primary_contact_phone: phone,
-        });
-        return response;
+    const response = await hubspotClient.createHubspotPartner({
+      primary_contact_email: email,
+      partner_name: name,
+    });
+    return response;
   } catch (error) {
-        logger.error("Error in createPartner service", {
-          error,
-        });
-        throw createHubSpotError(
-          error instanceof Error ? error.message : "Unknown error",
-          error,
-          "createPartner"
-        );
+    logger.error("Error in createPartner service", {
+      error,
+    });
+    throw createHubSpotError(
+      error instanceof Error ? error.message : "Unknown error",
+      error,
+      "createPartner"
+    );
   }
-}
+};

@@ -2,9 +2,26 @@ import { Response,NextFunction } from "express";
 import { RequestWithPayload } from "../../types/api.types";
 import { LoginPayload, ProtectedPayload, ResetPasswordPayload } from "../../types/auth";
 import logger from "../../utils/logger";
-import { deleteOtps, deleteUserSession, revokePreviousEmailTokens, saveEmailToken, saveOtp, updatePassword, updateUserLastLoggedIn, updateUserSession, useEmailToken, useOtp, validateOtp } from "../../models/helpers/auth";
+import {
+  deleteOtps,
+  deleteUserSession,
+  revokePreviousEmailTokens,
+  saveEmailToken,
+  saveOtp,
+  storeRefreshToken,
+  updatePassword,
+  updateUserLastLoggedIn,
+  useEmailToken,
+  useOtp,
+  validateOtp,
+} from "../../models/helpers/auth";
 import { generateOtp, sendResponse } from "../../utils/api";
-import { generateRefreshToken, generateJWTToken, hashPassword } from "../../utils/auth";
+import {
+  generateJWTToken,
+  hashPassword,
+  generateEmailToken,
+  generateRefreshToken,
+} from "../../utils/auth";
 import { getEmailTemplate } from "../../models/helpers";
 import { emailQueue } from "../../utils/queue";
 import moment from "moment";
@@ -16,8 +33,8 @@ export const login = async (
   next: NextFunction
 ) => {
   try {
-    const { email, id } = req.payload!;
-    const { otp } = req.body;
+    const { email, id, ipDetails, deviceDetails } = req.payload!;
+    // const { otp } = req.body;
 
     // logger.debug(`Validating otp ${otp} for userId: ${id}`);
     // const otpData = await validateOtp(id, otp);
@@ -30,28 +47,35 @@ export const login = async (
     // await useOtp(id, otp);
     // logger.debug(`Otp used successfully`);
 
-    logger.debug(`Generating sessionId`);
-    const sessionId = await generateRefreshToken(20);
-    logger.debug(`sessionId generated successfully`);
-
     logger.debug(`Generating JWT Token for userId: ${id} and email: ${email}`);
-    const jwt = await generateJWTToken(id, email, sessionId);
+    const jwt = await generateJWTToken(id, email);
     logger.debug(`JWT Token generated successfully`);
 
-    logger.debug(`Updating user last loggedin`);
-    await updateUserLastLoggedIn(id);
-    logger.debug(`User last loggedin update successfully`);
+    logger.debug(`Generating Refresh Token for userId: ${id}`);
+    const refreshToken = await generateRefreshToken(id, email);
+    logger.debug(`Refresh Token generated successfully`);
 
-    logger.debug(`Updating sesssion for userId: ${id}`);
-    await updateUserSession(id, sessionId);
-    logger.debug(`Session updated successfully`);
+    logger.debug(`Storing refresh token in database`);
+    await storeRefreshToken(id, refreshToken, ipDetails, deviceDetails?.device);
+    logger.debug(`Refresh token stored successfully`);
 
-    sendResponse(res, 200, "User logged in successfully", jwt);
+    logger.debug(`Updating login history for userId: ${id}`);
+    await updateUserLastLoggedIn(
+      id,
+      ipDetails,
+      "success",
+      deviceDetails?.device
+    );
+    logger.debug(`User login history updated successfully`);
+
+    sendResponse(res, 200, "User logged in successfully", {
+      jwtToken: jwt,
+      refreshToken: refreshToken,
+    });
   } catch (error) {
     next(error);
   }
 };
-
 
 export const sendOtp = async (
   req: RequestWithPayload<LoginPayload>,
@@ -99,7 +123,7 @@ export const forgotPassword = async (
     const { email, id } = req.payload!;
 
     logger.debug(`Generating emailToken`);
-    const emailToken = await generateRefreshToken(30);
+    const emailToken = await generateEmailToken(30);
     logger.debug(`Email token generated successfully`);
 
     logger.debug(`Getting forgot password template`);
@@ -194,10 +218,27 @@ export const logout = async (
     const { id } = req.payload!;
 
     logger.debug(`Deleting sesssion for userId: ${id}`);
-    await deleteUserSession(id);
+    await deleteUserSession(id, "logout");
     logger.debug(`Session deleted successfully`);
 
     sendResponse(res, 200, "User logged out successfully");
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAccessToken = async (
+  req: RequestWithPayload<LoginPayload>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id, email } = req.payload!;
+    logger.debug(`Generating access token`);
+    const refreshToken = await generateJWTToken(id, email);
+    logger.debug(`Access token generated successfully`);
+
+    sendResponse(res, 200, "Access token generated successfully", refreshToken);
   } catch (error) {
     next(error);
   }

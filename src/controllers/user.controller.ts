@@ -2,8 +2,8 @@ import { NextFunction, Request, Response } from "express";
 import prisma from "../config/prisma";
 import { fetchIpDetails } from "../services/user.service";
 import { sendResponse } from "../utils/api";
-import { createUsers } from "../models/helpers/user.helper";
-import { generateRefreshToken, hashPassword } from "../utils/auth";
+import { assignRole, createUsers } from "../models/helpers/user.helper";
+import { generateEmailToken, hashPassword } from "../utils/auth";
 import moment from "moment";
 import { getEmailTemplate } from "../models/helpers";
 import { emailQueue } from "../utils/queue";
@@ -47,28 +47,29 @@ export const createUser = async (
   next: NextFunction
 ) => {
   try {
-    const { firstName, lastName, email, phone, address } = req.body;
+    const { fullName, email, b2bId, roleId } = req.body;
 
     logger.debug(`Creating hubspot partner`);
-    const hubspotPartner = await createPartner(email, firstName, phone);
+    const hubspotPartner = await createPartner(email, fullName);
     logger.debug(
       `Hubsport partner created successfully for partnerId: ${hubspotPartner.id}`
     );
 
     logger.debug(`Creating user in database`);
     const user = await createUsers(
-      null, // createdBy
       email,
+      b2bId,
       null, // passwordHash
-      firstName,
-      lastName,
-      phone,
-      address
+      fullName
     );
     logger.debug(`User created successfully`);
 
+    logger.debug(`Assigning role to user`);
+    await assignRole(user.id, roleId);
+    logger.debug(`Role assigned to user succesfully`);
+
     logger.debug(`Generating refresh token`);
-    const emailToken = await generateRefreshToken(30);
+    const emailToken = await generateEmailToken(30);
     logger.debug(`Email token generated successfully`);
 
     logger.debug(`Getting template for set password`);
@@ -81,9 +82,10 @@ export const createUser = async (
     const expiry = moment().add(2, "days").toDate().toISOString();
     const redirectUri = `${FRONTEND_URL}/partners/set-password?token=${emailToken}&expiry=${expiry}`;
     content = content.replace(/{%currentYear%}/, moment().format("YYYY"));
-    const formattedName =
-      firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
-    content = content.replace(/{%name%}/g, formattedName);
+    content = content.replace(
+      /{%name%}/g,
+      fullName.charAt(0).toUpperCase() + fullName.slice(1)
+    );
     const html = content.replace("{%set-password-url%}", redirectUri);
     const subject = "Set Password";
 

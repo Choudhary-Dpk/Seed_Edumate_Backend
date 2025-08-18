@@ -5,6 +5,7 @@ import { ApiResponse } from "../types";
 import { asyncHandler, createError } from "../middlewares/errorHandler";
 import logger from "../utils/logger";
 import { sendResponse } from "../utils/api";
+import { getPartners, getUserRoles } from "../models/helpers/partners.helper";
 
 // Edumate Contact Controllers
 export const getEdumateContacts = asyncHandler(
@@ -406,3 +407,35 @@ export const getPartnerByEmail = asyncHandler(
     }
   }
 );
+
+export const getPartnersList = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    logger.debug(`Fetching partners list`);
+    const list = await getPartners();
+    logger.debug(`Partners list fetched successfully`);
+
+    sendResponse(res, 200, "Partners list fetched successfully", list);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getRoles = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    logger.debug(`Fetching roles list`);
+    const list = await getUserRoles();
+    logger.debug(`Roles list fetched successfully`);
+
+    sendResponse(res, 200, "Roles list fetched successfully", list);
+  } catch (error) {
+    next(error);
+  }
+};

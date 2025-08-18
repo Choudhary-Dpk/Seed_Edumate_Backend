@@ -38,34 +38,382 @@ model loan_eligibility_matrix {
   @@map("loan_eligibility_matrix")
 }
 
-model user {
-  id                            Int    @id @default(autoincrement())
-  email                         String    @unique
-  firstName                     String
-  lastName                      String
-  phone                         String
-  address                       String?
-  passwordHash                  String?
-  passwordSetOn                 DateTime?
-  createdOn                     DateTime  @default(now())
-  createdBy                     Int?
-  lastLoggedInOn                DateTime?
-  isDeleted                     Boolean   @default(false)
-  deletedOn                     DateTime?
-  deletedBy                     Int?
-  activationStatus              Boolean   @default(true)
-  activationStatusUpdatedOn     DateTime?
-  activationStatusUpdatedBy     Int?
-  sessionId                     String?
+// model user {
+//   id                            Int    @id @default(autoincrement())
+//   email                         String    @unique
+//   firstName                     String
+//   lastName                      String
+//   phone                         String
+//   address                       String?
+//   passwordHash                  String?
+//   passwordSetOn                 DateTime?
+//   createdOn                     DateTime  @default(now())
+//   createdBy                     Int?
+//   lastLoggedInOn                DateTime?
+//   isDeleted                     Boolean   @default(false)
+//   deletedOn                     DateTime?
+//   deletedBy                     Int?
+//   activationStatus              Boolean   @default(true)
+//   activationStatusUpdatedOn     DateTime?
+//   activationStatusUpdatedBy     Int?
+//   sessionId                     String?
 
-  @@index([email])                          
-  @@index([phone])
-  @@index([firstName, lastName])
-  @@index([address])
+//   @@index([email])                          
+//   @@index([phone])
+//   @@index([firstName, lastName])
+//   @@index([address])
 
-  @@unique([email, phone])
+//   @@unique([email, phone])
+
+//   @@map("users")
+// }
+
+model User {
+  id            Int        @id @default(autoincrement()) @map("id")
+  b2b_id      Int
+  email         String     @unique @map("email")
+  password_hash String?     @map("password_hash")
+  full_name     String?    @map("full_name")
+  is_active     Boolean    @default(true) @map("is_active")
+  created_at    DateTime   @default(now()) @map("created_at")
+  updated_at    DateTime   @default(now()) @updatedAt @map("updated_at")
+
+  // Back relation
+  roles         UserRole[] 
+  sessions      Session[]
+  loginHistory  LoginHistory[]
 
   @@map("users")
+}
+
+model Role {
+  id          Int        @id @default(autoincrement()) @map("id")
+  role        String     @unique @map("role")
+  description String?    @map("description")
+
+  // Back relation
+  users       UserRole[]
+  permissions RolePermission[]
+
+  @@map("roles")
+}
+
+model UserRole {
+  id      Int  @id @default(autoincrement()) @map("id")
+  user_id Int  @map("user_id")
+  role_id Int  @map("role_id")
+
+  // Relations
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [role_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, role_id])
+  @@map("user_roles")
+}
+
+model Session {
+  id                 Int      @id @default(autoincrement()) @map("id")
+  user_id            Int      @map("user_id")
+  refresh_token_hash String   @map("refresh_token_hash")
+  device_info        String?  @map("device_info")
+  ip_address         String?  @db.Inet @map("ip_address")
+  is_valid           Boolean  @default(true) @map("is_valid")
+  created_at         DateTime @default(now()) @map("created_at")
+  expires_at         DateTime? @map("expires_at")
+
+  // Relation
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+enum LoginStatus {
+  success
+  failed
+  logout
+}
+
+model LoginHistory {
+  id          Int      @id @default(autoincrement()) @map("id")
+  user_id     Int      @map("user_id")
+  ip_address  String?  @db.Inet @map("ip_address")
+  device_info String?  @map("device_info")
+  status      LoginStatus @map("status")
+  created_at  DateTime @default(now()) @map("created_at")
+
+  // Relation
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("login_history")
+}
+
+model Permission {
+  id          Int     @id @default(autoincrement()) @map("id")
+  permission  String  @unique @map("permission")
+  module      String? @map("module")
+
+  roles RolePermission[]
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  id            Int  @id @default(autoincrement()) @map("id")
+  role_id       Int  @map("role_id")
+  permission_id Int  @map("permission_id")
+
+  // Relations
+  role       Role       @relation(fields: [role_id], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permission_id], references: [id], onDelete: Cascade)
+
+  @@unique([role_id, permission_id])
+  @@map("role_permissions")
+}
+
+// B2B Partners - Main Entity
+model B2BPartner {
+  id                    Int      @id @default(autoincrement())
+  
+  // Basic Information (from b2b_partners_information group)
+  business_address      String?
+  business_type         String?  // Individual, Partnership, Private Limited, Public Limited, LLP, NGO, Educational Trust
+  city                  String?
+  country               String?
+  gst_number            String?
+  incorporation_date    DateTime?
+  pan_number            String?
+  partner_display_name  String?
+  partner_name          String?
+  partner_tyoe          String?
+  pincode               String?
+  registration_number   String?
+  state                 String?
+  website_url           String?
+  
+  // System tracking
+  created_by            String?
+  created_date          DateTime?
+  data_source           String?
+  integration_status    String?
+  internal_tags         String?
+  last_modified_by      String?
+  last_modified_date    DateTime?
+  notes                 String?
+  partner_record_status String?
+  portal_access_provided String?
+  api_access_provided   String?
+  
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  // Relations to normalized tables
+  businessCapabilities  B2BPartnerBusinessCapabilities?
+  commissionStructure   B2BPartnerCommissionStructure?
+  compliance            B2BPartnerCompliance?
+  contactInfo           B2BPartnerContactInfo?
+  financialTracking     B2BPartnerFinancialTracking?
+  leadAttribution       B2BPartnerLeadAttribution?
+  marketingPromo        B2BPartnerMarketingPromo?
+  partnershipDetails    B2BPartnerPartnershipDetails?
+  performanceMetrics    B2BPartnerPerformanceMetrics?
+  relationshipMgmt      B2BPartnerRelationshipMgmt?
+  
+  @@map("b2b_partners")
+}
+
+// Business Capabilities
+model B2BPartnerBusinessCapabilities {
+  id                      Int        @id @default(autoincrement())
+  partnerId               Int        @unique
+  partner                 B2BPartner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  
+  experience_years        Float?
+  student_capacity_monthly Float?
+  student_capacity_yearly Float?
+  target_courses          String?
+  target_desrinations     String?  // Note: typo in original
+  target_universities     String?
+  team_size               Float?
+  
+  @@map("b2b_partner_business_capabilities")
+}
+
+// Commission Structure
+model B2BPartnerCommissionStructure {
+  id                        Int        @id @default(autoincrement())
+  partnerId                 Int        @unique
+  partner                   B2BPartner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  
+  bank_account_number       String?
+  bank_branch               String?
+  bank_name                 String?
+  beneficiary_name          String?
+  bonus_structure           String?
+  commission_model          String?
+  commission_rate           Float?
+  commission_type           String?
+  fixed_commission_amount   Float?
+  gst_applicable            String?
+  ifsc_code                 String?
+  invoice_requirements      String?
+  payment_frequency         String?
+  payment_method            String?
+  payment_terms             String?
+  tds_applicable            String?
+  tds_rate                  Float?
+  tiered_commission_structure String?
+  
+  @@map("b2b_partner_commission_structure")
+}
+
+// Compliance & Documentation
+model B2BPartnerCompliance {
+  id                           Int        @id @default(autoincrement())
+  partnerId                    Int        @unique
+  partner                      B2BPartner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  
+  agreement_signed_date        DateTime?
+  background_verification_status String?
+  kyc_completion_date          DateTime?
+  kyc_status                   String?
+  
+  @@map("b2b_partner_compliance")
+}
+
+// Contact Information
+model B2BPartnerContactInfo {
+  id                         Int        @id @default(autoincrement())
+  partnerId                  Int        @unique
+  partner                    B2BPartner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  
+  accounts_contact_email     String?
+  accounts_contact_person    String?
+  accounts_contact_phone     String?
+  marketing_contact_email    String?
+  marketing_contact_person   String?
+  marketing_contact_phone    String?
+  primary_contact_designation String?
+  primary_contact_email      String?
+  primary_contact_person     String?
+  primary_contact_phone      String?
+  secondary_contact_email    String?
+  secondary_contact_person   String?
+  secondary_contact_phone    String?
+  
+  @@map("b2b_partner_contact_info")
+}
+
+// Financial Tracking
+model B2BPartnerFinancialTracking {
+  id                        Int        @id @default(autoincrement())
+  partnerId                 Int        @unique
+  partner                   B2BPartner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  
+  average_monthly_commission Float?
+  current_month_commission   Float?
+  last_payment_amount        Float?
+  last_payment_date          DateTime?
+  lifetime_value             String?
+  next_payment_due_date      DateTime?
+  outstanding_commission     Float?
+  payment_status             String?
+  total_commission_earned    Float?
+  total_commission_paid      Float?
+  ytd_commission_earned      Float?
+  ytd_commission_paid        Float?
+  
+  @@map("b2b_partner_financial_tracking")
+}
+
+// Lead Attribution
+model B2BPartnerLeadAttribution {
+  id                      Int        @id @default(autoincrement())
+  partnerId               Int        @unique
+  partner                 B2BPartner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  
+  lead_submission_method  String?
+  lead_tracking_method    String?
+  tracking_link           String?
+  unique_referral_code    String?
+  utm_source_assigned     String?
+  
+  @@map("b2b_partner_lead_attribution")
+}
+
+// Marketing & Promotion
+model B2BPartnerMarketingPromo {
+  id                        Int        @id @default(autoincrement())
+  partnerId                 Int        @unique
+  partner                   B2BPartner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  
+  brand_usage_guidelines    String?
+  co_marketing_approval     String?
+  content_collaboration     String?
+  digital_presence_rating   Float?
+  event_participation       String?
+  marketing_materials_provided String?
+  promotional_activities    String?
+  social_media_followers    Float?
+  
+  @@map("b2b_partner_marketing_promo")
+}
+
+// Partnership Details
+model B2BPartnerPartnershipDetails {
+  id                    Int        @id @default(autoincrement())
+  partnerId             Int        @unique
+  partner               B2BPartner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  
+  agreement_type        String?
+  partnership_end_date  DateTime?
+  partnership_start_date DateTime?
+  partnership_status    String?
+  
+  @@map("b2b_partner_partnership_details")
+}
+
+// Performance Metrics
+model B2BPartnerPerformanceMetrics {
+  id                           Int        @id @default(autoincrement())
+  partnerId                    Int        @unique
+  partner                      B2BPartner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  
+  application_conversion_rate  Float?
+  applications_approved        Float?
+  approval_conversion_rate     Float?
+  average_lead_quality_score   Float?
+  average_loan_amount          Float?
+  best_performing_month        String?
+  last_lead_date               DateTime?
+  lead_conversion_rate         Float?
+  leads_converted_to_applications Float?
+  loans_disbursed              Float?
+  partner_rating               Float?
+  qualified_leads_provided     Float?
+  seasonal_performance_pattern String?
+  total_leads_provided         Float?
+  total_loan_value_generated   Float?
+  
+  @@map("b2b_partner_performance_metrics")
+}
+
+// Relationship Management
+model B2BPartnerRelationshipMgmt {
+  id                        Int        @id @default(autoincrement())
+  partnerId                 Int        @unique
+  partner                   B2BPartner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  
+  assigned_account_manager  String?
+  communication_frequency   String?
+  escalation_history        String?
+  feedback_comments         String?
+  joint_marketing_activities String?
+  last_interaction_date     DateTime?
+  relationship_status       String?
+  satisfaction_score        Float?
+  training_completed        String?
+  
+  @@map("b2b_partner_relationship_mgmt")
 }
 
 model token {
