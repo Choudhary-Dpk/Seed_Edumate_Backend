@@ -87,11 +87,11 @@ model User {
 }
 
 model Role {
-  id          Int        @id @default(autoincrement()) @map("id")
-  role        String     @unique @map("role")
-  description String?    @map("description")
-
-  // Back relation
+  id          Int       @id @default(autoincrement())
+  role        String    @unique
+  display_name String
+  description String?
+  
   users       UserRole[]
   permissions RolePermission[]
 
@@ -184,7 +184,7 @@ model B2BPartner {
   pan_number            String?
   partner_display_name  String?
   partner_name          String?
-  partner_tyoe          String?
+  partner_type          String?
   pincode               String?
   registration_number   String?
   state                 String?
@@ -203,7 +203,7 @@ model B2BPartner {
   portal_access_provided String?
   api_access_provided   String?
   
-  createdAt             DateTime @default(now())
+  created_at             DateTime @default(now())
   updatedAt             DateTime @updatedAt
   
   // Relations to normalized tables
@@ -439,8 +439,8 @@ model currency_conversion {
   from_currency String    @db.VarChar(3)
   to_currency   String    @db.VarChar(3)
   exchange_rate Decimal   @db.Decimal(12, 6)
-  last_updated  DateTime? @default(now()) @db.Timestamp(6)
-  is_active     Boolean?  @default(true)
+  last_updated  DateTime @default(now()) @db.Timestamp(6)
+  is_active     Boolean  @default(true)
 
   @@unique([from_currency, to_currency])
 }
@@ -449,14 +449,14 @@ model loan_application {
   id                    Int      @id @default(autoincrement())
   email                String
   applicationStatus     String
-  loanAmountRequested   Float
-  loanAmountApproved    Float
+  loanAmountRequested   Decimal
+  loanAmountApproved    Decimal
   loanTenureYears       Int
   userId                Int
   deletedOn                     DateTime?
   deletedBy                     Int?
   createdBy                     Int?
-  createdAt             DateTime? @default(now())
+  created_at             DateTime @default(now())
   updatedAt             DateTime? @updatedAt
 
   @@map("loanApplications")

@@ -6,11 +6,16 @@ import {
 import {
   validatePasswordReset,
 } from "../middlewares/validators/validator";
+import { validateApiKey } from "../middlewares";
 
 const router = Router();
 
 // Routes
-router.post("/loan-eligibility-info", sendLoanEligibilityResult);
+router.post(
+  "/loan-eligibility-info",
+  validateApiKey,
+  sendLoanEligibilityResult
+);
 router.post("/password-reset", validatePasswordReset, sendPasswordReset);
 
 export { router as emailRouter };

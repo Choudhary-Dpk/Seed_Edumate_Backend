@@ -13,6 +13,7 @@ import {
   updateEdumateContactSchema,
 } from '../middlewares/validation';
 import { validateEdumateContact } from "../middlewares/validators/contact.validator";
+import { validateApiKey } from "../middlewares";
 
 const router = Router();
 
@@ -36,6 +37,7 @@ router.put(
 );
 router.post(
   "/edumate-contacts/upsert",
+  validateApiKey,
   validateEdumateContact,
   hubspotController.upsertEdumateContact
 );

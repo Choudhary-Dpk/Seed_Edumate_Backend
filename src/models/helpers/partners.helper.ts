@@ -1,15 +1,15 @@
 import prisma from "../../config/prisma";
 
-export const getPartners = async()=>{
-    const partnersList = await prisma.b2BPartner.findMany({
-        select:{
-            id:true,
-            partner_tyoe:true
-        }
-    });
+export const getPartners = async () => {
+  const partnersList = await prisma.b2BPartner.findMany({
+    select: {
+      id: true,
+      partner_name: true,
+    },
+  });
 
-    return partnersList;
-}
+  return partnersList;
+};
 
 export const getPartnerById = async (partnerId: number) => {
   const partner = await prisma.b2BPartner.findFirst({
@@ -27,7 +27,7 @@ export const getUserRoles = async () => {
   const rolesList = await prisma.role.findMany({
     select: {
       id: true,
-      role:true
+      display_name: true,
     },
   });
 

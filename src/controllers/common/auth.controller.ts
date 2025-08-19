@@ -12,8 +12,6 @@ import {
   updatePassword,
   updateUserLastLoggedIn,
   useEmailToken,
-  useOtp,
-  validateOtp,
 } from "../../models/helpers/auth";
 import { generateOtp, sendResponse } from "../../utils/api";
 import {
