@@ -11,20 +11,21 @@ import { roundTo2 } from '../utils/helper';
 export const calculateRepaymentSchedule = (
   principal: number,
   annualRate: number,
-  tenureYears: number
+  tenureYears: number,
+  emi: number
 ): CalculationResult => {
   const tenureMonths = tenureYears * 12;
   const monthlyRate = annualRate / 100 / 12;
   
   // Calculate EMI
-  let emi: number;
-  if (monthlyRate === 0) {
-    emi = principal / tenureMonths;
-  } else {
-    const numerator = principal * monthlyRate * Math.pow(1 + monthlyRate, tenureMonths);
-    const denominator = Math.pow(1 + monthlyRate, tenureMonths) - 1;
-    emi = numerator / denominator;
-  }
+  // let emi: number;
+  // if (monthlyRate === 0) {
+  //   emi = principal / tenureMonths;
+  // } else {
+  //   const numerator = principal * monthlyRate * Math.pow(1 + monthlyRate, tenureMonths);
+  //   const denominator = Math.pow(1 + monthlyRate, tenureMonths) - 1;
+  //   emi = numerator / denominator;
+  // }
   emi = roundTo2(emi);
 
   // Initialize tracking variables

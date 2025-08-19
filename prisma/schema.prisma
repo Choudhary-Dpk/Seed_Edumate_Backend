@@ -38,36 +38,6 @@ model loan_eligibility_matrix {
   @@map("loan_eligibility_matrix")
 }
 
-// model user {
-//   id                            Int    @id @default(autoincrement())
-//   email                         String    @unique
-//   firstName                     String
-//   lastName                      String
-//   phone                         String
-//   address                       String?
-//   passwordHash                  String?
-//   passwordSetOn                 DateTime?
-//   createdOn                     DateTime  @default(now())
-//   createdBy                     Int?
-//   lastLoggedInOn                DateTime?
-//   isDeleted                     Boolean   @default(false)
-//   deletedOn                     DateTime?
-//   deletedBy                     Int?
-//   activationStatus              Boolean   @default(true)
-//   activationStatusUpdatedOn     DateTime?
-//   activationStatusUpdatedBy     Int?
-//   sessionId                     String?
-
-//   @@index([email])                          
-//   @@index([phone])
-//   @@index([firstName, lastName])
-//   @@index([address])
-
-//   @@unique([email, phone])
-
-//   @@map("users")
-// }
-
 model User {
   id            Int        @id @default(autoincrement()) @map("id")
   b2b_id      Int
@@ -204,7 +174,7 @@ model B2BPartner {
   api_access_provided   String?
   
   created_at             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  updated_at             DateTime @default(now())
   
   // Relations to normalized tables
   businessCapabilities  B2BPartnerBusinessCapabilities?
@@ -429,7 +399,7 @@ model userOtp {
   id        Int      @id @default(autoincrement())
   userId    Int
   otp       String
-  createdOn DateTime     @default(now())
+  created_at DateTime     @default(now())
 
   @@map("userOtps")
 }
@@ -457,7 +427,7 @@ model loan_application {
   deletedBy                     Int?
   createdBy                     Int?
   created_at             DateTime @default(now())
-  updatedAt             DateTime? @updatedAt
+  updated_at             DateTime @default(now())
 
   @@map("loanApplications")
 }

@@ -121,6 +121,7 @@ export const generateRepaymentScheduleAndEmail = async (
       principal,
       annualRate,
       tenureYears,
+      emi,
       name,
       email,
       mobileNumber,
@@ -149,7 +150,8 @@ export const generateRepaymentScheduleAndEmail = async (
     const calculationResult = calculateRepaymentSchedule(
       principal,
       annualRate,
-      tenureYears
+      tenureYears,
+      emi
     );
 
     let emailResponse;
