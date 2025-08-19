@@ -15,9 +15,9 @@ export const createLead = async(
         loanAmountApproved,
         loanTenureYears,
         email,
-        userId:id,
-        createdBy:id,
-        createdAt: new Date()
+        userId: id,
+        createdBy: id,
+        created_at: new Date(),
       },
     });
 

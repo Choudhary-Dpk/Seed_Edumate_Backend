@@ -95,7 +95,7 @@ export const getConvertedCurrency = async (req: Request, res: Response) => {
 // In-memory storage for idempotency (use DB in production)
 const processedRequests = new Map<string, RepaymentScheduleResponse>();
 
-export const paymentScheduleAndEmail = async (
+export const generateRepaymentScheduleAndEmail = async (
   req: Request,
   res: Response
 ): Promise<void> => {

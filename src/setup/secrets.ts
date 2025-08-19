@@ -22,4 +22,5 @@ export const {
   SMTP_HOST,
   SMTP_PORT,
   HUBSPOT_B2B_PARTNERS_OBJECT_TYPE,
+  API_KEY,
 } = process.env;

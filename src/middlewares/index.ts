@@ -26,7 +26,7 @@ import {
 } from "../models/helpers/partners.helper";
 import { fetchIpDetails } from "../services/user.service";
 import { UAParser } from "ua-parser-js";
-import { JWT_SECRET } from "../setup/secrets";
+import { API_KEY, JWT_SECRET } from "../setup/secrets";
 import moment from "moment";
 import prisma from "../config/prisma";
 
@@ -324,5 +324,27 @@ export const validateRefreshToken = async (
     next();
   } catch (error: any) {
     return sendResponse(res, 500, error?.message || "Internal server error");
+  }
+};
+
+export const validateApiKey = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const clientKey = req.headers["edumate-api-key"];
+
+    if (!clientKey || clientKey !== API_KEY) {
+      return sendResponse(res, 401, "Invalid or missing API Key");
+    }
+
+    next();
+  } catch (error: any) {
+    return sendResponse(
+      res,
+      500,
+      error?.message?.toString() || "Internal server error"
+    );
   }
 };
