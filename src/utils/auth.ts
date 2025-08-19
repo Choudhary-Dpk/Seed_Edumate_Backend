@@ -29,7 +29,7 @@ export const generateJWTToken = (
   const payload = { id: userId, email, sessionId };
 
   return new Promise((resolve, reject) => {
-    sign(payload, JWT_SECRET!, { expiresIn: "1m" }, (err, token) => {
+    sign(payload, JWT_SECRET!, { expiresIn: "15m" }, (err, token) => {
       if (err) {
         return reject(err);
       }
