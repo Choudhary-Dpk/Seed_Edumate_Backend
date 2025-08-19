@@ -21,15 +21,21 @@ import {
 // Initialize HubSpot client
 const hubspotClient = new Client({ accessToken: config.hubspot.accessToken });
 const EDUMATE_CONTACT_OBJECT_TYPE = config.hubspot.customObjects.edumateContact;
+const EDUMATE_B2B_PARTNERS_OBJECT_TYPE =
+  config.hubspot.customObjects.b2bPartners || "2-46227624";
 
 /**
  * Convert HubSpot SDK response to our internal type format
  */
-const convertToHubSpotResponse = <T>(response: any): HubSpotPaginatedResponse<T> => {
+const convertToHubSpotResponse = <T>(
+  response: any
+): HubSpotPaginatedResponse<T> => {
   return {
-    results: response.results.map((item: SimplePublicObject) => convertToHubSpotObject<T>(item)),
+    results: response.results.map((item: SimplePublicObject) =>
+      convertToHubSpotObject<T>(item)
+    ),
     paging: response.paging,
-    total: response.total
+    total: response.total,
   };
 };
 
@@ -42,7 +48,7 @@ const convertToHubSpotObject = <T>(item: SimplePublicObject): T => {
     properties: item.properties || {},
     createdAt: item.createdAt,
     updatedAt: item.updatedAt,
-    archived: item.archived || false
+    archived: item.archived || false,
   } as T;
 };
 
@@ -53,43 +59,55 @@ const handleHubSpotError = (error: any): Error => {
   // Handle HubSpot API response errors
   if (error.response?.body) {
     const hubspotError = error.response.body as HubSpotError;
-    return new Error(`HubSpot API Error: ${hubspotError.message} (${hubspotError.status})`);
+    return new Error(
+      `HubSpot API Error: ${hubspotError.message} (${hubspotError.status})`
+    );
   }
 
   // Handle HubSpot SDK errors
   if (error.body) {
     const hubspotError = error.body as HubSpotError;
-    return new Error(`HubSpot API Error: ${hubspotError.message} (${hubspotError.status})`);
+    return new Error(
+      `HubSpot API Error: ${hubspotError.message} (${hubspotError.status})`
+    );
   }
 
   // Handle HTTP errors
   if (error.status) {
-    return new Error(`HubSpot API Error: HTTP ${error.status} - ${error.message || 'Unknown error'}`);
+    return new Error(
+      `HubSpot API Error: HTTP ${error.status} - ${
+        error.message || "Unknown error"
+      }`
+    );
   }
 
   // Handle network errors
-  if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
-    return new Error('HubSpot API Error: Network connection failed');
+  if (error.code === "ECONNREFUSED" || error.code === "ENOTFOUND") {
+    return new Error("HubSpot API Error: Network connection failed");
   }
 
   // Handle timeout errors
-  if (error.code === 'ETIMEDOUT') {
-    return new Error('HubSpot API Error: Request timeout');
+  if (error.code === "ETIMEDOUT") {
+    return new Error("HubSpot API Error: Request timeout");
   }
 
   // Default error handling
-  return error instanceof Error ? error : new Error('Unknown HubSpot API error');
+  return error instanceof Error
+    ? error
+    : new Error("Unknown HubSpot API error");
 };
 
 // Contact methods
-export const getContacts = async (options: {
-  limit?: number;
-  after?: string;
-  properties?: string[];
-} = {}): Promise<HubSpotPaginatedResponse<HubSpotContact>> => {
+export const getContacts = async (
+  options: {
+    limit?: number;
+    after?: string;
+    properties?: string[];
+  } = {}
+): Promise<HubSpotPaginatedResponse<HubSpotContact>> => {
   try {
     const { limit = 100, after, properties } = options;
-    
+
     const response = await hubspotClient.crm.contacts.basicApi.getPage(
       limit,
       after,
@@ -99,19 +117,22 @@ export const getContacts = async (options: {
       false
     );
 
-    logger.debug('Retrieved contacts from HubSpot', { 
+    logger.debug("Retrieved contacts from HubSpot", {
       count: response.results.length,
-      hasMore: !!response.paging?.next
+      hasMore: !!response.paging?.next,
     });
 
     return convertToHubSpotResponse<HubSpotContact>(response);
   } catch (error) {
-    logger.error('Error retrieving contacts from HubSpot', { error });
+    logger.error("Error retrieving contacts from HubSpot", { error });
     throw handleHubSpotError(error);
   }
 };
 
-export const getContactById = async (contactId: string, properties?: string[]): Promise<HubSpotContact> => {
+export const getContactById = async (
+  contactId: string,
+  properties?: string[]
+): Promise<HubSpotContact> => {
   try {
     const response = await hubspotClient.crm.contacts.basicApi.getById(
       contactId,
@@ -121,15 +142,20 @@ export const getContactById = async (contactId: string, properties?: string[]): 
       false
     );
 
-    logger.debug('Retrieved contact by ID from HubSpot', { contactId });
+    logger.debug("Retrieved contact by ID from HubSpot", { contactId });
     return convertToHubSpotObject<HubSpotContact>(response);
   } catch (error) {
-    logger.error('Error retrieving contact by ID from HubSpot', { contactId, error });
+    logger.error("Error retrieving contact by ID from HubSpot", {
+      contactId,
+      error,
+    });
     throw handleHubSpotError(error);
   }
 };
 
-export const getOwnerById = async (ownerId: number): Promise<{
+export const getOwnerById = async (
+  ownerId: number
+): Promise<{
   id: string;
   email: string;
   firstName: string;
@@ -137,46 +163,58 @@ export const getOwnerById = async (ownerId: number): Promise<{
 } | null> => {
   try {
     const response = await hubspotClient.crm.owners.ownersApi.getById(ownerId);
-    
-    logger.debug('Retrieved owner by ID from HubSpot', { ownerId });
-    
+
+    logger.debug("Retrieved owner by ID from HubSpot", { ownerId });
+
     return {
       id: response?.id,
-      email: response?.email || '',
-      firstName: response?.firstName || '',
-      lastName: response?.lastName || ''
+      email: response?.email || "",
+      firstName: response?.firstName || "",
+      lastName: response?.lastName || "",
     };
   } catch (error) {
-    logger.error('Error retrieving owner by ID from HubSpot', { ownerId, error });
+    logger.error("Error retrieving owner by ID from HubSpot", {
+      ownerId,
+      error,
+    });
     throw handleHubSpotError(error);
   }
 };
 
-export const searchContacts = async (searchRequest: PublicObjectSearchRequest): Promise<HubSpotPaginatedResponse<HubSpotContact>> => {
+export const searchContacts = async (
+  searchRequest: PublicObjectSearchRequest
+): Promise<HubSpotPaginatedResponse<HubSpotContact>> => {
   try {
-    const response = await hubspotClient.crm.contacts.searchApi.doSearch(searchRequest);
-    
-    logger.debug('Searched contacts in HubSpot', { 
+    const response = await hubspotClient.crm.contacts.searchApi.doSearch(
+      searchRequest
+    );
+
+    logger.debug("Searched contacts in HubSpot", {
       resultsCount: response.results.length,
-      hasMore: !!response.paging?.next
+      hasMore: !!response.paging?.next,
     });
 
     return convertToHubSpotResponse<HubSpotContact>(response);
   } catch (error) {
-    logger.error('Error searching contacts in HubSpot', { searchRequest, error });
+    logger.error("Error searching contacts in HubSpot", {
+      searchRequest,
+      error,
+    });
     throw handleHubSpotError(error);
   }
 };
 
 // Company methods
-export const getCompanies = async (options: {
-  limit?: number;
-  after?: string;
-  properties?: string[];
-} = {}): Promise<HubSpotPaginatedResponse<HubSpotCompany>> => {
+export const getCompanies = async (
+  options: {
+    limit?: number;
+    after?: string;
+    properties?: string[];
+  } = {}
+): Promise<HubSpotPaginatedResponse<HubSpotCompany>> => {
   try {
     const { limit = 100, after, properties } = options;
-    
+
     const response = await hubspotClient.crm.companies.basicApi.getPage(
       limit,
       after,
@@ -186,19 +224,22 @@ export const getCompanies = async (options: {
       false
     );
 
-    logger.debug('Retrieved companies from HubSpot', { 
+    logger.debug("Retrieved companies from HubSpot", {
       count: response.results.length,
-      hasMore: !!response.paging?.next
+      hasMore: !!response.paging?.next,
     });
 
     return convertToHubSpotResponse<HubSpotCompany>(response);
   } catch (error) {
-    logger.error('Error retrieving companies from HubSpot', { error });
+    logger.error("Error retrieving companies from HubSpot", { error });
     throw handleHubSpotError(error);
   }
 };
 
-export const getCompanyById = async (companyId: string, properties?: string[]): Promise<HubSpotCompany> => {
+export const getCompanyById = async (
+  companyId: string,
+  properties?: string[]
+): Promise<HubSpotCompany> => {
   try {
     const response = await hubspotClient.crm.companies.basicApi.getById(
       companyId,
@@ -208,23 +249,28 @@ export const getCompanyById = async (companyId: string, properties?: string[]): 
       false
     );
 
-    logger.debug('Retrieved company by ID from HubSpot', { companyId });
+    logger.debug("Retrieved company by ID from HubSpot", { companyId });
     return convertToHubSpotObject<HubSpotCompany>(response);
   } catch (error) {
-    logger.error('Error retrieving company by ID from HubSpot', { companyId, error });
+    logger.error("Error retrieving company by ID from HubSpot", {
+      companyId,
+      error,
+    });
     throw handleHubSpotError(error);
   }
 };
 
 // Deal methods
-export const getDeals = async (options: {
-  limit?: number;
-  after?: string;
-  properties?: string[];
-} = {}): Promise<HubSpotPaginatedResponse<HubSpotDeal>> => {
+export const getDeals = async (
+  options: {
+    limit?: number;
+    after?: string;
+    properties?: string[];
+  } = {}
+): Promise<HubSpotPaginatedResponse<HubSpotDeal>> => {
   try {
     const { limit = 100, after, properties } = options;
-    
+
     const response = await hubspotClient.crm.deals.basicApi.getPage(
       limit,
       after,
@@ -234,19 +280,22 @@ export const getDeals = async (options: {
       false
     );
 
-    logger.debug('Retrieved deals from HubSpot', { 
+    logger.debug("Retrieved deals from HubSpot", {
       count: response.results.length,
-      hasMore: !!response.paging?.next
+      hasMore: !!response.paging?.next,
     });
 
     return convertToHubSpotResponse<HubSpotDeal>(response);
   } catch (error) {
-    logger.error('Error retrieving deals from HubSpot', { error });
+    logger.error("Error retrieving deals from HubSpot", { error });
     throw handleHubSpotError(error);
   }
 };
 
-export const getDealById = async (dealId: string, properties?: string[]): Promise<HubSpotDeal> => {
+export const getDealById = async (
+  dealId: string,
+  properties?: string[]
+): Promise<HubSpotDeal> => {
   try {
     const response = await hubspotClient.crm.deals.basicApi.getById(
       dealId,
@@ -256,23 +305,25 @@ export const getDealById = async (dealId: string, properties?: string[]): Promis
       false
     );
 
-    logger.debug('Retrieved deal by ID from HubSpot', { dealId });
+    logger.debug("Retrieved deal by ID from HubSpot", { dealId });
     return convertToHubSpotObject<HubSpotDeal>(response);
   } catch (error) {
-    logger.error('Error retrieving deal by ID from HubSpot', { dealId, error });
+    logger.error("Error retrieving deal by ID from HubSpot", { dealId, error });
     throw handleHubSpotError(error);
   }
 };
 
 // Edumate Contact Custom Object methods
-export const getEdumateContacts = async (options: {
-  limit?: number;
-  after?: string;
-  properties?: string[];
-} = {}): Promise<HubSpotPaginatedResponse<HubSpotEdumateContact>> => {
+export const getEdumateContacts = async (
+  options: {
+    limit?: number;
+    after?: string;
+    properties?: string[];
+  } = {}
+): Promise<HubSpotPaginatedResponse<HubSpotEdumateContact>> => {
   try {
     const { limit = 100, after, properties } = options;
-    
+
     const response = await hubspotClient.crm.objects.basicApi.getPage(
       EDUMATE_CONTACT_OBJECT_TYPE,
       limit,
@@ -283,19 +334,22 @@ export const getEdumateContacts = async (options: {
       false
     );
 
-    logger.debug('Retrieved Edumate contacts from HubSpot', { 
+    logger.debug("Retrieved Edumate contacts from HubSpot", {
       count: response.results.length,
-      hasMore: !!response.paging?.next
+      hasMore: !!response.paging?.next,
     });
 
     return convertToHubSpotResponse<HubSpotEdumateContact>(response);
   } catch (error) {
-    logger.error('Error retrieving Edumate contacts from HubSpot', { error });
+    logger.error("Error retrieving Edumate contacts from HubSpot", { error });
     throw handleHubSpotError(error);
   }
 };
 
-export const getEdumateContactById = async (contactId: string, properties?: string[]): Promise<HubSpotEdumateContact> => {
+export const getEdumateContactById = async (
+  contactId: string,
+  properties?: string[]
+): Promise<HubSpotEdumateContact> => {
   try {
     const response = await hubspotClient.crm.objects.basicApi.getById(
       EDUMATE_CONTACT_OBJECT_TYPE,
@@ -306,19 +360,24 @@ export const getEdumateContactById = async (contactId: string, properties?: stri
       false
     );
 
-    logger.debug('Retrieved Edumate contact by ID from HubSpot', { contactId });
+    logger.debug("Retrieved Edumate contact by ID from HubSpot", { contactId });
     return convertToHubSpotObject<HubSpotEdumateContact>(response);
   } catch (error) {
-    logger.error('Error retrieving Edumate contact by ID from HubSpot', { contactId, error });
+    logger.error("Error retrieving Edumate contact by ID from HubSpot", {
+      contactId,
+      error,
+    });
     throw handleHubSpotError(error);
   }
 };
 
-export const createEdumateContact = async (properties: Record<string, any>): Promise<HubSpotEdumateContact> => {
+export const createEdumateContact = async (
+  properties: Record<string, any>
+): Promise<HubSpotEdumateContact> => {
   try {
     const createInput: SimplePublicObjectInputForCreate = {
       properties,
-      associations: []
+      associations: [],
     };
 
     const response = await hubspotClient.crm.objects.basicApi.create(
@@ -326,18 +385,26 @@ export const createEdumateContact = async (properties: Record<string, any>): Pro
       createInput
     );
 
-    logger.info('Created Edumate contact in HubSpot', { contactId: response.id });
+    logger.info("Created Edumate contact in HubSpot", {
+      contactId: response.id,
+    });
     return convertToHubSpotObject<HubSpotEdumateContact>(response);
   } catch (error) {
-    logger.error('Error creating Edumate contact in HubSpot', { properties, error });
+    logger.error("Error creating Edumate contact in HubSpot", {
+      properties,
+      error,
+    });
     throw handleHubSpotError(error);
   }
 };
 
-export const updateEdumateContact = async (contactId: string, properties: Record<string, any>): Promise<HubSpotEdumateContact> => {
+export const updateEdumateContact = async (
+  contactId: string,
+  properties: Record<string, any>
+): Promise<HubSpotEdumateContact> => {
   try {
     const updateInput = {
-      properties
+      properties,
     };
 
     const response = await hubspotClient.crm.objects.basicApi.update(
@@ -346,54 +413,70 @@ export const updateEdumateContact = async (contactId: string, properties: Record
       updateInput
     );
 
-    logger.info('Updated Edumate contact in HubSpot', { contactId });
+    logger.info("Updated Edumate contact in HubSpot", { contactId });
     return convertToHubSpotObject<HubSpotEdumateContact>(response);
   } catch (error) {
-    logger.error('Error updating Edumate contact in HubSpot', { contactId, properties, error });
+    logger.error("Error updating Edumate contact in HubSpot", {
+      contactId,
+      properties,
+      error,
+    });
     throw handleHubSpotError(error);
   }
 };
 
-export const deleteEdumateContact = async (contactId: string): Promise<void> => {
+export const deleteEdumateContact = async (
+  contactId: string
+): Promise<void> => {
   try {
     await hubspotClient.crm.objects.basicApi.archive(
       EDUMATE_CONTACT_OBJECT_TYPE,
       contactId
     );
 
-    logger.info('Deleted Edumate contact from HubSpot', { contactId });
+    logger.info("Deleted Edumate contact from HubSpot", { contactId });
   } catch (error) {
-    logger.error('Error deleting Edumate contact from HubSpot', { contactId, error });
+    logger.error("Error deleting Edumate contact from HubSpot", {
+      contactId,
+      error,
+    });
     throw handleHubSpotError(error);
   }
 };
 
-export const searchEdumateContacts = async (searchRequest: PublicObjectSearchRequest): Promise<HubSpotPaginatedResponse<HubSpotEdumateContact>> => {
+export const searchEdumateContacts = async (
+  searchRequest: PublicObjectSearchRequest
+): Promise<HubSpotPaginatedResponse<HubSpotEdumateContact>> => {
   try {
     const response = await hubspotClient.crm.objects.searchApi.doSearch(
       EDUMATE_CONTACT_OBJECT_TYPE,
       searchRequest
     );
-    
-    logger.debug('Searched Edumate contacts in HubSpot', { 
+
+    logger.debug("Searched Edumate contacts in HubSpot", {
       resultsCount: response.results.length,
-      hasMore: !!response.paging?.next
+      hasMore: !!response.paging?.next,
     });
 
     return convertToHubSpotResponse<HubSpotEdumateContact>(response);
   } catch (error) {
-    logger.error('Error searching Edumate contacts in HubSpot', { searchRequest, error });
+    logger.error("Error searching Edumate contacts in HubSpot", {
+      searchRequest,
+      error,
+    });
     throw handleHubSpotError(error);
   }
 };
 
-export const batchCreateEdumateContacts = async (contactsData: Record<string, any>[]): Promise<any> => {
+export const batchCreateEdumateContacts = async (
+  contactsData: Record<string, any>[]
+): Promise<any> => {
   try {
     const batchInput: BatchInputSimplePublicObjectInputForCreate = {
-      inputs: contactsData.map(properties => ({
+      inputs: contactsData.map((properties) => ({
         properties,
-        associations: []
-      }))
+        associations: [],
+      })),
     };
 
     const response = await hubspotClient.crm.objects.batchApi.create(
@@ -401,25 +484,30 @@ export const batchCreateEdumateContacts = async (contactsData: Record<string, an
       batchInput
     );
 
-    logger.info('Batch created Edumate contacts in HubSpot', { 
+    logger.info("Batch created Edumate contacts in HubSpot", {
       count: contactsData.length,
-      successCount: response.results?.length || 0
+      successCount: response.results?.length || 0,
     });
 
     return response;
   } catch (error) {
-    logger.error('Error batch creating Edumate contacts in HubSpot', { count: contactsData.length, error });
+    logger.error("Error batch creating Edumate contacts in HubSpot", {
+      count: contactsData.length,
+      error,
+    });
     throw handleHubSpotError(error);
   }
 };
 
-export const batchUpdateEdumateContacts = async (updates: Array<{ id: string; properties: Record<string, any> }>): Promise<any> => {
+export const batchUpdateEdumateContacts = async (
+  updates: Array<{ id: string; properties: Record<string, any> }>
+): Promise<any> => {
   try {
     const batchInput = {
-      inputs: updates.map(update => ({
+      inputs: updates.map((update) => ({
         id: update.id,
-        properties: update.properties
-      }))
+        properties: update.properties,
+      })),
     };
 
     const response = await hubspotClient.crm.objects.batchApi.update(
@@ -427,32 +515,42 @@ export const batchUpdateEdumateContacts = async (updates: Array<{ id: string; pr
       batchInput
     );
 
-    logger.info('Batch updated Edumate contacts in HubSpot', { 
+    logger.info("Batch updated Edumate contacts in HubSpot", {
       count: updates.length,
-      successCount: response.results?.length || 0
+      successCount: response.results?.length || 0,
     });
 
     return response;
   } catch (error) {
-    logger.error('Error batch updating Edumate contacts in HubSpot', { count: updates.length, error });
+    logger.error("Error batch updating Edumate contacts in HubSpot", {
+      count: updates.length,
+      error,
+    });
     throw handleHubSpotError(error);
   }
 };
 
 // Helper function to create search requests
-export const createSearchRequest = (filters: any, options: any): PublicObjectSearchRequest => {
+export const createSearchRequest = (
+  filters: any,
+  options: any
+): PublicObjectSearchRequest => {
   return {
-    filterGroups: [{
-      filters: filters
-    }],
+    filterGroups: [
+      {
+        filters: filters,
+      },
+    ],
     properties: options?.properties || [], // Default to empty array
     sorts: options?.sorts || [],
     limit: options?.limit || 10,
-    after: options?.after || undefined
+    after: options?.after || undefined,
   };
 };
 
-export const getOwnersByEmail = async (email: string): Promise<HubSpotOwner[]> => {
+export const getOwnersByEmail = async (
+  email: string
+): Promise<HubSpotOwner[]> => {
   try {
     const response = await hubspotClient.crm.owners.ownersApi.getPage(
       email, // email filter
@@ -462,39 +560,98 @@ export const getOwnersByEmail = async (email: string): Promise<HubSpotOwner[]> =
     );
 
     const owners = response.results
-      .filter(owner => owner.email?.toLowerCase() === email.toLowerCase())
-      .map(owner => ({
+      .filter((owner) => owner.email?.toLowerCase() === email.toLowerCase())
+      .map((owner) => ({
         id: owner.id!,
         email: owner.email!,
-        firstName: owner.firstName || '',
-        lastName: owner.lastName || ''
+        firstName: owner.firstName || "",
+        lastName: owner.lastName || "",
       }));
 
-    logger.debug('Retrieved owners by email from HubSpot', { 
-      email, 
-      count: owners.length 
+    logger.debug("Retrieved owners by email from HubSpot", {
+      email,
+      count: owners.length,
     });
 
     return owners;
   } catch (error) {
-    logger.error('Error retrieving owners by email from HubSpot', { email, error });
+    logger.error("Error retrieving owners by email from HubSpot", {
+      email,
+      error,
+    });
     throw handleHubSpotError(error);
   }
 };
 
-export const updateContactOwner = async (contactId: string, ownerId: string): Promise<void> => {
+export const updateContactOwner = async (
+  contactId: string,
+  ownerId: string
+): Promise<void> => {
   try {
     const updateInput = {
       properties: {
-        hubspot_owner_id: ownerId
-      }
+        hubspot_owner_id: ownerId,
+      },
     };
 
     await hubspotClient.crm.contacts.basicApi.update(contactId, updateInput);
 
-    logger.debug('Updated contact owner in HubSpot', { contactId, ownerId });
+    logger.debug("Updated contact owner in HubSpot", { contactId, ownerId });
   } catch (error) {
-    logger.error('Error updating contact owner in HubSpot', { contactId, ownerId, error });
+    logger.error("Error updating contact owner in HubSpot", {
+      contactId,
+      ownerId,
+      error,
+    });
+    throw handleHubSpotError(error);
+  }
+};
+
+export const getPartnerByEmail = async (
+  searchRequest: PublicObjectSearchRequest
+): Promise<any> => {
+  try {
+    const response = await hubspotClient.crm.objects.searchApi.doSearch(
+      EDUMATE_B2B_PARTNERS_OBJECT_TYPE,
+      searchRequest
+    );
+
+    logger.debug("Searched B2B Partners email in HubSpot", {
+      resultsCount: response.results.length,
+      hasMore: !!response.paging?.next,
+    });
+
+    return convertToHubSpotResponse<HubSpotEdumateContact>(response);
+  } catch (error) {
+    logger.error("Error searching B2B Partners email in HubSpot", {
+      searchRequest,
+      error,
+    });
+    throw handleHubSpotError(error);
+  }
+};
+
+export const createHubspotPartner = async (
+  properties: Record<string, any>
+): Promise<HubSpotEdumateContact> => {
+  try {
+    const createInput: SimplePublicObjectInputForCreate = {
+      properties,
+      associations: [],
+    };
+
+    const response = await hubspotClient.crm.objects.basicApi.create(
+      EDUMATE_B2B_PARTNERS_OBJECT_TYPE,
+      createInput
+    );
+
+    logger.info("Created Edumate partner in HubSpot for partnerId", {partnerId:response.id});
+    return convertToHubSpotObject<HubSpotEdumateContact>(response);
+  } catch (error) {
+    logger.error("Error creating Edumate partner in HubSpot", {
+      properties,
+      error,
+    });
     throw handleHubSpotError(error);
   }
 };

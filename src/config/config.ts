@@ -1,5 +1,6 @@
 // src/config/config.ts
 import dotenv from 'dotenv';
+import { HUBSPOT_B2B_PARTNERS_OBJECT_TYPE } from "../setup/secrets";
 
 dotenv.config();
 
@@ -13,6 +14,7 @@ interface HubSpotConfig {
   baseUrl: string;
   customObjects: {
     edumateContact: string;
+    b2bPartners: string;
   };
 }
 
@@ -35,24 +37,28 @@ interface AppConfig {
 
 export const config: AppConfig = {
   server: {
-    port: parseInt(process.env.PORT || '3000', 10),
-    environment: process.env.NODE_ENV || 'development'
+    port: parseInt(process.env.PORT || "3000", 10),
+    environment: process.env.NODE_ENV || "development",
   },
   hubspot: {
-    accessToken: process.env.HUBSPOT_ACCESS_TOKEN || '',
-    baseUrl: process.env.HUBSPOT_BASE_URL || 'https://api.hubapi.com',
+    accessToken: process.env.HUBSPOT_ACCESS_TOKEN || "",
+    baseUrl: process.env.HUBSPOT_BASE_URL || "https://api.hubapi.com",
     customObjects: {
-      edumateContact: process.env.HUBSPOT_EDUMATE_CONTACT_OBJECT_TYPE || '2-169456956'
-    }
+      edumateContact:
+        process.env.HUBSPOT_EDUMATE_CONTACT_OBJECT_TYPE || "2-169456956",
+      b2bPartners: HUBSPOT_B2B_PARTNERS_OBJECT_TYPE || "2-46227624",
+    },
   },
   logging: {
-    level: process.env.LOG_LEVEL || 'info',
-    maxFiles: process.env.LOG_MAX_FILES || '14d',
-    maxSize: process.env.LOG_MAX_SIZE || '20m'
+    level: process.env.LOG_LEVEL || "info",
+    maxFiles: process.env.LOG_MAX_FILES || "14d",
+    maxSize: process.env.LOG_MAX_SIZE || "20m",
   },
   edumate: {
-    logo: process.env.EDUMATE_LOGO || 'https://edumateglobal.com/images/logos/edumate-logos/edumate_logo.png'
-  }
+    logo:
+      process.env.EDUMATE_LOGO ||
+      "https://edumateglobal.com/images/logos/edumate-logos/edumate_logo.png",
+  },
 };
 
 // Validate required environment variables

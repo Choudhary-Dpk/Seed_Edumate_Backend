@@ -25,27 +25,16 @@ export const validateReqParams = async (
 
 export const createUserValidationRules = () => {
   return [
-    body("firstName")
+    body("fullName")
       .not()
       .isEmpty()
-      .withMessage("First Name is required")
+      .withMessage("Full Name is required")
       .bail()
       .isString()
-      .withMessage("First Name must be of type String")
+      .withMessage("Full Name must be of type String")
       .bail()
       .isLength({ max: 50 })
-      .withMessage("First Name can have max. 50 characters")
-      .trim(),
-    body("lastName")
-      .not()
-      .isEmpty()
-      .withMessage("Last Name is required")
-      .bail()
-      .isString()
-      .withMessage("Last Name must be of type String")
-      .bail()
-      .isLength({ max: 50 })
-      .withMessage("Last Name can have max. 50 characters")
+      .withMessage("Full Name can have max. 50 characters")
       .trim(),
     body("email")
       .not()
@@ -60,17 +49,20 @@ export const createUserValidationRules = () => {
       .toLowerCase()
       .normalizeEmail()
       .trim(),
-    body("phone")
+    body("b2bId")
       .not()
       .isEmpty()
-      .withMessage("Phone is required")
+      .withMessage("B2B Partner ID is required")
       .bail()
-      .isString()
-      .withMessage("Phone must be of type String")
+      .isInt({ min: 1 })
+      .withMessage("B2B Partner ID must be a valid integer"),
+    body("roleId")
+      .not()
+      .isEmpty()
+      .withMessage("Role ID is required")
       .bail()
-      .matches(/^\d{10}$/)
-      .withMessage("Provide a valid mobile number")
-      .trim(),
+      .isInt({ min: 1 })
+      .withMessage("Role ID must be a valid integer"),
   ];
 };
 
@@ -241,4 +233,61 @@ export const validatePasswordReset = [
   body('resetLink')
     .isURL()
     .withMessage('Valid reset link URL is required'),
+];
+
+export const createLeadValidationRules = () => [
+  body("email")
+    .not()
+    .isEmpty()
+    .withMessage("Email is required")
+    .bail()
+    .isLength({ max: 50 })
+    .withMessage("Email must be max 50 characters")
+    .bail()
+    .isEmail()
+    .withMessage("Provide a valid email")
+    .normalizeEmail()
+    .trim(),
+
+  body("applicationStatus")
+    .trim()
+    .notEmpty()
+    .bail()
+    .withMessage("Application status is required")
+    .isString()
+    .bail()
+    .withMessage("Application status must be a string")
+    .isIn([
+      "Pre-Approved",
+      "Approved",
+      "Sanction Letter Issued",
+      "Disbursement Pending",
+      "Disbursed",
+      "Rejected",
+      "On Hold",
+      "Withdrawn",
+      "Cancelled",
+    ])
+    .withMessage("Invalid application status"),
+
+  body("loanAmountRequested")
+    .notEmpty()
+    .bail()
+    .withMessage("Loan amount requested is required")
+    .isFloat({ min: 1 })
+    .withMessage("Loan amount requested must be a positive number"),
+
+  body("loanAmountApproved")
+    .notEmpty()
+    .bail()
+    .withMessage("Loan amount approved is required")
+    .isFloat({ min: 0 })
+    .withMessage("Loan amount approved must be a number >= 0"),
+
+  body("loanTenureYears")
+    .notEmpty()
+    .bail()
+    .withMessage("Loan tenure years is required")
+    .isInt({ min: 1 })
+    .withMessage("Loan tenure years must be at least 1"),
 ];

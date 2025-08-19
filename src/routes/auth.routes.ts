@@ -1,11 +1,13 @@
 import { Router } from "express";
 import { changePasswordValidationRules, createUserValidationRules, forgotPasswordValidationRules, loginValidationRules, passwordValidationRules, validateReqParams } from "../middlewares/validators/validator";
 import {
+  getUserIpDetails,
   validateChangePassword,
   validateCreateUser,
   validateEmail,
   validateEmailToken,
   validatePassword,
+  validateRefreshToken,
   validateToken,
 } from "../middlewares";
 import { changePassword, createUser } from "../controllers/user.controller";
@@ -16,6 +18,7 @@ import {
   resetPassword,
   setPassword,
   logout,
+  getAccessToken,
 } from "../controllers/common/auth.controller";
 
 const router = Router();
@@ -33,6 +36,7 @@ router.post(
   validateReqParams,
   validateEmail,
   validatePassword,
+  getUserIpDetails,
   login
 );
 router.post(
@@ -73,5 +77,6 @@ router.put(
   changePassword
 );
 router.post("/logout", validateToken, logout);
+router.post("/token", validateRefreshToken, getAccessToken);
 
 export default router;

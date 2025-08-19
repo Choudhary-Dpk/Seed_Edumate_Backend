@@ -1,9 +1,17 @@
 import { NextFunction,Request,Response } from "express";
 import { sendResponse } from "../utils/api";
-import { getUserByEmail, getUserByPhone } from "../models/helpers/user.helper";
-import { getUserById, getUserDetailsFromToken } from "../models/helpers/auth";
+import { getUserByEmail } from "../models/helpers/user.helper";
+import {
+  getUserById,
+  getUserDetailsFromToken,
+  getUserSessionById,
+} from "../models/helpers/auth";
 import { getUserDetailsByEmail } from "../models/helpers";
-import { decodeToken, validateUserPassword } from "../utils/auth";
+import {
+  decodeToken,
+  generateEmailToken,
+  validateUserPassword,
+} from "../utils/auth";
 import { JwtPayload } from "jsonwebtoken";
 import { RequestWithPayload } from "../types/api.types";
 import {
@@ -11,6 +19,16 @@ import {
   ProtectedPayload,
   ResetPasswordPayload,
 } from "../types/auth";
+import * as hubspotService from "../services/hubspot.service";
+import {
+  getPartnerById,
+  getUserRoleById,
+} from "../models/helpers/partners.helper";
+import { fetchIpDetails } from "../services/user.service";
+import { UAParser } from "ua-parser-js";
+import { JWT_SECRET } from "../setup/secrets";
+import moment from "moment";
+import prisma from "../config/prisma";
 
 export const validateCreateUser = async (
   req: Request,
@@ -18,16 +36,26 @@ export const validateCreateUser = async (
   next: NextFunction
 ) => {
   try {
-    const { email, phone } = req.body;
+    const { email, b2bId, roleId } = req.body;
 
-    const userByEmail = await getUserByEmail(email, null);
-    if (userByEmail) {
-      return sendResponse(res, 400, "Email already exists");
+    const existingEmail = await hubspotService.fetchPartnerByEmail(email);
+    if (existingEmail.total > 0 || existingEmail.results?.length > 0) {
+      return sendResponse(res, 400, "Email already exists in HubSpot");
     }
 
-    const userByPhone = await getUserByPhone(phone, null);
-    if (userByPhone) {
-      return sendResponse(res, 400, "Phone number already exists");
+    const existingPartner = await getPartnerById(b2bId);
+    if (!existingPartner) {
+      return sendResponse(res, 400, "Partner does not exists");
+    }
+
+    const role = await getUserRoleById(roleId);
+    if (!role) {
+      return sendResponse(res, 400, "Role does not exists");
+    }
+
+    const userByEmail = await getUserByEmail(email);
+    if (userByEmail) {
+      return sendResponse(res, 400, "Email already exists");
     }
 
     next();
@@ -72,20 +100,20 @@ export const validateEmail = async (
   try {
     const email = req.body.email;
 
-    const userDetails = await getUserDetailsByEmail(email, false);
+    const userDetails = await getUserDetailsByEmail(email);
     if (!userDetails) {
       return sendResponse(res, 400, "User not found");
     }
 
-    if (!userDetails.activationStatus) {
+    if (!userDetails.is_active) {
       return sendResponse(res, 400, "User is disabled");
     }
 
     req.payload = {
       id: userDetails.id,
       email: email,
-      passwordHash: userDetails.passwordHash,
-      passwordSetOn: userDetails.passwordSetOn,
+      passwordHash: userDetails.password_hash,
+      passwordSetOn: userDetails.updated_at,
     };
     next();
   } catch (error) {
@@ -127,35 +155,43 @@ export const validateToken = async (
   next: NextFunction
 ) => {
   try {
-    const { token } = req.body;
-    if (!token) {
-      return sendResponse(res, 401, "Missing Session Token");
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return sendResponse(res, 401, "Missing or invalid Authorization header");
     }
+
+    const token = authHeader.split(" ")[1];
 
     let decodedToken: JwtPayload;
     try {
       decodedToken = await decodeToken(token);
     } catch (error) {
-      return sendResponse(res, 401, "Invalid token");
+      return sendResponse(res, 401, "Unauthorized user");
     }
 
-    const user = await getUserById(decodedToken.id, false, true);
+    const user = await getUserById(decodedToken.id, true);
     if (!user) {
-      return sendResponse(res, 403, "Invalid user");
+      return sendResponse(res, 401, "User not found");
     }
 
-    if (!user.activationStatus) {
+    if (!user.is_active) {
       return sendResponse(
         res,
-        403,
+        401,
         "Your account has been disabled, please contact system administrator"
       );
+    }
+
+    const userSession = await getUserSessionById(decodedToken.id);
+    if (!userSession?.is_valid) {
+      return sendResponse(res, 401, "Invalid user session");
     }
 
     req.payload = {
       id: user.id,
       email: user.email,
-      passwordHash: user.passwordHash,
+      passwordHash: user.password_hash,
     };
 
     next();
@@ -189,5 +225,103 @@ export const validateChangePassword = async (
     next();
   } catch (error) {
     return sendResponse(res, 500, "Internal server error");
+  }
+};
+
+export const getUserIpDetails = async (
+  req: RequestWithPayload<LoginPayload>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id, email } = req.payload!;
+    let ip =
+      (req.query.ip as string) ||
+      req.headers["x-forwarded-for"]?.toString().split(",")[0] ||
+      req.socket?.remoteAddress ||
+      "";
+
+    // Fallback for local testing
+    if (ip === "::1" || ip === "127.0.0.1") {
+      ip = "8.8.8.8";
+    }
+
+    const ipDetails = await fetchIpDetails(ip);
+    console.log("ipDetails", ipDetails);
+
+    const parser = new UAParser(req.headers["user-agent"] || "");
+    const uaResult = parser.getResult();
+
+    const deviceInfo = {
+      browser: `${uaResult.browser.name || "Unknown"} ${
+        uaResult.browser.version || ""
+      }`,
+      os: `${uaResult.os.name || "Unknown"} ${uaResult.os.version || ""}`,
+      device: uaResult.device.type || "desktop",
+    };
+
+    console.log("deviceInfo", deviceInfo);
+
+    req.payload = {
+      ...req.payload,
+      id,
+      email,
+      ipDetails: ip,
+      deviceDetails: deviceInfo,
+    };
+
+    next();
+  } catch (error) {
+    return sendResponse(res, 500, "Internal server error");
+  }
+};
+
+export const validateRefreshToken = async (
+  req: RequestWithPayload<LoginPayload>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { refreshToken } = req.body;
+    if (!refreshToken) {
+      return sendResponse(res, 400, "Refresh token is required");
+    }
+
+    const session = await prisma.session.findFirst({
+      where: { refresh_token_hash: refreshToken, is_valid: true },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            full_name: true,
+            is_active: true,
+            password_hash: true,
+          },
+        },
+      },
+    });
+
+    if (!session) {
+      return sendResponse(res, 401, "Invalid or revoked refresh token");
+    }
+
+    if (session.expires_at && moment().isAfter(session.expires_at)) {
+      return sendResponse(res, 401, "Refresh token expired");
+    }
+
+    if (!session.user) {
+      return sendResponse(res, 401, "User not found");
+    }
+
+    req.payload = {
+      id: session.user.id,
+      email: session.user.email,
+      passwordHash: session.user.password_hash,
+    };
+
+    next();
+  } catch (error: any) {
+    return sendResponse(res, 500, error?.message || "Internal server error");
   }
 };

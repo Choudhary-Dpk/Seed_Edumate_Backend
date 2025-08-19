@@ -1,41 +1,12 @@
 import prisma from "../../config/prisma";
 
-export const getUserByEmail = async (
-  email: string,
-  exceptionId: number | null = null
-) => {
+export const getUserByEmail = async (email: string) => {
   const user = await prisma.user.findFirst({
     select: {
       id: true,
     },
     where: {
       email: email,
-      isDeleted: false,
-      ...(exceptionId && {
-        id: {
-          not: exceptionId,
-        },
-      }),
-    },
-  });
-
-  return user;
-};
-
-export const getUserByPhone = async (
-  phone: string,
-  exceptionId: number | null
-) => {
-  const user = await prisma.user.findFirst({
-    select: { id: true },
-    where: {
-      phone,
-      isDeleted: false,
-      ...(exceptionId && {
-        id: {
-          not: exceptionId,
-        },
-      }),
     },
   });
 
@@ -43,29 +14,32 @@ export const getUserByPhone = async (
 };
 
 export const createUsers = async (
-  createdBy: number | null,
   email: string,
+  b2bId: number,
   passwordHash: string | null,
-  firstName: string,
-  lastName: string,
-  phone: string,
-  address: string | null
+  fullName: string
 ) => {
   const user = await prisma.user.create({
     data: {
-      firstName,
-      lastName,
-      phone,
+      full_name: fullName,
+      b2b_id: b2bId,
       email,
-      createdOn: new Date(),
-      createdBy,
-      ...(address && { address }),
+      password_hash: passwordHash,
+      created_at: new Date(),
       ...(passwordHash && {
         passwordHash,
-        passwordSetOn: new Date(),
       }),
     },
   });
 
   return user;
+};
+
+export const assignRole = async (userId: number, roleId: number) => {
+  await prisma.userRole.create({
+    data: {
+      user_id: userId,
+      role_id: roleId,
+    },
+  });
 };

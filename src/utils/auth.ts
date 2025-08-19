@@ -1,6 +1,7 @@
 import { randomBytes } from "crypto";
 import { compare, hash } from "bcrypt";
 import { JwtPayload, sign, verify } from "jsonwebtoken";
+import { JWT_SECRET } from "../setup/secrets";
 
 export const validateUserPassword = async (
   password: string,
@@ -9,7 +10,7 @@ export const validateUserPassword = async (
   return await compare(password, passwordHash);
 };
 
-export const generateRefreshToken = (size: number) => {
+export const generateEmailToken = (size: number) => {
   return new Promise<string>((resolve, reject) => {
     randomBytes(size, (err, buf) => {
       if (err) {
@@ -23,31 +24,39 @@ export const generateRefreshToken = (size: number) => {
 export const generateJWTToken = (
   userId: number,
   email: string,
-  sessionId:string
-) => {
-  const data = {
-    id: userId,
-    email: email,
-    sessionId
-  };
+  sessionId?: string
+): Promise<string> => {
+  const payload = { id: userId, email, sessionId };
 
-  return new Promise<string>((resolve, reject) => {
-    sign(
-      data,
-      process.env.JWT_SECRET!,
-      {
-        expiresIn: "1d",
-      },
-      (err, token) => {
-        if (err) {
-          reject(err);
-        }
-        if (token) {
-          resolve(token);
-        }
-        reject(`Token generation failed`);
+  return new Promise((resolve, reject) => {
+    sign(payload, JWT_SECRET!, { expiresIn: "15m" }, (err, token) => {
+      if (err) {
+        return reject(err);
       }
-    );
+      if (!token) {
+        return reject("Token generation failed");
+      }
+      resolve(token);
+    });
+  });
+};
+
+export const generateRefreshToken = async (
+  userId: number,
+  email: string
+): Promise<string> => {
+  const payload = { id: userId, email };
+
+  return new Promise((resolve, reject) => {
+    sign(payload, JWT_SECRET!, { expiresIn: "7d" }, (err, token) => {
+      if (err) {
+        return reject(err);
+      }
+      if (!token) {
+        return reject("Refresh token generation failed");
+      }
+      resolve(token);
+    });
   });
 };
 
