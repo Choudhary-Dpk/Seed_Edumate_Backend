@@ -112,6 +112,7 @@ export const validateEmail = async (
     req.payload = {
       id: userDetails.id,
       email: email,
+      name: userDetails.full_name!,
       passwordHash: userDetails.password_hash,
       passwordSetOn: userDetails.updated_at,
     };

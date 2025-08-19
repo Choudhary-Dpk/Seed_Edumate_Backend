@@ -95,16 +95,16 @@ export const getConvertedCurrency = async (req: Request, res: Response) => {
 // In-memory storage for idempotency (use DB in production)
 const processedRequests = new Map<string, RepaymentScheduleResponse>();
 
-export const generateRepaymentScheduleAndEmail = async (
+export const paymentScheduleAndEmail = async (
   req: Request,
   res: Response
 ): Promise<void> => {
   try {
     const payload = req?.body || {};
-    
+
     // Validate the request body
     // const validation = validateRepaymentSchedule(payload);
-    
+
     // if (!validation.success) {
     //   res.status(400).json({
     //     success: false,
@@ -125,23 +125,32 @@ export const generateRepaymentScheduleAndEmail = async (
       email,
       mobileNumber,
       address,
-      fromName = 'Edumate',
-      subject = 'Your Loan Repayment Schedule',
-      message = 'Please find attached your detailed loan repayment schedule.',
+      fromName = "Edumate",
+      subject = "Your Loan Repayment Schedule",
+      message = "Please find attached your detailed loan repayment schedule.",
       sendEmail = true,
     } = payload!;
 
     const requestId = generateRequestIdFromPayload(payload);
-    const customerDetails = {name, email, mobileNumber, address}
+    const customerDetails = { name, email, mobileNumber, address };
 
     // Check for idempotency - if request was already processed
     if (processedRequests.has(requestId)) {
       const cachedResponse = processedRequests.get(requestId)!;
-      return sendResponse(res, 200, "Repayment schedule already processed", cachedResponse);
+      return sendResponse(
+        res,
+        200,
+        "Repayment schedule already processed",
+        cachedResponse
+      );
     }
 
     // Calculate the repayment schedule
-    const calculationResult = calculateRepaymentSchedule(principal, annualRate, tenureYears);
+    const calculationResult = calculateRepaymentSchedule(
+      principal,
+      annualRate,
+      tenureYears
+    );
 
     let emailResponse;
     let pdfFileName: string | undefined;
@@ -149,12 +158,15 @@ export const generateRepaymentScheduleAndEmail = async (
     if (sendEmail && email) {
       try {
         // Generate PDF
-        const { buffer: pdfBuffer, fileName } = await generatePDF(calculationResult, {
-          fromName,
-          requestId,
-          customerDetails
-        });
-        
+        const { buffer: pdfBuffer, fileName } = await generatePDF(
+          calculationResult,
+          {
+            fromName,
+            requestId,
+            customerDetails,
+          }
+        );
+
         pdfFileName = fileName;
 
         // Send email with PDF attachment
@@ -174,13 +186,16 @@ export const generateRepaymentScheduleAndEmail = async (
           sentAt: new Date().toISOString(),
         };
       } catch (emailError) {
-        console.error('Error sending email:', emailError);
-        
+        console.error("Error sending email:", emailError);
+
         // Return error response for email failure
         res.status(500).json({
           success: false,
           message: "Failed to send email",
-          error: emailError instanceof Error ? emailError.message : "Email sending failed",
+          error:
+            emailError instanceof Error
+              ? emailError.message
+              : "Email sending failed",
           calculation: calculationResult, // Still provide calculation results
         });
         return;
@@ -189,7 +204,7 @@ export const generateRepaymentScheduleAndEmail = async (
 
     // Prepare response
     const response: RepaymentScheduleResponse = {
-      status: sendEmail && emailResponse ? 'sent' : 'not-sent',
+      status: sendEmail && emailResponse ? "sent" : "not-sent",
       loanDetails: calculationResult.loanDetails,
       monthlySchedule: calculationResult.monthlySchedule,
       yearlyBreakdown: calculationResult.yearlyBreakdown,
@@ -208,7 +223,12 @@ export const generateRepaymentScheduleAndEmail = async (
     }
 
     // Return successful response
-    sendResponse(res, 200, "Repayment schedule generated successfully", response);
+    sendResponse(
+      res,
+      200,
+      "Repayment schedule generated successfully",
+      response
+    );
   } catch (error) {
     console.error("Error in generateRepaymentScheduleAndEmail:", error);
     res.status(500).json({

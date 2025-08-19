@@ -7,6 +7,7 @@ export type DeviceInfo = {
 export type LoginPayload = {
   id: number;
   email: string;
+  name?: string;
   passwordHash?: string | null;
   passwordSetOn?: Date | null;
   ipDetails?: any;
