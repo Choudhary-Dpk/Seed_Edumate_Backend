@@ -3,7 +3,6 @@ import { getAllUsers, createUser, getIpInfo } from '../controllers/user.controll
 import { createUserValidator } from '../validators/user.validator';
 import authRoutes from "./auth.routes";
 import { getPartnersList, getRoles } from "../controllers/hubspot.controller";
-import { validateToken } from "../middlewares";
 
 const router = Router();
 

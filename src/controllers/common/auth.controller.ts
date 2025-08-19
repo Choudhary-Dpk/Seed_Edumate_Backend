@@ -83,7 +83,7 @@ export const sendOtp = async (
   next: NextFunction
 ) => {
   try {
-    const { email, id } = req.payload!;
+    const { email, id, name } = req.payload!;
 
     logger.debug(`Generating otp for userId: ${id}`);
     const otp = await generateOtp();
@@ -98,13 +98,21 @@ export const sendOtp = async (
     logger.debug(`Otp saved successfully`);
 
     logger.debug(`Fetching email template`);
-    const emailTemplate = await getEmailTemplate("otp");
+    let emailTemplate = await getEmailTemplate("otp");
     if (!emailTemplate) {
       return sendResponse(res, 500, "Email template not found");
     }
 
+    emailTemplate = emailTemplate.replace(
+      /{%currentYear%}/,
+      moment().format("YYYY")
+    );
+    emailTemplate = emailTemplate.replace(
+      /{%name%}/g,
+      name!.charAt(0).toUpperCase() + name!.slice(1)
+    );
     const html = emailTemplate.replace(`{%otp%}`, otp);
-    const subject = "SEED - One time password";
+    const subject = "EDUMATE - One time password";
 
     emailQueue.push({ to: email, subject, html, retry: 0 });
 
@@ -120,22 +128,27 @@ export const forgotPassword = async (
   next: NextFunction
 ) => {
   try {
-    const { email, id } = req.payload!;
+    const { email, id, name } = req.payload!;
 
     logger.debug(`Generating emailToken`);
     const emailToken = await generateEmailToken(30);
     logger.debug(`Email token generated successfully`);
 
     logger.debug(`Getting forgot password template`);
-    const content = await getEmailTemplate("forgot-password");
+    let content = await getEmailTemplate("forgot-password");
     if (!content) {
       return sendResponse(res, 500, "Email template not found");
     }
     logger.debug(`Forgot password template fetched successfully`);
 
     const expiry = moment().add(30, "minutes").toDate().toISOString();
-    const redirectUri = `${FRONTEND_URL}/auth/reset-password?token=${emailToken}&expiry=${expiry}`;
+    const redirectUri = `${FRONTEND_URL}/partners/reset-password?token=${emailToken}&expiry=${expiry}`;
     console.log("Redirect URI:", redirectUri);
+    content = content.replace(/{%currentYear%}/, moment().format("YYYY"));
+    content = content.replace(
+      /{%name%}/g,
+      name!.charAt(0).toUpperCase() + name!.slice(1)
+    );
     const html = content.replace("{%reset-password-url%}", redirectUri);
     const subject = "Forgot Password";
 
