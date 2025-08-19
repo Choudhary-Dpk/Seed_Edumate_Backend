@@ -37,7 +37,6 @@ model loan_eligibility_matrix {
   @@index([is_stem_designated, preference], map: "idx_stem_preference")
   @@map("loan_eligibility_matrix")
 }
-
 model User {
   id            Int        @id @default(autoincrement()) @map("id")
   b2b_id      Int
@@ -399,7 +398,7 @@ model userOtp {
   id        Int      @id @default(autoincrement())
   userId    Int
   otp       String
-  created_at DateTime     @default(now())
+  createdOn DateTime     @default(now())
 
   @@map("userOtps")
 }
@@ -427,7 +426,7 @@ model loan_application {
   deletedBy                     Int?
   createdBy                     Int?
   created_at             DateTime @default(now())
-  updated_at             DateTime @default(now())
+  updatedAt             DateTime? @updatedAt
 
   @@map("loanApplications")
 }
