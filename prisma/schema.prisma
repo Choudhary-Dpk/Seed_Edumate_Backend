@@ -415,7 +415,8 @@ model currency_conversion {
 }
 
 model loan_application {
-  id                    Int      @id @default(autoincrement())
+  id                    Int       @id @default(autoincrement())
+  name              String?
   email                String
   applicationStatus     String
   loanAmountRequested   Decimal
@@ -428,5 +429,6 @@ model loan_application {
   created_at             DateTime @default(now())
   updatedAt             DateTime? @updatedAt
 
+  @@unique([email, loanAmountRequested, loanTenureYears])
   @@map("loanApplications")
 }

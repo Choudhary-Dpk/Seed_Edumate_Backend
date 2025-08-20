@@ -26,7 +26,7 @@ import {
 } from "../models/helpers/partners.helper";
 import { fetchIpDetails } from "../services/user.service";
 import { UAParser } from "ua-parser-js";
-import { API_KEY, JWT_SECRET } from "../setup/secrets";
+import { API_KEY } from "../setup/secrets";
 import moment from "moment";
 import prisma from "../config/prisma";
 

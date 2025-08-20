@@ -423,6 +423,39 @@ export const fetchPartnerByEmail = async (
   }
 };
 
+export const fetchLeadByEmail = async (email: string): Promise<any> => {
+  const searchRequest = hubspotClient.createSearchRequest(
+    [
+      {
+        propertyName: "student_email",
+        operator: "EQ",
+        value: email,
+      },
+    ],
+    {
+      properties: [
+        "student_name",
+        "student_email",
+        "loan_amount_approved",
+        "loan_amount_requested",
+        "loan_tenure_years",
+      ],
+    }
+  );
+
+  try {
+    const response = await hubspotClient.getLeadsByEmail(searchRequest);
+    return response;
+  } catch (error) {
+    logger.error("Error in fetchLeadByEmail service", { error });
+    throw createHubSpotError(
+      error instanceof Error ? error.message : "Unknown error",
+      error,
+      "fetchLeadByEmail"
+    );
+  }
+};
+
 export const createPartner = async (email: string, name: string) => {
   try {
     const response = await hubspotClient.createHubspotPartner({
@@ -438,6 +471,39 @@ export const createPartner = async (email: string, name: string) => {
       error instanceof Error ? error.message : "Unknown error",
       error,
       "createPartner"
+    );
+  }
+};
+
+export const createLoanLeads = async (
+  leads: {
+    email: string;
+    name: string;
+    applicationStatus: string;
+    loanAmountRequested: number;
+    loanAmountApproved: number;
+    loanTenureYears: number;
+  }[]
+) => {
+  try {
+    const response = await hubspotClient.createLoanApplicationLeads(
+      leads.map((lead) => ({
+        student_email: lead.email,
+        student_name: lead.name,
+        application_status: lead.applicationStatus,
+        loan_amount_approved: lead.loanAmountApproved,
+        loan_amount_requested: lead.loanAmountRequested,
+        loan_tenure_years: lead.loanTenureYears,
+      }))
+    );
+
+    return response;
+  } catch (error) {
+    logger.error("Error in createLoanLeads service", { error });
+    throw createHubSpotError(
+      error instanceof Error ? error.message : "Unknown error",
+      error,
+      "createLoanLeads"
     );
   }
 };

@@ -23,6 +23,8 @@ const hubspotClient = new Client({ accessToken: config.hubspot.accessToken });
 const EDUMATE_CONTACT_OBJECT_TYPE = config.hubspot.customObjects.edumateContact;
 const EDUMATE_B2B_PARTNERS_OBJECT_TYPE =
   config.hubspot.customObjects.b2bPartners || "2-46227624";
+const EDUMATE_LOAN_APPLICATIONS_OBJECT_TYPE =
+  config.hubspot.customObjects.loanApplication || "2-46227735";
 
 /**
  * Convert HubSpot SDK response to our internal type format
@@ -631,6 +633,30 @@ export const getPartnerByEmail = async (
   }
 };
 
+export const getLeadsByEmail = async (
+  searchRequest: PublicObjectSearchRequest
+): Promise<any> => {
+  try {
+    const response = await hubspotClient.crm.objects.searchApi.doSearch(
+      EDUMATE_LOAN_APPLICATIONS_OBJECT_TYPE,
+      searchRequest
+    );
+
+    logger.debug("Searched Loan Application email in HubSpot", {
+      resultsCount: response.results.length,
+      hasMore: !!response.paging?.next,
+    });
+
+    return convertToHubSpotResponse<HubSpotEdumateContact>(response);
+  } catch (error) {
+    logger.error("Error searching Loan Application email in HubSpot", {
+      searchRequest,
+      error,
+    });
+    throw handleHubSpotError(error);
+  }
+};
+
 export const createHubspotPartner = async (
   properties: Record<string, any>
 ): Promise<HubSpotEdumateContact> => {
@@ -645,12 +671,49 @@ export const createHubspotPartner = async (
       createInput
     );
 
-    logger.info("Created Edumate partner in HubSpot for partnerId", {partnerId:response.id});
+    logger.info("Created Edumate partner in HubSpot for partnerId", {
+      partnerId: response.id,
+    });
     return convertToHubSpotObject<HubSpotEdumateContact>(response);
   } catch (error) {
     logger.error("Error creating Edumate partner in HubSpot", {
       properties,
       error,
+    });
+    throw handleHubSpotError(error);
+  }
+};
+
+// Create multiple loan application leads at once
+export const createLoanApplicationLeads = async (
+  propertiesList: Record<string, any>[]
+): Promise<any> => {
+  try {
+    // Prepare batch input
+    const batchInput: BatchInputSimplePublicObjectInputForCreate = {
+      inputs: propertiesList.map((properties) => ({
+        properties,
+        associations: [],
+      })),
+    };
+
+    const response = await hubspotClient.crm.objects.batchApi.create(
+      EDUMATE_LOAN_APPLICATIONS_OBJECT_TYPE,
+      batchInput
+    );
+
+    logger.info("Created multiple Loan Applications in HubSpot", {
+      count: response.results?.length || 0,
+    });
+
+    // Convert response objects into your internal type if needed
+    return response.results.map((res) =>
+      convertToHubSpotObject<HubSpotEdumateContact>(res)
+    );
+  } catch (error) {
+    logger.error("Error creating Loan Applications in HubSpot", {
+      error,
+      propertiesList,
     });
     throw handleHubSpotError(error);
   }
