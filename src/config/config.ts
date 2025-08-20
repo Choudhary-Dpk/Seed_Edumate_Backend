@@ -1,6 +1,9 @@
 // src/config/config.ts
 import dotenv from 'dotenv';
-import { HUBSPOT_B2B_PARTNERS_OBJECT_TYPE } from "../setup/secrets";
+import {
+  HUBSPOT_B2B_PARTNERS_OBJECT_TYPE,
+  HUBSPOT_LOAN_APPLICATIONS_OBJECT_TYPE,
+} from "../setup/secrets";
 
 dotenv.config();
 
@@ -15,6 +18,7 @@ interface HubSpotConfig {
   customObjects: {
     edumateContact: string;
     b2bPartners: string;
+    loanApplication: string;
   };
 }
 
@@ -47,6 +51,7 @@ export const config: AppConfig = {
       edumateContact:
         process.env.HUBSPOT_EDUMATE_CONTACT_OBJECT_TYPE || "2-169456956",
       b2bPartners: HUBSPOT_B2B_PARTNERS_OBJECT_TYPE || "2-46227624",
+      loanApplication: HUBSPOT_LOAN_APPLICATIONS_OBJECT_TYPE || "2-46227735",
     },
   },
   logging: {

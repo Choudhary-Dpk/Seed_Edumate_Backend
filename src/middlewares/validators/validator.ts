@@ -236,6 +236,18 @@ export const validatePasswordReset = [
 ];
 
 export const createLeadValidationRules = () => [
+  body("name")
+    .not()
+    .isEmpty()
+    .withMessage("Name is required")
+    .bail()
+    .isString()
+    .withMessage("Name must be of type String")
+    .bail()
+    .isLength({ max: 50 })
+    .withMessage("Name can have max. 50 characters")
+    .trim(),
+
   body("email")
     .not()
     .isEmpty()

@@ -394,7 +394,7 @@ export const getPartnerByEmail = asyncHandler(
     try {
       const existingEmail = await hubspotService.fetchPartnerByEmail(email);
       if (existingEmail.length > 0) {
-        return sendResponse(res, 400, "Email already exists in hubsport");
+        return sendResponse(res, 400, "Email already exists in Hubspot");
       }
 
       next();
