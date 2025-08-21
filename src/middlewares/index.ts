@@ -289,7 +289,7 @@ export const validateRefreshToken = async (
     }
 
     const session = await prisma.session.findFirst({
-      where: { refresh_token_hash: refreshToken, is_valid: true },
+      where: { refresh_token_hash: refreshToken },
       include: {
         user: {
           select: {

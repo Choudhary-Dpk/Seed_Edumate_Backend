@@ -85,7 +85,7 @@ export const downloadTemplate = (
 ) => {
   try {
     const filePath = resolveLeadsCsvPath();
-
+    console.log("filePath", filePath);
     // Download as leads_template.csv
     res.download(filePath, "leads_template.csv", (err) => {
       if (err) return next(err);

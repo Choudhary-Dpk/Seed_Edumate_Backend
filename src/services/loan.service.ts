@@ -21,7 +21,7 @@ export const findLoanEligibility = async (
       preference,
     } = data;
 
-    const loanRecord = await prisma.loan_eligibility_matrix.findFirst({
+    const loanRecord = await prisma.loanEligibilityMatrix.findFirst({
       where: {
         country_of_study,
         level_of_education,

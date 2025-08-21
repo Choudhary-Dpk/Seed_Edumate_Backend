@@ -48,7 +48,7 @@ export const generateRefreshToken = async (
   const payload = { id: userId, email };
 
   return new Promise((resolve, reject) => {
-    sign(payload, JWT_SECRET!, { expiresIn: "7d" }, (err, token) => {
+    sign(payload, JWT_SECRET!, { expiresIn: "15d" }, (err, token) => {
       if (err) {
         return reject(err);
       }
