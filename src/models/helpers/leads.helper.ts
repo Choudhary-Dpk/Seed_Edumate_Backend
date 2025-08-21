@@ -10,7 +10,7 @@ export const createLead = async (
   email: string,
   name: string
 ) => {
-  const lead = await prisma.loan_application.create({
+  const lead = await prisma.loanApplication.create({
     data: {
       name,
       applicationStatus,
@@ -21,6 +21,7 @@ export const createLead = async (
       userId: id,
       createdBy: id,
       created_at: new Date(),
+      updated_at: new Date(),
     },
   });
 
@@ -28,7 +29,7 @@ export const createLead = async (
 };
 
 export const getLeadByEmail = async (email: string) => {
-  const lead = await prisma.loan_application.findFirst({
+  const lead = await prisma.loanApplication.findFirst({
     select: {
       id: true,
       name: true,
@@ -46,7 +47,7 @@ export const getLeadByEmail = async (email: string) => {
 };
 
 export const createCSVLeads = async (toInsert: Row[]) => {
-  const leads = await prisma.loan_application.createMany({
+  const leads = await prisma.loanApplication.createMany({
     data: toInsert,
     skipDuplicates: true,
   });
@@ -55,7 +56,7 @@ export const createCSVLeads = async (toInsert: Row[]) => {
 };
 
 export const findLeads = async (batch: Row[]) => {
-  const leads = prisma.loan_application.findMany({
+  const leads = prisma.loanApplication.findMany({
     where: {
       OR: batch.map((v) => ({
         email: v.email,

@@ -7,7 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model loan_eligibility_matrix {
+model LoanEligibilityMatrix {
   id                      Int      @id @default(autoincrement())
   country_of_study        String?  @db.VarChar(100)
   level_of_education      String?  @db.VarChar(50)
@@ -51,6 +51,7 @@ model User {
   roles         UserRole[] 
   sessions      Session[]
   loginHistory  LoginHistory[]
+  loanApplications LoanApplication[] 
 
   @@map("users")
 }
@@ -385,7 +386,7 @@ model B2BPartnerRelationshipMgmt {
   @@map("b2b_partner_relationship_mgmt")
 }
 
-model token {
+model Token {
   id        Int      @id @default(autoincrement())
   token     String
   userId    Int
@@ -394,7 +395,7 @@ model token {
   @@map("tokens")
 }
 
-model userOtp {
+model UserOtp {
   id        Int      @id @default(autoincrement())
   userId    Int
   otp       String
@@ -414,20 +415,21 @@ model currency_conversion {
   @@unique([from_currency, to_currency])
 }
 
-model loan_application {
+model LoanApplication {
   id                    Int       @id @default(autoincrement())
   name              String?
   email                String
   applicationStatus     String
-  loanAmountRequested   Decimal
-  loanAmountApproved    Decimal
+  loanAmountRequested   Decimal @db.Decimal(15, 2)
+  loanAmountApproved    Decimal @db.Decimal(15, 2)
   loanTenureYears       Int
   userId                Int
+  user                 User      @relation(fields: [userId], references: [id])
   deletedOn                     DateTime?
   deletedBy                     Int?
   createdBy                     Int?
   created_at             DateTime @default(now())
-  updatedAt             DateTime? @updatedAt
+  updated_at             DateTime? @updatedAt
 
   @@unique([email, loanAmountRequested, loanTenureYears])
   @@map("loanApplications")
