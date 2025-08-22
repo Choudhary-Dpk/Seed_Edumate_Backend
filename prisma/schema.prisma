@@ -37,25 +37,6 @@ model LoanEligibilityMatrix {
   @@index([is_stem_designated, preference], map: "idx_stem_preference")
   @@map("loan_eligibility_matrix")
 }
-model User {
-  id            Int        @id @default(autoincrement()) @map("id")
-  b2b_id      Int
-  email         String     @unique @map("email")
-  password_hash String?     @map("password_hash")
-  full_name     String?    @map("full_name")
-  is_active     Boolean    @default(true) @map("is_active")
-  created_at    DateTime   @default(now()) @map("created_at")
-  updated_at    DateTime   @default(now()) @updatedAt @map("updated_at")
-
-  // Back relation
-  roles         UserRole[] 
-  sessions      Session[]
-  loginHistory  LoginHistory[]
-  loanApplications LoanApplication[] 
-
-  @@map("users")
-}
-
 model Role {
   id          Int       @id @default(autoincrement())
   role        String    @unique
@@ -415,22 +396,511 @@ model currency_conversion {
   @@unique([from_currency, to_currency])
 }
 
-model LoanApplication {
-  id                    Int       @id @default(autoincrement())
-  name              String?
-  email                String
-  applicationStatus     String
-  loanAmountRequested   Decimal @db.Decimal(15, 2)
-  loanAmountApproved    Decimal @db.Decimal(15, 2)
-  loanTenureYears       Int
-  userId                Int
-  user                 User      @relation(fields: [userId], references: [id])
-  deletedOn                     DateTime?
-  deletedBy                     Int?
-  createdBy                     Int?
-  created_at             DateTime @default(now())
-  updated_at             DateTime? @updatedAt
+model User {
+  id            Int        @id @default(autoincrement()) @map("id")
+  b2b_id      Int
+  email         String     @unique @map("email")
+  password_hash String?     @map("password_hash")
+  full_name     String?    @map("full_name")
+  is_active     Boolean    @default(true) @map("is_active")
+  created_at    DateTime   @default(now()) @map("created_at")
+  updated_at    DateTime   @default(now()) @updatedAt @map("updated_at")
 
-  @@unique([email, loanAmountRequested, loanTenureYears])
-  @@map("loanApplications")
+  // Back relation
+  roles         UserRole[] 
+  sessions      Session[]
+  loginHistory  LoginHistory[]
+  loanApplications    LoanApplication[] @relation("UserLoanApplications")
+  assignedApplications LoanApplication[] @relation("AssignedCounselor")
+  createdApplications LoanApplication[] @relation("CreatedBy")
+  modifiedApplications LoanApplication[] @relation("LastModifiedBy")
+  communications       CommunicationLog[]  @relation("UserCommunications")
+
+  @@map("users")
+}
+
+// model LoanApplication {
+//   id                    Int       @id @default(autoincrement())
+//   name              String?
+//   email                String
+//   applicationStatus     String
+//   loanAmountRequested   Decimal @db.Decimal(15, 2)
+//   loanAmountApproved    Decimal @db.Decimal(15, 2)
+//   loanTenureYears       Int
+//   userId                Int
+//   user                 User      @relation(fields: [userId], references: [id])
+//   deletedOn                     DateTime?
+//   deletedBy                     Int?
+//   createdBy                     Int?
+//   created_at             DateTime @default(now())
+//   updated_at             DateTime? @updatedAt
+
+//   @@unique([email, loanAmountRequested, loanTenureYears])
+//   @@map("loanApplications")
+// }
+
+model LoanApplication {
+  id                      Int      @id @default(autoincrement())
+  application_date        DateTime @default(now())
+  lead_reference_code     String?  @unique
+  student_id              String?  @unique
+  student_name            String
+  student_email           String
+  student_phone           String?
+  application_source      ApplicationSource @default(DIRECT)
+  assigned_counselor_id   Int?
+  b2b_partner_id          String?
+  external_reference_id   String?
+  
+  // Foreign Keys
+  user_id                 Int
+  
+  // System tracking
+  created_by_id           Int?
+  last_modified_by_id     Int?
+  created_at              DateTime @default(now())
+  updated_at              DateTime @default(now()) @updatedAt
+
+  // Relations
+  user                    User     @relation("UserLoanApplications", fields: [user_id], references: [id])
+  assigned_counselor      User?    @relation("AssignedCounselor", fields: [assigned_counselor_id], references: [id])
+  created_by              User?    @relation("CreatedBy", fields: [created_by_id], references: [id])
+  last_modified_by        User?    @relation("LastModifiedBy", fields: [last_modified_by_id], references: [id])
+  
+  // One-to-One relations
+  academic_details        AcademicDetails?
+  financial_requirements  FinancialRequirements?
+  application_status      ApplicationStatus?
+  lender_information      LenderInformation?
+  document_management     DocumentManagement?
+  processing_timeline     ProcessingTimeline?
+  rejection_details       RejectionDetails?
+  communication_prefs     CommunicationPreferences?
+  system_tracking         SystemTracking?
+  
+  // One-to-Many relations
+  commission_records      CommissionRecord[]
+  additional_services     AdditionalService[]
+  communication_logs      CommunicationLog[]
+
+  @@index([student_email])
+  @@index([application_date])
+  @@index([assigned_counselor_id])
+  @@map("loan_applications")
+}
+
+// ACADEMIC DETAILS
+
+model AcademicDetails {
+  id                         Int       @id @default(autoincrement())
+  loan_application_id        Int       @unique
+  target_course              String?
+  target_university          String?
+  target_university_country  String?
+  course_level               CourseLevel?
+  course_start_date          DateTime?
+  course_end_date            DateTime?
+  course_duration            Int?      // in months
+  admission_status           AdmissionStatus @default(NOT_APPLIED)
+  visa_status               VisaStatus @default(NOT_APPLIED)
+  i20_cas_received          I20CasStatus @default(NOT_APPLICABLE)
+  created_at                DateTime  @default(now())
+  updated_at                DateTime  @default(now()) @updatedAt
+
+  // Relations
+  loan_application          LoanApplication @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
+
+  @@map("academic_details")
+}
+
+// FINANCIAL REQUIREMENTS
+
+model FinancialRequirements {
+  id                        Int     @id @default(autoincrement())
+  loan_application_id       Int     @unique
+  loan_amount_requested     Decimal @db.Decimal(12, 2)
+  loan_amount_approved      Decimal? @db.Decimal(12, 2)
+  loan_amount_disbursed     Decimal? @db.Decimal(12, 2)
+  tuition_fee              Decimal? @db.Decimal(12, 2)
+  living_expenses          Decimal? @db.Decimal(12, 2)
+  travel_expenses          Decimal? @db.Decimal(12, 2)
+  insurance_cost           Decimal? @db.Decimal(12, 2)
+  other_expenses           Decimal? @db.Decimal(12, 2)
+  total_funding_required   Decimal? @db.Decimal(12, 2)
+  scholarship_amount       Decimal? @db.Decimal(12, 2)
+  self_funding_amount      Decimal? @db.Decimal(12, 2)
+  created_at               DateTime @default(now())
+  updated_at               DateTime @default(now()) @updatedAt
+
+  // Relations
+  loan_application         LoanApplication @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
+
+  @@map("financial_requirements")
+}
+
+// APPLICATION STATUS
+
+model ApplicationStatus {
+  id                    Int             @id @default(autoincrement())
+  loan_application_id   Int             @unique
+  status               ApplicationStatusEnum @default(PRE_APPROVED)
+  priority_level       PriorityLevel   @default(MEDIUM)
+  application_notes    String?         @db.Text
+  internal_notes       String?         @db.Text
+  record_status        RecordStatus    @default(ACTIVE)
+  created_at           DateTime        @default(now())
+  updated_at           DateTime        @default(now()) @updatedAt
+
+  // Relations
+  loan_application     LoanApplication @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
+
+  @@map("application_status")
+}
+
+// LENDER INFORMATION
+
+model LenderInformation {
+  id                        Int            @id @default(autoincrement())
+  loan_application_id       Int            @unique
+  primary_lender_id         String?
+  primary_lender_name       String?
+  loan_product_id           String?
+  loan_product_name         String?
+  loan_product_type         LoanProductType?
+  interest_rate_offered     Decimal?       @db.Decimal(5, 2)
+  interest_rate_type        InterestRateType?
+  loan_tenure_years         Int?
+  moratorium_period_months  Int?
+  emi_amount               Decimal?       @db.Decimal(12, 2)
+  processing_fee           Decimal?       @db.Decimal(12, 2)
+  co_signer_required       Boolean        @default(false)
+  collateral_required      Boolean        @default(false)
+  collateral_type          String?
+  collateral_value         Decimal?       @db.Decimal(12, 2)
+  guarantor_details        String?        @db.Text
+  created_at               DateTime       @default(now())
+  updated_at               DateTime       @default(now()) @updatedAt
+
+  // Relations
+  loan_application         LoanApplication @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
+
+  @@map("lender_information")
+}
+
+// DOCUMENT MANAGEMENT
+
+model DocumentManagement {
+  id                        Int      @id @default(autoincrement())
+  loan_application_id       Int      @unique
+  documents_required_list   String?  @db.Text
+  documents_submitted_list  String?  @db.Text
+  documents_pending_list    String?  @db.Text
+  created_at               DateTime @default(now())
+  updated_at               DateTime @default(now()) @updatedAt
+
+  // Relations
+  loan_application         LoanApplication @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
+
+  @@map("document_management")
+}
+
+// PROCESSING TIMELINE
+
+model ProcessingTimeline {
+  id                           Int       @id @default(autoincrement())
+  loan_application_id          Int       @unique
+  lender_submission_date       DateTime?
+  lender_acknowledgment_date   DateTime?
+  approval_date               DateTime?
+  sanction_letter_date        DateTime?
+  disbursement_request_date   DateTime?
+  disbursement_date           DateTime?
+  total_processing_days       Int?
+  sla_breach                  Boolean   @default(false)
+  delay_reason                DelayReason?
+  created_at                  DateTime  @default(now())
+  updated_at                  DateTime  @default(now()) @updatedAt
+
+  // Relations
+  loan_application            LoanApplication @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
+
+  @@map("processing_timeline")
+}
+
+// REJECTION DETAILS
+
+model RejectionDetails {
+  id                    Int            @id @default(autoincrement())
+  loan_application_id   Int            @unique
+  rejection_date        DateTime?
+  rejection_reason      RejectionReason?
+  rejection_details     String?        @db.Text
+  appeal_submitted      Boolean        @default(false)
+  appeal_outcome        AppealOutcome  @default(NOT_APPLICABLE)
+  resolution_provided   String?        @db.Text
+  created_at           DateTime       @default(now())
+  updated_at           DateTime       @default(now()) @updatedAt
+
+  // Relations
+  loan_application     LoanApplication @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
+
+  @@map("rejection_details")
+}
+
+// COMMUNICATION PREFERENCES
+
+model CommunicationPreferences {
+  id                          Int                    @id @default(autoincrement())
+  loan_application_id         Int                    @unique
+  communication_preference    CommunicationChannel   @default(EMAIL)
+  follow_up_frequency        FollowUpFrequency      @default(AS_NEEDED)
+  last_contact_date          DateTime?
+  next_follow_up_date        DateTime?
+  customer_satisfaction_rating Int?                  @db.SmallInt // 1-10
+  customer_feedback          String?                @db.Text
+  complaint_raised           Boolean                @default(false)
+  complaint_details          String?                @db.Text
+  complaint_resolution_date  DateTime?
+  created_at                 DateTime               @default(now())
+  updated_at                 DateTime               @default(now()) @updatedAt
+
+  // Relations
+  loan_application           LoanApplication        @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
+
+  @@map("communication_preferences")
+}
+
+// SYSTEM TRACKING
+
+model SystemTracking {
+  id                      Int              @id @default(autoincrement())
+  loan_application_id     Int              @unique
+  application_source_system ApplicationSourceSystem @default(MANUAL_ENTRY)
+  integration_status      IntegrationStatus @default(NOT_REQUIRED)
+  audit_trail            String?          @db.Text
+  hs_object_id           String?          // HubSpot integration
+  hs_merged_object_ids   String?
+  hs_object_source_label String?
+  created_at             DateTime         @default(now())
+  updated_at             DateTime         @default(now()) @updatedAt
+
+  // Relations
+  loan_application       LoanApplication  @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
+
+  @@map("system_tracking")
+}
+
+// COMMISSION RECORDS (One-to-Many)
+
+model CommissionRecord {
+  id                         Int              @id @default(autoincrement())
+  loan_application_id        Int
+  commission_amount          Decimal?         @db.Decimal(12, 2)
+  commission_rate            Decimal?         @db.Decimal(5, 2)
+  commission_calculation_base CommissionBase?
+  commission_status          CommissionStatus @default(NOT_APPLICABLE)
+  commission_approval_date   DateTime?
+  commission_payment_date    DateTime?
+  partner_commission_applicable Boolean       @default(false)
+  settlement_id             String?
+  created_at                DateTime         @default(now())
+  updated_at                DateTime         @default(now()) @updatedAt
+
+  // Relations
+  loan_application          LoanApplication  @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
+
+  @@map("commission_records")
+}
+
+// ADDITIONAL SERVICES (One-to-Many)
+
+model AdditionalService {
+  id                    Int      @id @default(autoincrement())
+  loan_application_id   Int
+  service_name          String
+  service_description   String?  @db.Text
+  service_cost          Decimal? @db.Decimal(10, 2)
+  notes                String?  @db.Text
+  created_at           DateTime @default(now())
+  updated_at           DateTime @default(now()) @updatedAt
+
+  // Relations
+  loan_application     LoanApplication @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
+
+  @@map("additional_services")
+}
+
+// COMMUNICATION LOGS (One-to-Many)
+
+model CommunicationLog {
+  id                  Int                  @id @default(autoincrement())
+  loan_application_id Int
+  communication_type  CommunicationChannel
+  contact_date        DateTime            @default(now())
+  contact_subject     String?
+  contact_notes       String?             @db.Text
+  follow_up_required  Boolean             @default(false)
+  contacted_by_id     Int?
+  created_at         DateTime            @default(now())
+
+  // Relations
+  loan_application   LoanApplication     @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
+  contacted_by       User?               @relation("UserCommunications", fields: [contacted_by_id], references: [id])
+
+  @@index([contact_date])
+  @@map("communication_logs")
+}
+
+// ENUMS
+
+enum ApplicationSource {
+  DIRECT
+  B2B_PARTNER   @map("B2B PARTNER")
+  WEBSITE
+  REFERRAL
+  ADVERTISEMENT
+}
+
+enum CourseLevel {
+  BACHELORS
+  MASTERS
+  PHD
+  DIPLOMA
+  CERTIFICATE
+  PROFESSIONAL
+}
+
+enum AdmissionStatus {
+  NOT_APPLIED   @map("NOT APPLIED")
+  APPLIED
+  ADMITTED
+  WAITLISTED
+  REJECTED
+  DEFERRED
+}
+
+enum VisaStatus {
+  NOT_APPLIED   @map("NOT APPLIED")
+  APPLIED
+  APPROVED
+  REJECTED
+  PENDING
+}
+
+enum I20CasStatus {
+  YES
+  NO
+  NOT_APPLICABLE    @map("NOT APPLICABLE")
+  PENDING
+}
+
+enum ApplicationStatusEnum {
+  PRE_APPROVED          @map("Pre-Approved")
+  APPROVED              @map("Approved")
+  SANCTION_LETTER_ISSUED @map("Sanction Letter Issued")
+  DISBURSEMENT_PENDING  @map("Disbursement Pending")
+  DISBURSED             @map("Disbursed")
+  REJECTED              @map("Rejected")
+  ON_HOLD               @map("On Hold")
+  WITHDRAWN             @map("Withdrawn")
+  CANCELLED             @map("Cancelled")
+}
+
+enum PriorityLevel {
+  HIGH
+  MEDIUM
+  LOW
+  URGENT
+}
+
+enum RecordStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+  ARCHIVED
+}
+
+enum LoanProductType {
+  SECURED
+  UNSECURED
+  GOVERNMENT_SCHEME   @map("GOVERNMENT SCHEME")
+}
+
+enum InterestRateType {
+  FIXED
+  FLOATING
+  HYBRID
+}
+
+enum DelayReason {
+  INCOMPLETE_DOCUMENTS    @map("INCOMPLETE DOCUMENTS")
+  CUSTOMER_NOT_RESPONDING   @map("CUSTOMER NOT RESPONDING")
+  LENDER_PROCESSING   @map("LENDER PROCESSING")
+  INTERNAL_REVIEW   @map("INTERNAL REVIEW")
+  COMPLIANCE_CHECK    @map("COMPLIANCE CHECK")
+  OTHER
+}
+
+enum RejectionReason {
+  INSUFFICIENT_INCOME   @map("INSUFFICIENT INCOME")
+  POOR_CREDIT_SCORE   @map("POOR CREDIT SCORE")
+  INCOMPLETE_DOCUMENTS    @map("INCOMPLETE DOCUMENTS")
+  COURSE_NOT_APPROVED   @map("COURSE NOT APPROVED")
+  UNIVERSITY_NOT_APPROVED   @map("UNIVERSITY NOT APPROVED")
+  HIGH_RISK_PROFILE   @map("HIGH RISK PROFILE")
+  POLICY_CHANGES    @map("POLICY CHANGES")
+  OTHER
+}
+
+enum AppealOutcome {
+  PENDING
+  APPROVED
+  REJECTED
+  NOT_APPLICABLE
+}
+
+enum CommunicationChannel {
+  PHONE
+  EMAIL
+  WHATSAPP
+  SMS
+  VIDEO_CALL    @map("VIDEO CALL")
+}
+
+enum FollowUpFrequency {
+  DAILY
+  WEEKLY
+  BI_WEEKLY   @map("BI WEEKLY")
+  MONTHLY
+  AS_NEEDED   @map("AS NEEDED")
+}
+
+enum ApplicationSourceSystem {
+  MANUAL_ENTRY  @map("MANUAL_ENTRY")
+  WEBSITE_FORM    @map("WEBSITE_FORM")
+  PARTNER_PORTAL    @map("PARTNER_PORTAL")
+  IMPORT
+  API
+}
+
+enum IntegrationStatus {
+  SYNCED
+  PENDING_SYNC    @map("PENDING_SYNC")
+  SYNC_FAILED   @map("SYNC_FAILED")
+  NOT_REQUIRED    @map("NOT_REQUIRED")
+}
+
+enum CommissionBase {
+  LOAN_AMOUNT   @map("LOAN_AMOUNT")
+  FIXED_AMOUNT    @map("FIXED_AMOUNT")
+  TIERED
+}
+
+enum CommissionStatus {
+  NOT_APPLICABLE    @map("NOT_APPLICABLE")
+  PENDING_CALCULATION   @map("PENDING_CALCULATION")
+  CALCULATED
+  APPROVED_FOR_PAYMENT    @map("APPROVED_FOR_PAYMENT")
+  PAID
+  ON_HOLD   @map("ON_HOLD")
 }

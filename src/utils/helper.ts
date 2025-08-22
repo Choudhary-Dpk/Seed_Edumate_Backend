@@ -55,8 +55,14 @@ export const deduplicateInDb = async (
     const found = await findLeads(batch);
 
     for (const f of found) {
+      const loanAmountRequested = f.financial_requirements
+        ?.loan_amount_requested
+        ? Number(f.financial_requirements.loan_amount_requested)
+        : 0;
+      const loanTenureYears = f.lender_information?.loan_tenure_years ?? 0;
+
       existingKeys.add(
-        `${f.email}|${Number(f.loanAmountRequested)}|${f.loanTenureYears}`
+        `${f.student_email}|${loanAmountRequested}|${loanTenureYears}`
       );
     }
   }
