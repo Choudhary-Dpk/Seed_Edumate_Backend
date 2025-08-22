@@ -25,6 +25,11 @@ export const getUserDetailsFromToken = async (emailToken: string) => {
     select: {
       id: true,
       userId: true,
+      user: {
+        select: {
+          email: true,
+        },
+      },
     },
     where: {
       token: emailToken,
@@ -33,6 +38,7 @@ export const getUserDetailsFromToken = async (emailToken: string) => {
 
   return token;
 };
+
 
 export const useEmailToken = async (userId: number, emailToken: string) => {
   await prisma.token.deleteMany({

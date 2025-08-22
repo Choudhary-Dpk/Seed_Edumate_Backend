@@ -7,6 +7,7 @@ import { validateLoanEligibility } from '../middlewares/validators/loan.validato
 import { convertCurrency, findLoanEligibility } from '../services/loan.service';
 import { sendResponse } from "../utils/api";
 import { generateRequestIdFromPayload } from '../utils/helper';
+import { logEmailHistory } from "../models/helpers/email.helper";
 
 export const checkLoanEligibility = async (
   req: Request,
@@ -49,10 +50,12 @@ export const checkLoanEligibility = async (
     }
 
     // Return successful result
-    sendResponse(res, 200, "Loan eligibility found", [{
-      loan_amount: result?.loan_amount,
-      loan_amount_currency: result?.loan_amount_currency,
-    }]);
+    sendResponse(res, 200, "Loan eligibility found", [
+      {
+        loan_amount: result?.loan_amount,
+        loan_amount_currency: result?.loan_amount_currency,
+      },
+    ]);
   } catch (error) {
     console.error("Error in checkLoanEligibility:", error);
     res.status(500).json({

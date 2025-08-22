@@ -16,6 +16,7 @@ export type LoginPayload = {
 
 export type ResetPasswordPayload = {
   id: number;
+  email: string;
 };
 
 export type ProtectedPayload = {

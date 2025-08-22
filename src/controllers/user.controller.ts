@@ -17,6 +17,7 @@ import {
 } from "../models/helpers/auth";
 import { FRONTEND_URL } from "../setup/secrets";
 import { createPartner } from "../services/hubspot.service";
+import { logEmailHistory } from "../models/helpers/email.helper";
 
 export const getIpInfo = async (req: Request, res: Response) => {
   try {
@@ -98,6 +99,15 @@ export const createUser = async (
     logger.debug(`Saving email token for userId: ${user.id}`);
     await saveEmailToken(user.id, emailToken);
     logger.debug(`Email token saved successfully`);
+
+    logger.debug(`Saving email history for userId: ${user.id}`);
+    await logEmailHistory({
+      userId: user.id,
+      to: email,
+      subject,
+      type: "Set Password",
+    });
+    logger.debug(`Email history saved successfully`);
 
     emailQueue.push({ to: email, subject, html, retry: 0 });
 

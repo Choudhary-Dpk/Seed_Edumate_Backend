@@ -4,6 +4,7 @@ import { EmailConfig, gmailConfig } from '../config/email-config';
 import { generateLoanApplicationEmail } from '../utils/email templates/loanEligibilityResult';
 import { EmailData } from '../types/email.types';
 import { generateEMIRepaymentScheduleEmail } from '../utils/email templates/repaymentScheduleDetails';
+import { logEmailHistory } from "../models/helpers/email.helper";
 
 export interface EmailOptions {
   to: string | string[];
@@ -28,16 +29,16 @@ const createTransporter = (config: EmailConfig) => {
 
 // Default configuration and transporter
 const defaultConfig = gmailConfig; // or sendGridConfig, smtpConfig
-const defaultFrom = process.env.DEFAULT_FROM_EMAIL || 'info@edumateglobal.com';
+const defaultFrom = process.env.DEFAULT_FROM_EMAIL || "info@edumateglobal.com";
 const transporter = createTransporter(defaultConfig);
 
 export const sendEmail = async (options: EmailOptions): Promise<void> => {
   try {
     const mailOptions = {
       from: options.from || defaultFrom,
-      to: Array.isArray(options.to) ? options.to.join(', ') : options.to,
-      cc: Array.isArray(options.cc) ? options.cc.join(', ') : options.cc,
-      bcc: Array.isArray(options.bcc) ? options.bcc.join(', ') : options.bcc,
+      to: Array.isArray(options.to) ? options.to.join(", ") : options.to,
+      cc: Array.isArray(options.cc) ? options.cc.join(", ") : options.cc,
+      bcc: Array.isArray(options.bcc) ? options.bcc.join(", ") : options.bcc,
       subject: options.subject,
       text: options.text,
       html: options.html,
@@ -45,9 +46,18 @@ export const sendEmail = async (options: EmailOptions): Promise<void> => {
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log('Email sent successfully:', info.messageId);
+    console.log("Email sent successfully:", info.messageId);
+
+    await logEmailHistory({
+      userId: null,
+      to: Array.isArray(options.to) ? options.to.join(", ") : options.to,
+      cc: Array.isArray(options.cc) ? options.cc.join(", ") : options.cc,
+      bcc: Array.isArray(options.bcc) ? options.bcc.join(", ") : options.bcc,
+      subject: "Welcome",
+      type: "Loan Eligibility Result",
+    });
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error("Error sending email:", error);
     throw error;
   }
 };
@@ -55,10 +65,10 @@ export const sendEmail = async (options: EmailOptions): Promise<void> => {
 export const verifyConnection = async (): Promise<boolean> => {
   try {
     await transporter.verify();
-    console.log('Email server connection verified');
+    console.log("Email server connection verified");
     return true;
   } catch (error) {
-    console.error('Email server connection failed:', error);
+    console.error("Email server connection failed:", error);
     return false;
   }
 };
@@ -77,10 +87,13 @@ export const sendLoanEligibilityResultEmail = async (
   });
 };
 
-export const sendPasswordResetEmail = async (to: string, resetLink: string): Promise<void> => {
+export const sendPasswordResetEmail = async (
+  to: string,
+  resetLink: string
+): Promise<void> => {
   await sendEmail({
     to,
-    subject: 'Password Reset Request',
+    subject: "Password Reset Request",
     html: `
       <h1>Password Reset</h1>
       <p>Click the link below to reset your password:</p>
@@ -102,13 +115,15 @@ export interface ScheduleEmailOptions {
   pdfFileName: string;
 }
 
-export const sendRepaymentScheduleEmail = async (options: ScheduleEmailOptions): Promise<void> => {
+export const sendRepaymentScheduleEmail = async (
+  options: ScheduleEmailOptions
+): Promise<void> => {
   const {
     name,
     email,
-    fromName = 'Edumate',
-    subject = 'Your Loan Repayment Schedule',
-    message = 'Please find attached your detailed loan repayment schedule.',
+    fromName = "Edumate",
+    subject = "Your Loan Repayment Schedule",
+    message = "Please find attached your detailed loan repayment schedule.",
     pdfBuffer,
     pdfFileName,
   } = options;
@@ -124,8 +139,15 @@ export const sendRepaymentScheduleEmail = async (options: ScheduleEmailOptions):
       {
         filename: pdfFileName,
         content: pdfBuffer,
-        contentType: 'application/pdf',
+        contentType: "application/pdf",
       },
     ],
+  });
+
+  await logEmailHistory({
+    userId: null,
+    to: email,
+    subject: subject,
+    type: "Repayment Schedule Email",
   });
 };
