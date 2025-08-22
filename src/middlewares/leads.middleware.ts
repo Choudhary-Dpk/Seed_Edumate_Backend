@@ -13,7 +13,32 @@ export const validateCreateLeads = async (
   next: NextFunction
 ) => {
   try {
-    const { email } = req.body;
+    const { email, loanAmountRequested, loanAmountApproved } = req.body;
+
+    if (loanAmountRequested <= 0) {
+      return sendResponse(
+        res,
+        400,
+        "Loan Amount Requested must be greater than 0"
+      );
+    }
+
+    if (loanAmountApproved !== undefined && loanAmountApproved !== null) {
+      if (loanAmountApproved < 0) {
+        return sendResponse(
+          res,
+          400,
+          "Loan Amount Approved cannot be negative"
+        );
+      }
+      if (loanAmountApproved > loanAmountRequested) {
+        return sendResponse(
+          res,
+          400,
+          "Loan Amount Approved cannot be greater than Loan Amount Requested"
+        );
+      }
+    }
 
     const existingEmail = await hubspotService.fetchLeadByEmail(email);
     if (existingEmail.total > 0 || existingEmail.results?.length > 0) {

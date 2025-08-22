@@ -1,73 +1,170 @@
 import prisma from "../../config/prisma"
-import { Row, ValidationResult } from "../../types/leads.types";
+import {
+  ApplicationStatusToEnum,
+  ApplicationStatusType,
+  Row,
+  ValidationResult,
+} from "../../types/leads.types";
 
-export const createLead = async (
-  id: number,
-  applicationStatus: string,
-  loanAmountRequested: number,
-  loanAmountApproved: number,
-  loanTenureYears: number,
+export const createLoan = async (
+  userId: number,
   email: string,
   name: string
 ) => {
-  const lead = await prisma.loanApplication.create({
+  const loan = await prisma.loanApplication.create({
     data: {
-      name,
-      applicationStatus,
-      loanAmountRequested,
-      loanAmountApproved,
-      loanTenureYears,
-      email,
-      userId: id,
-      createdBy: id,
+      user_id: userId,
+      student_name: name,
+      student_email: email,
+      created_by_id: userId,
       created_at: new Date(),
-      updated_at: new Date(),
     },
   });
 
-  return lead;
+  return loan;
+};
+
+export const createFinancialRequirements = async (
+  loanId: number,
+  loanAmountRequested: number,
+  loanAmountApproved: string
+) => {
+  const financialRequirements = await prisma.financialRequirements.create({
+    data: {
+      loan_application_id: loanId,
+      loan_amount_requested: loanAmountRequested,
+      loan_amount_approved: loanAmountApproved,
+      created_at: new Date(),
+    },
+  });
+
+  return financialRequirements;
+};
+
+export const createLender = async (loanId: number, loanTenureYears: number) => {
+  const lender = await prisma.lenderInformation.create({
+    data: {
+      loan_application_id: loanId,
+      loan_tenure_years: loanTenureYears,
+      created_at: new Date(),
+    },
+  });
+
+  return lender;
+};
+
+export const createApplicationStatus = async (
+  loanId: number,
+  applicationStatus: ApplicationStatusType
+) => {
+  const financialRequirements = await prisma.applicationStatus.create({
+    data: {
+      loan_application_id: loanId,
+      status: ApplicationStatusToEnum[applicationStatus],
+      created_at: new Date(),
+    },
+  });
+
+  return financialRequirements;
 };
 
 export const getLeadByEmail = async (email: string) => {
   const lead = await prisma.loanApplication.findFirst({
     select: {
       id: true,
-      name: true,
-      applicationStatus: true,
-      loanAmountApproved: true,
-      loanAmountRequested: true,
-      loanTenureYears: true,
+      student_name: true,
+      student_email: true,
     },
     where: {
-      email,
+      student_email: email,
     },
   });
 
   return lead;
 };
 
-export const createCSVLeads = async (toInsert: Row[]) => {
-  const leads = await prisma.loanApplication.createMany({
-    data: toInsert,
-    skipDuplicates: true,
-  });
+export const createCSVLeads = async (rows: Row[]) => {
+  return await prisma.$transaction(async (tx) => {
+    // 1. Create loan applications
+    const loanApplications = await tx.loanApplication.createMany({
+      data: rows.map((row) => ({
+        student_name: row.name,
+        student_email: row.email,
+        user_id: row.userId,
+        created_by_id: row.createdBy,
+      })),
+      skipDuplicates: true,
+    });
 
-  return leads;
+    // ⚠️ `createMany` Prisma me return inserted records nahi deta (sirf count).
+    // To get IDs, hame dobara fetch karna padega based on unique fields (email + userId)
+    const insertedApps = await tx.loanApplication.findMany({
+      where: {
+        student_email: { in: rows.map((r) => r.email) },
+        user_id: { in: rows.map((r) => r.userId) },
+      },
+    });
+
+    // Make a quick lookup by (email+userId) => id
+    const appMap = new Map<string, number>();
+    for (const app of insertedApps) {
+      appMap.set(`${app.student_email}|${app.user_id}`, app.id);
+    }
+
+    // 2. Create financial requirements
+    await tx.financialRequirements.createMany({
+      data: rows.map((row) => ({
+        loan_application_id: appMap.get(`${row.email}|${row.userId}`)!,
+        loan_amount_requested: Number(row.loanAmountRequested),
+        loan_amount_approved: row.loanAmountApproved
+          ? Number(row.loanAmountApproved)
+          : null,
+      })),
+    });
+
+    // 3. Create lender info
+    await tx.lenderInformation.createMany({
+      data: rows.map((row) => ({
+        loan_application_id: appMap.get(`${row.email}|${row.userId}`)!,
+        loan_tenure_years: row.loanTenureYears
+          ? Number(row.loanTenureYears)
+          : null,
+      })),
+    });
+
+    // 4. Create application status
+    await tx.applicationStatus.createMany({
+      data: rows.map((row) => ({
+        loan_application_id: appMap.get(`${row.email}|${row.userId}`)!,
+        status: ApplicationStatusToEnum[row.applicationStatus],
+      })),
+    });
+
+    return loanApplications;
+  });
 };
 
+// Find existing leads for deduplication
 export const findLeads = async (batch: Row[]) => {
-  const leads = prisma.loanApplication.findMany({
+  const leads = await prisma.loanApplication.findMany({
     where: {
       OR: batch.map((v) => ({
-        email: v.email,
-        loanAmountRequested: v.loanAmountRequested,
-        loanTenureYears: v.loanTenureYears,
+        student_email: v.email,
       })),
     },
     select: {
-      email: true,
-      loanAmountRequested: true,
-      loanTenureYears: true,
+      student_email: true,
+      financial_requirements: {
+        select: {
+          loan_amount_requested: true,
+          loan_amount_approved: true,
+        },
+      },
+      lender_information: {
+        select: {
+          loan_tenure_years: true,
+        },
+      },
     },
   });
 

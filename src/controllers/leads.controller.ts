@@ -5,8 +5,11 @@ import logger from "../utils/logger";
 import { RequestWithPayload } from "../types/api.types";
 import { LoginPayload } from "../types/auth";
 import {
+  createApplicationStatus,
   createCSVLeads,
-  createLead,
+  createFinancialRequirements,
+  createLender,
+  createLoan,
   validateRows,
 } from "../models/helpers/leads.helper";
 import { sendResponse } from "../utils/api";
@@ -31,6 +34,7 @@ export const createLeads = async (
     const { id } = req.payload!;
 
     logger.debug(`Creating hubspot loan application`);
+
     await createLoanLeads([
       {
         email,
@@ -43,18 +47,32 @@ export const createLeads = async (
     ]);
     logger.debug(`Hubspot loan application created successfully`);
 
-    logger.debug(`Creating leads for userId: ${id}`);
-    const lead = await createLead(
-      id,
-      applicationStatus,
+    logger.debug(`Creating loan application for userId: ${id}`);
+    const loan = await createLoan(id, email, name);
+    logger.debug(
+      `Loan application created successfully in hubspot for userId: ${id} with loan ${loan.id}`
+    );
+
+    logger.debug(`Creating financial requirement for userId: ${id}`);
+    await createFinancialRequirements(
+      loan.id,
       loanAmountRequested,
-      loanAmountApproved,
-      loanTenureYears,
-      email,
-      name
+      loanAmountApproved
     );
     logger.debug(
-      `Lead created successfully in hubspot for userId: ${id} with lead ${lead.id}`
+      `Financial requirement created successfully for loanId: ${loan.id}`
+    );
+
+    logger.debug(`Creating Lender information for loanId: ${loan.id}`);
+    await createLender(loan.id, loanTenureYears);
+    logger.debug(
+      `Lender information created successfully for loanId: ${loan.id}`
+    );
+
+    logger.debug(`Creating application status for userId: ${id}`);
+    await createApplicationStatus(loan.id, applicationStatus);
+    logger.debug(
+      `Application status created successfully for loanId: ${loan.id}`
     );
 
     sendResponse(res, 200, "Lead created successfully");
