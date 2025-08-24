@@ -41,3 +41,12 @@ export const ApplicationStatusToEnum: Record<
   Withdrawn: ApplicationStatusEnum.WITHDRAWN,
   Cancelled: ApplicationStatusEnum.CANCELLED,
 };
+
+export type FileData = {
+  filename: string;
+  mime_type: string;
+  file_data: any;
+  total_records: number;
+  uploaded_by_id: number;
+  entity_type: string;
+};

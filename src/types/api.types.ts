@@ -7,6 +7,7 @@ export type ServerResponse = {
   errors: any[];
 };
 
-export interface RequestWithPayload<T> extends Request {
+export interface RequestWithPayload<T, F = undefined> extends Request {
   payload?: T;
+  fileData?: F;
 }

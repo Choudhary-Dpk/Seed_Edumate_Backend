@@ -6,8 +6,8 @@ import {
 } from "../controllers/leads.controller";
 import { validateToken } from "../middlewares";
 import {
+  validateAndParseCSVFile,
   validateCreateLeads,
-  validateCSVFile,
 } from "../middlewares/leads.middleware";
 import {
   createLeadValidationRules,
@@ -24,7 +24,12 @@ router.post(
   validateCreateLeads,
   createLeads
 );
-router.post("/upload-csv", validateToken, validateCSVFile, uploadCSV);
+router.post(
+  "/upload-csv",
+  validateToken,
+  validateAndParseCSVFile("CSV"),
+  uploadCSV
+);
 router.get("/download-template",validateToken,downloadTemplate)
 
 export {router as leadsRouter};

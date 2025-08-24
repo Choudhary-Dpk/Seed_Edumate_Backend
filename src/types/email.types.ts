@@ -44,7 +44,7 @@ export interface EmailData {
   formdata: FormData;
 }
 
-export interface EmailConfig {
+export type EmailConfig = {
   host: string;
   port: number;
   secure: boolean;
@@ -52,11 +52,20 @@ export interface EmailConfig {
     user: string;
     pass: string;
   };
-}
+};
 
-export interface EmailOptions {
+export type EmailOptions = {
   from: string;
   to: string;
   subject: string;
   html: string;
-}
+};
+
+export type LogEmailOptions = {
+  userId: number | null;
+  to: string;
+  cc?: string;
+  bcc?: string;
+  type: string;
+  subject: string;
+};

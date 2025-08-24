@@ -50,12 +50,12 @@ model Role {
 }
 
 model UserRole {
-  id      Int  @id @default(autoincrement()) @map("id")
+  id      Int  @id @default(autoincrement())
   user_id Int  @map("user_id")
   role_id Int  @map("role_id")
 
   // Relations
-  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user User @relation("UserRole",fields: [user_id], references: [id], onDelete: Cascade)
   role Role @relation(fields: [role_id], references: [id], onDelete: Cascade)
 
   @@unique([user_id, role_id])
@@ -63,7 +63,7 @@ model UserRole {
 }
 
 model Session {
-  id                 Int      @id @default(autoincrement()) @map("id")
+  id                 Int      @id @default(autoincrement())
   user_id            Int      @map("user_id")
   refresh_token_hash String   @map("refresh_token_hash")
   device_info        String?  @map("device_info")
@@ -73,7 +73,7 @@ model Session {
   expires_at         DateTime? @map("expires_at")
 
   // Relation
-  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user User @relation("Session",fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("sessions")
 }
@@ -85,7 +85,7 @@ enum LoginStatus {
 }
 
 model LoginHistory {
-  id          Int      @id @default(autoincrement()) @map("id")
+  id          Int      @id @default(autoincrement())
   user_id     Int      @map("user_id")
   ip_address  String?  @db.Inet @map("ip_address")
   device_info String?  @map("device_info")
@@ -93,13 +93,13 @@ model LoginHistory {
   created_at  DateTime @default(now()) @map("created_at")
 
   // Relation
-  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user User @relation("LoginHistory",fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("login_history")
 }
 
 model Permission {
-  id          Int     @id @default(autoincrement()) @map("id")
+  id          Int     @id @default(autoincrement())
   permission  String  @unique @map("permission")
   module      String? @map("module")
 
@@ -109,7 +109,7 @@ model Permission {
 }
 
 model RolePermission {
-  id            Int  @id @default(autoincrement()) @map("id")
+  id            Int  @id @default(autoincrement())
   role_id       Int  @map("role_id")
   permission_id Int  @map("permission_id")
 
@@ -373,6 +373,8 @@ model Token {
   userId    Int
   createdOn DateTime @default(now())
 
+  user      User     @relation("Tokens", fields: [userId], references: [id])
+
   @@map("tokens")
 }
 
@@ -397,7 +399,7 @@ model currency_conversion {
 }
 
 model User {
-  id            Int        @id @default(autoincrement()) @map("id")
+  id            Int        @id @default(autoincrement())
   b2b_id      Int
   email         String     @unique @map("email")
   password_hash String?     @map("password_hash")
@@ -407,37 +409,20 @@ model User {
   updated_at    DateTime   @default(now()) @updatedAt @map("updated_at")
 
   // Back relation
-  roles         UserRole[] 
-  sessions      Session[]
-  loginHistory  LoginHistory[]
+  roles         UserRole[] @relation("UserRole")
+  sessions      Session[] @relation("Session")
+  loginHistory  LoginHistory[] @relation("LoginHistory")
   loanApplications    LoanApplication[] @relation("UserLoanApplications")
   assignedApplications LoanApplication[] @relation("AssignedCounselor")
   createdApplications LoanApplication[] @relation("CreatedBy")
   modifiedApplications LoanApplication[] @relation("LastModifiedBy")
   communications       CommunicationLog[]  @relation("UserCommunications")
+  uploadedFiles  FileUpload[] @relation("FileUpload")
+  emailHistory EmailHistory[] @relation("EmailHistory")
+  tokens Token[] @relation("Tokens")
 
   @@map("users")
 }
-
-// model LoanApplication {
-//   id                    Int       @id @default(autoincrement())
-//   name              String?
-//   email                String
-//   applicationStatus     String
-//   loanAmountRequested   Decimal @db.Decimal(15, 2)
-//   loanAmountApproved    Decimal @db.Decimal(15, 2)
-//   loanTenureYears       Int
-//   userId                Int
-//   user                 User      @relation(fields: [userId], references: [id])
-//   deletedOn                     DateTime?
-//   deletedBy                     Int?
-//   createdBy                     Int?
-//   created_at             DateTime @default(now())
-//   updated_at             DateTime? @updatedAt
-
-//   @@unique([email, loanAmountRequested, loanTenureYears])
-//   @@map("loanApplications")
-// }
 
 model LoanApplication {
   id                      Int      @id @default(autoincrement())
@@ -544,7 +529,7 @@ model ApplicationStatus {
   id                    Int             @id @default(autoincrement())
   loan_application_id   Int             @unique
   status               ApplicationStatusEnum @default(PRE_APPROVED)
-  priority_level       PriorityLevel   @default(MEDIUM)
+  priority_level       PriorityLevel   @default(LOW)
   application_notes    String?         @db.Text
   internal_notes       String?         @db.Text
   record_status        RecordStatus    @default(ACTIVE)
@@ -749,6 +734,80 @@ model CommunicationLog {
 
   @@index([contact_date])
   @@map("communication_logs")
+}
+
+model FileUpload {
+  id                Int       @id @default(autoincrement())
+  filename          String
+  file_data         Json
+  total_records     Int           @default(0)
+  mime_type         String?
+
+  // Relation to entity type
+  entity_type_id    Int
+  entity_type       FileEntity    @relation(fields: [entity_type_id], references: [id])
+
+
+  // Processing status
+  processed_records Int           @default(0)
+  failed_records    Int           @default(0)
+
+  // User tracking
+  uploaded_by_id    Int
+  uploaded_by       User          @relation("FileUpload",fields: [uploaded_by_id], references: [id])
+
+  // Timestamps
+  created_at        DateTime      @default(now())
+  updated_at        DateTime      @updatedAt
+  processed_at      DateTime?
+
+  @@index([entity_type_id])
+  @@index([created_at])
+  @@map("file_uploads")
+}
+
+model FileEntity {
+  id          Int           @id @default(autoincrement())
+  type        String        @unique  @map("type")
+  description String?   @map("description")
+
+  uploads     FileUpload[]
+
+  @@index([type])
+  @@map("file_entities")
+}
+
+model EmailType {
+  id          Int      @id @default(autoincrement())
+  subject     String   @unique @map("subject")
+  type        String   @map("type")
+  created_at  DateTime @default(now()) @map("created_at")
+  
+  // Relations
+  emailHistories EmailHistory[]
+  
+  @@index([subject,type])
+  @@map("email_types")
+}
+
+model EmailHistory {
+  id              Int         @id @default(autoincrement())
+  user_id         Int?         @map("user_id")
+  reciepient 	String	      @map("reciepient")
+  cc		String?                 @map("cc")
+  bcc		String?	                @map("bcc")
+  email_type_id   Int         @map("email_type_id")
+  sent_at         DateTime?   @map("sent_at")
+  created_at      DateTime    @default(now()) @map("created_at")
+  
+  // Relations
+  user      User?      @relation("EmailHistory",fields: [user_id], references: [id])
+  emailType EmailType @relation(fields: [email_type_id], references: [id])
+  
+  @@index([user_id])
+  @@index([email_type_id])
+  @@index([sent_at])
+  @@map("email_history")
 }
 
 // ENUMS

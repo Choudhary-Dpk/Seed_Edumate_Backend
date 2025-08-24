@@ -24,6 +24,7 @@ import { getEmailTemplate } from "../../models/helpers";
 import { emailQueue } from "../../utils/queue";
 import moment from "moment";
 import { FRONTEND_URL } from "../../setup/secrets";
+import { logEmailHistory } from "../../models/helpers/email.helper";
 
 export const login = async (
   req: RequestWithPayload<LoginPayload>,
@@ -112,6 +113,15 @@ export const sendOtp = async (
     const html = emailTemplate.replace(`{%otp%}`, otp);
     const subject = "EDUMATE - One time password";
 
+    logger.debug(`Saving email history for userId: ${id}`);
+    await logEmailHistory({
+      userId: id,
+      to: email,
+      subject,
+      type: "OTP",
+    });
+    logger.debug(`Email history saved successfully`);
+
     emailQueue.push({ to: email, subject, html, retry: 0 });
 
     sendResponse(res, 200, "Otp sent successfully");
@@ -158,6 +168,15 @@ export const forgotPassword = async (
     await saveEmailToken(id, emailToken);
     logger.debug(`Email token saved successfully`);
 
+    logger.debug(`Saving email history for userId: ${id}`);
+    await logEmailHistory({
+      userId: id,
+      to: email,
+      subject,
+      type: "Forgot Password",
+    });
+    logger.debug(`Email history saved successfully`);
+
     emailQueue.push({ to: email, subject: subject, html: html, retry: 0 });
 
     sendResponse(res, 200, "Forgot password request sent successfully");
@@ -173,7 +192,7 @@ export const resetPassword = async (
 ) => {
   try {
     const { emailToken, password } = req.body;
-    const { id } = req.payload!;
+    const { id, email } = req.payload!;
 
     logger.debug(`Using emailToken: ${emailToken} for userId: ${id}`);
     await useEmailToken(id, emailToken);
@@ -186,6 +205,15 @@ export const resetPassword = async (
     logger.debug(`Updating password for userId: ${id}`);
     await updatePassword(id, hashedPassword);
     logger.debug(`Password updated successfully`);
+
+    logger.debug(`Saving email history for userId: ${id}`);
+    await logEmailHistory({
+      userId: id,
+      to: email,
+      subject: "Reset Password",
+      type: "Reset Password",
+    });
+    logger.debug(`Email history saved successfully`);
 
     sendResponse(res, 200, "Password reset successfully");
   } catch (error) {
@@ -200,7 +228,7 @@ export const setPassword = async (
 ) => {
   try {
     const { emailToken, password } = req.body;
-    const { id } = req.payload!;
+    const { id, email } = req.payload!;
 
     logger.debug(`Using email token for userId: ${id}`);
     await useEmailToken(id, emailToken);
@@ -213,6 +241,15 @@ export const setPassword = async (
     logger.debug(`Updating password for userId: ${id}`);
     await updatePassword(id, hashedPassword);
     logger.debug(`Password updated successfully`);
+
+    logger.debug(`Saving email history for userId: ${id}`);
+    await logEmailHistory({
+      userId: id,
+      to: email,
+      subject: "Reset Password",
+      type: "Reset Password",
+    });
+    logger.debug(`Email history saved successfully`);
 
     sendResponse(res, 200, "Password set successfully");
   } catch (error) {

@@ -84,6 +84,7 @@ export const validateEmailToken = async (
 
     req.payload = {
       id: details.userId,
+      email: details.user.email,
     };
 
     next();

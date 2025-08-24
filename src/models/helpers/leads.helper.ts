@@ -3,7 +3,6 @@ import {
   ApplicationStatusToEnum,
   ApplicationStatusType,
   Row,
-  ValidationResult,
 } from "../../types/leads.types";
 
 export const createLoan = async (
@@ -96,7 +95,6 @@ export const createCSVLeads = async (rows: Row[]) => {
       skipDuplicates: true,
     });
 
-    // ⚠️ `createMany` Prisma me return inserted records nahi deta (sirf count).
     // To get IDs, hame dobara fetch karna padega based on unique fields (email + userId)
     const insertedApps = await tx.loanApplication.findMany({
       where: {
@@ -171,104 +169,50 @@ export const findLeads = async (batch: Row[]) => {
   return leads;
 };
 
-// --- Row validation & normalization ---
-export const validateRows = (rows: any[], userId: number): ValidationResult => {
-  const validRows: Row[] = [];
-  const errors: { row: number; reason: string }[] = [];
-
-  // Allowed statuses
-  const allowedStatuses = [
-    "Pre-Approved",
-    "Approved",
-    "Sanction Letter Issued",
-    "Disbursement Pending",
-    "Disbursed",
-    "Rejected",
-    "On Hold",
-    "Withdrawn",
-    "Cancelled",
-  ];
-
-  rows.forEach((r, idx) => {
-    const rowNo = idx + 2; // +2 = account for header row in Excel
-    const rowErrors: string[] = [];
-
-    const name = r["Student Name"]?.toString().trim();
-    const email = r["Student Email"]?.toString().trim().toLowerCase();
-
-    // Grab raw values
-    const loanAmountRequestedRaw = r["Loan Amount Requested"];
-    const loanAmountApprovedRaw = r["Loan Amount Approved"];
-    const loanTenureYearsRaw = r["Loan Tenure Years"];
-    const applicationStatus = r["Application Status"]?.toString().trim();
-
-    // Convert safely
-    const loanAmountRequested = Number(loanAmountRequestedRaw);
-    const loanAmountApproved = Number(loanAmountApprovedRaw);
-    const loanTenureYears = Number(loanTenureYearsRaw);
-
-    // --- Validation ---
-    if (!name) {
-      rowErrors.push("Missing Student Name");
-    }
-
-    if (!email) {
-      rowErrors.push("Missing Student Email");
-    }
-
-    if (
-      loanAmountRequestedRaw === undefined ||
-      loanAmountRequestedRaw === null ||
-      loanAmountRequestedRaw.toString().trim() === "" ||
-      !Number.isFinite(loanAmountRequested)
-    ) {
-      rowErrors.push("Invalid/Missing Loan Amount Requested");
-    }
-
-    if (
-      loanAmountApprovedRaw === undefined ||
-      loanAmountApprovedRaw === null ||
-      loanAmountApprovedRaw.toString().trim() === "" ||
-      !Number.isFinite(loanAmountApproved)
-    ) {
-      rowErrors.push("Invalid/Missing Loan Amount Approved");
-    }
-
-    if (
-      loanTenureYearsRaw === undefined ||
-      loanTenureYearsRaw === null ||
-      loanTenureYearsRaw.toString().trim() === "" ||
-      !Number.isInteger(loanTenureYears)
-    ) {
-      rowErrors.push("Invalid/Missing Loan Tenure Years");
-    }
-
-    if (!applicationStatus) {
-      rowErrors.push("Missing Application Status");
-    } else if (!allowedStatuses.includes(applicationStatus)) {
-      rowErrors.push(
-        `Invalid Application Status: "${applicationStatus}". Must be one of [${allowedStatuses.join(
-          ", "
-        )}]`
-      );
-    }
-
-    // Collect errors or push valid row
-    if (rowErrors.length > 0) {
-      rowErrors.forEach((reason) => errors.push({ row: rowNo, reason }));
-    } else {
-      validRows.push({
-        name,
-        email,
-        loanAmountRequested,
-        loanAmountApproved,
-        loanTenureYears,
-        applicationStatus,
-        userId,
-        createdBy: userId,
-      });
-    }
+export const addFileType = async (fileName: string) => {
+  const fileType = await prisma.fileEntity.upsert({
+    where: { type: fileName },
+    update: {},
+    create: { type: fileName, description: `${fileName} files` },
   });
 
-  return { validRows, errors };
+  return fileType;
+};
+
+export const addFileRecord = async (
+  filename: string,
+  mime_type: string,
+  rows: Row,
+  total_records: number,
+  uploadedBy: number,
+  fileId: number
+) => {
+  const fileUpload = await prisma.fileUpload.create({
+    data: {
+      filename,
+      mime_type,
+      file_data: rows,
+      total_records,
+      uploaded_by_id: uploadedBy,
+      entity_type_id: fileId,
+    },
+    include: { entity_type: true },
+  });
+
+  return fileUpload;
+};
+
+export const updateFileRecord = async (
+  fileId: number,
+  processedRecords: number,
+  failedRecords: number
+) => {
+  await prisma.fileUpload.update({
+    where: { id: fileId },
+    data: {
+      processed_records: processedRecords,
+      failed_records: failedRecords,
+      processed_at: new Date(),
+    },
+  });
 };

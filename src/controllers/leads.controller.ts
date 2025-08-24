@@ -5,17 +5,24 @@ import logger from "../utils/logger";
 import { RequestWithPayload } from "../types/api.types";
 import { LoginPayload } from "../types/auth";
 import {
+  addFileRecord,
+  addFileType,
   createApplicationStatus,
   createCSVLeads,
   createFinancialRequirements,
   createLender,
   createLoan,
-  validateRows,
+  updateFileRecord,
 } from "../models/helpers/leads.helper";
 import { sendResponse } from "../utils/api";
-import { parse } from "csv-parse/sync";
-import { deduplicateInDb, deduplicateInFile } from "../utils/helper";
+import {
+  deduplicateInDb,
+  deduplicateInFile,
+  validateRows,
+} from "../utils/helper";
 import { createLoanLeads } from "../services/hubspot.service";
+import { FileData } from "../types/leads.types";
+import prisma from "../config/prisma";
 
 export const createLeads = async (
   req: RequestWithPayload<LoginPayload>,
@@ -119,46 +126,63 @@ export const downloadTemplate = (
  * and insertion into DB with safe error reporting.
  */
 export const uploadCSV = async (
-  req: RequestWithPayload<LoginPayload>,
+  req: RequestWithPayload<LoginPayload, FileData>,
   res: Response,
   next: NextFunction
 ) => {
   try {
     const { id } = req.payload!;
+    const fileData = req.fileData;
 
-    // 1. Ensure file exists
-    if (!req.file) {
-      return sendResponse(res, 400, "No file uploaded");
+    if (!fileData) {
+      return sendResponse(res, 400, "Invalid or missing file data");
     }
 
-    // 2. Parse CSV
-    const content = req.file.buffer.toString("utf8");
-    const rows: any[] = parse(content, {
-      columns: true, // first row as headers
-      skip_empty_lines: true,
-      trim: true,
-    });
+    const {
+      file_data: rows,
+      total_records,
+      filename,
+      mime_type,
+      entity_type,
+    } = fileData;
 
-    if (!rows || rows.length === 0) {
-      return sendResponse(res, 400, "CSV file is empty or invalid");
-    }
+    // 1. Store metadata into FileUpload table
+    logger.debug(`Entering File type in database`);
+    const fileEntity = await addFileType(entity_type);
+    logger.debug(`File type added successfully`);
 
-    // 3. Validate + Normalize rows
+    // Now create file upload
+    logger.debug(`Entering file records history`);
+    const fileUpload = await addFileRecord(
+      filename,
+      mime_type,
+      rows,
+      total_records,
+      id,
+      fileEntity.id!
+    );
+    logger.debug(`File records history added successfully`);
+
+    // 2. Validate + Normalize rows
     const { validRows, errors } = validateRows(rows, id);
     if (validRows.length === 0) {
       return sendResponse(res, 400, "No valid rows found in CSV", { errors });
     }
 
-    // 4. Deduplicate inside file
+    // 3. Deduplicate inside file
     const { unique: uniqueInFile, duplicates: duplicatesInFile } =
       deduplicateInFile(validRows);
 
-    // 5. Deduplicate against DB
+    // 4. Deduplicate against DB
     const { unique: toInsert, duplicates: duplicatesInDb } =
       await deduplicateInDb(uniqueInFile);
 
-    // 6. Handle no new records
+    // 5. Handle no new records
     if (toInsert.length === 0) {
+      logger.debug(`Updating fileUpload records`);
+      await updateFileRecord(fileUpload.id, 0, validRows.length);
+      logger.debug(`File upload records updated successfully`);
+
       return sendResponse(res, 200, "No new records to insert", {
         totalRows: rows.length,
         validRows: validRows.length,
@@ -170,15 +194,20 @@ export const uploadCSV = async (
       });
     }
 
-    // 7. Insert into DB (safely with skipDuplicates)
+    // 6. Insert into DB (safely with skipDuplicates)
     logger.debug(`Creating csv leads in database`);
     const result = await createCSVLeads(toInsert);
     logger.debug(`Leads created successfully in database`);
 
-    // 8. Insert into HubSpot (batch)
+    // 7. Insert into HubSpot (batch)
     logger.debug(`Creating ${toInsert.length} HubSpot loan applications`);
     await createLoanLeads(toInsert);
     logger.debug(`HubSpot loan applications created`);
+
+    // 8. Update FileUpload stats
+    logger.debug(`Updating fileUpload records`);
+    await updateFileRecord(fileUpload.id, result.count, errors.length);
+    logger.debug(`File upload records updated successfully`);
 
     return sendResponse(res, 201, "CSV processed successfully", {
       totalRows: rows.length,
