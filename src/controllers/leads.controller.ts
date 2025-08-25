@@ -1,5 +1,3 @@
-import path from "path";
-import fs from "fs";
 import { NextFunction, Response, Request } from "express";
 import logger from "../utils/logger";
 import { RequestWithPayload } from "../types/api.types";
@@ -22,7 +20,7 @@ import {
 } from "../utils/helper";
 import { createLoanLeads } from "../services/hubspot.service";
 import { FileData } from "../types/leads.types";
-import prisma from "../config/prisma";
+import { resolveLeadsCsvPath } from "../utils/leads";
 
 export const createLeads = async (
   req: RequestWithPayload<LoginPayload>,
@@ -86,21 +84,6 @@ export const createLeads = async (
   } catch (error) {
     next(error);
   }
-};
-
-const resolveLeadsCsvPath = (): string => {
-  const root = process.cwd();
-  const prodPath = path.join(
-    root,
-    "dist",
-    "utils",
-    "csvTemplates",
-    "leads.csv"
-  );
-  if (fs.existsSync(prodPath)) return prodPath;
-
-  // Fallback for dev
-  return path.join(root, "src", "utils", "csvTemplates", "leads.csv");
 };
 
 export const downloadTemplate = (
