@@ -718,3 +718,47 @@ export const createLoanApplicationLeads = async (
     throw handleHubSpotError(error);
   }
 };
+
+export const updateLoanLeadInHubspot = async (
+  leadId: number,
+  properties: Record<string, any>
+): Promise<any> => {
+  try {
+    const updateInput = {
+      properties,
+    };
+
+    const response = await hubspotClient.crm.objects.basicApi.update(
+      EDUMATE_LOAN_APPLICATIONS_OBJECT_TYPE,
+      leadId.toString(),
+      updateInput
+    );
+
+    logger.info("Updated Edumate contact in HubSpot", { leadId });
+    return convertToHubSpotObject<HubSpotEdumateContact>(response);
+  } catch (error) {
+    logger.error("Error updating Edumate contact in HubSpot", {
+      leadId,
+      properties,
+      error,
+    });
+    throw handleHubSpotError(error);
+  }
+};
+
+export const deleteLoanApplication = async (loanId: string): Promise<void> => {
+  try {
+    await hubspotClient.crm.objects.basicApi.archive(
+      EDUMATE_LOAN_APPLICATIONS_OBJECT_TYPE,
+      loanId
+    );
+
+    logger.info("Deleted Loan application from HubSpot", { loanId });
+  } catch (error) {
+    logger.error("Error deleting loan application from HubSpot", {
+      loanId,
+      error,
+    });
+    throw handleHubSpotError(error);
+  }
+};

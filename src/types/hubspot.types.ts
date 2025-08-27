@@ -476,6 +476,28 @@ export interface HubSpotOwner {
   lastName: string;
 }
 
+export interface HubspotResult {
+  id: string;
+  properties: {
+    application_status?: string;
+    hs_createdate?: string;
+    hs_lastmodifieddate?: string;
+    hs_object_id?: string;
+    hs_object_source?: string;
+    hs_object_source_id?: string;
+    hs_object_source_label?: string;
+    loan_amount_approved?: string;
+    loan_amount_requested?: string;
+    loan_tenure_years?: string;
+    student_email?: string;
+    student_name?: string;
+    external_key?: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+  archived: boolean;
+}
+
 
 // src/types/index.ts
 // Re-export all types for easier importing

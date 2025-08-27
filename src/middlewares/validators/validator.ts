@@ -1,5 +1,5 @@
 import { NextFunction,Request,Response } from "express";
-import { body, validationResult } from "express-validator";
+import { body, validationResult, param, query } from "express-validator";
 import { sendResponse } from "../../utils/api";
 
 export const validateReqParams = async (
@@ -199,43 +199,37 @@ export const changePasswordValidationRules = () => {
 
 // Validation middleware
 export const validateEmail = [
-  body('to')
-    .isEmail()
-    .withMessage('Valid email address is required'),
-  body('subject')
+  body("to").isEmail().withMessage("Valid email address is required"),
+  body("subject")
     .isLength({ min: 1, max: 200 })
-    .withMessage('Subject is required and must be less than 200 characters'),
-  body('message')
+    .withMessage("Subject is required and must be less than 200 characters"),
+  body("message")
     .optional()
     .isLength({ max: 5000 })
-    .withMessage('Message must be less than 5000 characters'),
+    .withMessage("Message must be less than 5000 characters"),
 ];
 
 export const validateBulkEmail = [
-  body('recipients')
+  body("recipients")
     .isArray({ min: 1, max: 100 })
-    .withMessage('Recipients must be an array with 1-100 emails'),
-  body('recipients.*')
+    .withMessage("Recipients must be an array with 1-100 emails"),
+  body("recipients.*")
     .isEmail()
-    .withMessage('All recipients must be valid email addresses'),
-  body('subject')
+    .withMessage("All recipients must be valid email addresses"),
+  body("subject")
     .isLength({ min: 1, max: 200 })
-    .withMessage('Subject is required and must be less than 200 characters'),
-  body('message')
+    .withMessage("Subject is required and must be less than 200 characters"),
+  body("message")
     .isLength({ min: 1, max: 5000 })
-    .withMessage('Message is required and must be less than 5000 characters'),
+    .withMessage("Message is required and must be less than 5000 characters"),
 ];
 
 export const validatePasswordReset = [
-  body('email')
-    .isEmail()
-    .withMessage('Valid email address is required'),
-  body('resetLink')
-    .isURL()
-    .withMessage('Valid reset link URL is required'),
+  body("email").isEmail().withMessage("Valid email address is required"),
+  body("resetLink").isURL().withMessage("Valid reset link URL is required"),
 ];
 
-export const createLeadValidationRules = () => [
+export const createValidationRules = () => [
   body("name")
     .not()
     .isEmpty()
@@ -302,4 +296,131 @@ export const createLeadValidationRules = () => [
     .withMessage("Loan tenure years is required")
     .isInt({ min: 1 })
     .withMessage("Loan tenure years must be at least 1"),
+];
+
+export const editValidationRules = () => [
+  param("id")
+    .exists()
+    .withMessage("id is required")
+    .bail()
+    .isInt({ gt: 0 })
+    .withMessage("id must be a positive integer")
+    .toInt(),
+  body("name")
+    .not()
+    .isEmpty()
+    .withMessage("Name is required")
+    .bail()
+    .isString()
+    .withMessage("Name must be of type String")
+    .bail()
+    .isLength({ max: 50 })
+    .withMessage("Name can have max. 50 characters")
+    .trim(),
+
+  body("email")
+    .not()
+    .isEmpty()
+    .withMessage("Email is required")
+    .bail()
+    .isLength({ max: 50 })
+    .withMessage("Email must be max 50 characters")
+    .bail()
+    .isEmail()
+    .withMessage("Provide a valid email")
+    .normalizeEmail()
+    .trim(),
+
+  body("applicationStatus")
+    .trim()
+    .notEmpty()
+    .bail()
+    .withMessage("Application status is required")
+    .isString()
+    .bail()
+    .withMessage("Application status must be a string")
+    .isIn([
+      "Pre-Approved",
+      "Approved",
+      "Sanction Letter Issued",
+      "Disbursement Pending",
+      "Disbursed",
+      "Rejected",
+      "On Hold",
+      "Withdrawn",
+      "Cancelled",
+    ])
+    .withMessage("Invalid application status"),
+
+  body("loanAmountRequested")
+    .notEmpty()
+    .bail()
+    .withMessage("Loan amount requested is required")
+    .isFloat({ min: 1 })
+    .withMessage("Loan amount requested must be a positive number"),
+
+  body("loanAmountApproved")
+    .notEmpty()
+    .bail()
+    .withMessage("Loan amount approved is required")
+    .isFloat({ min: 0 })
+    .withMessage("Loan amount approved must be a number >= 0"),
+
+  body("loanTenureYears")
+    .notEmpty()
+    .bail()
+    .withMessage("Loan tenure years is required")
+    .isInt({ min: 1 })
+    .withMessage("Loan tenure years must be at least 1"),
+];
+
+export const validateId = () => [
+  param("id")
+    .exists()
+    .withMessage("id is required")
+    .bail()
+    .isInt({ gt: 0 })
+    .withMessage("id must be a positive integer")
+    .toInt(),
+];
+
+export const leadPaginationValidationRules = () => [
+  query("size")
+    .not()
+    .isEmpty()
+    .withMessage("Size is required")
+    .bail()
+    .isInt({ min: 1, max: 100 })
+    .withMessage("Size must be an Integer, between 1 and 100")
+    .bail()
+    .toInt(),
+  query("page")
+    .not()
+    .isEmpty()
+    .withMessage("Page is required")
+    .bail()
+    .isInt({ min: 1 })
+    .withMessage("Page must be an Integer, greater than 0")
+    .bail()
+    .toInt(),
+  query("search").optional({ values: "falsy" }).toLowerCase().trim(),
+  query("sortKey")
+    .optional({ values: "falsy" })
+    .isIn([
+      "name",
+      "email",
+      "loanTenureYears",
+      "loanAmountRequested",
+      "loanAmountApproved",
+      "applicationStatus",
+    ])
+    .withMessage(
+      "SortKey should be one of name, email, loanTenureYears, loanAmountRequested, loanAmountApproved, applicationStatus"
+    )
+    .trim(),
+  query("sortDir")
+    .optional({ values: "falsy" })
+    .isIn(["asc", "desc"])
+    .withMessage("SortDir should be one of asc, desc")
+    .trim(),
 ];
