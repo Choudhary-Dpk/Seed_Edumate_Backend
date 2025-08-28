@@ -2,14 +2,18 @@ import { NextFunction, Request, Response } from "express";
 import prisma from "../config/prisma";
 import { fetchIpDetails } from "../services/user.service";
 import { sendResponse } from "../utils/api";
-import { assignRole, createUsers } from "../models/helpers/user.helper";
+import {
+  assignRole,
+  createUsers,
+  getUserProflie,
+} from "../models/helpers/user.helper";
 import { generateEmailToken, hashPassword } from "../utils/auth";
 import moment from "moment";
 import { getEmailTemplate } from "../models/helpers";
 import { emailQueue } from "../utils/queue";
 import logger from "../utils/logger";
 import { RequestWithPayload } from "../types/api.types";
-import { ProtectedPayload } from "../types/auth";
+import { LoginPayload, ProtectedPayload } from "../types/auth";
 import {
   revokePreviousEmailTokens,
   saveEmailToken,
@@ -135,6 +139,25 @@ export const changePassword = async (
     logger.debug(`Password updated successfully`);
 
     sendResponse(res, 200, "Password changed successfully");
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getProfile = async (
+  req: RequestWithPayload<LoginPayload>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req.payload!;
+
+    const profile = await getUserProflie(id);
+    if (!profile) {
+      return sendResponse(res, 404, "Profile not found");
+    }
+
+    sendResponse(res, 200, "Profile fetched successfully", profile);
   } catch (error) {
     next(error);
   }

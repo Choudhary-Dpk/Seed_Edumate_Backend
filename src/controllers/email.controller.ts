@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
-import { 
-  sendLoanEligibilityResultEmail, 
-  sendPasswordResetEmail, 
-} from '../services/eamil.service';
+import {
+  sendLoanEligibilityResultEmail,
+  sendPasswordResetEmail,
+} from "../services/email.service";
 import { EmailData } from '../types/email.types';
 
 // Helper function to handle validation errors

@@ -43,3 +43,32 @@ export const assignRole = async (userId: number, roleId: number) => {
     },
   });
 };
+
+export const getUserProflie = async (userId: number) => {
+  const userProfileDetails = await prisma.user.findFirst({
+    select: {
+      id: true,
+      b2b_id: true,
+      full_name: true,
+      email: true,
+      is_active: true,
+      roles: {
+        select: {
+          role: {
+            select: {
+              id: true,
+              role: true,
+              display_name: true,
+              description: true,
+            },
+          },
+        },
+      },
+    },
+    where: {
+      id: userId,
+    },
+  });
+
+  return userProfileDetails;
+};
