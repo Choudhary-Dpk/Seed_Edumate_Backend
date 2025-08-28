@@ -1,16 +1,24 @@
 import { Router } from "express";
 import {
-  createLeads,
+  createLead,
   downloadTemplate,
   uploadCSV,
+  editLead,
+  deleteLead,
+  getLeadsList,
+  getLeadDetails,
 } from "../controllers/leads.controller";
 import { validateToken } from "../middlewares";
 import {
   validateAndParseCSVFile,
-  validateCreateLeads,
+  validateLeadPayload,
+  validateLeadById,
 } from "../middlewares/leads.middleware";
 import {
-  createLeadValidationRules,
+  createValidationRules,
+  editValidationRules,
+  leadPaginationValidationRules,
+  validateId,
   validateReqParams,
 } from "../middlewares/validators/validator";
 
@@ -19,10 +27,40 @@ const router = Router();
 router.post(
   "/create",
   validateToken,
-  createLeadValidationRules(),
+  createValidationRules(),
   validateReqParams,
-  validateCreateLeads,
-  createLeads
+  validateLeadPayload,
+  createLead
+);
+router.put(
+  "/edit/:id",
+  validateToken,
+  editValidationRules(),
+  validateReqParams,
+  validateLeadById,
+  editLead
+);
+router.delete(
+  "/delete/:id",
+  validateToken,
+  validateId(),
+  validateReqParams,
+  validateLeadById,
+  deleteLead
+);
+router.get(
+  "/list",
+  leadPaginationValidationRules(),
+  validateReqParams,
+  getLeadsList
+);
+router.get(
+  "/details/:id",
+  validateToken,
+  validateId(),
+  validateReqParams,
+  validateLeadById,
+  getLeadDetails
 );
 router.post(
   "/upload-csv",

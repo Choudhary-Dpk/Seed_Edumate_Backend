@@ -10,7 +10,17 @@ import {
   createFinancialRequirements,
   createLender,
   createLoan,
+  createSystemTracking,
+  deleteLoan,
+  getHubspotByLeadId,
+  getLeads,
+  getLoanList,
+  updateApplicationStatus,
   updateFileRecord,
+  updateFinancialRequirements,
+  updateLender,
+  updateLoan,
+  updateSystemTracking,
 } from "../models/helpers/leads.helper";
 import { sendResponse } from "../utils/api";
 import {
@@ -18,11 +28,15 @@ import {
   deduplicateInFile,
   validateRows,
 } from "../utils/helper";
-import { createLoanLeads } from "../services/hubspot.service";
+import {
+  createLoanLeads,
+  deleteHubspotByLeadId,
+  upateLoanLead,
+} from "../services/hubspot.service";
 import { FileData } from "../types/leads.types";
 import { resolveLeadsCsvPath } from "../utils/leads";
 
-export const createLeads = async (
+export const createLead = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
   next: NextFunction
@@ -39,8 +53,7 @@ export const createLeads = async (
     const { id } = req.payload!;
 
     logger.debug(`Creating hubspot loan application`);
-
-    await createLoanLeads([
+    const lead = await createLoanLeads([
       {
         email,
         name,
@@ -51,6 +64,7 @@ export const createLeads = async (
       },
     ]);
     logger.debug(`Hubspot loan application created successfully`);
+    console.log("leadData", lead);
 
     logger.debug(`Creating loan application for userId: ${id}`);
     const loan = await createLoan(id, email, name);
@@ -79,6 +93,10 @@ export const createLeads = async (
     logger.debug(
       `Application status created successfully for loanId: ${loan.id}`
     );
+
+    logger.debug(`Creating system tracking for useId: ${id}`);
+    await createSystemTracking(loan.id, lead[0]?.id);
+    logger.debug(`System tracked successfully`);
 
     sendResponse(res, 200, "Lead created successfully");
   } catch (error) {
@@ -184,8 +202,12 @@ export const uploadCSV = async (
 
     // 7. Insert into HubSpot (batch)
     logger.debug(`Creating ${toInsert.length} HubSpot loan applications`);
-    await createLoanLeads(toInsert);
+    const hubspotResults = await createLoanLeads(toInsert);
+    console.log("hubspot", hubspotResults);
     logger.debug(`HubSpot loan applications created`);
+
+    // 8. Inserting hubsport Id
+    await updateSystemTracking(hubspotResults);
 
     // 8. Update FileUpload stats
     logger.debug(`Updating fileUpload records`);
@@ -201,6 +223,149 @@ export const uploadCSV = async (
       skippedDuplicatesInDb: duplicatesInDb,
       errors,
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const editLead = async (
+  req: RequestWithPayload<LoginPayload>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const {
+      applicationStatus,
+      loanAmountRequested,
+      loanAmountApproved,
+      loanTenureYears,
+      email,
+      name,
+    } = req.body;
+    const { id } = req.payload!;
+    const leadId = req.params.id;
+
+    logger.debug(`Fethcing hubspot details by leadId: ${leadId}`);
+    const lead = await getHubspotByLeadId(+leadId);
+    logger.debug(`Hubspot details fetched successfully`);
+
+    logger.debug(`Updating hubspot loan application`);
+    await upateLoanLead(Number(lead?.system_tracking?.hs_object_id), {
+      email,
+      name,
+      applicationStatus,
+      loanAmountRequested,
+      loanAmountApproved,
+      loanTenureYears,
+    });
+    logger.debug(`Hubspot loan application updated successfully`);
+
+    logger.debug(`Updating loan application for userId: ${id}`);
+    const loan = await updateLoan(id, +leadId, email, name);
+    logger.debug(
+      `Loan application updated successfully in hubspot for userId: ${id} with loan ${loan.id}`
+    );
+
+    logger.debug(`Updating financial requirement for userId: ${id}`);
+    await updateFinancialRequirements(
+      loan.id,
+      +leadId,
+      loanAmountRequested,
+      loanAmountApproved
+    );
+    logger.debug(
+      `Financial requirement updated successfully for loanId: ${loan.id}`
+    );
+
+    logger.debug(`Updating Lender information for loanId: ${loan.id}`);
+    await updateLender(loan.id, +leadId, loanTenureYears);
+    logger.debug(
+      `Lender information updated successfully for loanId: ${loan.id}`
+    );
+
+    logger.debug(`Updating application status for userId: ${id}`);
+    await updateApplicationStatus(loan.id, +leadId, applicationStatus);
+    logger.debug(
+      `Application status updated successfully for loanId: ${loan.id}`
+    );
+
+    sendResponse(res, 200, "Lead updated successfully");
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteLead = async (
+  req: RequestWithPayload<LoginPayload>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req.payload!;
+    const leadId = req.params.id;
+
+    logger.debug(`Fethcing hubspot details by leadId: ${leadId}`);
+    const lead = await getHubspotByLeadId(+leadId);
+    logger.debug(`Hubspot details fetched successfully`);
+
+    logger.debug(
+      `Deleting hubspot loan application for id: ${lead?.system_tracking?.hs_object_id}`
+    );
+    await deleteHubspotByLeadId(lead?.system_tracking?.hs_object_id!);
+    logger.debug(`Hubspot loan application deleted successfully`);
+
+    logger.debug(`Deleting loan application for userId: ${id}`);
+    await deleteLoan(+leadId, id);
+    logger.debug(`Loan application deleted successfully`);
+
+    sendResponse(res, 200, "Lead deleted successfully");
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getLeadsList = async (
+  req: RequestWithPayload<LoginPayload>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const size = Number(req.query.size) || 10;
+    const page = Number(req.query.page) || 1;
+    const search = (req.query.search as string) || null;
+    const sortKey = (req.query.sortKey as string) || null;
+    const sortDir = (req.query.sortDir as "asc" | "desc") || null;
+
+    const offset = size * (page - 1);
+
+    logger.debug(`Fetching leads list with pagination and filters`);
+    const list = await getLoanList(size, offset, sortKey, sortDir, search);
+    logger.debug(`Leads list fetched successfully`);
+
+    sendResponse(res, 200, "Leads list fetched successfully", {
+      total: list.count,
+      page,
+      size,
+      data: list.rows,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getLeadDetails = async (
+  req: RequestWithPayload<LoginPayload>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const leadId = req.params.id;
+
+    logger.debug(`Fetching lead details for id: ${leadId}`);
+    const leadDetails = await getLeads(+leadId);
+    logger.debug(`Lead details fetched successfully`);
+
+    sendResponse(res, 200, "Lead details fetched successfully", leadDetails);
   } catch (error) {
     next(error);
   }

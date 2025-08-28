@@ -1,4 +1,8 @@
-import { ApplicationStatusEnum } from "@prisma/client";
+import {
+  ApplicationSourceSystem,
+  ApplicationStatusEnum,
+  IntegrationStatus,
+} from "@prisma/client";
 
 export type Row = {
   name: string;
@@ -49,4 +53,22 @@ export type FileData = {
   total_records: number;
   uploaded_by_id: number;
   entity_type: string;
+};
+
+export const ApplicationSourceSystemToEnum: Record<
+  string,
+  ApplicationSourceSystem
+> = {
+  MANUAL_ENTRY: ApplicationSourceSystem.MANUAL_ENTRY,
+  WEBSITE_FORM: ApplicationSourceSystem.WEBSITE_FORM,
+  PARTNER_PORTAL: ApplicationSourceSystem.PARTNER_PORTAL,
+  IMPORT: ApplicationSourceSystem.IMPORT,
+  API: ApplicationSourceSystem.API,
+};
+
+export const IntegrationStatusToEnum: Record<string, IntegrationStatus> = {
+  SYNCED: IntegrationStatus.SYNCED,
+  PENDING_SYNC: IntegrationStatus.PENDING_SYNC,
+  SYNC_FAILED: IntegrationStatus.SYNC_FAILED,
+  NOT_REQUIRED: IntegrationStatus.NOT_REQUIRED,
 };

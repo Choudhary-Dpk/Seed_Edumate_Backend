@@ -507,3 +507,57 @@ export const createLoanLeads = async (
     );
   }
 };
+
+export const upateLoanLead = async (
+  leadId: number,
+  lead: {
+    email: string;
+    name: string;
+    applicationStatus: string;
+    loanAmountRequested: number;
+    loanAmountApproved: number;
+    loanTenureYears: number;
+  }
+) => {
+  try {
+    const response = await hubspotClient.updateLoanLeadInHubspot(leadId, {
+      student_email: lead.email,
+      student_name: lead.name,
+      application_status: lead.applicationStatus,
+      loan_amount_approved: lead.loanAmountApproved,
+      loan_amount_requested: lead.loanAmountRequested,
+      loan_tenure_years: lead.loanTenureYears,
+    });
+    return response;
+  } catch (error) {
+    logger.error("Error in updateLoanLead service", { error });
+    throw createHubSpotError(
+      error instanceof Error ? error.message : "Unknown error",
+      error,
+      "updateLoanLead"
+    );
+  }
+};
+
+export const deleteHubspotByLeadId = async (hubspotId: string) => {
+  try {
+    await hubspotClient.deleteLoanApplication(hubspotId);
+
+    logger.info("Deleted Loan application", { hubspotId });
+  } catch (error) {
+    logger.error("Error in deleteHubspotByLeadId service", {
+      hubspotId,
+      error,
+    });
+
+    if (error instanceof Error && error.message.includes("not found")) {
+      throw createNotFoundError("Loan application", hubspotId);
+    }
+
+    throw createHubSpotError(
+      error instanceof Error ? error.message : "Unknown error",
+      error,
+      "deleteHubspotByLeadId"
+    );
+  }
+};

@@ -420,6 +420,7 @@ model User {
   uploaded_files  FileUpload[] @relation("FileUpload")
   email_history EmailHistory[] @relation("EmailHistory")
   tokens Token[] @relation("Tokens")
+  deleted_by  LoanApplication[] @relation("DeletedBy")
 
   @@map("users")
 }
@@ -436,22 +437,26 @@ model LoanApplication {
   assigned_counselor_id   Int?
   b2b_partner_id          String?
   external_reference_id   String?
-  
+  is_deleted              Boolean  @default(false)
+
   // Foreign Keys
   user_id                 Int
-  
+
   // System tracking
   created_by_id           Int?
   last_modified_by_id     Int?
+  deleted_by_id           Int?          // 👈 new field
   created_at              DateTime @default(now())
   updated_at              DateTime @default(now()) @updatedAt
+  deleted_at              DateTime?
 
   // Relations
   user                    User     @relation("UserLoanApplications", fields: [user_id], references: [id])
   assigned_counselor      User?    @relation("AssignedCounselor", fields: [assigned_counselor_id], references: [id])
   created_by              User?    @relation("CreatedBy", fields: [created_by_id], references: [id])
   last_modified_by        User?    @relation("LastModifiedBy", fields: [last_modified_by_id], references: [id])
-  
+  deleted_by              User?    @relation("DeletedBy", fields: [deleted_by_id], references: [id])
+
   // One-to-One relations
   academic_details        AcademicDetails?
   financial_requirements  FinancialRequirements?
@@ -462,7 +467,7 @@ model LoanApplication {
   rejection_details       RejectionDetails?
   communication_prefs     CommunicationPreferences?
   system_tracking         SystemTracking?
-  
+
   // One-to-Many relations
   commission_records      CommissionRecord[]
   additional_services     AdditionalService[]
