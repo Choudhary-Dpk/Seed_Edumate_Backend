@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { calculateRepaymentSchedule } from '../services/schedule.service';
 import { generatePDF } from '../services/pdf.service';
-import { sendRepaymentScheduleEmail } from '../services/eamil.service';
+import { sendRepaymentScheduleEmail } from "../services/email.service";
 import { RepaymentScheduleResponse } from '../types/loan-schedule.types';
 import { validateLoanEligibility } from '../middlewares/validators/loan.validator';
 import { convertCurrency, findLoanEligibility } from '../services/loan.service';
