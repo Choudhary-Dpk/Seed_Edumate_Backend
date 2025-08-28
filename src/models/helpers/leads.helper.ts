@@ -97,6 +97,7 @@ export const getLeadByEmail = async (email: string) => {
     },
     where: {
       student_email: email,
+      is_deleted: false,
     },
   });
 

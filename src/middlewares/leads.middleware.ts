@@ -48,7 +48,7 @@ export const validateLeadPayload = async (
     }
 
     const existingLead = await getLeadByEmail(email);
-    if (existingLead) {
+    if (existingLead && existingLead.is_deleted === false) {
       return sendResponse(res, 400, "Lead already exists");
     }
 

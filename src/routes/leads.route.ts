@@ -38,7 +38,6 @@ router.put(
   editValidationRules(),
   validateReqParams,
   validateLeadById,
-  validateLeadPayload,
   editLead
 );
 router.delete(
