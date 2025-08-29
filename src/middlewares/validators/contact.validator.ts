@@ -31,13 +31,18 @@ export const validateEdumateContact = (
 ) => {
   try {
     const contactData = req.body;
-    const { coApplicantIncomeType } = contactData;
+    const { coApplicantIncomeType, source } = contactData;
 
-    // Determine required fields dynamically
-    const requiredFields = [...EDUMATE_CONTACT_REQUIRED_FIELDS];
+    let requiredFields: string[] = [];
 
-    if (coApplicantIncomeType !== "Retired") {
-      requiredFields.push("coApplicantAnnualIncome");
+    if (source === "loan_eligibility_checker") {
+      requiredFields = [...EDUMATE_CONTACT_REQUIRED_FIELDS];
+
+      if (coApplicantIncomeType !== "Retired") {
+        requiredFields.push("coApplicantAnnualIncome");
+      }
+    } else if (source === "loan_emi_calculator") {
+      requiredFields = ["mobileNumer", "email", "name"];
     }
 
     // Validate missing fields
@@ -57,7 +62,8 @@ export const validateEdumateContact = (
     next();
   } catch (error: any) {
     const statusCode = error?.statusCode || 500;
-    const message = error?.message || "Error while validating contact fields";
+    const message =
+      error?.message || "Error while validating contact fields";
     const metadata = error?.metadata || [];
 
     sendResponse(res, statusCode, message, [], [metadata]);
