@@ -460,7 +460,7 @@ model LoanApplication {
   // One-to-One relations
   academic_details        AcademicDetails?
   financial_requirements  FinancialRequirements?
-  application_status      ApplicationStatus?
+  loan_application_status      ApplicationStatus?
   lender_information      LenderInformation?
   document_management     DocumentManagement?
   processing_timeline     ProcessingTimeline?
@@ -547,7 +547,7 @@ model ApplicationStatus {
   // Relations
   loan_application     LoanApplication @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
 
-  @@map("application_status")
+  @@map("loan_application_status")
 }
 
 // LENDER INFORMATION
