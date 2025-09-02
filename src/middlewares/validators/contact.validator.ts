@@ -31,18 +31,23 @@ export const validateEdumateContact = (
 ) => {
   try {
     const contactData = req.body;
-    const { coApplicantIncomeType, source } = contactData;
+    const { coApplicantIncomeType, formType } = contactData;
 
     let requiredFields: string[] = [];
 
-    if (source === "loan_eligibility_checker") {
+    if (formType === "loan_eligibility_checker") {
       requiredFields = [...EDUMATE_CONTACT_REQUIRED_FIELDS];
 
       if (coApplicantIncomeType !== "Retired") {
         requiredFields.push("coApplicantAnnualIncome");
       }
-    } else if (source === "loan_emi_calculator") {
-      requiredFields = ["mobileNumer", "email", "name"];
+    } else if (formType === "loan_emi_calculator") {
+      requiredFields = [
+          "firstName",
+          "lastName",
+          "email",
+          "phoneNumber",
+      ];
     }
 
     // Validate missing fields
