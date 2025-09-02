@@ -418,7 +418,7 @@ export const getLoanList = async (
       orderBy,
       include: {
         financial_requirements: true,
-        application_status: true,
+        loan_application_status: true,
         lender_information: true,
       },
     }),
@@ -435,7 +435,7 @@ export const getLeads = async (leadId: number) => {
     },
     include: {
       financial_requirements: true,
-      application_status: true,
+      loan_application_status: true,
       lender_information: true,
     },
   });
