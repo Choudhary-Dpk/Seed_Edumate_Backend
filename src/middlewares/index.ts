@@ -9,7 +9,6 @@ import {
 import { getUserDetailsByEmail } from "../models/helpers";
 import {
   decodeToken,
-  generateEmailToken,
   validateUserPassword,
 } from "../utils/auth";
 import { JwtPayload } from "jsonwebtoken";
@@ -83,7 +82,7 @@ export const validateEmailToken = async (
     }
 
     req.payload = {
-      id: details.userId,
+      id: details.user_id,
       email: details.user.email,
     };
 

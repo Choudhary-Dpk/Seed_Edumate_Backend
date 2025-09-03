@@ -32,7 +32,7 @@ export const createFinancialRequirements = async (
   loanAmountRequested: number,
   loanAmountApproved: string
 ) => {
-  const financialRequirements = await prisma.financialRequirements.create({
+  const financialRequirements = await prisma.loanApplicationFinancialRequirements.create({
     data: {
       loan_application_id: loanId,
       loan_amount_requested: loanAmountRequested,
@@ -45,7 +45,7 @@ export const createFinancialRequirements = async (
 };
 
 export const createLender = async (loanId: number, loanTenureYears: number) => {
-  const lender = await prisma.lenderInformation.create({
+  const lender = await prisma.loanApplicationLenderInformation.create({
     data: {
       loan_application_id: loanId,
       loan_tenure_years: loanTenureYears,
@@ -60,7 +60,7 @@ export const createApplicationStatus = async (
   loanId: number,
   applicationStatus: ApplicationStatusType
 ) => {
-  const financialRequirements = await prisma.applicationStatus.create({
+  const financialRequirements = await prisma.loanApplicationStatus.create({
     data: {
       loan_application_id: loanId,
       status: ApplicationStatusToEnum[applicationStatus],
@@ -75,7 +75,7 @@ export const createSystemTracking = async (
   loanId: number,
   hubspotId: string
 ) => {
-  const financialRequirements = await prisma.systemTracking.create({
+  const financialRequirements = await prisma.loanApplicationSystemTracking.create({
     data: {
       loan_application_id: loanId,
       hs_object_id: hubspotId,
@@ -132,7 +132,7 @@ export const createCSVLeads = async (rows: Row[]) => {
     }
 
     // 2. Create financial requirements
-    await tx.financialRequirements.createMany({
+    await tx.loanApplicationFinancialRequirements.createMany({
       data: rows.map((row) => ({
         loan_application_id: appMap.get(`${row.email}|${row.userId}`)!,
         loan_amount_requested: Number(row.loanAmountRequested),
@@ -143,7 +143,7 @@ export const createCSVLeads = async (rows: Row[]) => {
     });
 
     // 3. Create lender info
-    await tx.lenderInformation.createMany({
+    await tx.loanApplicationLenderInformation.createMany({
       data: rows.map((row) => ({
         loan_application_id: appMap.get(`${row.email}|${row.userId}`)!,
         loan_tenure_years: row.loanTenureYears
@@ -153,14 +153,14 @@ export const createCSVLeads = async (rows: Row[]) => {
     });
 
     // 4. Create application status
-    await tx.applicationStatus.createMany({
+    await tx.loanApplicationStatus.createMany({
       data: rows.map((row) => ({
         loan_application_id: appMap.get(`${row.email}|${row.userId}`)!,
         status: ApplicationStatusToEnum[row.applicationStatus],
       })),
     });
 
-    await tx.systemTracking.createMany({
+    await tx.loanApplicationSystemTracking.createMany({
       data: rows.map((row) => ({
         loan_application_id: appMap.get(`${row.email}|${row.userId}`)!,
         application_source_system:
@@ -292,11 +292,10 @@ export const updateLoan = async (
 
 export const updateFinancialRequirements = async (
   loanId: number,
-  leadId: number,
   loanAmountRequested: number,
   loanAmountApproved: string
 ) => {
-  const financialRequirements = await prisma.financialRequirements.update({
+  const financialRequirements = await prisma.loanApplicationFinancialRequirements.update({
     data: {
       loan_application_id: loanId,
       loan_amount_requested: loanAmountRequested,
@@ -304,7 +303,7 @@ export const updateFinancialRequirements = async (
       updated_at: new Date(),
     },
     where: {
-      id: leadId,
+      loan_application_id: loanId,
     },
   });
 
@@ -313,17 +312,16 @@ export const updateFinancialRequirements = async (
 
 export const updateLender = async (
   loanId: number,
-  leadId: number,
   loanTenureYears: number
 ) => {
-  const lender = await prisma.lenderInformation.update({
+  const lender = await prisma.loanApplicationLenderInformation.update({
     data: {
       loan_application_id: loanId,
       loan_tenure_years: loanTenureYears,
       updated_at: new Date(),
     },
     where: {
-      id: leadId,
+      loan_application_id: loanId,
     },
   });
 
@@ -332,17 +330,16 @@ export const updateLender = async (
 
 export const updateApplicationStatus = async (
   loanId: number,
-  leadId: number,
   applicationStatus: ApplicationStatusType
 ) => {
-  const financialRequirements = await prisma.applicationStatus.update({
+  const financialRequirements = await prisma.loanApplicationStatus.update({
     data: {
       loan_application_id: loanId,
       status: ApplicationStatusToEnum[applicationStatus],
       updated_at: new Date(),
     },
     where: {
-      id: leadId,
+      loan_application_id: loanId,
     },
   });
 
@@ -457,11 +454,11 @@ export const updateSystemTracking = async (hubspotResults: HubspotResult[]) => {
       });
 
       if (loanApp) {
-        await tx.systemTracking.update({
+        await tx.loanApplicationSystemTracking.update({
           where: { loan_application_id: loanApp.id },
           data: {
             hs_object_id: hs_object_id ?? hs.id,
-            integration_status: IntegrationStatusToEnum["SYNCED"], // ✅ use your enum
+            integration_status: IntegrationStatusToEnum["SYNCED"],
           },
         });
       }

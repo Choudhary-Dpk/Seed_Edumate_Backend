@@ -262,6 +262,7 @@ export const editLead = async (
 
     logger.debug(`Updating loan application for userId: ${id}`);
     const loan = await updateLoan(id, +leadId, email, name);
+    console.log("loan", loan)
     logger.debug(
       `Loan application updated successfully in hubspot for userId: ${id} with loan ${loan.id}`
     );
@@ -269,7 +270,6 @@ export const editLead = async (
     logger.debug(`Updating financial requirement for userId: ${id}`);
     await updateFinancialRequirements(
       loan.id,
-      +leadId,
       loanAmountRequested,
       loanAmountApproved
     );
@@ -278,13 +278,13 @@ export const editLead = async (
     );
 
     logger.debug(`Updating Lender information for loanId: ${loan.id}`);
-    await updateLender(loan.id, +leadId, loanTenureYears);
+    await updateLender(loan.id, loanTenureYears);
     logger.debug(
       `Lender information updated successfully for loanId: ${loan.id}`
     );
 
     logger.debug(`Updating application status for userId: ${id}`);
-    await updateApplicationStatus(loan.id, +leadId, applicationStatus);
+    await updateApplicationStatus(loan.id, applicationStatus);
     logger.debug(
       `Application status updated successfully for loanId: ${loan.id}`
     );
