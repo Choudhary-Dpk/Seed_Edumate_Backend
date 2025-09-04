@@ -78,12 +78,6 @@ model Session {
   @@map("sessions")
 }
 
-enum LoginStatus {
-  success
-  failed
-  logout
-}
-
 model LoginHistory {
   id          Int      @id @default(autoincrement())
   user_id     Int      @map("user_id")
@@ -182,7 +176,7 @@ model B2BPartnerBusinessCapabilities {
   student_capacity_monthly Float?
   student_capacity_yearly Float?
   target_courses          String?
-  target_desrinations     String?  // Note: typo in original
+  target_desrinations     String?
   target_universities     String?
   team_size               Float?
   
@@ -367,6 +361,41 @@ model B2BPartnerRelationshipManagement {
   @@map("b2b_partner_relationship_mgmt")
 }
 
+model B2BSystemTracking {
+  id                        Int                     @id @default(autoincrement())
+  
+  // Partner Information
+  partner_id                Int                     @unique @map("partner_id")
+  partner_name              String                  @map("partner_name")
+  
+  // System Tracking Fields
+  api_access_provided       ApiAccessStatus         @map("api_access_provided")
+  created_by                String                  @map("created_by")
+  created_date              DateTime                @map("created_date")
+  data_source               B2BDataSource              @map("data_source")
+  integration_status        B2BIntegrationStatus       @map("integration_status")
+  internal_tags             String?                 @map("internal_tags")
+  last_modified_by          String                  @map("last_modified_by")
+  last_modified_date        DateTime                @map("last_modified_date")
+  notes                     String?                 @db.Text @map("notes")
+  partner_record_status     PartnerRecordStatus     @map("partner_record_status")
+  portal_access_provided    PortalAccessStatus      @map("portal_access_provided")
+  
+  // System timestamps
+  created_at                DateTime                @default(now()) @map("created_at")
+  updated_at                DateTime                @updatedAt @map("updated_at")
+  
+  // Indexes for better query performance
+  @@index([partner_name])
+  @@index([partner_record_status])
+  @@index([integration_status])
+  @@index([data_source])
+  @@index([created_date])
+  @@index([last_modified_date])
+  
+  @@map("b2b_system_tracking")
+}
+
 model Token {
   id        Int      @id @default(autoincrement())
   token     String
@@ -416,7 +445,6 @@ model User {
   assigned_applications LoanApplication[] @relation("AssignedCounselor")
   created_applications LoanApplication[] @relation("CreatedBy")
   modified_applications LoanApplication[] @relation("LastModifiedBy")
-  communications       LoanApplicationCommunicationLog[]  @relation("UserCommunications")
   uploaded_files  FileUpload[] @relation("FileUpload")
   email_history EmailHistory[] @relation("EmailHistory")
   tokens Token[] @relation("Tokens")
@@ -436,7 +464,6 @@ model LoanApplication {
   application_source      ApplicationSource @default(DIRECT)
   assigned_counselor_id   Int?
   b2b_partner_id          String?
-  external_reference_id   String?
   is_deleted              Boolean  @default(false)
 
   // Foreign Keys
@@ -471,10 +498,6 @@ model LoanApplication {
   // One-to-Many relations
   commission_records      LoanApplicationCommissionRecord[]
   additional_services     LoanApplicationAdditionalService[]
-  communication_logs      LoanApplicationCommunicationLog[]
-  loan_documents               LoanApplicationLoanDocument[]
-  edumate_contact              LoanApplicationContact[]
-  loan_status_history             LoanApplicationLoanStatusHistory[]
 
   @@index([student_email])
   @@index([application_date])
@@ -483,7 +506,6 @@ model LoanApplication {
 }
 
 // ACADEMIC DETAILS
-
 model LoanApplicationAcademicDetails {
   id                         Int       @id @default(autoincrement())
   loan_application_id        Int       @unique
@@ -507,7 +529,6 @@ model LoanApplicationAcademicDetails {
 }
 
 // FINANCIAL REQUIREMENTS
-
 model LoanApplicationFinancialRequirements {
   id                        Int     @id @default(autoincrement())
   loan_application_id       Int     @unique
@@ -532,7 +553,6 @@ model LoanApplicationFinancialRequirements {
 }
 
 // APPLICATION STATUS
-
 model LoanApplicationStatus {
   id                    Int             @id @default(autoincrement())
   loan_application_id   Int             @unique
@@ -551,7 +571,6 @@ model LoanApplicationStatus {
 }
 
 // LENDER INFORMATION
-
 model LoanApplicationLenderInformation {
   id                        Int            @id @default(autoincrement())
   loan_application_id       Int            @unique
@@ -581,7 +600,6 @@ model LoanApplicationLenderInformation {
 }
 
 // DOCUMENT MANAGEMENT
-
 model LoanApplicationDocumentManagement {
   id                        Int      @id @default(autoincrement())
   loan_application_id       Int      @unique
@@ -598,7 +616,6 @@ model LoanApplicationDocumentManagement {
 }
 
 // PROCESSING TIMELINE
-
 model LoanApplicationProcessingTimeline {
   id                           Int       @id @default(autoincrement())
   loan_application_id          Int       @unique
@@ -621,7 +638,6 @@ model LoanApplicationProcessingTimeline {
 }
 
 // REJECTION DETAILS
-
 model LoanApplicationRejectionDetails {
   id                    Int            @id @default(autoincrement())
   loan_application_id   Int            @unique
@@ -641,7 +657,6 @@ model LoanApplicationRejectionDetails {
 }
 
 // COMMUNICATION PREFERENCES
-
 model LoanApplicationCommunicationPreferences {
   id                          Int                    @id @default(autoincrement())
   loan_application_id         Int                    @unique
@@ -664,17 +679,22 @@ model LoanApplicationCommunicationPreferences {
 }
 
 // SYSTEM TRACKING
-
 model LoanApplicationSystemTracking {
   id                      Int              @id @default(autoincrement())
   loan_application_id     Int              @unique
   application_source_system ApplicationSourceSystem @default(MANUAL_ENTRY)
   integration_status      IntegrationStatus @default(NOT_REQUIRED)
   audit_trail            String?          @db.Text
-  hs_object_id           String?          // HubSpot integration
+  hs_object_id           String?
   hs_merged_object_ids   String?
   hs_object_source_label String?
+  application_record_status   LoanApplicationSystemTrackingEnum @default(ACTIVE)
+  external_reference_id     String?
+
+  // tracking
   created_at             DateTime         @default(now())
+  created_by            String?
+  last_modified_by  String?
   updated_at             DateTime         @default(now()) @updatedAt
 
   // Relations
@@ -684,7 +704,6 @@ model LoanApplicationSystemTracking {
 }
 
 // COMMISSION RECORDS (One-to-Many)
-
 model LoanApplicationCommissionRecord {
   id                         Int              @id @default(autoincrement())
   loan_application_id        Int
@@ -706,14 +725,10 @@ model LoanApplicationCommissionRecord {
 }
 
 // ADDITIONAL SERVICES (One-to-Many)
-
 model LoanApplicationAdditionalService {
   id                    Int      @id @default(autoincrement())
   loan_application_id   Int
-  service_name          String
-  service_description   String?  @db.Text
-  service_cost          Decimal? @db.Decimal(10, 2)
-  notes                String?  @db.Text
+  additional_services_notes                String?  @db.Text
   created_at           DateTime @default(now())
   updated_at           DateTime @default(now()) @updatedAt
 
@@ -721,60 +736,6 @@ model LoanApplicationAdditionalService {
   loan_application     LoanApplication @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
 
   @@map("loan_application_additional_services")
-}
-
-// COMMUNICATION LOGS (One-to-Many)
-
-model LoanApplicationCommunicationLog {
-  id                      Int                   @id @default(autoincrement())
-  
-  // Loan Application Communication
-  loan_application_id     Int?                 
-  loan_application        LoanApplication?      @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
-
-  // Commission Settlement Communication
-  settlement_id           Int?                 
-  settlement              CommissionSettlement? @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
-  
-  // Communication Metadata
-  communication_type      CommunicationChannel  @map("communication_type") // CALL, EMAIL, NOTIFICATION, REMINDER, ESCALATION
-  notification_method     NotificationMethod?   @map("notification_method")
-  
-  // Contact / Recipients
-  contact_date            DateTime?             @default(now()) @map("contact_date")
-  contact_subject         String?               @map("contact_subject")
-  contact_notes           String?               @db.Text @map("contact_notes")
-  follow_up_required      Boolean?              @default(false) @map("follow_up_required")
-  contacted_by_id         Int?                  @map("contacted_by_id")
-  contacted_by            User?                 @relation("UserCommunications", fields: [contacted_by_id], references: [id])
-
-  recipient_email         String?               @map("recipient_email")
-  recipient_phone         String?               @map("recipient_phone")
-  recipient_name          String?               @map("recipient_name")
-  
-  // Message Content
-  subject                 String?               @map("subject")
-  message_content         String?               @db.Text @map("message_content")
-  
-  // Status & Tracking
-  sent_status             String?               @map("sent_status") // SENT, FAILED, PENDING
-  sent_date               DateTime?             @map("sent_date")
-  
-  acknowledgment_received AcknowledgmentStatus? @map("acknowledgment_received")
-  acknowledgment_date     DateTime?             @map("acknowledgment_date")
-  
-  retry_count             Int                   @default(0) @map("retry_count")
-  last_retry_date         DateTime?             @map("last_retry_date")
-  
-  // Audit
-  created_at              DateTime              @default(now()) @map("created_at")
-  
-  @@index([loan_application_id])
-  @@index([settlement_id])
-  @@index([communication_type])
-  @@index([contact_date])
-  @@index([sent_date])
-  @@map("loan_application_communication_logs")
 }
 
 model FileUpload {
@@ -851,80 +812,10 @@ model EmailHistory {
   @@map("email_history")
 }
 
-model LoanApplicationContact {
-  id                    Int                 @id @default(autoincrement())
-  external_id           String?             @unique @map("external_id") // HubSpot ID or other CRM ID
-  
-  // Personal Information
-  first_name            String              @map("first_name")
-  last_name             String              @map("last_name")
-  middle_name           String?             @map("middle_name")
-  email                 String              @unique @map("email")
-  phone                 String?             @map("phone")
-  alternate_phone       String?             @map("alternate_phone")
-  date_of_birth         DateTime?           @map("date_of_birth")
-  gender                Gender?             @map("gender")
-  marital_status        MaritalStatus?      @map("marital_status")
-  nationality           String?             @map("nationality")
-  
-  // Address
-  address_line1         String?             @map("address_line1")
-  address_line2         String?             @map("address_line2")
-  city                  String?             @map("city")
-  state                 String?             @map("state")
-  postal_code           String?             @map("postal_code")
-  country               String?             @map("country")
-  
-  // Employment
-  employment_status     EmploymentStatus?   @map("employment_status")
-  employer_name         String?             @map("employer_name")
-  job_title             String?             @map("job_title")
-  years_of_experience   Int?                @map("years_of_experience")
-  
-  // System fields
-  is_active             Boolean             @default(true) @map("is_active")
-  created_at            DateTime            @default(now()) @map("created_at")
-  updated_at            DateTime            @updatedAt @map("updated_at")
-  last_contacted_at     DateTime?           @map("last_contacted_at")
-  
-  // Relations
-  academic_profile      AcademicProfile?
-  applications          Application[]
-  financial_profile     FinancialProfile?
-  loan_applications     LoanApplication[]
-  lead_attribution      LeadAttribution?
-  documents             Document[]
-  communications        Communication[]
-  field_updates         FieldUpdateHistory[]
-  
-  @@index([email])
-  @@index([external_id])
-  @@index([created_at])
-  @@map("loan_application_contacts")
-}
-
-model CustomFieldValue {
-  id                    Int                 @id @default(autoincrement())
-  contact_id            Int                 @map("contact_id")
-  field_definition_id   Int                 @map("field_definition_id")
-  field_definition      CustomFieldDefinition @relation(fields: [field_definition_id], references: [id])
-  
-  value                 Json                @map("value") // Store any type of value
-  
-  created_at            DateTime            @default(now()) @map("created_at")
-  updated_at            DateTime            @updatedAt @map("updated_at")
-  
-  @@unique([contact_id, field_definition_id])
-  @@index([contact_id])
-  @@index([field_definition_id])
-  @@map("custom_field_values")
-}
-
 // Document management
 model Document {
   id                    Int                 @id @default(autoincrement())
   contact_id            Int                 @map("contact_id")
-  contact               LoanApplicationContact             @relation(fields: [contact_id], references: [id], onDelete: Cascade)
   
   document_type         String              @map("document_type")
   document_name         String              @map("document_name")
@@ -938,35 +829,16 @@ model Document {
   
   uploaded_at           DateTime            @default(now()) @map("uploaded_at")
   
-  // Relations
-  loan_documents        LoanApplicationLoanDocument[]
   
   @@index([contact_id])
   @@index([document_type])
   @@map("documents")
 }
 
-// Link documents to loan applications
-model LoanApplicationLoanDocument {
-  id                    Int                 @id @default(autoincrement())
-  loan_application_id   Int                 @map("loan_application_id")
-  loan_application      LoanApplication     @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
-  document_id           Int                 @map("document_id")
-  document              Document            @relation(fields: [document_id], references: [id], onDelete: Cascade)
-  
-  is_mandatory          Boolean             @default(false) @map("is_mandatory")
-  
-  created_at            DateTime            @default(now()) @map("created_at")
-  
-  @@unique([loan_application_id, document_id])
-  @@map("loan_application_loan_documents")
-}
-
 // Communication tracking
 model Communication {
   id                    Int                 @id @default(autoincrement())
   contact_id            Int                 @map("contact_id")
-  contact               LoanApplicationContact             @relation(fields: [contact_id], references: [id], onDelete: Cascade)
   
   communication_type    String              @map("communication_type") // EMAIL, SMS, CALL, WHATSAPP
   direction             String              @map("direction") // INBOUND, OUTBOUND
@@ -987,7 +859,6 @@ model Communication {
 model FieldUpdateHistory {
   id                    Int                 @id @default(autoincrement())
   contact_id            Int                 @map("contact_id")
-  contact               LoanApplicationContact             @relation(fields: [contact_id], references: [id], onDelete: Cascade)
   
   field_name            String              @map("field_name")
   old_value             String?             @map("old_value")
@@ -1003,41 +874,10 @@ model FieldUpdateHistory {
   @@map("field_update_history")
 }
 
-// Store custom field definitions
-model CustomFieldDefinition {
-  id                    Int                 @id @default(autoincrement())
-  field_name            String              @unique @map("field_name")
-  internal_name         String              @unique @map("internal_name")
-  field_type            String              @map("field_type") // string, number, date, datetime, enumeration
-  group_name            String              @map("group_name")
-  description           String?             @map("description")
-  
-  is_required           Boolean             @default(false) @map("is_required")
-  is_form_field         Boolean             @default(false) @map("is_form_field")
-  is_read_only          Boolean             @default(false) @map("is_read_only")
-  is_calculated         Boolean             @default(false) @map("is_calculated")
-  is_deleted            Boolean             @default(false) @map("is_deleted")
-  
-  options               Json?               @map("options") // For enumeration types
-  validation_rules      Json?               @map("validation_rules")
-  
-  created_by            String              @map("created_by")
-  created_at            DateTime            @default(now()) @map("created_at")
-  updated_at            DateTime            @updatedAt @map("updated_at")
-  
-  // Relations
-  custom_field_values   CustomFieldValue[]
-  
-  @@index([group_name])
-  @@index([field_type])
-  @@map("custom_field_definitions")
-}
-
 // Academic information separated for better organization
 model AcademicProfile {
   id                    Int                 @id @default(autoincrement())
   contact_id            Int                 @unique @map("contact_id")
-  contact               LoanApplicationContact             @relation(fields: [contact_id], references: [id], onDelete: Cascade)
   
   // Current Education
   current_education_level  EducationLevel?  @map("current_education_level")
@@ -1094,7 +934,6 @@ model EducationHistory {
 model Application {
   id                    Int                 @id @default(autoincrement())
   contact_id            Int                 @map("contact_id")
-  contact               LoanApplicationContact             @relation(fields: [contact_id], references: [id], onDelete: Cascade)
   
   application_number    String              @unique @map("application_number")
   institution_name      String              @map("institution_name")
@@ -1126,7 +965,6 @@ model Application {
 model FinancialProfile {
   id                    Int                 @id @default(autoincrement())
   contact_id            Int                 @unique @map("contact_id")
-  contact               LoanApplicationContact             @relation(fields: [contact_id], references: [id], onDelete: Cascade)
   
   // Income
   annual_income         Decimal?            @db.Decimal(10, 2) @map("annual_income")
@@ -1154,28 +992,10 @@ model FinancialProfile {
   @@map("financial_profiles")
 }
 
-// Track loan status changes
-model LoanApplicationLoanStatusHistory {
-  id                    Int                 @id @default(autoincrement())
-  loan_application_id   Int                 @map("loan_application_id")
-  loan_application      LoanApplication     @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
-  
-  previous_status       LoanStatus?         @map("previous_status")
-  new_status            LoanStatus          @map("new_status")
-  changed_by            String              @map("changed_by")
-  reason                String?             @map("reason")
-  
-  created_at            DateTime            @default(now()) @map("created_at")
-  
-  @@index([loan_application_id])
-  @@map("loan_application_loan_status_history")
-}
-
 // Lead tracking and attribution
 model LeadAttribution {
   id                    Int                 @id @default(autoincrement())
   contact_id            Int                 @unique @map("contact_id")
-  contact               LoanApplicationContact             @relation(fields: [contact_id], references: [id], onDelete: Cascade)
   
   lead_source           String?             @map("lead_source")
   lead_medium           String?             @map("lead_medium")
@@ -1791,52 +1611,6 @@ model LenderAuditLog {
   @@map("lender_audit_logs")
 }
 
-// Store custom field definitions for lenders
-model LenderCustomFieldDefinition {
-  id                    Int                 @id @default(autoincrement())
-  field_name            String              @unique @map("field_name")
-  internal_name         String              @unique @map("internal_name")
-  field_type            String              @map("field_type")
-  group_name            String              @map("group_name")
-  description           String?             @map("description")
-  
-  is_required           Boolean             @default(false) @map("is_required")
-  is_form_field         Boolean             @default(false) @map("is_form_field")
-  is_read_only          Boolean             @default(false) @map("is_read_only")
-  is_deleted            Boolean             @default(false) @map("is_deleted")
-  
-  options               Json?               @map("options")
-  validation_rules      Json?               @map("validation_rules")
-  
-  created_by            String              @map("created_by")
-  created_at            DateTime            @default(now()) @map("created_at")
-  updated_at            DateTime            @updatedAt @map("updated_at")
-  
-  // Relations
-  custom_field_values   LenderCustomFieldValue[]
-  
-  @@index([group_name])
-  @@map("lender_custom_field_definitions")
-}
-
-// Store custom field values for lenders
-model LenderCustomFieldValue {
-  id                    Int                 @id @default(autoincrement())
-  lender_id             Int                 @map("lender_id")
-  field_definition_id   Int                 @map("field_definition_id")
-  field_definition      LenderCustomFieldDefinition @relation(fields: [field_definition_id], references: [id])
-  
-  value                 Json                @map("value")
-  
-  created_at            DateTime            @default(now()) @map("created_at")
-  updated_at            DateTime            @updatedAt @map("updated_at")
-  
-  @@unique([lender_id, field_definition_id])
-  @@index([lender_id])
-  @@index([field_definition_id])
-  @@map("lender_custom_field_values")
-}
-
 model UniversityMapping {
   id                    Int                 @id @default(autoincrement())
   product_id            Int                 @map("product_id")
@@ -1917,52 +1691,6 @@ model LoanProductAuditLog {
   @@index([action])
   @@index([created_at])
   @@map("loan_product_audit_logs")
-}
-
-// Custom field definitions for loan products
-model LoanProductCustomFieldDefinition {
-  id                    Int                 @id @default(autoincrement())
-  field_name            String              @unique @map("field_name")
-  internal_name         String              @unique @map("internal_name")
-  field_type            String              @map("field_type")
-  group_name            String              @map("group_name")
-  description           String?             @map("description")
-  
-  is_required           Boolean             @default(false) @map("is_required")
-  is_form_field         Boolean             @default(false) @map("is_form_field")
-  is_read_only          Boolean             @default(false) @map("is_read_only")
-  is_deleted            Boolean             @default(false) @map("is_deleted")
-  
-  options               Json?               @map("options")
-  validation_rules      Json?               @map("validation_rules")
-  
-  created_by            String              @map("created_by")
-  created_at            DateTime            @default(now()) @map("created_at")
-  updated_at            DateTime            @updatedAt @map("updated_at")
-  
-  // Relations
-  custom_field_values   LoanProductCustomFieldValue[]
-  
-  @@index([group_name])
-  @@map("loan_product_custom_field_definitions")
-}
-
-// Custom field values for loan products
-model LoanProductCustomFieldValue {
-  id                    Int                 @id @default(autoincrement())
-  product_id            Int                 @map("product_id")
-  field_definition_id   Int                 @map("field_definition_id")
-  field_definition      LoanProductCustomFieldDefinition @relation(fields: [field_definition_id], references: [id])
-  
-  value                 Json                @map("value")
-  
-  created_at            DateTime            @default(now()) @map("created_at")
-  updated_at            DateTime            @updatedAt @map("updated_at")
-  
-  @@unique([product_id, field_definition_id])
-  @@index([product_id])
-  @@index([field_definition_id])
-  @@map("loan_product_custom_field_values")
 }
 
 // Collateral and security requirements
@@ -2925,52 +2653,6 @@ model DocumentAuditLog {
   @@map("document_audit_logs")
 }
 
-// Custom field definitions for documents
-model DocumentCustomFieldDefinition {
-  id                    Int                 @id @default(autoincrement())
-  field_name            String              @unique @map("field_name")
-  internal_name         String              @unique @map("internal_name")
-  field_type            String              @map("field_type")
-  group_name            String              @map("group_name")
-  description           String?             @map("description")
-  
-  is_required           Boolean             @default(false) @map("is_required")
-  is_form_field         Boolean             @default(false) @map("is_form_field")
-  is_read_only          Boolean             @default(false) @map("is_read_only")
-  is_deleted            Boolean             @default(false) @map("is_deleted")
-  
-  options               Json?               @map("options")
-  validation_rules      Json?               @map("validation_rules")
-  
-  created_by            String              @map("created_by")
-  created_at            DateTime            @default(now()) @map("created_at")
-  updated_at            DateTime            @updatedAt @map("updated_at")
-  
-  // Relations
-  custom_field_values   DocumentCustomFieldValue[]
-  
-  @@index([group_name])
-  @@map("document_custom_field_definitions")
-}
-
-// Custom field values for documents
-model DocumentCustomFieldValue {
-  id                    Int                 @id @default(autoincrement())
-  document_master_id    Int                 @map("document_master_id")
-  field_definition_id   Int                 @map("field_definition_id")
-  field_definition      DocumentCustomFieldDefinition @relation(fields: [field_definition_id], references: [id])
-  
-  value                 Json                @map("value")
-  
-  created_at            DateTime            @default(now()) @map("created_at")
-  updated_at            DateTime            @updatedAt @map("updated_at")
-  
-  @@unique([document_master_id, field_definition_id])
-  @@index([document_master_id])
-  @@index([field_definition_id])
-  @@map("document_custom_field_values")
-}
-
 // Commission transactions
 model CommissionTransaction {
   id                    Int                 @id @default(autoincrement())
@@ -3101,52 +2783,6 @@ model CommissionRule {
   @@map("commission_rules")
 }
 
-// Custom field definitions for commission settlements
-model CommissionCustomFieldDefinition {
-  id                    Int                 @id @default(autoincrement())
-  field_name            String              @unique @map("field_name")
-  internal_name         String              @unique @map("internal_name")
-  field_type            String              @map("field_type")
-  group_name            String              @map("group_name")
-  description           String?             @map("description")
-  
-  is_required           Boolean             @default(false) @map("is_required")
-  is_form_field         Boolean             @default(false) @map("is_form_field")
-  is_read_only          Boolean             @default(false) @map("is_read_only")
-  is_deleted            Boolean             @default(false) @map("is_deleted")
-  
-  options               Json?               @map("options")
-  validation_rules      Json?               @map("validation_rules")
-  
-  created_by            String              @map("created_by")
-  created_at            DateTime            @default(now()) @map("created_at")
-  updated_at            DateTime            @updatedAt @map("updated_at")
-  
-  // Relations
-  custom_field_values   CommissionCustomFieldValue[]
-  
-  @@index([group_name])
-  @@map("commission_custom_field_definitions")
-}
-
-// Custom field values for commission settlements
-model CommissionCustomFieldValue {
-  id                    Int                 @id @default(autoincrement())
-  settlement_id         Int                 @map("settlement_id")
-  field_definition_id   Int                 @map("field_definition_id")
-  field_definition      CommissionCustomFieldDefinition @relation(fields: [field_definition_id], references: [id])
-  
-  value                 Json                @map("value")
-  
-  created_at            DateTime            @default(now()) @map("created_at")
-  updated_at            DateTime            @updatedAt @map("updated_at")
-  
-  @@unique([settlement_id, field_definition_id])
-  @@index([settlement_id])
-  @@index([field_definition_id])
-  @@map("commission_custom_field_values")
-}
-
 // Main commission settlement table
 model CommissionSettlement {
   id                    Int                 @id @default(autoincrement())
@@ -3192,7 +2828,6 @@ model CommissionSettlement {
   hold_dispute          CommissionSettlementHoldDispute?
   reconciliation        CommissionSettlementReconciliation?
   performance_metrics   CommissionSettlementPerformanceAnalytics?
-  communication_logs    LoanApplicationCommunicationLog[]
   transactions          CommissionTransaction[]
   status_history        SettlementStatusHistory[]
   audit_logs            CommissionAuditLog[]
@@ -3636,6 +3271,13 @@ enum ApplicationSourceSystem {
   PARTNER_PORTAL    @map("PARTNER_PORTAL")
   IMPORT
   API
+}
+
+enum LoanApplicationSystemTrackingEnum {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+  ARCHIVED
 }
 
 enum IntegrationStatus {
@@ -4261,4 +3903,56 @@ enum AcknowledgmentStatus {
   PENDING
   
   @@map("acknowledgment_status")
+}
+
+enum ApiAccessStatus {
+  YES           @map("Yes")
+  NO            @map("No")
+  NOT_REQUIRED  @map("Not Required")
+  
+  @@map("api_access_status")
+}
+
+// Enum for Data Source
+enum B2BDataSource {
+  MANUAL_ENTRY          @map("Manual Entry")
+  IMPORT                @map("Import")
+  PARTNER_APPLICATION   @map("Partner Application")
+  REFERRAL              @map("Referral")
+  
+  @@map("b2b_data_source")
+}
+
+// Enum for Integration Status
+enum B2BIntegrationStatus {
+  NOT_REQUIRED  @map("Not Required")
+  PENDING       @map("Pending")
+  COMPLETE      @map("Complete")
+  ISSUES        @map("Issues")
+  
+  @@map("b2b_integration_status")
+}
+
+enum PartnerRecordStatus {
+  ACTIVE        
+  INACTIVE      
+  SUSPENDED     
+  UNDER_REVIEW  @map("Under Review")
+  ARCHIVED
+  
+  @@map("b2b_partner_record_status")
+}
+
+enum PortalAccessStatus {
+  YES
+  NO        
+  PENDING   
+  
+  @@map("b2b_portal_access_status")
+}
+
+enum LoginStatus {
+  success
+  failed
+  logout
 }
