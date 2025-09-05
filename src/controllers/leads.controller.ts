@@ -177,6 +177,7 @@ export const uploadCSV = async (
     // 4. Deduplicate against DB
     const { unique: toInsert, duplicates: duplicatesInDb } =
       await deduplicateInDb(uniqueInFile);
+    console.log("toInsert", toInsert)
 
     // 5. Handle no new records
     if (toInsert.length === 0) {
@@ -247,6 +248,7 @@ export const editLead = async (
 
     logger.debug(`Fethcing hubspot details by leadId: ${leadId}`);
     const lead = await getHubspotByLeadId(+leadId);
+    console.log("lead", lead)
     logger.debug(`Hubspot details fetched successfully`);
 
     logger.debug(`Updating hubspot loan application`);

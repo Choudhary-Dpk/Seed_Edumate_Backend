@@ -447,16 +447,21 @@ export const updateSystemTracking = async (hubspotResults: HubspotResult[]) => {
 
       if (!student_email) continue;
 
-      // 🔹 assuming user_id is NOT in HubSpot, you need another way to match
+      // 🔹 match loan app by email
       const loanApp = await tx.loanApplication.findFirst({
         where: { student_email },
         select: { id: true },
       });
 
       if (loanApp) {
-        await tx.loanApplicationSystemTracking.update({
+        await tx.loanApplicationSystemTracking.upsert({
           where: { loan_application_id: loanApp.id },
-          data: {
+          update: {
+            hs_object_id: hs_object_id ?? hs.id,
+            integration_status: IntegrationStatusToEnum["SYNCED"],
+          },
+          create: {
+            loan_application_id: loanApp.id,
             hs_object_id: hs_object_id ?? hs.id,
             integration_status: IntegrationStatusToEnum["SYNCED"],
           },
