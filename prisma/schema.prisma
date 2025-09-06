@@ -1215,6 +1215,8 @@ model LenderOfferings {
 
     created_at              DateTime         @default(now())
     updated_at              DateTime         @default(now()) @updatedAt
+     
+    @@map("lender_offerings")
 }
 
 // Loan products offered by lender
@@ -1280,6 +1282,8 @@ model LoanProductSystemTracking {
 
   created_at              DateTime         @default(now())
   updated_at              DateTime         @default(now()) @updatedAt
+   
+    @@map("loan_product_system_tracking")
 }
 
 model LoanProductCompetitiveAnalytics {
@@ -1292,6 +1296,8 @@ model LoanProductCompetitiveAnalytics {
 
   created_at              DateTime         @default(now())
   updated_at              DateTime         @default(now()) @updatedAt  
+   
+@@map("loan_product_competitive_analysis")    
 }
 
 // Detailed eligibility criteria for loan products
@@ -1712,6 +1718,8 @@ model DocumentSpecification {
 
   createdAt                 DateTime               @default(now())
   updatedAt                 DateTime               @updatedAt
+   
+    @@map("document_specification")
 }
 // Document applicability rules
 model DocumentApplicability {
