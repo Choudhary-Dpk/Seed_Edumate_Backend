@@ -8,6 +8,7 @@ import {
 } from '../types';
 import { createHubSpotError, createNotFoundError } from '../middlewares/errorHandler';
 import { convertCurrency } from './loan.service';
+import { ContactsLead } from '../types/contact.types';
 
 // Edumate Contact Service Functions
 
@@ -558,6 +559,40 @@ export const deleteHubspotByLeadId = async (hubspotId: string) => {
       error instanceof Error ? error.message : "Unknown error",
       error,
       "deleteHubspotByLeadId"
+    );
+  }
+};
+
+export const createEdumateContactsLeads = async (
+  leads: ContactsLead[]
+) => {
+  try {
+    const response = await hubspotClient.createContactsLeads(
+      leads?.map((lead) => ({
+        email: lead.email,
+        phone_number: lead.phone,
+        first_name:lead.firstName,
+        last_name:lead.lastName,
+        b2b_partner_name:lead.partnerName,
+        current_education_level: lead.educationLevel,
+        admission_status: lead.admissionStatus,
+        target_degree_level: lead.targetDegreeLevel,
+        course_type: lead.courseType,
+        intake_year: lead.intakeYear,
+        intake_month: lead.intakeMonth,
+        preferred_study_destination: lead.studyDestination,
+        date_of_birth: lead.dateOfBirth,
+        gender: lead.gender
+      }))
+    );
+
+    return response;
+  } catch (error) {
+    logger.error("Error in createLoanLeads service", { error });
+    throw createHubSpotError(
+      error instanceof Error ? error.message : "Unknown error",
+      error,
+      "createLoanLeads"
     );
   }
 };

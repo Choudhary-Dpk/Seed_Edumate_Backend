@@ -451,6 +451,8 @@ model User {
   email_history EmailHistory[] @relation("EmailHistory")
   tokens Token[] @relation("Tokens")
   deleted_by  LoanApplication[] @relation("DeletedBy")
+  deleted_by_contacts_info EdumateContactsPersonalInformation[] @relation("ContactsDeletedBy")
+  deleted_By_contacts  EdumateContact[] @relation("ContactsDeletedBy")
 
   @@map("users")
 }
@@ -878,7 +880,7 @@ model EdumateContactsAcademicProfile {
   // Intake Details
   intended_start_term           IntendedStartTerm?            @map("intended_start_term")
   intended_start_date           DateTime?                     @map("intended_start_date")
-  intake_month                  String?                       @map("intake_month")
+  intake_month                  Int?                       @map("intake_month")
   intake_year                   String?                       @map("intake_year")
   
   created_at                    DateTime                      @default(now()) @map("created_at")
@@ -892,7 +894,25 @@ model EdumateContactsAcademicProfile {
 
 model EdumateContact {
   id                              Int                           @id @default(autoincrement())
-  
+  deleted_by_id Int?
+
+ // HubSpot System Fields
+  hs_created_by_user_id     Int?       @map("hs_created_by_user_id")     
+  hs_createdate             DateTime?  @map("hs_createdate")            
+  hs_lastmodifieddate       DateTime?  @map("hs_lastmodifieddate")       
+  hs_merged_object_ids      String?    @map("hs_merged_object_ids")     
+  hs_object_id              String?       @map("hs_object_id")              
+  hs_object_source_detail_1 String?    @map("hs_object_source_detail_1") 
+  hs_object_source_detail_2 String?    @map("hs_object_source_detail_2")
+  hs_object_source_detail_3 String?    @map("hs_object_source_detail_3")
+  hs_object_source_label    String?    @map("hs_object_source_label")    
+  hs_shared_team_ids        String?    @map("hs_shared_team_ids")       
+  hs_shared_user_ids        String?    @map("hs_shared_user_ids")        
+  hs_updated_by_user_id     Int?       @map("hs_updated_by_user_id")     
+  hubspot_owner_assigneddate DateTime? @map("hubspot_owner_assigneddate")
+  hubspot_owner_id          String?    @map("hubspot_owner_id")          
+  hubspot_team_id           String?    @map("hubspot_team_id")    
+
   // Currency Information
   base_currency                   String?         @map("base_currency")
   study_destination_currency      String?         @map("study_destination_currency")
@@ -907,6 +927,8 @@ model EdumateContact {
   
   created_at                      DateTime        @default(now()) @map("created_at")
   updated_at                      DateTime        @updatedAt @map("updated_at")
+  deleted_by  User?    @relation("ContactsDeletedBy", fields: [deleted_by_id], references: [id])
+  is_deleted   Boolean @default(false)
   
   // Relations
   academic_profile                EdumateContactsAcademicProfile?
@@ -926,7 +948,7 @@ model EdumateContactsSystemTracking {
   contact                   EdumateContact          @relation(fields: [contact_id], references: [id], onDelete: Cascade)
   
   // Creation & Modification Info
-  created_by                String?                 @map("created_by")
+  created_by                Int?                 @map("created_by")
   created_date              DateTime?               @map("created_date")
   last_modified_by          String?                 @map("last_modified_by")
   last_modified_date        DateTime?               @map("last_modified_date")
@@ -1083,6 +1105,9 @@ model EdumateContactsPersonalInformation {
   
   created_at                      DateTime         @default(now()) @map("created_at")
   updated_at                      DateTime         @updatedAt @map("updated_at")
+  deleted_by_id Int?
+  is_deleted Boolean @default(false)
+  deleted_by User?    @relation("ContactsDeletedBy", fields: [deleted_by_id], references: [id])
   
   @@map("edumate_contacts_personal_information")
 }
@@ -2670,10 +2695,10 @@ enum LoanStatus {
 }
 
 enum Gender {
-  MALE
-  FEMALE
-  OTHER
-  PREFER_NOT_TO_SAY     @map("PREFER NOT TO SAY")
+  MALE  @map("Male")
+  FEMALE @map("Female")
+  OTHER @map("Other")
+  PREFER_NOT_TO_SAY     @map("Prefer not to say")
 
   @@map("gender")
 }
@@ -3686,7 +3711,7 @@ enum StatusDispositionReason {
 }
 
 enum EdumateContactCourseType {
-  STEM      @map("STEM")
+  STEM      @map("Stem")
   BUSINESS  @map("Business")
   OTHERS    @map("Others")
   

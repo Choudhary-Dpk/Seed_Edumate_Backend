@@ -9,6 +9,7 @@ import { healthRoutes } from "./routes/health.routes";
 import {leadsRouter} from "./routes/leads.route";
 import { errorHandler } from "./middlewares/error";
 import { partnerRoutes } from "./routes/partner.route";
+import {contactRoutes} from "./routes/contact.route"
 import app from "./setup/express";
 
 const PORT = process.env.PORT || 3031;
@@ -16,6 +17,7 @@ const PORT = process.env.PORT || 3031;
 // API Routes
 app.use("/loans", loanRoutes);
 app.use("/hubspot", hubspotRoutes);
+app.use("/contacts", contactRoutes)
 app.use("/gupshup", gupshupRoutes);
 app.use("/health", healthRoutes);
 app.use("/user", userRoutes);

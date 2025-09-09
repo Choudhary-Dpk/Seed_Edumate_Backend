@@ -1,4 +1,4 @@
-import { Response, NextFunction, Request } from "express";
+import { Response, NextFunction } from "express";
 import { sendResponse } from "../utils/api";
 import { RequestWithPayload } from "../types/api.types";
 import { LoginPayload } from "../types/auth";
