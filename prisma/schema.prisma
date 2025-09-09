@@ -121,7 +121,7 @@ model B2BPartner {
   
   // Basic Information (from b2b_partners_information group)
   business_address      String?
-  business_type         String?  // Individual, Partnership, Private Limited, Public Limited, LLP, NGO, Educational Trust
+  business_type         String?  
   city                  String?
   country               String?
   gst_number            String?
@@ -162,6 +162,7 @@ model B2BPartner {
   partnership_details    B2BPartnerPartnershipDetails?
   performance_metrics    B2BPartnerPerformanceMetrics?
   relationship_managemenet      B2BPartnerRelationshipManagement?
+  system_tracking B2BSystemTracking?
   
   @@map("b2b_partners")
 }
@@ -363,7 +364,8 @@ model B2BPartnerRelationshipManagement {
 
 model B2BSystemTracking {
   id                        Int                     @id @default(autoincrement())
-  
+  partner B2BPartner  @relation(fields: [partner_id], references: [id], onDelete: Cascade)
+
   // Partner Information
   partner_id                Int                     @unique @map("partner_id")
   partner_name              String                  @map("partner_name")
@@ -812,209 +814,277 @@ model EmailHistory {
   @@map("email_history")
 }
 
-// Document management
-model Document {
-  id                    Int                 @id @default(autoincrement())
-  contact_id            Int                 @map("contact_id")
+model EdumateContactsApplicationJourney {
+  id                                     Int                           @id @default(autoincrement())
+  contact_id                            Int                          @unique @map("contact_id")
+  contact                       EdumateContact                @relation(fields: [contact_id], references: [id], onDelete: Cascade)
+
+  // Counselor Information
+  assigned_counselor                    String?                      @map("assigned_counselor")
+  counselor_notes                       String?                      @map("counselor_notes") @db.Text
   
-  document_type         String              @map("document_type")
-  document_name         String              @map("document_name")
-  file_path             String              @map("file_path")
-  file_size             Int                 @map("file_size")
-  mime_type             String              @map("mime_type")
+  // Status Information
+  current_status_disposition            CurrentStatusDisposition?    @map("current_status_disposition")
+  current_status_disposition_reason     StatusDispositionReason?    @map("current_status_disposition_reason")
+  priority_level                        PriorityLevel?               @map("priority_level")
   
-  is_verified           Boolean             @default(false) @map("is_verified")
-  verified_by           String?             @map("verified_by")
-  verified_at           DateTime?           @map("verified_at")
+  // Contact Dates
+  first_contact_date                    DateTime?                    @map("first_contact_date")
+  last_contact_date                     DateTime?                    @map("last_contact_date")
+  follow_up_date                        DateTime?                    @map("follow_up_date")
+  next_follow_up_date                   DateTime?                    @map("next_follow_up_date")
   
-  uploaded_at           DateTime            @default(now()) @map("uploaded_at")
+  created_at                            DateTime                     @default(now()) @map("created_at")
+  updated_at                            DateTime                     @updatedAt @map("updated_at")
   
-  
-  @@index([contact_id])
-  @@index([document_type])
-  @@map("documents")
+  @@map("edumate_contacts_application_journey")
 }
 
-// Communication tracking
-model Communication {
-  id                    Int                 @id @default(autoincrement())
-  contact_id            Int                 @map("contact_id")
+model EdumateContactsAcademicProfile {
+  id                            Int                           @id @default(autoincrement())
+  contact_id                    Int                        @unique @map("contact_id")
   
-  communication_type    String              @map("communication_type") // EMAIL, SMS, CALL, WHATSAPP
-  direction             String              @map("direction") // INBOUND, OUTBOUND
-  subject               String?             @map("subject")
-  content               String?             @db.Text @map("content")
-  status                String              @map("status") // SENT, DELIVERED, FAILED, READ
-  
-  sent_by               String?             @map("sent_by")
-  sent_at               DateTime            @default(now()) @map("sent_at")
-  
-  @@index([contact_id])
-  @@index([communication_type])
-  @@index([sent_at])
-  @@map("communications")
-}
-
-// Track field updates for audit
-model FieldUpdateHistory {
-  id                    Int                 @id @default(autoincrement())
-  contact_id            Int                 @map("contact_id")
-  
-  field_name            String              @map("field_name")
-  old_value             String?             @map("old_value")
-  new_value             String?             @map("new_value")
-  updated_by            String              @map("updated_by")
-  update_source         String?             @map("update_source") // API, MANUAL, IMPORT, SYSTEM
-  
-  created_at            DateTime            @default(now()) @map("created_at")
-  
-  @@index([contact_id])
-  @@index([field_name])
-  @@index([created_at])
-  @@map("field_update_history")
-}
-
-// Academic information separated for better organization
-model AcademicProfile {
-  id                    Int                 @id @default(autoincrement())
-  contact_id            Int                 @unique @map("contact_id")
+  // Admission Status
+  admission_status              EdumateContactAdmissionStatus?              @map("admission_status")
   
   // Current Education
-  current_education_level  EducationLevel?  @map("current_education_level")
-  current_institution   String?             @map("current_institution")
-  current_major         String?             @map("current_major")
-  current_gpa           Float?              @map("current_gpa")
-  graduation_date       DateTime?           @map("graduation_date")
+  current_education_level       CurrentEducationLevel?        @map("current_education_level")
+  current_institution           String?                       @map("current_institution")
+  current_course_major          String?                       @map("current_course_major")
+  current_cgpa_percentage       Float?                        @map("current_cgpa_percentage")
+  current_graduation_year       Int?                          @map("current_graduation_year")
+  
+  // Course Details
+  course_duration_months        Int?                          @map("course_duration_months")
   
   // Test Scores
-  cat_score             Int?                @map("cat_score")
-  gre_score             Int?                @map("gre_score")
-  gmat_score            Int?                @map("gmat_score")
-  toefl_score           Int?                @map("toefl_score")
-  ielts_score           Float?              @map("ielts_score")
-  sat_score             Int?                @map("sat_score")
+  cat_score                     Int?                          @map("cat_score")
+  gre_score                     Int?                          @map("gre_score")
+  gmat_score                    Int?                          @map("gmat_score")
+  toefl_score                   Int?                          @map("toefl_score")
+  ielts_score                   Float?                        @map("ielts_score")
+  sat_score                     Int?                          @map("sat_score")
+  duolingo_score                Int?                          @map("duolingo_score")
+  nmat_score                    Int?                          @map("nmat_score")
+  xat_score                     Int?                          @map("xat_score")
+  other_test_scores             String?                       @map("other_test_scores") @db.Text
   
   // Target Education
-  target_degree         String?             @map("target_degree")
-  target_major          String?             @map("target_major")
-  target_country        String?             @map("target_country")
-  intended_start_term   AcademicTerm?       @map("intended_start_term")
-  intended_start_year   Int?                @map("intended_start_year")
+  target_degree_level           TargetDegreeLevel?            @map("target_degree_level")
+  target_course_major           String?                       @map("target_course_major")
+  preferred_study_destination   PreferredStudyDestination?    @map("preferred_study_destination")
+  target_universities           String?                       @map("target_universities") @db.Text
   
-  created_at            DateTime            @default(now()) @map("created_at")
-  updated_at            DateTime            @updatedAt @map("updated_at")
+  // Intake Details
+  intended_start_term           IntendedStartTerm?            @map("intended_start_term")
+  intended_start_date           DateTime?                     @map("intended_start_date")
+  intake_month                  String?                       @map("intake_month")
+  intake_year                   String?                       @map("intake_year")
+  
+  created_at                    DateTime                      @default(now()) @map("created_at")
+  updated_at                    DateTime                      @updatedAt @map("updated_at")
   
   // Relations
-  education_history     EducationHistory[]
+  contact                       EdumateContact                @relation(fields: [contact_id], references: [id], onDelete: Cascade)
   
-  @@map("academic_profiles")
+  @@map("edumate_contact_academic_profiles")
 }
 
-// Track multiple education records
-model EducationHistory {
-  id                    Int                 @id @default(autoincrement())
-  academic_profile_id   Int                 @map("academic_profile_id")
-  academic_profile      AcademicProfile     @relation(fields: [academic_profile_id], references: [id], onDelete: Cascade)
+model EdumateContact {
+  id                              Int                           @id @default(autoincrement())
   
-  institution_name      String              @map("institution_name")
-  degree                String              @map("degree")
-  major                 String?             @map("major")
-  start_date            DateTime            @map("start_date")
-  end_date              DateTime?           @map("end_date")
-  gpa                   Float?              @map("gpa")
-  is_completed          Boolean             @default(false) @map("is_completed")
+  // Currency Information
+  base_currency                   String?         @map("base_currency")
+  study_destination_currency      String?         @map("study_destination_currency")
+  user_selected_currency          String?         @map("user_selected_currency")
   
-  created_at            DateTime            @default(now()) @map("created_at")
+  // Course Information
+  course_type                     EdumateContactCourseType?     @map("course_type")
   
-  @@index([academic_profile_id])
-  @@map("education_history")
+  // Co-applicant Information
+  co_applicant_1_email            String?         @map("co_applicant_1_email")
+  co_applicant_1_mobile_number    String?         @map("co_applicant_1_mobile_number")
+  
+  created_at                      DateTime        @default(now()) @map("created_at")
+  updated_at                      DateTime        @updatedAt @map("updated_at")
+  
+  // Relations
+  academic_profile                EdumateContactsAcademicProfile?
+  application_journey             EdumateContactsApplicationJourney?
+  financial_Info                       EdumateContactsFinancialInfo?
+  leads                                    EdumateContactsLeadAttribution?
+  loan_preference                   EdumateContactsLoanPreferences?
+  personal_information          EdumateContactsPersonalInformation?
+  system_tracking                   EdumateContactsSystemTracking?
+  
+  @@map("edumate_contacts")
 }
 
-// Application tracking
-model Application {
-  id                    Int                 @id @default(autoincrement())
-  contact_id            Int                 @map("contact_id")
+model EdumateContactsSystemTracking {
+  id                        Int                     @id @default(autoincrement())
+  contact_id                Int                  @unique @map("contact_id")
+  contact                   EdumateContact          @relation(fields: [contact_id], references: [id], onDelete: Cascade)
   
-  application_number    String              @unique @map("application_number")
-  institution_name      String              @map("institution_name")
-  program_name          String              @map("program_name")
-  admission_status      AdmissionStatus     @default(NOT_APPLIED) @map("admission_status")
-  application_status    ApplicationStatuses   @default(LEAD) @map("application_status")
+  // Creation & Modification Info
+  created_by                String?                 @map("created_by")
+  created_date              DateTime?               @map("created_date")
+  last_modified_by          String?                 @map("last_modified_by")
+  last_modified_date        DateTime?               @map("last_modified_date")
   
-  // Dates
-  application_date      DateTime?           @map("application_date")
-  decision_date         DateTime?           @map("decision_date")
-  enrollment_date       DateTime?           @map("enrollment_date")
-  start_date            DateTime?           @map("start_date")
+  // Data Management
+  data_source               DataSource?             @map("data_source")
+  student_record_status     StudentRecordStatus?    @map("student_record_status")
+  tags                      String?                 @map("tags") @db.Text
   
-  // Course details
-  course_duration_months Int?               @map("course_duration_months")
-  total_course_fee      Decimal?            @db.Decimal(10, 2) @map("total_course_fee")
-  currency              String?             @default("USD") @map("currency")
+  // Consent Management
+  gdpr_consent              GDPRConsent?            @map("gdpr_consent")
+  marketing_consent         MarketingConsent?       @map("marketing_consent")
   
-  created_at            DateTime            @default(now()) @map("created_at")
-  updated_at            DateTime            @updatedAt @map("updated_at")
+  created_at                DateTime                @default(now()) @map("created_at")
+  updated_at                DateTime                @updatedAt @map("updated_at")
   
-  @@index([contact_id])
-  @@index([application_number])
-  @@index([admission_status])
-  @@map("applications")
+  @@map("edumate_contacts_system_tracking")
 }
 
 // Financial information
-model FinancialProfile {
-  id                    Int                 @id @default(autoincrement())
-  contact_id            Int                 @unique @map("contact_id")
+model EdumateContactsFinancialInfo {
+  id                            Int                           @id @default(autoincrement())
+  contact_id                    Int                        @unique @map("contact_id")
+  contact                       EdumateContact                @relation(fields: [contact_id], references: [id], onDelete: Cascade)
   
-  // Income
-  annual_income         Decimal?            @db.Decimal(10, 2) @map("annual_income")
-  monthly_income        Decimal?            @db.Decimal(10, 2) @map("monthly_income")
-  other_income          Decimal?            @db.Decimal(10, 2) @map("other_income")
-  total_family_income   Decimal?            @db.Decimal(10, 2) @map("total_family_income")
+  // General Financial Info
+  annual_family_income          Decimal?                      @db.Decimal(15, 2) @map("annual_family_income")
+  currency                      FinancialCurrency?            @map("currency")
   
-  // Assets & Liabilities
-  total_assets          Decimal?            @db.Decimal(10, 2) @map("total_assets")
-  total_liabilities     Decimal?            @db.Decimal(10, 2) @map("total_liabilities")
-  existing_loan_emi     Decimal?            @db.Decimal(10, 2) @map("existing_loan_emi")
+  // Co-applicant 1
+  co_applicant_1_name           String?                       @map("co_applicant_1_name")
+  co_applicant_1_income         Decimal?                      @db.Decimal(15, 2) @map("co_applicant_1_income")
+  co_applicant_1_occupation     CoApplicantOccupation?        @map("co_applicant_1_occupation")
+  co_applicant_1_relationship   CoApplicantRelationship?     @map("co_applicant_1_relationship")
   
-  // Credit
-  credit_score          Int?                @map("credit_score")
-  has_credit_history    Boolean?            @map("has_credit_history")
+  // Co-applicant 2
+  co_applicant_2_name           String?                       @map("co_applicant_2_name")
+  co_applicant_2_income         Decimal?                      @db.Decimal(15, 2) @map("co_applicant_2_income")
+  co_applicant_2_occupation     CoApplicantOccupation?        @map("co_applicant_2_occupation")
+  co_applicant_2_relationship   CoApplicantRelationship?     @map("co_applicant_2_relationship")
   
-  // Co-applicant
-  has_coapplicant       Boolean             @default(false) @map("has_coapplicant")
-  coapplicant_income    Decimal?            @db.Decimal(10, 2) @map("coapplicant_income")
-  coapplicant_relation  String?             @map("coapplicant_relation")
+  // Co-applicant 3
+  co_applicant_3_name           String?                       @map("co_applicant_3_name")
+  co_applicant_3_income         Decimal?                      @db.Decimal(15, 2) @map("co_applicant_3_income")
+  co_applicant_3_occupation     CoApplicantOccupation?        @map("co_applicant_3_occupation")
+  co_applicant_3_relationship   CoApplicantRelationship?     @map("co_applicant_3_relationship")
   
-  created_at            DateTime            @default(now()) @map("created_at")
-  updated_at            DateTime            @updatedAt @map("updated_at")
+  // Collateral 1
+  collateral_available          CollateralAvailable?          @map("collateral_available")
+  collateral_type               EdumateContactCollateralType?               @map("collateral_type")
+  collateral_value              Decimal?                      @db.Decimal(15, 2) @map("collateral_value")
   
-  @@map("financial_profiles")
+  // Collateral 2
+  collateral_2_available        CollateralAvailable?          @map("collateral_2_available")
+  collateral_2_type             EdumateContactCollateralType?               @map("collateral_2_type")
+  collateral_2_value            Decimal?                      @db.Decimal(15, 2) @map("collateral_2_value")
+  
+  // Expenses
+  living_expenses               Decimal?                      @db.Decimal(15, 2) @map("living_expenses")
+  other_expenses                Decimal?                      @db.Decimal(15, 2) @map("other_expenses")
+  
+  // Education Costs
+  total_course_cost             Decimal?                      @db.Decimal(15, 2) @map("total_course_cost")
+  tuition_fee                   Decimal?                      @db.Decimal(15, 2) @map("tuition_fee")
+  
+  // Funding
+  loan_amount_required          Decimal?                      @db.Decimal(15, 2) @map("loan_amount_required")
+  scholarship_amount            Decimal?                      @db.Decimal(15, 2) @map("scholarship_amount")
+  self_funding_amount           Decimal?                      @db.Decimal(15, 2) @map("self_funding_amount")
+  
+  created_at                    DateTime                      @default(now()) @map("created_at")
+  updated_at                    DateTime                      @updatedAt @map("updated_at")
+  
+  @@map("edumate_contacts_financial_info")
 }
 
 // Lead tracking and attribution
-model LeadAttribution {
-  id                    Int                 @id @default(autoincrement())
-  contact_id            Int                 @unique @map("contact_id")
+model EdumateContactsLeadAttribution {
+  id                              Int                               @id @default(autoincrement())
+  contact_id                      Int                            @unique @map("contact_id")
+  contact                         EdumateContact                    @relation(fields: [contact_id], references: [id], onDelete: Cascade)
   
-  lead_source           String?             @map("lead_source")
-  lead_medium           String?             @map("lead_medium")
-  lead_campaign         String?             @map("lead_campaign")
-  referral_source       String?             @map("referral_source")
+  // Lead Information
+  lead_source                     LeadSource?                       @map("lead_source")
+  lead_source_detail              String?                           @map("lead_source_detail")
+  lead_quality_score              Float?                            @map("lead_quality_score")
+  lead_reference_code             String?                           @map("lead_reference_code")
   
-  utm_source            String?             @map("utm_source")
-  utm_medium            String?             @map("utm_medium")
-  utm_campaign          String?             @map("utm_campaign")
-  utm_term              String?             @map("utm_term")
-  utm_content           String?             @map("utm_content")
+  // B2B Partner Information
+  b2b_partner_id                  String?                           @map("b2b_partner_id")
+  b2b_partner_name                String?                           @map("b2b_partner_name")
+  partner_commission_applicable   PartnerCommissionApplicable?     @map("partner_commission_applicable")
   
-  first_touch_date      DateTime?           @map("first_touch_date")
-  conversion_date       DateTime?           @map("conversion_date")
+  // Referral Information
+  referral_person_name            String?                           @map("referral_person_name")
+  referral_person_contact         String?                           @map("referral_person_contact")
   
-  created_at            DateTime            @default(now()) @map("created_at")
-  updated_at            DateTime            @updatedAt @map("updated_at")
+  // UTM Parameters
+  utm_source                      String?                           @map("utm_source")
+  utm_medium                      String?                           @map("utm_medium")
+  utm_campaign                    String?                           @map("utm_campaign")
+  utm_term                        String?                           @map("utm_term")
+  utm_content                     String?                           @map("utm_content")
   
-  @@map("lead_attributions")
+  created_at                      DateTime                          @default(now()) @map("created_at")
+  updated_at                      DateTime                          @updatedAt @map("updated_at")
+  
+  @@map("edumate_contacts_lead_attribution")
+}
+
+model EdumateContactsLoanPreferences {
+  id                           Int                          @id @default(autoincrement())
+  contact_id                   Int                       @unique @map("contact_id")
+  contact                      EdumateContact               @relation(fields: [contact_id], references: [id], onDelete: Cascade)
+  
+  // Loan Preferences
+  loan_type_preference         LoanTypePreference?          @map("loan_type_preference")
+  preferred_lenders            PreferredLenders[]           @map("preferred_lenders")
+  repayment_type_preference    RepaymentTypePreference?     @map("repayment_type_preference")
+  
+  created_at                   DateTime                     @default(now()) @map("created_at")
+  updated_at                   DateTime                     @updatedAt @map("updated_at")
+  
+  @@map("edumate_contacts_loan_preferences")
+}
+
+model EdumateContactsPersonalInformation {
+  id                              Int              @id @default(autoincrement())
+  contact_id                      Int           @unique @map("contact_id")
+  contact                         EdumateContact   @relation(fields: [contact_id], references: [id], onDelete: Cascade)
+  
+  // Basic Information
+  first_name                      String           @map("first_name")  // Required field
+  last_name                       String?          @map("last_name")
+  email                           String?          @map("email")
+  phone_number                    String?          @map("phone_number")
+  date_of_birth                   DateTime?        @map("date_of_birth")
+  gender                          Gender?          @map("gender")
+  nationality                     Nationality?     @map("nationality")
+  
+  // Current Address
+  current_address                 String?          @map("current_address") @db.Text
+  city__current_address_         String?          @map("city__current_address_")
+  state__current_address_        String?          @map("state__current_address_")
+  country__current_address_      String?          @map("country__current_address_")
+  pincode__current_address_      String?          @map("pincode__current_address_")
+  
+  // Permanent Address
+  permanent_address               String?          @map("permanent_address") @db.Text
+  city__permanent_address_       String?          @map("city__permanent_address_")
+  state__permanent_address_      String?          @map("state__permanent_address_")
+  country__permanent_address_    String?          @map("country__permanent_address_")
+  pincode__permanent_address_    String?          @map("pincode__permanent_address_")
+  
+  created_at                      DateTime         @default(now()) @map("created_at")
+  updated_at                      DateTime         @updatedAt @map("updated_at")
+  
+  @@map("edumate_contacts_personal_information")
 }
 
 // Main lender table
@@ -1023,29 +1093,14 @@ model Lender {
   external_id           String?             @unique @map("external_id") // HubSpot or other CRM ID
   
   // Basic Information
-  name                  String              @unique @map("name")
+  lender_display_name                  String              @map("lender_display_name")
+  lender_name String @map("lender_name")
   legal_name            String?             @map("legal_name")
-  short_code            String?             @unique @map("short_code")
-  logo_url              String?             @map("logo_url")
-  website               String?             @map("website")
-  
-  // Classification
+  short_code            String?             @map("short_code")
+  lender_logo_url              String?             @map("lender_logo_url")
+  website_url               String?             @map("website_url")
   lender_category       LenderCategory      @map("lender_category")
   lender_type           LenderType          @map("lender_type")
-  status                LenderStatus        @default(PENDING_APPROVAL) @map("status")
-  
-  // Registration & Compliance
-  registration_number   String?             @map("registration_number")
-  license_number        String?             @map("license_number")
-  tax_id                String?             @map("tax_id")
-  established_date      DateTime?           @map("established_date")
-  
-  // Address
-  headquarters_address  String?             @map("headquarters_address")
-  headquarters_city     String?             @map("headquarters_city")
-  headquarters_state    String?             @map("headquarters_state")
-  headquarters_country  String?             @map("headquarters_country")
-  headquarters_pincode  String?             @map("headquarters_pincode")
   
   // System fields
   is_active             Boolean             @default(true) @map("is_active")
@@ -1060,17 +1115,10 @@ model Lender {
   loan_products         LoanProduct[]
   operational_details   LenderOperationalDetails?
   partnership           LenderPartnership?
-  branches              LenderBranch[]
-  supported_institutions SupportedInstitution[]
-  loan_applications     LoanApplicationLender[]
-  documents             LenderDocument[]
-  audit_logs            LenderAuditLog[]
-  lender_system_tracking  LenderSystemTracking[]
-  loan_system_tracking  LoanSystemTracking[]
+  lender_system_tracking  LenderSystemTracking?
   
   @@index([lender_category])
   @@index([lender_type])
-  @@index([status])
   @@index([created_at])
   @@map("lenders")
 }
@@ -1078,14 +1126,15 @@ model Lender {
 model LenderSystemTracking {
   id                      Int              @default(autoincrement())
   lender_id               Int              @unique
-  application_source_system ApplicationSourceSystem @default(MANUAL_ENTRY)
-  integration_status      IntegrationStatus @default(NOT_REQUIRED)
-  audit_trail             String?          @db.Text
-  hs_object_id            String?          // HubSpot integration
-  hs_merged_object_ids    String?
-  hs_object_source_label  String?
+  data_source LenderDataSource @default(MANUAL_ENTRY)
+  lender_record_status LenderRecordStatus @default(INACTIVE)
+  notes String?
+  performance_rating PerformanceRating @default(AVERAGE)
+
   created_at              DateTime         @default(now())
   updated_at              DateTime         @default(now()) @updatedAt
+  last_modified_by    String?
+  last_modified_date  DateTime?
 
   // Relations
   lender_system_tracking                  Lender           @relation(fields: [lender_id], references: [id], onDelete: Cascade)
@@ -1100,50 +1149,30 @@ model LenderContactInfo {
   lender                Lender              @relation(fields: [lender_id], references: [id], onDelete: Cascade)
   
   // Primary Contact
-  primary_contact_name  String?             @map("primary_contact_name")
   primary_contact_email String?             @map("primary_contact_email")
   primary_contact_phone String?             @map("primary_contact_phone")
   primary_contact_designation String?       @map("primary_contact_designation")
+  primary_contact_person  String?             @map("primary_contact_person")
+
+  // RelationShip Management
+  relationship_manager_email String?    @map("relationship_manager_email")
+  relationship_manager_name String?   @map("relationship_manager_name")
+  relationship_manager_phone String?    @map("relationship_manager_phone")
+
+  // Escalation
+  escalation_hierarchy_1_designation String?    @map("escalation_hierarchy_1_designation")
+  escalation_hierarchy_1_email String? @map("escalation_hierarchy_1_email")
+  escalation_hierarchy_1_name String? @map("escalation_hierarchy_1_name")
+  escalation_hierarchy_1_phone String? @map("escalation_hierarchy_1_phone")
   
   // Customer Service
   customer_service_email String?            @map("customer_service_email")
-  customer_service_phone String?            @map("customer_service_phone")
-  customer_service_hours String?            @map("customer_service_hours")
-  
-  // Escalation Matrix
-  escalation_contacts   Json?               @map("escalation_contacts") // Array of escalation contacts
+  customer_service_number String?            @map("customer_service_number")
   
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
   
-  // Relations
-  contacts              LenderContact[]
-  
   @@map("lender_contact_info")
-}
-
-// Individual contacts at lender
-model LenderContact {
-  id                    Int                 @id @default(autoincrement())
-  contact_info_id       Int                 @map("contact_info_id")
-  contact_info          LenderContactInfo   @relation(fields: [contact_info_id], references: [id], onDelete: Cascade)
-  
-  name                  String              @map("name")
-  designation           String              @map("designation")
-  department            String?             @map("department")
-  email                 String              @map("email")
-  phone                 String?             @map("phone")
-  mobile                String?             @map("mobile")
-  
-  is_primary            Boolean             @default(false) @map("is_primary")
-  escalation_level      Int?                @map("escalation_level") // 1, 2, 3 etc.
-  
-  is_active             Boolean             @default(true) @map("is_active")
-  created_at            DateTime            @default(now()) @map("created_at")
-  
-  @@index([contact_info_id])
-  @@index([email])
-  @@map("lender_contacts")
 }
 
 // Business metrics and performance
@@ -1152,32 +1181,12 @@ model LenderBusinessMetrics {
   lender_id             Int                 @unique @map("lender_id")
   lender                Lender              @relation(fields: [lender_id], references: [id], onDelete: Cascade)
   
-  // Approval Metrics
-  average_approval_rate Float?              @map("average_approval_rate") // Percentage
-  total_applications    Int                 @default(0) @map("total_applications")
-  approved_applications Int                 @default(0) @map("approved_applications")
-  rejected_applications Int                 @default(0) @map("rejected_applications")
-  
-  // Processing Metrics
+  average_approval_rate Int?              @map("average_approval_rate")
+  monthly_application_volume  Int? @map("monthly_application_volume")
+  quarterly_application_volume  Int? @map("quarterly_application_volume") 
+  yearly_application_volume   Int? @map("yearly_application_volume") 
   average_processing_days Int?              @map("average_processing_days")
   average_disbursement_days Int?            @map("average_disbursement_days")
-  fastest_processing_days Int?              @map("fastest_processing_days")
-  slowest_processing_days Int?              @map("slowest_processing_days")
-  
-  // Volume Metrics
-  total_disbursed_amount Decimal?           @db.Decimal(15, 2) @map("total_disbursed_amount")
-  total_disbursed_count Int                 @default(0) @map("total_disbursed_count")
-  average_loan_amount   Decimal?            @db.Decimal(10, 2) @map("average_loan_amount")
-  
-  // Performance Metrics
-  customer_satisfaction_score Float?        @map("customer_satisfaction_score")
-  npa_percentage        Float?              @map("npa_percentage") // Non-Performing Assets
-  default_rate          Float?              @map("default_rate")
-  
-  // Time period for metrics
-  metrics_start_date    DateTime?           @map("metrics_start_date")
-  metrics_end_date      DateTime?           @map("metrics_end_date")
-  last_calculated_at    DateTime?           @map("last_calculated_at")
   
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
@@ -1185,77 +1194,47 @@ model LenderBusinessMetrics {
   @@map("lender_business_metrics")
 }
 
+model LenderOfferings {
+    id                    Int                 @id @default(autoincrement())
+    co_signer_requirements  LenderCoSignerRequirements @default(NOT_REQUIRED)
+    collateral_requirements LenderCollateralType @default(NO_COLLATERAL)
+    interest_rate_range_max_secured Int? @map("interest_rate_range_max_secured")
+    interest_rate_range_max_unsecured Int? @map("interest_rate_range_max_unsecured")
+    interest_rate_range_min_secured Int? @map("interest_rate_range_min_secured")
+    interest_rate_range_min_unsecured Int? @map("interest_rate_range_min_unsecured")
+    margin_money_requirement Int? @map("margin_money_requirement")
+    maximum_loan_amount_secured Int? @map("maximum_loan_amount_secured")
+    maximum_loan_amount_unsecured Int? @map("maximum_loan_amount_unsecured")
+    minimum_loan_amount_secured Int? @map("minimum_loan_amount_secured")
+    minimum_loan_amount_unsecured Int? @map("minimum_loan_amount_unsecured")
+    not_supported_universities String? @map("not_supported_universities")
+    processing_fee_range String? @map("processing_fee_range")
+    special_programs String? @map("special_programs")
+    supported_course_types  SupportedCourseTypes @default(CERTIFICATE)
+    supported_destinations SupportedDestinations @default(US)
+
+    created_at              DateTime         @default(now())
+    updated_at              DateTime         @default(now()) @updatedAt
+     
+    @@map("lender_offerings")
+}
+
 // Loan products offered by lender
 model LoanProduct {
   id                    Int                 @id @default(autoincrement())
-  external_id           String?             @unique @map("external_id") // HubSpot or CRM ID
-  
-  // Basic Information
-  product_name          String              @unique @map("product_name")
-  product_code          String              @unique @map("product_code")
-  description           String?             @db.Text @map("description")
-  product_description   String?             @db.Text @map("product_description")
-  product_type          ProductType         @map("product_type")
-  loan_category         LoanCategory        @map("loan_category")
-  product_status        ProductStatus       @default(ACTIVE) @map("product_status")
-  
+
   // Lender Information
   lender_id             Int                 @map("lender_id")
   lender                Lender              @relation(fields: [lender_id], references: [id], onDelete: Cascade)
   lender_name           String              @map("lender_name")
+  partner_name  String? @map("partner_name")
+  product_description   String?             @db.Text @map("product_description")
+  product_display_name  String? @map("product_display_name")
+  product_category         ProductCategory        @map("product_category")
+  product_status        ProductStatus       @default(ACTIVE) @map("product_status")
+  product_type          ProductType
   
-  // Launch Information
-  launch_date           DateTime?           @map("launch_date")
-  discontinuation_date  DateTime?           @map("discontinuation_date")
-  last_review_date      DateTime?           @map("last_review_date")
-  next_review_date      DateTime?           @map("next_review_date")
-  
-  // Priority and Positioning
-  priority_score        Int?                @default(50) @map("priority_score") // 1-100
-  market_positioning    MarketPositioning?  @map("market_positioning")
-  is_featured           Boolean             @default(false) @map("is_featured")
-  is_recommended        Boolean             @default(false) @map("is_recommended")
-  
-  // Loan Limits
-  min_loan_amount       Decimal             @db.Decimal(10, 2) @map("min_loan_amount")
-  max_loan_amount       Decimal             @db.Decimal(10, 2) @map("max_loan_amount")
-  currency              String              @default("INR") @map("currency")
-  
-  // Interest Rates
-  interest_rate_type    String              @map("interest_rate_type") // FIXED, FLOATING, HYBRID
-  min_interest_rate     Decimal             @db.Decimal(5, 2) @map("min_interest_rate")
-  max_interest_rate     Decimal             @db.Decimal(5, 2) @map("max_interest_rate")
-  
-  // Secured vs Unsecured rates
-  secured_min_rate      Decimal?            @db.Decimal(5, 2) @map("secured_min_rate")
-  secured_max_rate      Decimal?            @db.Decimal(5, 2) @map("secured_max_rate")
-  unsecured_min_rate    Decimal?            @db.Decimal(5, 2) @map("unsecured_min_rate")
-  unsecured_max_rate    Decimal?            @db.Decimal(5, 2) @map("unsecured_max_rate")
-  
-  // Tenure
-  min_tenure_months     Int                 @map("min_tenure_months")
-  max_tenure_months     Int                 @map("max_tenure_months")
-  
-  // Requirements
-  co_signer_requirement CoSignerRequirement @map("co_signer_requirement")
-  collateral_types      Json?               @map("collateral_types") // Array of CollateralType
-  
-  // Supported Education
-  supported_course_types Json?              @map("supported_course_types") // Array of CourseType
-  supported_countries   Json?               @map("supported_countries") // Array of country codes
-  
-  // Fees
-  processing_fee_percentage Decimal?        @db.Decimal(5, 2) @map("processing_fee_percentage")
-  processing_fee_fixed  Decimal?            @db.Decimal(10, 2) @map("processing_fee_fixed")
-  prepayment_penalty    Decimal?            @db.Decimal(5, 2) @map("prepayment_penalty")
-  
-  // Eligibility
-  min_age               Int?                @map("min_age")
-  max_age               Int?                @map("max_age")
-  min_income            Decimal?            @db.Decimal(10, 2) @map("min_income")
-  min_credit_score      Int?                @map("min_credit_score")
-  
-  // System fields
+  last_updated_date DateTime? @map("last_updated_date")
   is_active             Boolean             @default(true) @map("is_active")
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
@@ -1264,50 +1243,61 @@ model LoanProduct {
   
   // Relations
   eligibility_criteria  LoanEligibilityCriteria[]
-  required_documents    LoanProductDocument[]
-  financial_terms       LoanFinancialTerms?
-  collateral_security   LoanCollateralSecurity?
-  repayment_terms       LoanRepaymentTerms?
-  processing_details    LoanProcessingDetails?
-  geographic_coverage   LoanGeographicCoverage?
-  special_features      LoanSpecialFeatures?
+  financial_terms       LoanProductFinancialTerms?
+  collateral_security   LoanProductCollateralSecurity?
+  repayment_terms       LoanProductRepaymentTerms?
+  processing_details    LoanProductProcessingDetails?
+  geographic_coverage   LoanProductGeographicCoverage?
+  special_features      LoanProductSpecialFeatures?
   performance_metrics   LoanPerformanceMetrics?
-  system_integration    LoanSystemIntegration?
-  documents_required    LoanDocumentRequirement[]
-  fee_structures        LoanFeeStructure[]
-  interest_rate_slabs   InterestRateSlab[]
-  course_restrictions   CourseRestriction[]
-  university_mappings   UniversityMapping[]
-  product_comparisons   ProductComparison[]
-  audit_logs            LoanProductAuditLog[]
+  system_integration    LoanProductSystemIntegration?
+  loan_product_competitive_analysis LoanProductCompetitiveAnalytics?
+  system_tracking LoanProductSystemTracking?
   
-  @@unique([lender_id, product_code])
+  @@unique([lender_id])
   @@index([lender_id])
   @@index([is_active])
-  @@index([product_code])
   @@index([product_type])
-  @@index([loan_category])
+  @@index([product_category])
   @@index([product_status])
   @@index([created_at])
   @@map("loan_products")
 }
 
-model LoanSystemTracking {
+model LoanProductSystemTracking {
   id                      Int              @id @default(autoincrement())
-  loan_id               Int              @unique
-  application_source_system ApplicationSourceSystem @default(MANUAL_ENTRY)
-  integration_status      IntegrationStatus @default(NOT_REQUIRED)
-  audit_trail             String?          @db.Text
-  hs_object_id            String?          // HubSpot integration
-  hs_merged_object_ids    String?
-  hs_object_source_label  String?
+  product_id Int @unique
+  product  LoanProduct  @relation(fields: [product_id], references: [id], onDelete: Cascade)
+
+  change_log String? @map("change_log")
+  created_by  String? @map("created_by")
+  created_date  DateTime? @map("created_date")
+  last_modified_by DateTime? @map("last_modified_by")
+  last_modified_date   DateTime? @map("last_modified_date")
+  next_review_date   DateTime? @map("next_review_date")
+  notes String? @map("notes")
+  product_record_status ProductRecordStatus?
+  review_frequency ReviewFrequency?
+  version_number  Int? @map("version_number")
+
   created_at              DateTime         @default(now())
   updated_at              DateTime         @default(now()) @updatedAt
+   
+    @@map("loan_product_system_tracking")
+}
 
-  // Relations
-  loan_system_tracking                  Lender           @relation(fields: [loan_id], references: [id], onDelete: Cascade)
+model LoanProductCompetitiveAnalytics {
+  id                      Int              @id @default(autoincrement())
+  loan_product_id Int @unique
+  loan_product_competitive_analysis LoanProduct  @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
 
-  @@map("loan_system_tracking")
+  market_positioning LoanProductMarketPositioning
+  pricing_strategy PricingStrategy
+
+  created_at              DateTime         @default(now())
+  updated_at              DateTime         @default(now()) @updatedAt  
+   
+@@map("loan_product_competitive_analysis")    
 }
 
 // Detailed eligibility criteria for loan products
@@ -1332,13 +1322,20 @@ model LoanEligibilityCriteria {
   min_academic_percentage   Decimal?  @db.Decimal(5, 2) @map("min_academic_percentage")
   entrance_exam_required    Boolean   @default(false) @map("entrance_exam_required")
   entrance_exam_list        Json?     @map("entrance_exam_list") // Array of accepted exams
+  minimum_percentage_required Decimal?  @db.Decimal(5, 2) @map("minimum_percentage_required")
+  nationality_restrictions NationalityRestrictions? @map("nationality_restrictions")
+  residency_requirements ResidencyRequirements?  @map("residency_requirements")
+  target_segment TargetSegment? @map("target_segment")
   
   // Income Criteria
+  maximum_family_income Decimal?  @db.Decimal(10, 2) @map("maximum_family_income")
+  minimum_family_income Decimal?  @db.Decimal(10, 2) @map("minimum_family_income")
   min_annual_income         Decimal?  @db.Decimal(10, 2) @map("min_annual_income")
   min_co_applicant_income   Decimal?  @db.Decimal(10, 2) @map("min_co_applicant_income")
   employment_criteria       String?   @db.Text @map("employment_criteria")
   
   // Co-applicant
+  co_applicant_income_criteria String? @map("co_applicant_income_criteria")
   co_applicant_required     String    @map("co_applicant_required") // ALWAYS, SOMETIMES, NOT REQUIRED
   co_applicant_relationship Json?     @map("co_applicant_relationship") // Array of accepted relationships
   guarantor_required        Boolean   @default(false) @map("guarantor_required")
@@ -1364,7 +1361,6 @@ model LoanEligibilityCriteria {
   @@map("loan_eligibility_criteria")
 }
 
-
 // Operational details of lender
 model LenderOperationalDetails {
   id                    Int                 @id @default(autoincrement())
@@ -1373,28 +1369,14 @@ model LenderOperationalDetails {
   
   // Digital Integration
   api_connectivity_status APIConnectivityStatus? @map("api_connectivity_status")
-  integration_level     IntegrationLevel?   @map("integration_level")
-  api_endpoint          String?             @map("api_endpoint")
-  api_documentation_url String?             @map("api_documentation_url")
-  
-  // Documentation
+  digital_integration_level     IntegrationLevel?   @map("digital_integration_level")
   documentation_requirements Json?          @map("documentation_requirements")
-  document_submission_method String?        @map("document_submission_method")
-  
-  // Operational Hours
-  working_days          String?             @map("working_days") // MON-FRI, MON-SAT
-  working_hours         String?             @map("working_hours") // 9:00-18:00
-  holiday_calendar      Json?               @map("holiday_calendar")
-  
-  // Service Level
-  sla_application_review Int?               @map("sla_application_review") // Hours
-  sla_disbursement      Int?                @map("sla_disbursement") // Days
-  sla_query_resolution  Int?                @map("sla_query_resolution") // Hours
-  
-  // Capabilities
-  supports_online_application Boolean       @default(false) @map("supports_online_application")
-  supports_bulk_upload  Boolean             @default(false) @map("supports_bulk_upload")
-  supports_api_submission Boolean           @default(false) @map("supports_api_submission")
+  holiday_processing HolidayProcessing @default(NO)
+  late_payment_charges          String?             @map("late_payment_charges")
+  prepayment_charges      String?               @map("prepayment_charges")
+  repayment_options RepaymentOptions @default(EMI)
+  turnaround_time_commitment Int? @map("turnaround_time_commitment")
+  working_hours         String?             @map("working_hours")
   
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
@@ -1408,319 +1390,43 @@ model LenderPartnership {
   lender_id             Int                 @unique @map("lender_id")
   lender                Lender              @relation(fields: [lender_id], references: [id], onDelete: Cascade)
   
-  partnership_status    PartnershipStatus   @default(PENDING) @map("partnership_status")
   partnership_type      String?             @map("partnership_type") // EXCLUSIVE, NON_EXCLUSIVE
   
-  // Agreement Details
-  agreement_number      String?             @unique @map("agreement_number")
   agreement_start_date  DateTime?           @map("agreement_start_date")
   agreement_end_date    DateTime?           @map("agreement_end_date")
   auto_renewal          Boolean             @default(false) @map("auto_renewal")
   renewal_notice_days   Int?                @map("renewal_notice_days")
   
   // Commission Structure
-  commission_structure  String?             @map("commission_structure") // FLAT, TIERED, VOLUME_BASED
+  commission_structure  String?             @map("commission_structure")
   commission_percentage Decimal?            @db.Decimal(5, 2) @map("commission_percentage")
-  commission_details    Json?               @map("commission_details") // Detailed commission rules
-  
-  // Performance Targets
-  minimum_volume_commitment Int?            @map("minimum_volume_commitment")
-  target_disbursement_amount Decimal?       @db.Decimal(15, 2) @map("target_disbursement_amount")
-  
-  // Account Management
-  account_manager       String?             @map("account_manager")
-  relationship_manager  String?             @map("relationship_manager")
-  
+  partnership_end_date  DateTime? @map("partnership_end_date")
+  partnership_start_date  DateTime? @map("partnership_start_date")
+  partnership_status    PartnershipStatus   @default(PENDING) @map("partnership_status")
+  payout_terms PayoutTerms @default(CUSTOM)
+  revenue_share_model String? @map("revenue_share_model")
+
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
-  
-  // Relations
-  lender_commission_records    LenderCommissionRecord[]
   
   @@map("lender_partnerships")
 }
 
-// Lender branches
-model LenderBranch {
-  id                    Int                 @id @default(autoincrement())
-  lender_id             Int                 @map("lender_id")
-  lender                Lender              @relation(fields: [lender_id], references: [id], onDelete: Cascade)
-  
-  branch_name           String              @map("branch_name")
-  branch_code           String              @map("branch_code")
-  
-  // Address
-  address               String              @map("address")
-  city                  String              @map("city")
-  state                 String              @map("state")
-  country               String              @map("country")
-  pincode               String              @map("pincode")
-  
-  // Contact
-  phone                 String?             @map("phone")
-  email                 String?             @map("email")
-  
-  is_head_office        Boolean             @default(false) @map("is_head_office")
-  is_active             Boolean             @default(true) @map("is_active")
-  
-  created_at            DateTime            @default(now()) @map("created_at")
-  
-  @@unique([lender_id, branch_code])
-  @@index([lender_id])
-  @@index([city])
-  @@map("lender_branches")
-}
-
-// Institutions supported by lender
-model SupportedInstitution {
-  id                    Int                 @id @default(autoincrement())
-  lender_id             Int                 @map("lender_id")
-  lender                Lender              @relation(fields: [lender_id], references: [id], onDelete: Cascade)
-  
-  institution_name      String              @map("institution_name")
-  institution_type      String              @map("institution_type")
-  country               String              @map("country")
-  
-  max_loan_amount       Decimal?            @db.Decimal(10, 2) @map("max_loan_amount")
-  special_terms         Json?               @map("special_terms")
-  
-  is_preferred          Boolean             @default(false) @map("is_preferred")
-  is_active             Boolean             @default(true) @map("is_active")
-  
-  created_at            DateTime            @default(now()) @map("created_at")
-  
-  @@index([lender_id])
-  @@index([institution_name])
-  @@map("supported_institutions")
-}
-
-// Link loan applications to lenders
-model LoanApplicationLender {
-  id                    Int                 @id @default(autoincrement())
-  loan_application_id   Int                 @map("loan_application_id")
-  lender_id             Int                 @map("lender_id")
-  lender                Lender              @relation(fields: [lender_id], references: [id])
-  
-  application_number    String              @unique @map("application_number")
-  status                String              @map("status")
-  
-  submitted_at          DateTime            @map("submitted_at")
-  decision_date         DateTime?           @map("decision_date")
-  
-  offered_amount        Decimal?            @db.Decimal(10, 2) @map("offered_amount")
-  offered_interest_rate Decimal?            @db.Decimal(5, 2) @map("offered_interest_rate")
-  offered_tenure        Int?                @map("offered_tenure")
-  
-  rejection_reason      String?             @map("rejection_reason")
-  
-  created_at            DateTime            @default(now()) @map("created_at")
-  updated_at            DateTime            @updatedAt @map("updated_at")
-  
-  @@index([loan_application_id])
-  @@index([lender_id])
-  @@index([status])
-  @@map("loan_application_lenders")
-}
-
-// Document requirements for loan products
-model LoanProductDocument {
-  id                    Int                 @id @default(autoincrement())
-  loan_product_id       Int                 @map("loan_product_id")
-  loan_product          LoanProduct         @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
-  
-  document_type         String              @map("document_type")
-  document_name         String              @map("document_name")
-  is_mandatory          Boolean             @default(true) @map("is_mandatory")
-  
-  applicable_to         String?             @map("applicable_to") // APPLICANT, CO_APPLICANT, BOTH
-  
-  created_at            DateTime            @default(now()) @map("created_at")
-  
-  @@index([loan_product_id])
-  @@map("loan_product_documents")
-}
-
-// Lender documents
-model LenderDocument {
-  id                    Int                 @id @default(autoincrement())
-  lender_id             Int                 @map("lender_id")
-  lender                Lender              @relation(fields: [lender_id], references: [id], onDelete: Cascade)
-  
-  document_type         String              @map("document_type")
-  document_name         String              @map("document_name")
-  file_path             String              @map("file_path")
-  file_size             Int                 @map("file_size")
-  mime_type             String              @map("mime_type")
-  
-  expiry_date           DateTime?           @map("expiry_date")
-  
-  uploaded_by           String              @map("uploaded_by")
-  uploaded_at           DateTime            @default(now()) @map("uploaded_at")
-  
-  @@index([lender_id])
-  @@index([document_type])
-  @@map("lender_documents")
-}
-
-// Commission records
-model LenderCommissionRecord {
-  id                    Int                 @id @default(autoincrement())
-  partnership_id        Int                 @map("partnership_id")
-  partnership           LenderPartnership   @relation(fields: [partnership_id], references: [id])
-  
-  period_start          DateTime            @map("period_start")
-  period_end            DateTime            @map("period_end")
-  
-  total_disbursed       Decimal             @db.Decimal(15, 2) @map("total_disbursed")
-  commission_amount     Decimal             @db.Decimal(10, 2) @map("commission_amount")
-  
-  status                String              @map("status") // PENDING, APPROVED, PAID
-  
-  invoice_number        String?             @map("invoice_number")
-  payment_date          DateTime?           @map("payment_date")
-  payment_reference     String?             @map("payment_reference")
-  
-  created_at            DateTime            @default(now()) @map("created_at")
-  
-  @@index([partnership_id])
-  @@index([status])
-  @@map("lender_commission_records")
-}
-
-// Audit log for lender changes
-model LenderAuditLog {
-  id                    Int                 @id @default(autoincrement())
-  lender_id             Int                 @map("lender_id")
-  lender                Lender              @relation(fields: [lender_id], references: [id], onDelete: Cascade)
-  
-  action                String              @map("action") // CREATE, UPDATE, DELETE, STATUS_CHANGE
-  entity_type           String              @map("entity_type") // LENDER, PRODUCT, CONTACT, etc.
-  entity_id             Int?                @map("entity_id")
-  
-  old_values            Json?               @map("old_values")
-  new_values            Json?               @map("new_values")
-  
-  changed_by            String              @map("changed_by")
-  change_reason         String?             @map("change_reason")
-  
-  created_at            DateTime            @default(now()) @map("created_at")
-  
-  @@index([lender_id])
-  @@index([entity_type])
-  @@index([created_at])
-  @@map("lender_audit_logs")
-}
-
-model UniversityMapping {
-  id                    Int                 @id @default(autoincrement())
-  product_id            Int                 @map("product_id")
-  product               LoanProduct         @relation(fields: [product_id], references: [id], onDelete: Cascade)
-  
-  university_name       String              @map("university_name")
-  university_country    String              @map("university_country")
-  university_type       String?             @map("university_type")
-  
-  mapping_type          String              @map("mapping_type") // SUPPORTED, NOT_SUPPORTED, PREFERRED
-  
-  // Special Terms
-  max_loan_amount       Decimal?            @db.Decimal(10, 2) @map("max_loan_amount")
-  special_interest_rate Decimal?            @db.Decimal(5, 2) @map("special_interest_rate")
-  fast_track_available  Boolean             @default(false) @map("fast_track_available")
-  
-  notes                 String?             @db.Text @map("notes")
-  
-  created_at            DateTime            @default(now()) @map("created_at")
-  
-  @@index([product_id])
-  @@index([university_name])
-  @@index([mapping_type])
-  @@map("university_mappings")
-}
-
-// Product comparison for competitive analysis
-model ProductComparison {
-  id                    Int                 @id @default(autoincrement())
-  product_id            Int                 @map("product_id")
-  product               LoanProduct         @relation(fields: [product_id], references: [id], onDelete: Cascade)
-  
-  competitor_name       String              @map("competitor_name")
-  competitor_product    String              @map("competitor_product")
-  
-  // Comparison Metrics
-  interest_rate_difference Decimal?         @db.Decimal(5, 2) @map("interest_rate_difference")
-  processing_fee_difference Decimal?        @db.Decimal(10, 2) @map("processing_fee_difference")
-  max_amount_difference Decimal?            @db.Decimal(10, 2) @map("max_amount_difference")
-  
-  // Competitive Advantages
-  advantages            Json?               @map("advantages")
-  disadvantages         Json?               @map("disadvantages")
-  
-  // Positioning
-  pricing_strategy      String?             @map("pricing_strategy")
-  unique_selling_points Json?               @map("unique_selling_points")
-  
-  comparison_date       DateTime            @map("comparison_date")
-  
-  created_at            DateTime            @default(now()) @map("created_at")
-  
-  @@index([product_id])
-  @@map("product_comparisons")
-}
-
-// Audit log for tracking changes
-model LoanProductAuditLog {
-  id                    Int                 @id @default(autoincrement())
-  product_id            Int                 @map("product_id")
-  product               LoanProduct         @relation(fields: [product_id], references: [id], onDelete: Cascade)
-  
-  action                String              @map("action") // CREATE, UPDATE, DELETE, STATUS_CHANGE
-  entity_type           String              @map("entity_type") // PRODUCT, TERMS, CRITERIA, etc.
-  entity_id             Int?                @map("entity_id")
-  
-  old_values            Json?               @map("old_values")
-  new_values            Json?               @map("new_values")
-  
-  changed_by            String              @map("changed_by")
-  change_reason         String?             @map("change_reason")
-  approval_status       String?             @map("approval_status")
-  approved_by           String?             @map("approved_by")
-  
-  created_at            DateTime            @default(now()) @map("created_at")
-  
-  @@index([product_id])
-  @@index([action])
-  @@index([created_at])
-  @@map("loan_product_audit_logs")
-}
-
 // Collateral and security requirements
-model LoanCollateralSecurity {
+model LoanProductCollateralSecurity {
   id                    Int                 @id @default(autoincrement())
   product_id            Int                 @unique @map("product_id")
   product               LoanProduct         @relation(fields: [product_id], references: [id], onDelete: Cascade)
-  
-  collateral_required   CollateralRequirement @map("collateral_required")
-  collateral_threshold  Decimal?            @db.Decimal(10, 2) @map("collateral_threshold")
-  
+    
   // Collateral Types and Values
-  accepted_collateral_types Json?           @map("accepted_collateral_types") // Array of CollateralType
-  collateral_margin_percentage Decimal?     @db.Decimal(5, 2) @map("collateral_margin_percentage")
-  
-  // LTV Ratios
-  ltv_ratio_property    Decimal?            @db.Decimal(5, 2) @map("ltv_ratio_property")
-  ltv_ratio_fd          Decimal?            @db.Decimal(5, 2) @map("ltv_ratio_fd")
-  ltv_ratio_securities  Decimal?            @db.Decimal(5, 2) @map("ltv_ratio_securities")
-  
-  // Insurance
-  life_insurance_required Boolean           @default(false) @map("life_insurance_required")
-  property_insurance_required Boolean        @default(false) @map("property_insurance_required")
-  
-  // Third Party Guarantee
-  third_party_guarantee_required Boolean    @default(false) @map("third_party_guarantee_required")
-  guarantee_amount      Decimal?            @db.Decimal(10, 2) @map("guarantee_amount")
-  
-  // Security Documents
-  security_documents_list Json?             @map("security_documents_list")
+  collateral_margin Int?      @map("collateral_margin")
+  collateral_required   CollateralRequirement @map("collateral_required")
+  collateral_threshold_amount  Decimal?            @db.Decimal(10, 2) @map("collateral_threshold_amount")
+  collateral_types_accepted CollateralType @default(NA_PLOT)
+  guarantor_required GurantorRequired @default(NOT_REQUIRED)
+  insurance_coverage_percentage Int? @map("insurance_coverage_percentage")
+  insurance_required InsuranceRequired @default(NOT_REQUIRED)
+  third_party_guarantee_required ThirdPartyGuaranteeRequired  @default(NO)
   
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
@@ -1729,43 +1435,36 @@ model LoanCollateralSecurity {
 }
 
 // Repayment terms
-model LoanRepaymentTerms {
+model LoanProductRepaymentTerms {
   id                    Int                 @id @default(autoincrement())
   product_id            Int                 @unique @map("product_id")
   product               LoanProduct         @relation(fields: [product_id], references: [id], onDelete: Cascade)
   
   // Moratorium Period
   moratorium_type       MoratoriumType      @map("moratorium_type")
-  moratorium_period_months Int?             @map("moratorium_period_months")
-  moratorium_interest_payment Boolean        @default(false) @map("moratorium_interest_payment")
+  moratorium_period Int?             @map("moratorium_period")
   
   // Repayment Schedule
   repayment_frequency   RepaymentFrequency  @map("repayment_frequency")
-  emi_start_timeline    String?             @map("emi_start_timeline")
+  repayment_period_maximum Int? @map("repayment_period_maximum")
+  repayment_period_minimum Int? @map("repayment_period_minimum")
   
   // Prepayment Terms
   prepayment_allowed    Boolean             @default(true) @map("prepayment_allowed")
-  min_prepayment_amount Decimal?            @db.Decimal(10, 2) @map("min_prepayment_amount")
-  prepayment_charges_percentage Decimal?    @db.Decimal(5, 2) @map("prepayment_charges_percentage")
-  prepayment_lock_in_months Int?            @map("prepayment_lock_in_months")
+  prepayment_charges Decimal?    @db.Decimal(5, 2) @map("prepayment_charges")
+  prepayment_lock_in_period Int?            @map("prepayment_lock_in_period")
   
   // Foreclosure Terms
   foreclosure_allowed   Boolean             @default(true) @map("foreclosure_allowed")
   foreclosure_charges   String?             @map("foreclosure_charges")
-  foreclosure_lock_in_months Int?           @map("foreclosure_lock_in_months")
   
   // Penalty Charges
   late_payment_charges  String?             @map("late_payment_charges")
   bounce_charges        Decimal?            @db.Decimal(10, 2) @map("bounce_charges")
-  penal_interest_rate   Decimal?            @db.Decimal(5, 2) @map("penal_interest_rate")
   
   // Repayment Options
-  step_up_emi_available Boolean             @default(false) @map("step_up_emi_available")
-  step_down_emi_available Boolean           @default(false) @map("step_down_emi_available")
-  balloon_payment_allowed Boolean           @default(false) @map("balloon_payment_allowed")
-  
-  // Grace Period
-  grace_period_days     Int?                @map("grace_period_days")
+  part_payment_allowed PartPaymentAllowed? @map("part_payment_allowed")
+  part_payment_minimum Int? @map("part_payment_minimum")
   
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
@@ -1774,19 +1473,13 @@ model LoanRepaymentTerms {
 }
 
 // Application and processing details
-model LoanProcessingDetails {
+model LoanProductProcessingDetails {
   id                    Int                 @id @default(autoincrement())
   product_id            Int                 @unique @map("product_id")
   product               LoanProduct         @relation(fields: [product_id], references: [id], onDelete: Cascade)
   
   // Application Process
   application_mode      ApplicationMode     @map("application_mode")
-  online_application_url String?            @map("online_application_url")
-  
-  // Processing Timeline
-  avg_processing_days   Int?                @map("avg_processing_days")
-  min_processing_days   Int?                @map("min_processing_days")
-  max_processing_days   Int?                @map("max_processing_days")
   
   // Disbursement
   disbursement_process  DisbursementProcess @map("disbursement_process")
@@ -1795,47 +1488,29 @@ model LoanProcessingDetails {
   disbursement_stages   Json?               @map("disbursement_stages") // Array of stages
   
   // Documentation
-  documentation_list    Json?               @map("documentation_list")
-  digital_kyc_available Boolean             @default(false) @map("digital_kyc_available")
-  video_kyc_available   Boolean             @default(false) @map("video_kyc_available")
-  
-  // Approval Process
-  pre_approved_institutes Json?             @map("pre_approved_institutes")
-  fast_track_processing_available Boolean   @default(false) @map("fast_track_processing_available")
-  instant_approval_available Boolean        @default(false) @map("instant_approval_available")
+  documentation_list    String?               @map("documentation_list")
+  mandatory_documents String?            @map("mandatory_documents")
+  optional_documents   String?             @map("optional_documents")
   
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
   
-  @@map("loan_processing_details")
+  @@map("loan_product_processing_details")
 }
 
 // Geographic and course coverage
-model LoanGeographicCoverage {
+model LoanProductGeographicCoverage {
   id                    Int                 @id @default(autoincrement())
   product_id            Int                 @unique @map("product_id")
   product               LoanProduct         @relation(fields: [product_id], references: [id], onDelete: Cascade)
   
-  // Geographic Coverage
-  domestic_coverage     Boolean             @default(true) @map("domestic_coverage")
-  international_coverage Boolean            @default(false) @map("international_coverage")
-  supported_countries   Json?               @map("supported_countries") // Array of country codes
-  supported_states      Json?               @map("supported_states") // For domestic
-  excluded_regions      Json?               @map("excluded_regions")
-  
   // Course Coverage
-  supported_course_types Json?              @map("supported_course_types") // Array of CourseType
-  min_course_duration_months Int?           @map("min_course_duration_months")
-  max_course_duration_months Int?           @map("max_course_duration_months")
-  
-  // Institution Coverage
-  supported_institution_types Json?         @map("supported_institution_types")
-  blacklisted_institutions Json?            @map("blacklisted_institutions")
-  preferred_institutions Json?              @map("preferred_institutions")
-  
-  // Course Restrictions
   course_restrictions   String?             @db.Text @map("course_restrictions")
-  professional_courses_covered Json?        @map("professional_courses_covered")
+  not_supported_universities String? @map("not_supported_universities")
+  restricted_countries String? @map("restricted_countries")
+  course_duration_minimum Int?           @map("course_duration_minimum")
+  course_duration_maximum Int?           @map("course_duration_maximum")
+  supported_course_types LoanProductCourseTypes? @map("supported_course_types")
   
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
@@ -1844,40 +1519,23 @@ model LoanGeographicCoverage {
 }
 
 // Special features and benefits
-model LoanSpecialFeatures {
+model LoanProductSpecialFeatures {
   id                    Int                 @id @default(autoincrement())
   product_id            Int                 @unique @map("product_id")
   product               LoanProduct         @relation(fields: [product_id], references: [id], onDelete: Cascade)
   
   // Digital Features
-  digital_features      Json?               @map("digital_features") // Array of features
-  mobile_app_available  Boolean             @default(false) @map("mobile_app_available")
-  online_account_management Boolean         @default(false) @map("online_account_management")
-  
-  // Customer Support
-  customer_support_features Json?           @map("customer_support_features")
-  dedicated_rm_available Boolean            @default(false) @map("dedicated_rm_available")
-  
-  // Flexibility Options
-  flexible_repayment_options Json?          @map("flexible_repayment_options")
-  top_up_loan_available Boolean             @default(false) @map("top_up_loan_available")
-  loan_transfer_facility Boolean            @default(false) @map("loan_transfer_facility")
+  digital_features      DigitalFeatures?               @map("digital_features")
+  customer_support_features CustomerSupportFeatures?           @map("customer_support_features")
+  flexible_repayment_options FlexibleRepaymentOptions?          @map("flexible_repayment_options")
   
   // Benefits
-  tax_benefits          String?             @db.Text @map("tax_benefits")
-  forex_benefits        String?             @db.Text @map("forex_benefits")
+  tax_benefits_available          String?             @db.Text @map("tax_benefits_available")
+  forex_tax_benefits        String?             @db.Text @map("forex_tax_benefits")
+  grace_period_benefits String? @db.Text @map("grace_period_benefits")
   insurance_coverage_included Boolean       @default(false) @map("insurance_coverage_included")
-  
-  // Rewards and Offers
-  loyalty_rewards       Json?               @map("loyalty_rewards")
-  referral_benefits     String?             @map("referral_benefits")
-  seasonal_offers       Json?               @map("seasonal_offers")
-  
-  // Additional Services
-  career_counseling_included Boolean        @default(false) @map("career_counseling_included")
-  visa_assistance_included Boolean          @default(false) @map("visa_assistance_included")
-  forex_card_included   Boolean             @default(false) @map("forex_card_included")
-  
+  loyalty_benefits       String?               @map("loyalty_benefits")
+    
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
   
@@ -1894,30 +1552,11 @@ model LoanPerformanceMetrics {
   application_volume_monthly Int?           @map("application_volume_monthly")
   application_volume_quarterly Int?         @map("application_volume_quarterly")
   application_volume_yearly Int?            @map("application_volume_yearly")
-  
-  // Approval Metrics
   approval_rate         Decimal?            @db.Decimal(5, 2) @map("approval_rate")
-  rejection_rate        Decimal?            @db.Decimal(5, 2) @map("rejection_rate")
-  avg_ticket_size       Decimal?            @db.Decimal(10, 2) @map("avg_ticket_size")
-  
-  // Portfolio Metrics
-  total_disbursed_amount Decimal?           @db.Decimal(15, 2) @map("total_disbursed_amount")
-  active_accounts       Int?                @map("active_accounts")
-  npa_percentage        Decimal?            @db.Decimal(5, 2) @map("npa_percentage")
-  
-  // Customer Metrics
-  customer_satisfaction_score Decimal?      @db.Decimal(3, 2) @map("customer_satisfaction_score")
-  net_promoter_score    Int?                @map("net_promoter_score")
-  complaint_ratio       Decimal?            @db.Decimal(5, 2) @map("complaint_ratio")
-  
-  // Competitive Metrics
-  market_share          Decimal?            @db.Decimal(5, 2) @map("market_share")
-  pricing_competitiveness_score Int?        @map("pricing_competitiveness_score") // 1-100
-  
-  // Period for metrics
-  metrics_period_start  DateTime?           @map("metrics_period_start")
-  metrics_period_end    DateTime?           @map("metrics_period_end")
-  last_updated_at       DateTime?           @map("last_updated_at")
+  average_loan_amount Decimal?            @db.Decimal(5, 2) @map("average_loan_amount")
+  average_processing_days Int? @map("average_processing_days")
+  customer_satisfaction_rating Int? @map("customer_satisfaction_rating")
+  product_popularity_score Int? @map("product_popularity_score")
   
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
@@ -1926,38 +1565,19 @@ model LoanPerformanceMetrics {
 }
 
 // System integration details
-model LoanSystemIntegration {
+model LoanProductSystemIntegration {
   id                    Int                 @id @default(autoincrement())
   product_id            Int                 @unique @map("product_id")
   product               LoanProduct         @relation(fields: [product_id], references: [id], onDelete: Cascade)
   
   // API Details
-  api_availability      APIAvailability     @map("api_availability")
-  api_endpoint          String?             @map("api_endpoint")
-  api_documentation_url String?             @map("api_documentation_url")
-  api_version           String?             @map("api_version")
+  api_availability      ApiAvailability?     @map("api_availability")
+  technical_documentation_url String?             @map("technical_documentation_url")
   
-  // Integration Details
   integration_complexity IntegrationComplexity? @map("integration_complexity")
-  integration_time_days Int?               @map("integration_time_days")
-  
-  // Technical Specifications
-  data_format           String?             @map("data_format") // JSON, XML, CSV
-  authentication_method String?             @map("authentication_method")
-  rate_limiting         Json?               @map("rate_limiting")
-  
-  // Environment
-  sandbox_available     Boolean             @default(false) @map("sandbox_available")
-  sandbox_url           String?             @map("sandbox_url")
-  test_credentials_available Boolean        @default(false) @map("test_credentials_available")
-  
-  // Support
-  technical_support_available Boolean       @default(false) @map("technical_support_available")
-  integration_support_contact String?       @map("integration_support_contact")
-  
-  // Webhooks
-  webhook_support       Boolean             @default(false) @map("webhook_support")
-  webhook_events        Json?               @map("webhook_events")
+  data_format           DataFormat?             @map("data_format")
+  sandbox_environment     SandboxEnvironment? @map("sandbox_environment")
+  webhook_support       WebHookSupport?   @map("webhook_support")
   
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
@@ -1965,166 +1585,35 @@ model LoanSystemIntegration {
   @@map("loan_system_integration")
 }
 
-// Fee structure with slabs
-model LoanFeeStructure {
-  id                    Int                 @id @default(autoincrement())
-  product_id            Int                 @map("product_id")
-  product               LoanProduct         @relation(fields: [product_id], references: [id], onDelete: Cascade)
-  
-  fee_type              String              @map("fee_type") // PROCESSING, DOCUMENTATION, LEGAL, etc.
-  fee_name              String              @map("fee_name")
-  
-  // Fee Amount
-  calculation_type      String              @map("calculation_type") // PERCENTAGE, FIXED, SLAB_BASED
-  percentage_value      Decimal?            @db.Decimal(5, 2) @map("percentage_value")
-  fixed_amount          Decimal?            @db.Decimal(10, 2) @map("fixed_amount")
-  
-  // Slab Details
-  min_loan_amount       Decimal?            @db.Decimal(10, 2) @map("min_loan_amount")
-  max_loan_amount       Decimal?            @db.Decimal(10, 2) @map("max_loan_amount")
-  
-  // Conditions
-  is_refundable         Boolean             @default(false) @map("is_refundable")
-  is_negotiable         Boolean             @default(false) @map("is_negotiable")
-  waiver_conditions     String?             @map("waiver_conditions")
-  
-  // GST
-  gst_applicable        Boolean             @default(true) @map("gst_applicable")
-  gst_percentage        Decimal?            @db.Decimal(5, 2) @map("gst_percentage")
-  
-  effective_from        DateTime            @map("effective_from")
-  effective_to          DateTime?           @map("effective_to")
-  
-  created_at            DateTime            @default(now()) @map("created_at")
-  
-  @@index([product_id])
-  @@index([fee_type])
-  @@map("loan_fee_structures")
-}
-
-// Interest rate slabs
-model InterestRateSlab {
-  id                    Int                 @id @default(autoincrement())
-  product_id            Int                 @map("product_id")
-  product               LoanProduct         @relation(fields: [product_id], references: [id], onDelete: Cascade)
-  
-  slab_name             String              @map("slab_name")
-  
-  // Loan Amount Range
-  min_amount            Decimal             @db.Decimal(10, 2) @map("min_amount")
-  max_amount            Decimal?            @db.Decimal(10, 2) @map("max_amount")
-  
-  // Interest Rate
-  interest_rate         Decimal             @db.Decimal(5, 2) @map("interest_rate")
-  
-  // Additional Conditions
-  credit_score_required Int?                @map("credit_score_required")
-  collateral_required   Boolean             @default(false) @map("collateral_required")
-  
-  // Special Categories
-  for_women             Boolean             @default(false) @map("for_women")
-  for_premium_institutes Boolean            @default(false) @map("for_premium_institutes")
-  for_merit_students    Boolean             @default(false) @map("for_merit_students")
-  
-  effective_from        DateTime            @map("effective_from")
-  effective_to          DateTime?           @map("effective_to")
-  
-  created_at            DateTime            @default(now()) @map("created_at")
-  
-  @@index([product_id])
-  @@index([min_amount])
-  @@map("interest_rate_slabs")
-}
-
-// Document requirements
-model LoanDocumentRequirement {
-  id                    Int                 @id @default(autoincrement())
-  product_id            Int                 @map("product_id")
-  product               LoanProduct         @relation(fields: [product_id], references: [id], onDelete: Cascade)
-  
-  document_category     String              @map("document_category") // KYC, INCOME, ACADEMIC, etc.
-  document_name         String              @map("document_name")
-  document_description  String?             @map("document_description")
-  
-  is_mandatory          Boolean             @default(true) @map("is_mandatory")
-  applicable_to         String              @map("applicable_to") // APPLICANT, CO_APPLICANT, GUARANTOR
-  
-  // Conditions
-  condition_type        String?             @map("condition_type") // LOAN_AMOUNT, COURSE_TYPE, etc.
-  condition_value       Json?               @map("condition_value")
-  
-  // Document Specifications
-  accepted_formats      Json?               @map("accepted_formats") // PDF, JPG, PNG
-  max_file_size_mb      Int?                @map("max_file_size_mb")
-  
-  created_at            DateTime            @default(now()) @map("created_at")
-  
-  @@index([product_id])
-  @@index([document_category])
-  @@map("loan_document_requirements")
-}
-
-// Course restrictions
-model CourseRestriction {
-  id                    Int                 @id @default(autoincrement())
-  product_id            Int                 @map("product_id")
-  product               LoanProduct         @relation(fields: [product_id], references: [id], onDelete: Cascade)
-  
-  restriction_type      String              @map("restriction_type") // BLOCKED, SPECIAL_TERMS
-  course_name           String              @map("course_name")
-  course_category       String?             @map("course_category")
-  
-  reason                String?             @map("reason")
-  special_conditions    Json?               @map("special_conditions")
-  
-  created_at            DateTime            @default(now()) @map("created_at")
-  
-  @@index([product_id])
-  @@map("course_restrictions")
-}
-
 // Financial terms and conditions
-model LoanFinancialTerms {
+model LoanProductFinancialTerms {
   id                    Int                 @id @default(autoincrement())
   product_id            Int                 @unique @map("product_id")
   product               LoanProduct         @relation(fields: [product_id], references: [id], onDelete: Cascade)
   
-  // Loan Amount
-  min_loan_amount       Decimal             @db.Decimal(12, 2) @map("min_loan_amount")
-  max_loan_amount       Decimal             @db.Decimal(12, 2) @map("max_loan_amount")
-  currency              String              @default("INR") @map("currency")
-  
   // Interest Rates
   interest_rate_type    InterestRateType    @map("interest_rate_type")
-  min_interest_rate     Decimal             @db.Decimal(5, 2) @map("min_interest_rate")
-  max_interest_rate     Decimal             @db.Decimal(5, 2) @map("max_interest_rate")
-  base_rate             Decimal?            @db.Decimal(5, 2) @map("base_rate")
-  margin_rate           Decimal?            @db.Decimal(5, 2) @map("margin_rate")
-  
-  // Special Rates
-  women_interest_rate   Decimal?            @db.Decimal(5, 2) @map("women_interest_rate")
-  premium_institute_rate Decimal?           @db.Decimal(5, 2) @map("premium_institute_rate")
+  interest_rate_range_min     Decimal             @db.Decimal(5, 2) @map("interest_rate_range_min")
+  interest_rate_range_max     Decimal             @db.Decimal(5, 2) @map("interest_rate_range_max")
+  legal_charges Decimal? @db.Decimal(5, 2) @map("legal_charges")
+  loan_to_value_ratio Int? @map("loan_to_value_ratio")
+  rack_rate             Decimal?            @db.Decimal(10, 2) @map("rack_rate")
+  valuation_charges           Decimal?            @db.Decimal(10, 2) @map("valuation_charges")
   
   // Processing Fee
   processing_fee_type   ProcessingFeeType   @map("processing_fee_type")
   processing_fee_percentage Decimal?        @db.Decimal(5, 2) @map("processing_fee_percentage")
   processing_fee_amount Decimal?            @db.Decimal(10, 2) @map("processing_fee_amount")
-  min_processing_fee    Decimal?            @db.Decimal(10, 2) @map("min_processing_fee")
-  max_processing_fee    Decimal?            @db.Decimal(10, 2) @map("max_processing_fee")
-  
-  // Other Charges
+  processing_fee_minimum    Decimal?            @db.Decimal(10, 2) @map("processing_fee_minimum")
+  processing_fee_maximum    Decimal?            @db.Decimal(10, 2) @map("processing_fee_maximum")
   administrative_charges Decimal?           @db.Decimal(10, 2) @map("administrative_charges")
-  insurance_premium     Decimal?            @db.Decimal(10, 2) @map("insurance_premium")
-  stamp_duty_charges    Decimal?            @db.Decimal(10, 2) @map("stamp_duty_charges")
-  
-  // Loan Tenure
-  min_tenure_months     Int                 @map("min_tenure_months")
-  max_tenure_months     Int                 @map("max_tenure_months")
   
   // Margin Money
-  margin_percentage     Decimal?            @db.Decimal(5, 2) @map("margin_percentage")
-  subsidy_available     Boolean             @default(false) @map("subsidy_available")
-  subsidy_amount        Decimal?            @db.Decimal(10, 2) @map("subsidy_amount")
+  margin_money_percentage     Decimal?            @db.Decimal(5, 2) @map("margin_money_percentage")
+  maximum_loan_amount_secured Decimal? @db.Decimal(10, 2) @map("maximum_loan_amount_secured")
+  maximum_loan_amount_unsecured Decimal? @db.Decimal(10, 2) @map("maximum_loan_amount_unsecured")
+  minimum_loan_amount_secured Decimal? @db.Decimal(10, 2) @map("minimum_loan_amount_secured")
+  minimum_loan_amount_unsecured Decimal? @db.Decimal(10, 2) @map("minimum_loan_amount_unsecured")
   
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
@@ -2132,26 +1621,19 @@ model LoanFinancialTerms {
   @@map("loan_financial_terms")
 }
 
-model DocumentMaster {
+model LoanDocument {
   id                    Int                 @id @default(autoincrement())
-  external_id           String?             @unique @map("external_id") // HubSpot or CRM ID
-  
-  // Basic Information
-  document_id           String              @unique @map("document_id")
-  document_name         String              @map("document_name")
-  document_display_name String              @map("document_display_name")
-  document_description  String?             @db.Text @map("document_description")
   
   // Classification
   document_category     DocumentCategory    @map("document_category")
-  document_type         DocumentType        @map("document_type")
+  document_description  String?             @db.Text @map("document_description")
+  document_display_name String              @map("document_display_name")
+  document_id           String              @unique @map("document_id")
+  document_name         String              @map("document_name")
   document_priority     DocumentPriority    @default(OPTIONAL) @map("document_priority")
   document_stage        DocumentStage       @map("document_stage")
-  document_status       DocumentStatus      @default(ACTIVE) @map("document_status")
-  
-  // Unique identifiers
-  document_code         String              @unique @map("document_code")
-  document_version      String              @default("1.0") @map("document_version")
+  document_sub_category String? @map("document_sub_category")
+  document_type         DocumentType        @map("document_type")  
   
   // System fields
   is_active             Boolean             @default(true) @map("is_active")
@@ -2161,67 +1643,89 @@ model DocumentMaster {
   updated_by            String?             @map("updated_by")
   
   // Relations
-  specifications        DocumentSpecification?
+  alternative_docs      AlternativeDocument?
   applicability_rules   DocumentApplicability?
-  processing_config     DocumentProcessingConfig?
   compliance_config     DocumentCompliance?
-  digital_config        DocumentDigitalConfig?
-  alternative_docs      AlternativeDocument[]
-  validation_rules      DocumentValidationRule[]
-  performance_metrics   DocumentPerformanceMetrics?
   customer_experience   DocumentCustomerExperience?
-  uploaded_documents    UploadedDocument[]
-  template_mappings     DocumentTemplateMapping[]
-  audit_logs            DocumentAuditLog[]
+  digital_config        DocumentDigitalConfig?
+  specifications        DocumentSpecification?
+  performance_metrics   DocumentPerformanceMetrics?
+  processing_workflow DocumentProcessingWorkflow?
+  system_tracking DocumentSystemTracking?
   
   @@index([document_category])
   @@index([document_type])
-  @@index([document_status])
   @@index([created_at])
   @@map("document_masters")
 }
 
-// Document specifications and requirements
-model DocumentSpecification {
-  id                    Int                 @id @default(autoincrement())
-  document_master_id    Int                 @unique @map("document_master_id")
-  document_master       DocumentMaster      @relation(fields: [document_master_id], references: [id], onDelete: Cascade)
+model DocumentSystemTracking {
+  id                        String                  @id @default(cuid())
+  document_master_id        Int                     @unique @map("document_master_id")
+  document_master           LoanDocument            @relation(fields: [document_master_id], references: [id], onDelete: Cascade)
   
-  // Format Requirements
-  accepted_formats      Json                @map("accepted_formats") // Array of DocumentFormat
-  max_file_size_mb      Int                 @default(5) @map("max_file_size_mb")
-  min_file_size_kb      Int                 @default(10) @map("min_file_size_kb")
+  change_history            String?                 @map("change_history") @db.Text
+  created_by                String?                 @map("created_by")
+  created_date              DateTime?               @map("created_date")
+  document_record_status    DocumentRecordStatus?   @map("document_record_status")
+  improvement_suggestions   String?                 @map("improvement_suggestions") @db.Text
+  last_modified_by          String?                 @map("last_modified_by")
+  last_modified_date        DateTime?               @map("last_modified_date")
+  next_review_date          DateTime?               @map("next_review_date")
+  notes                     String?                 @map("notes") @db.Text
+  review_frequency          ReviewFrequency?        @map("review_frequency")
+  version_number            String?                 @map("version_number")
   
-  // Image Requirements
-  min_resolution_dpi    Int?                @map("min_resolution_dpi")
-  color_requirements    String?             @map("color_requirements") // COLOR, GRAYSCALE, BLACK_WHITE
-  combined_document_allowed Boolean         @default(false) @map("combined_document_allowed")
-  max_pages             Int?                @map("max_pages")
+  created_at                DateTime                @default(now()) @map("created_at")
+  updated_at                DateTime                @updatedAt @map("updated_at")
   
-  // Content Requirements
-  language_requirements Json?               @map("language_requirements") // Array of language codes
-  mandatory_fields      Json?               @map("mandatory_fields") // Fields that must be visible
-  
-  // Validity
-  validity_period_days  Int?                @map("validity_period_days")
-  expiry_alert_days     Int?                @map("expiry_alert_days")
-  
-  // Special Requirements
-  notarization_required Boolean             @default(false) @map("notarization_required")
-  attestation_required  Boolean             @default(false) @map("attestation_required")
-  translation_required  Boolean             @default(false) @map("translation_required")
-  
-  created_at            DateTime            @default(now()) @map("created_at")
-  updated_at            DateTime            @updatedAt @map("updated_at")
-  
-  @@map("document_specifications")
+  @@map("loan_document_system_tracking")
 }
 
+model DocumentProcessingWorkflow {
+  id                              String                        @id @default(cuid())
+  document_master_id              Int                          @unique @map("document_master_id")
+  document_master                 LoanDocument                 @relation(fields: [document_master_id], references: [id], onDelete: Cascade)
+  
+  auto_extraction_possible        AutoExtractionPossible?      @map("auto_extraction_possible")
+  data_points_extractable         String?                      @map("data_points_extractable") @db.Text
+  maximum_resubmission_attempts   Int?                         @map("maximum_resubmission_attempts")
+  ocr_compatibility               OCRCompatibility?            @map("ocr_compatibility")
+  parallel_processing_allowed     ParallelProcessingAllowed?   @map("parallel_processing_allowed")
+  rejection_criteria              String?                      @map("rejection_criteria") @db.Text
+  resubmission_allowed            ResubmissionAllowed?         @map("resubmission_allowed")
+  validation_rules                String?                      @map("validation_rules") @db.Text
+  
+  created_at                      DateTime                     @default(now()) @map("created_at")
+  updated_at                      DateTime                     @updatedAt @map("updated_at")
+  
+  @@map("document_processing_workflow")
+}
+
+model DocumentSpecification {
+  id                        Int                    @id @default(autoincrement())
+    document_master_id    Int                 @unique @map("document_master_id")
+  document_master       LoanDocument      @relation(fields: [document_master_id], references: [id], onDelete: Cascade)
+
+  accepted_formats          AcceptedFormats?
+  color_requirements        ColorRequirements?
+  combined_document_allowed CombinedDocumentAllowed?
+  language_requirements     LanguageRequirements?
+  maximum_file_size_mb      Float?
+  multiple_pages_allowed    MultiplePagesAllowed?
+  quality_standards         QualityStandards?
+  resolution_requirements   String?
+
+  createdAt                 DateTime               @default(now())
+  updatedAt                 DateTime               @updatedAt
+   
+    @@map("document_specification")
+}
 // Document applicability rules
 model DocumentApplicability {
   id                    Int                 @id @default(autoincrement())
   document_master_id    Int                 @unique @map("document_master_id")
-  document_master       DocumentMaster      @relation(fields: [document_master_id], references: [id], onDelete: Cascade)
+  document_master       LoanDocument      @relation(fields: [document_master_id], references: [id], onDelete: Cascade)
   
   // Applicability for different parties
   applicable_for_student ApplicabilityStatus @map("applicable_for_student")
@@ -2232,14 +1736,14 @@ model DocumentApplicability {
   
   // Conditional Rules
   age_criteria          String?             @map("age_criteria") // e.g., "18-65 years"
+  collateral_dependency CollateralDependency?
+
   income_criteria       String?             @map("income_criteria")
-  loan_amount_criteria  String?             @map("loan_amount_criteria")
-  course_type_criteria  Json?               @map("course_type_criteria")
-  country_criteria      Json?               @map("country_criteria")
-  
-  // Exemption Rules
-  exemption_criteria    String?             @db.Text @map("exemption_criteria")
-  special_cases_handling String?            @db.Text @map("special_cases_handling")
+  loan_amount_threshold  String?             @map("loan_amount_threshold")
+  required_for_countries  RequiredForCountries?               @map("required_for_countries")
+  required_for_courses      RequiredForCourses?               @map("required_for_courses")
+  required_for_lenders    Json? @map("required_for_lenders")
+  required_for_loan_products Json? @map("required_for_loan_products")
   
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
@@ -2247,70 +1751,16 @@ model DocumentApplicability {
   @@map("document_applicability")
 }
 
-// Document processing and workflow configuration
-model DocumentProcessingConfig {
-  id                    Int                 @id @default(autoincrement())
-  document_master_id    Int                 @unique @map("document_master_id")
-  document_master       DocumentMaster      @relation(fields: [document_master_id], references: [id], onDelete: Cascade)
-  
-  // Automation Configuration
-  automated_processing  AutomationLevel     @map("automated_processing")
-  ocr_compatibility     Boolean             @default(true) @map("ocr_compatibility")
-  auto_extraction_possible Boolean          @default(false) @map("auto_extraction_possible")
-  
-  // Data Extraction
-  data_points_extractable Json?             @map("data_points_extractable") // Array of field names
-  extraction_accuracy_threshold Decimal?    @db.Decimal(5, 2) @map("extraction_accuracy_threshold")
-  
-  // Verification Configuration
-  verification_method   VerificationMethod  @map("verification_method")
-  verification_required Boolean             @default(true) @map("verification_required")
-  real_time_verification Boolean            @default(false) @map("real_time_verification")
-  
-  // Processing Rules
-  max_processing_attempts Int               @default(3) @map("max_processing_attempts")
-  max_resubmission_attempts Int             @default(3) @map("max_resubmission_attempts")
-  auto_rejection_rules  Json?               @map("auto_rejection_rules")
-  
-  // Processing Time
-  avg_processing_time_hours Int?            @map("avg_processing_time_hours")
-  sla_hours             Int?                @map("sla_hours")
-  escalation_hours      Int?                @map("escalation_hours")
-  
-  created_at            DateTime            @default(now()) @map("created_at")
-  updated_at            DateTime            @updatedAt @map("updated_at")
-  
-  @@map("document_processing_configs")
-}
-
 // Compliance and legal configuration
 model DocumentCompliance {
   id                    Int                 @id @default(autoincrement())
   document_master_id    Int                 @unique @map("document_master_id")
-  document_master       DocumentMaster      @relation(fields: [document_master_id], references: [id], onDelete: Cascade)
+  document_master       LoanDocument      @relation(fields: [document_master_id], references: [id], onDelete: Cascade)
   
   // Data Classification
+  data_retention_policy String? @map("data_retention_policy")
   data_sensitivity      DataSensitivity     @map("data_sensitivity")
-  pii_data_present      Boolean             @default(false) @map("pii_data_present")
-  
-  // Compliance Requirements
-  gdpr_relevant         Boolean             @default(false) @map("gdpr_relevant")
-  kyc_document          Boolean             @default(false) @map("kyc_document")
-  aml_relevant          Boolean             @default(false) @map("aml_relevant")
-  
-  // Retention Policy
-  retention_period_days Int                 @map("retention_period_days")
-  deletion_policy       String?             @map("deletion_policy")
-  archival_required     Boolean             @default(true) @map("archival_required")
-  
-  // Audit Requirements
-  audit_trail_required  Boolean             @default(true) @map("audit_trail_required")
-  access_log_required   Boolean             @default(true) @map("access_log_required")
-  
-  // Legal Requirements
-  legal_hold_applicable Boolean             @default(false) @map("legal_hold_applicable")
-  regulatory_body       String?             @map("regulatory_body")
-  compliance_standards  Json?               @map("compliance_standards") // Array of standards
+  gdpr_relevance         GdprRelevance? @map("gdpr_relevance")
   
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
@@ -2322,34 +1772,16 @@ model DocumentCompliance {
 model DocumentDigitalConfig {
   id                    Int                 @id @default(autoincrement())
   document_master_id    Int                 @unique @map("document_master_id")
-  document_master       DocumentMaster      @relation(fields: [document_master_id], references: [id], onDelete: Cascade)
-  
-  // Digital Signature
-  digital_signature_required Boolean         @default(false) @map("digital_signature_required")
-  esign_provider        String?             @map("esign_provider")
+  document_master       LoanDocument      @relation(fields: [document_master_id], references: [id], onDelete: Cascade)
   
   // Integration
-  api_integration_available Boolean         @default(false) @map("api_integration_available")
-  api_endpoint          String?             @map("api_endpoint")
-  
-  // Blockchain
-  blockchain_verification Boolean           @default(false) @map("blockchain_verification")
-  blockchain_network    String?             @map("blockchain_network")
-  smart_contract_address String?            @map("smart_contract_address")
-  
-  // DigiLocker Integration
-  digilocker_available  Boolean             @default(false) @map("digilocker_available")
-  digilocker_doc_type   String?             @map("digilocker_doc_type")
-  
-  // Third Party Verification
-  third_party_verification Boolean          @default(false) @map("third_party_verification")
-  verification_provider String?             @map("verification_provider")
-  verification_api_key  String?             @map("verification_api_key") // Should be encrypted
-  
-  // Watermarking
-  watermark_required    Boolean             @default(false) @map("watermark_required")
-  watermark_text        String?             @map("watermark_text")
-  
+  api_integration_available DocumentAvailability?    @map("api_integration_available")
+  automated_processing          AutomatedProcessing? @map("automated_processing")
+  blockchain_verification BlockchainVerification ? @map("blockchain_verification")
+  digital_signature_required DigitalSignatureRequired? @map("digital_signature_required")
+  e_signature_accepted        ESignatureAccepted?             @map("e_signature_accepted")
+  real_time_verification RealTimeVerification? @map("real_time_verification")
+
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
   
@@ -2359,96 +1791,41 @@ model DocumentDigitalConfig {
 // Alternative documents configuration
 model AlternativeDocument {
   id                    Int                 @id @default(autoincrement())
-  primary_document_id   Int                 @map("primary_document_id")
-  primary_document      DocumentMaster      @relation(fields: [primary_document_id], references: [id], onDelete: Cascade)
+  primary_document_id   Int      @unique           @map("primary_document_id")
+  primary_document      LoanDocument      @relation(fields: [primary_document_id], references: [id], onDelete: Cascade)
   
-  alternative_document_name String           @map("alternative_document_name")
-  alternative_document_type DocumentType     @map("alternative_document_type")
-  
-  // Conditions
-  acceptance_conditions String?             @db.Text @map("acceptance_conditions")
-  additional_requirements String?           @db.Text @map("additional_requirements")
-  
-  // Priority
-  preference_order      Int                 @map("preference_order")
-  is_equivalent         Boolean             @default(false) @map("is_equivalent")
+  alternative_documents_accepted String           @map("alternative_documents_accepted")
+  equivalent_documents String?     @map("equivalent_documents")
+  exemption_criteria String? @map("exemption_criteria")
+  special_cases_handling String? @map("special_cases_handling")
+  waiver_conditions String? @map("waiver_conditions")
   
   created_at            DateTime            @default(now()) @map("created_at")
+  updated_at            DateTime            @updatedAt @map("updated_at")
   
   @@index([primary_document_id])
   @@map("alternative_documents")
 }
 
-// Document validation rules
-model DocumentValidationRule {
-  id                    Int                 @id @default(autoincrement())
-  document_master_id    Int                 @map("document_master_id")
-  document_master       DocumentMaster      @relation(fields: [document_master_id], references: [id], onDelete: Cascade)
-  
-  rule_name             String              @map("rule_name")
-  rule_type             String              @map("rule_type") // FORMAT, CONTENT, CROSS_FIELD, BUSINESS
-  rule_description      String?             @map("rule_description")
-  
-  // Rule Configuration
-  validation_logic      Json                @map("validation_logic")
-  error_message         String              @map("error_message")
-  
-  // Rule Properties
-  is_mandatory          Boolean             @default(true) @map("is_mandatory")
-  is_blocking           Boolean             @default(false) @map("is_blocking")
-  severity              String              @default("ERROR") @map("severity") // ERROR, WARNING, INFO
-  
-  // Execution
-  execution_order       Int                 @map("execution_order")
-  is_active             Boolean             @default(true) @map("is_active")
-  
-  created_at            DateTime            @default(now()) @map("created_at")
-  
-  @@index([document_master_id])
-  @@index([rule_type])
-  @@map("document_validation_rules")
-}
-
 // Document performance metrics
 model DocumentPerformanceMetrics {
-  id                    Int                 @id @default(autoincrement())
-  document_master_id    Int                 @unique @map("document_master_id")
-  document_master       DocumentMaster      @relation(fields: [document_master_id], references: [id], onDelete: Cascade)
+  id                              String          @id @default(cuid())
+  document_master_id              Int             @unique @map("document_master_id")
+  document_master                 LoanDocument    @relation(fields: [document_master_id], references: [id], onDelete: Cascade)
+
+  acceptance_rate                 Float?          @map("acceptance_rate")
+  automation_level                Float?          @map("automation_level")
+  average_processing_time_hours   Float?          @map("average_processing_time_hours")
+  bottleneck_score                Float?          @map("bottleneck_score")
+  customer_satisfaction_score     Float?          @map("customer_satisfaction_score")
+  error_rate                      Float?          @map("error_rate")
+  rejection_rate                  Float?          @map("rejection_rate")
+  resubmission_rate               Float?          @map("resubmission_rate")
+  submission_rate                 Float?          @map("submission_rate")
+  verification_success_rate       Float?          @map("verification_success_rate")
   
-  // Processing Metrics
-  avg_processing_time_hours Decimal?        @db.Decimal(10, 2) @map("avg_processing_time_hours")
-  min_processing_time_hours Decimal?        @db.Decimal(10, 2) @map("min_processing_time_hours")
-  max_processing_time_hours Decimal?        @db.Decimal(10, 2) @map("max_processing_time_hours")
-  
-  // Acceptance Metrics
-  acceptance_rate       Decimal?            @db.Decimal(5, 2) @map("acceptance_rate")
-  rejection_rate        Decimal?            @db.Decimal(5, 2) @map("rejection_rate")
-  resubmission_rate     Decimal?            @db.Decimal(5, 2) @map("resubmission_rate")
-  
-  // Quality Metrics
-  first_time_acceptance_rate Decimal?       @db.Decimal(5, 2) @map("first_time_acceptance_rate")
-  error_rate            Decimal?            @db.Decimal(5, 2) @map("error_rate")
-  
-  // Automation Metrics
-  automation_level      Decimal?            @db.Decimal(5, 2) @map("automation_level")
-  manual_intervention_rate Decimal?         @db.Decimal(5, 2) @map("manual_intervention_rate")
-  
-  // Performance Scores
-  bottleneck_score      Int?                @map("bottleneck_score") // 1-100, higher is worse
-  efficiency_score      Int?                @map("efficiency_score") // 1-100, higher is better
-  
-  // Volume Metrics
-  total_processed       Int                 @default(0) @map("total_processed")
-  total_accepted        Int                 @default(0) @map("total_accepted")
-  total_rejected        Int                 @default(0) @map("total_rejected")
-  
-  // Period
-  metrics_period_start  DateTime?           @map("metrics_period_start")
-  metrics_period_end    DateTime?           @map("metrics_period_end")
-  last_calculated_at    DateTime?           @map("last_calculated_at")
-  
-  created_at            DateTime            @default(now()) @map("created_at")
-  updated_at            DateTime            @updatedAt @map("updated_at")
+  created_at                      DateTime        @default(now()) @map("created_at")
+  updated_at                      DateTime        @updatedAt @map("updated_at")
   
   @@map("document_performance_metrics")
 }
@@ -2457,25 +1834,11 @@ model DocumentPerformanceMetrics {
 model DocumentCustomerExperience {
   id                    Int                 @id @default(autoincrement())
   document_master_id    Int                 @unique @map("document_master_id")
-  document_master       DocumentMaster      @relation(fields: [document_master_id], references: [id], onDelete: Cascade)
+  document_master       LoanDocument      @relation(fields: [document_master_id], references: [id], onDelete: Cascade)
   
   // Sample Documents
-  sample_document_available Boolean          @default(false) @map("sample_document_available")
-  sample_document_url   String?             @map("sample_document_url")
-  
-  // Help Content
-  customer_faq          Json?               @map("customer_faq") // Array of Q&A
-  help_text             String?             @db.Text @map("help_text")
-  video_guide_url       String?             @map("video_guide_url")
-  
-  // Instructions
-  upload_instructions   String?             @db.Text @map("upload_instructions")
-  common_mistakes       Json?               @map("common_mistakes")
-  tips_for_acceptance   Json?               @map("tips_for_acceptance")
-  
-  // Support
-  support_priority      String?             @map("support_priority") // HIGH, MEDIUM, LOW
-  escalation_contact    String?             @map("escalation_contact")
+  customer_support_faq          Json?               @map("customer_support_faq") // Array of Q&A
+  sample_document_available DocumentAvailability?
   
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
@@ -2483,335 +1846,45 @@ model DocumentCustomerExperience {
   @@map("document_customer_experience")
 }
 
-// Actual uploaded documents by users
-model UploadedDocument {
+// Settlement status history
+model CommissionSettlementStatus {
   id                    Int                 @id @default(autoincrement())
-  document_master_id    Int                 @map("document_master_id")
-  document_master       DocumentMaster      @relation(fields: [document_master_id], references: [id])
+  settlement_id         Int            @unique     @map("settlement_id")
+  settlement            CommissionSettlement @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
   
-  // Owner Information
-  loan_application_id   Int                 @map("loan_application_id")
-  uploaded_by_type      String              @map("uploaded_by_type") // STUDENT, CO_APPLICANT_1, etc.
-  uploaded_by_id        Int                 @map("uploaded_by_id")
+  calculated_by            String              @map("calculated_by")
+  calculation_date DateTime?
+  settlement_status SettlementStatus?
+  verification_date DateTime?
+  verification_status VerificationStatus?
   
-  // File Information
-  file_name             String              @map("file_name")
-  file_path             String              @map("file_path")
-  file_size             Int                 @map("file_size") // in bytes
-  file_format           DocumentFormat      @map("file_format")
-  mime_type             String              @map("mime_type")
-  
-  // Document Details
-  document_number       String?             @map("document_number") // e.g., PAN number, Aadhaar number
-  issue_date            DateTime?           @map("issue_date")
-  expiry_date           DateTime?           @map("expiry_date")
-  issuing_authority     String?             @map("issuing_authority")
-  
-  // Verification Status
-  verification_status   VerificationStatus  @default(PENDING) @map("verification_status")
-  verification_method   VerificationMethod? @map("verification_method")
-  verified_at           DateTime?           @map("verified_at")
-  verified_by           String?             @map("verified_by")
-  verification_notes    String?             @map("verification_notes")
-  
-  // Rejection Details
-  is_rejected           Boolean             @default(false) @map("is_rejected")
-  rejection_reason      RejectionReason?    @map("rejection_reason")
-  rejection_details     String?             @map("rejection_details")
-  rejected_at           DateTime?           @map("rejected_at")
-  rejected_by           String?             @map("rejected_by")
-  
-  // Processing Information
-  processing_status     String?             @map("processing_status")
-  ocr_extracted_data    Json?               @map("ocr_extracted_data")
-  validation_results    Json?               @map("validation_results")
-  
-  // Metadata
-  upload_channel        String?             @map("upload_channel") // WEB, MOBILE, API, EMAIL
-  ip_address            String?             @map("ip_address")
-  device_info           Json?               @map("device_info")
-  
-  // System fields
-  is_active             Boolean             @default(true) @map("is_active")
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
-  
-  // Relations
-  verification_logs     DocumentVerificationLog[]
-  access_logs           DocumentAccessLog[]
-  
-  @@index([document_master_id])
-  @@index([loan_application_id])
-  @@index([verification_status])
-  @@index([created_at])
-  @@map("uploaded_documents")
-}
-
-// Document verification log
-model DocumentVerificationLog {
-  id                    Int                 @id @default(autoincrement())
-  uploaded_document_id  Int                 @map("uploaded_document_id")
-  uploaded_document     UploadedDocument    @relation(fields: [uploaded_document_id], references: [id], onDelete: Cascade)
-  
-  verification_type     String              @map("verification_type")
-  verification_status   VerificationStatus  @map("verification_status")
-  verification_score    Decimal?            @db.Decimal(5, 2) @map("verification_score")
-  
-  // Verification Details
-  verification_response Json?               @map("verification_response")
-  error_details         String?             @map("error_details")
-  
-  // Metadata
-  verified_by           String              @map("verified_by")
-  verification_method   VerificationMethod  @map("verification_method")
-  time_taken_seconds    Int?                @map("time_taken_seconds")
-  
-  created_at            DateTime            @default(now()) @map("created_at")
-  
-  @@index([uploaded_document_id])
-  @@index([created_at])
-  @@map("document_verification_logs")
-}
-
-// Document access log for audit
-model DocumentAccessLog {
-  id                    Int                 @id @default(autoincrement())
-  uploaded_document_id  Int                 @map("uploaded_document_id")
-  uploaded_document     UploadedDocument    @relation(fields: [uploaded_document_id], references: [id], onDelete: Cascade)
-  
-  action                String              @map("action") // VIEW, DOWNLOAD, EDIT, DELETE
-  accessed_by           String              @map("accessed_by")
-  access_reason         String?             @map("access_reason")
-  
-  // Access Details
-  ip_address            String?             @map("ip_address")
-  user_agent            String?             @map("user_agent")
-  access_channel        String?             @map("access_channel")
-  
-  created_at            DateTime            @default(now()) @map("created_at")
-  
-  @@index([uploaded_document_id])
-  @@index([accessed_by])
-  @@index([created_at])
-  @@map("document_access_logs")
-}
-
-// Document template mapping for loan products
-model DocumentTemplateMapping {
-  id                    Int                 @id @default(autoincrement())
-  document_master_id    Int                 @map("document_master_id")
-  document_master       DocumentMaster      @relation(fields: [document_master_id], references: [id], onDelete: Cascade)
-  
-  // Mapping to loan product or lender
-  loan_product_id       Int?                @map("loan_product_id")
-  lender_id             Int?                @map("lender_id")
-  
-  // Override Configuration
-  is_mandatory_override Boolean?            @map("is_mandatory_override")
-  priority_override     DocumentPriority?   @map("priority_override")
-  stage_override        DocumentStage?      @map("stage_override")
-  
-  // Special Requirements
-  additional_requirements String?           @db.Text @map("additional_requirements")
-  special_instructions  String?             @db.Text @map("special_instructions")
-  
-  // Validity
-  effective_from        DateTime            @map("effective_from")
-  effective_to          DateTime?           @map("effective_to")
-  
-  created_at            DateTime            @default(now()) @map("created_at")
-  
-  @@index([document_master_id])
-  @@index([loan_product_id])
-  @@index([lender_id])
-  @@map("document_template_mappings")
-}
-
-// Audit log for document changes
-model DocumentAuditLog {
-  id                    Int                 @id @default(autoincrement())
-  document_master_id    Int?                @map("document_master_id")
-  document_master       DocumentMaster?     @relation(fields: [document_master_id], references: [id], onDelete: Cascade)
-  uploaded_document_id  Int?                @map("uploaded_document_id")
-  
-  action                String              @map("action") // CREATE, UPDATE, DELETE, STATUS_CHANGE
-  entity_type           String              @map("entity_type") // MASTER, UPLOADED, CONFIG
-  entity_id             Int                 @map("entity_id")
-  
-  old_values            Json?               @map("old_values")
-  new_values            Json?               @map("new_values")
-  
-  changed_by            String              @map("changed_by")
-  change_reason         String?             @map("change_reason")
-  
-  created_at            DateTime            @default(now()) @map("created_at")
-  
-  @@index([document_master_id])
-  @@index([uploaded_document_id])
-  @@index([action])
-  @@index([created_at])
-  @@map("document_audit_logs")
-}
-
-// Commission transactions
-model CommissionTransaction {
-  id                    Int                 @id @default(autoincrement())
-  settlement_id         Int                 @map("settlement_id")
-  settlement            CommissionSettlement @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
-  
-  // Transaction Identifiers
-  transaction_id        String              @unique @map("transaction_id")
-  original_transaction_id String?           @map("original_transaction_id")
-  batch_payment_id      String?             @map("batch_payment_id")
-  
-  // Transaction Details
-  transaction_type      String              @map("transaction_type") // CREDIT, DEBIT, REVERSAL
-  transaction_sub_type  String?             @map("transaction_sub_type")
-  
-  // Amount
-  transaction_amount    Decimal             @db.Decimal(12, 2) @map("transaction_amount")
-  transaction_currency  String              @default("INR") @map("transaction_currency")
-  
-  // Disbursement
-  disbursement_trigger  DisbursementTrigger? @map("disbursement_trigger")
-  
-  // Status
-  transaction_status    String              @map("transaction_status")
-  transaction_date      DateTime            @map("transaction_date")
-  
-  // Related Settlement
-  related_settlement_id String?             @map("related_settlement_id")
-  
-  created_at            DateTime            @default(now()) @map("created_at")
-  
-  @@index([settlement_id])
-  @@index([transaction_date])
-  @@map("commission_transactions")
-}
-
-// Settlement status history
-model SettlementStatusHistory {
-  id                    Int                 @id @default(autoincrement())
-  settlement_id         Int                 @map("settlement_id")
-  settlement            CommissionSettlement @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
-  
-  previous_status       SettlementStatus?   @map("previous_status")
-  new_status            SettlementStatus    @map("new_status")
-  
-  changed_by            String              @map("changed_by")
-  change_reason         String?             @map("change_reason")
-  
-  created_at            DateTime            @default(now()) @map("created_at")
   
   @@index([settlement_id])
   @@index([created_at])
   @@map("settlement_status_history")
 }
 
-// Audit log for commission changes
-model CommissionAuditLog {
-  id                    Int                 @id @default(autoincrement())
-  settlement_id         Int                 @map("settlement_id")
-  settlement            CommissionSettlement @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
-  
-  action                String              @map("action") // CREATE, UPDATE, DELETE, STATUS_CHANGE
-  entity_type           String              @map("entity_type") // SETTLEMENT, CALCULATION, PAYMENT, etc.
-  entity_id             Int?                @map("entity_id")
-  
-  old_values            Json?               @map("old_values")
-  new_values            Json?               @map("new_values")
-  
-  changed_by            String              @map("changed_by")
-  change_reason         String?             @map("change_reason")
-  
-  // System Tracking
-  ip_address            String?             @map("ip_address")
-  user_agent            String?             @map("user_agent")
-  data_source           DataSource?         @map("data_source")
-  
-  created_at            DateTime            @default(now()) @map("created_at")
-  
-  @@index([settlement_id])
-  @@index([action])
-  @@index([created_at])
-  @@map("commission_audit_logs")
-}
-
-// Commission rules and configurations
-model CommissionRule {
-  id                    Int                 @id @default(autoincrement())
-  
-  // Rule Identification
-  rule_name             String              @unique @map("rule_name")
-  rule_code             String              @unique @map("rule_code")
-  rule_description      String?             @db.Text @map("rule_description")
-  
-  // Applicable To
-  partner_type          String?             @map("partner_type")
-  partner_id            Int?                @map("partner_id")
-  product_type          String?             @map("product_type")
-  
-  // Commission Structure
-  commission_model      CommissionModel     @map("commission_model")
-  base_rate             Decimal?            @db.Decimal(5, 2) @map("base_rate")
-  
-  // Tiered Structure
-  tier_structure        Json?               @map("tier_structure")
-  
-  // Bonus Structure
-  bonus_applicable      Boolean             @default(false) @map("bonus_applicable")
-  bonus_rules           Json?               @map("bonus_rules")
-  
-  // Performance Targets
-  target_based          Boolean             @default(false) @map("target_based")
-  target_rules          Json?               @map("target_rules")
-  
-  // Validity
-  effective_from        DateTime            @map("effective_from")
-  effective_to          DateTime?           @map("effective_to")
-  
-  // Status
-  is_active             Boolean             @default(true) @map("is_active")
-  
-  created_at            DateTime            @default(now()) @map("created_at")
-  updated_at            DateTime            @updatedAt @map("updated_at")
-  created_by            String?             @map("created_by")
-  
-  @@index([partner_type])
-  @@index([partner_id])
-  @@index([effective_from, effective_to])
-  @@map("commission_rules")
-}
-
 // Main commission settlement table
 model CommissionSettlement {
   id                    Int                 @id @default(autoincrement())
-  external_id           String?             @unique @map("external_id") // HubSpot or CRM ID
+  lead_reference_id         String              @unique @map("lead_reference_id")
   settlement_id         String              @unique @map("settlement_id")
-  
+  student_id String? @unique @map("student_id")
+
   // Partner Information
   partner_id            Int                 @map("partner_id")
   partner_name          String              @map("partner_name")
-  partner_type          String?             @map("partner_type") // LENDER, AGENT, AFFILIATE, etc.
+  student_name String? @map("student_name")
+  verified_by String? @map("verified_by")
   
   // Settlement Period
   settlement_period     SettlementPeriod    @map("settlement_period")
-  settlement_month      String?             @map("settlement_month")
+  settlement_month      SettlementMonth?             @map("settlement_month")
   settlement_year       Int                 @map("settlement_year")
-  period_start_date     DateTime            @map("period_start_date")
-  period_end_date       DateTime            @map("period_end_date")
-  
-  // Status
-  settlement_status     SettlementStatus    @default(PENDING_CALCULATION) @map("settlement_status")
-  payment_status        PaymentStatus       @default(PENDING) @map("payment_status")
-  verification_status   VerificationStatus  @default(PENDING) @map("verification_status")
-  
-  // Key Dates
-  calculation_date      DateTime?           @map("calculation_date")
-  approval_date         DateTime?           @map("approval_date")
-  payment_date          DateTime?           @map("payment_date")
-  settlement_due_date   DateTime?           @map("settlement_due_date")
-  
+  settlement_reference_number String? @map("settlement_reference_number")
+
   // System fields
   is_active             Boolean             @default(true) @map("is_active")
   created_at            DateTime            @default(now()) @map("created_at")
@@ -2821,23 +1894,73 @@ model CommissionSettlement {
   
   // Relations
   calculation_details   CommissionSettlementCalculation?
-  loan_details          CommissionSettlementLoanDetails[]
-  payment_details       CommissionSettlementPaymentProcessing?
+  communication CommissionSettlementCommunication?
   tax_deductions        CommissionSettlementTaxDeduction?
-  documentation         CommissionSettlementDocumentation?
+  documentaion CommissionSettlementDocumentation?
   hold_dispute          CommissionSettlementHoldDispute?
-  reconciliation        CommissionSettlementReconciliation?
+  loan_details          CommissionSettlementLoanDetails?
+  payment_details       CommissionSettlementPaymentProcessing?
   performance_metrics   CommissionSettlementPerformanceAnalytics?
-  transactions          CommissionTransaction[]
-  status_history        SettlementStatusHistory[]
-  audit_logs            CommissionAuditLog[]
-  
+  reconciliation        CommissionSettlementReconciliation?
+  status_history        CommissionSettlementStatus?
+  system_tracking CommissionSettlementSystemTracking?
+  transaction CommissionSettlementTransactionDetails?
+
   @@index([partner_id])
-  @@index([settlement_status])
-  @@index([payment_status])
-  @@index([period_start_date, period_end_date])
+  @@index([lead_reference_id])
+  @@index([student_id])
   @@index([created_at])
+
   @@map("commission_settlements")
+}
+
+model CommissionSettlementSystemTracking {
+  id                       Int                     @id @default(autoincrement())
+  settlement_id         Int                 @unique @map("settlement_id")
+  settlement_system_tracking            CommissionSettlement @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
+
+  audit_trail              String?                 @map("audit_trail")
+  change_log               String?                 @map("change_log")
+  created_by               String?                 @map("created_by")
+  created_date             DateTime?               @default(now()) @map("created_date")
+  data_source              CommissionDataSource?             @map("data_source")
+  integration_status       CommissionIntegrationStatus?      @map("integration_status")
+  internal_notes           String?                 @map("internal_notes")
+  last_modified_by         String?                 @map("last_modified_by")
+  last_modified_date       DateTime?               @updatedAt @map("last_modified_date")
+  notes                    String?                 @map("notes")
+  settlement_record_status SettlementRecordStatus? @map("settlement_record_status")
+  system_generated         SystemGenerated?        @map("system_generated")
+  version_number           String?                 @map("version_number")
+  batch_payment_id         String?                 @map("batch_payment_id")
+  disbursement_trigger     CommissionDisbursementTrigger?    @map("disbursement_trigger")
+  original_transaction_id  String?                 @map("original_transaction_id")
+  related_settlement_id    String?                 @map("related_settlement_id")
+  transaction_sub_type     String?                 @map("transaction_sub_type")
+  transaction_type         CommissionTransactionType?        @map("transaction_type")
+
+  created_at            DateTime            @default(now()) @map("created_at")
+  updated_at            DateTime            @updatedAt @map("updated_at")
+
+  @@map("commission_settlement_system_tracking")
+}
+
+model CommissionSettlementTransactionDetails {
+  id                      Int                   @id @default(autoincrement())
+  settlement_id         Int                 @unique @map("settlement_id")
+  transaction            CommissionSettlement @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
+
+  batch_payment_id        String?               @map("batch_payment_id")
+  disbursement_trigger    TransactionDisbursementTrigger?  @map("disbursement_trigger")
+  original_transaction_id String?               @map("original_transaction_id")
+  related_settlement_id   String?               @map("related_settlement_id")
+  transaction_sub_type    String?               @map("transaction_sub_type")
+  transaction_type        TransactionTypes?      @map("transaction_type")
+
+    created_at            DateTime            @default(now()) @map("created_at")
+  updated_at            DateTime            @updatedAt @map("updated_at")
+
+  @@map("commission_settlement_transaction_details")
 }
 
 // Commission calculation details
@@ -2848,14 +1971,11 @@ model CommissionSettlementCalculation {
   
   // Commission Model
   commission_model      CommissionModel     @map("commission_model")
-  base_amount           Decimal             @db.Decimal(12, 2) @map("base_amount")
-  
-  // Rates and Percentages
-  commission_rate       Decimal?            @db.Decimal(5, 2) @map("commission_rate")
-  tiered_rates          Json?               @map("tiered_rates") // For tiered model
+  commission_rate_applied       Decimal?            @db.Decimal(5, 2) @map("commission_rate_applied")
+  commission_tier_applied String? @map("commission_tier_applied") 
   
   // Calculated Amounts
-  gross_commission      Decimal             @db.Decimal(12, 2) @map("gross_commission")
+  gross_commission_amount      Decimal             @db.Decimal(12, 2) @map("gross_commission_amount")
   bonus_amount          Decimal?            @db.Decimal(12, 2) @map("bonus_amount")
   bonus_rate_applied    Decimal?            @db.Decimal(5, 2) @map("bonus_rate_applied")
   incentive_amount      Decimal?            @db.Decimal(12, 2) @map("incentive_amount")
@@ -2863,19 +1983,10 @@ model CommissionSettlementCalculation {
   // Adjustments
   adjustment_amount     Decimal?            @db.Decimal(12, 2) @map("adjustment_amount")
   adjustment_reason     String?             @db.Text @map("adjustment_reason")
-  previous_balance      Decimal?            @db.Decimal(12, 2) @map("previous_balance")
-  
-  // Performance Multipliers
-  performance_multiplier Decimal?           @db.Decimal(5, 2) @map("performance_multiplier")
-  target_achievement_rate Decimal?          @db.Decimal(5, 2) @map("target_achievement_rate")
   
   // Final Amount
-  total_commission      Decimal             @db.Decimal(12, 2) @map("total_commission")
-  
-  // Calculation Details
-  calculation_formula   String?             @map("calculation_formula")
-  calculation_notes     String?             @db.Text @map("calculation_notes")
-  calculated_by         String?             @map("calculated_by")
+  penalty_amount  Decimal             @db.Decimal(12, 2) @map("penalty_amount")
+  total_gross_amount      Decimal             @db.Decimal(12, 2) @map("total_gross_amount")
   
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
@@ -2883,42 +1994,46 @@ model CommissionSettlementCalculation {
   @@map("commission_settlement_calculations")
 }
 
+model CommissionSettlementCommunication {
+  id                         Int                          @id @default(autoincrement())
+  settlement_id         Int       @unique          @map("settlement_id")
+  settlement            CommissionSettlement @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
+
+  acknowledgment_date        DateTime?                   @map("acknowledgment_date")
+  acknowledgment_received    AcknowledgmentReceived?     @map("acknowledgment_received")
+  communication_log          String?                     @map("communication_log")
+  email_sent_count           Int?                        @map("email_sent_count")
+  last_communication_date    DateTime?                   @map("last_communication_date")
+  notification_date          DateTime?                   @map("notification_date")
+  notification_method        NotificationMethod?         @map("notification_method")
+  partner_notification_sent  PartnerNotificationSent?    @map("partner_notification_sent")
+  sms_sent_count             Int?                        @map("sms_sent_count")
+
+  created_at            DateTime            @default(now()) @map("created_at")
+  updated_at            DateTime            @updatedAt @map("updated_at")
+
+  @@map("commission_settlement_communication")
+}
+
 // Loan details for commission
 model CommissionSettlementLoanDetails {
   id                    Int                 @id @default(autoincrement())
-  settlement_id         Int                 @map("settlement_id")
+  settlement_id         Int          @unique       @map("settlement_id")
   settlement            CommissionSettlement @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
   
   // Application Details
-  application_id        String              @map("application_id")
-  loan_application_number String            @map("loan_application_number")
-  
-  // Loan Information
-  loan_amount_sanctioned Decimal            @db.Decimal(12, 2) @map("loan_amount_sanctioned")
+  course_name           String?             @map("course_name")
+  lender_name           String              @map("lender_name")
   loan_amount_disbursed Decimal             @db.Decimal(12, 2) @map("loan_amount_disbursed")
   loan_disbursement_date DateTime           @map("loan_disbursement_date")
-  
-  // Product and Course
   loan_product_name     String              @map("loan_product_name")
-  course_name           String?             @map("course_name")
-  institution_name      String?             @map("institution_name")
-  
-  // Lender Information
-  lender_id             Int?                @map("lender_id")
-  lender_name           String              @map("lender_name")
-  
-  // Commission for this loan
-  commission_amount     Decimal             @db.Decimal(12, 2) @map("commission_amount")
-  commission_rate_applied Decimal?          @db.Decimal(5, 2) @map("commission_rate_applied")
-  
-  // Status
-  included_in_settlement Boolean            @default(true) @map("included_in_settlement")
-  exclusion_reason      String?             @map("exclusion_reason")
-  
+  student_destination_country String? @map("student_destination_country")
+  university_name String? @map("university_name")
+
   created_at            DateTime            @default(now()) @map("created_at")
+  updated_at            DateTime            @updatedAt @map("updated_at")
   
   @@index([settlement_id])
-  @@index([application_id])
   @@index([loan_disbursement_date])
   @@map("commission_settlement_loan_details")
 }
@@ -2929,39 +2044,23 @@ model CommissionSettlementPaymentProcessing {
   settlement_id         Int                 @unique @map("settlement_id")
   settlement            CommissionSettlement @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
   
-  // Payment Method
-  payment_method        PaymentMethod       @map("payment_method")
-  payment_channel       String?             @map("payment_channel")
-  
   // Beneficiary Details
   beneficiary_name      String              @map("beneficiary_name")
   beneficiary_account_number String          @map("beneficiary_account_number")
   beneficiary_bank_name String              @map("beneficiary_bank_name")
   beneficiary_ifsc_code String              @map("beneficiary_ifsc_code")
-  beneficiary_account_type String?          @map("beneficiary_account_type")
-  
+  last_retry_date       DateTime?           @map("last_retry_date")
+  payment_completed_date DateTime?          @map("payment_completed_date")
+  payment_failure_reason          String?             @map("payment_failure_reason")
+  payment_initiation_date DateTime?          @map("payment_initiation_date")
+  payment_method        PaymentMethod       @map("payment_method")
+  payment_reference_number String? @map("payment_reference_number")
+  payment_status PaymentStatus? @map("payment_status")
+  retry_attempt_count Int? @map("retry_attempt_count")
+
   // Payment Transaction
   bank_transaction_id   String?             @unique @map("bank_transaction_id")
-  payment_reference_number String?          @map("payment_reference_number")
-  utr_number            String?             @map("utr_number")
-  
-  // Payment Amounts
-  payment_amount        Decimal             @db.Decimal(12, 2) @map("payment_amount")
-  transaction_charges   Decimal?            @db.Decimal(10, 2) @map("transaction_charges")
-  
-  // Payment Dates
-  payment_initiated_date DateTime?          @map("payment_initiated_date")
-  payment_completed_date DateTime?          @map("payment_completed_date")
-  value_date            DateTime?           @map("value_date")
-  
-  // Retry Information
-  payment_attempts      Int                 @default(0) @map("payment_attempts")
-  last_retry_date       DateTime?           @map("last_retry_date")
-  retry_reason          String?             @map("retry_reason")
-  
-  // Status and Notes
-  payment_status_remarks String?            @db.Text @map("payment_status_remarks")
-  bank_response         Json?               @map("bank_response")
+  payment_gateway_reference String?          @map("payment_gateway_reference")
   
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
@@ -2977,19 +2076,20 @@ model CommissionSettlementTaxDeduction {
   
   // GST Details
   gst_applicable        Boolean             @default(true) @map("gst_applicable")
-  gst_rate              Decimal?            @db.Decimal(5, 2) @map("gst_rate")
+  gst_rate_applied              Decimal?            @db.Decimal(5, 2) @map("gst_rate_applied")
   gst_amount            Decimal?            @db.Decimal(12, 2) @map("gst_amount")
-  gstin_number          String?             @map("gstin_number")
+  net_payable_amount    Decimal             @db.Decimal(12, 2) @map("net_payable_amount")
+  service_tax_amount Int? @map("service_tax_amount")
+
+  // Other Deductions
+  other_deductions      Decimal?            @db.Decimal(12, 2) @map("other_deductions")
+  other_deductions_description String?            @map("other_deductions_description")
   
   // TDS Details
   tds_applicable        Boolean             @default(true) @map("tds_applicable")
-  tds_rate              Decimal?            @db.Decimal(5, 2) @map("tds_rate")
+  tds_rate_applied              Decimal?            @db.Decimal(5, 2) @map("tds_rate_applied")
   tds_amount            Decimal?            @db.Decimal(12, 2) @map("tds_amount")
-  pan_number            String?             @map("pan_number")
-  
-  // Other Deductions
-  other_deductions      Decimal?            @db.Decimal(12, 2) @map("other_deductions")
-  other_deductions_details Json?            @map("other_deductions_details")
+  tds_certificate_number Int? @map("tds_certificate_number")
   
   // Withholding Tax (for international)
   withholding_tax_applicable Boolean        @default(false) @map("withholding_tax_applicable")
@@ -2998,16 +2098,7 @@ model CommissionSettlementTaxDeduction {
   
   // Total Deductions
   total_deductions      Decimal             @db.Decimal(12, 2) @map("total_deductions")
-  
-  // Net Amount
-  gross_amount          Decimal             @db.Decimal(12, 2) @map("gross_amount")
-  net_payable_amount    Decimal             @db.Decimal(12, 2) @map("net_payable_amount")
-  
-  // Tax Certificate
-  tax_certificate_required Boolean          @default(false) @map("tax_certificate_required")
-  tax_certificate_number String?            @map("tax_certificate_number")
-  tax_certificate_date  DateTime?           @map("tax_certificate_date")
-  
+    
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
   
@@ -3022,7 +2113,6 @@ model CommissionSettlementDocumentation {
   
   // Agreement Reference
   agreement_reference   String?             @map("agreement_reference")
-  agreement_version     String?             @map("agreement_version")
   
   // Invoice Details
   invoice_required      Boolean             @default(true) @map("invoice_required")
@@ -3030,23 +2120,12 @@ model CommissionSettlementDocumentation {
   invoice_date          DateTime?           @map("invoice_date")
   invoice_amount        Decimal?            @db.Decimal(12, 2) @map("invoice_amount")
   invoice_status        InvoiceStatus?      @map("invoice_status")
-  invoice_file_path     String?             @map("invoice_file_path")
+  invoice_url     String?             @map("invoice_url")
   
-  // Supporting Documents
-  statement_generated   Boolean             @default(false) @map("statement_generated")
-  statement_file_path   String?             @map("statement_file_path")
-  calculation_sheet_path String?            @map("calculation_sheet_path")
-  
-  // Receipt
-  receipt_number        String?             @map("receipt_number")
-  receipt_date          DateTime?           @map("receipt_date")
-  receipt_file_path     String?             @map("receipt_file_path")
-  
-  // Document Verification
-  documents_verified    Boolean             @default(false) @map("documents_verified")
-  verified_by           String?             @map("verified_by")
-  verification_date     DateTime?           @map("verification_date")
-  verification_notes    String?             @map("verification_notes")
+  payment_terms_applied String? @map("payment_terms_applied")
+  supporting_documents String? @map("supporting_documents")
+  tax_certificate_required TaxCertificateRequired @map("tax_certificate_required")
+  tax_certificate_url String? @map("tax_certificate_url")
   
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
@@ -3059,35 +2138,21 @@ model CommissionSettlementHoldDispute {
   id                    Int                 @id @default(autoincrement())
   settlement_id         Int                 @unique @map("settlement_id")
   settlement            CommissionSettlement @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
-  
-  // Hold Information
-  on_hold               Boolean             @default(false) @map("on_hold")
-  hold_reason           HoldReason?         @map("hold_reason")
-  hold_date             DateTime?           @map("hold_date")
-  hold_by               String?             @map("hold_by")
-  hold_notes            String?             @db.Text @map("hold_notes")
-  expected_release_date DateTime?           @map("expected_release_date")
-  
-  // Release Information
-  hold_released         Boolean             @default(false) @map("hold_released")
-  release_date          DateTime?           @map("release_date")
-  released_by           String?             @map("released_by")
-  release_notes         String?             @map("release_notes")
-  
+    
   // Dispute Information
-  dispute_raised        Boolean             @default(false) @map("dispute_raised")
   dispute_date          DateTime?           @map("dispute_date")
-  dispute_raised_by     String?             @map("dispute_raised_by")
   dispute_description   String?             @db.Text @map("dispute_description")
-  dispute_category      String?             @map("dispute_category")
-  dispute_amount        Decimal?            @db.Decimal(12, 2) @map("dispute_amount")
-  
-  // Dispute Resolution
-  dispute_status        String?             @map("dispute_status") // OPEN, IN_PROGRESS, RESOLVED, ESCALATED
+  dispute_raised        Boolean             @default(false) @map("dispute_raised")
+  dispute_raised_by     String?             @map("dispute_raised_by")
   dispute_resolution    String?             @db.Text @map("dispute_resolution")
-  resolution_date       DateTime?           @map("resolution_date")
-  resolved_by           String?             @map("resolved_by")
-  resolution_amount     Decimal?            @db.Decimal(12, 2) @map("resolution_amount")
+  dispute_resolution_date       DateTime?           @map("dispute_resolution_date")
+  dispute_resolved_by String? @map("dispute_resolved_by")
+  hold_date             DateTime?           @map("hold_date")
+  hold_initiated_by               String?             @map("hold_initiated_by")
+  hold_reason           HoldReason?         @map("hold_reason")
+  hold_release_approved_by           String?             @map("hold_release_approved_by")
+  hold_release_date          DateTime?           @map("hold_release_date")
+  on_hold               Boolean             @default(false) @map("on_hold")
   
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
@@ -3105,25 +2170,15 @@ model CommissionSettlementReconciliation {
   reconciliation_status ReconciliationStatus @default(PENDING) @map("reconciliation_status")
   reconciliation_date   DateTime?           @map("reconciliation_date")
   reconciled_by         String?             @map("reconciled_by")
+  reconciliation_notes String? @map("reconciliation_notes")
   
   // Bank Statement
   bank_statement_reference String?          @map("bank_statement_reference")
-  bank_statement_date   DateTime?           @map("bank_statement_date")
-  bank_statement_amount Decimal?            @db.Decimal(12, 2) @map("bank_statement_amount")
-  
-  // System Records
-  system_amount         Decimal?            @db.Decimal(12, 2) @map("system_amount")
-  
+    
   // Discrepancy
-  discrepancy_found     Boolean             @default(false) @map("discrepancy_found")
   discrepancy_amount    Decimal?            @db.Decimal(12, 2) @map("discrepancy_amount")
   discrepancy_reason    String?             @db.Text @map("discrepancy_reason")
-  
-  // Resolution
-  resolution_action     String?             @map("resolution_action")
-  resolution_date       DateTime?           @map("resolution_date")
-  resolution_notes      String?             @db.Text @map("resolution_notes")
-  
+    
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
   
@@ -3136,23 +2191,14 @@ model CommissionSettlementPerformanceAnalytics {
   settlement_id         Int                 @unique @map("settlement_id")
   settlement            CommissionSettlement @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
   
-  // Processing Metrics
-  processing_time_days  Int?                @map("processing_time_days")
-  payment_delay_days    Int?                @map("payment_delay_days")
-  
   // SLA Compliance
   sla_breach            Boolean             @default(false) @map("sla_breach")
   sla_breach_reason     String?             @map("sla_breach_reason")
-  sla_compliance_rate   Decimal?            @db.Decimal(5, 2) @map("sla_compliance_rate")
   
   // Partner Satisfaction
   partner_satisfaction_rating Decimal?      @db.Decimal(3, 2) @map("partner_satisfaction_rating")
-  partner_feedback      String?             @db.Text @map("partner_feedback")
-  
-  // Efficiency Metrics
-  auto_calculation_used Boolean             @default(false) @map("auto_calculation_used")
-  manual_interventions  Int                 @default(0) @map("manual_interventions")
-  error_corrections     Int                 @default(0) @map("error_corrections")
+  payment_delay_days    Int?                @map("payment_delay_days")
+  processing_time_days  Int?                @map("processing_time_days")
   
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
@@ -3477,48 +2523,51 @@ enum IntegrationLevel {
 }
 
 enum DataSource {
-  MANUAL_ENTRY           @map("MANUAL ENTRY")
-  API_SYNC               @map("API SYNC")
-  IMPORT
-  THIRD_PARTY            @map("THIRD PARTY")
-  SYSTEM_GENERATED       @map("SYSTEM GENERATED")
+  MANUAL_ENTRY      @map("Manual Entry")
+  API_SYNC          @map("API Sync")
+  IMPORT            @map("Import")
+  THIRD_PARTY       @map("Third Party")
+  SYSTEM_GENERATED  @map("System Generated")
+  API                   @map("API")
+  WEBSITE_FORM          @map("Website Form")
+  PARTNER_INTEGRATION   @map("Partner Integration")
 
   @@map("data_source")
 }
 
 enum PartnershipStatus {
-  ACTIVE
-  INACTIVE
-  PENDING
-  TERMINATED
-  ON_HOLD                @map("ON HOLD")
+  ACTIVE      @map("Active")
+  INACTIVE    @map("Inactive")
+  PENDING     @map("Pending")
+  TERMINATED  @map("Terminated")
+  ON_HOLD     @map("On Hold")
 
   @@map("partnership_status")
 }
 
 enum ProductStatus {
-  ACTIVE
-  INACTIVE
-  DISCONTINUED
-  COMING_SOON
-  UNDER_REVIEW
-  
+  ACTIVE        @map("Active")
+  INACTIVE      @map("Inactive")
+  DISCONTINUED  @map("Discontinued")
+  COMING_SOON   @map("Coming Soon")
+  UNDER_REVIEW  @map("Under Review")
+
   @@map("product_status")
 }
 
 enum ProductType {
-  SECURED_EDUCATION_LOAN
-  UNSECURED_EDUCATION_LOAN
-  GOVERNMENT_SCHEME
-  SCHOLAR_LOAN
-  EXPRESS_LOAN
-  PREMIUM_LOAN
-  SKILL_DEVELOPMENT_LOAN
-  
+  SECURED_EDUCATION_LOAN    @map("Secured Education Loan")
+  UNSECURED_EDUCATION_LOAN  @map("Unsecured Education Loan")
+  GOVERNMENT_SCHEME         @map("Government Scheme")
+  SCHOLAR_LOAN              @map("Scholar Loan")
+  EXPRESS_LOAN              @map("Express Loan")
+  PREMIUM_LOAN              @map("Premium Loan")
+  SKILL_DEVELOPMENT_LOAN    @map("Skill Development Loan")
+
   @@map("product_type")
 }
 
-enum LoanCategory {
+enum ProductCategory {
   DOMESTIC
   INTERNATIONAL
   BOTH
@@ -3578,21 +2627,12 @@ enum RepaymentFrequency {
 }
 
 enum MoratoriumType {
-  COMPLETE
-  INTEREST_ONLY
-  PARTIAL_EMI
-  NO_MORATORIUM
-  
-  @@map("moratorium_type")
-}
+  COMPLETE        @map("Complete")
+  INTEREST_ONLY   @map("Interest Only")
+  PARTIAL_EMI     @map("Partial EMI")
+  NO_MORATORIUM   @map("No Moratorium")
 
-enum APIAvailability {
-  YES
-  NO
-  UNDER_DEVELOPMENT
-  PLANNED
-  
-  @@map("api_availability")
+  @@map("moratorium_type")
 }
 
 enum IntegrationComplexity {
@@ -3733,13 +2773,13 @@ enum DocumentStatus {
 }
 
 enum VerificationStatus {
-  PENDING
-  IN_PROGRESS            @map("IN PROGRESS")
-  VERIFIED
-  REJECTED
-  EXPIRED
-  NOT_REQUIRED           @map("NOT REQUIRED")
-  ADDITIONAL_INFO_REQUIRED    @map("ADDITIONAL INFO REQUIRED")
+  PENDING                   @map("Pending")
+  IN_PROGRESS               @map("In Progress")
+  VERIFIED                  @map("Verified")
+  REJECTED                  @map("Rejected")
+  EXPIRED                   @map("Expired")
+  NOT_REQUIRED              @map("Not Required")
+  ADDITIONAL_INFO_REQUIRED  @map("Additional Info Required")
 
   @@map("verification_status")
 }
@@ -3793,28 +2833,28 @@ enum CommissionModel {
 }
 
 enum SettlementStatus {
-  PENDING_CALCULATION  @map("PENDING CALCULATION")
-  CALCULATED           @map("CALCULATED")
-  PENDING_APPROVAL     @map("PENDING APPROVAL")
-  APPROVED             @map("APPROVED")
-  PAYMENT_INITIATED    @map("PAYMENT INITIATED")
-  PAID                 @map("PAID")
-  ON_HOLD              @map("ON HOLD")
-  REJECTED             @map("REJECTED")
-  CANCELLED            @map("CANCELLED")
-  DISPUTED             @map("DISPUTED")
+  PENDING_CALCULATION  @map("Pending Calculation")
+  CALCULATED           @map("Calculated")
+  PENDING_APPROVAL     @map("Pending Approval")
+  APPROVED             @map("Approved")
+  PAYMENT_INITIATED    @map("Payment Initiated")
+  PAID                 @map("Paid")
+  ON_HOLD              @map("On Hold")
+  REJECTED             @map("Rejected")
+  CANCELLED            @map("Cancelled")
+  DISPUTED             @map("Disputed")
 
   @@map("settlement_status")
 }
 
 enum PaymentStatus {
-  PENDING     @map("PENDING")
-  INITIATED   @map("INITIATED")
-  IN_PROCESS  @map("IN PROCESS")
-  COMPLETED   @map("COMPLETED")
-  FAILED      @map("FAILED")
-  CANCELLED   @map("CANCELLED")
-  RETURNED    @map("RETURNED")
+  PENDING      @map("Pending")
+  INITIATED    @map("Initiated")
+  IN_PROCESS   @map("In Process")
+  COMPLETED    @map("Completed")
+  FAILED       @map("Failed")
+  CANCELLED    @map("Cancelled")
+  RETURNED     @map("Returned")
 
   @@map("payment_status")
 }
@@ -3934,20 +2974,20 @@ enum B2BIntegrationStatus {
 }
 
 enum PartnerRecordStatus {
-  ACTIVE        
-  INACTIVE      
-  SUSPENDED     
-  UNDER_REVIEW  @map("Under Review")
-  ARCHIVED
-  
+  ACTIVE       @map("Active")
+  INACTIVE     @map("Inactive")
+  SUSPENDED    @map("Suspended")
+  UNDER_REVIEW @map("Under Review")
+  ARCHIVED     @map("Archived")
+
   @@map("b2b_partner_record_status")
 }
 
 enum PortalAccessStatus {
-  YES
-  NO        
-  PENDING   
-  
+  YES     @map("Yes")
+  NO      @map("No")
+  PENDING @map("Pending")
+
   @@map("b2b_portal_access_status")
 }
 
@@ -3955,4 +2995,1079 @@ enum LoginStatus {
   success
   failed
   logout
+}
+
+enum LenderCoSignerRequirements {
+  ALWAYS_REQUIRED @map("Always Required")
+  SOMETIMES_REQUIRED @map("Sometimes Required")
+  NOT_REQUIRED @map("Not Required")
+}
+
+enum LenderCollateralType {
+  PROPERTY
+  FIXED_DEPOSITS  @map("Fixed Deposits")
+  LIC_POLICIES    @map("LIC Policies")
+  SECURITIES
+  GUARANTOR_ONLY  @map("Guarantor Only")
+  NO_COLLATERAL   @map("No Collateral")
+  NA_PLOT         @map("NA Plot")
+}
+
+enum SupportedCourseTypes {
+  UNDERGRADUATE @map("Undergraduate")
+  GRADUATE      @map("Graduate")
+  PHD           @map("PhD")
+  DIPLOMA       @map("Diploma")
+  CERTIFICATE   @map("Certificate")
+  PROFESSIONAL  @map("Professional")
+  TECHNICAL     @map("Technical")
+}
+
+enum SupportedDestinations {
+  US        @map("US")
+  UK        @map("UK")
+  CANADA    @map("Canada")
+  AUSTRALIA @map("Australia")
+  GERMANY   @map("Germany")
+  FRANCE    @map("France")
+  SINGAPORE @map("Singapore")
+  ITALY     @map("Italy")
+  UAE       @map("UAE")
+  OTHER     @map("Other")
+}
+
+enum HolidayProcessing {
+  YES     @map("Yes")
+  NO      @map("No")
+  LIMITED @map("Limited")
+}
+
+enum RepaymentOptions {
+  EMI             @map("EMI")
+  SIMPLE_INT      @map("Simple Int")
+  PARTIAL_INT     @map("Partial Int")
+  COMPLETE_MORAT  @map("Complete Morat")
+
+  @@map("repayment_options")
+}
+
+enum PayoutTerms {
+  NET_30  @map("Net 30")
+  NET_45  @map("Net 45")
+  NET_60  @map("Net 60")
+  CUSTOM  @map("Custom")
+
+  @@map("payout_terms")
+}
+
+enum PerformanceRating {
+  EXCELLENT @map("Excellent")
+  GOOD      @map("Good")
+  AVERAGE   @map("Average")
+  POOR      @map("Poor")
+
+  @@map("performance_rating")
+}
+
+enum LenderRecordStatus {
+  ACTIVE       @map("Active")
+  INACTIVE     @map("Inactive")
+  UNDER_REVIEW @map("Under Review")
+  SUSPENDED    @map("Suspended")
+
+  @@map("lender_record_status")
+}
+
+enum LenderDataSource {
+  MANUAL_ENTRY     @map("Manual Entry")
+  IMPORT           @map("Import")
+  API_INTEGRATION  @map("API Integration")
+
+  @@map("lender_data_source")
+}
+
+enum GurantorRequired {
+  ALWAYS           @map("Always")
+  ABOVE_THRESHOLD  @map("Above Threshold")
+  NOT_REQUIRED     @map("Not Required")
+  OPTIONAL         @map("Optional")
+
+  @@map("guarantor_required")
+}
+
+enum InsuranceRequired {
+  LIFE_INSURANCE      @map("Life Insurance")
+  PROPERTY_INSURANCE  @map("Property Insurance")
+  BOTH                @map("Both")
+  NOT_REQUIRED        @map("Not Required")
+
+  @@map("insurance_required")
+}
+
+enum ThirdPartyGuaranteeRequired {
+  YES            @map("Yes")
+  NO             @map("No")
+  CASE_BY_CASE   @map("Case by Case")
+
+  @@map("third_party_guarantee_required")
+}
+
+enum LoanProductMarketPositioning {
+  PREMIUM       @map("Premium")
+  MID_MARKET    @map("Mid-Market")
+  BUDGET        @map("Budget")
+  NICHE         @map("Niche")
+  MASS_MARKET   @map("Mass Market")
+
+  @@map("loan_product_market_segment")
+}
+
+enum PricingStrategy {
+  COMPETITIVE    @map("Competitive")
+  PREMIUM        @map("Premium")
+  PENETRATION    @map("Penetration")
+  VALUE_BASED    @map("Value Based")
+
+  @@map("pricing_strategy")
+}
+
+enum NationalityRestrictions {
+  INDIAN        @map("Indian")
+  OTHERS        @map("Others")
+
+  @@map("nationality_restrictions")
+}
+
+enum ResidencyRequirements {
+  RESIDENT       @map("Resident")
+  NON_RESIDENT   @map("Non-Resident")
+
+  @@map("residency_requirements")
+}
+
+enum TargetSegment {
+  UNDERGRADUATE   @map("Undergraduate")
+  GRADUATE        @map("Graduate")
+  PHD             @map("PhD")
+  DIPLOMA         @map("Diploma")
+  CERTIFICATE     @map("Certificate")
+  PROFESSIONAL    @map("Professional")
+  TECHNICAL       @map("Technical")
+  MEDICAL         @map("Medical")
+  MANAGEMENT      @map("Management")
+
+  @@map("target_segment")
+}
+
+enum LoanProductCourseTypes {
+  FULL_TIME          @map("Full Time")
+  PART_TIME          @map("Part Time")
+  DISTANCE_LEARNING  @map("Distance Learning")
+  ONLINE             @map("Online")
+  EXECUTIVE          @map("Executive")
+  REGULAR            @map("Regular")
+  ACCELERATED        @map("Accelerated")
+
+  @@map("loan_product_course_types")
+}
+
+enum PartPaymentAllowed {
+  YES             @map("Yes")
+  NO              @map("No")
+  MINIMUM_AMOUNT  @map("Minimum Amount")
+
+  @@map("part_payment_allowed")
+}
+
+enum CustomerSupportFeatures {
+  TWENTY_FOUR_SEVEN_SUPPORT  @map("24x7 Support")
+  DEDICATED_RM               @map("Dedicated RM")
+  ONLINE_CHAT                @map("Online Chat")
+  VIDEO_KYC                  @map("Video KYC")
+  DOOR_STEP_SERVICE          @map("Door Step Service")
+
+  @@map("customer_support_features")
+}
+
+enum DigitalFeatures {
+  ONLINE_APPLICATION     @map("Online Application")
+  DIGITAL_DOCUMENTATION  @map("Digital Documentation")
+  E_STATEMENTS           @map("E-Statements")
+  MOBILE_APP             @map("Mobile App")
+  SMS_ALERTS             @map("SMS Alerts")
+  EMAIL_NOTIFICATIONS    @map("Email Notifications")
+
+  @@map("digital_features")
+}
+
+enum FlexibleRepaymentOptions {
+  STEP_UP_EMI       @map("Step Up EMI")
+  STEP_DOWN_EMI     @map("Step Down EMI")
+  BULLET_PAYMENT    @map("Bullet Payment")
+  FLEXIBLE_EMI      @map("Flexible EMI")
+  HOLIDAY_OPTIONS   @map("Holiday Options")
+
+  @@map("flexible_repayment_options")
+}
+
+enum SandboxEnvironment {
+  AVAILABLE      @map("Available")
+  NOT_AVAILABLE  @map("Not Available")
+  ON_REQUEST     @map("On Request")
+
+  @@map("sandbox_environment")
+}
+
+enum DataFormat {
+  JSON    @map("JSON")
+  XML     @map("XML")
+  CSV     @map("CSV")
+  API     @map("API")
+  MANUAL  @map("Manual")
+
+  @@map("data_format")
+}
+
+enum ApiAvailability {
+  YES               @map("Yes")
+  NO                @map("No")
+  UNDER_DEVELOPMENT @map("Under Development")
+  PLANNED           @map("Planned")
+
+  @@map("api_availability")
+}
+
+enum WebHookSupport {
+  YES      @map("Yes")
+  NO       @map("No")
+  LIMITED  @map("Limited")
+
+  @@map("webhook_support")
+}
+
+enum ProductRecordStatus {
+  ACTIVE        @map("Active")
+  INACTIVE      @map("Inactive")
+  UNDER_REVIEW  @map("Under Review")
+  DISCONTINUED  @map("Discontinued")
+
+  @@map("product_record_status")
+}
+
+enum ReviewFrequency {
+  MONTHLY       @map("Monthly")
+  QUARTERLY     @map("Quarterly")
+  HALF_YEARLY   @map("Half-yearly")
+  YEARLY        @map("Yearly")
+
+  @@map("review_frequency")
+}
+
+enum SettlementMonth {
+  JANUARY     @map("January")
+  FEBRUARY    @map("February")
+  MARCH       @map("March")
+  APRIL       @map("April")
+  MAY         @map("May")
+  JUNE        @map("June")
+  JULY        @map("July")
+  AUGUST      @map("August")
+  SEPTEMBER   @map("September")
+  OCTOBER     @map("October")
+  NOVEMBER    @map("November")
+  DECEMBER    @map("December")
+
+  @@map("settlement_month")
+}
+
+enum TaxCertificateRequired {
+  YES             @map("Yes")
+  NO              @map("No")
+  AUTO_GENERATED  @map("Auto Generated")
+
+  @@map("tax_certificate_required")
+}
+
+enum CommissionDataSource {
+  MANUAL_ENTRY           @map("Manual Entry")
+  AUTOMATED_CALCULATION  @map("Automated Calculation")
+  IMPORT                 @map("Import")
+  API                    @map("API")
+  BULK_UPLOAD            @map("Bulk Upload")
+
+  @@map("commission_data_source")
+}
+
+enum CommissionIntegrationStatus {
+  SYNCED         @map("Synced")
+  PENDING_SYNC   @map("Pending Sync")
+  SYNC_FAILED    @map("Sync Failed")
+  NOT_REQUIRED   @map("Not Required")
+
+  @@map("integration_status")
+}
+
+enum SettlementRecordStatus {
+  ACTIVE              @map("Active")
+  COMPLETED           @map("Completed")
+  CANCELLED           @map("Cancelled")
+  ARCHIVED            @map("Archived")
+  UNDER_INVESTIGATION @map("Under Investigation")
+
+  @@map("settlement_record_status")
+}
+
+enum SystemGenerated {
+  YES        @map("Yes")
+  NO         @map("No")
+  PARTIALLY  @map("Partially")
+
+  @@map("system_generated")
+}
+
+enum CommissionDisbursementTrigger {
+  LOAN_DISBURSED        @map("Loan Disbursed")
+  APPLICATION_APPROVED  @map("Application Approved")
+  TARGET_ACHIEVED       @map("Target Achieved")
+  MANUAL_TRIGGER        @map("Manual Trigger")
+  SCHEDULED_PAYMENT     @map("Scheduled Payment")
+
+  @@map("commission_disbursement_trigger")
+}
+
+enum CommissionTransactionType {
+  COMMISSION_PAYMENT  @map("Commission Payment")
+  BONUS_PAYMENT       @map("Bonus Payment")
+  ADJUSTMENT          @map("Adjustment")
+  REVERSAL            @map("Reversal")
+  PENALTY_DEDUCTION   @map("Penalty Deduction")
+  ADVANCE_PAYMENT     @map("Advance Payment")
+  FINAL_SETTLEMENT    @map("Final Settlement")
+
+  @@map("commission_transaction_type")
+}
+
+enum AcknowledgmentReceived {
+  YES      @map("Yes")
+  NO       @map("No")
+  PENDING  @map("Pending")
+
+  @@map("acknowledgment_received")
+}
+
+enum CommissionNotificationMethod {
+  EMAIL               @map("Email")
+  SMS                 @map("SMS")
+  WHATSAPP            @map("WhatsApp")
+  PHONE_CALL          @map("Phone Call")
+  PORTAL_NOTIFICATION @map("Portal Notification")
+
+  @@map("commission_notification_method")
+}
+
+enum PartnerNotificationSent {
+  YES      @map("Yes")
+  NO       @map("No")
+  PENDING  @map("Pending")
+  FAILED   @map("Failed")
+
+  @@map("partner_notification_sent")
+}
+
+enum TransactionDisbursementTrigger {
+  LOAN_DISBURSED         @map("Loan Disbursed")
+  APPLICATION_APPROVED   @map("Application Approved")
+  TARGET_ACHIEVED        @map("Target Achieved")
+  MANUAL_TRIGGER         @map("Manual Trigger")
+  SCHEDULED_PAYMENT      @map("Scheduled Payment")
+
+  @@map("transaction_disbursement_trigger")
+}
+
+enum TransactionTypes {
+  COMMISSION_PAYMENT   @map("Commission Payment")
+  BONUS_PAYMENT        @map("Bonus Payment")
+  ADJUSTMENT           @map("Adjustment")
+  REVERSAL             @map("Reversal")
+  PENALTY_DEDUCTION    @map("Penalty Deduction")
+  ADVANCE_PAYMENT      @map("Advance Payment")
+  FINAL_SETTLEMENT     @map("Final Settlement")
+
+  @@map("transaction_types")
+}
+
+enum CollateralDependency {
+  YES             @map("Yes")
+  NO              @map("No")
+  NOT_APPLICABLE  @map("Not Applicable")
+
+  @@map("collateral_dependency")
+}
+
+enum RequiredForCountries {
+  US        @map("US")
+  UK        @map("UK")
+  CANADA    @map("Canada")
+  AUSTRALIA @map("Australia")
+  GERMANY   @map("Germany")
+  FRANCE    @map("France")
+  OTHER     @map("Other")
+
+  @@map("required_for_countries")
+}
+
+enum RequiredForCourses {
+  ENGINEERING  @map("Engineering")
+  MBA          @map("MBA")
+  MS           @map("MS")
+  MEDICINE     @map("Medicine")
+  LAW          @map("Law")
+  ARTS         @map("Arts")
+  SCIENCE      @map("Science")
+  OTHER        @map("Other")
+
+  @@map("required_for_courses")
+}
+
+enum GdprRelevance {
+  YES             @map("Yes")
+  NO              @map("No")
+  PARTIAL         @map("Partial")
+  NOT_APPLICABLE  @map("Not Applicable")
+
+  @@map("gdpr_relevance")
+}
+
+enum DocumentAvailability {
+  YES           @map("Yes")
+  NO            @map("No")
+  PLANNED       @map("Planned")
+  NOT_REQUIRED  @map("Not Required")
+
+  @@map("document_availability")
+}
+
+enum AutomatedProcessing {
+  FULL         @map("Full")
+  PARTIAL      @map("Partial")
+  MANUAL_ONLY  @map("Manual Only")
+  HYBRID       @map("Hybrid")
+
+  @@map("automated_processing")
+}
+
+enum BlockchainVerification {
+  YES             @map("Yes")
+  NO              @map("No")
+  NOT_APPLICABLE  @map("Not Applicable")
+  FUTURE          @map("Future")
+
+  @@map("blockchain_verification")
+}
+
+enum DigitalSignatureRequired {
+  YES        @map("Yes")
+  NO         @map("No")
+  OPTIONAL   @map("Optional")
+  PREFERRED  @map("Preferred")
+
+  @@map("digital_signature_required")
+}
+
+enum ESignatureAccepted {
+  YES          @map("Yes")
+  NO           @map("No")
+  CASE_BY_CASE @map("Case by Case")
+
+  @@map("e_signature_accepted")
+}
+
+enum RealTimeVerification {
+  YES             @map("Yes")
+  NO              @map("No")
+  PLANNED         @map("Planned")
+  NOT_APPLICABLE  @map("Not Applicable")
+
+  @@map("real_time_verification")
+}
+
+enum AcceptedFormats {
+  PDF                   @map("PDF")
+  JPG                   @map("JPG")
+  JPEG                  @map("JPEG")
+  PNG                   @map("PNG")
+  TIFF                  @map("TIFF")
+  DOC                   @map("DOC")
+  DOCX                  @map("DOCX")
+  ORIGINAL_HARD_COPY    @map("Original Hard Copy")
+  SCANNED_COPY          @map("Scanned Copy")
+  DIGITAL_COPY          @map("Digital Copy")
+  
+  @@map("accepted_formats")
+}
+
+enum ColorRequirements {
+  COLOR_ONLY            @map("Color Only")
+  BLACK_WHITE_ONLY      @map("Black White Only")
+  BOTH_ACCEPTABLE       @map("Both Acceptable")
+  COLOR_PREFERRED       @map("Color Preferred")
+  
+  @@map("color_requirements")
+}
+
+enum CombinedDocumentAllowed {
+  YES                   @map("Yes")
+  NO                    @map("No")
+  SINGLE_PAGE_ONLY      @map("Single Page Only")
+  
+  @@map("combined_document_allowed")
+}
+
+enum LanguageRequirements {
+  ENGLISH                           @map("English")
+  HINDI                             @map("Hindi")
+  REGIONAL_WITH_TRANSLATION         @map("Regional with Translation")
+  NOTARIZED_TRANSLATION_REQUIRED    @map("Notarized Translation Required")
+  
+  @@map("language_requirements")
+}
+
+enum MultiplePagesAllowed {
+  YES                   @map("Yes")
+  NO                    @map("No")
+  SINGLE_PAGE_ONLY      @map("Single Page Only")
+  
+  @@map("multiple_pages_allowed")
+}
+
+enum QualityStandards {
+  CLEAR_LEGIBLE         @map("Clear Legible")
+  ALL_CORNERS_VISIBLE   @map("All Corners Visible")
+  NO_SHADOWS            @map("No Shadows")
+  ORIGINAL_COLORS       @map("Original Colors")
+  STAMPED_SIGNED        @map("Stamped Signed")
+  NOTARIZED             @map("Notarized")
+  APOSTILLED            @map("Apostilled")
+  
+  @@map("quality_standards")
+}
+
+enum AutoExtractionPossible {
+  YES       @map("Yes")
+  NO        @map("No")
+  PARTIAL   @map("Partial")
+  
+  @@map("auto_extraction_possible")
+}
+
+enum OCRCompatibility {
+  HIGH            @map("High")
+  MEDIUM          @map("Medium")
+  LOW             @map("Low")
+  NOT_COMPATIBLE  @map("Not Compatible")
+  
+  @@map("ocr_compatibility")
+}
+
+enum ParallelProcessingAllowed {
+  YES       @map("Yes")
+  NO        @map("No")
+  PREFERRED @map("Preferred")
+  
+  @@map("parallel_processing_allowed")
+}
+
+enum ResubmissionAllowed {
+  YES               @map("Yes")
+  NO                @map("No")
+  LIMITED_ATTEMPTS  @map("Limited Attempts")
+  
+  @@map("resubmission_allowed")
+}
+
+enum DocumentRecordStatus {
+  ACTIVE        @map("Active")
+  INACTIVE      @map("Inactive")
+  UNDER_REVIEW  @map("Under Review")
+  DEPRECATED    @map("Deprecated")
+  
+  @@map("document_record_status")
+}
+
+enum DocumentReviewFrequency {
+  MONTHLY       @map("Monthly")
+  QUARTERLY     @map("Quarterly")
+  HALF_YEARLY   @map("Half-yearly")
+  YEARLY        @map("Yearly")
+  AS_NEEDED     @map("As Needed")
+  
+  @@map("document_review_frequency")
+}
+
+enum EdumateContactAdmissionStatus {
+  NOT_APPLIED           @map("Not Applied")
+  APPLIED               @map("Applied")
+  INTERVIEW_SCHEDULED   @map("Interview Scheduled")
+  WAITLISTED            @map("Waitlisted")
+  ADMITTED              @map("Admitted")
+  REJECTED              @map("Rejected")
+  
+  @@map("edumate_contact_admission_status")
+}
+
+enum CurrentEducationLevel {
+  HIGH_SCHOOL   @map("High School")
+  BACHELOR      @map("Bachelor")
+  MASTER        @map("Master")
+  PHD           @map("PhD")
+  DIPLOMA       @map("Diploma")
+  OTHER         @map("Other")
+  
+  @@map("current_education_level")
+}
+
+enum IntendedStartTerm {
+  FALL      @map("Fall")
+  SPRING    @map("Spring")
+  SUMMER    @map("Summer")
+  WINTER    @map("Winter")
+  
+  @@map("intended_start_term")
+}
+
+enum PreferredStudyDestination {
+  US            @map("US")
+  UK            @map("UK")
+  CANADA        @map("Canada")
+  AUSTRALIA     @map("Australia")
+  GERMANY       @map("Germany")
+  FRANCE        @map("France")
+  SINGAPORE     @map("Singapore")
+  ITALY         @map("Italy")
+  UAE           @map("UAE")
+  JAPAN         @map("Japan")
+  CHINA         @map("China")
+  INDIA         @map("India")
+  NEW_ZEALAND   @map("New Zealand")
+  OTHER         @map("Other")
+  
+  @@map("preferred_study_destination")
+}
+
+enum TargetDegreeLevel {
+  BACHELORS             @map("Bachelors")
+  MASTERS               @map("Masters")
+  PHD                   @map("PhD")
+  DIPLOMA               @map("Diploma")
+  CERTIFICATE           @map("Certificate")
+  PROFESSIONAL_COURSE   @map("Professional Course")
+  
+  @@map("target_degree_level")
+}
+
+enum CurrentStatusDisposition {
+  NOT_INTERESTED                @map("Not Interested")
+  WRONG_NUMBER                  @map("Wrong Number")
+  CALL_NOT_ANSWERED            @map("Call not Answered")
+  FOLLOW_UP                    @map("Follow Up")
+  INT_FOR_NEXT_YEAR           @map("Int for Next Year")
+  PARTIAL_DOCUMENTS_RECEIVED   @map("Partial Documents Received")
+  
+  @@map("current_status_disposition")
+}
+
+enum StatusDispositionReason {
+  ALREADY_APPLIED       @map("Already Applied")
+  NOT_LOOKING_AT_LOAN  @map("Not Looking at Loan")
+  SELF_FUNDING         @map("Self Funding")
+  OTHERS               @map("Others")
+  
+  @@map("status_disposition_reason")
+}
+
+enum EdumateContactCourseType {
+  STEM      @map("STEM")
+  BUSINESS  @map("Business")
+  OTHERS    @map("Others")
+  
+  @@map("edumate_contact_course_type")
+}
+
+enum CoApplicantOccupation {
+  SALARIED        @map("Salaried")
+  SELF_EMPLOYED   @map("Self Employed")
+  RETIRED         @map("Retired")
+  OTHERS          @map("Others")
+  
+  @@map("co_applicant_occupation")
+}
+
+enum CoApplicantRelationship {
+  FATHER          @map("Father")
+  MOTHER          @map("Mother")
+  SPOUSE          @map("Spouse")
+  SIBLING         @map("Sibling")
+  UNCLE           @map("Uncle")
+  AUNT            @map("Aunt")
+  GRAND_FATHER    @map("Grand Father")
+  GRAND_MOTHER    @map("Grand Mother")
+  OTHERS          @map("Others")
+  
+  @@map("co_applicant_relationship")
+}
+
+enum CollateralAvailable {
+  YES   @map("Yes")
+  NO    @map("No")
+  
+  @@map("collateral_available")
+}
+
+enum EdumateContactCollateralType {
+  PROPERTY    @map("Property")
+  FD          @map("FD")
+  NA_PLOT     @map("NA Plot")
+  OTHER       @map("Other")
+  
+  @@map("edumate_contact_collateral_type")
+}
+
+enum FinancialCurrency {
+  INR     @map("INR")
+  USD     @map("USD")
+  EUR     @map("EUR")
+  GBP     @map("GBP")
+  CAD     @map("CAD")
+  AUD     @map("AUD")
+  OTHER   @map("Other")
+  
+  @@map("financial_currency")
+}
+
+enum LeadSource {
+  ORGANIC_SEARCH    @map("Organic Search")
+  SOCIAL_MEDIA      @map("Social Media")
+  B2B_PARTNER       @map("B2B Partner")
+  REFERRAL          @map("Referral")
+  ADVERTISEMENT     @map("Advertisement")
+  WEBSITE           @map("Website")
+  WALK_IN           @map("Walk-in")
+  OTHER             @map("Other")
+  
+  @@map("lead_source")
+}
+
+enum PartnerCommissionApplicable {
+  YES   @map("Yes")
+  NO    @map("No")
+  
+  @@map("partner_commission_applicable")
+}
+
+enum LoanTypePreference {
+  SECURED             @map("Secured")
+  UNSECURED           @map("Unsecured")
+  GOVERNMENT_SCHEME   @map("Government Scheme")
+  NO_PREFERENCE       @map("No Preference")
+  
+  @@map("loan_type_preference")
+}
+
+enum PreferredLenders {
+  AXIS    @map("Axis")
+  // Add more lenders as needed
+  
+  @@map("preferred_lenders")
+}
+
+enum RepaymentTypePreference {
+  EMI              @map("EMI")
+  SIMPLE_INT       @map("Simple Int")
+  PARTIAL_INT      @map("Partial Int")
+  COMPLETE_MORAT   @map("Complete Morat")
+  
+  @@map("repayment_type_preference")
+}
+
+enum Nationality {
+  AFGHANISTAN           @map("Afghanistan")
+  ALBANIA              @map("Albania")
+  ANTARCTICA           @map("Antarctica")
+  ALAND_ISLANDS        @map("Åland Islands")
+  ALGERIA              @map("Algeria")
+  AMERICAN_SAMOA       @map("American Samoa")
+  ANDORRA              @map("Andorra")
+  ANGOLA               @map("Angola")
+  ANGUILLA             @map("Anguilla")
+  ANTIGUA_AND_BARBUDA  @map("Antigua and Barbuda")
+  ARUBA                @map("Aruba")
+  ASIA_PACIFIC_REGION  @map("Asia/Pacific Region")
+  AZERBAIJAN           @map("Azerbaijan")
+  ARGENTINA            @map("Argentina")
+  ARMENIA              @map("Armenia")
+  AUSTRALIA            @map("Australia")
+  AUSTRIA              @map("Austria")
+  BAHAMAS              @map("Bahamas")
+  BAHRAIN              @map("Bahrain")
+  BANGLADESH           @map("Bangladesh")
+  BARBADOS             @map("Barbados")
+  BELGIUM              @map("Belgium")
+  BHUTAN               @map("Bhutan")
+  BOLIVIA              @map("Bolivia")
+  BOSNIA_AND_HERZEGOVINA @map("Bosnia and Herzegovina")
+  BOTSWANA             @map("Botswana")
+  BOUVET_ISLAND        @map("Bouvet Island")
+  BRAZIL               @map("Brazil")
+  CARIBBEAN_NETHERLANDS @map("Caribbean Netherlands")
+  BELIZE               @map("Belize")
+  SOLOMON_ISLANDS      @map("Solomon Islands")
+  BRUNEI               @map("Brunei")
+  BULGARIA             @map("Bulgaria")
+  BURUNDI              @map("Burundi")
+  BELARUS              @map("Belarus")
+  BERMUDA              @map("Bermuda")
+  CAMBODIA             @map("Cambodia")
+  CAYMAN_ISLANDS       @map("Cayman Islands")
+  CAMEROON             @map("Cameroon")
+  CANADA               @map("Canada")
+  CAPE_VERDE           @map("Cape Verde")
+  CENTRAL_AFRICAN_REPUBLIC @map("Central African Republic")
+  CUBA                 @map("Cuba")
+  CURACAO              @map("Curaçao")
+  SRI_LANKA            @map("Sri Lanka")
+  CHAD                 @map("Chad")
+  CHILE                @map("Chile")
+  CHINA                @map("China")
+  CHRISTMAS_ISLAND     @map("Christmas Island")
+  COCOS_KEELING_ISLANDS @map("Cocos (Keeling) Islands")
+  COLOMBIA             @map("Colombia")
+  COMOROS              @map("Comoros")
+  CONGO                @map("Congo")
+  DEMOCRATIC_REPUBLIC_OF_THE_CONGO @map("Democratic Republic of the Congo")
+  COOK_ISLANDS         @map("Cook Islands")
+  COSTA_RICA           @map("Costa Rica")
+  CROATIA              @map("Croatia")
+  CYPRUS               @map("Cyprus")
+  CZECH_REPUBLIC       @map("Czech Republic")
+  BENIN                @map("Benin")
+  DENMARK              @map("Denmark")
+  DOMINICA             @map("Dominica")
+  DOMINICAN_REPUBLIC   @map("Dominican Republic")
+  ECUADOR              @map("Ecuador")
+  EL_SALVADOR          @map("El Salvador")
+  EQUATORIAL_GUINEA    @map("Equatorial Guinea")
+  ETHIOPIA             @map("Ethiopia")
+  ERITREA              @map("Eritrea")
+  ESTONIA              @map("Estonia")
+  EUROPE               @map("Europe")
+  SOUTH_GEORGIA_AND_SOUTH_SANDWICH_ISLANDS @map("South Georgia and the South Sandwich Islands")
+  FIJI                 @map("Fiji")
+  FINLAND              @map("Finland")
+  FRANCE               @map("France")
+  FALKLAND_ISLANDS     @map("Falkland Islands")
+  FAROE_ISLANDS        @map("Faroe Islands")
+  FRENCH_POLYNESIA     @map("French Polynesia")
+  FRENCH_SOUTHERN_AND_ANTARCTIC_LANDS @map("French Southern and Antarctic Lands")
+  DJIBOUTI             @map("Djibouti")
+  GABON                @map("Gabon")
+  GEORGIA              @map("Georgia")
+  GAMBIA               @map("Gambia")
+  GERMANY              @map("Germany")
+  GHANA                @map("Ghana")
+  GREENLAND            @map("Greenland")
+  GUADELOUPE           @map("Guadeloupe")
+  GUERNSEY             @map("Guernsey")
+  KIRIBATI             @map("Kiribati")
+  GREECE               @map("Greece")
+  GRENADA              @map("Grenada")
+  GUAM                 @map("Guam")
+  GUATEMALA            @map("Guatemala")
+  GUINEA               @map("Guinea")
+  GUYANA               @map("Guyana")
+  FRENCH_GUIANA        @map("French Guiana")
+  GIBRALTAR            @map("Gibraltar")
+  HAITI                @map("Haiti")
+  HEARD_ISLAND_AND_MCDONALD_ISLANDS @map("Heard Island and McDonald Islands")
+  VATICAN_CITY         @map("Vatican City")
+  HONDURAS             @map("Honduras")
+  HUNGARY              @map("Hungary")
+  HONG_KONG            @map("Hong Kong")
+  ISLE_OF_MAN          @map("Isle of Man")
+  IRAN                 @map("Iran")
+  JERSEY               @map("Jersey")
+  MACAU                @map("Macau")
+  MARTINIQUE           @map("Martinique")
+  MONTSERRAT           @map("Montserrat")
+  MYANMAR_BURMA        @map("Myanmar (Burma)")
+  NORTH_KOREA          @map("North Korea")
+  PALESTINE            @map("Palestine")
+  PUERTO_RICO          @map("Puerto Rico")
+  REUNION              @map("Réunion")
+  SAINT_BARTHELEMY     @map("Saint Barthélemy")
+  SAINT_MARTIN         @map("Saint Martin")
+  SINT_MAARTEN         @map("Sint Maarten")
+  SOUTH_SUDAN          @map("South Sudan")
+  SUDAN                @map("Sudan")
+  SYRIA                @map("Syria")
+  TAIWAN               @map("Taiwan")
+  TURKS_AND_CAICOS_ISLANDS @map("Turks and Caicos Islands")
+  US_VIRGIN_ISLANDS    @map("U.S. Virgin Islands")
+  ICELAND              @map("Iceland")
+  INDIA                @map("India")
+  INDONESIA            @map("Indonesia")
+  IRAQ                 @map("Iraq")
+  IRELAND              @map("Ireland")
+  ISRAEL               @map("Israel")
+  ITALY                @map("Italy")
+  BRITISH_INDIAN_OCEAN_TERRITORY @map("British Indian Ocean Territory")
+  COTE_DIVOIRE         @map("Cote dIvoire")
+  JAMAICA              @map("Jamaica")
+  JAPAN                @map("Japan")
+  KAZAKHSTAN           @map("Kazakhstan")
+  JORDAN               @map("Jordan")
+  KENYA                @map("Kenya")
+  SOUTH_KOREA          @map("South Korea")
+  KOSOVO               @map("Kosovo")
+  KUWAIT               @map("Kuwait")
+  KYRGYZSTAN           @map("Kyrgyzstan")
+  LAOS                 @map("Laos")
+  LEBANON              @map("Lebanon")
+  LESOTHO              @map("Lesotho")
+  LATVIA               @map("Latvia")
+  LIBERIA              @map("Liberia")
+  LIBYA                @map("Libya")
+  LIECHTENSTEIN        @map("Liechtenstein")
+  LITHUANIA            @map("Lithuania")
+  LUXEMBOURG           @map("Luxembourg")
+  MADAGASCAR           @map("Madagascar")
+  MALAWI               @map("Malawi")
+  MALAYSIA             @map("Malaysia")
+  MALDIVES             @map("Maldives")
+  MALI                 @map("Mali")
+  MALTA                @map("Malta")
+  MAURITANIA           @map("Mauritania")
+  MAURITIUS            @map("Mauritius")
+  MAYOTTE              @map("Mayotte")
+  MEXICO               @map("Mexico")
+  MONACO               @map("Monaco")
+  MONGOLIA             @map("Mongolia")
+  MOLDOVA              @map("Moldova")
+  MONTENEGRO           @map("Montenegro")
+  MOROCCO              @map("Morocco")
+  MOZAMBIQUE           @map("Mozambique")
+  OMAN                 @map("Oman")
+  NAMIBIA              @map("Namibia")
+  NAURU                @map("Nauru")
+  NEPAL                @map("Nepal")
+  NETHERLANDS          @map("Netherlands")
+  NEW_CALEDONIA        @map("New Caledonia")
+  VANUATU              @map("Vanuatu")
+  NETHERLANDS_ANTILLES @map("Netherlands Antilles")
+  NEW_ZEALAND          @map("New Zealand")
+  NICARAGUA            @map("Nicaragua")
+  NIGER                @map("Niger")
+  NIGERIA              @map("Nigeria")
+  NIUE                 @map("Niue")
+  NORFOLK_ISLAND       @map("Norfolk Island")
+  NORWAY               @map("Norway")
+  NORTHERN_MARIANA_ISLANDS @map("Northern Mariana Islands")
+  UNITED_STATES_MINOR_OUTLYING_ISLANDS @map("United States Minor Outlying Islands")
+  MICRONESIA           @map("Micronesia")
+  MARSHALL_ISLANDS     @map("Marshall Islands")
+  PALAU                @map("Palau")
+  PAKISTAN             @map("Pakistan")
+  PANAMA               @map("Panama")
+  PAPUA_NEW_GUINEA     @map("Papua New Guinea")
+  PARAGUAY             @map("Paraguay")
+  PERU                 @map("Peru")
+  PHILIPPINES          @map("Philippines")
+  PITCAIRN_ISLANDS     @map("Pitcairn Islands")
+  POLAND               @map("Poland")
+  PORTUGAL             @map("Portugal")
+  GUINEA_BISSAU        @map("Guinea-Bissau")
+  EAST_TIMOR           @map("East Timor")
+  QATAR                @map("Qatar")
+  ROMANIA              @map("Romania")
+  RUSSIA               @map("Russia")
+  RWANDA               @map("Rwanda")
+  SAINT_HELENA         @map("Saint Helena")
+  SAINT_KITTS_AND_NEVIS @map("Saint Kitts and Nevis")
+  SAINT_LUCIA          @map("Saint Lucia")
+  SAINT_PIERRE_AND_MIQUELON @map("Saint Pierre and Miquelon")
+  SAINT_VINCENT_AND_THE_GRENADINES @map("Saint Vincent and the Grenadines")
+  SAN_MARINO           @map("San Marino")
+  SAO_TOME_AND_PRINCIPE @map("Sao Tome and Principe")
+  SAUDI_ARABIA         @map("Saudi Arabia")
+  SENEGAL              @map("Senegal")
+  SVALBARD_AND_JAN_MAYEN @map("Svalbard and Jan Mayen")
+  SERBIA               @map("Serbia")
+  SEYCHELLES           @map("Seychelles")
+  SIERRA_LEONE         @map("Sierra Leone")
+  SINGAPORE            @map("Singapore")
+  SLOVAKIA             @map("Slovakia")
+  VIETNAM              @map("Vietnam")
+  WESTERN_SAHARA       @map("Western Sahara")
+  SLOVENIA             @map("Slovenia")
+  SOMALIA              @map("Somalia")
+  SOUTH_AFRICA         @map("South Africa")
+  ZIMBABWE             @map("Zimbabwe")
+  SPAIN                @map("Spain")
+  SURINAME             @map("Suriname")
+  SWAZILAND            @map("Swaziland")
+  SWEDEN               @map("Sweden")
+  SWITZERLAND          @map("Switzerland")
+  TAJIKISTAN           @map("Tajikistan")
+  THAILAND             @map("Thailand")
+  TOGO                 @map("Togo")
+  TOKELAU              @map("Tokelau")
+  TONGA                @map("Tonga")
+  TRINIDAD_AND_TOBAGO  @map("Trinidad and Tobago")
+  UNITED_ARAB_EMIRATES @map("United Arab Emirates")
+  TUNISIA              @map("Tunisia")
+  TURKIYE              @map("Türkiye")
+  TURKMENISTAN         @map("Turkmenistan")
+  TUVALU               @map("Tuvalu")
+  UGANDA               @map("Uganda")
+  UKRAINE              @map("Ukraine")
+  MACEDONIA_FYROM      @map("Macedonia (FYROM)")
+  EGYPT                @map("Egypt")
+  UNITED_KINGDOM       @map("United Kingdom")
+  TANZANIA             @map("Tanzania")
+  UNITED_STATES        @map("United States")
+  BURKINA_FASO         @map("Burkina Faso")
+  URUGUAY              @map("Uruguay")
+  UZBEKISTAN           @map("Uzbekistan")
+  VENEZUELA            @map("Venezuela")
+  BRITISH_VIRGIN_ISLANDS @map("British Virgin Islands")
+  WALLIS_AND_FUTUNA    @map("Wallis and Futuna")
+  SAMOA                @map("Samoa")
+  YEMEN                @map("Yemen")
+  ZAMBIA               @map("Zambia")
+  CANARY_ISLANDS       @map("Canary Islands")
+  
+  @@map("nationality")
+}
+
+enum GDPRConsent {
+  YES       @map("Yes")
+  NO        @map("No")
+  PENDING   @map("Pending")
+  
+  @@map("gdpr_consent")
+}
+
+enum MarketingConsent {
+  YES   @map("Yes")
+  NO    @map("No")
+  
+  @@map("marketing_consent")
+}
+
+enum StudentRecordStatus {
+  ACTIVE      @map("Active")
+  INACTIVE    @map("Inactive")
+  DUPLICATE   @map("Duplicate")
+  MERGED      @map("Merged")
+  
+  @@map("student_record_status")
 }
