@@ -411,6 +411,10 @@ export interface MappedEdumateContactEduToFrontend {
   marketingConsent?: string;
   studentRecordStatus?: string;
   tags?: string;
+
+  targetDegreeLevel:string;
+  educationLevel:string;
+  partnerName:string;
   
   // Custom properties that don't fit into structured categories
   customProperties?: Record<string, any>;
@@ -453,6 +457,12 @@ export interface MappedEdumateContact {
   utm_source?: string;
   utm_medium?: string;
   utm_campaign?: string;
+
+  targetDegreeLevel:string;
+  admissionStatus?:string;
+  educationLevel:string;
+  partnerName:string;
+
 }
 
 // src/types/common.types.ts

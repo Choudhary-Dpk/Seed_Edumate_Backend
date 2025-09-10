@@ -275,6 +275,11 @@ export class HubSpotMapper {
       marketingConsent: props.marketing_consent,
       studentRecordStatus: props.student_record_status,
       tags: props.tags,
+
+      partnerName:props.b2b_partner_name ?? "",
+      targetDegreeLevel: props.target_degree_level ?? "",
+      educationLevel: props.current_education_level ?? "",
+
       
       // Extract any remaining custom properties
       customProperties: this.extractCustomProperties(props, this.getStandardEdumateProperties())

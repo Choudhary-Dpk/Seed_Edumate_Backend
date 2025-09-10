@@ -383,7 +383,11 @@ const mapToHubSpotProperties = async (contactData: Partial<MappedEdumateContact>
   if (contactData.utm_medium) properties.loan_amount_required = contactData.utm_medium;
   if (contactData.utm_source) properties.loan_amount_required = contactData.utm_source;
 
-
+  if(contactData.targetDegreeLevel) properties.target_degree_level = contactData.targetDegreeLevel;
+  if(contactData.admissionStatus) properties.admission_status = contactData.admissionStatus;
+  if(contactData.educationLevel) properties.current_education_level = contactData.educationLevel;
+  if(contactData.studyDestination) properties.preferred_study_destination = contactData.studyDestination;
+  if(contactData.partnerName) properties.b2b_partner_name = contactData.partnerName;
 
   return properties;
 };
@@ -578,6 +582,70 @@ export const createEdumateContactsLeads = async (
       error instanceof Error ? error.message : "Unknown error",
       error,
       "createLoanLeads"
+    );
+  }
+};
+
+export const deleteHubspotByContactsLeadId = async (hubspotId: string) => {
+  try {
+    await hubspotClient.deleteContactsLead(hubspotId);
+
+    logger.info("Deleted contact lead application", { hubspotId });
+  } catch (error) {
+    logger.error("Error in deleteHubspotByContactsLeadId service", {
+      hubspotId,
+      error,
+    });
+
+    if (error instanceof Error && error.message.includes("not found")) {
+      throw createNotFoundError("Loan application", hubspotId);
+    }
+
+    throw createHubSpotError(
+      error instanceof Error ? error.message : "Unknown error",
+      error,
+      "deleteHubspotByContactsLeadId"
+    );
+  }
+};
+
+export const mapLeadToHubSpotProperties = (lead: ContactsLead): Record<string, any> => {
+  const properties: Record<string, any> = {};
+
+  if (lead.firstName) properties.first_name = lead.firstName;
+  if (lead.lastName) properties.last_name = lead.lastName;
+  if (lead.email) properties.email = lead.email;
+  if (lead.phone) properties.phone_number = lead.phone;
+  if (lead.partnerName) properties.b2b_partner_name = lead.partnerName;
+  if (lead.educationLevel) properties.current_education_level = lead.educationLevel;
+  if (lead.admissionStatus) properties.admission_status = lead.admissionStatus;
+  if (lead.targetDegreeLevel) properties.target_degree_level = lead.targetDegreeLevel;
+  if (lead.courseType) properties.course_type = lead.courseType;
+  if (lead.studyDestination) properties.preferred_study_destination = lead.studyDestination;
+  if (lead.dateOfBirth) properties.date_of_birth = lead.dateOfBirth.toISOString().split("T")[0];
+  if (lead.gender) properties.gender = lead.gender;
+  if (lead.intakeYear) properties.intake_year = lead.intakeYear;
+  if (lead.intakeMonth) properties.intake_month = lead.intakeMonth;
+
+  return properties;
+};
+
+
+export const updateContactsLoanLead = async (
+  leadId: string,
+  leads: ContactsLead
+) => {
+  try {
+    const hubspotMappedData = await mapToHubSpotProperties(leads);
+    console.log("hubspotMappedData",hubspotMappedData)
+    const response = await hubspotClient.updateContactsLoanLeadInHubspot(leadId,hubspotMappedData);
+    return response;
+  } catch (error) {
+    logger.error("Error in upateContactsLoanLead service", { error });
+    throw createHubSpotError(
+      error instanceof Error ? error.message : "Unknown error",
+      error,
+      "upateContactsLoanLead"
     );
   }
 };

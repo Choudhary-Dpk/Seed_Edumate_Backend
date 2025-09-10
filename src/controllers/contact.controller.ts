@@ -3,9 +3,12 @@ import { RequestWithPayload } from "../types/api.types";
 import { LoginPayload } from "../types/auth";
 import logger from "../utils/logger";
 import { sendResponse } from "../utils/api";
-import { createEdumateContactsLeads } from "../services/hubspot.service";
+import { createEdumateContactsLeads, deleteHubspotByContactsLeadId, updateContactsLoanLead } from "../services/hubspot.service";
 import prisma from "../config/prisma";
-import { createEdumateAcademicProfile, createEdumateContact, createEdumateLeadAttribution,createEdumatePersonalInformation, createEdumateSystemTracking } from "../models/helpers/contacts";
+import { deleteContactsLoan, getContactsLead, getHubspotByContactLeadId, createEdumateContact, createEdumateAcademicProfile, createEdumateLeadAttribution, createEdumatePersonalInformation, createEdumateSystemTracking, updateEdumateContact, updateEdumatePersonalInformation, updateEdumateAcademicProfile, updateEdumateLeadAttribution, fetchContactsLeadList } from "../models/helpers/contact.helper";
+// import { FileData } from "../types/leads.types";
+// import { addFileRecord, addFileType } from "../models/helpers/leads.helper";
+// import { validateRows } from "../utils/helper";
 
 export const createContactsLead = async (
   req: RequestWithPayload<LoginPayload>,
@@ -99,3 +102,272 @@ export const createContactsLead = async (
     next(error);
   }
 };
+
+export const deleteContactLead = async (
+  req: RequestWithPayload<LoginPayload>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req.payload!;
+    const leadId = req.params.id;
+   
+    logger.debug(`Fethcing hubspot details by leadId: ${leadId}`);
+    const lead = await getHubspotByContactLeadId(+leadId);
+    console.log("lead",lead)
+    logger.debug(`Hubspot details fetched successfully`);
+
+    logger.debug(`Deleting hubspot lead details for id: ${lead?.hs_object_id}`);
+    await deleteHubspotByContactsLeadId(lead?.hs_object_id!);
+    logger.debug(`Hubspot contact leads deleted successfully`);
+
+    logger.debug(`Deleting contact leads for userId: ${id}`);
+    await deleteContactsLoan(+leadId, id);
+    logger.debug(`Contact leads deleted successfully`);
+
+    sendResponse(res, 200, "Lead deleted successfully");
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getContactsLeadDetails = async (
+  req: RequestWithPayload<LoginPayload>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const leadId = req.params.id;
+
+    logger.debug(`Fetching contacts lead details for id: ${leadId}`);
+    const leadDetails = await getContactsLead(+leadId);
+    logger.debug(`Lead details fetched successfully`);
+
+    sendResponse(res, 200, "Lead details fetched successfully", leadDetails);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const editContactsLead = async (
+  req: RequestWithPayload<LoginPayload>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req.payload!;
+    const leadId = req.params.id;
+     const {
+      intake_year, 
+      intake_month, 
+      preferred_study_destination, 
+      date_of_birth,
+      gender, 
+      course_type, 
+      target_degree_level, 
+      admission_status, 
+      current_education_level,
+      b2b_partner_name, 
+      last_name, 
+      first_name, 
+      phone_number, 
+      email,
+    } = req.body;
+
+    logger.debug(`Fethcing hubspot details by leadId: ${leadId}`);
+    const lead = await getHubspotByContactLeadId(+leadId);
+    console.log("lead", lead)
+    logger.debug(`Hubspot details fetched successfully`);
+
+    logger.debug(`Updating hubspot loan application`);
+    await updateContactsLoanLead(lead?.hs_object_id!, {
+  email,
+  phone: phone_number,
+  firstName: first_name,
+  lastName: last_name,
+  partnerName: b2b_partner_name,
+  educationLevel: current_education_level,
+  admissionStatus: admission_status,
+  targetDegreeLevel: target_degree_level,
+  courseType: course_type,
+  studyDestination: preferred_study_destination,
+  dateOfBirth: date_of_birth ? new Date(date_of_birth) : undefined,
+  gender,
+  intakeYear: intake_year,
+  intakeMonth: intake_month,
+});
+    logger.debug(`Hubspot loan application updated successfully`);
+
+ await prisma.$transaction(async (tx) => {
+  logger.debug(`Updating edumate contact for userId: ${id}`);
+  const contact = await updateEdumateContact(tx,+leadId, course_type);
+  logger.debug(`Contact udpated successfully with id: ${contact.id}`);
+
+  logger.debug(`Updating personal information for contact: ${contact.id}`);
+  await updateEdumatePersonalInformation(tx, contact.id, {
+    first_name,
+    last_name,
+    email,
+    phone_number,
+    date_of_birth,
+    gender,
+  });
+  logger.debug(`Personal information updated successfully for contact: ${contact.id}`);
+
+  logger.debug(`Updating academic profile for contact: ${contact.id}`);
+  await updateEdumateAcademicProfile(tx, contact.id, {
+    admission_status,
+    current_education_level,
+    target_degree_level,
+    preferred_study_destination,
+    intake_year,
+    intake_month,
+  });
+  logger.debug(`Academic profile updated successfully for contact: ${contact.id}`);
+
+  if (b2b_partner_name) {
+    logger.debug(`Updating lead attribution for contact: ${contact.id}`);
+    await updateEdumateLeadAttribution(tx, contact.id, b2b_partner_name);
+    logger.debug(`Lead attribution updated successfully for contact: ${contact.id}`);
+  }
+
+  return contact;
+});
+
+    sendResponse(res, 200, "Lead updated successfully");
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getContactsLeadsList = async (
+  req: RequestWithPayload<LoginPayload>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const size = Number(req.query.size) || 10;
+    const page = Number(req.query.page) || 1;
+    const search = (req.query.search as string) || null;
+    const sortKey = (req.query.sortKey as string) || null;
+    const sortDir = (req.query.sortDir as "asc" | "desc") || null;
+
+    const offset = size * (page - 1);
+
+    logger.debug(`Fetching leads list with pagination and filters`);
+    const list = await fetchContactsLeadList(size, offset, sortKey, sortDir, search);
+    logger.debug(`Leads list fetched successfully`);
+
+    sendResponse(res, 200, "Leads list fetched successfully", {
+      total: list.count,
+      page,
+      size,
+      data: list.rows,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// export const uploadContactsCSV = async (
+//   req: RequestWithPayload<LoginPayload, FileData>,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   try {
+//     const { id } = req.payload!;
+//     const fileData = req.fileData;
+
+//     if (!fileData) {
+//       return sendResponse(res, 400, "Invalid or missing file data");
+//     }
+
+//     const {
+//       file_data: rows,
+//       total_records,
+//       filename,
+//       mime_type,
+//       entity_type,
+//     } = fileData;
+
+//     // 1. Store metadata into FileUpload table
+//     logger.debug(`Entering File type in database`);
+//     const fileEntity = await addFileType(entity_type);
+//     logger.debug(`File type added successfully`);
+
+//     // Now create file upload
+//     logger.debug(`Entering file records history`);
+//     const fileUpload = await addFileRecord(
+//       filename,
+//       mime_type,
+//       rows,
+//       total_records,
+//       id,
+//       fileEntity.id!
+//     );
+//     logger.debug(`File records history added successfully`);
+
+//     // 2. Validate + Normalize rows
+//     const { validRows, errors } = validateRows(rows, id);
+//     if (validRows.length === 0) {
+//       return sendResponse(res, 400, "No valid rows found in CSV", { errors });
+//     }
+
+//     // 3. Deduplicate inside file
+//     const { unique: uniqueInFile, duplicates: duplicatesInFile } =
+//       deduplicateInFile(validRows);
+
+//     // 4. Deduplicate against DB
+//     const { unique: toInsert, duplicates: duplicatesInDb } =
+//       await deduplicateInDb(uniqueInFile);
+//     console.log("toInsert", toInsert)
+
+//     // 5. Handle no new records
+//     if (toInsert.length === 0) {
+//       logger.debug(`Updating fileUpload records`);
+//       await updateFileRecord(fileUpload.id, 0, validRows.length);
+//       logger.debug(`File upload records updated successfully`);
+
+//       return sendResponse(res, 200, "No new records to insert", {
+//         totalRows: rows.length,
+//         validRows: validRows.length,
+//         inserted: 0,
+//         skippedInvalid: errors.length,
+//         skippedDuplicatesInFile: duplicatesInFile,
+//         skippedDuplicatesInDb: duplicatesInDb,
+//         errors,
+//       });
+//     }
+
+//     // 6. Insert into DB (safely with skipDuplicates)
+//     logger.debug(`Creating csv leads in database`);
+//     const result = await createCSVLeads(toInsert);
+//     logger.debug(`Leads created successfully in database`);
+
+//     // 7. Insert into HubSpot (batch)
+//     logger.debug(`Creating ${toInsert.length} HubSpot loan applications`);
+//     const hubspotResults = await createLoanLeads(toInsert);
+//     console.log("hubspot", hubspotResults);
+//     logger.debug(`HubSpot loan applications created`);
+
+//     // 8. Inserting hubsport Id
+//     await updateSystemTracking(hubspotResults);
+
+//     // 8. Update FileUpload stats
+//     logger.debug(`Updating fileUpload records`);
+//     await updateFileRecord(fileUpload.id, result.count, errors.length);
+//     logger.debug(`File upload records updated successfully`);
+
+//     return sendResponse(res, 201, "CSV processed successfully", {
+//       totalRows: rows.length,
+//       validRows: validRows.length,
+//       inserted: result.count,
+//       skippedInvalid: errors.length,
+//       skippedDuplicatesInFile: duplicatesInFile,
+//       skippedDuplicatesInDb: duplicatesInDb,
+//       errors,
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
