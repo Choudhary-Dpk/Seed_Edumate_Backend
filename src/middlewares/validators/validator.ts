@@ -424,3 +424,103 @@ export const leadPaginationValidationRules = () => [
     .withMessage("SortDir should be one of asc, desc")
     .trim(),
 ];
+
+export const createContactsLeadValidationRules = () => [
+  body("email")
+    .isEmail()
+    .withMessage("Valid email is required"),
+
+  body("phone_number")
+    .isMobilePhone("any", { strictMode: false }) // allow numbers with country codes
+    .withMessage("Valid phone number is required"),
+
+  body("first_name")
+    .trim()
+    .notEmpty()
+    .withMessage("First name is required")
+    .isLength({ max: 50 })
+    .withMessage("First name must not exceed 50 characters"),
+
+  body("last_name")
+    .trim()
+    .notEmpty()
+    .withMessage("Last name is required")
+    .isLength({ max: 50 })
+    .withMessage("Last name must not exceed 50 characters"),
+
+  body("b2b_partner_name")
+    .optional()
+    .isLength({ max: 100 })
+    .withMessage("B2B partner name must not exceed 100 characters"),
+
+  body("current_education_level")
+    .optional()
+    .isIn(["High School", "Bachelor", "Master", "PhD", "Diploma", "Other"])
+    .withMessage("Invalid current education level"),
+
+  body("admission_status")
+    .optional()
+    .isIn([
+      "Not Applied",
+      "Applied",
+      "Interview Scheduled",
+      "Waitlisted",
+      "Admitted",
+      "Rejected",
+    ])
+    .withMessage("Invalid admission status"),
+
+  body("target_degree_level")
+    .optional()
+    .isIn([
+      "Bachelor's",
+      "Master's",
+      "PhD",
+      "Diploma",
+      "Certificate",
+      "Professional Course",
+    ])
+    .withMessage("Invalid target degree level"),
+
+  body("course_type")
+    .optional()
+    .isIn(["STEM", "Business", "Others"])
+    .withMessage("Invalid course type"),
+
+  body("intake_year")
+    .optional()
+    .isInt({ min: new Date().getFullYear(), max: new Date().getFullYear() + 10 })
+    .withMessage("Intake year must be valid and within next 10 years"),
+
+  body("intake_month")
+    .optional()
+    .isInt({ min: 1, max: 12 })
+    .withMessage("Intake month must be between 1 and 12"),
+
+  body("preferred_study_destination")
+    .optional()
+    .isIn([
+      "US",
+      "UK",
+      "UAE",
+      "Canada",
+      "Australia",
+      "Germany",
+      "France",
+      "Singapore",
+      "Italy",
+      "Japan",
+    ])
+    .withMessage("Invalid preferred study destination"),
+
+  body("date_of_birth")
+    .optional()
+    .isISO8601()
+    .toDate()
+    .withMessage("Valid date of birth is required"),
+
+  body("gender")
+    .optional()
+    .isIn(["Male", "Female", "Other", "Prefer not to say"])
+    .withMessage("Invalid gender"),
+];

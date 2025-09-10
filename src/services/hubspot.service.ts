@@ -8,6 +8,7 @@ import {
 } from '../types';
 import { createHubSpotError, createNotFoundError } from '../middlewares/errorHandler';
 import { convertCurrency } from './loan.service';
+import { ContactsLead } from '../types/contact.types';
 
 // Edumate Contact Service Functions
 
@@ -558,6 +559,25 @@ export const deleteHubspotByLeadId = async (hubspotId: string) => {
       error instanceof Error ? error.message : "Unknown error",
       error,
       "deleteHubspotByLeadId"
+    );
+  }
+};
+
+export const createEdumateContactsLeads = async (
+  leads: ContactsLead[]
+) => {
+  try {
+    const response = await hubspotClient.createContactsLeads(
+      await Promise.all(leads?.map((lead) => mapToHubSpotProperties(lead)))
+    );
+
+    return response;
+  } catch (error) {
+    logger.error("Error in createLoanLeads service", { error });
+    throw createHubSpotError(
+      error instanceof Error ? error.message : "Unknown error",
+      error,
+      "createLoanLeads"
     );
   }
 };
