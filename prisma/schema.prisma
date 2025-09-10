@@ -147,6 +147,14 @@ model B2BPartner {
   partner_record_status String?
   portal_access_provided String?
   api_access_provided   String?
+
+  // external
+  hs_created_by_user_id     Int?       @map("hs_created_by_user_id")     
+  hs_createdate             DateTime?  @map("hs_createdate")            
+  hs_lastmodifieddate       DateTime?  @map("hs_lastmodifieddate")       
+  hs_object_id              String?       @map("hs_object_id")              
+  hs_updated_by_user_id     Int?       @map("hs_updated_by_user_id")     
+  hubspot_owner_id          String?    @map("hubspot_owner_id")
   
   created_at             DateTime @default(now())
   updated_at             DateTime @default(now())
@@ -480,6 +488,14 @@ model LoanApplication {
   created_at              DateTime @default(now())
   updated_at              DateTime @default(now()) @updatedAt
   deleted_at              DateTime?
+
+  // external
+  hs_created_by_user_id     Int?       @map("hs_created_by_user_id")     
+  hs_createdate             DateTime?  @map("hs_createdate")            
+  hs_lastmodifieddate       DateTime?  @map("hs_lastmodifieddate")       
+  hs_object_id              String?       @map("hs_object_id")              
+  hs_updated_by_user_id     Int?       @map("hs_updated_by_user_id")     
+  hubspot_owner_id          String?    @map("hubspot_owner_id") 
 
   // Relations
   user                    User     @relation("UserLoanApplications", fields: [user_id], references: [id])
@@ -895,23 +911,15 @@ model EdumateContactsAcademicProfile {
 model EdumateContact {
   id                              Int                           @id @default(autoincrement())
   deleted_by_id Int?
+  first_name String? @map("first_name")
 
  // HubSpot System Fields
   hs_created_by_user_id     Int?       @map("hs_created_by_user_id")     
   hs_createdate             DateTime?  @map("hs_createdate")            
   hs_lastmodifieddate       DateTime?  @map("hs_lastmodifieddate")       
-  hs_merged_object_ids      String?    @map("hs_merged_object_ids")     
   hs_object_id              String?       @map("hs_object_id")              
-  hs_object_source_detail_1 String?    @map("hs_object_source_detail_1") 
-  hs_object_source_detail_2 String?    @map("hs_object_source_detail_2")
-  hs_object_source_detail_3 String?    @map("hs_object_source_detail_3")
-  hs_object_source_label    String?    @map("hs_object_source_label")    
-  hs_shared_team_ids        String?    @map("hs_shared_team_ids")       
-  hs_shared_user_ids        String?    @map("hs_shared_user_ids")        
   hs_updated_by_user_id     Int?       @map("hs_updated_by_user_id")     
-  hubspot_owner_assigneddate DateTime? @map("hubspot_owner_assigneddate")
   hubspot_owner_id          String?    @map("hubspot_owner_id")          
-  hubspot_team_id           String?    @map("hubspot_team_id")    
 
   // Currency Information
   base_currency                   String?         @map("base_currency")
@@ -1133,6 +1141,14 @@ model Lender {
   updated_at            DateTime            @updatedAt @map("updated_at")
   created_by            String?             @map("created_by")
   updated_by            String?             @map("updated_by")
+
+  // external
+  hs_created_by_user_id     Int?       @map("hs_created_by_user_id")     
+  hs_createdate             DateTime?  @map("hs_createdate")            
+  hs_lastmodifieddate       DateTime?  @map("hs_lastmodifieddate")       
+  hs_object_id              String?       @map("hs_object_id")              
+  hs_updated_by_user_id     Int?       @map("hs_updated_by_user_id")     
+  hubspot_owner_id          String?    @map("hubspot_owner_id")
   
   // Relations
   contact_info          LenderContactInfo?
@@ -1265,6 +1281,14 @@ model LoanProduct {
   updated_at            DateTime            @updatedAt @map("updated_at")
   created_by            String?             @map("created_by")
   updated_by            String?             @map("updated_by")
+
+  // external
+  hs_created_by_user_id     Int?       @map("hs_created_by_user_id")     
+  hs_createdate             DateTime?  @map("hs_createdate")            
+  hs_lastmodifieddate       DateTime?  @map("hs_lastmodifieddate")       
+  hs_object_id              String?       @map("hs_object_id")              
+  hs_updated_by_user_id     Int?       @map("hs_updated_by_user_id")     
+  hubspot_owner_id          String?    @map("hubspot_owner_id")
   
   // Relations
   eligibility_criteria  LoanEligibilityCriteria[]
@@ -1666,6 +1690,14 @@ model LoanDocument {
   updated_at            DateTime            @updatedAt @map("updated_at")
   created_by            String?             @map("created_by")
   updated_by            String?             @map("updated_by")
+
+  // external
+  hs_created_by_user_id     Int?       @map("hs_created_by_user_id")     
+  hs_createdate             DateTime?  @map("hs_createdate")            
+  hs_lastmodifieddate       DateTime?  @map("hs_lastmodifieddate")       
+  hs_object_id              String?       @map("hs_object_id")              
+  hs_updated_by_user_id     Int?       @map("hs_updated_by_user_id")     
+  hubspot_owner_id          String?    @map("hubspot_owner_id") 
   
   // Relations
   alternative_docs      AlternativeDocument?
@@ -1916,6 +1948,14 @@ model CommissionSettlement {
   updated_at            DateTime            @updatedAt @map("updated_at")
   created_by            String?             @map("created_by")
   updated_by            String?             @map("updated_by")
+
+  // external
+  hs_created_by_user_id     Int?       @map("hs_created_by_user_id")     
+  hs_createdate             DateTime?  @map("hs_createdate")            
+  hs_lastmodifieddate       DateTime?  @map("hs_lastmodifieddate")       
+  hs_object_id              String?       @map("hs_object_id")              
+  hs_updated_by_user_id     Int?       @map("hs_updated_by_user_id")     
+  hubspot_owner_id          String?    @map("hubspot_owner_id")
   
   // Relations
   calculation_details   CommissionSettlementCalculation?
