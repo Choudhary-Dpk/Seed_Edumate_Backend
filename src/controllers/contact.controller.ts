@@ -1,4 +1,4 @@
-import { NextFunction,Response,Request } from "express";
+import { NextFunction,Response } from "express";
 import { RequestWithPayload } from "../types/api.types";
 import { LoginPayload } from "../types/auth";
 import logger from "../utils/logger";
@@ -67,6 +67,7 @@ export const createContactsLead = async (
         date_of_birth,
         gender
       });
+      logger.debug(`Personal information created successfully for contact: ${contact.id}`)
 
       logger.debug(`Creating academic profile for contact: ${contact.id}`);
       await createEdumateAcademicProfile(tx, contact.id, {
@@ -77,14 +78,17 @@ export const createContactsLead = async (
         intake_year,
         intake_month
       });
+      logger.debug(`Academic profile created successfully for contact: ${contact.id}`)
 
       if (b2b_partner_name) {
         logger.debug(`Creating lead attribution for contact: ${contact.id}`);
         await createEdumateLeadAttribution(tx, contact.id, b2b_partner_name);
+        logger.debug(`Lead attribution created successfully for contact: ${contact.id}`)
       }
 
       logger.debug(`Creating system tracking for contact: ${contact.id}`);
       await createEdumateSystemTracking(tx, contact.id, id);
+      logger.debug(`System tracking created successfully for contact: ${contact.id}`)
 
       return contact;
     });

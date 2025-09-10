@@ -426,13 +426,12 @@ export const leadPaginationValidationRules = () => [
 ];
 
 export const createContactsLeadValidationRules = () => [
-  // ✅ Required fields
   body("email")
     .isEmail()
     .withMessage("Valid email is required"),
 
   body("phone_number")
-    .isMobilePhone("any")
+    .isMobilePhone("any", { strictMode: false }) // allow numbers with country codes
     .withMessage("Valid phone number is required"),
 
   body("first_name")
@@ -503,7 +502,7 @@ export const createContactsLeadValidationRules = () => [
     .isIn([
       "US",
       "UK",
-      "UAE",      // lowercase (u- countries)
+      "UAE",
       "Canada",
       "Australia",
       "Germany",
@@ -518,14 +517,7 @@ export const createContactsLeadValidationRules = () => [
     .optional()
     .isISO8601()
     .toDate()
-    .withMessage("Valid date of birth is required")
-    .custom((value) => {
-      const age = new Date().getFullYear() - value.getFullYear();
-      if (age < 15) {
-        throw new Error("Minimum age must be 15 years");
-      }
-      return true;
-    }),
+    .withMessage("Valid date of birth is required"),
 
   body("gender")
     .optional()

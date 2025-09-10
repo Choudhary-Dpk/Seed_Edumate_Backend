@@ -568,22 +568,7 @@ export const createEdumateContactsLeads = async (
 ) => {
   try {
     const response = await hubspotClient.createContactsLeads(
-      leads?.map((lead) => ({
-        email: lead.email,
-        phone_number: lead.phone,
-        first_name:lead.firstName,
-        last_name:lead.lastName,
-        b2b_partner_name:lead.partnerName,
-        current_education_level: lead.educationLevel,
-        admission_status: lead.admissionStatus,
-        target_degree_level: lead.targetDegreeLevel,
-        course_type: lead.courseType,
-        intake_year: lead.intakeYear,
-        intake_month: lead.intakeMonth,
-        preferred_study_destination: lead.studyDestination,
-        date_of_birth: lead.dateOfBirth,
-        gender: lead.gender
-      }))
+      await Promise.all(leads?.map((lead) => mapToHubSpotProperties(lead)))
     );
 
     return response;

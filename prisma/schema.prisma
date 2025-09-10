@@ -880,7 +880,7 @@ model EdumateContactsAcademicProfile {
   // Intake Details
   intended_start_term           IntendedStartTerm?            @map("intended_start_term")
   intended_start_date           DateTime?                     @map("intended_start_date")
-  intake_month                  Int?                       @map("intake_month")
+  intake_month                  String?                       @map("intake_month")
   intake_year                   String?                       @map("intake_year")
   
   created_at                    DateTime                      @default(now()) @map("created_at")

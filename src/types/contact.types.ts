@@ -11,10 +11,10 @@ export type ContactsLead =  {
     targetDegreeLevel?:string;
     courseType?:string;
     studyDestination?:string;
-    dateOfBirth?:string;
+    dateOfBirth?:Date;
     gender?:string;
-    intakeYear?:number;
-    intakeMonth?:number
+    intakeYear?:string;
+    intakeMonth?:string;
 }
 
 export const genderMap: Record<string, Gender> = {

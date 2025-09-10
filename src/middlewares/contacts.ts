@@ -13,12 +13,6 @@ export const validateContactsLeadPayload = async (
   try {
     const { email, phone_number } = req.body;
 
-    const existingEmail = await hubspotService.searchEdumateContactsByEmail(email);
-    console.log("existingEmail",existingEmail)
-    if (existingEmail && existingEmail.length > 0 || existingEmail[0]?.email) {
-      return sendResponse(res, 400, "Email already exists in HubSpot");
-    }
-
     const existingLead = await getEdumateContactByEmail(email);
     if (existingLead && existingLead.is_deleted === false) {
       return sendResponse(res, 400, "Lead already exists");
