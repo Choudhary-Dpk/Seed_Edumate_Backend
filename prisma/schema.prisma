@@ -708,7 +708,7 @@ model LoanApplicationSystemTracking {
   hs_object_id           String?
   hs_merged_object_ids   String?
   hs_object_source_label String?
-  application_record_status   LoanApplicationSystemTrackingEnum @default(ACTIVE)
+  application_record_status   RecordStatus?  @default(ACTIVE)
   external_reference_id     String?
 
   // tracking
@@ -1237,7 +1237,7 @@ model LenderBusinessMetrics {
 
 model LenderOfferings {
     id                    Int                 @id @default(autoincrement())
-    co_signer_requirements  LenderCoSignerRequirements @default(NOT_REQUIRED)
+    co_signer_requirements  CoSignerRequirement @default(NOT_REQUIRED)
     collateral_requirements LenderCollateralType @default(NO_COLLATERAL)
     interest_rate_range_max_secured Int? @map("interest_rate_range_max_secured")
     interest_rate_range_max_unsecured Int? @map("interest_rate_range_max_unsecured")
@@ -1989,7 +1989,7 @@ model CommissionSettlementSystemTracking {
   created_by               String?                 @map("created_by")
   created_date             DateTime?               @default(now()) @map("created_date")
   data_source              CommissionDataSource?             @map("data_source")
-  integration_status       CommissionIntegrationStatus?      @map("integration_status")
+  integration_status       IntegrationStatus?      @map("integration_status")
   internal_notes           String?                 @map("internal_notes")
   last_modified_by         String?                 @map("last_modified_by")
   last_modified_date       DateTime?               @updatedAt @map("last_modified_date")
@@ -1998,11 +1998,11 @@ model CommissionSettlementSystemTracking {
   system_generated         SystemGenerated?        @map("system_generated")
   version_number           String?                 @map("version_number")
   batch_payment_id         String?                 @map("batch_payment_id")
-  disbursement_trigger     CommissionDisbursementTrigger?    @map("disbursement_trigger")
+  disbursement_trigger     DisbursementTrigger?    @map("disbursement_trigger")
   original_transaction_id  String?                 @map("original_transaction_id")
   related_settlement_id    String?                 @map("related_settlement_id")
   transaction_sub_type     String?                 @map("transaction_sub_type")
-  transaction_type         CommissionTransactionType?        @map("transaction_type")
+  transaction_type         TransactionTypes?        @map("transaction_type")
 
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
@@ -2016,7 +2016,7 @@ model CommissionSettlementTransactionDetails {
   transaction            CommissionSettlement @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
 
   batch_payment_id        String?               @map("batch_payment_id")
-  disbursement_trigger    TransactionDisbursementTrigger?  @map("disbursement_trigger")
+  disbursement_trigger    DisbursementTrigger?  @map("disbursement_trigger")
   original_transaction_id String?               @map("original_transaction_id")
   related_settlement_id   String?               @map("related_settlement_id")
   transaction_sub_type    String?               @map("transaction_sub_type")
@@ -2065,7 +2065,7 @@ model CommissionSettlementCommunication {
   settlement            CommissionSettlement @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
 
   acknowledgment_date        DateTime?                   @map("acknowledgment_date")
-  acknowledgment_received    AcknowledgmentReceived?     @map("acknowledgment_received")
+  acknowledgment_received    AcknowledgmentStatus?     @map("acknowledgment_received")
   communication_log          String?                     @map("communication_log")
   email_sent_count           Int?                        @map("email_sent_count")
   last_communication_date    DateTime?                   @map("last_communication_date")
@@ -2273,11 +2273,1875 @@ model CommissionSettlementPerformanceAnalytics {
 
 // ENUMS
 
+// enum I20CasStatus {
+//   YES
+//   NO
+//   NOT_APPLICABLE    @map("NOT APPLICABLE")
+//   PENDING
+// }
+
+// enum ApplicationStatusEnum {
+//   PRE_APPROVED          @map("Pre-Approved")
+//   APPROVED              @map("Approved")
+//   SANCTION_LETTER_ISSUED @map("Sanction Letter Issued")
+//   DISBURSEMENT_PENDING  @map("Disbursement Pending")
+//   DISBURSED             @map("Disbursed")
+//   REJECTED              @map("Rejected")
+//   ON_HOLD               @map("On Hold")
+//   WITHDRAWN             @map("Withdrawn")
+//   CANCELLED             @map("Cancelled")
+// }
+
+// enum PriorityLevel {
+//   HIGH
+//   MEDIUM
+//   LOW
+//   URGENT
+// }
+
+// enum RecordStatus {
+//   ACTIVE
+//   COMPLETED
+//   CANCELLED
+//   ARCHIVED
+// }
+
+// enum LoanProductType {
+//   SECURED
+//   UNSECURED
+//   GOVERNMENT_SCHEME   @map("GOVERNMENT SCHEME")
+// }
+
+// enum InterestRateType {
+//   FIXED
+//   FLOATING
+//   HYBRID
+//   CHOICE_BASED    @map("CHOICE BASED")
+// }
+
+// enum DelayReason {
+//   INCOMPLETE_DOCUMENTS    @map("INCOMPLETE DOCUMENTS")
+//   CUSTOMER_NOT_RESPONDING   @map("CUSTOMER NOT RESPONDING")
+//   LENDER_PROCESSING   @map("LENDER PROCESSING")
+//   INTERNAL_REVIEW   @map("INTERNAL REVIEW")
+//   COMPLIANCE_CHECK    @map("COMPLIANCE CHECK")
+//   OTHER
+// }
+
+// enum RejectionReason {
+//   // Loan-related
+//   INSUFFICIENT_INCOME       @map("INSUFFICIENT INCOME")
+//   POOR_CREDIT_SCORE         @map("POOR CREDIT SCORE")
+//   INCOMPLETE_DOCUMENTS      @map("INCOMPLETE DOCUMENTS")
+//   COURSE_NOT_APPROVED       @map("COURSE NOT APPROVED")
+//   UNIVERSITY_NOT_APPROVED   @map("UNIVERSITY NOT APPROVED")
+//   HIGH_RISK_PROFILE         @map("HIGH RISK PROFILE")
+//   POLICY_CHANGES            @map("POLICY CHANGES")
+  
+//   // Document-related
+//   INVALID_FORMAT            @map("INVALID FORMAT")
+//   EXPIRED_DOCUMENT          @map("EXPIRED DOCUMENT")
+//   UNCLEAR_IMAGE             @map("UNCLEAR IMAGE")
+//   INCOMPLETE_INFORMATION    @map("INCOMPLETE INFORMATION")
+//   MISMATCH_DATA             @map("MISMATCH DATA")
+//   FRAUDULENT
+//   WRONG_DOCUMENT            @map("WRONG DOCUMENT")
+//   NOT_CERTIFIED             @map("NOT CERTIFIED")
+  
+//   OTHER
+
+//   @@map("rejection_reason")
+// }
+
+// enum AppealOutcome {
+//   PENDING
+//   APPROVED
+//   REJECTED
+//   NOT_APPLICABLE
+// }
+
+// enum CommunicationChannel {
+//   PHONE
+//   EMAIL
+//   WHATSAPP
+//   SMS
+//   VIDEO_CALL    @map("VIDEO CALL")
+// }
+
+// enum FollowUpFrequency {
+//   DAILY
+//   WEEKLY
+//   BI_WEEKLY   @map("BI WEEKLY")
+//   MONTHLY
+//   AS_NEEDED   @map("AS NEEDED")
+// }
+
+// enum ApplicationSourceSystem {
+//   MANUAL_ENTRY  @map("MANUAL_ENTRY")
+//   WEBSITE_FORM    @map("WEBSITE_FORM")
+//   PARTNER_PORTAL    @map("PARTNER_PORTAL")
+//   IMPORT
+//   API
+// }
+
+// enum LoanApplicationSystemTrackingEnum {
+//   ACTIVE
+//   COMPLETED
+//   CANCELLED
+//   ARCHIVED
+// }
+
+// enum IntegrationStatus {
+//   SYNCED
+//   PENDING_SYNC    @map("PENDING_SYNC")
+//   SYNC_FAILED   @map("SYNC_FAILED")
+//   NOT_REQUIRED    @map("NOT_REQUIRED")
+// }
+
+// enum CommissionBase {
+//   LOAN_AMOUNT   @map("LOAN_AMOUNT")
+//   FIXED_AMOUNT    @map("FIXED_AMOUNT")
+//   TIERED
+// }
+
+// enum CommissionStatus {
+//   NOT_APPLICABLE    @map("NOT_APPLICABLE")
+//   PENDING_CALCULATION   @map("PENDING_CALCULATION")
+//   CALCULATED
+//   APPROVED_FOR_PAYMENT    @map("APPROVED_FOR_PAYMENT")
+//   PAID
+//   ON_HOLD   @map("ON_HOLD")
+// }
+
+// enum AdmissionStatus {
+//   NOT_APPLIED    @map("NOT APPLIED")
+//   APPLIED
+//   INTERVIEW_SCHEDULED   @map("INTERVIEW SCHEDULED")
+//   WAITLISTED
+//   ADMITTED
+//   REJECTED
+  
+//   @@map("admission_status")
+// }
+
+// enum EducationLevel {
+//   HIGH_SCHOOL   @map("HIGH SCHOOL")
+//   BACHELOR
+//   MASTER
+//   PHD
+//   DIPLOMA
+//   OTHER
+
+//   @@map("education_level")
+// }
+
+// enum AcademicTerm {
+//   FALL
+//   SPRING
+//   SUMMER
+//   WINTER
+  
+//   @@map("academic_term")
+// }
+
+// enum ApplicationStatuses {
+//   LEAD
+//   PROSPECT
+//   APPLICATION_STARTED     @map("APPLICATION STARTED")
+//   APPLICATION_SUBMITTED   @map("APPLICATION SUBMITTED")
+//   IN_REVIEW               @map("IN REVIEW")
+//   APPROVED
+//   REJECTED
+//   ENROLLED
+//   DEFERRED
+//   WITHDRAWN
+
+//   @@map("application_status")
+// }
+
+// enum AdmissionStatuses {
+//   NOT_APPLIED   @map("NOT APPLIED")
+//   APPLIED
+//   ADMITTED
+//   WAITLISTED
+//   REJECTED
+//   DEFERRED
+// }
+
+// enum VisaStatus {
+//   NOT_APPLIED   @map("NOT APPLIED")
+//   APPLIED
+//   APPROVED
+//   REJECTED
+//   PENDING
+// }
+
+// enum ApplicationSource {
+//   DIRECT
+//   B2B_PARTNER   @map("B2B PARTNER")
+//   WEBSITE
+//   REFERRAL
+//   ADVERTISEMENT
+// }
+
+// enum CourseLevel {
+//   BACHELORS
+//   MASTERS
+//   PHD
+//   DIPLOMA
+//   CERTIFICATE
+//   PROFESSIONAL
+// }
+
+// enum LenderCategory {
+//   DOMESTIC
+//   INTERNATIONAL
+//   BOTH
+  
+//   @@map("lender_category")
+// }
+
+// enum LenderType {
+//   PUBLIC_BANK   @map("PUBLIC BANK")
+//   PRIVATE_BANK    @map("PRIVATE BANK")
+//   NBFC
+//   CREDIT_UNION           @map("CREDIT UNION")
+//   INTERNATIONAL_LENDER   @map("INTERNATIONAL LENDER")
+//   FINTECH
+
+//   @@map("lender_type")
+// }
+
+// enum LenderStatus {
+//   ACTIVE
+//   INACTIVE
+//   SUSPENDED
+//   PENDING_APPROVAL       @map("PENDING APPROVAL")
+//   UNDER_REVIEW           @map("UNDER REVIEW")
+
+//   @@map("lender_status")
+// }
+
+// enum CoSignerRequirement {
+//   ALWAYS_REQUIRED        @map("ALWAYS REQUIRED")
+//   SOMETIMES_REQUIRED     @map("SOMETIMES REQUIRED")
+//   NOT_REQUIRED           @map("NOT REQUIRED")
+
+//   @@map("co_signer_requirement")
+// }
+
+// enum CollateralType {
+//   RESIDENTIAL_PROPERTY        @map("RESIDENTIAL PROPERTY")
+//   COMMERCIAL_PROPERTY         @map("COMMERCIAL PROPERTY")
+//   NON_AGRICULTURAL_LAND       @map("NON AGRICULTURAL LAND")
+//   FIXED_DEPOSITS              @map("FIXED DEPOSITS")
+//   GOVERNMENT_SECURITIES       @map("GOVERNMENT SECURITIES")
+//   LIC_POLICIES                @map("LIC POLICIES")
+//   NSC_KVP                     @map("NSC KVP")
+//   GOLD
+//   SHARES_MUTUAL_FUNDS         @map("SHARES MUTUAL FUNDS")
+//   PROPERTY
+//   SECURITIES
+//   GUARANTOR_ONLY              @map("GUARANTOR ONLY")
+//   NO_COLLATERAL               @map("NO COLLATERAL")
+//   NA_PLOT                     @map("NA PLOT")
+
+//   @@map("collateral_type")
+// }
+
+// enum CourseType {
+//   UNDERGRADUATE
+//   GRADUATE
+//   PHD
+//   DIPLOMA
+//   CERTIFICATE
+//   PROFESSIONAL
+//   TECHNICAL
+//   FULL_TIME            @map("FULL TIME")
+//   PART_TIME            @map("PART TIME")
+//   DISTANCE_LEARNING    @map("DISTANCE LEARNING")
+//   ONLINE
+//   EXECUTIVE
+//   REGULAR
+//   ACCELERATED
+
+//   @@map("course_type")
+// }
+
+// enum APIConnectivityStatus {
+//   CONNECTED
+//   DISCONNECTED
+//   IN_PROGRESS            @map("IN PROGRESS")
+//   FAILED
+//   NOT_APPLICABLE         @map("NOT APPLICABLE")
+
+//   @@map("api_connectivity_status")
+// }
+
+// enum IntegrationLevel {
+//   FULL_DIGITAL           @map("FULL DIGITAL")
+//   PARTIAL_DIGITAL        @map("PARTIAL DIGITAL")
+//   MANUAL
+//   HYBRID
+
+//   @@map("integration_level")
+// }
+
+// enum DataSource {
+//   MANUAL_ENTRY      @map("Manual Entry")
+//   API_SYNC          @map("API Sync")
+//   IMPORT            @map("Import")
+//   THIRD_PARTY       @map("Third Party")
+//   SYSTEM_GENERATED  @map("System Generated")
+//   API                   @map("API")
+//   WEBSITE_FORM          @map("Website Form")
+//   PARTNER_INTEGRATION   @map("Partner Integration")
+
+//   @@map("data_source")
+// }
+
+// enum PartnershipStatus {
+//   ACTIVE      @map("Active")
+//   INACTIVE    @map("Inactive")
+//   PENDING     @map("Pending")
+//   TERMINATED  @map("Terminated")
+//   ON_HOLD     @map("On Hold")
+
+//   @@map("partnership_status")
+// }
+
+// enum ProductStatus {
+//   ACTIVE        @map("Active")
+//   INACTIVE      @map("Inactive")
+//   DISCONTINUED  @map("Discontinued")
+//   COMING_SOON   @map("Coming Soon")
+//   UNDER_REVIEW  @map("Under Review")
+
+//   @@map("product_status")
+// }
+
+// enum ProductType {
+//   SECURED_EDUCATION_LOAN    @map("Secured Education Loan")
+//   UNSECURED_EDUCATION_LOAN  @map("Unsecured Education Loan")
+//   GOVERNMENT_SCHEME         @map("Government Scheme")
+//   SCHOLAR_LOAN              @map("Scholar Loan")
+//   EXPRESS_LOAN              @map("Express Loan")
+//   PREMIUM_LOAN              @map("Premium Loan")
+//   SKILL_DEVELOPMENT_LOAN    @map("Skill Development Loan")
+
+//   @@map("product_type")
+// }
+
+// enum ProductCategory {
+//   DOMESTIC
+//   INTERNATIONAL
+//   BOTH
+//   VOCATIONAL
+//   PROFESSIONAL
+  
+//   @@map("loan_category")
+// }
+
+// enum ApplicationMode {
+//   ONLINE
+//   OFFLINE
+//   HYBRID
+//   MOBILE_APP
+//   PORTAL
+  
+//   @@map("application_mode")
+// }
+
+// enum DisbursementProcess {
+//   DIRECT_TO_UNIVERSITY
+//   DIRECT_TO_STUDENT
+//   INSTALLMENT_BASED
+//   FULL_AMOUNT
+//   PARTIAL_DISBURSEMENT
+  
+//   @@map("disbursement_process")
+// }
+
+// enum CollateralRequirement {
+//   ALWAYS_REQUIRED
+//   ABOVE_THRESHOLD
+//   NOT_REQUIRED
+//   OPTIONAL
+  
+//   @@map("collateral_requirement")
+// }
+
+// enum ProcessingFeeType {
+//   PERCENTAGE
+//   FIXED_AMOUNT
+//   NIL
+//   TIERED
+  
+//   @@map("processing_fee_type")
+// }
+
+// enum RepaymentFrequency {
+//   MONTHLY
+//   QUARTERLY
+//   HALF_YEARLY
+//   ANNUALLY
+//   FLEXIBLE
+//   CUSTOM
+  
+//   @@map("repayment_frequency")
+// }
+
+// enum MoratoriumType {
+//   COMPLETE        @map("Complete")
+//   INTEREST_ONLY   @map("Interest Only")
+//   PARTIAL_EMI     @map("Partial EMI")
+//   NO_MORATORIUM   @map("No Moratorium")
+
+//   @@map("moratorium_type")
+// }
+
+// enum IntegrationComplexity {
+//   SIMPLE
+//   MODERATE
+//   COMPLEX
+//   VERY_COMPLEX
+  
+//   @@map("integration_complexity")
+// }
+
+// enum MarketPositioning {
+//   PREMIUM
+//   COMPETITIVE
+//   BUDGET
+//   VALUE_FOR_MONEY
+//   NICHE
+  
+//   @@map("market_positioning")
+// }
+
+// enum LoanStatus {
+//   NOT_APPLIED           @map("NOT APPLIED")
+//   EXPLORING
+//   APPLICATION_STARTED   @map("APPLICATION STARTED")
+//   DOCUMENTS_PENDING     @map("DOCUMENTS PENDING")
+//   UNDER_REVIEW          @map("UNDER REVIEW")
+//   APPROVED
+//   REJECTED
+//   DISBURSED
+//   ACTIVE
+//   CLOSED
+
+//   @@map("loan_status")
+// }
+
+// enum Gender {
+//   MALE  @map("Male")
+//   FEMALE @map("Female")
+//   OTHER @map("Other")
+//   PREFER_NOT_TO_SAY     @map("Prefer not to say")
+
+//   @@map("gender")
+// }
+
+// enum EmploymentStatus {
+//   EMPLOYED
+//   UNEMPLOYED
+//   SELF_EMPLOYED         @map("SELF EMPLOYED")
+//   STUDENT
+//   RETIRED
+
+//   @@map("employment_status")
+// }
+
+// enum MaritalStatus {
+//   SINGLE
+//   MARRIED
+//   DIVORCED
+//   WIDOWED
+  
+//   @@map("marital_status")
+// }
+
+// enum DocumentCategory {
+//   STUDENT_DOCUMENTS          @map("STUDENT DOCUMENTS")
+//   CO_APPLICANT_1_DOCUMENTS   @map("CO-APPLICANT 1 DOCUMENTS")
+//   CO_APPLICANT_2_DOCUMENTS   @map("CO-APPLICANT 2 DOCUMENTS")
+//   CO_APPLICANT_3_DOCUMENTS   @map("CO-APPLICANT 3 DOCUMENTS")
+//   COLLATERAL_DOCUMENTS       @map("COLLATERAL DOCUMENTS")
+//   INSTITUTIONAL_DOCUMENTS    @map("INSTITUTIONAL DOCUMENTS")
+//   SUPPORTING_DOCUMENTS       @map("SUPPORTING DOCUMENTS")
+
+//   @@map("document_category")
+// }
+
+// enum DocumentType {
+//   IDENTITY_PROOF         @map("IDENTITY PROOF")
+//   ADDRESS_PROOF          @map("ADDRESS PROOF")
+//   INCOME_PROOF           @map("INCOME PROOF")
+//   ACADEMIC_DOCUMENTS     @map("ACADEMIC DOCUMENTS")
+//   EMPLOYMENT_PROOF       @map("EMPLOYMENT PROOF")
+//   PROPERTY_DOCUMENTS     @map("PROPERTY DOCUMENTS")
+//   BANK_STATEMENTS        @map("BANK STATEMENTS")
+//   TAX_DOCUMENTS          @map("TAX DOCUMENTS")
+//   ADMISSION_DOCUMENTS    @map("ADMISSION DOCUMENTS")
+//   VISA_DOCUMENTS         @map("VISA DOCUMENTS")
+//   FINANCIAL_DOCUMENTS    @map("FINANCIAL DOCUMENTS")
+//   GUARANTEE_DOCUMENTS    @map("GUARANTEE DOCUMENTS")
+//   OTHER
+
+//   @@map("document_type")
+// }
+
+// enum DocumentPriority {
+//   MANDATORY
+//   CONDITIONAL
+//   OPTIONAL
+//   NICE_TO_HAVE           @map("NICE TO HAVE")
+
+//   @@map("document_priority")
+// }
+
+// enum DocumentStage {
+//   APPLICATION
+//   INITIAL_REVIEW         @map("INITIAL REVIEW")
+//   CREDIT_ASSESSMENT      @map("CREDIT ASSESSMENT")
+//   FINAL_APPROVAL         @map("FINAL APPROVAL")
+//   DISBURSEMENT
+//   POST_DISBURSEMENT      @map("POST DISBURSEMENT")
+
+//   @@map("document_stage")
+// }
+
+// enum DocumentFormat {
+//   PDF
+//   JPG
+//   JPEG
+//   PNG
+//   TIFF
+//   DOC
+//   DOCX
+//   ORIGINAL_HARD_COPY     @map("ORIGINAL HARD COPY")
+//   SCANNED_COPY           @map("SCANNED COPY")
+//   DIGITAL_COPY           @map("DIGITAL COPY")
+
+//   @@map("document_format")
+// }
+
+// enum DocumentStatus {
+//   ACTIVE
+//   INACTIVE
+//   UNDER_REVIEW           @map("UNDER REVIEW")
+//   DEPRECATED
+//   ARCHIVED
+
+//   @@map("document_status")
+// }
+
+// enum VerificationStatus {
+//   PENDING                   @map("Pending")
+//   IN_PROGRESS               @map("In Progress")
+//   VERIFIED                  @map("Verified")
+//   REJECTED                  @map("Rejected")
+//   EXPIRED                   @map("Expired")
+//   NOT_REQUIRED              @map("Not Required")
+//   ADDITIONAL_INFO_REQUIRED  @map("Additional Info Required")
+
+//   @@map("verification_status")
+// }
+
+// enum VerificationMethod {
+//   MANUAL
+//   AUTOMATED
+//   HYBRID
+//   THIRD_PARTY            @map("THIRD PARTY")
+//   BLOCKCHAIN
+//   DIGILOCKER
+
+//   @@map("verification_method")
+// }
+
+// enum DataSensitivity {
+//   HIGHLY_SENSITIVE       @map("HIGHLY SENSITIVE")
+//   SENSITIVE
+//   MODERATE
+//   LOW
+//   PUBLIC
+
+//   @@map("data_sensitivity")
+// }
+
+// enum ApplicabilityStatus {
+//   YES
+//   NO
+//   CONDITIONAL
+
+//   @@map("applicability_status")
+// }
+
+// enum AutomationLevel {
+//   FULL
+//   PARTIAL
+//   MANUAL_ONLY            @map("MANUAL ONLY")
+//   HYBRID
+
+//   @@map("automation_level")
+// }
+
+// enum CommissionModel {
+//   PERCENTAGE          @map("PERCENTAGE")
+//   FIXED_AMOUNT        @map("FIXED AMOUNT")
+//   TIERED              @map("TIERED")
+//   HYBRID              @map("HYBRID")
+//   PERFORMANCE_BASED   @map("PERFORMANCE BASED")
+
+//   @@map("commission_model")
+// }
+
+// enum SettlementStatus {
+//   PENDING_CALCULATION  @map("Pending Calculation")
+//   CALCULATED           @map("Calculated")
+//   PENDING_APPROVAL     @map("Pending Approval")
+//   APPROVED             @map("Approved")
+//   PAYMENT_INITIATED    @map("Payment Initiated")
+//   PAID                 @map("Paid")
+//   ON_HOLD              @map("On Hold")
+//   REJECTED             @map("Rejected")
+//   CANCELLED            @map("Cancelled")
+//   DISPUTED             @map("Disputed")
+
+//   @@map("settlement_status")
+// }
+
+// enum PaymentStatus {
+//   PENDING      @map("Pending")
+//   INITIATED    @map("Initiated")
+//   IN_PROCESS   @map("In Process")
+//   COMPLETED    @map("Completed")
+//   FAILED       @map("Failed")
+//   CANCELLED    @map("Cancelled")
+//   RETURNED     @map("Returned")
+
+//   @@map("payment_status")
+// }
+
+// enum PaymentMethod {
+//   BANK_TRANSFER       @map("BANK TRANSFER")
+//   NEFT                @map("NEFT")
+//   RTGS                @map("RTGS")
+//   IMPS                @map("IMPS")
+//   UPI                 @map("UPI")
+//   CHEQUE              @map("CHEQUE")
+//   DEMAND_DRAFT        @map("DEMAND DRAFT")
+//   DIGITAL_WALLET      @map("DIGITAL WALLET")
+//   INTERNATIONAL_WIRE  @map("INTERNATIONAL WIRE")
+
+//   @@map("payment_method")
+// }
+
+// enum SettlementPeriod {
+//   MONTHLY      @map("MONTHLY")
+//   QUARTERLY    @map("QUARTERLY")
+//   HALF_YEARLY  @map("HALF YEARLY")
+//   YEARLY       @map("YEARLY")
+//   AD_HOC       @map("AD HOC")
+
+//   @@map("settlement_period")
+// }
+
+// enum DisbursementTrigger {
+//   LOAN_DISBURSED        @map("LOAN DISBURSED")
+//   APPLICATION_APPROVED  @map("APPLICATION APPROVED")
+//   TARGET_ACHIEVED       @map("TARGET ACHIEVED")
+//   MANUAL_TRIGGER        @map("MANUAL TRIGGER")
+//   SCHEDULED_PAYMENT     @map("SCHEDULED PAYMENT")
+
+//   @@map("disbursement_trigger")
+// }
+
+// enum InvoiceStatus {
+//   PENDING   @map("PENDING")
+//   GENERATED @map("GENERATED")
+//   SENT      @map("SENT")
+//   RECEIVED  @map("RECEIVED")
+//   APPROVED  @map("APPROVED")
+//   REJECTED  @map("REJECTED")
+
+//   @@map("invoice_status")
+// }
+
+// enum ReconciliationStatus {
+//   PENDING            @map("PENDING")
+//   RECONCILED         @map("RECONCILED")
+//   DISCREPANCY_FOUND  @map("DISCREPANCY FOUND")
+//   UNDER_REVIEW       @map("UNDER REVIEW")
+//   RESOLVED           @map("RESOLVED")
+
+//   @@map("reconciliation_status")
+// }
+
+// enum HoldReason {
+//   DOCUMENT_VERIFICATION_PENDING  @map("DOCUMENT VERIFICATION PENDING")
+//   INVOICE_ISSUES                 @map("INVOICE ISSUES")
+//   PARTNER_AGREEMENT_DISPUTE      @map("PARTNER AGREEMENT DISPUTE")
+//   CALCULATION_ERROR              @map("CALCULATION ERROR")
+//   COMPLIANCE_ISSUES              @map("COMPLIANCE ISSUES")
+//   MANAGEMENT_REVIEW              @map("MANAGEMENT REVIEW")
+//   LEGAL_ISSUES                   @map("LEGAL ISSUES")
+//   SYSTEM_ERROR                   @map("SYSTEM ERROR")
+
+//   @@map("hold_reason")
+// }
+
+// enum NotificationMethod {
+//   EMAIL               @map("EMAIL")
+//   SMS                 @map("SMS")
+//   WHATSAPP            @map("WHATSAPP")
+//   PHONE_CALL          @map("PHONE CALL")
+//   PORTAL_NOTIFICATION @map("PORTAL NOTIFICATION")
+
+//   @@map("notification_method")
+// }
+
+// enum AcknowledgmentStatus {
+//   YES
+//   NO
+//   PENDING
+  
+//   @@map("acknowledgment_status")
+// }
+
+// enum ApiAccessStatus {
+//   YES           @map("Yes")
+//   NO            @map("No")
+//   NOT_REQUIRED  @map("Not Required")
+  
+//   @@map("api_access_status")
+// }
+
+// // Enum for Data Source
+// enum B2BDataSource {
+//   MANUAL_ENTRY          @map("Manual Entry")
+//   IMPORT                @map("Import")
+//   PARTNER_APPLICATION   @map("Partner Application")
+//   REFERRAL              @map("Referral")
+  
+//   @@map("b2b_data_source")
+// }
+
+// // Enum for Integration Status
+// enum B2BIntegrationStatus {
+//   NOT_REQUIRED  @map("Not Required")
+//   PENDING       @map("Pending")
+//   COMPLETE      @map("Complete")
+//   ISSUES        @map("Issues")
+  
+//   @@map("b2b_integration_status")
+// }
+
+// enum PartnerRecordStatus {
+//   ACTIVE       @map("Active")
+//   INACTIVE     @map("Inactive")
+//   SUSPENDED    @map("Suspended")
+//   UNDER_REVIEW @map("Under Review")
+//   ARCHIVED     @map("Archived")
+
+//   @@map("b2b_partner_record_status")
+// }
+
+// enum PortalAccessStatus {
+//   YES     @map("Yes")
+//   NO      @map("No")
+//   PENDING @map("Pending")
+
+//   @@map("b2b_portal_access_status")
+// }
+
+// enum LoginStatus {
+//   success
+//   failed
+//   logout
+// }
+
+// enum LenderCoSignerRequirements {
+//   ALWAYS_REQUIRED @map("Always Required")
+//   SOMETIMES_REQUIRED @map("Sometimes Required")
+//   NOT_REQUIRED @map("Not Required")
+// }
+
+// enum LenderCollateralType {
+//   PROPERTY
+//   FIXED_DEPOSITS  @map("Fixed Deposits")
+//   LIC_POLICIES    @map("LIC Policies")
+//   SECURITIES
+//   GUARANTOR_ONLY  @map("Guarantor Only")
+//   NO_COLLATERAL   @map("No Collateral")
+//   NA_PLOT         @map("NA Plot")
+// }
+
+// enum SupportedCourseTypes {
+//   UNDERGRADUATE @map("Undergraduate")
+//   GRADUATE      @map("Graduate")
+//   PHD           @map("PhD")
+//   DIPLOMA       @map("Diploma")
+//   CERTIFICATE   @map("Certificate")
+//   PROFESSIONAL  @map("Professional")
+//   TECHNICAL     @map("Technical")
+// }
+
+// enum SupportedDestinations {
+//   US        @map("US")
+//   UK        @map("UK")
+//   CANADA    @map("Canada")
+//   AUSTRALIA @map("Australia")
+//   GERMANY   @map("Germany")
+//   FRANCE    @map("France")
+//   SINGAPORE @map("Singapore")
+//   ITALY     @map("Italy")
+//   UAE       @map("UAE")
+//   OTHER     @map("Other")
+// }
+
+// enum HolidayProcessing {
+//   YES     @map("Yes")
+//   NO      @map("No")
+//   LIMITED @map("Limited")
+// }
+
+// enum RepaymentOptions {
+//   EMI             @map("EMI")
+//   SIMPLE_INT      @map("Simple Int")
+//   PARTIAL_INT     @map("Partial Int")
+//   COMPLETE_MORAT  @map("Complete Morat")
+
+//   @@map("repayment_options")
+// }
+
+// enum PayoutTerms {
+//   NET_30  @map("Net 30")
+//   NET_45  @map("Net 45")
+//   NET_60  @map("Net 60")
+//   CUSTOM  @map("Custom")
+
+//   @@map("payout_terms")
+// }
+
+// enum PerformanceRating {
+//   EXCELLENT @map("Excellent")
+//   GOOD      @map("Good")
+//   AVERAGE   @map("Average")
+//   POOR      @map("Poor")
+
+//   @@map("performance_rating")
+// }
+
+// enum LenderRecordStatus {
+//   ACTIVE       @map("Active")
+//   INACTIVE     @map("Inactive")
+//   UNDER_REVIEW @map("Under Review")
+//   SUSPENDED    @map("Suspended")
+
+//   @@map("lender_record_status")
+// }
+
+// enum LenderDataSource {
+//   MANUAL_ENTRY     @map("Manual Entry")
+//   IMPORT           @map("Import")
+//   API_INTEGRATION  @map("API Integration")
+
+//   @@map("lender_data_source")
+// }
+
+// enum GurantorRequired {
+//   ALWAYS           @map("Always")
+//   ABOVE_THRESHOLD  @map("Above Threshold")
+//   NOT_REQUIRED     @map("Not Required")
+//   OPTIONAL         @map("Optional")
+
+//   @@map("guarantor_required")
+// }
+
+// enum InsuranceRequired {
+//   LIFE_INSURANCE      @map("Life Insurance")
+//   PROPERTY_INSURANCE  @map("Property Insurance")
+//   BOTH                @map("Both")
+//   NOT_REQUIRED        @map("Not Required")
+
+//   @@map("insurance_required")
+// }
+
+// enum ThirdPartyGuaranteeRequired {
+//   YES            @map("Yes")
+//   NO             @map("No")
+//   CASE_BY_CASE   @map("Case by Case")
+
+//   @@map("third_party_guarantee_required")
+// }
+
+// enum LoanProductMarketPositioning {
+//   PREMIUM       @map("Premium")
+//   MID_MARKET    @map("Mid-Market")
+//   BUDGET        @map("Budget")
+//   NICHE         @map("Niche")
+//   MASS_MARKET   @map("Mass Market")
+
+//   @@map("loan_product_market_segment")
+// }
+
+// enum PricingStrategy {
+//   COMPETITIVE    @map("Competitive")
+//   PREMIUM        @map("Premium")
+//   PENETRATION    @map("Penetration")
+//   VALUE_BASED    @map("Value Based")
+
+//   @@map("pricing_strategy")
+// }
+
+// enum NationalityRestrictions {
+//   INDIAN        @map("Indian")
+//   OTHERS        @map("Others")
+
+//   @@map("nationality_restrictions")
+// }
+
+// enum ResidencyRequirements {
+//   RESIDENT       @map("Resident")
+//   NON_RESIDENT   @map("Non-Resident")
+
+//   @@map("residency_requirements")
+// }
+
+// enum TargetSegment {
+//   UNDERGRADUATE   @map("Undergraduate")
+//   GRADUATE        @map("Graduate")
+//   PHD             @map("PhD")
+//   DIPLOMA         @map("Diploma")
+//   CERTIFICATE     @map("Certificate")
+//   PROFESSIONAL    @map("Professional")
+//   TECHNICAL       @map("Technical")
+//   MEDICAL         @map("Medical")
+//   MANAGEMENT      @map("Management")
+
+//   @@map("target_segment")
+// }
+
+// enum LoanProductCourseTypes {
+//   FULL_TIME          @map("Full Time")
+//   PART_TIME          @map("Part Time")
+//   DISTANCE_LEARNING  @map("Distance Learning")
+//   ONLINE             @map("Online")
+//   EXECUTIVE          @map("Executive")
+//   REGULAR            @map("Regular")
+//   ACCELERATED        @map("Accelerated")
+
+//   @@map("loan_product_course_types")
+// }
+
+// enum PartPaymentAllowed {
+//   YES             @map("Yes")
+//   NO              @map("No")
+//   MINIMUM_AMOUNT  @map("Minimum Amount")
+
+//   @@map("part_payment_allowed")
+// }
+
+// enum CustomerSupportFeatures {
+//   TWENTY_FOUR_SEVEN_SUPPORT  @map("24x7 Support")
+//   DEDICATED_RM               @map("Dedicated RM")
+//   ONLINE_CHAT                @map("Online Chat")
+//   VIDEO_KYC                  @map("Video KYC")
+//   DOOR_STEP_SERVICE          @map("Door Step Service")
+
+//   @@map("customer_support_features")
+// }
+
+// enum DigitalFeatures {
+//   ONLINE_APPLICATION     @map("Online Application")
+//   DIGITAL_DOCUMENTATION  @map("Digital Documentation")
+//   E_STATEMENTS           @map("E-Statements")
+//   MOBILE_APP             @map("Mobile App")
+//   SMS_ALERTS             @map("SMS Alerts")
+//   EMAIL_NOTIFICATIONS    @map("Email Notifications")
+
+//   @@map("digital_features")
+// }
+
+// enum FlexibleRepaymentOptions {
+//   STEP_UP_EMI       @map("Step Up EMI")
+//   STEP_DOWN_EMI     @map("Step Down EMI")
+//   BULLET_PAYMENT    @map("Bullet Payment")
+//   FLEXIBLE_EMI      @map("Flexible EMI")
+//   HOLIDAY_OPTIONS   @map("Holiday Options")
+
+//   @@map("flexible_repayment_options")
+// }
+
+// enum SandboxEnvironment {
+//   AVAILABLE      @map("Available")
+//   NOT_AVAILABLE  @map("Not Available")
+//   ON_REQUEST     @map("On Request")
+
+//   @@map("sandbox_environment")
+// }
+
+// enum DataFormat {
+//   JSON    @map("JSON")
+//   XML     @map("XML")
+//   CSV     @map("CSV")
+//   API     @map("API")
+//   MANUAL  @map("Manual")
+
+//   @@map("data_format")
+// }
+
+// enum ApiAvailability {
+//   YES               @map("Yes")
+//   NO                @map("No")
+//   UNDER_DEVELOPMENT @map("Under Development")
+//   PLANNED           @map("Planned")
+
+//   @@map("api_availability")
+// }
+
+// enum WebHookSupport {
+//   YES      @map("Yes")
+//   NO       @map("No")
+//   LIMITED  @map("Limited")
+
+//   @@map("webhook_support")
+// }
+
+// enum ProductRecordStatus {
+//   ACTIVE        @map("Active")
+//   INACTIVE      @map("Inactive")
+//   UNDER_REVIEW  @map("Under Review")
+//   DISCONTINUED  @map("Discontinued")
+
+//   @@map("product_record_status")
+// }
+
+// enum ReviewFrequency {
+//   MONTHLY       @map("Monthly")
+//   QUARTERLY     @map("Quarterly")
+//   HALF_YEARLY   @map("Half-yearly")
+//   YEARLY        @map("Yearly")
+
+//   @@map("review_frequency")
+// }
+
+// enum SettlementMonth {
+//   JANUARY     @map("January")
+//   FEBRUARY    @map("February")
+//   MARCH       @map("March")
+//   APRIL       @map("April")
+//   MAY         @map("May")
+//   JUNE        @map("June")
+//   JULY        @map("July")
+//   AUGUST      @map("August")
+//   SEPTEMBER   @map("September")
+//   OCTOBER     @map("October")
+//   NOVEMBER    @map("November")
+//   DECEMBER    @map("December")
+
+//   @@map("settlement_month")
+// }
+
+// enum TaxCertificateRequired {
+//   YES             @map("Yes")
+//   NO              @map("No")
+//   AUTO_GENERATED  @map("Auto Generated")
+
+//   @@map("tax_certificate_required")
+// }
+
+// enum CommissionDataSource {
+//   MANUAL_ENTRY           @map("Manual Entry")
+//   AUTOMATED_CALCULATION  @map("Automated Calculation")
+//   IMPORT                 @map("Import")
+//   API                    @map("API")
+//   BULK_UPLOAD            @map("Bulk Upload")
+
+//   @@map("commission_data_source")
+// }
+
+// enum CommissionIntegrationStatus {
+//   SYNCED         @map("Synced")
+//   PENDING_SYNC   @map("Pending Sync")
+//   SYNC_FAILED    @map("Sync Failed")
+//   NOT_REQUIRED   @map("Not Required")
+
+//   @@map("integration_status")
+// }
+
+// enum SettlementRecordStatus {
+//   ACTIVE              @map("Active")
+//   COMPLETED           @map("Completed")
+//   CANCELLED           @map("Cancelled")
+//   ARCHIVED            @map("Archived")
+//   UNDER_INVESTIGATION @map("Under Investigation")
+
+//   @@map("settlement_record_status")
+// }
+
+// enum SystemGenerated {
+//   YES        @map("Yes")
+//   NO         @map("No")
+//   PARTIALLY  @map("Partially")
+
+//   @@map("system_generated")
+// }
+
+// enum CommissionDisbursementTrigger {
+//   LOAN_DISBURSED        @map("Loan Disbursed")
+//   APPLICATION_APPROVED  @map("Application Approved")
+//   TARGET_ACHIEVED       @map("Target Achieved")
+//   MANUAL_TRIGGER        @map("Manual Trigger")
+//   SCHEDULED_PAYMENT     @map("Scheduled Payment")
+
+//   @@map("commission_disbursement_trigger")
+// }
+
+// enum CommissionTransactionType {
+//   COMMISSION_PAYMENT  @map("Commission Payment")
+//   BONUS_PAYMENT       @map("Bonus Payment")
+//   ADJUSTMENT          @map("Adjustment")
+//   REVERSAL            @map("Reversal")
+//   PENALTY_DEDUCTION   @map("Penalty Deduction")
+//   ADVANCE_PAYMENT     @map("Advance Payment")
+//   FINAL_SETTLEMENT    @map("Final Settlement")
+
+//   @@map("commission_transaction_type")
+// }
+
+// enum AcknowledgmentReceived {
+//   YES      @map("Yes")
+//   NO       @map("No")
+//   PENDING  @map("Pending")
+
+//   @@map("acknowledgment_received")
+// }
+
+// enum CommissionNotificationMethod {
+//   EMAIL               @map("Email")
+//   SMS                 @map("SMS")
+//   WHATSAPP            @map("WhatsApp")
+//   PHONE_CALL          @map("Phone Call")
+//   PORTAL_NOTIFICATION @map("Portal Notification")
+
+//   @@map("commission_notification_method")
+// }
+
+// enum PartnerNotificationSent {
+//   YES      @map("Yes")
+//   NO       @map("No")
+//   PENDING  @map("Pending")
+//   FAILED   @map("Failed")
+
+//   @@map("partner_notification_sent")
+// }
+
+// enum TransactionDisbursementTrigger {
+//   LOAN_DISBURSED         @map("Loan Disbursed")
+//   APPLICATION_APPROVED   @map("Application Approved")
+//   TARGET_ACHIEVED        @map("Target Achieved")
+//   MANUAL_TRIGGER         @map("Manual Trigger")
+//   SCHEDULED_PAYMENT      @map("Scheduled Payment")
+
+//   @@map("transaction_disbursement_trigger")
+// }
+
+// enum TransactionTypes {
+//   COMMISSION_PAYMENT   @map("Commission Payment")
+//   BONUS_PAYMENT        @map("Bonus Payment")
+//   ADJUSTMENT           @map("Adjustment")
+//   REVERSAL             @map("Reversal")
+//   PENALTY_DEDUCTION    @map("Penalty Deduction")
+//   ADVANCE_PAYMENT      @map("Advance Payment")
+//   FINAL_SETTLEMENT     @map("Final Settlement")
+
+//   @@map("transaction_types")
+// }
+
+// enum CollateralDependency {
+//   YES             @map("Yes")
+//   NO              @map("No")
+//   NOT_APPLICABLE  @map("Not Applicable")
+
+//   @@map("collateral_dependency")
+// }
+
+// enum RequiredForCountries {
+//   US        @map("US")
+//   UK        @map("UK")
+//   CANADA    @map("Canada")
+//   AUSTRALIA @map("Australia")
+//   GERMANY   @map("Germany")
+//   FRANCE    @map("France")
+//   OTHER     @map("Other")
+
+//   @@map("required_for_countries")
+// }
+
+// enum RequiredForCourses {
+//   ENGINEERING  @map("Engineering")
+//   MBA          @map("MBA")
+//   MS           @map("MS")
+//   MEDICINE     @map("Medicine")
+//   LAW          @map("Law")
+//   ARTS         @map("Arts")
+//   SCIENCE      @map("Science")
+//   OTHER        @map("Other")
+
+//   @@map("required_for_courses")
+// }
+
+// enum GdprRelevance {
+//   YES             @map("Yes")
+//   NO              @map("No")
+//   PARTIAL         @map("Partial")
+//   NOT_APPLICABLE  @map("Not Applicable")
+
+//   @@map("gdpr_relevance")
+// }
+
+// enum DocumentAvailability {
+//   YES           @map("Yes")
+//   NO            @map("No")
+//   PLANNED       @map("Planned")
+//   NOT_REQUIRED  @map("Not Required")
+
+//   @@map("document_availability")
+// }
+
+// enum AutomatedProcessing {
+//   FULL         @map("Full")
+//   PARTIAL      @map("Partial")
+//   MANUAL_ONLY  @map("Manual Only")
+//   HYBRID       @map("Hybrid")
+
+//   @@map("automated_processing")
+// }
+
+// enum BlockchainVerification {
+//   YES             @map("Yes")
+//   NO              @map("No")
+//   NOT_APPLICABLE  @map("Not Applicable")
+//   FUTURE          @map("Future")
+
+//   @@map("blockchain_verification")
+// }
+
+// enum DigitalSignatureRequired {
+//   YES        @map("Yes")
+//   NO         @map("No")
+//   OPTIONAL   @map("Optional")
+//   PREFERRED  @map("Preferred")
+
+//   @@map("digital_signature_required")
+// }
+
+// enum ESignatureAccepted {
+//   YES          @map("Yes")
+//   NO           @map("No")
+//   CASE_BY_CASE @map("Case by Case")
+
+//   @@map("e_signature_accepted")
+// }
+
+// enum RealTimeVerification {
+//   YES             @map("Yes")
+//   NO              @map("No")
+//   PLANNED         @map("Planned")
+//   NOT_APPLICABLE  @map("Not Applicable")
+
+//   @@map("real_time_verification")
+// }
+
+// enum AcceptedFormats {
+//   PDF                   @map("PDF")
+//   JPG                   @map("JPG")
+//   JPEG                  @map("JPEG")
+//   PNG                   @map("PNG")
+//   TIFF                  @map("TIFF")
+//   DOC                   @map("DOC")
+//   DOCX                  @map("DOCX")
+//   ORIGINAL_HARD_COPY    @map("Original Hard Copy")
+//   SCANNED_COPY          @map("Scanned Copy")
+//   DIGITAL_COPY          @map("Digital Copy")
+  
+//   @@map("accepted_formats")
+// }
+
+// enum ColorRequirements {
+//   COLOR_ONLY            @map("Color Only")
+//   BLACK_WHITE_ONLY      @map("Black White Only")
+//   BOTH_ACCEPTABLE       @map("Both Acceptable")
+//   COLOR_PREFERRED       @map("Color Preferred")
+  
+//   @@map("color_requirements")
+// }
+
+// enum CombinedDocumentAllowed {
+//   YES                   @map("Yes")
+//   NO                    @map("No")
+//   SINGLE_PAGE_ONLY      @map("Single Page Only")
+  
+//   @@map("combined_document_allowed")
+// }
+
+// enum LanguageRequirements {
+//   ENGLISH                           @map("English")
+//   HINDI                             @map("Hindi")
+//   REGIONAL_WITH_TRANSLATION         @map("Regional with Translation")
+//   NOTARIZED_TRANSLATION_REQUIRED    @map("Notarized Translation Required")
+  
+//   @@map("language_requirements")
+// }
+
+// enum MultiplePagesAllowed {
+//   YES                   @map("Yes")
+//   NO                    @map("No")
+//   SINGLE_PAGE_ONLY      @map("Single Page Only")
+  
+//   @@map("multiple_pages_allowed")
+// }
+
+// enum QualityStandards {
+//   CLEAR_LEGIBLE         @map("Clear Legible")
+//   ALL_CORNERS_VISIBLE   @map("All Corners Visible")
+//   NO_SHADOWS            @map("No Shadows")
+//   ORIGINAL_COLORS       @map("Original Colors")
+//   STAMPED_SIGNED        @map("Stamped Signed")
+//   NOTARIZED             @map("Notarized")
+//   APOSTILLED            @map("Apostilled")
+  
+//   @@map("quality_standards")
+// }
+
+// enum AutoExtractionPossible {
+//   YES       @map("Yes")
+//   NO        @map("No")
+//   PARTIAL   @map("Partial")
+  
+//   @@map("auto_extraction_possible")
+// }
+
+// enum OCRCompatibility {
+//   HIGH            @map("High")
+//   MEDIUM          @map("Medium")
+//   LOW             @map("Low")
+//   NOT_COMPATIBLE  @map("Not Compatible")
+  
+//   @@map("ocr_compatibility")
+// }
+
+// enum ParallelProcessingAllowed {
+//   YES       @map("Yes")
+//   NO        @map("No")
+//   PREFERRED @map("Preferred")
+  
+//   @@map("parallel_processing_allowed")
+// }
+
+// enum ResubmissionAllowed {
+//   YES               @map("Yes")
+//   NO                @map("No")
+//   LIMITED_ATTEMPTS  @map("Limited Attempts")
+  
+//   @@map("resubmission_allowed")
+// }
+
+// enum DocumentRecordStatus {
+//   ACTIVE        @map("Active")
+//   INACTIVE      @map("Inactive")
+//   UNDER_REVIEW  @map("Under Review")
+//   DEPRECATED    @map("Deprecated")
+  
+//   @@map("document_record_status")
+// }
+
+// enum DocumentReviewFrequency {
+//   MONTHLY       @map("Monthly")
+//   QUARTERLY     @map("Quarterly")
+//   HALF_YEARLY   @map("Half-yearly")
+//   YEARLY        @map("Yearly")
+//   AS_NEEDED     @map("As Needed")
+  
+//   @@map("document_review_frequency")
+// }
+
+// enum EdumateContactAdmissionStatus {
+//   NOT_APPLIED           @map("Not Applied")
+//   APPLIED               @map("Applied")
+//   INTERVIEW_SCHEDULED   @map("Interview Scheduled")
+//   WAITLISTED            @map("Waitlisted")
+//   ADMITTED              @map("Admitted")
+//   REJECTED              @map("Rejected")
+  
+//   @@map("edumate_contact_admission_status")
+// }
+
+// enum CurrentEducationLevel {
+//   HIGH_SCHOOL   @map("High School")
+//   BACHELORS      @map("Bachelors")
+//   MASTERS        @map("Masters")
+//   PHD           @map("PhD")
+//   DIPLOMA       @map("Diploma")
+//   OTHER         @map("Other")
+  
+//   @@map("current_education_level")
+// }
+
+// enum IntendedStartTerm {
+//   FALL      @map("Fall")
+//   SPRING    @map("Spring")
+//   SUMMER    @map("Summer")
+//   WINTER    @map("Winter")
+  
+//   @@map("intended_start_term")
+// }
+
+// enum PreferredStudyDestination {
+//   US            @map("US")
+//   UK            @map("UK")
+//   CANADA        @map("Canada")
+//   AUSTRALIA     @map("Australia")
+//   GERMANY       @map("Germany")
+//   FRANCE        @map("France")
+//   SINGAPORE     @map("Singapore")
+//   ITALY         @map("Italy")
+//   UAE           @map("UAE")
+//   JAPAN         @map("Japan")
+//   CHINA         @map("China")
+//   INDIA         @map("India")
+//   NEW_ZEALAND   @map("New Zealand")
+//   OTHER         @map("Other")
+  
+//   @@map("preferred_study_destination")
+// }
+
+// enum TargetDegreeLevel {
+//   BACHELORS             @map("Bachelors")
+//   MASTERS               @map("Masters")
+//   PHD                   @map("PhD")
+//   DIPLOMA               @map("Diploma")
+//   CERTIFICATE           @map("Certificate")
+//   PROFESSIONAL_COURSE   @map("Professional Course")
+  
+//   @@map("target_degree_level")
+// }
+
+// enum CurrentStatusDisposition {
+//   NOT_INTERESTED                @map("Not Interested")
+//   WRONG_NUMBER                  @map("Wrong Number")
+//   CALL_NOT_ANSWERED            @map("Call not Answered")
+//   FOLLOW_UP                    @map("Follow Up")
+//   INT_FOR_NEXT_YEAR           @map("Int for Next Year")
+//   PARTIAL_DOCUMENTS_RECEIVED   @map("Partial Documents Received")
+  
+//   @@map("current_status_disposition")
+// }
+
+// enum StatusDispositionReason {
+//   ALREADY_APPLIED       @map("Already Applied")
+//   NOT_LOOKING_AT_LOAN  @map("Not Looking at Loan")
+//   SELF_FUNDING         @map("Self Funding")
+//   OTHERS               @map("Others")
+  
+//   @@map("status_disposition_reason")
+// }
+
+// enum EdumateContactCourseType {
+//   STEM      @map("Stem")
+//   BUSINESS  @map("Business")
+//   OTHERS    @map("Others")
+  
+//   @@map("edumate_contact_course_type")
+// }
+
+// enum CoApplicantOccupation {
+//   SALARIED        @map("Salaried")
+//   SELF_EMPLOYED   @map("Self Employed")
+//   RETIRED         @map("Retired")
+//   OTHERS          @map("Others")
+  
+//   @@map("co_applicant_occupation")
+// }
+
+// enum CoApplicantRelationship {
+//   FATHER          @map("Father")
+//   MOTHER          @map("Mother")
+//   SPOUSE          @map("Spouse")
+//   SIBLING         @map("Sibling")
+//   UNCLE           @map("Uncle")
+//   AUNT            @map("Aunt")
+//   GRAND_FATHER    @map("Grand Father")
+//   GRAND_MOTHER    @map("Grand Mother")
+//   OTHERS          @map("Others")
+  
+//   @@map("co_applicant_relationship")
+// }
+
+// enum CollateralAvailable {
+//   YES   @map("Yes")
+//   NO    @map("No")
+  
+//   @@map("collateral_available")
+// }
+
+// enum EdumateContactCollateralType {
+//   PROPERTY    @map("Property")
+//   FD          @map("FD")
+//   NA_PLOT     @map("NA Plot")
+//   OTHER       @map("Other")
+  
+//   @@map("edumate_contact_collateral_type")
+// }
+
+// enum FinancialCurrency {
+//   INR     @map("INR")
+//   USD     @map("USD")
+//   EUR     @map("EUR")
+//   GBP     @map("GBP")
+//   CAD     @map("CAD")
+//   AUD     @map("AUD")
+//   OTHER   @map("Other")
+  
+//   @@map("financial_currency")
+// }
+
+// enum LeadSource {
+//   ORGANIC_SEARCH    @map("Organic Search")
+//   SOCIAL_MEDIA      @map("Social Media")
+//   B2B_PARTNER       @map("B2B Partner")
+//   REFERRAL          @map("Referral")
+//   ADVERTISEMENT     @map("Advertisement")
+//   WEBSITE           @map("Website")
+//   WALK_IN           @map("Walk-in")
+//   OTHER             @map("Other")
+  
+//   @@map("lead_source")
+// }
+
+// enum PartnerCommissionApplicable {
+//   YES   @map("Yes")
+//   NO    @map("No")
+  
+//   @@map("partner_commission_applicable")
+// }
+
+// enum LoanTypePreference {
+//   SECURED             @map("Secured")
+//   UNSECURED           @map("Unsecured")
+//   GOVERNMENT_SCHEME   @map("Government Scheme")
+//   NO_PREFERENCE       @map("No Preference")
+  
+//   @@map("loan_type_preference")
+// }
+
+// enum PreferredLenders {
+//   AXIS    @map("Axis")
+//   // Add more lenders as needed
+  
+//   @@map("preferred_lenders")
+// }
+
+// enum RepaymentTypePreference {
+//   EMI              @map("EMI")
+//   SIMPLE_INT       @map("Simple Int")
+//   PARTIAL_INT      @map("Partial Int")
+//   COMPLETE_MORAT   @map("Complete Morat")
+  
+//   @@map("repayment_type_preference")
+// }
+
+// enum Nationality {
+//   AFGHANISTAN           @map("Afghanistan")
+//   ALBANIA              @map("Albania")
+//   ANTARCTICA           @map("Antarctica")
+//   ALAND_ISLANDS        @map("Åland Islands")
+//   ALGERIA              @map("Algeria")
+//   AMERICAN_SAMOA       @map("American Samoa")
+//   ANDORRA              @map("Andorra")
+//   ANGOLA               @map("Angola")
+//   ANGUILLA             @map("Anguilla")
+//   ANTIGUA_AND_BARBUDA  @map("Antigua and Barbuda")
+//   ARUBA                @map("Aruba")
+//   ASIA_PACIFIC_REGION  @map("Asia/Pacific Region")
+//   AZERBAIJAN           @map("Azerbaijan")
+//   ARGENTINA            @map("Argentina")
+//   ARMENIA              @map("Armenia")
+//   AUSTRALIA            @map("Australia")
+//   AUSTRIA              @map("Austria")
+//   BAHAMAS              @map("Bahamas")
+//   BAHRAIN              @map("Bahrain")
+//   BANGLADESH           @map("Bangladesh")
+//   BARBADOS             @map("Barbados")
+//   BELGIUM              @map("Belgium")
+//   BHUTAN               @map("Bhutan")
+//   BOLIVIA              @map("Bolivia")
+//   BOSNIA_AND_HERZEGOVINA @map("Bosnia and Herzegovina")
+//   BOTSWANA             @map("Botswana")
+//   BOUVET_ISLAND        @map("Bouvet Island")
+//   BRAZIL               @map("Brazil")
+//   CARIBBEAN_NETHERLANDS @map("Caribbean Netherlands")
+//   BELIZE               @map("Belize")
+//   SOLOMON_ISLANDS      @map("Solomon Islands")
+//   BRUNEI               @map("Brunei")
+//   BULGARIA             @map("Bulgaria")
+//   BURUNDI              @map("Burundi")
+//   BELARUS              @map("Belarus")
+//   BERMUDA              @map("Bermuda")
+//   CAMBODIA             @map("Cambodia")
+//   CAYMAN_ISLANDS       @map("Cayman Islands")
+//   CAMEROON             @map("Cameroon")
+//   CANADA               @map("Canada")
+//   CAPE_VERDE           @map("Cape Verde")
+//   CENTRAL_AFRICAN_REPUBLIC @map("Central African Republic")
+//   CUBA                 @map("Cuba")
+//   CURACAO              @map("Curaçao")
+//   SRI_LANKA            @map("Sri Lanka")
+//   CHAD                 @map("Chad")
+//   CHILE                @map("Chile")
+//   CHINA                @map("China")
+//   CHRISTMAS_ISLAND     @map("Christmas Island")
+//   COCOS_KEELING_ISLANDS @map("Cocos (Keeling) Islands")
+//   COLOMBIA             @map("Colombia")
+//   COMOROS              @map("Comoros")
+//   CONGO                @map("Congo")
+//   DEMOCRATIC_REPUBLIC_OF_THE_CONGO @map("Democratic Republic of the Congo")
+//   COOK_ISLANDS         @map("Cook Islands")
+//   COSTA_RICA           @map("Costa Rica")
+//   CROATIA              @map("Croatia")
+//   CYPRUS               @map("Cyprus")
+//   CZECH_REPUBLIC       @map("Czech Republic")
+//   BENIN                @map("Benin")
+//   DENMARK              @map("Denmark")
+//   DOMINICA             @map("Dominica")
+//   DOMINICAN_REPUBLIC   @map("Dominican Republic")
+//   ECUADOR              @map("Ecuador")
+//   EL_SALVADOR          @map("El Salvador")
+//   EQUATORIAL_GUINEA    @map("Equatorial Guinea")
+//   ETHIOPIA             @map("Ethiopia")
+//   ERITREA              @map("Eritrea")
+//   ESTONIA              @map("Estonia")
+//   EUROPE               @map("Europe")
+//   SOUTH_GEORGIA_AND_SOUTH_SANDWICH_ISLANDS @map("South Georgia and the South Sandwich Islands")
+//   FIJI                 @map("Fiji")
+//   FINLAND              @map("Finland")
+//   FRANCE               @map("France")
+//   FALKLAND_ISLANDS     @map("Falkland Islands")
+//   FAROE_ISLANDS        @map("Faroe Islands")
+//   FRENCH_POLYNESIA     @map("French Polynesia")
+//   FRENCH_SOUTHERN_AND_ANTARCTIC_LANDS @map("French Southern and Antarctic Lands")
+//   DJIBOUTI             @map("Djibouti")
+//   GABON                @map("Gabon")
+//   GEORGIA              @map("Georgia")
+//   GAMBIA               @map("Gambia")
+//   GERMANY              @map("Germany")
+//   GHANA                @map("Ghana")
+//   GREENLAND            @map("Greenland")
+//   GUADELOUPE           @map("Guadeloupe")
+//   GUERNSEY             @map("Guernsey")
+//   KIRIBATI             @map("Kiribati")
+//   GREECE               @map("Greece")
+//   GRENADA              @map("Grenada")
+//   GUAM                 @map("Guam")
+//   GUATEMALA            @map("Guatemala")
+//   GUINEA               @map("Guinea")
+//   GUYANA               @map("Guyana")
+//   FRENCH_GUIANA        @map("French Guiana")
+//   GIBRALTAR            @map("Gibraltar")
+//   HAITI                @map("Haiti")
+//   HEARD_ISLAND_AND_MCDONALD_ISLANDS @map("Heard Island and McDonald Islands")
+//   VATICAN_CITY         @map("Vatican City")
+//   HONDURAS             @map("Honduras")
+//   HUNGARY              @map("Hungary")
+//   HONG_KONG            @map("Hong Kong")
+//   ISLE_OF_MAN          @map("Isle of Man")
+//   IRAN                 @map("Iran")
+//   JERSEY               @map("Jersey")
+//   MACAU                @map("Macau")
+//   MARTINIQUE           @map("Martinique")
+//   MONTSERRAT           @map("Montserrat")
+//   MYANMAR_BURMA        @map("Myanmar (Burma)")
+//   NORTH_KOREA          @map("North Korea")
+//   PALESTINE            @map("Palestine")
+//   PUERTO_RICO          @map("Puerto Rico")
+//   REUNION              @map("Réunion")
+//   SAINT_BARTHELEMY     @map("Saint Barthélemy")
+//   SAINT_MARTIN         @map("Saint Martin")
+//   SINT_MAARTEN         @map("Sint Maarten")
+//   SOUTH_SUDAN          @map("South Sudan")
+//   SUDAN                @map("Sudan")
+//   SYRIA                @map("Syria")
+//   TAIWAN               @map("Taiwan")
+//   TURKS_AND_CAICOS_ISLANDS @map("Turks and Caicos Islands")
+//   US_VIRGIN_ISLANDS    @map("U.S. Virgin Islands")
+//   ICELAND              @map("Iceland")
+//   INDIA                @map("India")
+//   INDONESIA            @map("Indonesia")
+//   IRAQ                 @map("Iraq")
+//   IRELAND              @map("Ireland")
+//   ISRAEL               @map("Israel")
+//   ITALY                @map("Italy")
+//   BRITISH_INDIAN_OCEAN_TERRITORY @map("British Indian Ocean Territory")
+//   COTE_DIVOIRE         @map("Cote dIvoire")
+//   JAMAICA              @map("Jamaica")
+//   JAPAN                @map("Japan")
+//   KAZAKHSTAN           @map("Kazakhstan")
+//   JORDAN               @map("Jordan")
+//   KENYA                @map("Kenya")
+//   SOUTH_KOREA          @map("South Korea")
+//   KOSOVO               @map("Kosovo")
+//   KUWAIT               @map("Kuwait")
+//   KYRGYZSTAN           @map("Kyrgyzstan")
+//   LAOS                 @map("Laos")
+//   LEBANON              @map("Lebanon")
+//   LESOTHO              @map("Lesotho")
+//   LATVIA               @map("Latvia")
+//   LIBERIA              @map("Liberia")
+//   LIBYA                @map("Libya")
+//   LIECHTENSTEIN        @map("Liechtenstein")
+//   LITHUANIA            @map("Lithuania")
+//   LUXEMBOURG           @map("Luxembourg")
+//   MADAGASCAR           @map("Madagascar")
+//   MALAWI               @map("Malawi")
+//   MALAYSIA             @map("Malaysia")
+//   MALDIVES             @map("Maldives")
+//   MALI                 @map("Mali")
+//   MALTA                @map("Malta")
+//   MAURITANIA           @map("Mauritania")
+//   MAURITIUS            @map("Mauritius")
+//   MAYOTTE              @map("Mayotte")
+//   MEXICO               @map("Mexico")
+//   MONACO               @map("Monaco")
+//   MONGOLIA             @map("Mongolia")
+//   MOLDOVA              @map("Moldova")
+//   MONTENEGRO           @map("Montenegro")
+//   MOROCCO              @map("Morocco")
+//   MOZAMBIQUE           @map("Mozambique")
+//   OMAN                 @map("Oman")
+//   NAMIBIA              @map("Namibia")
+//   NAURU                @map("Nauru")
+//   NEPAL                @map("Nepal")
+//   NETHERLANDS          @map("Netherlands")
+//   NEW_CALEDONIA        @map("New Caledonia")
+//   VANUATU              @map("Vanuatu")
+//   NETHERLANDS_ANTILLES @map("Netherlands Antilles")
+//   NEW_ZEALAND          @map("New Zealand")
+//   NICARAGUA            @map("Nicaragua")
+//   NIGER                @map("Niger")
+//   NIGERIA              @map("Nigeria")
+//   NIUE                 @map("Niue")
+//   NORFOLK_ISLAND       @map("Norfolk Island")
+//   NORWAY               @map("Norway")
+//   NORTHERN_MARIANA_ISLANDS @map("Northern Mariana Islands")
+//   UNITED_STATES_MINOR_OUTLYING_ISLANDS @map("United States Minor Outlying Islands")
+//   MICRONESIA           @map("Micronesia")
+//   MARSHALL_ISLANDS     @map("Marshall Islands")
+//   PALAU                @map("Palau")
+//   PAKISTAN             @map("Pakistan")
+//   PANAMA               @map("Panama")
+//   PAPUA_NEW_GUINEA     @map("Papua New Guinea")
+//   PARAGUAY             @map("Paraguay")
+//   PERU                 @map("Peru")
+//   PHILIPPINES          @map("Philippines")
+//   PITCAIRN_ISLANDS     @map("Pitcairn Islands")
+//   POLAND               @map("Poland")
+//   PORTUGAL             @map("Portugal")
+//   GUINEA_BISSAU        @map("Guinea-Bissau")
+//   EAST_TIMOR           @map("East Timor")
+//   QATAR                @map("Qatar")
+//   ROMANIA              @map("Romania")
+//   RUSSIA               @map("Russia")
+//   RWANDA               @map("Rwanda")
+//   SAINT_HELENA         @map("Saint Helena")
+//   SAINT_KITTS_AND_NEVIS @map("Saint Kitts and Nevis")
+//   SAINT_LUCIA          @map("Saint Lucia")
+//   SAINT_PIERRE_AND_MIQUELON @map("Saint Pierre and Miquelon")
+//   SAINT_VINCENT_AND_THE_GRENADINES @map("Saint Vincent and the Grenadines")
+//   SAN_MARINO           @map("San Marino")
+//   SAO_TOME_AND_PRINCIPE @map("Sao Tome and Principe")
+//   SAUDI_ARABIA         @map("Saudi Arabia")
+//   SENEGAL              @map("Senegal")
+//   SVALBARD_AND_JAN_MAYEN @map("Svalbard and Jan Mayen")
+//   SERBIA               @map("Serbia")
+//   SEYCHELLES           @map("Seychelles")
+//   SIERRA_LEONE         @map("Sierra Leone")
+//   SINGAPORE            @map("Singapore")
+//   SLOVAKIA             @map("Slovakia")
+//   VIETNAM              @map("Vietnam")
+//   WESTERN_SAHARA       @map("Western Sahara")
+//   SLOVENIA             @map("Slovenia")
+//   SOMALIA              @map("Somalia")
+//   SOUTH_AFRICA         @map("South Africa")
+//   ZIMBABWE             @map("Zimbabwe")
+//   SPAIN                @map("Spain")
+//   SURINAME             @map("Suriname")
+//   SWAZILAND            @map("Swaziland")
+//   SWEDEN               @map("Sweden")
+//   SWITZERLAND          @map("Switzerland")
+//   TAJIKISTAN           @map("Tajikistan")
+//   THAILAND             @map("Thailand")
+//   TOGO                 @map("Togo")
+//   TOKELAU              @map("Tokelau")
+//   TONGA                @map("Tonga")
+//   TRINIDAD_AND_TOBAGO  @map("Trinidad and Tobago")
+//   UNITED_ARAB_EMIRATES @map("United Arab Emirates")
+//   TUNISIA              @map("Tunisia")
+//   TURKIYE              @map("Türkiye")
+//   TURKMENISTAN         @map("Turkmenistan")
+//   TUVALU               @map("Tuvalu")
+//   UGANDA               @map("Uganda")
+//   UKRAINE              @map("Ukraine")
+//   MACEDONIA_FYROM      @map("Macedonia (FYROM)")
+//   EGYPT                @map("Egypt")
+//   UNITED_KINGDOM       @map("United Kingdom")
+//   TANZANIA             @map("Tanzania")
+//   UNITED_STATES        @map("United States")
+//   BURKINA_FASO         @map("Burkina Faso")
+//   URUGUAY              @map("Uruguay")
+//   UZBEKISTAN           @map("Uzbekistan")
+//   VENEZUELA            @map("Venezuela")
+//   BRITISH_VIRGIN_ISLANDS @map("British Virgin Islands")
+//   WALLIS_AND_FUTUNA    @map("Wallis and Futuna")
+//   SAMOA                @map("Samoa")
+//   YEMEN                @map("Yemen")
+//   ZAMBIA               @map("Zambia")
+//   CANARY_ISLANDS       @map("Canary Islands")
+  
+//   @@map("nationality")
+// }
+
+// enum GDPRConsent {
+//   YES       @map("Yes")
+//   NO        @map("No")
+//   PENDING   @map("Pending")
+  
+//   @@map("gdpr_consent")
+// }
+
+// enum MarketingConsent {
+//   YES   @map("Yes")
+//   NO    @map("No")
+  
+//   @@map("marketing_consent")
+// }
+
+// enum StudentRecordStatus {
+//   ACTIVE      @map("Active")
+//   INACTIVE    @map("Inactive")
+//   DUPLICATE   @map("Duplicate")
+//   MERGED      @map("Merged")
+  
+//   @@map("student_record_status")
+// }
+
 enum I20CasStatus {
-  YES
-  NO
-  NOT_APPLICABLE    @map("NOT APPLICABLE")
-  PENDING
+  YES               @map("Yes")
+  NO                @map("No")
+  NOT_APPLICABLE    @map("Not Applicable")
+  PENDING           @map("Pending")
 }
 
 enum ApplicationStatusEnum {
@@ -2293,307 +4157,300 @@ enum ApplicationStatusEnum {
 }
 
 enum PriorityLevel {
-  HIGH
-  MEDIUM
-  LOW
-  URGENT
+  HIGH      @map("High")
+  MEDIUM    @map("Medium")
+  LOW       @map("Low")
+  URGENT    @map("Urgent")
 }
 
 enum RecordStatus {
-  ACTIVE
-  COMPLETED
-  CANCELLED
-  ARCHIVED
+  ACTIVE      @map("Active")
+  COMPLETED   @map("Completed")
+  CANCELLED   @map("Cancelled")
+  ARCHIVED    @map("Archived")
 }
 
 enum LoanProductType {
-  SECURED
-  UNSECURED
-  GOVERNMENT_SCHEME   @map("GOVERNMENT SCHEME")
+  SECURED             @map("Secured")
+  UNSECURED           @map("Unsecured")
+  GOVERNMENT_SCHEME   @map("Government Scheme")
 }
 
 enum InterestRateType {
-  FIXED
-  FLOATING
-  HYBRID
-  CHOICE_BASED    @map("CHOICE BASED")
+  FIXED           @map("Fixed")
+  FLOATING        @map("Floating")
+  HYBRID          @map("Hybrid")
+  CHOICE_BASED    @map("Choice Based")
 }
 
 enum DelayReason {
-  INCOMPLETE_DOCUMENTS    @map("INCOMPLETE DOCUMENTS")
-  CUSTOMER_NOT_RESPONDING   @map("CUSTOMER NOT RESPONDING")
-  LENDER_PROCESSING   @map("LENDER PROCESSING")
-  INTERNAL_REVIEW   @map("INTERNAL REVIEW")
-  COMPLIANCE_CHECK    @map("COMPLIANCE CHECK")
-  OTHER
+  INCOMPLETE_DOCUMENTS      @map("Incomplete Documents")
+  CUSTOMER_NOT_RESPONDING   @map("Customer Not Responding")
+  LENDER_PROCESSING         @map("Lender Processing")
+  INTERNAL_REVIEW           @map("Internal Review")
+  COMPLIANCE_CHECK          @map("Compliance Check")
+  OTHER                     @map("Other")
 }
 
 enum RejectionReason {
   // Loan-related
-  INSUFFICIENT_INCOME       @map("INSUFFICIENT INCOME")
-  POOR_CREDIT_SCORE         @map("POOR CREDIT SCORE")
-  INCOMPLETE_DOCUMENTS      @map("INCOMPLETE DOCUMENTS")
-  COURSE_NOT_APPROVED       @map("COURSE NOT APPROVED")
-  UNIVERSITY_NOT_APPROVED   @map("UNIVERSITY NOT APPROVED")
-  HIGH_RISK_PROFILE         @map("HIGH RISK PROFILE")
-  POLICY_CHANGES            @map("POLICY CHANGES")
+  INSUFFICIENT_INCOME       @map("Insufficient Income")
+  POOR_CREDIT_SCORE         @map("Poor Credit Score")
+  INCOMPLETE_DOCUMENTS      @map("Incomplete Documents")
+  COURSE_NOT_APPROVED       @map("Course Not Approved")
+  UNIVERSITY_NOT_APPROVED   @map("University Not Approved")
+  HIGH_RISK_PROFILE         @map("High Risk Profile")
+  POLICY_CHANGES            @map("Policy Changes")
   
   // Document-related
-  INVALID_FORMAT            @map("INVALID FORMAT")
-  EXPIRED_DOCUMENT          @map("EXPIRED DOCUMENT")
-  UNCLEAR_IMAGE             @map("UNCLEAR IMAGE")
-  INCOMPLETE_INFORMATION    @map("INCOMPLETE INFORMATION")
-  MISMATCH_DATA             @map("MISMATCH DATA")
-  FRAUDULENT
-  WRONG_DOCUMENT            @map("WRONG DOCUMENT")
-  NOT_CERTIFIED             @map("NOT CERTIFIED")
+  INVALID_FORMAT            @map("Invalid Format")
+  EXPIRED_DOCUMENT          @map("Expired Document")
+  UNCLEAR_IMAGE             @map("Unclear Image")
+  INCOMPLETE_INFORMATION    @map("Incomplete Information")
+  MISMATCH_DATA             @map("Mismatch Data")
+  FRAUDULENT                @map("Fraudulent")
+  WRONG_DOCUMENT            @map("Wrong Document")
+  NOT_CERTIFIED             @map("Not Certified")
   
-  OTHER
+  OTHER                     @map("Other")
 
   @@map("rejection_reason")
 }
 
 enum AppealOutcome {
-  PENDING
-  APPROVED
-  REJECTED
-  NOT_APPLICABLE
+  PENDING           @map("Pending")
+  APPROVED          @map("Approved")
+  REJECTED          @map("Rejected")
+  NOT_APPLICABLE    @map("Not Applicable")
 }
 
 enum CommunicationChannel {
-  PHONE
-  EMAIL
-  WHATSAPP
-  SMS
-  VIDEO_CALL    @map("VIDEO CALL")
+  PHONE         @map("Phone")
+  EMAIL         @map("Email")
+  WHATSAPP      @map("Whatsapp")
+  SMS           @map("Sms")
+  VIDEO_CALL    @map("Video Call")
 }
 
 enum FollowUpFrequency {
-  DAILY
-  WEEKLY
-  BI_WEEKLY   @map("BI WEEKLY")
-  MONTHLY
-  AS_NEEDED   @map("AS NEEDED")
+  DAILY       @map("Daily")
+  WEEKLY      @map("Weekly")
+  BI_WEEKLY   @map("Bi Weekly")
+  MONTHLY     @map("Monthly")
+  AS_NEEDED   @map("As Needed")
 }
 
 enum ApplicationSourceSystem {
-  MANUAL_ENTRY  @map("MANUAL_ENTRY")
-  WEBSITE_FORM    @map("WEBSITE_FORM")
-  PARTNER_PORTAL    @map("PARTNER_PORTAL")
-  IMPORT
-  API
-}
-
-enum LoanApplicationSystemTrackingEnum {
-  ACTIVE
-  COMPLETED
-  CANCELLED
-  ARCHIVED
+  MANUAL_ENTRY      @map("Manual Entry")
+  WEBSITE_FORM      @map("Website Form")
+  PARTNER_PORTAL    @map("Partner Portal")
+  IMPORT            @map("Import")
+  API               @map("Api")
 }
 
 enum IntegrationStatus {
-  SYNCED
-  PENDING_SYNC    @map("PENDING_SYNC")
-  SYNC_FAILED   @map("SYNC_FAILED")
-  NOT_REQUIRED    @map("NOT_REQUIRED")
+  SYNCED          @map("Synced")
+  PENDING_SYNC    @map("Pending Sync")
+  SYNC_FAILED     @map("Sync Failed")
+  NOT_REQUIRED    @map("Not Required")
 }
 
 enum CommissionBase {
-  LOAN_AMOUNT   @map("LOAN_AMOUNT")
-  FIXED_AMOUNT    @map("FIXED_AMOUNT")
-  TIERED
+  LOAN_AMOUNT     @map("Loan Amount")
+  FIXED_AMOUNT    @map("Fixed Amount")
+  TIERED          @map("Tiered")
 }
 
 enum CommissionStatus {
-  NOT_APPLICABLE    @map("NOT_APPLICABLE")
-  PENDING_CALCULATION   @map("PENDING_CALCULATION")
-  CALCULATED
-  APPROVED_FOR_PAYMENT    @map("APPROVED_FOR_PAYMENT")
-  PAID
-  ON_HOLD   @map("ON_HOLD")
+  NOT_APPLICABLE              @map("Not Applicable")
+  PENDING_CALCULATION         @map("Pending Calculation")
+  CALCULATED                  @map("Calculated")
+  APPROVED_FOR_PAYMENT        @map("Approved For Payment")
+  PAID                        @map("Paid")
+  ON_HOLD                     @map("On Hold")
 }
 
 enum AdmissionStatus {
-  NOT_APPLIED    @map("NOT APPLIED")
-  APPLIED
-  INTERVIEW_SCHEDULED   @map("INTERVIEW SCHEDULED")
-  WAITLISTED
-  ADMITTED
-  REJECTED
+  NOT_APPLIED           @map("Not Applied")
+  APPLIED               @map("Applied")
+  INTERVIEW_SCHEDULED   @map("Interview Scheduled")
+  WAITLISTED            @map("Waitlisted")
+  ADMITTED              @map("Admitted")
+  REJECTED              @map("Rejected")
   
   @@map("admission_status")
 }
 
 enum EducationLevel {
-  HIGH_SCHOOL   @map("HIGH SCHOOL")
-  BACHELOR
-  MASTER
-  PHD
-  DIPLOMA
-  OTHER
+  HIGH_SCHOOL   @map("High School")
+  BACHELOR      @map("Bachelor")
+  MASTER        @map("Master")
+  PHD           @map("Phd")
+  DIPLOMA       @map("Diploma")
+  OTHER         @map("Other")
 
   @@map("education_level")
 }
 
 enum AcademicTerm {
-  FALL
-  SPRING
-  SUMMER
-  WINTER
+  FALL      @map("Fall")
+  SPRING    @map("Spring")
+  SUMMER    @map("Summer")
+  WINTER    @map("Winter")
   
   @@map("academic_term")
 }
 
 enum ApplicationStatuses {
-  LEAD
-  PROSPECT
-  APPLICATION_STARTED     @map("APPLICATION STARTED")
-  APPLICATION_SUBMITTED   @map("APPLICATION SUBMITTED")
-  IN_REVIEW               @map("IN REVIEW")
-  APPROVED
-  REJECTED
-  ENROLLED
-  DEFERRED
-  WITHDRAWN
+  LEAD                    @map("Lead")
+  PROSPECT                @map("Prospect")
+  APPLICATION_STARTED     @map("Application Started")
+  APPLICATION_SUBMITTED   @map("Application Submitted")
+  IN_REVIEW               @map("In Review")
+  APPROVED                @map("Approved")
+  REJECTED                @map("Rejected")
+  ENROLLED                @map("Enrolled")
+  DEFERRED                @map("Deferred")
+  WITHDRAWN               @map("Withdrawn")
 
   @@map("application_status")
 }
 
 enum AdmissionStatuses {
-  NOT_APPLIED   @map("NOT APPLIED")
-  APPLIED
-  ADMITTED
-  WAITLISTED
-  REJECTED
-  DEFERRED
+  NOT_APPLIED   @map("Not Applied")
+  APPLIED       @map("Applied")
+  ADMITTED      @map("Admitted")
+  WAITLISTED    @map("Waitlisted")
+  REJECTED      @map("Rejected")
+  DEFERRED      @map("Deferred")
 }
 
 enum VisaStatus {
-  NOT_APPLIED   @map("NOT APPLIED")
-  APPLIED
-  APPROVED
-  REJECTED
-  PENDING
+  NOT_APPLIED   @map("Not Applied")
+  APPLIED       @map("Applied")
+  APPROVED      @map("Approved")
+  REJECTED      @map("Rejected")
+  PENDING       @map("Pending")
 }
 
 enum ApplicationSource {
-  DIRECT
-  B2B_PARTNER   @map("B2B PARTNER")
-  WEBSITE
-  REFERRAL
-  ADVERTISEMENT
+  DIRECT        @map("Direct")
+  B2B_PARTNER   @map("B2b Partner")
+  WEBSITE       @map("Website")
+  REFERRAL      @map("Referral")
+  ADVERTISEMENT @map("Advertisement")
 }
 
 enum CourseLevel {
-  BACHELORS
-  MASTERS
-  PHD
-  DIPLOMA
-  CERTIFICATE
-  PROFESSIONAL
+  BACHELORS     @map("Bachelors")
+  MASTERS       @map("Masters")
+  PHD           @map("Phd")
+  DIPLOMA       @map("Diploma")
+  CERTIFICATE   @map("Certificate")
+  PROFESSIONAL  @map("Professional")
 }
 
 enum LenderCategory {
-  DOMESTIC
-  INTERNATIONAL
-  BOTH
+  DOMESTIC        @map("Domestic")
+  INTERNATIONAL   @map("International")
+  BOTH            @map("Both")
   
   @@map("lender_category")
 }
 
 enum LenderType {
-  PUBLIC_BANK   @map("PUBLIC BANK")
-  PRIVATE_BANK    @map("PRIVATE BANK")
-  NBFC
-  CREDIT_UNION           @map("CREDIT UNION")
-  INTERNATIONAL_LENDER   @map("INTERNATIONAL LENDER")
-  FINTECH
+  PUBLIC_BANK             @map("Public Bank")
+  PRIVATE_BANK            @map("Private Bank")
+  NBFC                    @map("Nbfc")
+  CREDIT_UNION            @map("Credit Union")
+  INTERNATIONAL_LENDER    @map("International Lender")
+  FINTECH                 @map("Fintech")
 
   @@map("lender_type")
 }
 
 enum LenderStatus {
-  ACTIVE
-  INACTIVE
-  SUSPENDED
-  PENDING_APPROVAL       @map("PENDING APPROVAL")
-  UNDER_REVIEW           @map("UNDER REVIEW")
+  ACTIVE              @map("Active")
+  INACTIVE            @map("Inactive")
+  SUSPENDED           @map("Suspended")
+  PENDING_APPROVAL    @map("Pending Approval")
+  UNDER_REVIEW        @map("Under Review")
 
   @@map("lender_status")
 }
 
 enum CoSignerRequirement {
-  ALWAYS_REQUIRED        @map("ALWAYS REQUIRED")
-  SOMETIMES_REQUIRED     @map("SOMETIMES REQUIRED")
-  NOT_REQUIRED           @map("NOT REQUIRED")
+  ALWAYS_REQUIRED       @map("Always Required")
+  SOMETIMES_REQUIRED    @map("Sometimes Required")
+  NOT_REQUIRED          @map("Not Required")
 
   @@map("co_signer_requirement")
 }
 
 enum CollateralType {
-  RESIDENTIAL_PROPERTY        @map("RESIDENTIAL PROPERTY")
-  COMMERCIAL_PROPERTY         @map("COMMERCIAL PROPERTY")
-  NON_AGRICULTURAL_LAND       @map("NON AGRICULTURAL LAND")
-  FIXED_DEPOSITS              @map("FIXED DEPOSITS")
-  GOVERNMENT_SECURITIES       @map("GOVERNMENT SECURITIES")
-  LIC_POLICIES                @map("LIC POLICIES")
-  NSC_KVP                     @map("NSC KVP")
-  GOLD
-  SHARES_MUTUAL_FUNDS         @map("SHARES MUTUAL FUNDS")
-  PROPERTY
-  SECURITIES
-  GUARANTOR_ONLY              @map("GUARANTOR ONLY")
-  NO_COLLATERAL               @map("NO COLLATERAL")
-  NA_PLOT                     @map("NA PLOT")
+  RESIDENTIAL_PROPERTY        @map("Residential Property")
+  COMMERCIAL_PROPERTY         @map("Commercial Property")
+  NON_AGRICULTURAL_LAND       @map("Non Agricultural Land")
+  FIXED_DEPOSITS              @map("Fixed Deposits")
+  GOVERNMENT_SECURITIES       @map("Government Securities")
+  LIC_POLICIES                @map("Lic Policies")
+  NSC_KVP                     @map("Nsc Kvp")
+  GOLD                        @map("Gold")
+  SHARES_MUTUAL_FUNDS         @map("Shares Mutual Funds")
+  PROPERTY                    @map("Property")
+  SECURITIES                  @map("Securities")
+  GUARANTOR_ONLY              @map("Guarantor Only")
+  NO_COLLATERAL               @map("No Collateral")
+  NA_PLOT                     @map("Na Plot")
 
   @@map("collateral_type")
 }
 
 enum CourseType {
-  UNDERGRADUATE
-  GRADUATE
-  PHD
-  DIPLOMA
-  CERTIFICATE
-  PROFESSIONAL
-  TECHNICAL
-  FULL_TIME            @map("FULL TIME")
-  PART_TIME            @map("PART TIME")
-  DISTANCE_LEARNING    @map("DISTANCE LEARNING")
-  ONLINE
-  EXECUTIVE
-  REGULAR
-  ACCELERATED
+  UNDERGRADUATE       @map("Undergraduate")
+  GRADUATE           @map("Graduate")
+  PHD                @map("Phd")
+  DIPLOMA            @map("Diploma")
+  CERTIFICATE        @map("Certificate")
+  PROFESSIONAL       @map("Professional")
+  TECHNICAL          @map("Technical")
+  FULL_TIME          @map("Full Time")
+  PART_TIME          @map("Part Time")
+  DISTANCE_LEARNING  @map("Distance Learning")
+  ONLINE             @map("Online")
+  EXECUTIVE          @map("Executive")
+  REGULAR            @map("Regular")
+  ACCELERATED        @map("Accelerated")
 
   @@map("course_type")
 }
 
 enum APIConnectivityStatus {
-  CONNECTED
-  DISCONNECTED
-  IN_PROGRESS            @map("IN PROGRESS")
-  FAILED
-  NOT_APPLICABLE         @map("NOT APPLICABLE")
+  CONNECTED         @map("Connected")
+  DISCONNECTED      @map("Disconnected")
+  IN_PROGRESS       @map("In Progress")
+  FAILED            @map("Failed")
+  NOT_APPLICABLE    @map("Not Applicable")
 
   @@map("api_connectivity_status")
 }
 
 enum IntegrationLevel {
-  FULL_DIGITAL           @map("FULL DIGITAL")
-  PARTIAL_DIGITAL        @map("PARTIAL DIGITAL")
-  MANUAL
-  HYBRID
+  FULL_DIGITAL      @map("Full Digital")
+  PARTIAL_DIGITAL   @map("Partial Digital")
+  MANUAL            @map("Manual")
+  HYBRID            @map("Hybrid")
 
   @@map("integration_level")
 }
 
 enum DataSource {
-  MANUAL_ENTRY      @map("Manual Entry")
-  API_SYNC          @map("API Sync")
-  IMPORT            @map("Import")
-  THIRD_PARTY       @map("Third Party")
-  SYSTEM_GENERATED  @map("System Generated")
-  API                   @map("API")
+  MANUAL_ENTRY          @map("Manual Entry")
+  API_SYNC              @map("Api Sync")
+  IMPORT                @map("Import")
+  THIRD_PARTY           @map("Third Party")
+  SYSTEM_GENERATED      @map("System Generated")
+  API                   @map("Api")
   WEBSITE_FORM          @map("Website Form")
   PARTNER_INTEGRATION   @map("Partner Integration")
 
@@ -2601,411 +4458,411 @@ enum DataSource {
 }
 
 enum PartnershipStatus {
-  ACTIVE      @map("Active")
-  INACTIVE    @map("Inactive")
-  PENDING     @map("Pending")
-  TERMINATED  @map("Terminated")
-  ON_HOLD     @map("On Hold")
+  ACTIVE        @map("Active")
+  INACTIVE      @map("Inactive")
+  PENDING       @map("Pending")
+  TERMINATED    @map("Terminated")
+  ON_HOLD       @map("On Hold")
 
   @@map("partnership_status")
 }
 
 enum ProductStatus {
-  ACTIVE        @map("Active")
-  INACTIVE      @map("Inactive")
-  DISCONTINUED  @map("Discontinued")
-  COMING_SOON   @map("Coming Soon")
-  UNDER_REVIEW  @map("Under Review")
+  ACTIVE          @map("Active")
+  INACTIVE        @map("Inactive")
+  DISCONTINUED    @map("Discontinued")
+  COMING_SOON     @map("Coming Soon")
+  UNDER_REVIEW    @map("Under Review")
 
   @@map("product_status")
 }
 
 enum ProductType {
-  SECURED_EDUCATION_LOAN    @map("Secured Education Loan")
-  UNSECURED_EDUCATION_LOAN  @map("Unsecured Education Loan")
-  GOVERNMENT_SCHEME         @map("Government Scheme")
-  SCHOLAR_LOAN              @map("Scholar Loan")
-  EXPRESS_LOAN              @map("Express Loan")
-  PREMIUM_LOAN              @map("Premium Loan")
-  SKILL_DEVELOPMENT_LOAN    @map("Skill Development Loan")
+  SECURED_EDUCATION_LOAN      @map("Secured Education Loan")
+  UNSECURED_EDUCATION_LOAN    @map("Unsecured Education Loan")
+  GOVERNMENT_SCHEME           @map("Government Scheme")
+  SCHOLAR_LOAN                @map("Scholar Loan")
+  EXPRESS_LOAN                @map("Express Loan")
+  PREMIUM_LOAN                @map("Premium Loan")
+  SKILL_DEVELOPMENT_LOAN      @map("Skill Development Loan")
 
   @@map("product_type")
 }
 
 enum ProductCategory {
-  DOMESTIC
-  INTERNATIONAL
-  BOTH
-  VOCATIONAL
-  PROFESSIONAL
+  DOMESTIC        @map("Domestic")
+  INTERNATIONAL   @map("International")
+  BOTH            @map("Both")
+  VOCATIONAL      @map("Vocational")
+  PROFESSIONAL    @map("Professional")
   
   @@map("loan_category")
 }
 
 enum ApplicationMode {
-  ONLINE
-  OFFLINE
-  HYBRID
-  MOBILE_APP
-  PORTAL
+  ONLINE      @map("Online")
+  OFFLINE     @map("Offline")
+  HYBRID      @map("Hybrid")
+  MOBILE_APP  @map("Mobile App")
+  PORTAL      @map("Portal")
   
   @@map("application_mode")
 }
 
 enum DisbursementProcess {
-  DIRECT_TO_UNIVERSITY
-  DIRECT_TO_STUDENT
-  INSTALLMENT_BASED
-  FULL_AMOUNT
-  PARTIAL_DISBURSEMENT
+  DIRECT_TO_UNIVERSITY    @map("Direct To University")
+  DIRECT_TO_STUDENT       @map("Direct To Student")
+  INSTALLMENT_BASED       @map("Installment Based")
+  FULL_AMOUNT             @map("Full Amount")
+  PARTIAL_DISBURSEMENT    @map("Partial Disbursement")
   
   @@map("disbursement_process")
 }
 
 enum CollateralRequirement {
-  ALWAYS_REQUIRED
-  ABOVE_THRESHOLD
-  NOT_REQUIRED
-  OPTIONAL
+  ALWAYS_REQUIRED   @map("Always Required")
+  ABOVE_THRESHOLD   @map("Above Threshold")
+  NOT_REQUIRED      @map("Not Required")
+  OPTIONAL          @map("Optional")
   
   @@map("collateral_requirement")
 }
 
 enum ProcessingFeeType {
-  PERCENTAGE
-  FIXED_AMOUNT
-  NIL
-  TIERED
+  PERCENTAGE      @map("Percentage")
+  FIXED_AMOUNT    @map("Fixed Amount")
+  NIL             @map("Nil")
+  TIERED          @map("Tiered")
   
   @@map("processing_fee_type")
 }
 
 enum RepaymentFrequency {
-  MONTHLY
-  QUARTERLY
-  HALF_YEARLY
-  ANNUALLY
-  FLEXIBLE
-  CUSTOM
+  MONTHLY       @map("Monthly")
+  QUARTERLY     @map("Quarterly")
+  HALF_YEARLY   @map("Half Yearly")
+  ANNUALLY      @map("Annually")
+  FLEXIBLE      @map("Flexible")
+  CUSTOM        @map("Custom")
   
   @@map("repayment_frequency")
 }
 
 enum MoratoriumType {
-  COMPLETE        @map("Complete")
-  INTEREST_ONLY   @map("Interest Only")
-  PARTIAL_EMI     @map("Partial EMI")
-  NO_MORATORIUM   @map("No Moratorium")
+  COMPLETE          @map("Complete")
+  INTEREST_ONLY     @map("Interest Only")
+  PARTIAL_EMI       @map("Partial Emi")
+  NO_MORATORIUM     @map("No Moratorium")
 
   @@map("moratorium_type")
 }
 
 enum IntegrationComplexity {
-  SIMPLE
-  MODERATE
-  COMPLEX
-  VERY_COMPLEX
+  SIMPLE          @map("Simple")
+  MODERATE        @map("Moderate")
+  COMPLEX         @map("Complex")
+  VERY_COMPLEX    @map("Very Complex")
   
   @@map("integration_complexity")
 }
 
 enum MarketPositioning {
-  PREMIUM
-  COMPETITIVE
-  BUDGET
-  VALUE_FOR_MONEY
-  NICHE
+  PREMIUM           @map("Premium")
+  COMPETITIVE       @map("Competitive")
+  BUDGET            @map("Budget")
+  VALUE_FOR_MONEY   @map("Value For Money")
+  NICHE             @map("Niche")
   
   @@map("market_positioning")
 }
 
 enum LoanStatus {
-  NOT_APPLIED           @map("NOT APPLIED")
-  EXPLORING
-  APPLICATION_STARTED   @map("APPLICATION STARTED")
-  DOCUMENTS_PENDING     @map("DOCUMENTS PENDING")
-  UNDER_REVIEW          @map("UNDER REVIEW")
-  APPROVED
-  REJECTED
-  DISBURSED
-  ACTIVE
-  CLOSED
+  NOT_APPLIED           @map("Not Applied")
+  EXPLORING             @map("Exploring")
+  APPLICATION_STARTED   @map("Application Started")
+  DOCUMENTS_PENDING     @map("Documents Pending")
+  UNDER_REVIEW          @map("Under Review")
+  APPROVED              @map("Approved")
+  REJECTED              @map("Rejected")
+  DISBURSED             @map("Disbursed")
+  ACTIVE                @map("Active")
+  CLOSED                @map("Closed")
 
   @@map("loan_status")
 }
 
 enum Gender {
-  MALE  @map("Male")
-  FEMALE @map("Female")
-  OTHER @map("Other")
-  PREFER_NOT_TO_SAY     @map("Prefer not to say")
+  MALE                @map("Male")
+  FEMALE              @map("Female")
+  OTHER               @map("Other")
+  PREFER_NOT_TO_SAY   @map("Prefer Not To Say")
 
   @@map("gender")
 }
 
 enum EmploymentStatus {
-  EMPLOYED
-  UNEMPLOYED
-  SELF_EMPLOYED         @map("SELF EMPLOYED")
-  STUDENT
-  RETIRED
+  EMPLOYED        @map("Employed")
+  UNEMPLOYED      @map("Unemployed")
+  SELF_EMPLOYED   @map("Self Employed")
+  STUDENT         @map("Student")
+  RETIRED         @map("Retired")
 
   @@map("employment_status")
 }
 
 enum MaritalStatus {
-  SINGLE
-  MARRIED
-  DIVORCED
-  WIDOWED
+  SINGLE    @map("Single")
+  MARRIED   @map("Married")
+  DIVORCED  @map("Divorced")
+  WIDOWED   @map("Widowed")
   
   @@map("marital_status")
 }
 
 enum DocumentCategory {
-  STUDENT_DOCUMENTS          @map("STUDENT DOCUMENTS")
-  CO_APPLICANT_1_DOCUMENTS   @map("CO-APPLICANT 1 DOCUMENTS")
-  CO_APPLICANT_2_DOCUMENTS   @map("CO-APPLICANT 2 DOCUMENTS")
-  CO_APPLICANT_3_DOCUMENTS   @map("CO-APPLICANT 3 DOCUMENTS")
-  COLLATERAL_DOCUMENTS       @map("COLLATERAL DOCUMENTS")
-  INSTITUTIONAL_DOCUMENTS    @map("INSTITUTIONAL DOCUMENTS")
-  SUPPORTING_DOCUMENTS       @map("SUPPORTING DOCUMENTS")
+  STUDENT_DOCUMENTS           @map("Student Documents")
+  CO_APPLICANT_1_DOCUMENTS    @map("Co-Applicant 1 Documents")
+  CO_APPLICANT_2_DOCUMENTS    @map("Co-Applicant 2 Documents")
+  CO_APPLICANT_3_DOCUMENTS    @map("Co-Applicant 3 Documents")
+  COLLATERAL_DOCUMENTS        @map("Collateral Documents")
+  INSTITUTIONAL_DOCUMENTS     @map("Institutional Documents")
+  SUPPORTING_DOCUMENTS        @map("Supporting Documents")
 
   @@map("document_category")
 }
 
 enum DocumentType {
-  IDENTITY_PROOF         @map("IDENTITY PROOF")
-  ADDRESS_PROOF          @map("ADDRESS PROOF")
-  INCOME_PROOF           @map("INCOME PROOF")
-  ACADEMIC_DOCUMENTS     @map("ACADEMIC DOCUMENTS")
-  EMPLOYMENT_PROOF       @map("EMPLOYMENT PROOF")
-  PROPERTY_DOCUMENTS     @map("PROPERTY DOCUMENTS")
-  BANK_STATEMENTS        @map("BANK STATEMENTS")
-  TAX_DOCUMENTS          @map("TAX DOCUMENTS")
-  ADMISSION_DOCUMENTS    @map("ADMISSION DOCUMENTS")
-  VISA_DOCUMENTS         @map("VISA DOCUMENTS")
-  FINANCIAL_DOCUMENTS    @map("FINANCIAL DOCUMENTS")
-  GUARANTEE_DOCUMENTS    @map("GUARANTEE DOCUMENTS")
-  OTHER
+  IDENTITY_PROOF         @map("Identity Proof")
+  ADDRESS_PROOF          @map("Address Proof")
+  INCOME_PROOF           @map("Income Proof")
+  ACADEMIC_DOCUMENTS     @map("Academic Documents")
+  EMPLOYMENT_PROOF       @map("Employment Proof")
+  PROPERTY_DOCUMENTS     @map("Property Documents")
+  BANK_STATEMENTS        @map("Bank Statements")
+  TAX_DOCUMENTS          @map("Tax Documents")
+  ADMISSION_DOCUMENTS    @map("Admission Documents")
+  VISA_DOCUMENTS         @map("Visa Documents")
+  FINANCIAL_DOCUMENTS    @map("Financial Documents")
+  GUARANTEE_DOCUMENTS    @map("Guarantee Documents")
+  OTHER                  @map("Other")
 
   @@map("document_type")
 }
 
 enum DocumentPriority {
-  MANDATORY
-  CONDITIONAL
-  OPTIONAL
-  NICE_TO_HAVE           @map("NICE TO HAVE")
+  MANDATORY       @map("Mandatory")
+  CONDITIONAL     @map("Conditional")
+  OPTIONAL        @map("Optional")
+  NICE_TO_HAVE    @map("Nice To Have")
 
   @@map("document_priority")
 }
 
 enum DocumentStage {
-  APPLICATION
-  INITIAL_REVIEW         @map("INITIAL REVIEW")
-  CREDIT_ASSESSMENT      @map("CREDIT ASSESSMENT")
-  FINAL_APPROVAL         @map("FINAL APPROVAL")
-  DISBURSEMENT
-  POST_DISBURSEMENT      @map("POST DISBURSEMENT")
+  APPLICATION           @map("Application")
+  INITIAL_REVIEW        @map("Initial Review")
+  CREDIT_ASSESSMENT     @map("Credit Assessment")
+  FINAL_APPROVAL        @map("Final Approval")
+  DISBURSEMENT          @map("Disbursement")
+  POST_DISBURSEMENT     @map("Post Disbursement")
 
   @@map("document_stage")
 }
 
 enum DocumentFormat {
-  PDF
-  JPG
-  JPEG
-  PNG
-  TIFF
-  DOC
-  DOCX
-  ORIGINAL_HARD_COPY     @map("ORIGINAL HARD COPY")
-  SCANNED_COPY           @map("SCANNED COPY")
-  DIGITAL_COPY           @map("DIGITAL COPY")
+  PDF                   @map("Pdf")
+  JPG                   @map("Jpg")
+  JPEG                  @map("Jpeg")
+  PNG                   @map("Png")
+  TIFF                  @map("Tiff")
+  DOC                   @map("Doc")
+  DOCX                  @map("Docx")
+  ORIGINAL_HARD_COPY    @map("Original Hard Copy")
+  SCANNED_COPY          @map("Scanned Copy")
+  DIGITAL_COPY          @map("Digital Copy")
 
   @@map("document_format")
 }
 
 enum DocumentStatus {
-  ACTIVE
-  INACTIVE
-  UNDER_REVIEW           @map("UNDER REVIEW")
-  DEPRECATED
-  ARCHIVED
+  ACTIVE          @map("Active")
+  INACTIVE        @map("Inactive")
+  UNDER_REVIEW    @map("Under Review")
+  DEPRECATED      @map("Deprecated")
+  ARCHIVED        @map("Archived")
 
   @@map("document_status")
 }
 
 enum VerificationStatus {
-  PENDING                   @map("Pending")
-  IN_PROGRESS               @map("In Progress")
-  VERIFIED                  @map("Verified")
-  REJECTED                  @map("Rejected")
-  EXPIRED                   @map("Expired")
-  NOT_REQUIRED              @map("Not Required")
-  ADDITIONAL_INFO_REQUIRED  @map("Additional Info Required")
+  PENDING                     @map("Pending")
+  IN_PROGRESS                 @map("In Progress")
+  VERIFIED                    @map("Verified")
+  REJECTED                    @map("Rejected")
+  EXPIRED                     @map("Expired")
+  NOT_REQUIRED                @map("Not Required")
+  ADDITIONAL_INFO_REQUIRED    @map("Additional Info Required")
 
   @@map("verification_status")
 }
 
 enum VerificationMethod {
-  MANUAL
-  AUTOMATED
-  HYBRID
-  THIRD_PARTY            @map("THIRD PARTY")
-  BLOCKCHAIN
-  DIGILOCKER
+  MANUAL          @map("Manual")
+  AUTOMATED       @map("Automated")
+  HYBRID          @map("Hybrid")
+  THIRD_PARTY     @map("Third Party")
+  BLOCKCHAIN      @map("Blockchain")
+  DIGILOCKER      @map("Digilocker")
 
   @@map("verification_method")
 }
 
 enum DataSensitivity {
-  HIGHLY_SENSITIVE       @map("HIGHLY SENSITIVE")
-  SENSITIVE
-  MODERATE
-  LOW
-  PUBLIC
+  HIGHLY_SENSITIVE    @map("Highly Sensitive")
+  SENSITIVE           @map("Sensitive")
+  MODERATE            @map("Moderate")
+  LOW                 @map("Low")
+  PUBLIC              @map("Public")
 
   @@map("data_sensitivity")
 }
 
 enum ApplicabilityStatus {
-  YES
-  NO
-  CONDITIONAL
+  YES           @map("Yes")
+  NO            @map("No")
+  CONDITIONAL   @map("Conditional")
 
   @@map("applicability_status")
 }
 
 enum AutomationLevel {
-  FULL
-  PARTIAL
-  MANUAL_ONLY            @map("MANUAL ONLY")
-  HYBRID
+  FULL          @map("Full")
+  PARTIAL       @map("Partial")
+  MANUAL_ONLY   @map("Manual Only")
+  HYBRID        @map("Hybrid")
 
   @@map("automation_level")
 }
 
 enum CommissionModel {
-  PERCENTAGE          @map("PERCENTAGE")
-  FIXED_AMOUNT        @map("FIXED AMOUNT")
-  TIERED              @map("TIERED")
-  HYBRID              @map("HYBRID")
-  PERFORMANCE_BASED   @map("PERFORMANCE BASED")
+  PERCENTAGE          @map("Percentage")
+  FIXED_AMOUNT        @map("Fixed Amount")
+  TIERED              @map("Tiered")
+  HYBRID              @map("Hybrid")
+  PERFORMANCE_BASED   @map("Performance Based")
 
   @@map("commission_model")
 }
 
 enum SettlementStatus {
-  PENDING_CALCULATION  @map("Pending Calculation")
-  CALCULATED           @map("Calculated")
-  PENDING_APPROVAL     @map("Pending Approval")
-  APPROVED             @map("Approved")
-  PAYMENT_INITIATED    @map("Payment Initiated")
-  PAID                 @map("Paid")
-  ON_HOLD              @map("On Hold")
-  REJECTED             @map("Rejected")
-  CANCELLED            @map("Cancelled")
-  DISPUTED             @map("Disputed")
+  PENDING_CALCULATION   @map("Pending Calculation")
+  CALCULATED            @map("Calculated")
+  PENDING_APPROVAL      @map("Pending Approval")
+  APPROVED              @map("Approved")
+  PAYMENT_INITIATED     @map("Payment Initiated")
+  PAID                  @map("Paid")
+  ON_HOLD               @map("On Hold")
+  REJECTED              @map("Rejected")
+  CANCELLED             @map("Cancelled")
+  DISPUTED              @map("Disputed")
 
   @@map("settlement_status")
 }
 
 enum PaymentStatus {
-  PENDING      @map("Pending")
-  INITIATED    @map("Initiated")
-  IN_PROCESS   @map("In Process")
-  COMPLETED    @map("Completed")
-  FAILED       @map("Failed")
-  CANCELLED    @map("Cancelled")
-  RETURNED     @map("Returned")
+  PENDING       @map("Pending")
+  INITIATED     @map("Initiated")
+  IN_PROCESS    @map("In Process")
+  COMPLETED     @map("Completed")
+  FAILED        @map("Failed")
+  CANCELLED     @map("Cancelled")
+  RETURNED      @map("Returned")
 
   @@map("payment_status")
 }
 
 enum PaymentMethod {
-  BANK_TRANSFER       @map("BANK TRANSFER")
-  NEFT                @map("NEFT")
-  RTGS                @map("RTGS")
-  IMPS                @map("IMPS")
-  UPI                 @map("UPI")
-  CHEQUE              @map("CHEQUE")
-  DEMAND_DRAFT        @map("DEMAND DRAFT")
-  DIGITAL_WALLET      @map("DIGITAL WALLET")
-  INTERNATIONAL_WIRE  @map("INTERNATIONAL WIRE")
+  BANK_TRANSFER         @map("Bank Transfer")
+  NEFT                  @map("Neft")
+  RTGS                  @map("Rtgs")
+  IMPS                  @map("Imps")
+  UPI                   @map("Upi")
+  CHEQUE                @map("Cheque")
+  DEMAND_DRAFT          @map("Demand Draft")
+  DIGITAL_WALLET        @map("Digital Wallet")
+  INTERNATIONAL_WIRE    @map("International Wire")
 
   @@map("payment_method")
 }
 
 enum SettlementPeriod {
-  MONTHLY      @map("MONTHLY")
-  QUARTERLY    @map("QUARTERLY")
-  HALF_YEARLY  @map("HALF YEARLY")
-  YEARLY       @map("YEARLY")
-  AD_HOC       @map("AD HOC")
+  MONTHLY       @map("Monthly")
+  QUARTERLY     @map("Quarterly")
+  HALF_YEARLY   @map("Half Yearly")
+  YEARLY        @map("Yearly")
+  AD_HOC        @map("Ad Hoc")
 
   @@map("settlement_period")
 }
 
 enum DisbursementTrigger {
-  LOAN_DISBURSED        @map("LOAN DISBURSED")
-  APPLICATION_APPROVED  @map("APPLICATION APPROVED")
-  TARGET_ACHIEVED       @map("TARGET ACHIEVED")
-  MANUAL_TRIGGER        @map("MANUAL TRIGGER")
-  SCHEDULED_PAYMENT     @map("SCHEDULED PAYMENT")
+  LOAN_DISBURSED          @map("Loan Disbursed")
+  APPLICATION_APPROVED    @map("Application Approved")
+  TARGET_ACHIEVED         @map("Target Achieved")
+  MANUAL_TRIGGER          @map("Manual Trigger")
+  SCHEDULED_PAYMENT       @map("Scheduled Payment")
 
   @@map("disbursement_trigger")
 }
 
 enum InvoiceStatus {
-  PENDING   @map("PENDING")
-  GENERATED @map("GENERATED")
-  SENT      @map("SENT")
-  RECEIVED  @map("RECEIVED")
-  APPROVED  @map("APPROVED")
-  REJECTED  @map("REJECTED")
+  PENDING     @map("Pending")
+  GENERATED   @map("Generated")
+  SENT        @map("Sent")
+  RECEIVED    @map("Received")
+  APPROVED    @map("Approved")
+  REJECTED    @map("Rejected")
 
   @@map("invoice_status")
 }
 
 enum ReconciliationStatus {
-  PENDING            @map("PENDING")
-  RECONCILED         @map("RECONCILED")
-  DISCREPANCY_FOUND  @map("DISCREPANCY FOUND")
-  UNDER_REVIEW       @map("UNDER REVIEW")
-  RESOLVED           @map("RESOLVED")
+  PENDING               @map("Pending")
+  RECONCILED            @map("Reconciled")
+  DISCREPANCY_FOUND     @map("Discrepancy Found")
+  UNDER_REVIEW          @map("Under Review")
+  RESOLVED              @map("Resolved")
 
   @@map("reconciliation_status")
 }
 
 enum HoldReason {
-  DOCUMENT_VERIFICATION_PENDING  @map("DOCUMENT VERIFICATION PENDING")
-  INVOICE_ISSUES                 @map("INVOICE ISSUES")
-  PARTNER_AGREEMENT_DISPUTE      @map("PARTNER AGREEMENT DISPUTE")
-  CALCULATION_ERROR              @map("CALCULATION ERROR")
-  COMPLIANCE_ISSUES              @map("COMPLIANCE ISSUES")
-  MANAGEMENT_REVIEW              @map("MANAGEMENT REVIEW")
-  LEGAL_ISSUES                   @map("LEGAL ISSUES")
-  SYSTEM_ERROR                   @map("SYSTEM ERROR")
+  DOCUMENT_VERIFICATION_PENDING   @map("Document Verification Pending")
+  INVOICE_ISSUES                  @map("Invoice Issues")
+  PARTNER_AGREEMENT_DISPUTE       @map("Partner Agreement Dispute")
+  CALCULATION_ERROR               @map("Calculation Error")
+  COMPLIANCE_ISSUES               @map("Compliance Issues")
+  MANAGEMENT_REVIEW               @map("Management Review")
+  LEGAL_ISSUES                    @map("Legal Issues")
+  SYSTEM_ERROR                    @map("System Error")
 
   @@map("hold_reason")
 }
 
 enum NotificationMethod {
-  EMAIL               @map("EMAIL")
-  SMS                 @map("SMS")
-  WHATSAPP            @map("WHATSAPP")
-  PHONE_CALL          @map("PHONE CALL")
-  PORTAL_NOTIFICATION @map("PORTAL NOTIFICATION")
+  EMAIL                 @map("Email")
+  SMS                   @map("Sms")
+  WHATSAPP              @map("Whatsapp")
+  PHONE_CALL            @map("Phone Call")
+  PORTAL_NOTIFICATION   @map("Portal Notification")
 
   @@map("notification_method")
 }
 
 enum AcknowledgmentStatus {
-  YES
-  NO
-  PENDING
+  YES       @map("Yes")
+  NO        @map("No")
+  PENDING   @map("Pending")
   
   @@map("acknowledgment_status")
 }
@@ -3018,97 +4875,89 @@ enum ApiAccessStatus {
   @@map("api_access_status")
 }
 
-// Enum for Data Source
 enum B2BDataSource {
-  MANUAL_ENTRY          @map("Manual Entry")
-  IMPORT                @map("Import")
-  PARTNER_APPLICATION   @map("Partner Application")
-  REFERRAL              @map("Referral")
+  MANUAL_ENTRY            @map("Manual Entry")
+  IMPORT                  @map("Import")
+  PARTNER_APPLICATION     @map("Partner Application")
+  REFERRAL                @map("Referral")
   
   @@map("b2b_data_source")
 }
 
-// Enum for Integration Status
 enum B2BIntegrationStatus {
-  NOT_REQUIRED  @map("Not Required")
-  PENDING       @map("Pending")
-  COMPLETE      @map("Complete")
-  ISSUES        @map("Issues")
+  NOT_REQUIRED    @map("Not Required")
+  PENDING         @map("Pending")
+  COMPLETE        @map("Complete")
+  ISSUES          @map("Issues")
   
   @@map("b2b_integration_status")
 }
 
 enum PartnerRecordStatus {
-  ACTIVE       @map("Active")
-  INACTIVE     @map("Inactive")
-  SUSPENDED    @map("Suspended")
-  UNDER_REVIEW @map("Under Review")
-  ARCHIVED     @map("Archived")
+  ACTIVE        @map("Active")
+  INACTIVE      @map("Inactive")
+  SUSPENDED     @map("Suspended")
+  UNDER_REVIEW  @map("Under Review")
+  ARCHIVED      @map("Archived")
 
   @@map("b2b_partner_record_status")
 }
 
 enum PortalAccessStatus {
-  YES     @map("Yes")
-  NO      @map("No")
-  PENDING @map("Pending")
+  YES       @map("Yes")
+  NO        @map("No")
+  PENDING   @map("Pending")
 
   @@map("b2b_portal_access_status")
 }
 
 enum LoginStatus {
-  success
-  failed
-  logout
-}
-
-enum LenderCoSignerRequirements {
-  ALWAYS_REQUIRED @map("Always Required")
-  SOMETIMES_REQUIRED @map("Sometimes Required")
-  NOT_REQUIRED @map("Not Required")
+  success   @map("Success")
+  failed    @map("Failed")
+  logout    @map("Logout")
 }
 
 enum LenderCollateralType {
-  PROPERTY
-  FIXED_DEPOSITS  @map("Fixed Deposits")
-  LIC_POLICIES    @map("LIC Policies")
-  SECURITIES
-  GUARANTOR_ONLY  @map("Guarantor Only")
-  NO_COLLATERAL   @map("No Collateral")
-  NA_PLOT         @map("NA Plot")
+  PROPERTY          @map("Property")
+  FIXED_DEPOSITS    @map("Fixed Deposits")
+  LIC_POLICIES      @map("Lic Policies")
+  SECURITIES        @map("Securities")
+  GUARANTOR_ONLY    @map("Guarantor Only")
+  NO_COLLATERAL     @map("No Collateral")
+  NA_PLOT           @map("Na Plot")
 }
 
 enum SupportedCourseTypes {
-  UNDERGRADUATE @map("Undergraduate")
-  GRADUATE      @map("Graduate")
-  PHD           @map("PhD")
-  DIPLOMA       @map("Diploma")
-  CERTIFICATE   @map("Certificate")
-  PROFESSIONAL  @map("Professional")
-  TECHNICAL     @map("Technical")
+  UNDERGRADUATE   @map("Undergraduate")
+  GRADUATE        @map("Graduate")
+  PHD             @map("Phd")
+  DIPLOMA         @map("Diploma")
+  CERTIFICATE     @map("Certificate")
+  PROFESSIONAL    @map("Professional")
+  TECHNICAL       @map("Technical")
 }
 
 enum SupportedDestinations {
-  US        @map("US")
-  UK        @map("UK")
-  CANADA    @map("Canada")
-  AUSTRALIA @map("Australia")
-  GERMANY   @map("Germany")
-  FRANCE    @map("France")
-  SINGAPORE @map("Singapore")
-  ITALY     @map("Italy")
-  UAE       @map("UAE")
-  OTHER     @map("Other")
+  US          @map("Us")
+  UK          @map("Uk")
+  CANADA      @map("Canada")
+  AUSTRALIA   @map("Australia")
+  GERMANY     @map("Germany")
+  FRANCE      @map("France")
+  SINGAPORE   @map("Singapore")
+  ITALY       @map("Italy")
+  UAE         @map("Uae")
+  OTHER       @map("Other")
 }
 
 enum HolidayProcessing {
-  YES     @map("Yes")
-  NO      @map("No")
-  LIMITED @map("Limited")
+  YES       @map("Yes")
+  NO        @map("No")
+  LIMITED   @map("Limited")
 }
 
 enum RepaymentOptions {
-  EMI             @map("EMI")
+  EMI             @map("Emi")
   SIMPLE_INT      @map("Simple Int")
   PARTIAL_INT     @map("Partial Int")
   COMPLETE_MORAT  @map("Complete Morat")
@@ -3117,62 +4966,62 @@ enum RepaymentOptions {
 }
 
 enum PayoutTerms {
-  NET_30  @map("Net 30")
-  NET_45  @map("Net 45")
-  NET_60  @map("Net 60")
-  CUSTOM  @map("Custom")
+  NET_30    @map("Net 30")
+  NET_45    @map("Net 45")
+  NET_60    @map("Net 60")
+  CUSTOM    @map("Custom")
 
   @@map("payout_terms")
 }
 
 enum PerformanceRating {
-  EXCELLENT @map("Excellent")
-  GOOD      @map("Good")
-  AVERAGE   @map("Average")
-  POOR      @map("Poor")
+  EXCELLENT   @map("Excellent")
+  GOOD        @map("Good")
+  AVERAGE     @map("Average")
+  POOR        @map("Poor")
 
   @@map("performance_rating")
 }
 
 enum LenderRecordStatus {
-  ACTIVE       @map("Active")
-  INACTIVE     @map("Inactive")
-  UNDER_REVIEW @map("Under Review")
-  SUSPENDED    @map("Suspended")
+  ACTIVE        @map("Active")
+  INACTIVE      @map("Inactive")
+  UNDER_REVIEW  @map("Under Review")
+  SUSPENDED     @map("Suspended")
 
   @@map("lender_record_status")
 }
 
 enum LenderDataSource {
-  MANUAL_ENTRY     @map("Manual Entry")
-  IMPORT           @map("Import")
-  API_INTEGRATION  @map("API Integration")
+  MANUAL_ENTRY        @map("Manual Entry")
+  IMPORT              @map("Import")
+  API_INTEGRATION     @map("Api Integration")
 
   @@map("lender_data_source")
 }
 
 enum GurantorRequired {
-  ALWAYS           @map("Always")
-  ABOVE_THRESHOLD  @map("Above Threshold")
-  NOT_REQUIRED     @map("Not Required")
-  OPTIONAL         @map("Optional")
+  ALWAYS            @map("Always")
+  ABOVE_THRESHOLD   @map("Above Threshold")
+  NOT_REQUIRED      @map("Not Required")
+  OPTIONAL          @map("Optional")
 
   @@map("guarantor_required")
 }
 
 enum InsuranceRequired {
-  LIFE_INSURANCE      @map("Life Insurance")
-  PROPERTY_INSURANCE  @map("Property Insurance")
-  BOTH                @map("Both")
-  NOT_REQUIRED        @map("Not Required")
+  LIFE_INSURANCE        @map("Life Insurance")
+  PROPERTY_INSURANCE    @map("Property Insurance")
+  BOTH                  @map("Both")
+  NOT_REQUIRED          @map("Not Required")
 
   @@map("insurance_required")
 }
 
 enum ThirdPartyGuaranteeRequired {
-  YES            @map("Yes")
-  NO             @map("No")
-  CASE_BY_CASE   @map("Case by Case")
+  YES             @map("Yes")
+  NO              @map("No")
+  CASE_BY_CASE    @map("Case By Case")
 
   @@map("third_party_guarantee_required")
 }
@@ -3188,24 +5037,24 @@ enum LoanProductMarketPositioning {
 }
 
 enum PricingStrategy {
-  COMPETITIVE    @map("Competitive")
-  PREMIUM        @map("Premium")
-  PENETRATION    @map("Penetration")
-  VALUE_BASED    @map("Value Based")
+  COMPETITIVE     @map("Competitive")
+  PREMIUM         @map("Premium")
+  PENETRATION     @map("Penetration")
+  VALUE_BASED     @map("Value Based")
 
   @@map("pricing_strategy")
 }
 
 enum NationalityRestrictions {
-  INDIAN        @map("Indian")
-  OTHERS        @map("Others")
+  INDIAN    @map("Indian")
+  OTHERS    @map("Others")
 
   @@map("nationality_restrictions")
 }
 
 enum ResidencyRequirements {
-  RESIDENT       @map("Resident")
-  NON_RESIDENT   @map("Non-Resident")
+  RESIDENT        @map("Resident")
+  NON_RESIDENT    @map("Non-Resident")
 
   @@map("residency_requirements")
 }
@@ -3213,7 +5062,7 @@ enum ResidencyRequirements {
 enum TargetSegment {
   UNDERGRADUATE   @map("Undergraduate")
   GRADUATE        @map("Graduate")
-  PHD             @map("PhD")
+  PHD             @map("Phd")
   DIPLOMA         @map("Diploma")
   CERTIFICATE     @map("Certificate")
   PROFESSIONAL    @map("Professional")
@@ -3225,96 +5074,96 @@ enum TargetSegment {
 }
 
 enum LoanProductCourseTypes {
-  FULL_TIME          @map("Full Time")
-  PART_TIME          @map("Part Time")
-  DISTANCE_LEARNING  @map("Distance Learning")
-  ONLINE             @map("Online")
-  EXECUTIVE          @map("Executive")
-  REGULAR            @map("Regular")
-  ACCELERATED        @map("Accelerated")
+  FULL_TIME           @map("Full Time")
+  PART_TIME           @map("Part Time")
+  DISTANCE_LEARNING   @map("Distance Learning")
+  ONLINE              @map("Online")
+  EXECUTIVE           @map("Executive")
+  REGULAR             @map("Regular")
+  ACCELERATED         @map("Accelerated")
 
   @@map("loan_product_course_types")
 }
 
 enum PartPaymentAllowed {
-  YES             @map("Yes")
-  NO              @map("No")
-  MINIMUM_AMOUNT  @map("Minimum Amount")
+  YES               @map("Yes")
+  NO                @map("No")
+  MINIMUM_AMOUNT    @map("Minimum Amount")
 
   @@map("part_payment_allowed")
 }
 
 enum CustomerSupportFeatures {
-  TWENTY_FOUR_SEVEN_SUPPORT  @map("24x7 Support")
-  DEDICATED_RM               @map("Dedicated RM")
-  ONLINE_CHAT                @map("Online Chat")
-  VIDEO_KYC                  @map("Video KYC")
-  DOOR_STEP_SERVICE          @map("Door Step Service")
+  TWENTY_FOUR_SEVEN_SUPPORT   @map("24x7 Support")
+  DEDICATED_RM                @map("Dedicated Rm")
+  ONLINE_CHAT                 @map("Online Chat")
+  VIDEO_KYC                   @map("Video Kyc")
+  DOOR_STEP_SERVICE           @map("Door Step Service")
 
   @@map("customer_support_features")
 }
 
 enum DigitalFeatures {
-  ONLINE_APPLICATION     @map("Online Application")
-  DIGITAL_DOCUMENTATION  @map("Digital Documentation")
-  E_STATEMENTS           @map("E-Statements")
-  MOBILE_APP             @map("Mobile App")
-  SMS_ALERTS             @map("SMS Alerts")
-  EMAIL_NOTIFICATIONS    @map("Email Notifications")
+  ONLINE_APPLICATION      @map("Online Application")
+  DIGITAL_DOCUMENTATION   @map("Digital Documentation")
+  E_STATEMENTS            @map("E-Statements")
+  MOBILE_APP              @map("Mobile App")
+  SMS_ALERTS              @map("Sms Alerts")
+  EMAIL_NOTIFICATIONS     @map("Email Notifications")
 
   @@map("digital_features")
 }
 
 enum FlexibleRepaymentOptions {
-  STEP_UP_EMI       @map("Step Up EMI")
-  STEP_DOWN_EMI     @map("Step Down EMI")
+  STEP_UP_EMI       @map("Step Up Emi")
+  STEP_DOWN_EMI     @map("Step Down Emi")
   BULLET_PAYMENT    @map("Bullet Payment")
-  FLEXIBLE_EMI      @map("Flexible EMI")
+  FLEXIBLE_EMI      @map("Flexible Emi")
   HOLIDAY_OPTIONS   @map("Holiday Options")
 
   @@map("flexible_repayment_options")
 }
 
 enum SandboxEnvironment {
-  AVAILABLE      @map("Available")
-  NOT_AVAILABLE  @map("Not Available")
-  ON_REQUEST     @map("On Request")
+  AVAILABLE       @map("Available")
+  NOT_AVAILABLE   @map("Not Available")
+  ON_REQUEST      @map("On Request")
 
   @@map("sandbox_environment")
 }
 
 enum DataFormat {
-  JSON    @map("JSON")
-  XML     @map("XML")
-  CSV     @map("CSV")
-  API     @map("API")
-  MANUAL  @map("Manual")
+  JSON      @map("Json")
+  XML       @map("Xml")
+  CSV       @map("Csv")
+  API       @map("Api")
+  MANUAL    @map("Manual")
 
   @@map("data_format")
 }
 
 enum ApiAvailability {
-  YES               @map("Yes")
-  NO                @map("No")
-  UNDER_DEVELOPMENT @map("Under Development")
-  PLANNED           @map("Planned")
+  YES                 @map("Yes")
+  NO                  @map("No")
+  UNDER_DEVELOPMENT   @map("Under Development")
+  PLANNED             @map("Planned")
 
   @@map("api_availability")
 }
 
 enum WebHookSupport {
-  YES      @map("Yes")
-  NO       @map("No")
-  LIMITED  @map("Limited")
+  YES       @map("Yes")
+  NO        @map("No")
+  LIMITED   @map("Limited")
 
   @@map("webhook_support")
 }
 
 enum ProductRecordStatus {
-  ACTIVE        @map("Active")
-  INACTIVE      @map("Inactive")
-  UNDER_REVIEW  @map("Under Review")
-  DISCONTINUED  @map("Discontinued")
+  ACTIVE          @map("Active")
+  INACTIVE        @map("Inactive")
+  UNDER_REVIEW    @map("Under Review")
+  DISCONTINUED    @map("Discontinued")
 
   @@map("product_record_status")
 }
@@ -3346,159 +5195,100 @@ enum SettlementMonth {
 }
 
 enum TaxCertificateRequired {
-  YES             @map("Yes")
-  NO              @map("No")
-  AUTO_GENERATED  @map("Auto Generated")
+  YES               @map("Yes")
+  NO                @map("No")
+  AUTO_GENERATED    @map("Auto Generated")
 
   @@map("tax_certificate_required")
 }
 
 enum CommissionDataSource {
-  MANUAL_ENTRY           @map("Manual Entry")
-  AUTOMATED_CALCULATION  @map("Automated Calculation")
-  IMPORT                 @map("Import")
-  API                    @map("API")
-  BULK_UPLOAD            @map("Bulk Upload")
+  MANUAL_ENTRY              @map("Manual Entry")
+  AUTOMATED_CALCULATION     @map("Automated Calculation")
+  IMPORT                    @map("Import")
+  API                       @map("Api")
+  BULK_UPLOAD               @map("Bulk Upload")
 
   @@map("commission_data_source")
 }
 
-enum CommissionIntegrationStatus {
-  SYNCED         @map("Synced")
-  PENDING_SYNC   @map("Pending Sync")
-  SYNC_FAILED    @map("Sync Failed")
-  NOT_REQUIRED   @map("Not Required")
-
-  @@map("integration_status")
-}
-
 enum SettlementRecordStatus {
-  ACTIVE              @map("Active")
-  COMPLETED           @map("Completed")
-  CANCELLED           @map("Cancelled")
-  ARCHIVED            @map("Archived")
-  UNDER_INVESTIGATION @map("Under Investigation")
+  ACTIVE                @map("Active")
+  COMPLETED             @map("Completed")
+  CANCELLED             @map("Cancelled")
+  ARCHIVED              @map("Archived")
+  UNDER_INVESTIGATION   @map("Under Investigation")
 
   @@map("settlement_record_status")
 }
 
 enum SystemGenerated {
-  YES        @map("Yes")
-  NO         @map("No")
-  PARTIALLY  @map("Partially")
+  YES         @map("Yes")
+  NO          @map("No")
+  PARTIALLY   @map("Partially")
 
   @@map("system_generated")
 }
 
-enum CommissionDisbursementTrigger {
-  LOAN_DISBURSED        @map("Loan Disbursed")
-  APPLICATION_APPROVED  @map("Application Approved")
-  TARGET_ACHIEVED       @map("Target Achieved")
-  MANUAL_TRIGGER        @map("Manual Trigger")
-  SCHEDULED_PAYMENT     @map("Scheduled Payment")
-
-  @@map("commission_disbursement_trigger")
-}
-
-enum CommissionTransactionType {
-  COMMISSION_PAYMENT  @map("Commission Payment")
-  BONUS_PAYMENT       @map("Bonus Payment")
-  ADJUSTMENT          @map("Adjustment")
-  REVERSAL            @map("Reversal")
-  PENALTY_DEDUCTION   @map("Penalty Deduction")
-  ADVANCE_PAYMENT     @map("Advance Payment")
-  FINAL_SETTLEMENT    @map("Final Settlement")
-
-  @@map("commission_transaction_type")
-}
-
-enum AcknowledgmentReceived {
-  YES      @map("Yes")
-  NO       @map("No")
-  PENDING  @map("Pending")
-
-  @@map("acknowledgment_received")
-}
-
-enum CommissionNotificationMethod {
-  EMAIL               @map("Email")
-  SMS                 @map("SMS")
-  WHATSAPP            @map("WhatsApp")
-  PHONE_CALL          @map("Phone Call")
-  PORTAL_NOTIFICATION @map("Portal Notification")
-
-  @@map("commission_notification_method")
-}
-
 enum PartnerNotificationSent {
-  YES      @map("Yes")
-  NO       @map("No")
-  PENDING  @map("Pending")
-  FAILED   @map("Failed")
+  YES       @map("Yes")
+  NO        @map("No")
+  PENDING   @map("Pending")
+  FAILED    @map("Failed")
 
   @@map("partner_notification_sent")
 }
 
-enum TransactionDisbursementTrigger {
-  LOAN_DISBURSED         @map("Loan Disbursed")
-  APPLICATION_APPROVED   @map("Application Approved")
-  TARGET_ACHIEVED        @map("Target Achieved")
-  MANUAL_TRIGGER         @map("Manual Trigger")
-  SCHEDULED_PAYMENT      @map("Scheduled Payment")
-
-  @@map("transaction_disbursement_trigger")
-}
-
 enum TransactionTypes {
-  COMMISSION_PAYMENT   @map("Commission Payment")
-  BONUS_PAYMENT        @map("Bonus Payment")
-  ADJUSTMENT           @map("Adjustment")
-  REVERSAL             @map("Reversal")
-  PENALTY_DEDUCTION    @map("Penalty Deduction")
-  ADVANCE_PAYMENT      @map("Advance Payment")
-  FINAL_SETTLEMENT     @map("Final Settlement")
+  COMMISSION_PAYMENT    @map("Commission Payment")
+  BONUS_PAYMENT         @map("Bonus Payment")
+  ADJUSTMENT            @map("Adjustment")
+  REVERSAL              @map("Reversal")
+  PENALTY_DEDUCTION     @map("Penalty Deduction")
+  ADVANCE_PAYMENT       @map("Advance Payment")
+  FINAL_SETTLEMENT      @map("Final Settlement")
 
   @@map("transaction_types")
 }
 
 enum CollateralDependency {
-  YES             @map("Yes")
-  NO              @map("No")
-  NOT_APPLICABLE  @map("Not Applicable")
+  YES               @map("Yes")
+  NO                @map("No")
+  NOT_APPLICABLE    @map("Not Applicable")
 
   @@map("collateral_dependency")
 }
 
 enum RequiredForCountries {
-  US        @map("US")
-  UK        @map("UK")
-  CANADA    @map("Canada")
-  AUSTRALIA @map("Australia")
-  GERMANY   @map("Germany")
-  FRANCE    @map("France")
-  OTHER     @map("Other")
+  US          @map("Us")
+  UK          @map("Uk")
+  CANADA      @map("Canada")
+  AUSTRALIA   @map("Australia")
+  GERMANY     @map("Germany")
+  FRANCE      @map("France")
+  OTHER       @map("Other")
 
   @@map("required_for_countries")
 }
 
 enum RequiredForCourses {
-  ENGINEERING  @map("Engineering")
-  MBA          @map("MBA")
-  MS           @map("MS")
-  MEDICINE     @map("Medicine")
-  LAW          @map("Law")
-  ARTS         @map("Arts")
-  SCIENCE      @map("Science")
-  OTHER        @map("Other")
+  ENGINEERING   @map("Engineering")
+  MBA           @map("Mba")
+  MS            @map("Ms")
+  MEDICINE      @map("Medicine")
+  LAW           @map("Law")
+  ARTS          @map("Arts")
+  SCIENCE       @map("Science")
+  OTHER         @map("Other")
 
   @@map("required_for_courses")
 }
 
 enum GdprRelevance {
-  YES             @map("Yes")
-  NO              @map("No")
-  PARTIAL         @map("Partial")
-  NOT_APPLICABLE  @map("Not Applicable")
+  YES               @map("Yes")
+  NO                @map("No")
+  PARTIAL           @map("Partial")
+  NOT_APPLICABLE    @map("Not Applicable")
 
   @@map("gdpr_relevance")
 }
@@ -3513,57 +5303,57 @@ enum DocumentAvailability {
 }
 
 enum AutomatedProcessing {
-  FULL         @map("Full")
-  PARTIAL      @map("Partial")
-  MANUAL_ONLY  @map("Manual Only")
-  HYBRID       @map("Hybrid")
+  FULL          @map("Full")
+  PARTIAL       @map("Partial")
+  MANUAL_ONLY   @map("Manual Only")
+  HYBRID        @map("Hybrid")
 
   @@map("automated_processing")
 }
 
 enum BlockchainVerification {
-  YES             @map("Yes")
-  NO              @map("No")
-  NOT_APPLICABLE  @map("Not Applicable")
-  FUTURE          @map("Future")
+  YES               @map("Yes")
+  NO                @map("No")
+  NOT_APPLICABLE    @map("Not Applicable")
+  FUTURE            @map("Future")
 
   @@map("blockchain_verification")
 }
 
 enum DigitalSignatureRequired {
-  YES        @map("Yes")
-  NO         @map("No")
-  OPTIONAL   @map("Optional")
-  PREFERRED  @map("Preferred")
+  YES         @map("Yes")
+  NO          @map("No")
+  OPTIONAL    @map("Optional")
+  PREFERRED   @map("Preferred")
 
   @@map("digital_signature_required")
 }
 
 enum ESignatureAccepted {
-  YES          @map("Yes")
-  NO           @map("No")
-  CASE_BY_CASE @map("Case by Case")
+  YES             @map("Yes")
+  NO              @map("No")
+  CASE_BY_CASE    @map("Case By Case")
 
   @@map("e_signature_accepted")
 }
 
 enum RealTimeVerification {
-  YES             @map("Yes")
-  NO              @map("No")
-  PLANNED         @map("Planned")
-  NOT_APPLICABLE  @map("Not Applicable")
+  YES               @map("Yes")
+  NO                @map("No")
+  PLANNED           @map("Planned")
+  NOT_APPLICABLE    @map("Not Applicable")
 
   @@map("real_time_verification")
 }
 
 enum AcceptedFormats {
-  PDF                   @map("PDF")
-  JPG                   @map("JPG")
-  JPEG                  @map("JPEG")
-  PNG                   @map("PNG")
-  TIFF                  @map("TIFF")
-  DOC                   @map("DOC")
-  DOCX                  @map("DOCX")
+  PDF                   @map("Pdf")
+  JPG                   @map("Jpg")
+  JPEG                  @map("Jpeg")
+  PNG                   @map("Png")
+  TIFF                  @map("Tiff")
+  DOC                   @map("Doc")
+  DOCX                  @map("Docx")
   ORIGINAL_HARD_COPY    @map("Original Hard Copy")
   SCANNED_COPY          @map("Scanned Copy")
   DIGITAL_COPY          @map("Digital Copy")
@@ -3589,10 +5379,10 @@ enum CombinedDocumentAllowed {
 }
 
 enum LanguageRequirements {
-  ENGLISH                           @map("English")
-  HINDI                             @map("Hindi")
-  REGIONAL_WITH_TRANSLATION         @map("Regional with Translation")
-  NOTARIZED_TRANSLATION_REQUIRED    @map("Notarized Translation Required")
+  ENGLISH                               @map("English")
+  HINDI                                 @map("Hindi")
+  REGIONAL_WITH_TRANSLATION             @map("Regional With Translation")
+  NOTARIZED_TRANSLATION_REQUIRED       @map("Notarized Translation Required")
   
   @@map("language_requirements")
 }
@@ -3606,13 +5396,13 @@ enum MultiplePagesAllowed {
 }
 
 enum QualityStandards {
-  CLEAR_LEGIBLE         @map("Clear Legible")
-  ALL_CORNERS_VISIBLE   @map("All Corners Visible")
-  NO_SHADOWS            @map("No Shadows")
-  ORIGINAL_COLORS       @map("Original Colors")
-  STAMPED_SIGNED        @map("Stamped Signed")
-  NOTARIZED             @map("Notarized")
-  APOSTILLED            @map("Apostilled")
+  CLEAR_LEGIBLE           @map("Clear Legible")
+  ALL_CORNERS_VISIBLE     @map("All Corners Visible")
+  NO_SHADOWS              @map("No Shadows")
+  ORIGINAL_COLORS         @map("Original Colors")
+  STAMPED_SIGNED          @map("Stamped Signed")
+  NOTARIZED               @map("Notarized")
+  APOSTILLED              @map("Apostilled")
   
   @@map("quality_standards")
 }
@@ -3626,35 +5416,35 @@ enum AutoExtractionPossible {
 }
 
 enum OCRCompatibility {
-  HIGH            @map("High")
-  MEDIUM          @map("Medium")
-  LOW             @map("Low")
-  NOT_COMPATIBLE  @map("Not Compatible")
+  HIGH              @map("High")
+  MEDIUM            @map("Medium")
+  LOW               @map("Low")
+  NOT_COMPATIBLE    @map("Not Compatible")
   
   @@map("ocr_compatibility")
 }
 
 enum ParallelProcessingAllowed {
-  YES       @map("Yes")
-  NO        @map("No")
-  PREFERRED @map("Preferred")
+  YES         @map("Yes")
+  NO          @map("No")
+  PREFERRED   @map("Preferred")
   
   @@map("parallel_processing_allowed")
 }
 
 enum ResubmissionAllowed {
-  YES               @map("Yes")
-  NO                @map("No")
-  LIMITED_ATTEMPTS  @map("Limited Attempts")
+  YES                 @map("Yes")
+  NO                  @map("No")
+  LIMITED_ATTEMPTS    @map("Limited Attempts")
   
   @@map("resubmission_allowed")
 }
 
 enum DocumentRecordStatus {
-  ACTIVE        @map("Active")
-  INACTIVE      @map("Inactive")
-  UNDER_REVIEW  @map("Under Review")
-  DEPRECATED    @map("Deprecated")
+  ACTIVE          @map("Active")
+  INACTIVE        @map("Inactive")
+  UNDER_REVIEW    @map("Under Review")
+  DEPRECATED      @map("Deprecated")
   
   @@map("document_record_status")
 }
@@ -3670,21 +5460,21 @@ enum DocumentReviewFrequency {
 }
 
 enum EdumateContactAdmissionStatus {
-  NOT_APPLIED           @map("Not Applied")
-  APPLIED               @map("Applied")
-  INTERVIEW_SCHEDULED   @map("Interview Scheduled")
-  WAITLISTED            @map("Waitlisted")
-  ADMITTED              @map("Admitted")
-  REJECTED              @map("Rejected")
+  NOT_APPLIED             @map("Not Applied")
+  APPLIED                 @map("Applied")
+  INTERVIEW_SCHEDULED     @map("Interview Scheduled")
+  WAITLISTED              @map("Waitlisted")
+  ADMITTED                @map("Admitted")
+  REJECTED                @map("Rejected")
   
   @@map("edumate_contact_admission_status")
 }
 
 enum CurrentEducationLevel {
   HIGH_SCHOOL   @map("High School")
-  BACHELOR      @map("Bachelor")
-  MASTER        @map("Master")
-  PHD           @map("PhD")
+  BACHELORS     @map("Bachelors")
+  MASTERS       @map("Masters")
+  PHD           @map("Phd")
   DIPLOMA       @map("Diploma")
   OTHER         @map("Other")
   
@@ -3701,15 +5491,15 @@ enum IntendedStartTerm {
 }
 
 enum PreferredStudyDestination {
-  US            @map("US")
-  UK            @map("UK")
+  US            @map("Us")
+  UK            @map("Uk")
   CANADA        @map("Canada")
   AUSTRALIA     @map("Australia")
   GERMANY       @map("Germany")
   FRANCE        @map("France")
   SINGAPORE     @map("Singapore")
   ITALY         @map("Italy")
-  UAE           @map("UAE")
+  UAE           @map("Uae")
   JAPAN         @map("Japan")
   CHINA         @map("China")
   INDIA         @map("India")
@@ -3720,40 +5510,40 @@ enum PreferredStudyDestination {
 }
 
 enum TargetDegreeLevel {
-  BACHELORS             @map("Bachelors")
-  MASTERS               @map("Masters")
-  PHD                   @map("PhD")
-  DIPLOMA               @map("Diploma")
-  CERTIFICATE           @map("Certificate")
-  PROFESSIONAL_COURSE   @map("Professional Course")
+  BACHELORS               @map("Bachelors")
+  MASTERS                 @map("Masters")
+  PHD                     @map("Phd")
+  DIPLOMA                 @map("Diploma")
+  CERTIFICATE             @map("Certificate")
+  PROFESSIONAL_COURSE     @map("Professional Course")
   
   @@map("target_degree_level")
 }
 
 enum CurrentStatusDisposition {
-  NOT_INTERESTED                @map("Not Interested")
-  WRONG_NUMBER                  @map("Wrong Number")
-  CALL_NOT_ANSWERED            @map("Call not Answered")
-  FOLLOW_UP                    @map("Follow Up")
-  INT_FOR_NEXT_YEAR           @map("Int for Next Year")
-  PARTIAL_DOCUMENTS_RECEIVED   @map("Partial Documents Received")
+  NOT_INTERESTED                    @map("Not Interested")
+  WRONG_NUMBER                      @map("Wrong Number")
+  CALL_NOT_ANSWERED                 @map("Call Not Answered")
+  FOLLOW_UP                         @map("Follow Up")
+  INT_FOR_NEXT_YEAR                 @map("Int For Next Year")
+  PARTIAL_DOCUMENTS_RECEIVED        @map("Partial Documents Received")
   
   @@map("current_status_disposition")
 }
 
 enum StatusDispositionReason {
-  ALREADY_APPLIED       @map("Already Applied")
-  NOT_LOOKING_AT_LOAN  @map("Not Looking at Loan")
-  SELF_FUNDING         @map("Self Funding")
-  OTHERS               @map("Others")
+  ALREADY_APPLIED         @map("Already Applied")
+  NOT_LOOKING_AT_LOAN     @map("Not Looking At Loan")
+  SELF_FUNDING            @map("Self Funding")
+  OTHERS                  @map("Others")
   
   @@map("status_disposition_reason")
 }
 
 enum EdumateContactCourseType {
-  STEM      @map("Stem")
-  BUSINESS  @map("Business")
-  OTHERS    @map("Others")
+  STEM        @map("Stem")
+  BUSINESS    @map("Business")
+  OTHERS      @map("Others")
   
   @@map("edumate_contact_course_type")
 }
@@ -3790,20 +5580,20 @@ enum CollateralAvailable {
 
 enum EdumateContactCollateralType {
   PROPERTY    @map("Property")
-  FD          @map("FD")
-  NA_PLOT     @map("NA Plot")
+  FD          @map("Fd")
+  NA_PLOT     @map("Na Plot")
   OTHER       @map("Other")
   
   @@map("edumate_contact_collateral_type")
 }
 
 enum FinancialCurrency {
-  INR     @map("INR")
-  USD     @map("USD")
-  EUR     @map("EUR")
-  GBP     @map("GBP")
-  CAD     @map("CAD")
-  AUD     @map("AUD")
+  INR     @map("Inr")
+  USD     @map("Usd")
+  EUR     @map("Eur")
+  GBP     @map("Gbp")
+  CAD     @map("Cad")
+  AUD     @map("Aud")
   OTHER   @map("Other")
   
   @@map("financial_currency")
@@ -3812,7 +5602,7 @@ enum FinancialCurrency {
 enum LeadSource {
   ORGANIC_SEARCH    @map("Organic Search")
   SOCIAL_MEDIA      @map("Social Media")
-  B2B_PARTNER       @map("B2B Partner")
+  B2B_PARTNER       @map("B2b Partner")
   REFERRAL          @map("Referral")
   ADVERTISEMENT     @map("Advertisement")
   WEBSITE           @map("Website")
@@ -3830,285 +5620,284 @@ enum PartnerCommissionApplicable {
 }
 
 enum LoanTypePreference {
-  SECURED             @map("Secured")
-  UNSECURED           @map("Unsecured")
-  GOVERNMENT_SCHEME   @map("Government Scheme")
-  NO_PREFERENCE       @map("No Preference")
+  SECURED               @map("Secured")
+  UNSECURED             @map("Unsecured")
+  GOVERNMENT_SCHEME     @map("Government Scheme")
+  NO_PREFERENCE         @map("No Preference")
   
   @@map("loan_type_preference")
 }
 
 enum PreferredLenders {
   AXIS    @map("Axis")
-  // Add more lenders as needed
   
   @@map("preferred_lenders")
 }
 
 enum RepaymentTypePreference {
-  EMI              @map("EMI")
-  SIMPLE_INT       @map("Simple Int")
-  PARTIAL_INT      @map("Partial Int")
-  COMPLETE_MORAT   @map("Complete Morat")
+  EMI                @map("Emi")
+  SIMPLE_INT         @map("Simple Int")
+  PARTIAL_INT        @map("Partial Int")
+  COMPLETE_MORAT     @map("Complete Morat")
   
   @@map("repayment_type_preference")
 }
 
 enum Nationality {
-  AFGHANISTAN           @map("Afghanistan")
-  ALBANIA              @map("Albania")
-  ANTARCTICA           @map("Antarctica")
-  ALAND_ISLANDS        @map("Åland Islands")
-  ALGERIA              @map("Algeria")
-  AMERICAN_SAMOA       @map("American Samoa")
-  ANDORRA              @map("Andorra")
-  ANGOLA               @map("Angola")
-  ANGUILLA             @map("Anguilla")
-  ANTIGUA_AND_BARBUDA  @map("Antigua and Barbuda")
-  ARUBA                @map("Aruba")
-  ASIA_PACIFIC_REGION  @map("Asia/Pacific Region")
-  AZERBAIJAN           @map("Azerbaijan")
-  ARGENTINA            @map("Argentina")
-  ARMENIA              @map("Armenia")
-  AUSTRALIA            @map("Australia")
-  AUSTRIA              @map("Austria")
-  BAHAMAS              @map("Bahamas")
-  BAHRAIN              @map("Bahrain")
-  BANGLADESH           @map("Bangladesh")
-  BARBADOS             @map("Barbados")
-  BELGIUM              @map("Belgium")
-  BHUTAN               @map("Bhutan")
-  BOLIVIA              @map("Bolivia")
-  BOSNIA_AND_HERZEGOVINA @map("Bosnia and Herzegovina")
-  BOTSWANA             @map("Botswana")
-  BOUVET_ISLAND        @map("Bouvet Island")
-  BRAZIL               @map("Brazil")
-  CARIBBEAN_NETHERLANDS @map("Caribbean Netherlands")
-  BELIZE               @map("Belize")
-  SOLOMON_ISLANDS      @map("Solomon Islands")
-  BRUNEI               @map("Brunei")
-  BULGARIA             @map("Bulgaria")
-  BURUNDI              @map("Burundi")
-  BELARUS              @map("Belarus")
-  BERMUDA              @map("Bermuda")
-  CAMBODIA             @map("Cambodia")
-  CAYMAN_ISLANDS       @map("Cayman Islands")
-  CAMEROON             @map("Cameroon")
-  CANADA               @map("Canada")
-  CAPE_VERDE           @map("Cape Verde")
-  CENTRAL_AFRICAN_REPUBLIC @map("Central African Republic")
-  CUBA                 @map("Cuba")
-  CURACAO              @map("Curaçao")
-  SRI_LANKA            @map("Sri Lanka")
-  CHAD                 @map("Chad")
-  CHILE                @map("Chile")
-  CHINA                @map("China")
-  CHRISTMAS_ISLAND     @map("Christmas Island")
-  COCOS_KEELING_ISLANDS @map("Cocos (Keeling) Islands")
-  COLOMBIA             @map("Colombia")
-  COMOROS              @map("Comoros")
-  CONGO                @map("Congo")
-  DEMOCRATIC_REPUBLIC_OF_THE_CONGO @map("Democratic Republic of the Congo")
-  COOK_ISLANDS         @map("Cook Islands")
-  COSTA_RICA           @map("Costa Rica")
-  CROATIA              @map("Croatia")
-  CYPRUS               @map("Cyprus")
-  CZECH_REPUBLIC       @map("Czech Republic")
-  BENIN                @map("Benin")
-  DENMARK              @map("Denmark")
-  DOMINICA             @map("Dominica")
-  DOMINICAN_REPUBLIC   @map("Dominican Republic")
-  ECUADOR              @map("Ecuador")
-  EL_SALVADOR          @map("El Salvador")
-  EQUATORIAL_GUINEA    @map("Equatorial Guinea")
-  ETHIOPIA             @map("Ethiopia")
-  ERITREA              @map("Eritrea")
-  ESTONIA              @map("Estonia")
-  EUROPE               @map("Europe")
-  SOUTH_GEORGIA_AND_SOUTH_SANDWICH_ISLANDS @map("South Georgia and the South Sandwich Islands")
-  FIJI                 @map("Fiji")
-  FINLAND              @map("Finland")
-  FRANCE               @map("France")
-  FALKLAND_ISLANDS     @map("Falkland Islands")
-  FAROE_ISLANDS        @map("Faroe Islands")
-  FRENCH_POLYNESIA     @map("French Polynesia")
-  FRENCH_SOUTHERN_AND_ANTARCTIC_LANDS @map("French Southern and Antarctic Lands")
-  DJIBOUTI             @map("Djibouti")
-  GABON                @map("Gabon")
-  GEORGIA              @map("Georgia")
-  GAMBIA               @map("Gambia")
-  GERMANY              @map("Germany")
-  GHANA                @map("Ghana")
-  GREENLAND            @map("Greenland")
-  GUADELOUPE           @map("Guadeloupe")
-  GUERNSEY             @map("Guernsey")
-  KIRIBATI             @map("Kiribati")
-  GREECE               @map("Greece")
-  GRENADA              @map("Grenada")
-  GUAM                 @map("Guam")
-  GUATEMALA            @map("Guatemala")
-  GUINEA               @map("Guinea")
-  GUYANA               @map("Guyana")
-  FRENCH_GUIANA        @map("French Guiana")
-  GIBRALTAR            @map("Gibraltar")
-  HAITI                @map("Haiti")
-  HEARD_ISLAND_AND_MCDONALD_ISLANDS @map("Heard Island and McDonald Islands")
-  VATICAN_CITY         @map("Vatican City")
-  HONDURAS             @map("Honduras")
-  HUNGARY              @map("Hungary")
-  HONG_KONG            @map("Hong Kong")
-  ISLE_OF_MAN          @map("Isle of Man")
-  IRAN                 @map("Iran")
-  JERSEY               @map("Jersey")
-  MACAU                @map("Macau")
-  MARTINIQUE           @map("Martinique")
-  MONTSERRAT           @map("Montserrat")
-  MYANMAR_BURMA        @map("Myanmar (Burma)")
-  NORTH_KOREA          @map("North Korea")
-  PALESTINE            @map("Palestine")
-  PUERTO_RICO          @map("Puerto Rico")
-  REUNION              @map("Réunion")
-  SAINT_BARTHELEMY     @map("Saint Barthélemy")
-  SAINT_MARTIN         @map("Saint Martin")
-  SINT_MAARTEN         @map("Sint Maarten")
-  SOUTH_SUDAN          @map("South Sudan")
-  SUDAN                @map("Sudan")
-  SYRIA                @map("Syria")
-  TAIWAN               @map("Taiwan")
-  TURKS_AND_CAICOS_ISLANDS @map("Turks and Caicos Islands")
-  US_VIRGIN_ISLANDS    @map("U.S. Virgin Islands")
-  ICELAND              @map("Iceland")
-  INDIA                @map("India")
-  INDONESIA            @map("Indonesia")
-  IRAQ                 @map("Iraq")
-  IRELAND              @map("Ireland")
-  ISRAEL               @map("Israel")
-  ITALY                @map("Italy")
-  BRITISH_INDIAN_OCEAN_TERRITORY @map("British Indian Ocean Territory")
-  COTE_DIVOIRE         @map("Cote dIvoire")
-  JAMAICA              @map("Jamaica")
-  JAPAN                @map("Japan")
-  KAZAKHSTAN           @map("Kazakhstan")
-  JORDAN               @map("Jordan")
-  KENYA                @map("Kenya")
-  SOUTH_KOREA          @map("South Korea")
-  KOSOVO               @map("Kosovo")
-  KUWAIT               @map("Kuwait")
-  KYRGYZSTAN           @map("Kyrgyzstan")
-  LAOS                 @map("Laos")
-  LEBANON              @map("Lebanon")
-  LESOTHO              @map("Lesotho")
-  LATVIA               @map("Latvia")
-  LIBERIA              @map("Liberia")
-  LIBYA                @map("Libya")
-  LIECHTENSTEIN        @map("Liechtenstein")
-  LITHUANIA            @map("Lithuania")
-  LUXEMBOURG           @map("Luxembourg")
-  MADAGASCAR           @map("Madagascar")
-  MALAWI               @map("Malawi")
-  MALAYSIA             @map("Malaysia")
-  MALDIVES             @map("Maldives")
-  MALI                 @map("Mali")
-  MALTA                @map("Malta")
-  MAURITANIA           @map("Mauritania")
-  MAURITIUS            @map("Mauritius")
-  MAYOTTE              @map("Mayotte")
-  MEXICO               @map("Mexico")
-  MONACO               @map("Monaco")
-  MONGOLIA             @map("Mongolia")
-  MOLDOVA              @map("Moldova")
-  MONTENEGRO           @map("Montenegro")
-  MOROCCO              @map("Morocco")
-  MOZAMBIQUE           @map("Mozambique")
-  OMAN                 @map("Oman")
-  NAMIBIA              @map("Namibia")
-  NAURU                @map("Nauru")
-  NEPAL                @map("Nepal")
-  NETHERLANDS          @map("Netherlands")
-  NEW_CALEDONIA        @map("New Caledonia")
-  VANUATU              @map("Vanuatu")
-  NETHERLANDS_ANTILLES @map("Netherlands Antilles")
-  NEW_ZEALAND          @map("New Zealand")
-  NICARAGUA            @map("Nicaragua")
-  NIGER                @map("Niger")
-  NIGERIA              @map("Nigeria")
-  NIUE                 @map("Niue")
-  NORFOLK_ISLAND       @map("Norfolk Island")
-  NORWAY               @map("Norway")
-  NORTHERN_MARIANA_ISLANDS @map("Northern Mariana Islands")
-  UNITED_STATES_MINOR_OUTLYING_ISLANDS @map("United States Minor Outlying Islands")
-  MICRONESIA           @map("Micronesia")
-  MARSHALL_ISLANDS     @map("Marshall Islands")
-  PALAU                @map("Palau")
-  PAKISTAN             @map("Pakistan")
-  PANAMA               @map("Panama")
-  PAPUA_NEW_GUINEA     @map("Papua New Guinea")
-  PARAGUAY             @map("Paraguay")
-  PERU                 @map("Peru")
-  PHILIPPINES          @map("Philippines")
-  PITCAIRN_ISLANDS     @map("Pitcairn Islands")
-  POLAND               @map("Poland")
-  PORTUGAL             @map("Portugal")
-  GUINEA_BISSAU        @map("Guinea-Bissau")
-  EAST_TIMOR           @map("East Timor")
-  QATAR                @map("Qatar")
-  ROMANIA              @map("Romania")
-  RUSSIA               @map("Russia")
-  RWANDA               @map("Rwanda")
-  SAINT_HELENA         @map("Saint Helena")
-  SAINT_KITTS_AND_NEVIS @map("Saint Kitts and Nevis")
-  SAINT_LUCIA          @map("Saint Lucia")
-  SAINT_PIERRE_AND_MIQUELON @map("Saint Pierre and Miquelon")
-  SAINT_VINCENT_AND_THE_GRENADINES @map("Saint Vincent and the Grenadines")
-  SAN_MARINO           @map("San Marino")
-  SAO_TOME_AND_PRINCIPE @map("Sao Tome and Principe")
-  SAUDI_ARABIA         @map("Saudi Arabia")
-  SENEGAL              @map("Senegal")
-  SVALBARD_AND_JAN_MAYEN @map("Svalbard and Jan Mayen")
-  SERBIA               @map("Serbia")
-  SEYCHELLES           @map("Seychelles")
-  SIERRA_LEONE         @map("Sierra Leone")
-  SINGAPORE            @map("Singapore")
-  SLOVAKIA             @map("Slovakia")
-  VIETNAM              @map("Vietnam")
-  WESTERN_SAHARA       @map("Western Sahara")
-  SLOVENIA             @map("Slovenia")
-  SOMALIA              @map("Somalia")
-  SOUTH_AFRICA         @map("South Africa")
-  ZIMBABWE             @map("Zimbabwe")
-  SPAIN                @map("Spain")
-  SURINAME             @map("Suriname")
-  SWAZILAND            @map("Swaziland")
-  SWEDEN               @map("Sweden")
-  SWITZERLAND          @map("Switzerland")
-  TAJIKISTAN           @map("Tajikistan")
-  THAILAND             @map("Thailand")
-  TOGO                 @map("Togo")
-  TOKELAU              @map("Tokelau")
-  TONGA                @map("Tonga")
-  TRINIDAD_AND_TOBAGO  @map("Trinidad and Tobago")
-  UNITED_ARAB_EMIRATES @map("United Arab Emirates")
-  TUNISIA              @map("Tunisia")
-  TURKIYE              @map("Türkiye")
-  TURKMENISTAN         @map("Turkmenistan")
-  TUVALU               @map("Tuvalu")
-  UGANDA               @map("Uganda")
-  UKRAINE              @map("Ukraine")
-  MACEDONIA_FYROM      @map("Macedonia (FYROM)")
-  EGYPT                @map("Egypt")
-  UNITED_KINGDOM       @map("United Kingdom")
-  TANZANIA             @map("Tanzania")
-  UNITED_STATES        @map("United States")
-  BURKINA_FASO         @map("Burkina Faso")
-  URUGUAY              @map("Uruguay")
-  UZBEKISTAN           @map("Uzbekistan")
-  VENEZUELA            @map("Venezuela")
-  BRITISH_VIRGIN_ISLANDS @map("British Virgin Islands")
-  WALLIS_AND_FUTUNA    @map("Wallis and Futuna")
-  SAMOA                @map("Samoa")
-  YEMEN                @map("Yemen")
-  ZAMBIA               @map("Zambia")
-  CANARY_ISLANDS       @map("Canary Islands")
+  AFGHANISTAN                                   @map("Afghanistan")
+  ALBANIA                                      @map("Albania")
+  ANTARCTICA                                   @map("Antarctica")
+  ALAND_ISLANDS                                @map("Åland Islands")
+  ALGERIA                                      @map("Algeria")
+  AMERICAN_SAMOA                               @map("American Samoa")
+  ANDORRA                                      @map("Andorra")
+  ANGOLA                                       @map("Angola")
+  ANGUILLA                                     @map("Anguilla")
+  ANTIGUA_AND_BARBUDA                          @map("Antigua And Barbuda")
+  ARUBA                                        @map("Aruba")
+  ASIA_PACIFIC_REGION                          @map("Asia/Pacific Region")
+  AZERBAIJAN                                   @map("Azerbaijan")
+  ARGENTINA                                    @map("Argentina")
+  ARMENIA                                      @map("Armenia")
+  AUSTRALIA                                    @map("Australia")
+  AUSTRIA                                      @map("Austria")
+  BAHAMAS                                      @map("Bahamas")
+  BAHRAIN                                      @map("Bahrain")
+  BANGLADESH                                   @map("Bangladesh")
+  BARBADOS                                     @map("Barbados")
+  BELGIUM                                      @map("Belgium")
+  BHUTAN                                       @map("Bhutan")
+  BOLIVIA                                      @map("Bolivia")
+  BOSNIA_AND_HERZEGOVINA                       @map("Bosnia And Herzegovina")
+  BOTSWANA                                     @map("Botswana")
+  BOUVET_ISLAND                                @map("Bouvet Island")
+  BRAZIL                                       @map("Brazil")
+  CARIBBEAN_NETHERLANDS                        @map("Caribbean Netherlands")
+  BELIZE                                       @map("Belize")
+  SOLOMON_ISLANDS                              @map("Solomon Islands")
+  BRUNEI                                       @map("Brunei")
+  BULGARIA                                     @map("Bulgaria")
+  BURUNDI                                      @map("Burundi")
+  BELARUS                                      @map("Belarus")
+  BERMUDA                                      @map("Bermuda")
+  CAMBODIA                                     @map("Cambodia")
+  CAYMAN_ISLANDS                               @map("Cayman Islands")
+  CAMEROON                                     @map("Cameroon")
+  CANADA                                       @map("Canada")
+  CAPE_VERDE                                   @map("Cape Verde")
+  CENTRAL_AFRICAN_REPUBLIC                     @map("Central African Republic")
+  CUBA                                         @map("Cuba")
+  CURACAO                                      @map("Curaçao")
+  SRI_LANKA                                    @map("Sri Lanka")
+  CHAD                                         @map("Chad")
+  CHILE                                        @map("Chile")
+  CHINA                                        @map("China")
+  CHRISTMAS_ISLAND                             @map("Christmas Island")
+  COCOS_KEELING_ISLANDS                        @map("Cocos (Keeling) Islands")
+  COLOMBIA                                     @map("Colombia")
+  COMOROS                                      @map("Comoros")
+  CONGO                                        @map("Congo")
+  DEMOCRATIC_REPUBLIC_OF_THE_CONGO             @map("Democratic Republic Of The Congo")
+  COOK_ISLANDS                                 @map("Cook Islands")
+  COSTA_RICA                                   @map("Costa Rica")
+  CROATIA                                      @map("Croatia")
+  CYPRUS                                       @map("Cyprus")
+  CZECH_REPUBLIC                               @map("Czech Republic")
+  BENIN                                        @map("Benin")
+  DENMARK                                      @map("Denmark")
+  DOMINICA                                     @map("Dominica")
+  DOMINICAN_REPUBLIC                           @map("Dominican Republic")
+  ECUADOR                                      @map("Ecuador")
+  EL_SALVADOR                                  @map("El Salvador")
+  EQUATORIAL_GUINEA                            @map("Equatorial Guinea")
+  ETHIOPIA                                     @map("Ethiopia")
+  ERITREA                                      @map("Eritrea")
+  ESTONIA                                      @map("Estonia")
+  EUROPE                                       @map("Europe")
+  SOUTH_GEORGIA_AND_SOUTH_SANDWICH_ISLANDS    @map("South Georgia And The South Sandwich Islands")
+  FIJI                                         @map("Fiji")
+  FINLAND                                      @map("Finland")
+  FRANCE                                       @map("France")
+  FALKLAND_ISLANDS                             @map("Falkland Islands")
+  FAROE_ISLANDS                                @map("Faroe Islands")
+  FRENCH_POLYNESIA                             @map("French Polynesia")
+  FRENCH_SOUTHERN_AND_ANTARCTIC_LANDS          @map("French Southern And Antarctic Lands")
+  DJIBOUTI                                     @map("Djibouti")
+  GABON                                        @map("Gabon")
+  GEORGIA                                      @map("Georgia")
+  GAMBIA                                       @map("Gambia")
+  GERMANY                                      @map("Germany")
+  GHANA                                        @map("Ghana")
+  GREENLAND                                    @map("Greenland")
+  GUADELOUPE                                   @map("Guadeloupe")
+  GUERNSEY                                     @map("Guernsey")
+  KIRIBATI                                     @map("Kiribati")
+  GREECE                                       @map("Greece")
+  GRENADA                                      @map("Grenada")
+  GUAM                                         @map("Guam")
+  GUATEMALA                                    @map("Guatemala")
+  GUINEA                                       @map("Guinea")
+  GUYANA                                       @map("Guyana")
+  FRENCH_GUIANA                                @map("French Guiana")
+  GIBRALTAR                                    @map("Gibraltar")
+  HAITI                                        @map("Haiti")
+  HEARD_ISLAND_AND_MCDONALD_ISLANDS            @map("Heard Island And Mcdonald Islands")
+  VATICAN_CITY                                 @map("Vatican City")
+  HONDURAS                                     @map("Honduras")
+  HUNGARY                                      @map("Hungary")
+  HONG_KONG                                    @map("Hong Kong")
+  ISLE_OF_MAN                                  @map("Isle Of Man")
+  IRAN                                         @map("Iran")
+  JERSEY                                       @map("Jersey")
+  MACAU                                        @map("Macau")
+  MARTINIQUE                                   @map("Martinique")
+  MONTSERRAT                                   @map("Montserrat")
+  MYANMAR_BURMA                                @map("Myanmar (Burma)")
+  NORTH_KOREA                                  @map("North Korea")
+  PALESTINE                                    @map("Palestine")
+  PUERTO_RICO                                  @map("Puerto Rico")
+  REUNION                                      @map("Réunion")
+  SAINT_BARTHELEMY                             @map("Saint Barthélemy")
+  SAINT_MARTIN                                 @map("Saint Martin")
+  SINT_MAARTEN                                 @map("Sint Maarten")
+  SOUTH_SUDAN                                  @map("South Sudan")
+  SUDAN                                        @map("Sudan")
+  SYRIA                                        @map("Syria")
+  TAIWAN                                       @map("Taiwan")
+  TURKS_AND_CAICOS_ISLANDS                     @map("Turks And Caicos Islands")
+  US_VIRGIN_ISLANDS                            @map("U.S. Virgin Islands")
+  ICELAND                                      @map("Iceland")
+  INDIA                                        @map("India")
+  INDONESIA                                    @map("Indonesia")
+  IRAQ                                         @map("Iraq")
+  IRELAND                                      @map("Ireland")
+  ISRAEL                                       @map("Israel")
+  ITALY                                        @map("Italy")
+  BRITISH_INDIAN_OCEAN_TERRITORY               @map("British Indian Ocean Territory")
+  COTE_DIVOIRE                                 @map("Cote Divoire")
+  JAMAICA                                      @map("Jamaica")
+  JAPAN                                        @map("Japan")
+  KAZAKHSTAN                                   @map("Kazakhstan")
+  JORDAN                                       @map("Jordan")
+  KENYA                                        @map("Kenya")
+  SOUTH_KOREA                                  @map("South Korea")
+  KOSOVO                                       @map("Kosovo")
+  KUWAIT                                       @map("Kuwait")
+  KYRGYZSTAN                                   @map("Kyrgyzstan")
+  LAOS                                         @map("Laos")
+  LEBANON                                      @map("Lebanon")
+  LESOTHO                                      @map("Lesotho")
+  LATVIA                                       @map("Latvia")
+  LIBERIA                                      @map("Liberia")
+  LIBYA                                        @map("Libya")
+  LIECHTENSTEIN                                @map("Liechtenstein")
+  LITHUANIA                                    @map("Lithuania")
+  LUXEMBOURG                                   @map("Luxembourg")
+  MADAGASCAR                                   @map("Madagascar")
+  MALAWI                                       @map("Malawi")
+  MALAYSIA                                     @map("Malaysia")
+  MALDIVES                                     @map("Maldives")
+  MALI                                         @map("Mali")
+  MALTA                                        @map("Malta")
+  MAURITANIA                                   @map("Mauritania")
+  MAURITIUS                                    @map("Mauritius")
+  MAYOTTE                                      @map("Mayotte")
+  MEXICO                                       @map("Mexico")
+  MONACO                                       @map("Monaco")
+  MONGOLIA                                     @map("Mongolia")
+  MOLDOVA                                      @map("Moldova")
+  MONTENEGRO                                   @map("Montenegro")
+  MOROCCO                                      @map("Morocco")
+  MOZAMBIQUE                                   @map("Mozambique")
+  OMAN                                         @map("Oman")
+  NAMIBIA                                      @map("Namibia")
+  NAURU                                        @map("Nauru")
+  NEPAL                                        @map("Nepal")
+  NETHERLANDS                                  @map("Netherlands")
+  NEW_CALEDONIA                                @map("New Caledonia")
+  VANUATU                                      @map("Vanuatu")
+  NETHERLANDS_ANTILLES                         @map("Netherlands Antilles")
+  NEW_ZEALAND                                  @map("New Zealand")
+  NICARAGUA                                    @map("Nicaragua")
+  NIGER                                        @map("Niger")
+  NIGERIA                                      @map("Nigeria")
+  NIUE                                         @map("Niue")
+  NORFOLK_ISLAND                               @map("Norfolk Island")
+  NORWAY                                       @map("Norway")
+  NORTHERN_MARIANA_ISLANDS                     @map("Northern Mariana Islands")
+  UNITED_STATES_MINOR_OUTLYING_ISLANDS         @map("United States Minor Outlying Islands")
+  MICRONESIA                                   @map("Micronesia")
+  MARSHALL_ISLANDS                             @map("Marshall Islands")
+  PALAU                                        @map("Palau")
+  PAKISTAN                                     @map("Pakistan")
+  PANAMA                                       @map("Panama")
+  PAPUA_NEW_GUINEA                             @map("Papua New Guinea")
+  PARAGUAY                                     @map("Paraguay")
+  PERU                                         @map("Peru")
+  PHILIPPINES                                  @map("Philippines")
+  PITCAIRN_ISLANDS                             @map("Pitcairn Islands")
+  POLAND                                       @map("Poland")
+  PORTUGAL                                     @map("Portugal")
+  GUINEA_BISSAU                                @map("Guinea-Bissau")
+  EAST_TIMOR                                   @map("East Timor")
+  QATAR                                        @map("Qatar")
+  ROMANIA                                      @map("Romania")
+  RUSSIA                                       @map("Russia")
+  RWANDA                                       @map("Rwanda")
+  SAINT_HELENA                                 @map("Saint Helena")
+  SAINT_KITTS_AND_NEVIS                        @map("Saint Kitts And Nevis")
+  SAINT_LUCIA                                  @map("Saint Lucia")
+  SAINT_PIERRE_AND_MIQUELON                    @map("Saint Pierre And Miquelon")
+  SAINT_VINCENT_AND_THE_GRENADINES             @map("Saint Vincent And The Grenadines")
+  SAN_MARINO                                   @map("San Marino")
+  SAO_TOME_AND_PRINCIPE                        @map("Sao Tome And Principe")
+  SAUDI_ARABIA                                 @map("Saudi Arabia")
+  SENEGAL                                      @map("Senegal")
+  SVALBARD_AND_JAN_MAYEN                       @map("Svalbard And Jan Mayen")
+  SERBIA                                       @map("Serbia")
+  SEYCHELLES                                   @map("Seychelles")
+  SIERRA_LEONE                                 @map("Sierra Leone")
+  SINGAPORE                                    @map("Singapore")
+  SLOVAKIA                                     @map("Slovakia")
+  VIETNAM                                      @map("Vietnam")
+  WESTERN_SAHARA                               @map("Western Sahara")
+  SLOVENIA                                     @map("Slovenia")
+  SOMALIA                                      @map("Somalia")
+  SOUTH_AFRICA                                 @map("South Africa")
+  ZIMBABWE                                     @map("Zimbabwe")
+  SPAIN                                        @map("Spain")
+  SURINAME                                     @map("Suriname")
+  SWAZILAND                                    @map("Swaziland")
+  SWEDEN                                       @map("Sweden")
+  SWITZERLAND                                  @map("Switzerland")
+  TAJIKISTAN                                   @map("Tajikistan")
+  THAILAND                                     @map("Thailand")
+  TOGO                                         @map("Togo")
+  TOKELAU                                      @map("Tokelau")
+  TONGA                                        @map("Tonga")
+  TRINIDAD_AND_TOBAGO                          @map("Trinidad And Tobago")
+  UNITED_ARAB_EMIRATES                         @map("United Arab Emirates")
+  TUNISIA                                      @map("Tunisia")
+  TURKIYE                                      @map("Türkiye")
+  TURKMENISTAN                                 @map("Turkmenistan")
+  TUVALU                                       @map("Tuvalu")
+  UGANDA                                       @map("Uganda")
+  UKRAINE                                      @map("Ukraine")
+  MACEDONIA_FYROM                              @map("Macedonia (Fyrom)")
+  EGYPT                                        @map("Egypt")
+  UNITED_KINGDOM                               @map("United Kingdom")
+  TANZANIA                                     @map("Tanzania")
+  UNITED_STATES                                @map("United States")
+  BURKINA_FASO                                 @map("Burkina Faso")
+  URUGUAY                                      @map("Uruguay")
+  UZBEKISTAN                                   @map("Uzbekistan")
+  VENEZUELA                                    @map("Venezuela")
+  BRITISH_VIRGIN_ISLANDS                       @map("British Virgin Islands")
+  WALLIS_AND_FUTUNA                            @map("Wallis And Futuna")
+  SAMOA                                        @map("Samoa")
+  YEMEN                                        @map("Yemen")
+  ZAMBIA                                       @map("Zambia")
+  CANARY_ISLANDS                               @map("Canary Islands")
   
   @@map("nationality")
 }

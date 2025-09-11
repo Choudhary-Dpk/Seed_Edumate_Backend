@@ -388,6 +388,8 @@ const mapToHubSpotProperties = async (contactData: Partial<MappedEdumateContact>
   if(contactData.educationLevel) properties.current_education_level = contactData.educationLevel;
   if(contactData.studyDestination) properties.preferred_study_destination = contactData.studyDestination;
   if(contactData.partnerName) properties.b2b_partner_name = contactData.partnerName;
+  if (contactData.phone) properties.phone_number = contactData.phone;
+
 
   return properties;
 };
@@ -649,3 +651,24 @@ export const updateContactsLoanLead = async (
     );
   }
 };
+
+export const createContactsLoanLeads = async (leads: ContactsLead[]) => {
+  try {
+    debugger;
+    const hubspotPropertiesList = await Promise.all(
+      leads.map((lead) => mapToHubSpotProperties(lead))
+    );
+
+    const response = await hubspotClient.createMultiContactsLead(hubspotPropertiesList);
+
+    return response;
+  } catch (error) {
+    logger.error("Error in createContactsLoanLeads service", { error });
+    throw createHubSpotError(
+      error instanceof Error ? error.message : "Unknown error",
+      error,
+      "createContactsLoanLeads"
+    );
+  }
+};
+

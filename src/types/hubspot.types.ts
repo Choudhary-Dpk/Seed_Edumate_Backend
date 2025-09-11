@@ -462,7 +462,7 @@ export interface MappedEdumateContact {
   admissionStatus?:string;
   educationLevel:string;
   partnerName:string;
-
+  phone?: string;
 }
 
 // src/types/common.types.ts
@@ -502,6 +502,7 @@ export interface HubspotResult {
     student_email?: string;
     student_name?: string;
     external_key?: string;
+    email?:string;
   };
   createdAt: string;
   updatedAt: string;

@@ -840,3 +840,34 @@ export const deleteContactsLead = async (loanId: string): Promise<void> => {
     throw handleHubSpotError(error);
   }
 };
+
+export const createMultiContactsLead = async (propertiesList: Record<string, any>[]) => {
+  try {
+    const batchInput: BatchInputSimplePublicObjectInputForCreate = {
+      inputs: propertiesList.map((properties) => ({
+        properties,
+        associations: [],
+      })),
+    };
+
+    const response = await hubspotClient.crm.objects.batchApi.create(
+      EDUMATE_CONTACT_OBJECT_TYPE,
+      batchInput
+    );
+
+    logger.info("Created multiple contacts leads applications in HubSpot", {
+      count: response.results?.length || 0,
+    });
+
+    // Convert response objects into your internal type if needed
+    return response.results.map((res) =>
+      convertToHubSpotObject<HubSpotEdumateContact>(res)
+    );
+  } catch (error) {
+    logger.error("Error creating contacts leads applications in HubSpot", {
+      error,
+      propertiesList,
+    });
+    throw handleHubSpotError(error);
+  }
+};

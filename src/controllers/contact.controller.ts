@@ -1,14 +1,16 @@
-import { NextFunction,Response } from "express";
+import { NextFunction,Response,Request } from "express";
 import { RequestWithPayload } from "../types/api.types";
 import { LoginPayload } from "../types/auth";
 import logger from "../utils/logger";
 import { sendResponse } from "../utils/api";
-import { createEdumateContactsLeads, deleteHubspotByContactsLeadId, updateContactsLoanLead } from "../services/hubspot.service";
+import { createContactsLoanLeads, createEdumateContactsLeads, deleteHubspotByContactsLeadId, updateContactsLoanLead } from "../services/hubspot.service";
 import prisma from "../config/prisma";
-import { deleteContactsLoan, getContactsLead, getHubspotByContactLeadId, createEdumateContact, createEdumateAcademicProfile, createEdumateLeadAttribution, createEdumatePersonalInformation, createEdumateSystemTracking, updateEdumateContact, updateEdumatePersonalInformation, updateEdumateAcademicProfile, updateEdumateLeadAttribution, fetchContactsLeadList } from "../models/helpers/contact.helper";
-// import { FileData } from "../types/leads.types";
-// import { addFileRecord, addFileType } from "../models/helpers/leads.helper";
-// import { validateRows } from "../utils/helper";
+import { deleteContactsLoan, getContactsLead, getHubspotByContactLeadId, createEdumateContact, createEdumateAcademicProfile, createEdumateLeadAttribution, createEdumatePersonalInformation, createEdumateSystemTracking, updateEdumateContact, updateEdumatePersonalInformation, updateEdumateAcademicProfile, updateEdumateLeadAttribution, fetchContactsLeadList, createCSVContacts, updateContactsSystemTracking } from "../models/helpers/contact.helper";
+import { resolveLeadsCsvPath } from "../utils/leads";
+import { FileData } from "../types/leads.types";
+import { deduplicateContactsInDb, deduplicateContactsInFile, deduplicateInFile, validateContactRows } from "../utils/helper";
+import { addFileRecord, addFileType, updateFileRecord } from "../models/helpers";
+import { HubspotResult } from "../types";
 
 export const createContactsLead = async (
   req: RequestWithPayload<LoginPayload>,
@@ -269,105 +271,120 @@ export const getContactsLeadsList = async (
   }
 };
 
-// export const uploadContactsCSV = async (
-//   req: RequestWithPayload<LoginPayload, FileData>,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   try {
-//     const { id } = req.payload!;
-//     const fileData = req.fileData;
+export const downloadContactsTemplate = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const filePath = resolveLeadsCsvPath("contacts.csv");
+    console.log("filePath", filePath);
+    // Download as leads_template.csv
+    res.download(filePath, "contacts_leads.csv", (err) => {
+      if (err) return next(err);
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
-//     if (!fileData) {
-//       return sendResponse(res, 400, "Invalid or missing file data");
-//     }
+export const uploadContactsCSV = async (
+  req: RequestWithPayload<LoginPayload, FileData>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req.payload!;
+    const fileData = req.fileData;
 
-//     const {
-//       file_data: rows,
-//       total_records,
-//       filename,
-//       mime_type,
-//       entity_type,
-//     } = fileData;
+    if (!fileData) {
+      return sendResponse(res, 400, "Invalid or missing file data");
+    }
 
-//     // 1. Store metadata into FileUpload table
-//     logger.debug(`Entering File type in database`);
-//     const fileEntity = await addFileType(entity_type);
-//     logger.debug(`File type added successfully`);
+    const {
+      file_data: rows,
+      total_records,
+      filename,
+      mime_type,
+      entity_type,
+    } = fileData;
 
-//     // Now create file upload
-//     logger.debug(`Entering file records history`);
-//     const fileUpload = await addFileRecord(
-//       filename,
-//       mime_type,
-//       rows,
-//       total_records,
-//       id,
-//       fileEntity.id!
-//     );
-//     logger.debug(`File records history added successfully`);
+    // 1. Store metadata into FileUpload table
+    logger.debug(`Entering File type in database`);
+    const fileEntity = await addFileType(entity_type);
+    logger.debug(`File type added successfully`);
 
-//     // 2. Validate + Normalize rows
-//     const { validRows, errors } = validateRows(rows, id);
-//     if (validRows.length === 0) {
-//       return sendResponse(res, 400, "No valid rows found in CSV", { errors });
-//     }
+    // Now create file upload
+    logger.debug(`Entering file records history`);
+    const fileUpload = await addFileRecord(
+      filename,
+      mime_type,
+      rows,
+      total_records,
+      id,
+      fileEntity.id!
+    );
+    logger.debug(`File records history added successfully`);
 
-//     // 3. Deduplicate inside file
-//     const { unique: uniqueInFile, duplicates: duplicatesInFile } =
-//       deduplicateInFile(validRows);
+    // 2. Validate + Normalize rows
+    const { validRows, errors } = validateContactRows(rows, id);
+    if (validRows.length === 0) {
+      return sendResponse(res, 400, "No valid rows found in CSV", { errors });
+    }
 
-//     // 4. Deduplicate against DB
-//     const { unique: toInsert, duplicates: duplicatesInDb } =
-//       await deduplicateInDb(uniqueInFile);
-//     console.log("toInsert", toInsert)
+    // 3. Deduplicate inside file
+    const { unique: uniqueInFile, duplicates: duplicatesInFile } = deduplicateContactsInFile(validRows);
+    console.log("unique",uniqueInFile,duplicatesInFile)
 
-//     // 5. Handle no new records
-//     if (toInsert.length === 0) {
-//       logger.debug(`Updating fileUpload records`);
-//       await updateFileRecord(fileUpload.id, 0, validRows.length);
-//       logger.debug(`File upload records updated successfully`);
+    // 4. Deduplicate against DB
+    const { unique: toInsert, duplicates: duplicatesInDb } = await deduplicateContactsInDb(uniqueInFile);
+    console.log("toInsert", toInsert,duplicatesInDb)
 
-//       return sendResponse(res, 200, "No new records to insert", {
-//         totalRows: rows.length,
-//         validRows: validRows.length,
-//         inserted: 0,
-//         skippedInvalid: errors.length,
-//         skippedDuplicatesInFile: duplicatesInFile,
-//         skippedDuplicatesInDb: duplicatesInDb,
-//         errors,
-//       });
-//     }
+    // 5. Handle no new records
+    if (toInsert.length === 0) {
+      logger.debug(`Updating fileUpload records`);
+      await updateFileRecord(fileUpload.id, 0, validRows.length);
+      logger.debug(`File upload records updated successfully`);
 
-//     // 6. Insert into DB (safely with skipDuplicates)
-//     logger.debug(`Creating csv leads in database`);
-//     const result = await createCSVLeads(toInsert);
-//     logger.debug(`Leads created successfully in database`);
+      return sendResponse(res, 200, "No new records to insert", {
+        totalRows: rows.length,
+        validRows: validRows.length,
+        inserted: 0,
+        skippedInvalid: errors.length,
+        skippedDuplicatesInFile: duplicatesInFile,
+        skippedDuplicatesInDb: duplicatesInDb,
+        errors,
+      });
+    }
+debugger
+    // 6. Insert into HubSpot (batch)
+    logger.debug(`Creating ${toInsert.length} HubSpot loan applications`);
+    const hubspotResults = await createContactsLoanLeads(toInsert);
+    console.log("hubspot", hubspotResults);
+    logger.debug(`HubSpot loan applications created`);
 
-//     // 7. Insert into HubSpot (batch)
-//     logger.debug(`Creating ${toInsert.length} HubSpot loan applications`);
-//     const hubspotResults = await createLoanLeads(toInsert);
-//     console.log("hubspot", hubspotResults);
-//     logger.debug(`HubSpot loan applications created`);
+    // 7. Insert into DB (safely with skipDuplicates)
+    logger.debug(`Creating csv leads in database`);
+    const result = await createCSVContacts(toInsert);
+    logger.debug(`Leads created successfully in database`);
 
-//     // 8. Inserting hubsport Id
-//     await updateSystemTracking(hubspotResults);
+    updateContactsSystemTracking(hubspotResults as any[]);
+    
+    // 8. Update FileUpload stats
+    logger.debug(`Updating fileUpload records`);
+    await updateFileRecord(fileUpload.id, result.count, errors.length);
+    logger.debug(`File upload records updated successfully`);
 
-//     // 8. Update FileUpload stats
-//     logger.debug(`Updating fileUpload records`);
-//     await updateFileRecord(fileUpload.id, result.count, errors.length);
-//     logger.debug(`File upload records updated successfully`);
-
-//     return sendResponse(res, 201, "CSV processed successfully", {
-//       totalRows: rows.length,
-//       validRows: validRows.length,
-//       inserted: result.count,
-//       skippedInvalid: errors.length,
-//       skippedDuplicatesInFile: duplicatesInFile,
-//       skippedDuplicatesInDb: duplicatesInDb,
-//       errors,
-//     });
-//   } catch (error) {
-//     next(error);
-//   }
-// };
+    return sendResponse(res, 201, "CSV processed successfully", {
+      totalRows: rows.length,
+      validRows: validRows.length,
+      inserted: result.count,
+      skippedInvalid: errors.length,
+      skippedDuplicatesInFile: duplicatesInFile,
+      skippedDuplicatesInDb: duplicatesInDb,
+      errors,
+    });
+  } catch (error) {
+    next(error);
+  }
+};

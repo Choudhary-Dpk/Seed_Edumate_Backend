@@ -473,8 +473,8 @@ export const createContactsLeadValidationRules = () => [
   body("target_degree_level")
     .optional()
     .isIn([
-      "Bachelor's",
-      "Master's",
+      "Bachelors",
+      "Masters",
       "PhD",
       "Diploma",
       "Certificate",

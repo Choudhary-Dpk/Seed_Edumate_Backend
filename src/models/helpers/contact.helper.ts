@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import prisma from "../../config/prisma";
-import { admissionStatusMap, courseTypeMap, currentEducationLevelMap, genderMap, preferredStudyDestinationMap, targetDegreeLevelMap } from "../../types/contact.types";
+import { admissionStatusMap, ContactsLead, courseTypeMap, currentEducationLevelMap, genderMap, preferredStudyDestinationMap, targetDegreeLevelMap } from "../../types/contact.types";
+import { HubspotResult } from "../../types";
 
 export const createEdumatePersonalInformation = async (
   tx: any,
@@ -388,4 +389,138 @@ export const fetchContactsLeadList = async (
   ]);
 
   return { rows, count };
+};
+
+export const findContacts = async (batch: any[]) => {
+  const contacts = await prisma.edumateContactsPersonalInformation.findMany({
+    where: {
+      OR: batch.map((v) => ({
+        OR: [
+          { email: v.email },
+          { phone_number: v.phoneNumber },
+        ],
+      })),
+    },
+    select: {
+      email: true,
+      phone_number: true,
+    },
+  });
+
+  return contacts;
+};
+
+export const createCSVContacts = async (rows: ContactsLead[]) => {
+  debugger;
+  return await prisma.$transaction(async (tx) => {
+    // 1. Insert into main table (contacts)
+    const createdContacts = await Promise.all(
+      rows.map((row) =>
+        tx.edumateContact.create({
+          data: {
+            course_type: row.courseType ? courseTypeMap[row.courseType] : null,
+            hs_object_id: null,
+          },
+        })
+      )
+    );
+
+    // Now we have a list of parent contacts with their IDs
+    // Match them back to the rows in order (1-to-1)
+    const contactsWithIds = rows.map((row, index) => ({
+      ...row,
+      contactId: createdContacts[index].id,
+    }));
+
+    // 2. Insert into child tables
+    await tx.edumateContactsPersonalInformation.createMany({
+      data: contactsWithIds.map((row) => ({
+        contact_id: row.contactId,
+        first_name: row.firstName,
+        last_name: row.lastName || null,
+        email: row.email || null,
+        phone_number: row.phone || null,
+      })),
+      skipDuplicates: true,
+    });
+
+const academicProfilesData = contactsWithIds.map((row) => ({
+  contact_id: row.contactId,
+  current_education_level: row.educationLevel
+    ? currentEducationLevelMap[row.educationLevel]
+    : null,
+  admission_status: row.admissionStatus
+    ? admissionStatusMap[row.admissionStatus]
+    : null,
+  target_degree_level: row.targetDegreeLevel
+    ? targetDegreeLevelMap[row.targetDegreeLevel]
+    : null,
+  preferred_study_destination: row.studyDestination
+    ? preferredStudyDestinationMap[row.studyDestination]
+    : null,
+  intake_month: row.intakeMonth || null,
+  intake_year: row.intakeYear || null,
+}));
+
+console.log("academicProfilesData =>", academicProfilesData);
+
+await tx.edumateContactsAcademicProfile.createMany({
+  data: academicProfilesData,
+  skipDuplicates: true,
+});
+
+
+    await tx.edumateContactsLeadAttribution.createMany({
+      data: contactsWithIds.map((row) => ({
+        contact_id: row.contactId,
+        b2b_partner_name: row.partnerName || null,
+      })),
+      skipDuplicates: true,
+    });
+
+    await tx.edumateContactsSystemTracking.createMany({
+      data: contactsWithIds.map((row) => ({
+        created_by: row.userId,
+        contact_id: row.contactId,
+        created_date: new Date(),
+      })),
+      skipDuplicates: true,
+    });
+
+    return {
+      count: createdContacts.length,
+      records: createdContacts,
+    };
+  });
+};
+
+
+export const updateContactsSystemTracking = async (hubspotResults: HubspotResult[]) => {
+  await prisma.$transaction(async (tx) => {
+    for (const hs of hubspotResults) {
+      const { email, hs_object_id, hs_createdate, hs_lastmodifieddate } = hs.properties;
+
+      if (!email) continue;
+
+      const contact = await tx.edumateContact.findFirst({
+        where: {
+          personal_information: {
+            email,
+          },
+        },
+        select: { id: true },
+      });
+
+      if (contact) {
+        await tx.edumateContact.update({
+          where: { id: contact.id },
+          data: {
+            hs_object_id: hs_object_id ?? hs.id,
+            hs_createdate: hs_createdate ? new Date(hs_createdate) : undefined,
+            hs_lastmodifieddate: hs_lastmodifieddate ? new Date(hs_lastmodifieddate) : undefined,
+          },
+        });
+      }
+    }
+  });
 };

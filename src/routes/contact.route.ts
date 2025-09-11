@@ -2,8 +2,8 @@ import { Router } from "express";
 import { validateToken } from "../middlewares";
 import { contactsLeadPaginationValidationRules, createContactsLeadValidationRules,editContactsLeadValidationRules,validateId,validateReqParams } from "../middlewares/validators/validator";
 import { validateContactLeadById, validateContactsLeadPayload } from "../middlewares/contacts";
-import { createContactsLead, deleteContactLead, editContactsLead, getContactsLeadDetails, getContactsLeadsList } from "../controllers/contact.controller";
-import { downloadTemplate } from "../controllers/leads.controller";
+import { createContactsLead, deleteContactLead, downloadContactsTemplate, editContactsLead, getContactsLeadDetails, getContactsLeadsList, uploadContactsCSV } from "../controllers/contact.controller";
+import { validateAndParseCSVFile } from "../middlewares/leads.middleware";
 
 const router = Router();
 
@@ -45,12 +45,12 @@ router.get(
   validateReqParams,
   getContactsLeadsList
 );
-// router.post(
-  //   "/upload-csv",
-  //   validateToken,
-  //   validateAndParseCSVFile("CSV"),
-  //   uploadCSV
-  // );
-router.get("/template",validateToken,downloadTemplate)
+router.post(
+  "/upload-csv",
+  validateToken,
+  validateAndParseCSVFile("CSV"),
+  uploadContactsCSV
+);
+router.get("/template",downloadContactsTemplate)
 
 export {router as contactRoutes}

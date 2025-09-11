@@ -2,6 +2,8 @@ import crypto from "crypto";
 import { Row, ValidationResult } from "../types/leads.types";
 import { findLeads } from "../models/helpers/leads.helper";
 import { parse } from "csv-parse";
+import { findContacts } from "../models/helpers/contact.helper";
+import { ContactsLead, ContactsValidationResult } from "../types/contact.types";
 
 // Helper function for consistent 2-decimal rounding
 export const roundTo2 = (value: number): number => Number(value.toFixed(2));
@@ -181,7 +183,7 @@ const parseCSVWithCsvParse = (buffer: Buffer): Promise<any[]> => {
   return new Promise((resolve, reject) => {
     const records: any[] = [];
 
-    // csv-parse options
+    // csv-parse options  
     const parser = parse({
       columns: true, // Use first line as column names
       skip_empty_lines: true, // Skip empty lines
@@ -215,4 +217,167 @@ const parseCSVWithCsvParse = (buffer: Buffer): Promise<any[]> => {
     parser.write(buffer);
     parser.end();
   });
+};
+
+const VALID_ADMISSION_STATUS = [
+  "Not Applied",
+  "Applied", 
+  "Interview Scheduled",
+  "Waitlisted",
+  "Admitted",
+  "Rejected"
+];
+
+const VALID_CURRENT_EDUCATION_LEVEL = [
+  "High School",
+  "Bachelors",
+  "Masters",
+  "Phd",
+  "Diploma",
+  "Other"
+];
+
+const VALID_TARGET_DEGREE_LEVEL = [
+  "Bachelors",
+  "Masters",
+  "Phd", 
+  "Diploma",
+  "Certificate",
+  "Professional Course"
+];
+
+export const validateContactRows = (rows: any[], userId: number): ContactsValidationResult => {
+  const validRows: ContactsLead[] = [];
+  const errors: { row: number; reason: string }[] = [];
+
+  rows.forEach((r, idx) => {
+    const rowNo = idx + 2; // account for header row
+    const rowErrors: string[] = [];
+
+    // Extract and normalize
+    const firstName = r["First Name"]?.toString().trim();
+    const lastName = r["Last Name"]?.toString().trim();
+    const email = r["Email"]?.toString().trim().toLowerCase();
+    const phoneNumber = r["Phone Number"]?.toString().trim();
+
+    const intakeYear = r["Intake Year"]?.toString().trim();
+    const gender = r["Gender"]?.toString().trim();
+    const b2bPartnerName = r["B2B Partner Name"]?.toString().trim();
+    const courseType = r["Course Type"]?.toString().trim();
+    const dateOfBirthRaw = r["Date of Birth"];
+    const preferredStudyDestination = r["Preferred Study Destination"]?.toString().trim();
+    const targetDegreeLevel = r["Target Degree Level"]?.toString().trim();
+    const intakeMonth = r["Intake Month"]?.toString().trim();
+    const admissionStatus = r["Admission Status"]?.toString().trim();
+    const educationLevel = r["Current Education Level"]?.toString().trim();
+
+    // --- Required validations ---
+    if (!firstName) rowErrors.push("Missing First Name");
+    if (!lastName) rowErrors.push("Missing Last Name");
+    if (!email) rowErrors.push("Missing Email");
+    if (!phoneNumber) rowErrors.push("Missing Phone Number");
+
+    // --- Enum validations ---
+    if (admissionStatus && !VALID_ADMISSION_STATUS.includes(admissionStatus)) {
+      rowErrors.push(`Invalid Admission Status: "${admissionStatus}". Valid values: ${VALID_ADMISSION_STATUS.join(", ")}`);
+    }
+
+    if (educationLevel && !VALID_CURRENT_EDUCATION_LEVEL.includes(educationLevel)) {
+      rowErrors.push(`Invalid Current Education Level: "${educationLevel}". Valid values: ${VALID_CURRENT_EDUCATION_LEVEL.join(", ")}`);
+    }
+
+    if (targetDegreeLevel && !VALID_TARGET_DEGREE_LEVEL.includes(targetDegreeLevel)) {
+      rowErrors.push(`Invalid Target Degree Level: "${targetDegreeLevel}". Valid values: ${VALID_TARGET_DEGREE_LEVEL.join(", ")}`);
+    }
+
+    // Optional but typed validations
+    let dateOfBirth: Date | undefined;
+    if (dateOfBirthRaw) {
+      const parsed = new Date(dateOfBirthRaw);
+      if (isNaN(parsed.getTime())) {
+        rowErrors.push("Invalid Date of Birth");
+      } else {
+        dateOfBirth = parsed;
+      }
+    }
+
+    // Collect errors or push valid row
+    if (rowErrors.length > 0) {
+      rowErrors.forEach((reason) => errors.push({ row: rowNo, reason }));
+    } else {
+      validRows.push({
+        educationLevel,
+        admissionStatus,
+        firstName,
+        lastName,
+        email,
+        phone: phoneNumber,
+        intakeYear,
+        gender,
+        partnerName: b2bPartnerName,
+        courseType,
+        dateOfBirth,
+        studyDestination: preferredStudyDestination,
+        targetDegreeLevel,
+        intakeMonth,
+        userId,
+        createdBy: userId,
+      });
+    }
+  });
+
+  return { validRows, errors };
+};
+
+const normalizeEmail = (email: string | undefined | null) =>
+  email?.trim().toLowerCase() ?? "";
+
+const normalizePhone = (phone: string | undefined | null) =>
+  phone?.replace(/\D/g, "") ?? "";
+
+export const deduplicateContactsInDb = async (rows: ContactsLead[]) => {
+  const key = (v: ContactsLead) =>
+    `${normalizeEmail(v.email)}|${normalizePhone(v.phone)}`;
+  const existingKeys = new Set<string>();
+
+  for (const batch of chunk(rows, 1000)) {
+    if (batch.length === 0) continue;
+
+    const found = await findContacts(batch);
+    console.log("found", found);
+
+    for (const f of found) {
+      existingKeys.add(
+        `${normalizeEmail(f.email)}|${normalizePhone(f.phone_number)}`
+      );
+    }
+  }
+
+  const unique = rows.filter((v) => !existingKeys.has(key(v)));
+  const duplicates = rows.length - unique.length;
+
+  return { unique, duplicates };
+};
+
+export const deduplicateContactsInFile = (
+  rows: ContactsLead[]
+): { unique: ContactsLead[]; duplicates: number } => {
+  // Use email + phone as unique identifier
+  const key = (v: ContactsLead) => `${v.email}|${v.phone}`;
+
+  const seen = new Set<string>();
+  const unique: ContactsLead[] = [];
+  let duplicates = 0;
+
+  for (const v of rows) {
+    const k = key(v);
+    if (seen.has(k)) {
+      duplicates++;
+      continue;
+    }
+    seen.add(k);
+    unique.push(v);
+  }
+
+  return { unique, duplicates };
 };
