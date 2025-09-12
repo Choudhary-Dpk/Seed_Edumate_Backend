@@ -381,3 +381,14 @@ export const deduplicateContactsInFile = (
 
   return { unique, duplicates };
 };
+
+export const transformRow = <T extends { contactId: number }>(
+  row: T,
+  mapping: Record<string, (row: T) => any>
+) => {
+  const obj: Record<string, any> = { contact_id: row.contactId };
+  for (const [field, fn] of Object.entries(mapping)) {
+    obj[field] = fn(row);
+  }
+  return obj;
+};

@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 import prisma from "../../config/prisma";
 import { admissionStatusMap, ContactsLead, courseTypeMap, currentEducationLevelMap, genderMap, preferredStudyDestinationMap, targetDegreeLevelMap } from "../../types/contact.types";
 import { HubspotResult } from "../../types";
+import { transformRow } from "../../utils/helper";
 
 export const createEdumatePersonalInformation = async (
   tx: any,
@@ -410,10 +411,47 @@ export const findContacts = async (batch: any[]) => {
   return contacts;
 };
 
+const tableMappings = {
+  edumateContactsPersonalInformation: {
+    map: {
+      first_name: (row: ContactsLead) => row.firstName,
+      last_name: (row: ContactsLead) => row.lastName ?? null,
+      email: (row: ContactsLead) => row.email ?? null,
+      phone_number: (row: ContactsLead) => row.phone ?? null,
+      gender: (row:ContactsLead) => row.gender ? genderMap[row.gender] : null,
+      date_of_birth: (row:ContactsLead) => row.dateOfBirth ?? null
+    },
+  },
+  edumateContactsAcademicProfile: {
+    map: {
+      current_education_level: (row: ContactsLead) =>
+        row.educationLevel ? currentEducationLevelMap[row.educationLevel] : null,
+      admission_status: (row: ContactsLead) =>
+        row.admissionStatus ? admissionStatusMap[row.admissionStatus] : null,
+      target_degree_level: (row: ContactsLead) =>
+        row.targetDegreeLevel ? targetDegreeLevelMap[row.targetDegreeLevel] : null,
+      preferred_study_destination: (row: ContactsLead) =>
+        row.studyDestination ? preferredStudyDestinationMap[row.studyDestination] : null,
+      intake_month: (row: ContactsLead) => row.intakeMonth ?? null,
+      intake_year: (row: ContactsLead) => row.intakeYear ?? null,
+    },
+  },
+  edumateContactsLeadAttribution: {
+    map: {
+      b2b_partner_name: (row: ContactsLead) => row.partnerName ?? null,
+    },
+  },
+  edumateContactsSystemTracking: {
+    map: {
+      created_by: (row: ContactsLead) => row.userId,
+      created_date: () => new Date(),
+    },
+  },
+};
+
 export const createCSVContacts = async (rows: ContactsLead[]) => {
-  debugger;
   return await prisma.$transaction(async (tx) => {
-    // 1. Insert into main table (contacts)
+    // 1. Insert into main table
     const createdContacts = await Promise.all(
       rows.map((row) =>
         tx.edumateContact.create({
@@ -421,71 +459,26 @@ export const createCSVContacts = async (rows: ContactsLead[]) => {
             course_type: row.courseType ? courseTypeMap[row.courseType] : null,
             hs_object_id: null,
           },
+          select: { id: true },
         })
       )
     );
 
-    // Now we have a list of parent contacts with their IDs
-    // Match them back to the rows in order (1-to-1)
-    const contactsWithIds = rows.map((row, index) => ({
+    // 2. Attach IDs back to rows
+    const contactsWithIds = rows.map((row, i) => ({
       ...row,
-      contactId: createdContacts[index].id,
+      contactId: createdContacts[i].id,
     }));
 
-    // 2. Insert into child tables
-    await tx.edumateContactsPersonalInformation.createMany({
-      data: contactsWithIds.map((row) => ({
-        contact_id: row.contactId,
-        first_name: row.firstName,
-        last_name: row.lastName || null,
-        email: row.email || null,
-        phone_number: row.phone || null,
-      })),
-      skipDuplicates: true,
-    });
-
-const academicProfilesData = contactsWithIds.map((row) => ({
-  contact_id: row.contactId,
-  current_education_level: row.educationLevel
-    ? currentEducationLevelMap[row.educationLevel]
-    : null,
-  admission_status: row.admissionStatus
-    ? admissionStatusMap[row.admissionStatus]
-    : null,
-  target_degree_level: row.targetDegreeLevel
-    ? targetDegreeLevelMap[row.targetDegreeLevel]
-    : null,
-  preferred_study_destination: row.studyDestination
-    ? preferredStudyDestinationMap[row.studyDestination]
-    : null,
-  intake_month: row.intakeMonth || null,
-  intake_year: row.intakeYear || null,
-}));
-
-console.log("academicProfilesData =>", academicProfilesData);
-
-await tx.edumateContactsAcademicProfile.createMany({
-  data: academicProfilesData,
-  skipDuplicates: true,
-});
-
-
-    await tx.edumateContactsLeadAttribution.createMany({
-      data: contactsWithIds.map((row) => ({
-        contact_id: row.contactId,
-        b2b_partner_name: row.partnerName || null,
-      })),
-      skipDuplicates: true,
-    });
-
-    await tx.edumateContactsSystemTracking.createMany({
-      data: contactsWithIds.map((row) => ({
-        created_by: row.userId,
-        contact_id: row.contactId,
-        created_date: new Date(),
-      })),
-      skipDuplicates: true,
-    });
+    // 3. Generic child-table inserts
+    await Promise.all(
+      Object.entries(tableMappings).map(([tableName, { map }]) =>
+        (tx[tableName as keyof typeof tx] as any).createMany({
+          data: contactsWithIds.map((row) => transformRow(row, map)),
+          skipDuplicates: true,
+        })
+      )
+    );
 
     return {
       count: createdContacts.length,
@@ -493,7 +486,6 @@ await tx.edumateContactsAcademicProfile.createMany({
     };
   });
 };
-
 
 export const updateContactsSystemTracking = async (hubspotResults: HubspotResult[]) => {
   await prisma.$transaction(async (tx) => {

@@ -654,7 +654,6 @@ export const updateContactsLoanLead = async (
 
 export const createContactsLoanLeads = async (leads: ContactsLead[]) => {
   try {
-    debugger;
     const hubspotPropertiesList = await Promise.all(
       leads.map((lead) => mapToHubSpotProperties(lead))
     );
