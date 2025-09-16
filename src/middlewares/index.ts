@@ -14,6 +14,7 @@ import {
 import { JwtPayload } from "jsonwebtoken";
 import { RequestWithPayload } from "../types/api.types";
 import {
+  AllowedRoles,
   LoginPayload,
   ProtectedPayload,
   ResetPasswordPayload,
@@ -150,60 +151,83 @@ export const validatePassword = async (
   }
 };
 
-export const validateToken = async (
-  req: RequestWithPayload<ProtectedPayload>,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return sendResponse(res, 401, "Missing or invalid Authorization header");
-    }
-
-    const token = authHeader.split(" ")[1];
-
-    let decodedToken: JwtPayload;
+export const validateToken =
+  (allowedRoles?: AllowedRoles[]) =>
+  async (
+    req: RequestWithPayload<ProtectedPayload>,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
-      decodedToken = await decodeToken(token);
-    } catch (error) {
-      return sendResponse(res, 401, "Unauthorized user");
-    }
+      const authHeader = req.headers.authorization;
 
-    const user = await getUserById(decodedToken.id, true);
-    if (!user) {
-      return sendResponse(res, 401, "User not found");
-    }
+      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return sendResponse(
+          res,
+          401,
+          "Missing or invalid Authorization header"
+        );
+      }
 
-    if (!user.is_active) {
+      const token = authHeader.split(" ")[1];
+
+      let decodedToken: JwtPayload;
+      try {
+        decodedToken = await decodeToken(token);
+      } catch (error) {
+        return sendResponse(res, 401, "Unauthorized user");
+      }
+
+      const user = await prisma.user.findUnique({
+        where: { id: decodedToken.id },
+        include: {
+          roles: { include: { role: true } },
+        },
+      });
+
+      if (!user) {
+        return sendResponse(res, 401, "User not found");
+      }
+
+      if (!user.is_active) {
+        return sendResponse(
+          res,
+          401,
+          "Your account has been disabled, please contact system administrator"
+        );
+      }
+
+      const userSession = await getUserSessionById(decodedToken.id);
+      if (!userSession?.is_valid) {
+        return sendResponse(res, 401, "Invalid user session");
+      }
+
+      const roles = user.roles.map((ur) => ur.role.role);
+      req.payload = {
+        id: user.id,
+        email: user.email,
+        passwordHash: user.password_hash,
+        roles,
+      };
+
+      if (allowedRoles && allowedRoles.length > 0) {
+        const hasAccess = roles.some((r) =>
+          allowedRoles.includes(r as AllowedRoles)
+        );
+        if (!hasAccess) {
+          return sendResponse(res, 403, "Access Denied");
+        }
+      }
+
+      next();
+    } catch (error: any) {
       return sendResponse(
         res,
-        401,
-        "Your account has been disabled, please contact system administrator"
+        500,
+        error?.message?.toString() || "Internal server error"
       );
     }
-
-    const userSession = await getUserSessionById(decodedToken.id);
-    if (!userSession?.is_valid) {
-      return sendResponse(res, 401, "Invalid user session");
-    }
-
-    req.payload = {
-      id: user.id,
-      email: user.email,
-      passwordHash: user.password_hash,
-    };
-
-    next();
-  } catch (error: any) {
-    return sendResponse(
-      res,
-      500,
-      error?.message?.toString() || "Internal server error"
-    );
-  }
-};
+  };
 
 export const validateChangePassword = async (
   req: RequestWithPayload<ProtectedPayload>,
