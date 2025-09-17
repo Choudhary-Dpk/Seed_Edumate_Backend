@@ -50,6 +50,7 @@ router.delete(
 );
 router.get(
   "/list",
+  validateToken(["Admin"]),
   leadPaginationValidationRules(),
   validateReqParams,
   getLeadsList

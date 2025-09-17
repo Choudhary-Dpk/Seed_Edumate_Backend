@@ -8,7 +8,7 @@ const router = Router();
 
 router.post(
   "/",
-  validateToken(["Manager"]),
+  validateToken(["Admin"]),
   createContactsLeadValidationRules(),
   validateReqParams,
   validateContactsLeadPayload,

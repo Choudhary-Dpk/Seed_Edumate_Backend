@@ -170,20 +170,17 @@ export const validateToken =
       }
 
       const token = authHeader.split(" ")[1];
+      console.log("token", token);
 
       let decodedToken: JwtPayload;
       try {
         decodedToken = await decodeToken(token);
       } catch (error) {
+        console.log("error", error);
         return sendResponse(res, 401, "Unauthorized user");
       }
 
-      const user = await prisma.user.findUnique({
-        where: { id: decodedToken.id },
-        include: {
-          roles: { include: { role: true } },
-        },
-      });
+      const user = await getUserById(decodedToken.id, true);
 
       if (!user) {
         return sendResponse(res, 401, "User not found");
