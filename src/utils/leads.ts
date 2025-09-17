@@ -1,7 +1,7 @@
 import path from "path";
 import fs from "fs";
 
-export const resolveLeadsCsvPath = (): string => {
+export const resolveLeadsCsvPath = (fileName:string): string => {
   const root = process.cwd();
   const prodPath = path.join(
     root,
@@ -13,5 +13,5 @@ export const resolveLeadsCsvPath = (): string => {
   if (fs.existsSync(prodPath)) return prodPath;
 
   // Fallback for dev
-  return path.join(root, "src", "utils", "csvTemplates", "leads.csv");
+  return path.join(root, "src", "utils", "csvTemplates", fileName);
 };

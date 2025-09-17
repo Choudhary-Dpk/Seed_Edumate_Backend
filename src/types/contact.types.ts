@@ -15,6 +15,8 @@ export type ContactsLead =  {
     gender?:string;
     intakeYear?:string;
     intakeMonth?:string;
+    userId?:number;
+    createdBy?:number;
 }
 
 export const genderMap: Record<string, Gender> = {
@@ -34,8 +36,8 @@ export const admissionStatusMap: Record<string, AdmissionStatus> = {
 };
 
 export const targetDegreeLevelMap: Record<string, TargetDegreeLevel> = {
-  "Bachelor's": TargetDegreeLevel.BACHELORS,
-  "Master's": TargetDegreeLevel.MASTERS,
+  "Bachelors": TargetDegreeLevel.BACHELORS,
+  "Masters": TargetDegreeLevel.MASTERS,
   "PhD": TargetDegreeLevel.PHD,
   "Diploma": TargetDegreeLevel.DIPLOMA,
   "Certificate": TargetDegreeLevel.CERTIFICATE,
@@ -63,9 +65,14 @@ export const preferredStudyDestinationMap: Record<string, PreferredStudyDestinat
 
 export const currentEducationLevelMap: Record<string, CurrentEducationLevel> = {
   "High School": CurrentEducationLevel.HIGH_SCHOOL,
-  Bachelor: CurrentEducationLevel.BACHELOR,
-  Master: CurrentEducationLevel.MASTER,
+  Bachelors: CurrentEducationLevel.BACHELORS,
+  Masters: CurrentEducationLevel.MASTERS,
   PhD: CurrentEducationLevel.PHD,
   Diploma: CurrentEducationLevel.DIPLOMA,
   Other: CurrentEducationLevel.OTHER,
+};
+
+export type ContactsValidationResult = {
+  validRows: ContactsLead[];
+  errors: { row: number; reason: string }[];
 };

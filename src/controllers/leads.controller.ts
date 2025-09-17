@@ -3,8 +3,6 @@ import logger from "../utils/logger";
 import { RequestWithPayload } from "../types/api.types";
 import { LoginPayload } from "../types/auth";
 import {
-  addFileRecord,
-  addFileType,
   createApplicationStatus,
   createCSVLeads,
   createFinancialRequirements,
@@ -16,7 +14,6 @@ import {
   getLeads,
   getLoanList,
   updateApplicationStatus,
-  updateFileRecord,
   updateFinancialRequirements,
   updateLender,
   updateLoan,
@@ -35,6 +32,7 @@ import {
 } from "../services/hubspot.service";
 import { FileData } from "../types/leads.types";
 import { resolveLeadsCsvPath } from "../utils/leads";
+import { addFileType, addFileRecord, updateFileRecord } from "../models/helpers";
 
 export const createLead = async (
   req: RequestWithPayload<LoginPayload>,
@@ -110,7 +108,7 @@ export const downloadTemplate = (
   next: NextFunction
 ) => {
   try {
-    const filePath = resolveLeadsCsvPath();
+    const filePath = resolveLeadsCsvPath("leads.csv");
     console.log("filePath", filePath);
     // Download as leads_template.csv
     res.download(filePath, "leads_template.csv", (err) => {
@@ -210,7 +208,7 @@ export const uploadCSV = async (
     // 8. Inserting hubsport Id
     await updateSystemTracking(hubspotResults);
 
-    // 8. Update FileUpload stats
+    // 9. Update FileUpload stats
     logger.debug(`Updating fileUpload records`);
     await updateFileRecord(fileUpload.id, result.count, errors.length);
     logger.debug(`File upload records updated successfully`);

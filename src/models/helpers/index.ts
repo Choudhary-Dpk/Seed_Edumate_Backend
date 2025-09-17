@@ -1,4 +1,5 @@
 import prisma from "../../config/prisma";
+import { Row } from "../../types/leads.types";
 
 export const getEmailTemplate = async (title: string) => {
   // As of now keeping static but can be changed if we will get the template
@@ -34,4 +35,52 @@ export const getUserDetailsByEmail = async (email: string) => {
   });
 
   return userData;
+};
+
+export const addFileType = async (fileName: string) => {
+  const fileType = await prisma.fileEntity.upsert({
+    where: { type: fileName },
+    update: {},
+    create: { type: fileName, description: `${fileName} files` },
+  });
+
+  return fileType;
+};
+
+export const addFileRecord = async (
+  filename: string,
+  mime_type: string,
+  rows: Row,
+  total_records: number,
+  uploadedBy: number,
+  fileId: number
+) => {
+  const fileUpload = await prisma.fileUpload.create({
+    data: {
+      filename,
+      mime_type,
+      file_data: rows,
+      total_records,
+      uploaded_by_id: uploadedBy,
+      entity_type_id: fileId,
+    },
+    include: { entity_type: true },
+  });
+
+  return fileUpload;
+};
+
+export const updateFileRecord = async (
+  fileId: number,
+  processedRecords: number,
+  failedRecords: number
+) => {
+  await prisma.fileUpload.update({
+    where: { id: fileId },
+    data: {
+      processed_records: processedRecords,
+      failed_records: failedRecords,
+      processed_at: new Date(),
+    },
+  });
 };
