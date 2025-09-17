@@ -426,13 +426,11 @@ export const leadPaginationValidationRules = () => [
 ];
 
 export const createContactsLeadValidationRules = () => [
-  body("email")
-    .isEmail()
-    .withMessage("Valid email is required"),
+  body("email").isEmail().withMessage("Valid email is required"),
 
   body("phone_number")
-    .isMobilePhone("any", { strictMode: false }) // allow numbers with country codes
-    .withMessage("Valid phone number is required"),
+    .matches(/^\+?[1-9]\d{1,14}$/) // E.164 format: optional +, country code, then 4–14 digits
+    .withMessage("Valid phone number with country code is required"),
 
   body("first_name")
     .trim()
@@ -448,18 +446,13 @@ export const createContactsLeadValidationRules = () => [
     .isLength({ max: 50 })
     .withMessage("Last name must not exceed 50 characters"),
 
-  body("b2b_partner_name")
-    .optional()
-    .isLength({ max: 100 })
-    .withMessage("B2B partner name must not exceed 100 characters"),
-
   body("current_education_level")
-    .optional()
+    .optional({ checkFalsy: true }) // <--- accepts falsy values
     .isIn(["High School", "Bachelor", "Master", "PhD", "Diploma", "Other"])
     .withMessage("Invalid current education level"),
 
   body("admission_status")
-    .optional()
+    .optional({ checkFalsy: true })
     .isIn([
       "Not Applied",
       "Applied",
@@ -471,10 +464,10 @@ export const createContactsLeadValidationRules = () => [
     .withMessage("Invalid admission status"),
 
   body("target_degree_level")
-    .optional()
+    .optional({ checkFalsy: true })
     .isIn([
-      "Bachelor's",
-      "Master's",
+      "Bachelors",
+      "Masters",
       "PhD",
       "Diploma",
       "Certificate",
@@ -483,22 +476,25 @@ export const createContactsLeadValidationRules = () => [
     .withMessage("Invalid target degree level"),
 
   body("course_type")
-    .optional()
+    .optional({ checkFalsy: true })
     .isIn(["STEM", "Business", "Others"])
     .withMessage("Invalid course type"),
 
   body("intake_year")
-    .optional()
-    .isInt({ min: new Date().getFullYear(), max: new Date().getFullYear() + 10 })
+    .optional({ checkFalsy: true })
+    .isInt({
+      min: new Date().getFullYear(),
+      max: new Date().getFullYear() + 10,
+    })
     .withMessage("Intake year must be valid and within next 10 years"),
 
   body("intake_month")
-    .optional()
+    .optional({ checkFalsy: true })
     .isInt({ min: 1, max: 12 })
     .withMessage("Intake month must be between 1 and 12"),
 
   body("preferred_study_destination")
-    .optional()
+    .optional({ checkFalsy: true })
     .isIn([
       "US",
       "UK",
@@ -514,13 +510,151 @@ export const createContactsLeadValidationRules = () => [
     .withMessage("Invalid preferred study destination"),
 
   body("date_of_birth")
-    .optional()
+    .optional({ checkFalsy: true })
     .isISO8601()
     .toDate()
     .withMessage("Valid date of birth is required"),
 
   body("gender")
-    .optional()
+    .optional({ checkFalsy: true })
     .isIn(["Male", "Female", "Other", "Prefer not to say"])
     .withMessage("Invalid gender"),
+];
+
+export const editContactsLeadValidationRules = () => [
+  param("id")
+    .exists()
+    .withMessage("id is required")
+    .bail()
+    .isInt({ gt: 0 })
+    .withMessage("id must be a positive integer")
+    .toInt(),
+
+  body("email").isEmail().withMessage("Valid email is required"),
+
+  body("phone_number")
+    .matches(/^\+?[1-9]\d{1,14}$/) // E.164 format: optional +, country code, then 4–14 digits
+    .withMessage("Valid phone number with country code is required"),
+
+  body("first_name")
+    .trim()
+    .notEmpty()
+    .withMessage("First name is required")
+    .isLength({ max: 50 })
+    .withMessage("First name must not exceed 50 characters"),
+
+  body("last_name")
+    .trim()
+    .notEmpty()
+    .withMessage("Last name is required")
+    .isLength({ max: 50 })
+    .withMessage("Last name must not exceed 50 characters"),
+
+  body("current_education_level")
+    .optional({ checkFalsy: true }) // <--- accepts falsy values
+    .isIn(["High School", "Bachelor", "Master", "PhD", "Diploma", "Other"])
+    .withMessage("Invalid current education level"),
+
+  body("admission_status")
+    .optional({ checkFalsy: true })
+    .isIn([
+      "Not Applied",
+      "Applied",
+      "Interview Scheduled",
+      "Waitlisted",
+      "Admitted",
+      "Rejected",
+    ])
+    .withMessage("Invalid admission status"),
+
+  body("target_degree_level")
+    .optional({ checkFalsy: true })
+    .isIn([
+      "Bachelors",
+      "Masters",
+      "PhD",
+      "Diploma",
+      "Certificate",
+      "Professional Course",
+    ])
+    .withMessage("Invalid target degree level"),
+
+  body("course_type")
+    .optional({ checkFalsy: true })
+    .isIn(["STEM", "Business", "Others"])
+    .withMessage("Invalid course type"),
+
+  body("intake_year")
+    .optional({ checkFalsy: true })
+    .isInt({
+      min: new Date().getFullYear(),
+      max: new Date().getFullYear() + 10,
+    })
+    .withMessage("Intake year must be valid and within next 10 years"),
+
+  body("intake_month")
+    .optional({ checkFalsy: true })
+    .isInt({ min: 1, max: 12 })
+    .withMessage("Intake month must be between 1 and 12"),
+
+  body("preferred_study_destination")
+    .optional({ checkFalsy: true })
+    .isIn([
+      "US",
+      "UK",
+      "UAE",
+      "Canada",
+      "Australia",
+      "Germany",
+      "France",
+      "Singapore",
+      "Italy",
+      "Japan",
+    ])
+    .withMessage("Invalid preferred study destination"),
+
+  body("date_of_birth")
+    .optional({ checkFalsy: true })
+    .isISO8601()
+    .toDate()
+    .withMessage("Valid date of birth is required"),
+
+  body("gender")
+    .optional({ checkFalsy: true })
+    .isIn(["Male", "Female", "Other", "Prefer not to say"])
+    .withMessage("Invalid gender"),
+];
+
+export const contactsLeadPaginationValidationRules = () => [
+  query("size")
+    .not()
+    .isEmpty()
+    .withMessage("Size is required")
+    .bail()
+    .isInt({ min: 1, max: 100 })
+    .withMessage("Size must be an Integer, between 1 and 100")
+    .bail()
+    .toInt(),
+  query("page")
+    .not()
+    .isEmpty()
+    .withMessage("Page is required")
+    .bail()
+    .isInt({ min: 1 })
+    .withMessage("Page must be an Integer, greater than 0")
+    .bail()
+    .toInt(),
+  query("search").optional({ values: "falsy" }).toLowerCase().trim(),
+  query("sortKey")
+    .optional({ values: "falsy" })
+    .isIn(["name","email"])
+    .withMessage(
+      "SortKey should be one of name, email"
+    )
+    .trim(),
+  query("sortDir")
+    .optional({ values: "falsy" })
+    .isIn(["asc", "desc"])
+    .withMessage("SortDir should be one of asc, desc")
+    .trim(),
 ];

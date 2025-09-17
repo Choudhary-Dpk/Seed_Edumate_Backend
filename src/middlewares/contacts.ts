@@ -2,8 +2,7 @@ import { NextFunction,Response } from "express";
 import { RequestWithPayload } from "../types/api.types";
 import { LoginPayload } from "../types/auth";
 import { sendResponse } from "../utils/api";
-import * as hubspotService from "../services/hubspot.service";
-import { getEdumateContactByEmail, getEdumateContactByPhone } from "../models/helpers/contacts";
+import { getContactLeadById, getEdumateContactByEmail, getEdumateContactByPhone } from "../models/helpers/contact.helper";
 
 export const validateContactsLeadPayload = async (
   req: RequestWithPayload<LoginPayload>,
@@ -28,5 +27,25 @@ export const validateContactsLeadPayload = async (
   } catch (error) {
     console.error(error);
     sendResponse(res, 500, "Error while creating contact leads");
+  }
+};
+
+export const validateContactLeadById = async (
+  req: RequestWithPayload<LoginPayload>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const id = req.params.id;
+
+    const leadDetails = await getContactLeadById(+id);
+    if (!leadDetails || leadDetails.is_deleted === true) {
+      return sendResponse(res, 404, "Lead not found");
+    }
+
+    next();
+  } catch (error) {
+    console.error(error);
+    sendResponse(res, 500, "Error while validating lead id");
   }
 };
