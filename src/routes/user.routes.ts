@@ -18,7 +18,7 @@ router.post("/", createUserValidator, createUser);
 
 router.get("/ip-info", getIpInfo);
 router.use("/auth", authRoutes);
-router.get("/profile", validateToken, getProfile);
+router.get("/profile", validateToken(["Admin", "Manager", "User"]), getProfile);
 router.get("/roles", getRoles);
 
 export { router as userRoutes };

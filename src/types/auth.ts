@@ -23,6 +23,9 @@ export type ProtectedPayload = {
   id: number;
   email: string;
   passwordHash?: string | null;
+  roles?: string[];
 };
 
 export type LoginStatus = "success" | "failed" | "logout";
+
+export type AllowedRoles = "Admin" | "Manager" | "User";

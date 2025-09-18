@@ -15,3 +15,5 @@ export const isHubSpotEdumateContact = (obj: any): obj is import('./hubspot.type
 export const isMappedEdumateContact = (obj: any): obj is import('./mapped.types').MappedEdumateContact => {
   return obj && typeof obj.id === 'string' && obj.firstName && obj.lastName && obj.createdAt && obj.updatedAt;
 };
+
+export type AllowedPemissions = "view" | "edit" | "add" | "delete";
