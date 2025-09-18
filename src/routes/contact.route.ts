@@ -1,15 +1,32 @@
 import { Router } from "express";
 import { validateToken } from "../middlewares";
-import { contactsLeadPaginationValidationRules, createContactsLeadValidationRules,editContactsLeadValidationRules,validateId,validateReqParams } from "../middlewares/validators/validator";
-import { validateContactLeadById, validateContactsLeadPayload } from "../middlewares/contacts";
-import { createContactsLead, deleteContactLead, downloadContactsTemplate, editContactsLead, getContactsLeadDetails, getContactsLeadsList, uploadContactsCSV } from "../controllers/contact.controller";
+import {
+  contactsLeadPaginationValidationRules,
+  createContactsLeadValidationRules,
+  editContactsLeadValidationRules,
+  validateId,
+  validateReqParams,
+} from "../middlewares/validators/validator";
+import {
+  validateContactLeadById,
+  validateContactsLeadPayload,
+} from "../middlewares/contacts";
+import {
+  createContactsLead,
+  deleteContactLead,
+  downloadContactsTemplate,
+  editContactsLead,
+  getContactsLeadDetails,
+  getContactsLeadsList,
+  uploadContactsCSV,
+} from "../controllers/contact.controller";
 import { validateAndParseCSVFile } from "../middlewares/leads.middleware";
 
 const router = Router();
 
 router.post(
   "/",
-  validateToken(["Admin"]),
+  validateToken(["Admin", "Manager", "User"]),
   createContactsLeadValidationRules(),
   validateReqParams,
   validateContactsLeadPayload,
@@ -17,7 +34,7 @@ router.post(
 );
 router.delete(
   "/:id",
-  validateToken,
+  validateToken(["Admin", "Manager", "User"]),
   validateId(),
   validateReqParams,
   validateContactLeadById,
@@ -25,7 +42,7 @@ router.delete(
 );
 router.get(
   "/details/:id",
-  validateToken,
+  validateToken(["Admin", "Manager", "User"]),
   validateId(),
   validateReqParams,
   validateContactLeadById,
@@ -33,7 +50,7 @@ router.get(
 );
 router.put(
   "/:id",
-  validateToken,
+  validateToken(["Admin", "Manager", "User"]),
   editContactsLeadValidationRules(),
   validateReqParams,
   validateContactLeadById,
@@ -41,16 +58,17 @@ router.put(
 );
 router.get(
   "/list",
+  validateToken(["Admin", "Manager", "User"]),
   contactsLeadPaginationValidationRules(),
   validateReqParams,
   getContactsLeadsList
 );
 router.post(
   "/upload-csv",
-  validateToken,
+  validateToken(["Admin", "Manager", "User"]),
   validateAndParseCSVFile("CSV"),
   uploadContactsCSV
 );
-router.get("/template",downloadContactsTemplate)
+router.get("/template", downloadContactsTemplate);
 
-export {router as contactRoutes}
+export { router as contactRoutes };

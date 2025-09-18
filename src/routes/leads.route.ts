@@ -26,7 +26,7 @@ const router = Router();
 
 router.post(
   "/create",
-  validateToken,
+  validateToken(["Admin", "Manager", "User"]),
   createValidationRules(),
   validateReqParams,
   validateLeadPayload,
@@ -34,7 +34,7 @@ router.post(
 );
 router.put(
   "/edit/:id",
-  validateToken,
+  validateToken(["Admin", "Manager", "User"]),
   editValidationRules(),
   validateReqParams,
   validateLeadById,
@@ -42,7 +42,7 @@ router.put(
 );
 router.delete(
   "/delete/:id",
-  validateToken,
+  validateToken(["Admin", "Manager", "User"]),
   validateId(),
   validateReqParams,
   validateLeadById,
@@ -50,14 +50,14 @@ router.delete(
 );
 router.get(
   "/list",
-  validateToken(["Admin"]),
+  validateToken(["Admin", "Manager", "User"]),
   leadPaginationValidationRules(),
   validateReqParams,
   getLeadsList
 );
 router.get(
   "/details/:id",
-  validateToken,
+  validateToken(["Admin", "Manager", "User"]),
   validateId(),
   validateReqParams,
   validateLeadById,
@@ -65,7 +65,7 @@ router.get(
 );
 router.post(
   "/upload-csv",
-  validateToken,
+  validateToken(["Admin", "Manager", "User"]),
   validateAndParseCSVFile("CSV"),
   uploadCSV
 );

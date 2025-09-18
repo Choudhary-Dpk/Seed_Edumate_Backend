@@ -6,11 +6,8 @@ import {
   getUserDetailsFromToken,
   getUserSessionById,
 } from "../models/helpers/auth";
-import { getUserDetailsByEmail } from "../models/helpers";
-import {
-  decodeToken,
-  validateUserPassword,
-} from "../utils/auth";
+import { getModulePermissions, getUserDetailsByEmail } from "../models/helpers";
+import { decodeToken, validateUserPassword } from "../utils/auth";
 import { JwtPayload } from "jsonwebtoken";
 import { RequestWithPayload } from "../types/api.types";
 import {
@@ -29,6 +26,7 @@ import { UAParser } from "ua-parser-js";
 import { API_KEY } from "../setup/secrets";
 import moment from "moment";
 import prisma from "../config/prisma";
+import { AllowedPemissions } from "../types";
 
 export const validateCreateUser = async (
   req: Request,
@@ -170,8 +168,6 @@ export const validateToken =
       }
 
       const token = authHeader.split(" ")[1];
-      console.log("token", token);
-
       let decodedToken: JwtPayload;
       try {
         decodedToken = await decodeToken(token);
@@ -181,7 +177,6 @@ export const validateToken =
       }
 
       const user = await getUserById(decodedToken.id, true);
-
       if (!user) {
         return sendResponse(res, 401, "User not found");
       }
@@ -368,4 +363,47 @@ export const validateApiKey = (
       error?.message?.toString() || "Internal server error"
     );
   }
+};
+
+export const validateModulePermissions = (
+  requiredPermissions: AllowedPemissions[],
+  module: string
+) => {
+  return async (
+    req: RequestWithPayload<ProtectedPayload>,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const userId = req.payload?.id;
+      if (!userId) {
+        return sendResponse(res, 401, "Unauthorized user");
+      }
+
+      const roles = await getModulePermissions(userId);
+
+      // yaha filter + map karo
+      const userPermissions = roles.flatMap((r) =>
+        r.role.permissions
+          .filter((rp) => rp.permission.module === module)
+          .map((rp) => rp.permission.permission)
+      );
+
+      const hasAllPermissions = requiredPermissions.every((p) =>
+        userPermissions.includes(p)
+      );
+
+      if (!hasAllPermissions) {
+        return sendResponse(res, 403, "Access denied");
+      }
+
+      next();
+    } catch (error: any) {
+      return sendResponse(
+        res,
+        500,
+        error?.message?.toString() || "Internal server error"
+      );
+    }
+  };
 };
