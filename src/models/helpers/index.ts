@@ -1,4 +1,5 @@
 import prisma from "../../config/prisma";
+import { AllowedPemissions } from "../../types";
 import { Row } from "../../types/leads.types";
 
 export const getEmailTemplate = async (title: string) => {
@@ -84,3 +85,54 @@ export const updateFileRecord = async (
     },
   });
 };
+
+export const getModulePermissions = async (userId: number) => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: {
+      roles: {
+        include: {
+          role: {
+            include: {
+              permissions: {
+                include: {
+                  permission: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return user?.roles ?? [];
+};
+//   const user = await prisma.user.findUnique({
+//     where: { id: userId },
+//     include: {
+//       roles: {
+//         include: {
+//           role: {
+//             include: {
+//               permissions: {
+//                 include: {
+//                   permission: true,
+//                 },
+//               },
+//             },
+//           },
+//         },
+//       },
+//     },
+//   });
+
+//   console.log(JSON.stringify(user, null, 2));
+
+//   // Extract only the permissions for the given module
+//   const modulePermissions = user?.roles.flatMap((r) =>
+//     r.role.permissions.filter((rp) => rp.permission.module === module)
+//   );
+
+//   return modulePermissions ?? [];
+// };
