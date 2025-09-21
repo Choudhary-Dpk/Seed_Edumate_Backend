@@ -154,6 +154,17 @@ export const getUserById = async (userId: number, isActive: boolean) => {
       is_active: true,
       email: true,
       password_hash: true,
+      roles: {
+        select: {
+          role: {
+            select: {
+              id: true,
+              role: true,
+              display_name: true,
+            },
+          },
+        },
+      },
     },
   });
 

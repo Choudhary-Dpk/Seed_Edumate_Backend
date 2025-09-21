@@ -76,7 +76,7 @@ router.put(
   validateChangePassword,
   changePassword
 );
-router.post("/logout", validateToken, logout);
+router.post("/logout", validateToken(["Admin", "Manager", "User"]), logout);
 router.post("/token", validateRefreshToken, getAccessToken);
 
 export default router;
