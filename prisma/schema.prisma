@@ -480,6 +480,7 @@ model LoanApplication {
 
   // Foreign Keys
   user_id                 Int
+  contact_id        Int?
 
   // System tracking
   created_by_id           Int?
@@ -503,6 +504,7 @@ model LoanApplication {
   created_by              User?    @relation("CreatedBy", fields: [created_by_id], references: [id])
   last_modified_by        User?    @relation("LastModifiedBy", fields: [last_modified_by_id], references: [id])
   deleted_by              User?    @relation("DeletedBy", fields: [deleted_by_id], references: [id])
+  edumate_contact           EdumateContact? @relation(fields: [contact_id], references: [id])
 
   // One-to-One relations
   academic_details        LoanApplicationAcademicDetails?
@@ -946,6 +948,7 @@ model EdumateContact {
   loan_preference                   EdumateContactsLoanPreferences?
   personal_information          EdumateContactsPersonalInformation?
   system_tracking                   EdumateContactsSystemTracking?
+  loan_application                  LoanApplication[]
   
   @@map("edumate_contacts")
 }
