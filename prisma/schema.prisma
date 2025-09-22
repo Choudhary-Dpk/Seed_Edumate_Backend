@@ -94,7 +94,7 @@ model LoginHistory {
 
 model Permission {
   id          Int     @id @default(autoincrement())
-  permission  String  @unique @map("permission")
+  permission  String  @map("permission")
   module      String? @map("module")
 
   roles RolePermission[]
@@ -393,7 +393,7 @@ model B2BSystemTracking {
   
   // System timestamps
   created_at                DateTime                @default(now()) @map("created_at")
-  updated_at                DateTime                @updatedAt @map("updated_at")
+  updated_at                DateTime                @default(now()) @updatedAt @map("updated_at")
   
   // Indexes for better query performance
   @@index([partner_name])

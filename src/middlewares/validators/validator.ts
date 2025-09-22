@@ -448,7 +448,7 @@ export const createContactsLeadValidationRules = () => [
 
   body("current_education_level")
     .optional({ checkFalsy: true }) // <--- accepts falsy values
-    .isIn(["High School", "Bachelor", "Master", "PhD", "Diploma", "Other"])
+    .isIn(["High School", "Bachelors", "Masters", "PhD", "Diploma", "Other"])
     .withMessage("Invalid current education level"),
 
   body("admission_status")
@@ -552,7 +552,7 @@ export const editContactsLeadValidationRules = () => [
 
   body("current_education_level")
     .optional({ checkFalsy: true }) // <--- accepts falsy values
-    .isIn(["High School", "Bachelor", "Master", "PhD", "Diploma", "Other"])
+    .isIn(["High School", "Bachelors", "Masters", "PhD", "Diploma", "Other"])
     .withMessage("Invalid current education level"),
 
   body("admission_status")
