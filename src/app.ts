@@ -23,7 +23,7 @@ app.use("/gupshup", gupshupRoutes);
 app.use("/health", healthRoutes);
 app.use("/user", userRoutes);
 app.use("/email", emailRouter);
-app.use("/leads", leadsRouter);
+app.use("/loanApplications", leadsRouter);
 app.use("/partners", partnerRoutes);
 app.use("/permissions", permissionsRoutes);
 
