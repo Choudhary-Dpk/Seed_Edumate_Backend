@@ -1,8 +1,17 @@
 import { Prisma } from "@prisma/client";
 import prisma from "../../config/prisma";
-import { admissionStatusMap, ContactsLead, courseTypeMap, currentEducationLevelMap, genderMap, preferredStudyDestinationMap, targetDegreeLevelMap } from "../../types/contact.types";
+import {
+  admissionStatusMap,
+  ContactsLead,
+  courseTypeMap,
+  currentEducationLevelMap,
+  genderMap,
+  preferredStudyDestinationMap,
+  targetDegreeLevelMap,
+} from "../../types/contact.types";
 import { HubspotResult } from "../../types";
 import { transformRow } from "../../utils/helper";
+import { getPartnerIdByUserId } from "./partners.helper";
 
 export const createEdumatePersonalInformation = async (
   tx: any,
@@ -47,19 +56,21 @@ export const createEdumateAcademicProfile = async (
   const academicProfile = await tx.edumateContactsAcademicProfile.create({
     data: {
       contact_id: contactId,
-      admission_status: data?.admission_status 
-    ? admissionStatusMap[data.admission_status] 
-    : null,
+      admission_status: data?.admission_status
+        ? admissionStatusMap[data.admission_status]
+        : null,
 
-  current_education_level: data?.current_education_level? currentEducationLevelMap[data?.current_education_level]:null, // if you also have a map, handle the same way
+      current_education_level: data?.current_education_level
+        ? currentEducationLevelMap[data?.current_education_level]
+        : null, // if you also have a map, handle the same way
 
-  target_degree_level: data?.target_degree_level 
-    ? targetDegreeLevelMap[data.target_degree_level] 
-    : null,
+      target_degree_level: data?.target_degree_level
+        ? targetDegreeLevelMap[data.target_degree_level]
+        : null,
 
-  preferred_study_destination: data?.preferred_study_destination
-    ? preferredStudyDestinationMap[data.preferred_study_destination] 
-    : null,
+      preferred_study_destination: data?.preferred_study_destination
+        ? preferredStudyDestinationMap[data.preferred_study_destination]
+        : null,
       intake_year: data.intake_year,
       intake_month: data.intake_month,
       created_at: new Date(),
@@ -111,8 +122,8 @@ export const getEdumateContactByEmail = async (email: string) => {
           last_name: true,
           email: true,
           is_deleted: true,
-        }
-      }
+        },
+      },
     },
     where: {
       personal_information: {
@@ -135,8 +146,8 @@ export const getEdumateContactByPhone = async (phone: string) => {
           last_name: true,
           email: true,
           is_deleted: true,
-        }
-      }
+        },
+      },
     },
     where: {
       personal_information: {
@@ -153,13 +164,15 @@ export const createEdumateContact = async (
   tx: any,
   courseType?: string,
   hubspotId?: number,
-  hsCreatedBy?: number
+  hsCreatedBy?: number,
+  partnerId?: number
 ) => {
   const contact = await tx.edumateContact.create({
     data: {
-      course_type: courseType ? courseTypeMap[courseType]:null,
+      course_type: courseType ? courseTypeMap[courseType] : null,
       hs_object_id: hubspotId,
       hs_created_by_user_id: hsCreatedBy,
+      b2b_partner_id: partnerId,
       created_at: new Date(),
     },
   });
@@ -185,9 +198,9 @@ export const getContactLeadById = async (leadId: number) => {
 
 export const getHubspotByContactLeadId = async (leadId: number) => {
   return prisma.edumateContact.findUnique({
-    select:{
-      id:true,
-      hs_object_id:true
+    select: {
+      id: true,
+      hs_object_id: true,
     },
     where: { id: leadId },
   });
@@ -224,7 +237,7 @@ export const getContactsLead = async (leadId: number) => {
       personal_information: true,
       academic_profile: true,
       financial_Info: true,
-      leads:true
+      leads: true,
     },
   });
 
@@ -338,10 +351,12 @@ export const fetchContactsLeadList = async (
   offset: number,
   sortKey: string | null,
   sortDir: "asc" | "desc" | null,
-  search: string | null
+  search: string | null,
+  partnerId: number
 ) => {
   const where: Prisma.EdumateContactWhereInput = {
     is_deleted: false,
+    b2b_partner_id: partnerId,
     personal_information: search
       ? {
           OR: [
@@ -396,10 +411,7 @@ export const findContacts = async (batch: any[]) => {
   const contacts = await prisma.edumateContactsPersonalInformation.findMany({
     where: {
       OR: batch.map((v) => ({
-        OR: [
-          { email: v.email },
-          { phone_number: v.phoneNumber },
-        ],
+        OR: [{ email: v.email }, { phone_number: v.phoneNumber }],
       })),
     },
     select: {
@@ -418,20 +430,27 @@ const tableMappings = {
       last_name: (row: ContactsLead) => row.lastName ?? null,
       email: (row: ContactsLead) => row.email ?? null,
       phone_number: (row: ContactsLead) => row.phone ?? null,
-      gender: (row:ContactsLead) => row.gender ? genderMap[row.gender] : null,
-      date_of_birth: (row:ContactsLead) => row.dateOfBirth ?? null
+      gender: (row: ContactsLead) =>
+        row.gender ? genderMap[row.gender] : null,
+      date_of_birth: (row: ContactsLead) => row.dateOfBirth ?? null,
     },
   },
   edumateContactsAcademicProfile: {
     map: {
       current_education_level: (row: ContactsLead) =>
-        row.educationLevel ? currentEducationLevelMap[row.educationLevel] : null,
+        row.educationLevel
+          ? currentEducationLevelMap[row.educationLevel]
+          : null,
       admission_status: (row: ContactsLead) =>
         row.admissionStatus ? admissionStatusMap[row.admissionStatus] : null,
       target_degree_level: (row: ContactsLead) =>
-        row.targetDegreeLevel ? targetDegreeLevelMap[row.targetDegreeLevel] : null,
+        row.targetDegreeLevel
+          ? targetDegreeLevelMap[row.targetDegreeLevel]
+          : null,
       preferred_study_destination: (row: ContactsLead) =>
-        row.studyDestination ? preferredStudyDestinationMap[row.studyDestination] : null,
+        row.studyDestination
+          ? preferredStudyDestinationMap[row.studyDestination]
+          : null,
       intake_month: (row: ContactsLead) => row.intakeMonth ?? null,
       intake_year: (row: ContactsLead) => row.intakeYear ?? null,
     },
@@ -449,7 +468,12 @@ const tableMappings = {
   },
 };
 
-export const createCSVContacts = async (rows: ContactsLead[]) => {
+export const createCSVContacts = async (
+  rows: ContactsLead[],
+  userId: number
+) => {
+  const partnerId = await getPartnerIdByUserId(userId);
+
   return await prisma.$transaction(async (tx) => {
     // 1. Insert into main table
     const createdContacts = await Promise.all(
@@ -458,6 +482,7 @@ export const createCSVContacts = async (rows: ContactsLead[]) => {
           data: {
             course_type: row.courseType ? courseTypeMap[row.courseType] : null,
             hs_object_id: null,
+            b2b_partner_id: partnerId!.id,
           },
           select: { id: true },
         })
@@ -487,10 +512,13 @@ export const createCSVContacts = async (rows: ContactsLead[]) => {
   });
 };
 
-export const updateContactsSystemTracking = async (hubspotResults: HubspotResult[]) => {
+export const updateContactsSystemTracking = async (
+  hubspotResults: HubspotResult[]
+) => {
   await prisma.$transaction(async (tx) => {
     for (const hs of hubspotResults) {
-      const { email, hs_object_id, hs_createdate, hs_lastmodifieddate } = hs.properties;
+      const { email, hs_object_id, hs_createdate, hs_lastmodifieddate } =
+        hs.properties;
 
       if (!email) continue;
 
@@ -509,7 +537,9 @@ export const updateContactsSystemTracking = async (hubspotResults: HubspotResult
           data: {
             hs_object_id: hs_object_id ?? hs.id,
             hs_createdate: hs_createdate ? new Date(hs_createdate) : undefined,
-            hs_lastmodifieddate: hs_lastmodifieddate ? new Date(hs_lastmodifieddate) : undefined,
+            hs_lastmodifieddate: hs_lastmodifieddate
+              ? new Date(hs_lastmodifieddate)
+              : undefined,
           },
         });
       }
