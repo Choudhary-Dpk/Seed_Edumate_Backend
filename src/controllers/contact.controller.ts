@@ -194,7 +194,6 @@ export const deleteContactLead = async (
 
     logger.debug(`Fethcing hubspot details by leadId: ${leadId}`);
     const lead = await getHubspotByContactLeadId(+leadId);
-    console.log("lead", lead);
     logger.debug(`Hubspot details fetched successfully`);
 
     logger.debug(`Deleting hubspot lead details for id: ${lead?.hs_object_id}`);

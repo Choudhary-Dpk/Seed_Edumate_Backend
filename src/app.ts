@@ -6,11 +6,11 @@ import { loanRoutes } from './routes/loan.routes';
 import { userRoutes } from './routes/user.routes';
 import { emailRouter } from './routes/email.routes';
 import { healthRoutes } from "./routes/health.routes";
-import {leadsRouter} from "./routes/leads.route";
+import { loanApplicationRouter } from "./routes/loanApplication.routes";
 import { errorHandler } from "./middlewares/error";
-import { partnerRoutes } from "./routes/partner.route";
-import { contactRoutes } from "./routes/contact.route";
-import { permissionsRoutes } from "./routes/permissions.route";
+import { partnerRoutes } from "./routes/partner.routes";
+import { contactRoutes } from "./routes/contact.routes";
+import { permissionsRoutes } from "./routes/permissions.routes";
 import app from "./setup/express";
 
 const PORT = process.env.PORT || 3031;
@@ -23,7 +23,7 @@ app.use("/gupshup", gupshupRoutes);
 app.use("/health", healthRoutes);
 app.use("/user", userRoutes);
 app.use("/email", emailRouter);
-app.use("/loanApplications", leadsRouter);
+app.use("/loanApplications", loanApplicationRouter);
 app.use("/partners", partnerRoutes);
 app.use("/permissions", permissionsRoutes);
 

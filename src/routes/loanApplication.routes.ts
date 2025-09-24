@@ -1,23 +1,23 @@
 import { Router } from "express";
 import {
-  createLead,
+  createLoanApplication,
   downloadTemplate,
   uploadCSV,
-  editLead,
-  deleteLead,
-  getLeadsList,
-  getLeadDetails,
-} from "../controllers/leads.controller";
+  editLoanApplication,
+  deleteLoanApplication,
+  getLoanApplicationsList,
+  getLoanApplicationDetails,
+} from "../controllers/loanApplication.controller";
 import { validateToken } from "../middlewares";
 import {
   validateAndParseCSVFile,
-  validateLeadPayload,
-  validateLeadById,
-} from "../middlewares/leads.middleware";
+  validateLoanApplicationPayload,
+  validateLoanApplicationById,
+} from "../middlewares/loanApplication.middleware";
 import {
   createValidationRules,
   editValidationRules,
-  leadPaginationValidationRules,
+  loanApplicationPaginationValidationRules,
   validateId,
   validateReqParams,
 } from "../middlewares/validators/validator";
@@ -29,39 +29,39 @@ router.post(
   validateToken(["Admin", "Manager", "User"]),
   createValidationRules(),
   validateReqParams,
-  validateLeadPayload,
-  createLead
+  validateLoanApplicationPayload,
+  createLoanApplication
 );
 router.put(
   "/edit/:id",
   validateToken(["Admin", "Manager", "User"]),
   editValidationRules(),
   validateReqParams,
-  validateLeadById,
-  editLead
+  validateLoanApplicationById,
+  editLoanApplication
 );
 router.delete(
   "/delete/:id",
   validateToken(["Admin", "Manager", "User"]),
   validateId(),
   validateReqParams,
-  validateLeadById,
-  deleteLead
+  validateLoanApplicationById,
+  deleteLoanApplication
 );
 router.get(
   "/list",
   validateToken(["Admin", "Manager", "User"]),
-  leadPaginationValidationRules(),
+  loanApplicationPaginationValidationRules(),
   validateReqParams,
-  getLeadsList
+  getLoanApplicationsList
 );
 router.get(
   "/details/:id",
   validateToken(["Admin", "Manager", "User"]),
   validateId(),
   validateReqParams,
-  validateLeadById,
-  getLeadDetails
+  validateLoanApplicationById,
+  getLoanApplicationDetails
 );
 router.post(
   "/upload-csv",
@@ -71,4 +71,4 @@ router.post(
 );
 router.get("/download-template",validateToken,downloadTemplate)
 
-export {router as leadsRouter};
+export { router as loanApplicationRouter };

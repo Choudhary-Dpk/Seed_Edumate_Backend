@@ -2,14 +2,17 @@ import { Response, NextFunction } from "express";
 import { sendResponse } from "../utils/api";
 import { RequestWithPayload } from "../types/api.types";
 import { LoginPayload } from "../types/auth";
-import { getLeadByEmail, getLeadById } from "../models/helpers/leads.helper";
+import {
+  getLeadByEmail,
+  getLeadById,
+} from "../models/helpers/loanApplication.helper";
 import multer from "../setup/multer";
 import * as hubspotService from "../services/hubspot.service";
 import { FileData } from "../types/leads.types";
 import { parseCSVWithCsvParse } from "../utils/helper";
 const upload = multer(10);
 
-export const validateLeadPayload = async (
+export const validateLoanApplicationPayload = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
   next: NextFunction
@@ -59,7 +62,7 @@ export const validateLeadPayload = async (
   }
 };
 
-export const validateUpdateLeads = async (
+export const validateUpdateLoanApplication = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
   next: NextFunction
@@ -171,7 +174,7 @@ export const validateAndParseCSVFile =
     }
   };
 
-export const validateLeadById = async (
+export const validateLoanApplicationById = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
   next: NextFunction
