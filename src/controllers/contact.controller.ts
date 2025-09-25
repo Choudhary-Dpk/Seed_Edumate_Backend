@@ -100,7 +100,7 @@ export const createContactsLead = async (
         course_type,
         lead[0]?.id,
         id,
-        partnerId!.id
+        partnerId!.b2b_id
       );
       logger.debug(`Contact created successfully with id: ${contact.id}`);
 
@@ -349,7 +349,7 @@ export const getContactsLeadsList = async (
       sortKey,
       sortDir,
       search,
-      partnerId!.id
+      partnerId!.b2b_id
     );
     logger.debug(`Leads list fetched successfully`);
 

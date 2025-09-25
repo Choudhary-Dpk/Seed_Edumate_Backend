@@ -482,7 +482,7 @@ export const createCSVContacts = async (
           data: {
             course_type: row.courseType ? courseTypeMap[row.courseType] : null,
             hs_object_id: null,
-            b2b_partner_id: partnerId!.id,
+            b2b_partner_id: partnerId!.b2b_id,
           },
           select: { id: true },
         })

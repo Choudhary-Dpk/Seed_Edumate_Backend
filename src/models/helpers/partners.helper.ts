@@ -48,9 +48,9 @@ return role;
 }
 
 export const getPartnerIdByUserId = async (userId: number) => {
-  const partnerId = await prisma.b2BPartner.findFirst({
+  const partnerId = await prisma.user.findFirst({
     select: {
-      id: true,
+      b2b_id: true,
     },
     where: {
       id: userId,
