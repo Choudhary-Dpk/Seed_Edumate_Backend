@@ -232,7 +232,7 @@ const VALID_CURRENT_EDUCATION_LEVEL = [
   "High School",
   "Bachelors",
   "Masters",
-  "Phd",
+  "PhD",
   "Diploma",
   "Other"
 ];
@@ -240,7 +240,7 @@ const VALID_CURRENT_EDUCATION_LEVEL = [
 const VALID_TARGET_DEGREE_LEVEL = [
   "Bachelors",
   "Masters",
-  "Phd", 
+  "PhD", 
   "Diploma",
   "Certificate",
   "Professional Course"
