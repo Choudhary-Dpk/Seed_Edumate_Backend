@@ -1,23 +1,23 @@
 import { AdmissionStatus, CurrentEducationLevel, EdumateContactCourseType, Gender, PreferredStudyDestination, TargetDegreeLevel } from "@prisma/client";
 
-export type ContactsLead =  {
-    email: string;
-    phone:string;
-    firstName: string;
-    lastName:string;
-    partnerName?:string;
-    educationLevel?:string;
-    admissionStatus?:string;
-    targetDegreeLevel?:string;
-    courseType?:string;
-    studyDestination?:string;
-    dateOfBirth?:Date;
-    gender?:string;
-    intakeYear?:string;
-    intakeMonth?:string;
-    userId?:number;
-    createdBy?:number;
-}
+export type ContactsLead = {
+  email: string;
+  phone: string;
+  firstName: string;
+  lastName: string;
+  partnerName?: string;
+  educationLevel?: string;
+  admissionStatus?: string;
+  targetDegreeLevel?: string;
+  courseType?: string;
+  studyDestination?: string;
+  dateOfBirth?: Date;
+  gender?: string;
+  intakeYear?: string;
+  intakeMonth?: string;
+  userId?: number;
+  createdBy?: number;
+};
 
 export const genderMap: Record<string, Gender> = {
   Male: Gender.MALE,

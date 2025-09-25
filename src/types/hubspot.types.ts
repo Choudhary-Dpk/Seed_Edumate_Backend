@@ -422,7 +422,7 @@ export interface MappedEdumateContactEduToFrontend {
 
 export interface MappedEdumateContact {
   id: string;
-  
+
   // Personal Information
   firstName: string;
   lastName: string;
@@ -435,7 +435,7 @@ export interface MappedEdumateContact {
   baseCurrency?: string;
   studyDestinationCurrency?: string;
   selectedLoanCurrency?: string;
-  
+
   levelOfEducation?: string;
   studyDestination?: string;
   courseType?: string;
@@ -445,11 +445,11 @@ export interface MappedEdumateContact {
   intakeYear?: string;
   loanAmount?: string;
 
-  coApplicant?: string,
-  coApplicantIncomeType?: string,
-  coApplicantAnnualIncome?: string,
-  coApplicantMobile?: string,
-  coApplicantEmail?: string,
+  coApplicant?: string;
+  coApplicantIncomeType?: string;
+  coApplicantAnnualIncome?: string;
+  coApplicantMobile?: string;
+  coApplicantEmail?: string;
 
   analyticalExam?: { [examName: string]: string };
   languageExam?: { [examName: string]: string };
@@ -458,10 +458,10 @@ export interface MappedEdumateContact {
   utm_medium?: string;
   utm_campaign?: string;
 
-  targetDegreeLevel:string;
-  admissionStatus?:string;
-  educationLevel:string;
-  partnerName:string;
+  targetDegreeLevel: string;
+  admissionStatus?: string;
+  educationLevel: string;
+  partnerName: string;
   phone?: string;
 }
 

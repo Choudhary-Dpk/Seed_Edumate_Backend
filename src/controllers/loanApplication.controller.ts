@@ -73,7 +73,7 @@ export const createLoanApplication = async (
     logger.debug(`Partner id fetched successfully`);
 
     logger.debug(`Creating loan application for userId: ${id}`);
-    const loan = await createLoan(id, email, name, partnerId!.id);
+    const loan = await createLoan(id, email, name, partnerId!.b2b_id);
     logger.debug(
       `Loan application created successfully in hubspot for userId: ${id} with loan ${loan.id}`
     );
@@ -207,7 +207,7 @@ export const uploadCSV = async (
 
     // 6. Insert into DB (safely with skipDuplicates)
     logger.debug(`Creating csv leads in database`);
-    const result = await createCSVLeads(toInsert, partnerId!.id);
+    const result = await createCSVLeads(toInsert, partnerId!.b2b_id);
     logger.debug(`Leads created successfully in database`);
 
     // 7. Insert into HubSpot (batch)
@@ -354,7 +354,7 @@ export const getLoanApplicationsList = async (
 
     logger.debug(`Fetching leads list with pagination and filters`);
     const list = await getLoanList(
-      partnerId!.id,
+      partnerId!.b2b_id,
       size,
       offset,
       sortKey,

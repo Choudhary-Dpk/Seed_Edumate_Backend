@@ -390,7 +390,6 @@ const mapToHubSpotProperties = async (contactData: Partial<MappedEdumateContact>
   if(contactData.partnerName) properties.b2b_partner_name = contactData.partnerName;
   if (contactData.phone) properties.phone_number = contactData.phone;
 
-
   return properties;
 };
 
