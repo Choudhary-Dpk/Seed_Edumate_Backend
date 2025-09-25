@@ -46,7 +46,7 @@ model Role {
   users       UserRole[]
   permissions RolePermission[]
 
-  @@map("roles")
+  @@map("b2b_partner_roles")
 }
 
 model UserRole {
@@ -59,7 +59,7 @@ model UserRole {
   role Role @relation(fields: [role_id], references: [id], onDelete: Cascade)
 
   @@unique([user_id, role_id])
-  @@map("user_roles")
+  @@map("b2b_partner_user_roles")
 }
 
 model Session {
@@ -99,7 +99,7 @@ model Permission {
 
   roles RolePermission[]
 
-  @@map("permissions")
+  @@map("b2b_partner_permissions")
 }
 
 model RolePermission {
@@ -112,7 +112,7 @@ model RolePermission {
   permission Permission @relation(fields: [permission_id], references: [id], onDelete: Cascade)
 
   @@unique([role_id, permission_id])
-  @@map("role_permissions")
+  @@map("b2b_partner_role_permissions")
 }
 
 // B2B Partners - Main Entity
