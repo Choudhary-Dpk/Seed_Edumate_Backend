@@ -384,7 +384,7 @@ export const validateId = () => [
     .toInt(),
 ];
 
-export const leadPaginationValidationRules = () => [
+export const loanApplicationPaginationValidationRules = () => [
   query("size")
     .not()
     .isEmpty()

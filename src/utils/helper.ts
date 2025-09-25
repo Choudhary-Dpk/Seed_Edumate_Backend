@@ -1,6 +1,6 @@
 import crypto from "crypto";
 import { Row, ValidationResult } from "../types/leads.types";
-import { findLeads } from "../models/helpers/leads.helper";
+import { findLeads } from "../models/helpers/loanApplication.helper";
 import { parse } from "csv-parse";
 import { findContacts } from "../models/helpers/contact.helper";
 import { ContactsLead, ContactsValidationResult } from "../types/contact.types";

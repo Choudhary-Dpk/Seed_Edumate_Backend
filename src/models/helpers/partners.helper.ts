@@ -46,3 +46,15 @@ const role = await prisma.role.findFirst({
 
 return role;
 }
+
+export const getPartnerIdByUserId = async (userId: number) => {
+  const partnerId = await prisma.b2BPartner.findFirst({
+    select: {
+      id: true,
+    },
+    where: {
+      id: userId,
+    },
+  });
+  return partnerId;
+};

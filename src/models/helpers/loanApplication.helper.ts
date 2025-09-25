@@ -12,7 +12,8 @@ import { HubspotResult } from "../../types";
 export const createLoan = async (
   userId: number,
   email: string,
-  name: string
+  name: string,
+  partnerId: number
 ) => {
   const loan = await prisma.loanApplication.create({
     data: {
@@ -20,6 +21,7 @@ export const createLoan = async (
       student_name: name,
       student_email: email,
       created_by_id: userId,
+      b2b_partner_id: partnerId,
       created_at: new Date(),
     },
   });
@@ -32,14 +34,15 @@ export const createFinancialRequirements = async (
   loanAmountRequested: number,
   loanAmountApproved: string
 ) => {
-  const financialRequirements = await prisma.loanApplicationFinancialRequirements.create({
-    data: {
-      loan_application_id: loanId,
-      loan_amount_requested: loanAmountRequested,
-      loan_amount_approved: loanAmountApproved,
-      created_at: new Date(),
-    },
-  });
+  const financialRequirements =
+    await prisma.loanApplicationFinancialRequirements.create({
+      data: {
+        loan_application_id: loanId,
+        loan_amount_requested: loanAmountRequested,
+        loan_amount_approved: loanAmountApproved,
+        created_at: new Date(),
+      },
+    });
 
   return financialRequirements;
 };
@@ -75,14 +78,15 @@ export const createSystemTracking = async (
   loanId: number,
   hubspotId: string
 ) => {
-  const financialRequirements = await prisma.loanApplicationSystemTracking.create({
-    data: {
-      loan_application_id: loanId,
-      hs_object_id: hubspotId,
-      integration_status: IntegrationStatusToEnum["SYNCED"],
-      created_at: new Date(),
-    },
-  });
+  const financialRequirements =
+    await prisma.loanApplicationSystemTracking.create({
+      data: {
+        loan_application_id: loanId,
+        hs_object_id: hubspotId,
+        integration_status: IntegrationStatusToEnum["SYNCED"],
+        created_at: new Date(),
+      },
+    });
 
   return financialRequirements;
 };
@@ -104,20 +108,21 @@ export const getLeadByEmail = async (email: string) => {
   return lead;
 };
 
-export const createCSVLeads = async (rows: Row[]) => {
+export const createCSVLeads = async (rows: Row[], partnerId: number) => {
   return await prisma.$transaction(async (tx) => {
     // 1. Create loan applications
-    const loanApplications = await tx.loanApplication.createMany({
+    await tx.loanApplication.createMany({
       data: rows.map((row) => ({
         student_name: row.name,
         student_email: row.email,
         user_id: row.userId,
+        b2b_partner_id: partnerId,
         created_by_id: row.createdBy,
       })),
       skipDuplicates: true,
     });
 
-    // To get IDs, hame dobara fetch karna padega based on unique fields (email + userId)
+    // Fetch inserted applications to get IDs
     const insertedApps = await tx.loanApplication.findMany({
       where: {
         student_email: { in: rows.map((r) => r.email) },
@@ -125,52 +130,50 @@ export const createCSVLeads = async (rows: Row[]) => {
       },
     });
 
-    // Make a quick lookup by (email+userId) => id
     const appMap = new Map<string, number>();
     for (const app of insertedApps) {
       appMap.set(`${app.student_email}|${app.user_id}`, app.id);
     }
 
-    // 2. Create financial requirements
-    await tx.loanApplicationFinancialRequirements.createMany({
-      data: rows.map((row) => ({
-        loan_application_id: appMap.get(`${row.email}|${row.userId}`)!,
-        loan_amount_requested: Number(row.loanAmountRequested),
-        loan_amount_approved: row.loanAmountApproved
-          ? Number(row.loanAmountApproved)
-          : null,
-      })),
-    });
+    await Promise.all([
+      tx.loanApplicationFinancialRequirements.createMany({
+        data: rows.map((row) => ({
+          loan_application_id: appMap.get(`${row.email}|${row.userId}`)!,
+          loan_amount_requested: Number(row.loanAmountRequested),
+          loan_amount_approved: row.loanAmountApproved
+            ? Number(row.loanAmountApproved)
+            : null,
+        })),
+      }),
 
-    // 3. Create lender info
-    await tx.loanApplicationLenderInformation.createMany({
-      data: rows.map((row) => ({
-        loan_application_id: appMap.get(`${row.email}|${row.userId}`)!,
-        loan_tenure_years: row.loanTenureYears
-          ? Number(row.loanTenureYears)
-          : null,
-      })),
-    });
+      tx.loanApplicationLenderInformation.createMany({
+        data: rows.map((row) => ({
+          loan_application_id: appMap.get(`${row.email}|${row.userId}`)!,
+          loan_tenure_years: row.loanTenureYears
+            ? Number(row.loanTenureYears)
+            : null,
+        })),
+      }),
 
-    // 4. Create application status
-    await tx.loanApplicationStatus.createMany({
-      data: rows.map((row) => ({
-        loan_application_id: appMap.get(`${row.email}|${row.userId}`)!,
-        status: ApplicationStatusToEnum[row.applicationStatus],
-      })),
-    });
+      tx.loanApplicationStatus.createMany({
+        data: rows.map((row) => ({
+          loan_application_id: appMap.get(`${row.email}|${row.userId}`)!,
+          status: ApplicationStatusToEnum[row.applicationStatus],
+        })),
+      }),
 
-    await tx.loanApplicationSystemTracking.createMany({
-      data: rows.map((row) => ({
-        loan_application_id: appMap.get(`${row.email}|${row.userId}`)!,
-        application_source_system:
-          ApplicationSourceSystemToEnum["MANUAL_ENTRY"],
-        integration_status: IntegrationStatusToEnum["PENDING_SYNC"],
-        hs_object_id: null,
-      })),
-    });
+      tx.loanApplicationSystemTracking.createMany({
+        data: rows.map((row) => ({
+          loan_application_id: appMap.get(`${row.email}|${row.userId}`)!,
+          application_source_system:
+            ApplicationSourceSystemToEnum["MANUAL_ENTRY"],
+          integration_status: IntegrationStatusToEnum["PENDING_SYNC"],
+          hs_object_id: null,
+        })),
+      }),
+    ]);
 
-    return loanApplications;
+    return insertedApps;
   });
 };
 
@@ -247,25 +250,23 @@ export const updateFinancialRequirements = async (
   loanAmountRequested: number,
   loanAmountApproved: string
 ) => {
-  const financialRequirements = await prisma.loanApplicationFinancialRequirements.update({
-    data: {
-      loan_application_id: loanId,
-      loan_amount_requested: loanAmountRequested,
-      loan_amount_approved: loanAmountApproved,
-      updated_at: new Date(),
-    },
-    where: {
-      loan_application_id: loanId,
-    },
-  });
+  const financialRequirements =
+    await prisma.loanApplicationFinancialRequirements.update({
+      data: {
+        loan_application_id: loanId,
+        loan_amount_requested: loanAmountRequested,
+        loan_amount_approved: loanAmountApproved,
+        updated_at: new Date(),
+      },
+      where: {
+        loan_application_id: loanId,
+      },
+    });
 
   return financialRequirements;
 };
 
-export const updateLender = async (
-  loanId: number,
-  loanTenureYears: number
-) => {
+export const updateLender = async (loanId: number, loanTenureYears: number) => {
   const lender = await prisma.loanApplicationLenderInformation.update({
     data: {
       loan_application_id: loanId,
@@ -311,6 +312,7 @@ export const deleteLoan = async (leadId: number, userId: number) => {
 };
 
 export const getLoanList = async (
+  partnerId: number,
   limit: number,
   offset: number,
   sortKey: string | null,
@@ -324,8 +326,9 @@ export const getLoanList = async (
           { student_email: { contains: search, mode: "insensitive" } },
         ],
         is_deleted: false,
+        b2b_partner_id: partnerId,
       }
-    : { is_deleted: false };
+    : { is_deleted: false, b2b_partner_id: partnerId };
 
   let orderBy: any = { created_at: "desc" };
   if (sortKey) {

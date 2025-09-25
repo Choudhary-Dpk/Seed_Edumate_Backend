@@ -18,7 +18,7 @@ import {
   updateLender,
   updateLoan,
   updateSystemTracking,
-} from "../models/helpers/leads.helper";
+} from "../models/helpers/loanApplication.helper";
 import { sendResponse } from "../utils/api";
 import {
   deduplicateInDb,
@@ -32,9 +32,14 @@ import {
 } from "../services/hubspot.service";
 import { FileData } from "../types/leads.types";
 import { resolveLeadsCsvPath } from "../utils/leads";
-import { addFileType, addFileRecord, updateFileRecord } from "../models/helpers";
+import {
+  addFileType,
+  addFileRecord,
+  updateFileRecord,
+} from "../models/helpers";
+import { getPartnerIdByUserId } from "../models/helpers/partners.helper";
 
-export const createLead = async (
+export const createLoanApplication = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
   next: NextFunction
@@ -62,10 +67,13 @@ export const createLead = async (
       },
     ]);
     logger.debug(`Hubspot loan application created successfully`);
-    console.log("leadData", lead);
+
+    logger.debug(`Fetching partner id from request`);
+    const partnerId = await getPartnerIdByUserId(id);
+    logger.debug(`Partner id fetched successfully`);
 
     logger.debug(`Creating loan application for userId: ${id}`);
-    const loan = await createLoan(id, email, name);
+    const loan = await createLoan(id, email, name, partnerId!.id);
     logger.debug(
       `Loan application created successfully in hubspot for userId: ${id} with loan ${loan.id}`
     );
@@ -137,6 +145,10 @@ export const uploadCSV = async (
       return sendResponse(res, 400, "Invalid or missing file data");
     }
 
+    logger.debug(`Fetching partner id from request`);
+    const partnerId = await getPartnerIdByUserId(id);
+    logger.debug(`Partner id fetched successfully`);
+
     const {
       file_data: rows,
       total_records,
@@ -175,7 +187,6 @@ export const uploadCSV = async (
     // 4. Deduplicate against DB
     const { unique: toInsert, duplicates: duplicatesInDb } =
       await deduplicateInDb(uniqueInFile);
-    console.log("toInsert", toInsert)
 
     // 5. Handle no new records
     if (toInsert.length === 0) {
@@ -196,7 +207,7 @@ export const uploadCSV = async (
 
     // 6. Insert into DB (safely with skipDuplicates)
     logger.debug(`Creating csv leads in database`);
-    const result = await createCSVLeads(toInsert);
+    const result = await createCSVLeads(toInsert, partnerId!.id);
     logger.debug(`Leads created successfully in database`);
 
     // 7. Insert into HubSpot (batch)
@@ -210,13 +221,13 @@ export const uploadCSV = async (
 
     // 9. Update FileUpload stats
     logger.debug(`Updating fileUpload records`);
-    await updateFileRecord(fileUpload.id, result.count, errors.length);
+    await updateFileRecord(fileUpload.id, result.length, errors.length);
     logger.debug(`File upload records updated successfully`);
 
     return sendResponse(res, 201, "CSV processed successfully", {
       totalRows: rows.length,
       validRows: validRows.length,
-      inserted: result.count,
+      inserted: result.length,
       skippedInvalid: errors.length,
       skippedDuplicatesInFile: duplicatesInFile,
       skippedDuplicatesInDb: duplicatesInDb,
@@ -227,7 +238,7 @@ export const uploadCSV = async (
   }
 };
 
-export const editLead = async (
+export const editLoanApplication = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
   next: NextFunction
@@ -246,7 +257,6 @@ export const editLead = async (
 
     logger.debug(`Fethcing hubspot details by leadId: ${leadId}`);
     const lead = await getHubspotByLeadId(+leadId);
-    console.log("lead", lead)
     logger.debug(`Hubspot details fetched successfully`);
 
     logger.debug(`Updating hubspot loan application`);
@@ -262,7 +272,6 @@ export const editLead = async (
 
     logger.debug(`Updating loan application for userId: ${id}`);
     const loan = await updateLoan(id, +leadId, email, name);
-    console.log("loan", loan)
     logger.debug(
       `Loan application updated successfully in hubspot for userId: ${id} with loan ${loan.id}`
     );
@@ -295,7 +304,7 @@ export const editLead = async (
   }
 };
 
-export const deleteLead = async (
+export const deleteLoanApplication = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
   next: NextFunction
@@ -324,12 +333,13 @@ export const deleteLead = async (
   }
 };
 
-export const getLeadsList = async (
+export const getLoanApplicationsList = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
   next: NextFunction
 ) => {
   try {
+    const { id } = req.payload!;
     const size = Number(req.query.size) || 10;
     const page = Number(req.query.page) || 1;
     const search = (req.query.search as string) || null;
@@ -338,8 +348,19 @@ export const getLeadsList = async (
 
     const offset = size * (page - 1);
 
+    logger.debug(`Fetching partner id from request`);
+    const partnerId = await getPartnerIdByUserId(id);
+    logger.debug(`Partner id fetched successfully`);
+
     logger.debug(`Fetching leads list with pagination and filters`);
-    const list = await getLoanList(size, offset, sortKey, sortDir, search);
+    const list = await getLoanList(
+      partnerId!.id,
+      size,
+      offset,
+      sortKey,
+      sortDir,
+      search
+    );
     logger.debug(`Leads list fetched successfully`);
 
     sendResponse(res, 200, "Leads list fetched successfully", {
@@ -353,7 +374,7 @@ export const getLeadsList = async (
   }
 };
 
-export const getLeadDetails = async (
+export const getLoanApplicationDetails = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
   next: NextFunction

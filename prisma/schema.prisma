@@ -171,7 +171,8 @@ model B2BPartner {
   performance_metrics    B2BPartnerPerformanceMetrics?
   relationship_managemenet      B2BPartnerRelationshipManagement?
   system_tracking B2BSystemTracking?
-  
+  b2b_partner_contacts EdumateContact[] @relation("B2BPartnerContacts")
+
   @@map("b2b_partners")
 }
 
@@ -475,7 +476,7 @@ model LoanApplication {
   student_phone           String?
   application_source      ApplicationSource @default(DIRECT)
   assigned_counselor_id   Int?
-  b2b_partner_id          String?
+  b2b_partner_id          Int?
   is_deleted              Boolean  @default(false)
 
   // Foreign Keys
@@ -914,6 +915,7 @@ model EdumateContact {
   id                              Int                           @id @default(autoincrement())
   deleted_by_id Int?
   first_name String? @map("first_name")
+  b2b_partner_id Int?
 
  // HubSpot System Fields
   hs_created_by_user_id     Int?       @map("hs_created_by_user_id")     
@@ -949,6 +951,7 @@ model EdumateContact {
   personal_information          EdumateContactsPersonalInformation?
   system_tracking                   EdumateContactsSystemTracking?
   loan_application                  LoanApplication[]
+  b2b_partner       B2BPartner? @relation("B2BPartnerContacts",fields: [b2b_partner_id], references: [id])
   
   @@map("edumate_contacts")
 }
