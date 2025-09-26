@@ -52,6 +52,13 @@ export const getUserProflie = async (userId: number) => {
       full_name: true,
       email: true,
       is_active: true,
+      b2b_partner: {
+        select: {
+          id: true,
+          partner_name: true,
+          partner_display_name: true,
+        },
+      },
       roles: {
         select: {
           role: {

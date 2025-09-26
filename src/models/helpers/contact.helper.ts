@@ -399,6 +399,13 @@ export const fetchContactsLeadList = async (
         financial_Info: true,
         leads: true,
         loan_preference: true,
+        b2b_partner: {
+          select: {
+            id: true,
+            partner_name: true,
+            partner_display_name: true,
+          },
+        },
       },
     }),
     prisma.edumateContact.count({ where }),
