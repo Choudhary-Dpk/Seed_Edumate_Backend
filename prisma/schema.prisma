@@ -75,7 +75,7 @@ model Session {
   // Relation
   user User @relation("Session",fields: [user_id], references: [id], onDelete: Cascade)
 
-  @@map("sessions")
+  @@map("b2b_sessions")
 }
 
 model LoginHistory {
@@ -416,7 +416,7 @@ model Token {
 
   user      User     @relation("Tokens", fields: [user_id], references: [id])
 
-  @@map("tokens")
+  @@map("b2b_tokens")
 }
 
 model UserOtp {
@@ -465,7 +465,7 @@ model User {
   deleted_By_contacts  EdumateContact[] @relation("ContactsDeletedBy")
   b2b_partner B2BPartner @relation(fields: [b2b_id],references: [id])
 
-  @@map("users")
+  @@map("b2b_users")
 }
 
 model LoanApplication {
@@ -916,7 +916,6 @@ model EdumateContactsAcademicProfile {
 model EdumateContact {
   id                              Int                           @id @default(autoincrement())
   deleted_by_id Int?
-  first_name String? @map("first_name")
   b2b_partner_id Int?
 
  // HubSpot System Fields
@@ -1107,17 +1106,17 @@ model EdumateContactsPersonalInformation {
   
   // Current Address
   current_address                 String?          @map("current_address") @db.Text
-  city__current_address_         String?          @map("city__current_address_")
-  state__current_address_        String?          @map("state__current_address_")
-  country__current_address_      String?          @map("country__current_address_")
-  pincode__current_address_      String?          @map("pincode__current_address_")
+  city_current_address         String?          @map("citycurrent_address")
+  state_current_address        String?          @map("state_current_address")
+  country_current_address     String?          @map("country_current_address")
+  pincode_current_address    String?          @map("pincode_current_address")
   
   // Permanent Address
   permanent_address               String?          @map("permanent_address") @db.Text
-  city__permanent_address_       String?          @map("city__permanent_address_")
-  state__permanent_address_      String?          @map("state__permanent_address_")
-  country__permanent_address_    String?          @map("country__permanent_address_")
-  pincode__permanent_address_    String?          @map("pincode__permanent_address_")
+  city_permanent_address       String?          @map("city_permanent_address")
+  state_permanent_address     String?          @map("state_permanent_address")
+  country_permanent_address    String?          @map("country_permanent_address")
+  pincode_permanent_address    String?          @map("pincode_permanent_address")
   
   created_at                      DateTime         @default(now()) @map("created_at")
   updated_at                      DateTime         @updatedAt @map("updated_at")
