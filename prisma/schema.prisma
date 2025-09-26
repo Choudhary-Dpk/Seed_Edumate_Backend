@@ -171,6 +171,7 @@ model B2BPartner {
   performance_metrics    B2BPartnerPerformanceMetrics?
   relationship_managemenet      B2BPartnerRelationshipManagement?
   system_tracking B2BSystemTracking?
+  user User[]
   b2b_partner_contacts EdumateContact[] @relation("B2BPartnerContacts")
 
   @@map("b2b_partners")
@@ -462,6 +463,7 @@ model User {
   deleted_by  LoanApplication[] @relation("DeletedBy")
   deleted_by_contacts_info EdumateContactsPersonalInformation[] @relation("ContactsDeletedBy")
   deleted_By_contacts  EdumateContact[] @relation("ContactsDeletedBy")
+  b2b_partner B2BPartner @relation(fields: [b2b_id],references: [id])
 
   @@map("users")
 }
