@@ -837,6 +837,51 @@ model EmailHistory {
   @@map("email_history")
 }
 
+model EdumateContact {
+  id                              Int                           @id @default(autoincrement())
+  deleted_by_id Int?
+  first_name String? @map("first_name")
+  b2b_partner_id Int?
+
+ // HubSpot System Fields
+  hs_created_by_user_id     Int?       @map("hs_created_by_user_id")     
+  hs_createdate             DateTime?  @map("hs_createdate")            
+  hs_lastmodifieddate       DateTime?  @map("hs_lastmodifieddate")       
+  hs_object_id              String?       @map("hs_object_id")              
+  hs_updated_by_user_id     Int?       @map("hs_updated_by_user_id")     
+  hubspot_owner_id          String?    @map("hubspot_owner_id")          
+
+  // Currency Information
+  base_currency                   String?         @map("base_currency")
+  study_destination_currency      String?         @map("study_destination_currency")
+  user_selected_currency          String?         @map("user_selected_currency")
+  
+  // Course Information
+  course_type                     EdumateContactCourseType?     @map("course_type")
+  
+  // Co-applicant Information
+  co_applicant_1_email            String?         @map("co_applicant_1_email")
+  co_applicant_1_mobile_number    String?         @map("co_applicant_1_mobile_number")
+  
+  created_at                      DateTime        @default(now()) @map("created_at")
+  updated_at                      DateTime        @updatedAt @map("updated_at")
+  deleted_by  User?    @relation("ContactsDeletedBy", fields: [deleted_by_id], references: [id])
+  is_deleted   Boolean @default(false)
+  
+  // Relations
+  academic_profile                EdumateContactsAcademicProfile?
+  application_journey             EdumateContactsApplicationJourney?
+  financial_Info                       EdumateContactsFinancialInfo?
+  leads                                    EdumateContactsLeadAttribution?
+  loan_preference                   EdumateContactsLoanPreferences?
+  personal_information          EdumateContactsPersonalInformation?
+  system_tracking                   EdumateContactsSystemTracking?
+  loan_application                  LoanApplication[]
+  b2b_partner       B2BPartner? @relation("B2BPartnerContacts",fields: [b2b_partner_id], references: [id])
+  
+  @@map("edumate_contacts")
+}
+
 model EdumateContactsApplicationJourney {
   id                                     Int                           @id @default(autoincrement())
   contact_id                            Int                          @unique @map("contact_id")
@@ -911,51 +956,6 @@ model EdumateContactsAcademicProfile {
   contact                       EdumateContact                @relation(fields: [contact_id], references: [id], onDelete: Cascade)
   
   @@map("edumate_contact_academic_profiles")
-}
-
-model EdumateContact {
-  id                              Int                           @id @default(autoincrement())
-  deleted_by_id Int?
-  first_name String? @map("first_name")
-  b2b_partner_id Int?
-
- // HubSpot System Fields
-  hs_created_by_user_id     Int?       @map("hs_created_by_user_id")     
-  hs_createdate             DateTime?  @map("hs_createdate")            
-  hs_lastmodifieddate       DateTime?  @map("hs_lastmodifieddate")       
-  hs_object_id              String?       @map("hs_object_id")              
-  hs_updated_by_user_id     Int?       @map("hs_updated_by_user_id")     
-  hubspot_owner_id          String?    @map("hubspot_owner_id")          
-
-  // Currency Information
-  base_currency                   String?         @map("base_currency")
-  study_destination_currency      String?         @map("study_destination_currency")
-  user_selected_currency          String?         @map("user_selected_currency")
-  
-  // Course Information
-  course_type                     EdumateContactCourseType?     @map("course_type")
-  
-  // Co-applicant Information
-  co_applicant_1_email            String?         @map("co_applicant_1_email")
-  co_applicant_1_mobile_number    String?         @map("co_applicant_1_mobile_number")
-  
-  created_at                      DateTime        @default(now()) @map("created_at")
-  updated_at                      DateTime        @updatedAt @map("updated_at")
-  deleted_by  User?    @relation("ContactsDeletedBy", fields: [deleted_by_id], references: [id])
-  is_deleted   Boolean @default(false)
-  
-  // Relations
-  academic_profile                EdumateContactsAcademicProfile?
-  application_journey             EdumateContactsApplicationJourney?
-  financial_Info                       EdumateContactsFinancialInfo?
-  leads                                    EdumateContactsLeadAttribution?
-  loan_preference                   EdumateContactsLoanPreferences?
-  personal_information          EdumateContactsPersonalInformation?
-  system_tracking                   EdumateContactsSystemTracking?
-  loan_application                  LoanApplication[]
-  b2b_partner       B2BPartner? @relation("B2BPartnerContacts",fields: [b2b_partner_id], references: [id])
-  
-  @@map("edumate_contacts")
 }
 
 model EdumateContactsSystemTracking {
