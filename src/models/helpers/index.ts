@@ -20,7 +20,7 @@ export const getEmailTemplate = async (title: string) => {
 };
 
 export const getUserDetailsByEmail = async (email: string) => {
-  const userData = await prisma.user.findFirst({
+  const userData = await prisma.b2BPartnersUsers.findFirst({
     where: {
       email,
       is_active: true,
@@ -39,7 +39,7 @@ export const getUserDetailsByEmail = async (email: string) => {
 };
 
 export const addFileType = async (fileName: string) => {
-  const fileType = await prisma.fileEntity.upsert({
+  const fileType = await prisma.fileEntities.upsert({
     where: { type: fileName },
     update: {},
     create: { type: fileName, description: `${fileName} files` },
@@ -56,7 +56,7 @@ export const addFileRecord = async (
   uploadedBy: number,
   fileId: number
 ) => {
-  const fileUpload = await prisma.fileUpload.create({
+  const fileUpload = await prisma.fileUploads.create({
     data: {
       filename,
       mime_type,
@@ -76,7 +76,7 @@ export const updateFileRecord = async (
   processedRecords: number,
   failedRecords: number
 ) => {
-  await prisma.fileUpload.update({
+  await prisma.fileUploads.update({
     where: { id: fileId },
     data: {
       processed_records: processedRecords,
@@ -87,7 +87,7 @@ export const updateFileRecord = async (
 };
 
 export const getModulePermissions = async (userId: number) => {
-  const user = await prisma.user.findUnique({
+  const user = await prisma.b2BPartnersUsers.findUnique({
     where: { id: userId },
     include: {
       roles: {
@@ -108,31 +108,3 @@ export const getModulePermissions = async (userId: number) => {
 
   return user?.roles ?? [];
 };
-//   const user = await prisma.user.findUnique({
-//     where: { id: userId },
-//     include: {
-//       roles: {
-//         include: {
-//           role: {
-//             include: {
-//               permissions: {
-//                 include: {
-//                   permission: true,
-//                 },
-//               },
-//             },
-//           },
-//         },
-//       },
-//     },
-//   });
-
-//   console.log(JSON.stringify(user, null, 2));
-
-//   // Extract only the permissions for the given module
-//   const modulePermissions = user?.roles.flatMap((r) =>
-//     r.role.permissions.filter((rp) => rp.permission.module === module)
-//   );
-
-//   return modulePermissions ?? [];
-// };

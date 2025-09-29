@@ -42,7 +42,7 @@ export const getIpInfo = async (req: Request, res: Response) => {
   }
 };
 export const getAllUsers = async (_: Request, res: Response) => {
-  const users = await prisma.user.findMany();
+  const users = await prisma.b2BPartnersUsers.findMany();
   res.json(users);
 };
 
