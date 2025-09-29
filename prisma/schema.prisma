@@ -46,7 +46,7 @@ model Role {
   users       UserRole[]
   permissions RolePermission[]
 
-  @@map("b2b_partner_roles")
+  @@map("b2b_partners_roles")
 }
 
 model UserRole {
@@ -59,7 +59,7 @@ model UserRole {
   role Role @relation(fields: [role_id], references: [id], onDelete: Cascade)
 
   @@unique([user_id, role_id])
-  @@map("b2b_partner_user_roles")
+  @@map("b2b_partners_user_roles")
 }
 
 model Session {
@@ -75,7 +75,7 @@ model Session {
   // Relation
   user User @relation("Session",fields: [user_id], references: [id], onDelete: Cascade)
 
-  @@map("sessions")
+  @@map("b2b_partners_sessions")
 }
 
 model LoginHistory {
@@ -99,7 +99,7 @@ model Permission {
 
   roles RolePermission[]
 
-  @@map("b2b_partner_permissions")
+  @@map("b2b_partners_permissions")
 }
 
 model RolePermission {
@@ -112,7 +112,7 @@ model RolePermission {
   permission Permission @relation(fields: [permission_id], references: [id], onDelete: Cascade)
 
   @@unique([role_id, permission_id])
-  @@map("b2b_partner_role_permissions")
+  @@map("b2b_partners_role_permissions")
 }
 
 // B2B Partners - Main Entity
@@ -174,7 +174,7 @@ model B2BPartner {
   user User[]
   b2b_partner_contacts EdumateContact[] @relation("B2BPartnerContacts")
 
-  @@map("b2b_partners")
+  @@map("hs_b2b_partners")
 }
 
 // Business Capabilities
@@ -191,7 +191,7 @@ model B2BPartnerBusinessCapabilities {
   target_universities     String?
   team_size               Float?
   
-  @@map("b2b_partner_business_capabilities")
+  @@map("hs_b2b_partners_business_capabilities")
 }
 
 // Commission Structure
@@ -219,7 +219,7 @@ model B2BPartnerCommissionStructure {
   tds_rate                  Float?
   tiered_commission_structure String?
   
-  @@map("b2b_partner_commission_structure")
+  @@map("hs_b2b_partners_commission_structure")
 }
 
 // Compliance & Documentation
@@ -233,7 +233,7 @@ model B2BPartnerCompliance {
   kyc_completion_date          DateTime?
   kyc_status                   String?
   
-  @@map("b2b_partner_compliance")
+  @@map("hs_b2b_partners_compliance_and_documentation")
 }
 
 // Contact Information
@@ -256,7 +256,7 @@ model B2BPartnerContactInfo {
   secondary_contact_person   String?
   secondary_contact_phone    String?
   
-  @@map("b2b_partner_contact_info")
+  @@map("hs_b2b_partners_contact_info")
 }
 
 // Financial Tracking
@@ -278,7 +278,7 @@ model B2BPartnerFinancialTracking {
   ytd_commission_earned      Float?
   ytd_commission_paid        Float?
   
-  @@map("b2b_partner_financial_tracking")
+  @@map("hs_b2b_partners_financial_tracking")
 }
 
 // Lead Attribution
@@ -293,7 +293,7 @@ model B2BPartnerLeadAttribution {
   unique_referral_code    String?
   utm_source_assigned     String?
   
-  @@map("b2b_partner_lead_attribution")
+  @@map("hs_b2b_partners_lead_attribution")
 }
 
 // Marketing & Promotion
@@ -311,7 +311,7 @@ model B2BPartnerMarketingPromo {
   promotional_activities    String?
   social_media_followers    Float?
   
-  @@map("b2b_partner_marketing_promo")
+  @@map("hs_b2b_partners_marketing_and_promotion")
 }
 
 // Partnership Details
@@ -325,7 +325,7 @@ model B2BPartnerPartnershipDetails {
   partnership_start_date DateTime?
   partnership_status    String?
   
-  @@map("b2b_partner_partnership_details")
+  @@map("hs_b2b_partners_partnership_details")
 }
 
 // Performance Metrics
@@ -350,7 +350,7 @@ model B2BPartnerPerformanceMetrics {
   total_leads_provided         Float?
   total_loan_value_generated   Float?
   
-  @@map("b2b_partner_performance_metrics")
+  @@map("hs_b2b_partners_performance_metrics")
 }
 
 // Relationship Management
@@ -369,7 +369,7 @@ model B2BPartnerRelationshipManagement {
   satisfaction_score        Float?
   training_completed        String?
   
-  @@map("b2b_partner_relationship_mgmt")
+  @@map("hs_b2b_partners_relationship_mgmt")
 }
 
 model B2BSystemTracking {
@@ -405,7 +405,7 @@ model B2BSystemTracking {
   @@index([created_date])
   @@index([last_modified_date])
   
-  @@map("b2b_system_tracking")
+  @@map("hs_b2b_partners_system_tracking")
 }
 
 model Token {
@@ -416,7 +416,7 @@ model Token {
 
   user      User     @relation("Tokens", fields: [user_id], references: [id])
 
-  @@map("tokens")
+  @@map("b2b_partners_tokens")
 }
 
 model UserOtp {
@@ -425,7 +425,7 @@ model UserOtp {
   otp       String
   createdOn DateTime     @default(now())
 
-  @@map("userOtps")
+  @@map("b2b_partners_userOtps")
 }
 
 model currency_conversion {
@@ -465,7 +465,7 @@ model User {
   deleted_By_contacts  EdumateContact[] @relation("ContactsDeletedBy")
   b2b_partner B2BPartner @relation(fields: [b2b_id],references: [id])
 
-  @@map("users")
+  @@map("b2b_partners_users")
 }
 
 model LoanApplication {
@@ -527,7 +527,7 @@ model LoanApplication {
   @@index([student_email])
   @@index([application_date])
   @@index([assigned_counselor_id])
-  @@map("loan_applications")
+  @@map("hs_loan_applications")
 }
 
 // ACADEMIC DETAILS
@@ -550,7 +550,7 @@ model LoanApplicationAcademicDetails {
   // Relations
   loan_application          LoanApplication @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
 
-  @@map("loan_application_academic_details")
+  @@map("hs_loan_applications_academic_details")
 }
 
 // FINANCIAL REQUIREMENTS
@@ -574,7 +574,7 @@ model LoanApplicationFinancialRequirements {
   // Relations
   loan_application         LoanApplication @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
 
-  @@map("loan_application_financial_requirements")
+  @@map("hs_loan_applications_financial_requirements")
 }
 
 // APPLICATION STATUS
@@ -592,7 +592,7 @@ model LoanApplicationStatus {
   // Relations
   loan_application     LoanApplication @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
 
-  @@map("loan_application_status")
+  @@map("hs_loan_applications_status")
 }
 
 // LENDER INFORMATION
@@ -621,7 +621,7 @@ model LoanApplicationLenderInformation {
   // Relations
   loan_application         LoanApplication @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
 
-  @@map("loan_application_lender_information")
+  @@map("hs_loan_applications_lender_information")
 }
 
 // DOCUMENT MANAGEMENT
@@ -637,7 +637,7 @@ model LoanApplicationDocumentManagement {
   // Relations
   loan_application         LoanApplication @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
 
-  @@map("loan_application_document_management")
+  @@map("hs_loan_applications_document_management")
 }
 
 // PROCESSING TIMELINE
@@ -659,7 +659,7 @@ model LoanApplicationProcessingTimeline {
   // Relations
   loan_application            LoanApplication @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
 
-  @@map("loan_application_processing_timeline")
+  @@map("hs_loan_applications_processing_timeline")
 }
 
 // REJECTION DETAILS
@@ -678,7 +678,7 @@ model LoanApplicationRejectionDetails {
   // Relations
   loan_application     LoanApplication @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
 
-  @@map("loan_application_rejection_details")
+  @@map("hs_loan_applications_rejection_details")
 }
 
 // COMMUNICATION PREFERENCES
@@ -700,7 +700,7 @@ model LoanApplicationCommunicationPreferences {
   // Relations
   loan_application           LoanApplication        @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
 
-  @@map("loan_application_communication_preferences")
+  @@map("hs_loan_applications_communication_preferences")
 }
 
 // SYSTEM TRACKING
@@ -725,7 +725,7 @@ model LoanApplicationSystemTracking {
   // Relations
   loan_application       LoanApplication  @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
 
-  @@map("loan_application_system_tracking")
+  @@map("hs_loan_applications_system_tracking")
 }
 
 // COMMISSION RECORDS (One-to-Many)
@@ -746,7 +746,7 @@ model LoanApplicationCommissionRecord {
   // Relations
   loan_application          LoanApplication  @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
 
-  @@map("loan_application_commission_records")
+  @@map("hs_loan_applications_commission_records")
 }
 
 // ADDITIONAL SERVICES (One-to-Many)
@@ -760,7 +760,7 @@ model LoanApplicationAdditionalService {
   // Relations
   loan_application     LoanApplication @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
 
-  @@map("loan_application_additional_services")
+  @@map("hs_loan_applications_additional_services")
 }
 
 model FileUpload {
@@ -879,7 +879,7 @@ model EdumateContact {
   loan_application                  LoanApplication[]
   b2b_partner       B2BPartner? @relation("B2BPartnerContacts",fields: [b2b_partner_id], references: [id])
   
-  @@map("edumate_contacts")
+  @@map("hs_edumate_contacts")
 }
 
 model EdumateContactsApplicationJourney {
@@ -905,7 +905,7 @@ model EdumateContactsApplicationJourney {
   created_at                            DateTime                     @default(now()) @map("created_at")
   updated_at                            DateTime                     @updatedAt @map("updated_at")
   
-  @@map("edumate_contacts_application_journey")
+  @@map("hs_edumate_contacts_application_journey")
 }
 
 model EdumateContactsAcademicProfile {
@@ -955,7 +955,7 @@ model EdumateContactsAcademicProfile {
   // Relations
   contact                       EdumateContact                @relation(fields: [contact_id], references: [id], onDelete: Cascade)
   
-  @@map("edumate_contact_academic_profiles")
+  @@map("hs_edumate_contacts_academic_profiles")
 }
 
 model EdumateContactsSystemTracking {
@@ -981,7 +981,7 @@ model EdumateContactsSystemTracking {
   created_at                DateTime                @default(now()) @map("created_at")
   updated_at                DateTime                @updatedAt @map("updated_at")
   
-  @@map("edumate_contacts_system_tracking")
+  @@map("hs_edumate_contacts_system_tracking")
 }
 
 // Financial information
@@ -1038,7 +1038,7 @@ model EdumateContactsFinancialInfo {
   created_at                    DateTime                      @default(now()) @map("created_at")
   updated_at                    DateTime                      @updatedAt @map("updated_at")
   
-  @@map("edumate_contacts_financial_info")
+  @@map("hs_edumate_contacts_financial_info")
 }
 
 // Lead tracking and attribution
@@ -1072,7 +1072,7 @@ model EdumateContactsLeadAttribution {
   created_at                      DateTime                          @default(now()) @map("created_at")
   updated_at                      DateTime                          @updatedAt @map("updated_at")
   
-  @@map("edumate_contacts_lead_attribution")
+  @@map("hs_edumate_contacts_lead_attribution")
 }
 
 model EdumateContactsLoanPreferences {
@@ -1088,7 +1088,7 @@ model EdumateContactsLoanPreferences {
   created_at                   DateTime                     @default(now()) @map("created_at")
   updated_at                   DateTime                     @updatedAt @map("updated_at")
   
-  @@map("edumate_contacts_loan_preferences")
+  @@map("hs_edumate_contacts_loan_preferences")
 }
 
 model EdumateContactsPersonalInformation {
@@ -1107,17 +1107,17 @@ model EdumateContactsPersonalInformation {
   
   // Current Address
   current_address                 String?          @map("current_address") @db.Text
-  city__current_address_         String?          @map("city__current_address_")
-  state__current_address_        String?          @map("state__current_address_")
-  country__current_address_      String?          @map("country__current_address_")
-  pincode__current_address_      String?          @map("pincode__current_address_")
+  city_current_address         String?          @map("city__current_address_")
+  state_current_address        String?          @map("state__current_address_")
+  country_current_address      String?          @map("country__current_address_")
+  pincode_current_address      String?          @map("pincode__current_address_")
   
   // Permanent Address
   permanent_address               String?          @map("permanent_address") @db.Text
-  city__permanent_address_       String?          @map("city__permanent_address_")
-  state__permanent_address_      String?          @map("state__permanent_address_")
-  country__permanent_address_    String?          @map("country__permanent_address_")
-  pincode__permanent_address_    String?          @map("pincode__permanent_address_")
+  city_permanent_address       String?          @map("city_permanent_address")
+  state_permanent_address      String?          @map("state_permanent_address")
+  country_permanent_address    String?          @map("country_permanent_address")
+  pincode_permanent_address    String?          @map("pincode_permanent_address")
   
   created_at                      DateTime         @default(now()) @map("created_at")
   updated_at                      DateTime         @updatedAt @map("updated_at")
@@ -1125,7 +1125,7 @@ model EdumateContactsPersonalInformation {
   is_deleted Boolean @default(false)
   deleted_by User?    @relation("ContactsDeletedBy", fields: [deleted_by_id], references: [id])
   
-  @@map("edumate_contacts_personal_information")
+  @@map("hs_edumate_contacts_personal_information")
 }
 
 // Main lender table
@@ -1169,7 +1169,7 @@ model Lender {
   @@index([lender_category])
   @@index([lender_type])
   @@index([created_at])
-  @@map("lenders")
+  @@map("hs_lenders")
 }
 
 model LenderSystemTracking {
@@ -1188,7 +1188,7 @@ model LenderSystemTracking {
   // Relations
   lender_system_tracking                  Lender           @relation(fields: [lender_id], references: [id], onDelete: Cascade)
 
-  @@map("lender_system_tracking")
+  @@map("hs_lenders_system_tracking")
 }
 
 // Contact information for lender
@@ -1221,7 +1221,7 @@ model LenderContactInfo {
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
   
-  @@map("lender_contact_info")
+  @@map("hs_lenders_contact_info")
 }
 
 // Business metrics and performance
@@ -1240,7 +1240,7 @@ model LenderBusinessMetrics {
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
   
-  @@map("lender_business_metrics")
+  @@map("hs_lenders_business_metrics")
 }
 
 model LenderOfferings {
@@ -1265,7 +1265,7 @@ model LenderOfferings {
     created_at              DateTime         @default(now())
     updated_at              DateTime         @default(now()) @updatedAt
      
-    @@map("lender_offerings")
+    @@map("hs_lenders_loan_offerings")
 }
 
 // Loan products offered by lender
@@ -1303,7 +1303,7 @@ model LoanProduct {
   financial_terms       LoanProductFinancialTerms?
   collateral_security   LoanProductCollateralSecurity?
   repayment_terms       LoanProductRepaymentTerms?
-  processing_details    LoanProductProcessingDetails?
+  processing_details    LoanProductApplicationProcessing?
   geographic_coverage   LoanProductGeographicCoverage?
   special_features      LoanProductSpecialFeatures?
   performance_metrics   LoanPerformanceMetrics?
@@ -1318,7 +1318,7 @@ model LoanProduct {
   @@index([product_category])
   @@index([product_status])
   @@index([created_at])
-  @@map("loan_products")
+  @@map("hs_loan_products")
 }
 
 model LoanProductSystemTracking {
@@ -1340,7 +1340,7 @@ model LoanProductSystemTracking {
   created_at              DateTime         @default(now())
   updated_at              DateTime         @default(now()) @updatedAt
    
-    @@map("loan_product_system_tracking")
+    @@map("hs_loan_products_system_tracking")
 }
 
 model LoanProductCompetitiveAnalytics {
@@ -1354,7 +1354,7 @@ model LoanProductCompetitiveAnalytics {
   created_at              DateTime         @default(now())
   updated_at              DateTime         @default(now()) @updatedAt  
    
-@@map("loan_product_competitive_analysis")    
+@@map("hs_loan_products_competitive_analysis")    
 }
 
 // Detailed eligibility criteria for loan products
@@ -1415,7 +1415,7 @@ model LoanEligibilityCriteria {
   updated_at                DateTime  @updatedAt @map("updated_at")
   
   @@index([loan_product_id])
-  @@map("loan_eligibility_criteria")
+  @@map("hs_loan_products_eligibility_criteria")
 }
 
 // Operational details of lender
@@ -1438,7 +1438,7 @@ model LenderOperationalDetails {
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
   
-  @@map("lender_operational_details")
+  @@map("hs_lenders_operational_details")
 }
 
 // Partnership details
@@ -1466,7 +1466,7 @@ model LenderPartnership {
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
   
-  @@map("lender_partnerships")
+  @@map("hs_lenders_partnerships_details")
 }
 
 // Collateral and security requirements
@@ -1488,7 +1488,7 @@ model LoanProductCollateralSecurity {
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
   
-  @@map("loan_collateral_security")
+  @@map("hs_loan_products_collateral_and_security")
 }
 
 // Repayment terms
@@ -1526,11 +1526,11 @@ model LoanProductRepaymentTerms {
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
   
-  @@map("loan_repayment_terms")
+  @@map("hs_loan_products_repayment_terms")
 }
 
 // Application and processing details
-model LoanProductProcessingDetails {
+model LoanProductApplicationProcessing {
   id                    Int                 @id @default(autoincrement())
   product_id            Int                 @unique @map("product_id")
   product               LoanProduct         @relation(fields: [product_id], references: [id], onDelete: Cascade)
@@ -1552,7 +1552,7 @@ model LoanProductProcessingDetails {
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
   
-  @@map("loan_product_processing_details")
+  @@map("hs_loan_products_application_and_processing")
 }
 
 // Geographic and course coverage
@@ -1572,7 +1572,7 @@ model LoanProductGeographicCoverage {
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
   
-  @@map("loan_geographic_coverage")
+  @@map("hs_loan_products_geographic_coverage")
 }
 
 // Special features and benefits
@@ -1596,7 +1596,7 @@ model LoanProductSpecialFeatures {
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
   
-  @@map("loan_special_features")
+  @@map("hs_loan_products_special_features")
 }
 
 // Performance metrics
@@ -1618,7 +1618,7 @@ model LoanPerformanceMetrics {
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
   
-  @@map("loan_performance_metrics")
+  @@map("hs_loan_products_performance_metrics")
 }
 
 // System integration details
@@ -1639,7 +1639,7 @@ model LoanProductSystemIntegration {
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
   
-  @@map("loan_system_integration")
+  @@map("hs_loan_products_system_integration")
 }
 
 // Financial terms and conditions
@@ -1675,7 +1675,7 @@ model LoanProductFinancialTerms {
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
   
-  @@map("loan_financial_terms")
+  @@map("hs_loan_products_financial_terms")
 }
 
 model LoanDocument {
@@ -1721,7 +1721,7 @@ model LoanDocument {
   @@index([document_category])
   @@index([document_type])
   @@index([created_at])
-  @@map("document_masters")
+  @@map("hs_loan_documents")
 }
 
 model DocumentSystemTracking {
@@ -1744,7 +1744,7 @@ model DocumentSystemTracking {
   created_at                DateTime                @default(now()) @map("created_at")
   updated_at                DateTime                @updatedAt @map("updated_at")
   
-  @@map("loan_document_system_tracking")
+  @@map("hs_loan_documents_system_tracking")
 }
 
 model DocumentProcessingWorkflow {
@@ -1764,7 +1764,7 @@ model DocumentProcessingWorkflow {
   created_at                      DateTime                     @default(now()) @map("created_at")
   updated_at                      DateTime                     @updatedAt @map("updated_at")
   
-  @@map("document_processing_workflow")
+  @@map("hs_loan_documents_processing_workflow")
 }
 
 model DocumentSpecification {
@@ -1784,7 +1784,7 @@ model DocumentSpecification {
   createdAt                 DateTime               @default(now())
   updatedAt                 DateTime               @updatedAt
    
-    @@map("document_specification")
+    @@map("hs_loan_documents_specification")
 }
 // Document applicability rules
 model DocumentApplicability {
@@ -1813,7 +1813,7 @@ model DocumentApplicability {
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
   
-  @@map("document_applicability")
+  @@map("hs_loan_documents_applicability")
 }
 
 // Compliance and legal configuration
@@ -1830,7 +1830,7 @@ model DocumentCompliance {
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
   
-  @@map("document_compliance")
+  @@map("hs_loan_documents_compliance")
 }
 
 // Digital and integration configuration
@@ -1850,7 +1850,7 @@ model DocumentDigitalConfig {
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
   
-  @@map("document_digital_configs")
+  @@map("hs_loan_documents_digital_configs")
 }
 
 // Alternative documents configuration
@@ -1869,7 +1869,7 @@ model AlternativeDocument {
   updated_at            DateTime            @updatedAt @map("updated_at")
   
   @@index([primary_document_id])
-  @@map("alternative_documents")
+  @@map("hs_loan_documents_alternative_documents")
 }
 
 // Document performance metrics
@@ -1892,7 +1892,7 @@ model DocumentPerformanceMetrics {
   created_at                      DateTime        @default(now()) @map("created_at")
   updated_at                      DateTime        @updatedAt @map("updated_at")
   
-  @@map("document_performance_metrics")
+  @@map("hs_loan_documents_performance_metrics")
 }
 
 // Customer experience configuration
@@ -1908,7 +1908,7 @@ model DocumentCustomerExperience {
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
   
-  @@map("document_customer_experience")
+  @@map("hs_loan_documents_customer_experience")
 }
 
 // Settlement status history
@@ -1928,7 +1928,7 @@ model CommissionSettlementStatus {
   
   @@index([settlement_id])
   @@index([created_at])
-  @@map("settlement_status_history")
+  @@map("hs_commission_settlements_settlement_status")
 }
 
 // Main commission settlement table
@@ -1984,7 +1984,7 @@ model CommissionSettlement {
   @@index([student_id])
   @@index([created_at])
 
-  @@map("commission_settlements")
+  @@map("hs_commission_settlements")
 }
 
 model CommissionSettlementSystemTracking {
@@ -2015,7 +2015,7 @@ model CommissionSettlementSystemTracking {
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
 
-  @@map("commission_settlement_system_tracking")
+  @@map("hs_commission_settlements_system_tracking")
 }
 
 model CommissionSettlementTransactionDetails {
@@ -2033,7 +2033,7 @@ model CommissionSettlementTransactionDetails {
     created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
 
-  @@map("commission_settlement_transaction_details")
+  @@map("hs_commission_settlements_transaction_details")
 }
 
 // Commission calculation details
@@ -2064,7 +2064,7 @@ model CommissionSettlementCalculation {
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
   
-  @@map("commission_settlement_calculations")
+  @@map("hs_commission_settlements_commission_calculations")
 }
 
 model CommissionSettlementCommunication {
@@ -2085,7 +2085,7 @@ model CommissionSettlementCommunication {
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
 
-  @@map("commission_settlement_communication")
+  @@map("hs_commission_settlements_communication")
 }
 
 // Loan details for commission
@@ -2108,7 +2108,7 @@ model CommissionSettlementLoanDetails {
   
   @@index([settlement_id])
   @@index([loan_disbursement_date])
-  @@map("commission_settlement_loan_details")
+  @@map("hs_commission_settlements_loan_details")
 }
 
 // Payment processing details
@@ -2138,7 +2138,7 @@ model CommissionSettlementPaymentProcessing {
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
   
-  @@map("commission_settlement_payment_processing")
+  @@map("hs_commission_settlements_payment_processing")
 }
 
 // Tax and deduction details
@@ -2175,7 +2175,7 @@ model CommissionSettlementTaxDeduction {
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
   
-  @@map("commission_settlement_tax_deductions")
+  @@map("hs_commission_settlements_tax_and_deductions")
 }
 
 // Documentation for commission
@@ -2203,7 +2203,7 @@ model CommissionSettlementDocumentation {
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
   
-  @@map("commission_settlement_documentation")
+  @@map("hs_commission_settlements_documentation")
 }
 
 // Hold and dispute management
@@ -2230,7 +2230,7 @@ model CommissionSettlementHoldDispute {
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
   
-  @@map("commission_settlement_hold_disputes")
+  @@map("hs_commission_settlements_hold_and_disputes")
 }
 
 // Reconciliation details
@@ -2255,7 +2255,7 @@ model CommissionSettlementReconciliation {
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
   
-  @@map("commission_settlement_reconciliations")
+  @@map("hs_commission_settlements_reconciliations")
 }
 
 // Performance analytics
@@ -2276,7 +2276,7 @@ model CommissionSettlementPerformanceAnalytics {
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
   
-  @@map("commission_settlement_performance_analytics")
+  @@map("hs_commission_settlements_performance_analytics")
 }
 
 // ENUMS
@@ -4363,7 +4363,7 @@ enum LenderCategory {
   INTERNATIONAL   @map("International")
   BOTH            @map("Both")
   
-  @@map("lender_category")
+  @@map("hs_lenders_category")
 }
 
 enum LenderType {
@@ -4374,7 +4374,7 @@ enum LenderType {
   INTERNATIONAL_LENDER    @map("International Lender")
   FINTECH                 @map("Fintech")
 
-  @@map("lender_type")
+  @@map("hs_lenders_type")
 }
 
 enum LenderStatus {
@@ -4384,7 +4384,7 @@ enum LenderStatus {
   PENDING_APPROVAL    @map("Pending Approval")
   UNDER_REVIEW        @map("Under Review")
 
-  @@map("lender_status")
+  @@map("hs_lenders_status")
 }
 
 enum CoSignerRequirement {
@@ -4636,7 +4636,7 @@ enum DocumentCategory {
   INSTITUTIONAL_DOCUMENTS     @map("Institutional Documents")
   SUPPORTING_DOCUMENTS        @map("Supporting Documents")
 
-  @@map("document_category")
+  @@map("hs_loan_documents_category")
 }
 
 enum DocumentType {
@@ -4654,7 +4654,7 @@ enum DocumentType {
   GUARANTEE_DOCUMENTS    @map("Guarantee Documents")
   OTHER                  @map("Other")
 
-  @@map("document_type")
+  @@map("hs_loan_documents_type")
 }
 
 enum DocumentPriority {
@@ -4663,7 +4663,7 @@ enum DocumentPriority {
   OPTIONAL        @map("Optional")
   NICE_TO_HAVE    @map("Nice To Have")
 
-  @@map("document_priority")
+  @@map("hs_loan_documents_priority")
 }
 
 enum DocumentStage {
@@ -4674,7 +4674,7 @@ enum DocumentStage {
   DISBURSEMENT          @map("Disbursement")
   POST_DISBURSEMENT     @map("Post Disbursement")
 
-  @@map("document_stage")
+  @@map("hs_loan_documents_stage")
 }
 
 enum DocumentFormat {
@@ -4689,7 +4689,7 @@ enum DocumentFormat {
   SCANNED_COPY          @map("Scanned Copy")
   DIGITAL_COPY          @map("Digital Copy")
 
-  @@map("document_format")
+  @@map("hs_loan_documents_format")
 }
 
 enum DocumentStatus {
@@ -4699,7 +4699,7 @@ enum DocumentStatus {
   DEPRECATED      @map("Deprecated")
   ARCHIVED        @map("Archived")
 
-  @@map("document_status")
+  @@map("hs_loan_documents_status")
 }
 
 enum VerificationStatus {
@@ -4908,7 +4908,7 @@ enum PartnerRecordStatus {
   UNDER_REVIEW  @map("Under Review")
   ARCHIVED      @map("Archived")
 
-  @@map("b2b_partner_record_status")
+  @@map("b2b_partners_record_status")
 }
 
 enum PortalAccessStatus {
@@ -4997,7 +4997,7 @@ enum LenderRecordStatus {
   UNDER_REVIEW  @map("Under Review")
   SUSPENDED     @map("Suspended")
 
-  @@map("lender_record_status")
+  @@map("hs_lenders_record_status")
 }
 
 enum LenderDataSource {
@@ -5005,7 +5005,7 @@ enum LenderDataSource {
   IMPORT              @map("Import")
   API_INTEGRATION     @map("Api Integration")
 
-  @@map("lender_data_source")
+  @@map("hs_lenders_data_source")
 }
 
 enum GurantorRequired {
@@ -5041,7 +5041,7 @@ enum LoanProductMarketPositioning {
   NICHE         @map("Niche")
   MASS_MARKET   @map("Mass Market")
 
-  @@map("loan_product_market_segment")
+  @@map("hs_loan_products_market_segment")
 }
 
 enum PricingStrategy {
@@ -5090,7 +5090,7 @@ enum LoanProductCourseTypes {
   REGULAR             @map("Regular")
   ACCELERATED         @map("Accelerated")
 
-  @@map("loan_product_course_types")
+  @@map("hs_loan_products_course_types")
 }
 
 enum PartPaymentAllowed {
@@ -5307,7 +5307,7 @@ enum DocumentAvailability {
   PLANNED       @map("Planned")
   NOT_REQUIRED  @map("Not Required")
 
-  @@map("document_availability")
+  @@map("hs_loan_documents_availability")
 }
 
 enum AutomatedProcessing {
@@ -5454,7 +5454,7 @@ enum DocumentRecordStatus {
   UNDER_REVIEW    @map("Under Review")
   DEPRECATED      @map("Deprecated")
   
-  @@map("document_record_status")
+  @@map("hs_loan_documents_record_status")
 }
 
 enum DocumentReviewFrequency {
@@ -5464,7 +5464,7 @@ enum DocumentReviewFrequency {
   YEARLY        @map("Yearly")
   AS_NEEDED     @map("As Needed")
   
-  @@map("document_review_frequency")
+  @@map("hs_loan_documents_review_frequency")
 }
 
 enum EdumateContactAdmissionStatus {
