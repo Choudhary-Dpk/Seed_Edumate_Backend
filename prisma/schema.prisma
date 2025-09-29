@@ -37,32 +37,32 @@ model LoanEligibilityMatrix {
   @@index([is_stem_designated, preference], map: "idx_stem_preference")
   @@map("loan_eligibility_matrix")
 }
-model Role {
+model B2BPartnersRole {
   id          Int       @id @default(autoincrement())
   role        String    @unique
   display_name String
   description String?
   
-  users       UserRole[]
-  permissions RolePermission[]
+  users       B2BPartnersUserRoles[]
+  permissions B2BPartnersRolePermission[]
 
-  @@map("b2b_partner_roles")
+   @@map("b2b_partners_roles")
 }
 
-model UserRole {
+model B2BPartnersUserRoles {
   id      Int  @id @default(autoincrement())
   user_id Int  @map("user_id")
   role_id Int  @map("role_id")
 
   // Relations
-  user User @relation("UserRole",fields: [user_id], references: [id], onDelete: Cascade)
-  role Role @relation(fields: [role_id], references: [id], onDelete: Cascade)
+  user B2BPartnersUsers @relation("UserRole",fields: [user_id], references: [id], onDelete: Cascade)
+  role B2BPartnersRole @relation(fields: [role_id], references: [id], onDelete: Cascade)
 
   @@unique([user_id, role_id])
-  @@map("b2b_partner_user_roles")
+ @@map("b2b_partners_user_roles")
 }
 
-model Session {
+model B2BPartnersSessions {
   id                 Int      @id @default(autoincrement())
   user_id            Int      @map("user_id")
   refresh_token_hash String   @map("refresh_token_hash")
@@ -73,9 +73,9 @@ model Session {
   expires_at         DateTime? @map("expires_at")
 
   // Relation
-  user User @relation("Session",fields: [user_id], references: [id], onDelete: Cascade)
+  user B2BPartnersUsers @relation("Session",fields: [user_id], references: [id], onDelete: Cascade)
 
-  @@map("b2b_sessions")
+  @@map("b2b_partners_sessions")
 }
 
 model LoginHistory {
@@ -87,36 +87,36 @@ model LoginHistory {
   created_at  DateTime @default(now()) @map("created_at")
 
   // Relation
-  user User @relation("LoginHistory",fields: [user_id], references: [id], onDelete: Cascade)
+  user B2BPartnersUsers @relation("LoginHistory",fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("login_history")
 }
 
-model Permission {
+model B2BPartnersPermission {
   id          Int     @id @default(autoincrement())
   permission  String  @map("permission")
   module      String? @map("module")
 
-  roles RolePermission[]
+  roles B2BPartnersRolePermission[]
 
-  @@map("b2b_partner_permissions")
+  @@map("b2b_partners_permissions")
 }
 
-model RolePermission {
+model B2BPartnersRolePermission {
   id            Int  @id @default(autoincrement())
   role_id       Int  @map("role_id")
   permission_id Int  @map("permission_id")
 
   // Relations
-  role       Role       @relation(fields: [role_id], references: [id], onDelete: Cascade)
-  permission Permission @relation(fields: [permission_id], references: [id], onDelete: Cascade)
+  role       B2BPartnersRole       @relation(fields: [role_id], references: [id], onDelete: Cascade)
+  permission B2BPartnersPermission @relation(fields: [permission_id], references: [id], onDelete: Cascade)
 
   @@unique([role_id, permission_id])
-  @@map("b2b_partner_role_permissions")
+  @@map("b2b_partners_role_permissions")
 }
 
 // B2B Partners - Main Entity
-model B2BPartner {
+model HSB2BPartners {
   id                    Int      @id @default(autoincrement())
   
   // Basic Information (from b2b_partners_information group)
@@ -160,28 +160,28 @@ model B2BPartner {
   updated_at             DateTime @default(now())
   
   // Relations to normalized tables
-  business_capabilities  B2BPartnerBusinessCapabilities?
-  commission_structure   B2BPartnerCommissionStructure?
-  compliance            B2BPartnerCompliance?
-  contact_info           B2BPartnerContactInfo?
-  financial_tracking     B2BPartnerFinancialTracking?
-  lead_attribution       B2BPartnerLeadAttribution?
-  marketing_promo        B2BPartnerMarketingPromo?
-  partnership_details    B2BPartnerPartnershipDetails?
-  performance_metrics    B2BPartnerPerformanceMetrics?
-  relationship_managemenet      B2BPartnerRelationshipManagement?
-  system_tracking B2BSystemTracking?
-  user User[]
-  b2b_partner_contacts EdumateContact[] @relation("B2BPartnerContacts")
+  business_capabilities  HSB2BPartnersBusinessCapabilities?
+  commission_structure   HSB2BPartnersCommissionStructure?
+  compliance            HSB2BPartnersComplianceAndDocumentation?
+  contact_info           HSB2BPartnersContactInfo?
+  financial_tracking     HSB2BPartnersFinancialTracking?
+  lead_attribution       HSB2BPartnersLeadAttribution?
+  marketing_promo        HSB2BPartnersMarketingAndPromotion?
+  partnership_details    HSB2BPartnersPartnershipDetails?
+  performance_metrics    HSB2BPartnersPerformanceMetrics?
+  relationship_managemenet      HSB2BPartnersRelationshipManagement?
+  system_tracking HSB2BPartnersSystemTracking?
+  user B2BPartnersUsers[]
+  b2b_partner_contacts HSEdumateContacts[] @relation("B2BPartnerContacts")
 
-  @@map("b2b_partners")
+  @@map("hs_b2b_partners")
 }
 
 // Business Capabilities
-model B2BPartnerBusinessCapabilities {
+model HSB2BPartnersBusinessCapabilities {
   id                      Int        @id @default(autoincrement())
   partner_id               Int        @unique
-  partner                 B2BPartner @relation(fields: [partner_id], references: [id], onDelete: Cascade)
+  partner                 HSB2BPartners @relation(fields: [partner_id], references: [id], onDelete: Cascade)
   
   experience_years        Float?
   student_capacity_monthly Float?
@@ -191,14 +191,14 @@ model B2BPartnerBusinessCapabilities {
   target_universities     String?
   team_size               Float?
   
-  @@map("b2b_partner_business_capabilities")
+  @@map("hs_b2b_partners_business_capabilities")
 }
 
 // Commission Structure
-model B2BPartnerCommissionStructure {
+model HSB2BPartnersCommissionStructure {
   id                        Int        @id @default(autoincrement())
   partner_id                 Int        @unique
-  partner                   B2BPartner @relation(fields: [partner_id], references: [id], onDelete: Cascade)
+  partner                   HSB2BPartners @relation(fields: [partner_id], references: [id], onDelete: Cascade)
   
   bank_account_number       String?
   bank_branch               String?
@@ -219,28 +219,28 @@ model B2BPartnerCommissionStructure {
   tds_rate                  Float?
   tiered_commission_structure String?
   
-  @@map("b2b_partner_commission_structure")
+  @@map("hs_b2b_partners_commission_structure")
 }
 
 // Compliance & Documentation
-model B2BPartnerCompliance {
+model HSB2BPartnersComplianceAndDocumentation {
   id                           Int        @id @default(autoincrement())
   partner_id                    Int        @unique
-  partner                      B2BPartner @relation(fields: [partner_id], references: [id], onDelete: Cascade)
+  partner                      HSB2BPartners @relation(fields: [partner_id], references: [id], onDelete: Cascade)
   
   agreement_signed_date        DateTime?
   background_verification_status String?
   kyc_completion_date          DateTime?
   kyc_status                   String?
   
-  @@map("b2b_partner_compliance")
+  @@map("hs_b2b_partners_compliance_and_documentation")
 }
 
 // Contact Information
-model B2BPartnerContactInfo {
+model HSB2BPartnersContactInfo {
   id                         Int        @id @default(autoincrement())
   partner_id                  Int        @unique
-  partner                    B2BPartner @relation(fields: [partner_id], references: [id], onDelete: Cascade)
+  partner                    HSB2BPartners @relation(fields: [partner_id], references: [id], onDelete: Cascade)
   
   accounts_contact_email     String?
   accounts_contact_person    String?
@@ -256,14 +256,14 @@ model B2BPartnerContactInfo {
   secondary_contact_person   String?
   secondary_contact_phone    String?
   
-  @@map("b2b_partner_contact_info")
+  @@map("hs_b2b_partners_contact_info")
 }
 
 // Financial Tracking
-model B2BPartnerFinancialTracking {
+model HSB2BPartnersFinancialTracking {
   id                        Int        @id @default(autoincrement())
   partner_id                 Int        @unique
-  partner                   B2BPartner @relation(fields: [partner_id], references: [id], onDelete: Cascade)
+  partner                   HSB2BPartners @relation(fields: [partner_id], references: [id], onDelete: Cascade)
   
   average_monthly_commission Float?
   current_month_commission   Float?
@@ -278,14 +278,14 @@ model B2BPartnerFinancialTracking {
   ytd_commission_earned      Float?
   ytd_commission_paid        Float?
   
-  @@map("b2b_partner_financial_tracking")
+  @@map("hs_b2b_partners_financial_tracking")
 }
 
 // Lead Attribution
-model B2BPartnerLeadAttribution {
+model HSB2BPartnersLeadAttribution {
   id                      Int        @id @default(autoincrement())
   partner_id               Int        @unique
-  partner                 B2BPartner @relation(fields: [partner_id], references: [id], onDelete: Cascade)
+  partner                 HSB2BPartners @relation(fields: [partner_id], references: [id], onDelete: Cascade)
   
   lead_submission_method  String?
   lead_tracking_method    String?
@@ -293,14 +293,14 @@ model B2BPartnerLeadAttribution {
   unique_referral_code    String?
   utm_source_assigned     String?
   
-  @@map("b2b_partner_lead_attribution")
+  @@map("hs_b2b_partners_lead_attribution")
 }
 
 // Marketing & Promotion
-model B2BPartnerMarketingPromo {
+model HSB2BPartnersMarketingAndPromotion {
   id                        Int        @id @default(autoincrement())
   partner_id                 Int        @unique
-  partner                   B2BPartner @relation(fields: [partner_id], references: [id], onDelete: Cascade)
+  partner                   HSB2BPartners @relation(fields: [partner_id], references: [id], onDelete: Cascade)
   
   brand_usage_guidelines    String?
   co_marketing_approval     String?
@@ -311,28 +311,28 @@ model B2BPartnerMarketingPromo {
   promotional_activities    String?
   social_media_followers    Float?
   
-  @@map("b2b_partner_marketing_promo")
+  @@map("hs_b2b_partners_marketing_and_promotion")
 }
 
 // Partnership Details
-model B2BPartnerPartnershipDetails {
+model HSB2BPartnersPartnershipDetails {
   id                    Int        @id @default(autoincrement())
   partner_id             Int        @unique
-  partner               B2BPartner @relation(fields: [partner_id], references: [id], onDelete: Cascade)
+  partner               HSB2BPartners @relation(fields: [partner_id], references: [id], onDelete: Cascade)
   
   agreement_type        String?
   partnership_end_date  DateTime?
   partnership_start_date DateTime?
   partnership_status    String?
   
-  @@map("b2b_partner_partnership_details")
+  @@map("hs_b2b_partners_partnership_details")
 }
 
 // Performance Metrics
-model B2BPartnerPerformanceMetrics {
+model HSB2BPartnersPerformanceMetrics {
   id                           Int        @id @default(autoincrement())
   partner_id                    Int        @unique
-  partner                      B2BPartner @relation(fields: [partner_id], references: [id], onDelete: Cascade)
+  partner                      HSB2BPartners @relation(fields: [partner_id], references: [id], onDelete: Cascade)
   
   application_conversion_rate  Float?
   applications_approved        Float?
@@ -350,14 +350,14 @@ model B2BPartnerPerformanceMetrics {
   total_leads_provided         Float?
   total_loan_value_generated   Float?
   
-  @@map("b2b_partner_performance_metrics")
+  @@map("hs_b2b_partners_performance_metrics")
 }
 
 // Relationship Management
-model B2BPartnerRelationshipManagement {
+model HSB2BPartnersRelationshipManagement {
   id                        Int        @id @default(autoincrement())
   partner_id                 Int        @unique
-  partner                   B2BPartner @relation(fields: [partner_id], references: [id], onDelete: Cascade)
+  partner                   HSB2BPartners @relation(fields: [partner_id], references: [id], onDelete: Cascade)
   
   assigned_account_manager  String?
   communication_frequency   String?
@@ -369,12 +369,12 @@ model B2BPartnerRelationshipManagement {
   satisfaction_score        Float?
   training_completed        String?
   
-  @@map("b2b_partner_relationship_mgmt")
+  @@map("hs_b2b_partners_relationship_mgmt")
 }
 
-model B2BSystemTracking {
+model HSB2BPartnersSystemTracking {
   id                        Int                     @id @default(autoincrement())
-  partner B2BPartner  @relation(fields: [partner_id], references: [id], onDelete: Cascade)
+  partner HSB2BPartners  @relation(fields: [partner_id], references: [id], onDelete: Cascade)
 
   // Partner Information
   partner_id                Int                     @unique @map("partner_id")
@@ -405,27 +405,27 @@ model B2BSystemTracking {
   @@index([created_date])
   @@index([last_modified_date])
   
-  @@map("b2b_system_tracking")
+   @@map("hs_b2b_partners_system_tracking")
 }
 
-model Token {
+model B2BPartnersTokens {
   id        Int      @id @default(autoincrement())
   token     String
   user_id    Int
   createdOn DateTime @default(now())
 
-  user      User     @relation("Tokens", fields: [user_id], references: [id])
+  user      B2BPartnersUsers     @relation("Tokens", fields: [user_id], references: [id])
 
-  @@map("b2b_tokens")
+  @@map("b2b_partners_tokens")
 }
 
-model UserOtp {
+model B2BPartnersUserOtps {
   id        Int      @id @default(autoincrement())
   user_id    Int
   otp       String
   createdOn DateTime     @default(now())
 
-  @@map("userOtps")
+  @@map("b2b_partners_userOtps")
 }
 
 model currency_conversion {
@@ -439,7 +439,7 @@ model currency_conversion {
   @@unique([from_currency, to_currency])
 }
 
-model User {
+model B2BPartnersUsers {
   id            Int        @id @default(autoincrement())
   b2b_id      Int
   email         String     @unique @map("email")
@@ -450,25 +450,25 @@ model User {
   updated_at    DateTime   @default(now()) @updatedAt @map("updated_at")
 
   // Back relation
-  roles         UserRole[] @relation("UserRole")
-  sessions      Session[] @relation("Session")
+  roles         B2BPartnersUserRoles[] @relation("UserRole")
+  sessions      B2BPartnersSessions[] @relation("Session")
   login_history  LoginHistory[] @relation("LoginHistory")
-  loan_applications    LoanApplication[] @relation("UserLoanApplications")
-  assigned_applications LoanApplication[] @relation("AssignedCounselor")
-  created_applications LoanApplication[] @relation("CreatedBy")
-  modified_applications LoanApplication[] @relation("LastModifiedBy")
-  uploaded_files  FileUpload[] @relation("FileUpload")
+  loan_applications    HSLoanApplications[] @relation("UserLoanApplications")
+  assigned_applications HSLoanApplications[] @relation("AssignedCounselor")
+  created_applications HSLoanApplications[] @relation("CreatedBy")
+  modified_applications HSLoanApplications[] @relation("LastModifiedBy")
+  uploaded_files  FileUploads[] @relation("FileUpload")
   email_history EmailHistory[] @relation("EmailHistory")
-  tokens Token[] @relation("Tokens")
-  deleted_by  LoanApplication[] @relation("DeletedBy")
-  deleted_by_contacts_info EdumateContactsPersonalInformation[] @relation("ContactsDeletedBy")
-  deleted_By_contacts  EdumateContact[] @relation("ContactsDeletedBy")
-  b2b_partner B2BPartner @relation(fields: [b2b_id],references: [id])
+  tokens B2BPartnersTokens[] @relation("Tokens")
+  deleted_by  HSLoanApplications[] @relation("DeletedBy")
+  deleted_by_contacts_info HSEdumateContactsPersonalInformation[] @relation("ContactsDeletedBy")
+  deleted_By_contacts  HSEdumateContacts[] @relation("ContactsDeletedBy")
+  b2b_partner HSB2BPartners @relation(fields: [b2b_id],references: [id])
 
-  @@map("b2b_users")
+  @@map("b2b_partners_users")
 }
 
-model LoanApplication {
+model HSLoanApplications {
   id                      Int      @id @default(autoincrement())
   application_date        DateTime @default(now())
   lead_reference_code     String?  @unique
@@ -502,36 +502,36 @@ model LoanApplication {
   hubspot_owner_id          String?    @map("hubspot_owner_id") 
 
   // Relations
-  user                    User     @relation("UserLoanApplications", fields: [user_id], references: [id])
-  assigned_counselor      User?    @relation("AssignedCounselor", fields: [assigned_counselor_id], references: [id])
-  created_by              User?    @relation("CreatedBy", fields: [created_by_id], references: [id])
-  last_modified_by        User?    @relation("LastModifiedBy", fields: [last_modified_by_id], references: [id])
-  deleted_by              User?    @relation("DeletedBy", fields: [deleted_by_id], references: [id])
-  edumate_contact           EdumateContact? @relation(fields: [contact_id], references: [id])
+  user                    B2BPartnersUsers?     @relation("UserLoanApplications", fields: [user_id], references: [id])
+  assigned_counselor      B2BPartnersUsers?    @relation("AssignedCounselor", fields: [assigned_counselor_id], references: [id])
+  created_by              B2BPartnersUsers?    @relation("CreatedBy", fields: [created_by_id], references: [id])
+  last_modified_by        B2BPartnersUsers?    @relation("LastModifiedBy", fields: [last_modified_by_id], references: [id])
+  deleted_by              B2BPartnersUsers?    @relation("DeletedBy", fields: [deleted_by_id], references: [id])
+  edumate_contact           HSEdumateContacts? @relation(fields: [contact_id], references: [id])
 
   // One-to-One relations
-  academic_details        LoanApplicationAcademicDetails?
-  financial_requirements  LoanApplicationFinancialRequirements?
-  loan_application_status      LoanApplicationStatus?
-  lender_information      LoanApplicationLenderInformation?
-  document_management     LoanApplicationDocumentManagement?
-  processing_timeline    LoanApplicationProcessingTimeline?
-  rejection_details       LoanApplicationRejectionDetails?
-  communication_prefs     LoanApplicationCommunicationPreferences?
-  system_tracking         LoanApplicationSystemTracking?
+  academic_details        HSLoanApplicationsAcademicDetails?
+  financial_requirements  HSLoanApplicationsFinancialRequirements?
+  loan_application_status      HSLoanApplicationsStatus?
+  lender_information      HSLoanApplicationsLenderInformation?
+  document_management     HSLoanApplicationsDocumentManagement?
+  processing_timeline    HSLoanApplicationsProcessingTimeline?
+  rejection_details       HSLoanApplicationsRejectionDetails?
+  communication_prefs     HSLoanApplicationsCommunicationPreferences?
+  system_tracking         HSLoanApplicationsSystemTracking?
 
   // One-to-Many relations
-  commission_records      LoanApplicationCommissionRecord[]
-  additional_services     LoanApplicationAdditionalService[]
+  commission_records      HSLoanApplicationsCommissionRecords[]
+  additional_services     HSLoanApplicationsAdditionalServices[]
 
   @@index([student_email])
   @@index([application_date])
   @@index([assigned_counselor_id])
-  @@map("loan_applications")
+  @@map("hs_loan_applications")
 }
 
 // ACADEMIC DETAILS
-model LoanApplicationAcademicDetails {
+model HSLoanApplicationsAcademicDetails {
   id                         Int       @id @default(autoincrement())
   loan_application_id        Int       @unique
   target_course              String?
@@ -548,13 +548,13 @@ model LoanApplicationAcademicDetails {
   updated_at                DateTime  @default(now()) @updatedAt
 
   // Relations
-  loan_application          LoanApplication @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
+  loan_application          HSLoanApplications @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
 
-  @@map("loan_application_academic_details")
+  @@map("hs_loan_applications_academic_details")
 }
 
 // FINANCIAL REQUIREMENTS
-model LoanApplicationFinancialRequirements {
+model HSLoanApplicationsFinancialRequirements {
   id                        Int     @id @default(autoincrement())
   loan_application_id       Int     @unique
   loan_amount_requested     Decimal @db.Decimal(12, 2)
@@ -572,13 +572,13 @@ model LoanApplicationFinancialRequirements {
   updated_at               DateTime @default(now()) @updatedAt
 
   // Relations
-  loan_application         LoanApplication @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
+  loan_application         HSLoanApplications @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
 
-  @@map("loan_application_financial_requirements")
+  @@map("hs_loan_applications_financial_requirements")
 }
 
 // APPLICATION STATUS
-model LoanApplicationStatus {
+model HSLoanApplicationsStatus {
   id                    Int             @id @default(autoincrement())
   loan_application_id   Int             @unique
   status               ApplicationStatusEnum @default(PRE_APPROVED)
@@ -590,13 +590,13 @@ model LoanApplicationStatus {
   updated_at           DateTime        @default(now()) @updatedAt
 
   // Relations
-  loan_application     LoanApplication @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
+  loan_application     HSLoanApplications @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
 
-  @@map("loan_application_status")
+  @@map("hs_loan_applications_status")
 }
 
 // LENDER INFORMATION
-model LoanApplicationLenderInformation {
+model HSLoanApplicationsLenderInformation {
   id                        Int            @id @default(autoincrement())
   loan_application_id       Int            @unique
   primary_lender_id         String?
@@ -619,13 +619,13 @@ model LoanApplicationLenderInformation {
   updated_at               DateTime       @default(now()) @updatedAt
 
   // Relations
-  loan_application         LoanApplication @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
+  loan_application         HSLoanApplications @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
 
-  @@map("loan_application_lender_information")
+  @@map("hs_loan_applications_lender_information")
 }
 
 // DOCUMENT MANAGEMENT
-model LoanApplicationDocumentManagement {
+model HSLoanApplicationsDocumentManagement {
   id                        Int      @id @default(autoincrement())
   loan_application_id       Int      @unique
   documents_required_list   String?  @db.Text
@@ -635,13 +635,13 @@ model LoanApplicationDocumentManagement {
   updated_at               DateTime @default(now()) @updatedAt
 
   // Relations
-  loan_application         LoanApplication @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
+  loan_application         HSLoanApplications @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
 
-  @@map("loan_application_document_management")
+  @@map("hs_loan_applications_document_management")
 }
 
 // PROCESSING TIMELINE
-model LoanApplicationProcessingTimeline {
+model HSLoanApplicationsProcessingTimeline {
   id                           Int       @id @default(autoincrement())
   loan_application_id          Int       @unique
   lender_submission_date       DateTime?
@@ -657,13 +657,13 @@ model LoanApplicationProcessingTimeline {
   updated_at                  DateTime  @default(now()) @updatedAt
 
   // Relations
-  loan_application            LoanApplication @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
+  loan_application            HSLoanApplications @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
 
-  @@map("loan_application_processing_timeline")
+  @@map("hs_loan_applications_processing_timeline")
 }
 
 // REJECTION DETAILS
-model LoanApplicationRejectionDetails {
+model HSLoanApplicationsRejectionDetails {
   id                    Int            @id @default(autoincrement())
   loan_application_id   Int            @unique
   rejection_date        DateTime?
@@ -676,13 +676,13 @@ model LoanApplicationRejectionDetails {
   updated_at           DateTime       @default(now()) @updatedAt
 
   // Relations
-  loan_application     LoanApplication @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
+  loan_application     HSLoanApplications @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
 
-  @@map("loan_application_rejection_details")
+  @@map("hs_loan_applications_rejection_details")
 }
 
 // COMMUNICATION PREFERENCES
-model LoanApplicationCommunicationPreferences {
+model HSLoanApplicationsCommunicationPreferences {
   id                          Int                    @id @default(autoincrement())
   loan_application_id         Int                    @unique
   communication_preference    CommunicationChannel   @default(EMAIL)
@@ -698,13 +698,13 @@ model LoanApplicationCommunicationPreferences {
   updated_at                 DateTime               @default(now()) @updatedAt
 
   // Relations
-  loan_application           LoanApplication        @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
+  loan_application           HSLoanApplications        @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
 
-  @@map("loan_application_communication_preferences")
+  @@map("hs_loan_applications_communication_preferences")
 }
 
 // SYSTEM TRACKING
-model LoanApplicationSystemTracking {
+model HSLoanApplicationsSystemTracking {
   id                      Int              @id @default(autoincrement())
   loan_application_id     Int              @unique
   application_source_system ApplicationSourceSystem @default(MANUAL_ENTRY)
@@ -723,13 +723,13 @@ model LoanApplicationSystemTracking {
   updated_at             DateTime         @default(now()) @updatedAt
 
   // Relations
-  loan_application       LoanApplication  @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
+  loan_application       HSLoanApplications  @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
 
-  @@map("loan_application_system_tracking")
+  @@map("hs_loan_applications_system_tracking")
 }
 
 // COMMISSION RECORDS (One-to-Many)
-model LoanApplicationCommissionRecord {
+model HSLoanApplicationsCommissionRecords {
   id                         Int              @id @default(autoincrement())
   loan_application_id        Int
   commission_amount          Decimal?         @db.Decimal(12, 2)
@@ -744,13 +744,13 @@ model LoanApplicationCommissionRecord {
   updated_at                DateTime         @default(now()) @updatedAt
 
   // Relations
-  loan_application          LoanApplication  @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
+  loan_application          HSLoanApplications  @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
 
-  @@map("loan_application_commission_records")
+  @@map("hs_loan_applications_commission_records")
 }
 
 // ADDITIONAL SERVICES (One-to-Many)
-model LoanApplicationAdditionalService {
+model HSLoanApplicationsAdditionalServices {
   id                    Int      @id @default(autoincrement())
   loan_application_id   Int
   additional_services_notes                String?  @db.Text
@@ -758,12 +758,12 @@ model LoanApplicationAdditionalService {
   updated_at           DateTime @default(now()) @updatedAt
 
   // Relations
-  loan_application     LoanApplication @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
+  loan_application     HSLoanApplications @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
 
-  @@map("loan_application_additional_services")
+  @@map("hs_loan_applications_additional_services")
 }
 
-model FileUpload {
+model FileUploads {
   id                Int       @id @default(autoincrement())
   filename          String
   file_data         Json
@@ -781,7 +781,7 @@ model FileUpload {
 
   // User tracking
   uploaded_by_id    Int
-  uploaded_by       User          @relation("FileUpload",fields: [uploaded_by_id], references: [id])
+  uploaded_by       B2BPartnersUsers          @relation("FileUpload",fields: [uploaded_by_id], references: [id])
 
   // Timestamps
   created_at        DateTime      @default(now())
@@ -798,7 +798,7 @@ model FileEntity {
   type        String        @unique  @map("type")
   description String?   @map("description")
 
-  uploads     FileUpload[]
+  uploads     FileUploads[]
 
   @@index([type])
   @@map("file_entities")
@@ -828,7 +828,7 @@ model EmailHistory {
   created_at      DateTime    @default(now()) @map("created_at")
   
   // Relations
-  user      User?      @relation("EmailHistory",fields: [user_id], references: [id])
+  user      B2BPartnersUsers?      @relation("EmailHistory",fields: [user_id], references: [id])
   email_type EmailType @relation(fields: [email_type_id], references: [id])
   
   @@index([user_id])
@@ -837,10 +837,10 @@ model EmailHistory {
   @@map("email_history")
 }
 
-model EdumateContactsApplicationJourney {
+model HSEdumateContactsApplicationJourney {
   id                                     Int                           @id @default(autoincrement())
   contact_id                            Int                          @unique @map("contact_id")
-  contact                       EdumateContact                @relation(fields: [contact_id], references: [id], onDelete: Cascade)
+  contact                       HSEdumateContacts                @relation(fields: [contact_id], references: [id], onDelete: Cascade)
 
   // Counselor Information
   assigned_counselor                    String?                      @map("assigned_counselor")
@@ -860,10 +860,10 @@ model EdumateContactsApplicationJourney {
   created_at                            DateTime                     @default(now()) @map("created_at")
   updated_at                            DateTime                     @updatedAt @map("updated_at")
   
-  @@map("edumate_contacts_application_journey")
+  @@map("hs_edumate_contacts_application_journey")
 }
 
-model EdumateContactsAcademicProfile {
+model HSEdumateContactsAcademicProfiles {
   id                            Int                           @id @default(autoincrement())
   contact_id                    Int                        @unique @map("contact_id")
   
@@ -908,12 +908,12 @@ model EdumateContactsAcademicProfile {
   updated_at                    DateTime                      @updatedAt @map("updated_at")
   
   // Relations
-  contact                       EdumateContact                @relation(fields: [contact_id], references: [id], onDelete: Cascade)
+  contact                       HSEdumateContacts                @relation(fields: [contact_id], references: [id], onDelete: Cascade)
   
-  @@map("edumate_contact_academic_profiles")
+   @@map("hs_edumate_contacts_academic_profiles")
 }
 
-model EdumateContact {
+model HSEdumateContacts {
   id                              Int                           @id @default(autoincrement())
   deleted_by_id Int?
   b2b_partner_id Int?
@@ -940,27 +940,27 @@ model EdumateContact {
   
   created_at                      DateTime        @default(now()) @map("created_at")
   updated_at                      DateTime        @updatedAt @map("updated_at")
-  deleted_by  User?    @relation("ContactsDeletedBy", fields: [deleted_by_id], references: [id])
+  deleted_by  B2BPartnersUsers?    @relation("ContactsDeletedBy", fields: [deleted_by_id], references: [id])
   is_deleted   Boolean @default(false)
   
   // Relations
-  academic_profile                EdumateContactsAcademicProfile?
-  application_journey             EdumateContactsApplicationJourney?
-  financial_Info                       EdumateContactsFinancialInfo?
-  leads                                    EdumateContactsLeadAttribution?
-  loan_preference                   EdumateContactsLoanPreferences?
-  personal_information          EdumateContactsPersonalInformation?
-  system_tracking                   EdumateContactsSystemTracking?
-  loan_application                  LoanApplication[]
-  b2b_partner       B2BPartner? @relation("B2BPartnerContacts",fields: [b2b_partner_id], references: [id])
+  academic_profile                HSEdumateContactsAcademicProfiles?
+  application_journey             HSEdumateContactsApplicationJourney?
+  financial_Info                       HSEdumateContactsFinancialInfo?
+  leads                                    HSEdumateContactsLeadAttribution?
+  loan_preference                   HSEdumateContactsLoanPreferences?
+  personal_information          HSEdumateContactsPersonalInformation?
+  system_tracking                   HSEdumateContactsSystemTracking?
+  loan_application                  HSLoanApplications[]
+  b2b_partner       HSB2BPartners? @relation("B2BPartnerContacts",fields: [b2b_partner_id], references: [id])
   
-  @@map("edumate_contacts")
+  @@map("hs_edumate_contacts")
 }
 
-model EdumateContactsSystemTracking {
+model HSEdumateContactsSystemTracking {
   id                        Int                     @id @default(autoincrement())
   contact_id                Int                  @unique @map("contact_id")
-  contact                   EdumateContact          @relation(fields: [contact_id], references: [id], onDelete: Cascade)
+  contact                   HSEdumateContacts          @relation(fields: [contact_id], references: [id], onDelete: Cascade)
   
   // Creation & Modification Info
   created_by                Int?                 @map("created_by")
@@ -980,14 +980,14 @@ model EdumateContactsSystemTracking {
   created_at                DateTime                @default(now()) @map("created_at")
   updated_at                DateTime                @updatedAt @map("updated_at")
   
-  @@map("edumate_contacts_system_tracking")
+  @@map("hs_edumate_contacts_system_tracking")
 }
 
 // Financial information
-model EdumateContactsFinancialInfo {
+model HSEdumateContactsFinancialInfo {
   id                            Int                           @id @default(autoincrement())
   contact_id                    Int                        @unique @map("contact_id")
-  contact                       EdumateContact                @relation(fields: [contact_id], references: [id], onDelete: Cascade)
+  contact                       HSEdumateContacts                @relation(fields: [contact_id], references: [id], onDelete: Cascade)
   
   // General Financial Info
   annual_family_income          Decimal?                      @db.Decimal(15, 2) @map("annual_family_income")
@@ -1037,14 +1037,14 @@ model EdumateContactsFinancialInfo {
   created_at                    DateTime                      @default(now()) @map("created_at")
   updated_at                    DateTime                      @updatedAt @map("updated_at")
   
-  @@map("edumate_contacts_financial_info")
+  @@map("hs_edumate_contacts_financial_info")
 }
 
 // Lead tracking and attribution
-model EdumateContactsLeadAttribution {
+model HSEdumateContactsLeadAttribution {
   id                              Int                               @id @default(autoincrement())
   contact_id                      Int                            @unique @map("contact_id")
-  contact                         EdumateContact                    @relation(fields: [contact_id], references: [id], onDelete: Cascade)
+  contact                         HSEdumateContacts                    @relation(fields: [contact_id], references: [id], onDelete: Cascade)
   
   // Lead Information
   lead_source                     LeadSource?                       @map("lead_source")
@@ -1071,13 +1071,13 @@ model EdumateContactsLeadAttribution {
   created_at                      DateTime                          @default(now()) @map("created_at")
   updated_at                      DateTime                          @updatedAt @map("updated_at")
   
-  @@map("edumate_contacts_lead_attribution")
+  @@map("hs_edumate_contacts_lead_attribution")
 }
 
-model EdumateContactsLoanPreferences {
+model HSEdumateContactsLoanPreferences {
   id                           Int                          @id @default(autoincrement())
   contact_id                   Int                       @unique @map("contact_id")
-  contact                      EdumateContact               @relation(fields: [contact_id], references: [id], onDelete: Cascade)
+  contact                      HSEdumateContacts               @relation(fields: [contact_id], references: [id], onDelete: Cascade)
   
   // Loan Preferences
   loan_type_preference         LoanTypePreference?          @map("loan_type_preference")
@@ -1087,13 +1087,13 @@ model EdumateContactsLoanPreferences {
   created_at                   DateTime                     @default(now()) @map("created_at")
   updated_at                   DateTime                     @updatedAt @map("updated_at")
   
-  @@map("edumate_contacts_loan_preferences")
+  @@map("hs_edumate_contacts_loan_preferences")
 }
 
-model EdumateContactsPersonalInformation {
+model HSEdumateContactsPersonalInformation {
   id                              Int              @id @default(autoincrement())
   contact_id                      Int           @unique @map("contact_id")
-  contact                         EdumateContact   @relation(fields: [contact_id], references: [id], onDelete: Cascade)
+  contact                         HSEdumateContacts   @relation(fields: [contact_id], references: [id], onDelete: Cascade)
   
   // Basic Information
   first_name                      String           @map("first_name")  // Required field
@@ -1122,13 +1122,13 @@ model EdumateContactsPersonalInformation {
   updated_at                      DateTime         @updatedAt @map("updated_at")
   deleted_by_id Int?
   is_deleted Boolean @default(false)
-  deleted_by User?    @relation("ContactsDeletedBy", fields: [deleted_by_id], references: [id])
+  deleted_by B2BPartnersUsers?    @relation("ContactsDeletedBy", fields: [deleted_by_id], references: [id])
   
-  @@map("edumate_contacts_personal_information")
+  @@map("hs_edumate_contacts_personal_information")
 }
 
 // Main lender table
-model Lender {
+model HSLenders {
   id                    Int                 @id @default(autoincrement())
   external_id           String?             @unique @map("external_id") // HubSpot or other CRM ID
   
@@ -1158,20 +1158,20 @@ model Lender {
   hubspot_owner_id          String?    @map("hubspot_owner_id")
   
   // Relations
-  contact_info          LenderContactInfo?
-  business_metrics      LenderBusinessMetrics?
-  loan_products         LoanProduct[]
+  contact_info          HSLendersContactInfo?
+  business_metrics      HSLendersBusinessMetrics?
+  loan_products         HSLoanProducts[]
   operational_details   LenderOperationalDetails?
   partnership           LenderPartnership?
-  lender_system_tracking  LenderSystemTracking?
+  lender_system_tracking  HSLendersSystemTracking?
   
   @@index([lender_category])
   @@index([lender_type])
   @@index([created_at])
-  @@map("lenders")
+   @@map("hs_lenders")
 }
 
-model LenderSystemTracking {
+model HSLendersSystemTracking {
   id                      Int              @default(autoincrement())
   lender_id               Int              @unique
   data_source LenderDataSource @default(MANUAL_ENTRY)
@@ -1185,16 +1185,16 @@ model LenderSystemTracking {
   last_modified_date  DateTime?
 
   // Relations
-  lender_system_tracking                  Lender           @relation(fields: [lender_id], references: [id], onDelete: Cascade)
+  lender_system_tracking                  HSLenders           @relation(fields: [lender_id], references: [id], onDelete: Cascade)
 
-  @@map("lender_system_tracking")
+ @@map("hs_lenders_system_tracking")
 }
 
 // Contact information for lender
-model LenderContactInfo {
+model HSLendersContactInfo {
   id                    Int                 @id @default(autoincrement())
   lender_id             Int                 @unique @map("lender_id")
-  lender                Lender              @relation(fields: [lender_id], references: [id], onDelete: Cascade)
+  lender                HSLenders              @relation(fields: [lender_id], references: [id], onDelete: Cascade)
   
   // Primary Contact
   primary_contact_email String?             @map("primary_contact_email")
@@ -1220,14 +1220,14 @@ model LenderContactInfo {
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
   
-  @@map("lender_contact_info")
+  @@map("hs_lenders_contact_info")
 }
 
 // Business metrics and performance
-model LenderBusinessMetrics {
+model HSLendersBusinessMetrics {
   id                    Int                 @id @default(autoincrement())
   lender_id             Int                 @unique @map("lender_id")
-  lender                Lender              @relation(fields: [lender_id], references: [id], onDelete: Cascade)
+  lender                HSLenders              @relation(fields: [lender_id], references: [id], onDelete: Cascade)
   
   average_approval_rate Int?              @map("average_approval_rate")
   monthly_application_volume  Int? @map("monthly_application_volume")
@@ -1239,10 +1239,10 @@ model LenderBusinessMetrics {
   created_at            DateTime            @default(now()) @map("created_at")
   updated_at            DateTime            @updatedAt @map("updated_at")
   
-  @@map("lender_business_metrics")
+  @@map("hs_lenders_business_metrics")
 }
 
-model LenderOfferings {
+model HSLendersLoanOfferings {
     id                    Int                 @id @default(autoincrement())
     co_signer_requirements  CoSignerRequirement @default(NOT_REQUIRED)
     collateral_requirements LenderCollateralType @default(NO_COLLATERAL)
@@ -1264,16 +1264,16 @@ model LenderOfferings {
     created_at              DateTime         @default(now())
     updated_at              DateTime         @default(now()) @updatedAt
      
-    @@map("lender_offerings")
+    @@map("hs_lenders_loan_offerings")
 }
 
 // Loan products offered by lender
-model LoanProduct {
+model HSLoanProducts {
   id                    Int                 @id @default(autoincrement())
 
   // Lender Information
   lender_id             Int                 @map("lender_id")
-  lender                Lender              @relation(fields: [lender_id], references: [id], onDelete: Cascade)
+  lender                HSLenders              @relation(fields: [lender_id], references: [id], onDelete: Cascade)
   lender_name           String              @map("lender_name")
   partner_name  String? @map("partner_name")
   product_description   String?             @db.Text @map("product_description")
@@ -1307,8 +1307,8 @@ model LoanProduct {
   special_features      LoanProductSpecialFeatures?
   performance_metrics   LoanPerformanceMetrics?
   system_integration    LoanProductSystemIntegration?
-  loan_product_competitive_analysis LoanProductCompetitiveAnalytics?
-  system_tracking LoanProductSystemTracking?
+  loan_product_competitive_analysis HSLoanProductsCompetitiveAnalytics?
+  system_tracking HSLoanProductsSystemTracking?
   
   @@unique([lender_id])
   @@index([lender_id])
@@ -1317,13 +1317,13 @@ model LoanProduct {
   @@index([product_category])
   @@index([product_status])
   @@index([created_at])
-  @@map("loan_products")
+  @@map("hs_loan_products")
 }
 
-model LoanProductSystemTracking {
+model HSLoanProductsSystemTracking {
   id                      Int              @id @default(autoincrement())
   product_id Int @unique
-  product  LoanProduct  @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  product  HSLoanProducts  @relation(fields: [product_id], references: [id], onDelete: Cascade)
 
   change_log String? @map("change_log")
   created_by  String? @map("created_by")
@@ -1339,13 +1339,13 @@ model LoanProductSystemTracking {
   created_at              DateTime         @default(now())
   updated_at              DateTime         @default(now()) @updatedAt
    
-    @@map("loan_product_system_tracking")
+    @@map("hs_loan_products_system_tracking")
 }
 
-model LoanProductCompetitiveAnalytics {
+model HSLoanProductsCompetitiveAnalytics {
   id                      Int              @id @default(autoincrement())
   loan_product_id Int @unique
-  loan_product_competitive_analysis LoanProduct  @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
+  loan_product_competitive_analysis HSLoanProducts  @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
 
   market_positioning LoanProductMarketPositioning
   pricing_strategy PricingStrategy
@@ -1353,14 +1353,14 @@ model LoanProductCompetitiveAnalytics {
   created_at              DateTime         @default(now())
   updated_at              DateTime         @default(now()) @updatedAt  
    
-@@map("loan_product_competitive_analysis")    
+@@map("hs_loan_products_competitive_analysis")    
 }
 
 // Detailed eligibility criteria for loan products
 model LoanEligibilityCriteria {
   id                        Int       @id @default(autoincrement())
   loan_product_id           Int       @map("loan_product_id")
-  loan_product              LoanProduct @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
+  loan_product              HSLoanProducts @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
   
   // General Criteria Metadata
   criteria_type             String    @map("criteria_type") // ACADEMIC, FINANCIAL, DEMOGRAPHIC
@@ -1421,7 +1421,7 @@ model LoanEligibilityCriteria {
 model LenderOperationalDetails {
   id                    Int                 @id @default(autoincrement())
   lender_id             Int                 @unique @map("lender_id")
-  lender                Lender              @relation(fields: [lender_id], references: [id], onDelete: Cascade)
+  lender                HSLenders              @relation(fields: [lender_id], references: [id], onDelete: Cascade)
   
   // Digital Integration
   api_connectivity_status APIConnectivityStatus? @map("api_connectivity_status")
@@ -1444,7 +1444,7 @@ model LenderOperationalDetails {
 model LenderPartnership {
   id                    Int                 @id @default(autoincrement())
   lender_id             Int                 @unique @map("lender_id")
-  lender                Lender              @relation(fields: [lender_id], references: [id], onDelete: Cascade)
+  lender                HSLenders              @relation(fields: [lender_id], references: [id], onDelete: Cascade)
   
   partnership_type      String?             @map("partnership_type") // EXCLUSIVE, NON_EXCLUSIVE
   
@@ -1472,7 +1472,7 @@ model LenderPartnership {
 model LoanProductCollateralSecurity {
   id                    Int                 @id @default(autoincrement())
   product_id            Int                 @unique @map("product_id")
-  product               LoanProduct         @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  product               HSLoanProducts         @relation(fields: [product_id], references: [id], onDelete: Cascade)
     
   // Collateral Types and Values
   collateral_margin Int?      @map("collateral_margin")
@@ -1494,7 +1494,7 @@ model LoanProductCollateralSecurity {
 model LoanProductRepaymentTerms {
   id                    Int                 @id @default(autoincrement())
   product_id            Int                 @unique @map("product_id")
-  product               LoanProduct         @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  product               HSLoanProducts         @relation(fields: [product_id], references: [id], onDelete: Cascade)
   
   // Moratorium Period
   moratorium_type       MoratoriumType      @map("moratorium_type")
@@ -1532,7 +1532,7 @@ model LoanProductRepaymentTerms {
 model LoanProductProcessingDetails {
   id                    Int                 @id @default(autoincrement())
   product_id            Int                 @unique @map("product_id")
-  product               LoanProduct         @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  product               HSLoanProducts         @relation(fields: [product_id], references: [id], onDelete: Cascade)
   
   // Application Process
   application_mode      ApplicationMode     @map("application_mode")
@@ -1558,7 +1558,7 @@ model LoanProductProcessingDetails {
 model LoanProductGeographicCoverage {
   id                    Int                 @id @default(autoincrement())
   product_id            Int                 @unique @map("product_id")
-  product               LoanProduct         @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  product               HSLoanProducts         @relation(fields: [product_id], references: [id], onDelete: Cascade)
   
   // Course Coverage
   course_restrictions   String?             @db.Text @map("course_restrictions")
@@ -1578,7 +1578,7 @@ model LoanProductGeographicCoverage {
 model LoanProductSpecialFeatures {
   id                    Int                 @id @default(autoincrement())
   product_id            Int                 @unique @map("product_id")
-  product               LoanProduct         @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  product               HSLoanProducts         @relation(fields: [product_id], references: [id], onDelete: Cascade)
   
   // Digital Features
   digital_features      DigitalFeatures?               @map("digital_features")
@@ -1602,7 +1602,7 @@ model LoanProductSpecialFeatures {
 model LoanPerformanceMetrics {
   id                    Int                 @id @default(autoincrement())
   product_id            Int                 @unique @map("product_id")
-  product               LoanProduct         @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  product               HSLoanProducts         @relation(fields: [product_id], references: [id], onDelete: Cascade)
   
   // Application Volume
   application_volume_monthly Int?           @map("application_volume_monthly")
@@ -1624,7 +1624,7 @@ model LoanPerformanceMetrics {
 model LoanProductSystemIntegration {
   id                    Int                 @id @default(autoincrement())
   product_id            Int                 @unique @map("product_id")
-  product               LoanProduct         @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  product               HSLoanProducts         @relation(fields: [product_id], references: [id], onDelete: Cascade)
   
   // API Details
   api_availability      ApiAvailability?     @map("api_availability")
@@ -1645,7 +1645,7 @@ model LoanProductSystemIntegration {
 model LoanProductFinancialTerms {
   id                    Int                 @id @default(autoincrement())
   product_id            Int                 @unique @map("product_id")
-  product               LoanProduct         @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  product               HSLoanProducts         @relation(fields: [product_id], references: [id], onDelete: Cascade)
   
   // Interest Rates
   interest_rate_type    InterestRateType    @map("interest_rate_type")
