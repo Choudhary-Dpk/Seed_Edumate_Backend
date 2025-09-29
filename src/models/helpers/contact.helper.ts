@@ -25,7 +25,7 @@ export const createEdumatePersonalInformation = async (
     gender?: string;
   }
 ) => {
-  const personalInfo = await tx.edumateContactsPersonalInformation.create({
+  const personalInfo = await tx.hSEdumateContactsPersonalInformation.create({
     data: {
       contact_id: contactId,
       first_name: data.first_name,
@@ -53,7 +53,7 @@ export const createEdumateAcademicProfile = async (
     intake_month?: string;
   }
 ) => {
-  const academicProfile = await tx.edumateContactsAcademicProfile.create({
+  const academicProfile = await tx.hSEdumateContactsAcademicProfiles.create({
     data: {
       contact_id: contactId,
       admission_status: data?.admission_status
@@ -85,7 +85,7 @@ export const createEdumateLeadAttribution = async (
   contactId: number,
   partnerName: string
 ) => {
-  const leadAttribution = await tx.edumateContactsLeadAttribution.create({
+  const leadAttribution = await tx.hSEdumateContactsLeadAttribution.create({
     data: {
       contact_id: contactId,
       b2b_partner_name: partnerName,
@@ -101,7 +101,7 @@ export const createEdumateSystemTracking = async (
   contactId: number,
   userId: number
 ) => {
-  return tx.edumateContactsSystemTracking.create({
+  return tx.hSEdumateContactsSystemTracking.create({
     data: {
       contact_id: contactId,
       created_by: userId,
@@ -113,7 +113,7 @@ export const createEdumateSystemTracking = async (
 
 // Updated function to get contact by email
 export const getEdumateContactByEmail = async (email: string) => {
-  const contact = await prisma.edumateContact.findFirst({
+  const contact = await prisma.hSEdumateContacts.findFirst({
     include: {
       personal_information: {
         select: {
@@ -137,7 +137,7 @@ export const getEdumateContactByEmail = async (email: string) => {
 };
 
 export const getEdumateContactByPhone = async (phone: string) => {
-  const contact = await prisma.edumateContact.findFirst({
+  const contact = await prisma.hSEdumateContacts.findFirst({
     include: {
       personal_information: {
         select: {
@@ -167,7 +167,7 @@ export const createEdumateContact = async (
   hsCreatedBy?: number,
   partnerId?: number
 ) => {
-  const contact = await tx.edumateContact.create({
+  const contact = await tx.hSEdumateContacts.create({
     data: {
       course_type: courseType ? courseTypeMap[courseType] : null,
       hs_object_id: hubspotId,
@@ -181,7 +181,7 @@ export const createEdumateContact = async (
 };
 
 export const getContactLeadById = async (leadId: number) => {
-  const lead = await prisma.edumateContactsPersonalInformation.findFirst({
+  const lead = await prisma.hSEdumateContactsPersonalInformation.findFirst({
     select: {
       id: true,
       first_name: true,
@@ -197,7 +197,7 @@ export const getContactLeadById = async (leadId: number) => {
 };
 
 export const getHubspotByContactLeadId = async (leadId: number) => {
-  return prisma.edumateContact.findUnique({
+  return prisma.hSEdumateContacts.findUnique({
     select: {
       id: true,
       hs_object_id: true,
@@ -208,7 +208,7 @@ export const getHubspotByContactLeadId = async (leadId: number) => {
 
 export const deleteContactsLoan = async (leadId: number, userId: number) => {
   await prisma.$transaction(async (tx) => {
-    await tx.edumateContact.update({
+    await tx.hSEdumateContacts.update({
       where: { id: leadId },
       data: {
         is_deleted: true,
@@ -217,7 +217,7 @@ export const deleteContactsLoan = async (leadId: number, userId: number) => {
       },
     });
 
-    await tx.edumateContactsPersonalInformation.updateMany({
+    await tx.hSEdumateContactsPersonalInformation.updateMany({
       where: { contact_id: leadId, is_deleted: false },
       data: {
         is_deleted: true,
@@ -229,7 +229,7 @@ export const deleteContactsLoan = async (leadId: number, userId: number) => {
 };
 
 export const getContactsLead = async (leadId: number) => {
-  const contactLeads = await prisma.edumateContact.findFirst({
+  const contactLeads = await prisma.hSEdumateContacts.findFirst({
     where: {
       id: leadId,
     },
@@ -249,7 +249,7 @@ export const updateEdumateContact = async (
   contactId: number,
   courseType?: string
 ) => {
-  const contact = await tx.edumateContact.update({
+  const contact = await tx.hSEdumateContacts.update({
     where: { id: contactId },
     data: {
       course_type: courseType ? courseTypeMap[courseType] : null,
@@ -272,7 +272,7 @@ export const updateEdumatePersonalInformation = async (
     gender?: string;
   }
 ) => {
-  const personalInfo = await tx.edumateContactsPersonalInformation.update({
+  const personalInfo = await tx.hSEdumateContactsPersonalInformation.update({
     where: { contact_id: contactId },
     data: {
       first_name: data.first_name,
@@ -300,7 +300,7 @@ export const updateEdumateAcademicProfile = async (
     intake_month?: string;
   }
 ) => {
-  const academicProfile = await tx.edumateContactsAcademicProfile.update({
+  const academicProfile = await tx.hSEdumateContactsAcademicProfiles.update({
     where: { contact_id: contactId },
     data: {
       admission_status: data?.admission_status
@@ -335,7 +335,7 @@ export const updateEdumateLeadAttribution = async (
 ) => {
   if (!partnerName) return null;
 
-  const leadAttribution = await tx.edumateContactsLeadAttribution.update({
+  const leadAttribution = await tx.hSEdumateContactsLeadAttribution.update({
     where: { contact_id: contactId },
     data: {
       b2b_partner_name: partnerName,
@@ -354,7 +354,7 @@ export const fetchContactsLeadList = async (
   search: string | null,
   partnerId: number
 ) => {
-  const where: Prisma.EdumateContactWhereInput = {
+  const where: Prisma.HSEdumateContactsWhereInput = {
     is_deleted: false,
     b2b_partner_id: partnerId,
     personal_information: search
@@ -388,7 +388,7 @@ export const fetchContactsLeadList = async (
   }
 
   const [rows, count] = await Promise.all([
-    prisma.edumateContact.findMany({
+    prisma.hSEdumateContacts.findMany({
       where,
       skip: offset,
       take: limit,
@@ -408,14 +408,14 @@ export const fetchContactsLeadList = async (
         },
       },
     }),
-    prisma.edumateContact.count({ where }),
+    prisma.hSEdumateContacts.count({ where }),
   ]);
 
   return { rows, count };
 };
 
 export const findContacts = async (batch: any[]) => {
-  const contacts = await prisma.edumateContactsPersonalInformation.findMany({
+  const contacts = await prisma.hSEdumateContactsPersonalInformation.findMany({
     where: {
       OR: batch.map((v) => ({
         OR: [{ email: v.email }, { phone_number: v.phoneNumber }],
@@ -431,7 +431,7 @@ export const findContacts = async (batch: any[]) => {
 };
 
 const tableMappings = {
-  edumateContactsPersonalInformation: {
+  hSEdumateContactsPersonalInformation: {
     map: {
       first_name: (row: ContactsLead) => row.firstName,
       last_name: (row: ContactsLead) => row.lastName ?? null,
@@ -442,7 +442,7 @@ const tableMappings = {
       date_of_birth: (row: ContactsLead) => row.dateOfBirth ?? null,
     },
   },
-  edumateContactsAcademicProfile: {
+  hSEdumateContactsAcademicProfiles: {
     map: {
       current_education_level: (row: ContactsLead) =>
         row.educationLevel
@@ -462,12 +462,12 @@ const tableMappings = {
       intake_year: (row: ContactsLead) => row.intakeYear ?? null,
     },
   },
-  edumateContactsLeadAttribution: {
+  hSEdumateContactsLeadAttribution: {
     map: {
       b2b_partner_name: (row: ContactsLead) => row.partnerName ?? null,
     },
   },
-  edumateContactsSystemTracking: {
+  hSEdumateContactsSystemTracking: {
     map: {
       created_by: (row: ContactsLead) => row.userId,
       created_date: () => new Date(),
@@ -485,7 +485,7 @@ export const createCSVContacts = async (
     // 1. Insert into main table
     const createdContacts = await Promise.all(
       rows.map((row) =>
-        tx.edumateContact.create({
+        tx.hSEdumateContacts.create({
           data: {
             course_type: row.courseType ? courseTypeMap[row.courseType] : null,
             hs_object_id: null,
@@ -529,7 +529,7 @@ export const updateContactsSystemTracking = async (
 
       if (!email) continue;
 
-      const contact = await tx.edumateContact.findFirst({
+      const contact = await tx.hSEdumateContacts.findFirst({
         where: {
           personal_information: {
             email,
@@ -539,7 +539,7 @@ export const updateContactsSystemTracking = async (
       });
 
       if (contact) {
-        await tx.edumateContact.update({
+        await tx.hSEdumateContacts.update({
           where: { id: contact.id },
           data: {
             hs_object_id: hs_object_id ?? hs.id,

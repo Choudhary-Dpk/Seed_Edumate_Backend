@@ -1,7 +1,7 @@
 import prisma from "../../config/prisma";
 
 export const getUserByEmail = async (email: string) => {
-  const user = await prisma.user.findFirst({
+  const user = await prisma.b2BPartnersUsers.findFirst({
     select: {
       id: true,
     },
@@ -19,7 +19,7 @@ export const createUsers = async (
   passwordHash: string | null,
   fullName: string
 ) => {
-  const user = await prisma.user.create({
+  const user = await prisma.b2BPartnersUsers.create({
     data: {
       full_name: fullName,
       b2b_id: b2bId,
@@ -36,7 +36,7 @@ export const createUsers = async (
 };
 
 export const assignRole = async (userId: number, roleId: number) => {
-  await prisma.userRole.create({
+  await prisma.b2BPartnersUserRoles.create({
     data: {
       user_id: userId,
       role_id: roleId,
@@ -45,7 +45,7 @@ export const assignRole = async (userId: number, roleId: number) => {
 };
 
 export const getUserProflie = async (userId: number) => {
-  const userProfileDetails = await prisma.user.findFirst({
+  const userProfileDetails = await prisma.b2BPartnersUsers.findFirst({
     select: {
       id: true,
       b2b_id: true,

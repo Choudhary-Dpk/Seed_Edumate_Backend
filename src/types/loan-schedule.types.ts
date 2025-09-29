@@ -1,16 +1,34 @@
-// src/types/loan-schedule.types.ts
+export interface StrategyConfig {
+  stepup?: {
+    annualIncrease: number;
+  };
+  prepayment?: {
+    amount: number;
+    year: number;
+  };
+  secured?: {
+    newRate: number;
+  };
+}
+
 export interface RepaymentScheduleRequest {
   principal: number;
   annualRate: number;
   tenureYears: number;
-  toEmail?: string;
+  name: string;
+  email: string;
+  mobileNumber: string;
+  address: string;
   fromName?: string;
   subject?: string;
   message?: string;
   sendEmail?: boolean;
-  requestId?: string;
+  strategyType?: 'stepup' | 'prepayment' | 'secured';
+  strategyConfig?: StrategyConfig;
+  emi?: number;
 }
 
+// Response and calculation interfaces (unchanged)
 export interface MonthlyPayment {
   month: number;
   emi: number;
@@ -57,3 +75,5 @@ export interface CalculationResult {
   monthlySchedule: MonthlyPayment[];
   yearlyBreakdown: YearlyBreakdown[];
 }
+
+export type StrategyType = 'stepup' | 'prepayment' | 'secured';

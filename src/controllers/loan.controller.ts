@@ -1,8 +1,12 @@
 import { Request, Response } from 'express';
-import { calculateRepaymentSchedule } from '../services/schedule.service';
+import { 
+  calculateRepaymentSchedule, 
+  calculateRepaymentScheduleWithStrategy,
+  calculateStandardEMI 
+} from '../services/schedule.service';
 import { generatePDF } from '../services/pdf.service';
 import { sendRepaymentScheduleEmail } from "../services/email.service";
-import { RepaymentScheduleResponse } from '../types/loan-schedule.types';
+import { RepaymentScheduleResponse, RepaymentScheduleRequest } from '../types/loan-schedule.types';
 import { validateLoanEligibility } from '../middlewares/validators/loan.validator';
 import { convertCurrency, findLoanEligibility } from '../services/loan.service';
 import { sendResponse } from "../utils/api";
@@ -14,14 +18,6 @@ export const checkLoanEligibility = async (
   res: Response
 ): Promise<void> => {
   try {
-    //     const dummyPayload = {
-    //     "country_of_study": "USA",
-    //     "level_of_education": "Bachelor",
-    //     "course_type": "STEM",
-    //     "analytical_exam_name": "SAT",
-    //     "language_exam_name": "TOEFL",
-    //     "preference": "Secured"
-    //   }
     const payload = req?.body || {};
     // Validate the request body
     const validation = validateLoanEligibility(payload);
@@ -93,47 +89,55 @@ export const getConvertedCurrency = async (req: Request, res: Response) => {
   }
 };
 
-// Update to existing loan.controller.ts - add this export
-
 // In-memory storage for idempotency (use DB in production)
 const processedRequests = new Map<string, RepaymentScheduleResponse>();
 
+/**
+ * Enhanced generateRepaymentScheduleAndEmail with strategy support and backward compatibility
+ */
 export const generateRepaymentScheduleAndEmail = async (
   req: Request,
   res: Response
 ): Promise<void> => {
   try {
-    const payload = req?.body || {};
+    const payload: RepaymentScheduleRequest = req?.body || {};
+    console.log('Received request payload:', JSON.stringify(payload, null, 2));
 
-    // Validate the request body
-    // const validation = validateRepaymentSchedule(payload);
-
-    // if (!validation.success) {
-    //   res.status(400).json({
-    //     success: false,
-    //     message: "Validation failed",
-    //     errors: validation?.error?.issues.map((err: any) => ({
-    //       field: err.path.join("."),
-    //       message: err.message,
-    //     })),
-    //   });
-    //   return;
-    // }
-
+    // Extract fields with backward compatibility
     const {
       principal,
       annualRate,
       tenureYears,
-      emi,
       name,
       email,
       mobileNumber,
       address,
+      emi,
+      strategyType,
+      strategyConfig,
       fromName = "Edumate",
       subject = "Your Loan Repayment Schedule",
       message = "Please find attached your detailed loan repayment schedule.",
       sendEmail = true,
-    } = payload!;
+    } = payload;
+
+    // Validation
+    if (!principal || !annualRate || !tenureYears || !name || !email) {
+      res.status(400).json({
+        success: false,
+        message: "Missing required fields: principal, annualRate, tenureYears, name, email",
+      });
+      return;
+    }
+
+    console.log('Processing loan calculation:', {
+      principal,
+      annualRate, 
+      tenureYears,
+      hasEmi: !!emi,
+      strategyType,
+      hasStrategyConfig: !!strategyConfig
+    });
 
     const requestId = generateRequestIdFromPayload(payload);
     const customerDetails = { name, email, mobileNumber, address };
@@ -141,6 +145,7 @@ export const generateRepaymentScheduleAndEmail = async (
     // Check for idempotency - if request was already processed
     if (processedRequests.has(requestId)) {
       const cachedResponse = processedRequests.get(requestId)!;
+      console.log('Returning cached response for requestId:', requestId);
       return sendResponse(
         res,
         200,
@@ -149,51 +154,102 @@ export const generateRepaymentScheduleAndEmail = async (
       );
     }
 
-    // Calculate the repayment schedule
-    const calculationResult = calculateRepaymentSchedule(
-      principal,
-      annualRate,
-      tenureYears,
-      emi
-    );
+    let calculationResult;
+
+    // Determine calculation method based on input
+    if (strategyType && strategyConfig) {
+      // NEW: Use strategy-based calculation
+      console.log('Using strategy-based calculation:', strategyType);
+      calculationResult = calculateRepaymentScheduleWithStrategy(
+        principal,
+        annualRate,
+        tenureYears,
+        strategyType,
+        strategyConfig
+      );
+    } else if (emi) {
+      // LEGACY: Use provided EMI (backward compatibility)
+      console.log('Using legacy EMI-based calculation:', emi);
+      calculationResult = calculateRepaymentSchedule(
+        principal,
+        annualRate,
+        tenureYears,
+        emi
+      );
+    } else {
+      // STANDARD: Calculate standard EMI and use it
+      console.log('Using standard calculation (no EMI provided)');
+      const standardEMI = calculateStandardEMI(principal, annualRate, tenureYears);
+      calculationResult = calculateRepaymentSchedule(
+        principal,
+        annualRate,
+        tenureYears,
+        standardEMI
+      );
+    }
+
+    console.log('Calculation completed:', {
+      strategyType,
+      originalTenure: tenureYears,
+      calculatedTenure: calculationResult.loanDetails.tenureYears,
+      monthlyEMI: calculationResult.loanDetails.monthlyEMI,
+      totalInterest: calculationResult.loanDetails.totalInterest,
+      monthlyScheduleLength: calculationResult.monthlySchedule.length
+    });
 
     let emailResponse;
     let pdfFileName: string | undefined;
 
     if (sendEmail && email) {
       try {
-        // Generate PDF
+        console.log('Generating PDF and sending email...');
+        
+        // Generate PDF with strategy information
+        const pdfMetadata = {
+          fromName,
+          requestId,
+          customerDetails,
+          ...(strategyType && { strategyType, strategyConfig }),
+        };
+
         const { buffer: pdfBuffer, fileName } = await generatePDF(
           calculationResult,
-          {
-            fromName,
-            requestId,
-            customerDetails,
-          }
+          pdfMetadata
         );
 
         pdfFileName = fileName;
+
+        // Customize email subject and message for strategies
+        const emailSubject = strategyType ? 
+          `${subject} - ${getStrategyDisplayName(strategyType)}` : 
+          subject;
+          
+        const emailMessage = strategyType ? 
+          `${message}\n\nThis schedule includes your ${getStrategyDisplayName(strategyType)} optimization.` : 
+          message;
 
         // Send email with PDF attachment
         await sendRepaymentScheduleEmail({
           name,
           email,
           fromName,
-          subject,
-          message,
+          subject: emailSubject,
+          message: emailMessage,
           pdfBuffer,
           pdfFileName: fileName,
         });
 
         emailResponse = {
           to: email,
-          subject,
+          subject: emailSubject,
           sentAt: new Date().toISOString(),
         };
-      } catch (emailError) {
-        console.error("Error sending email:", emailError);
 
-        // Return error response for email failure
+        console.log('Email sent successfully to:', email);
+      } catch (emailError) {
+        console.error("Error in email sending process:", emailError);
+
+        // Return error response for email failure but still provide calculation
         res.status(500).json({
           success: false,
           message: "Failed to send email",
@@ -227,11 +283,13 @@ export const generateRepaymentScheduleAndEmail = async (
       firstKey && processedRequests.delete(firstKey);
     }
 
+    console.log('Response prepared successfully for requestId:', requestId);
+
     // Return successful response
     sendResponse(
       res,
       200,
-      "Repayment schedule generated successfully",
+      `Repayment schedule generated successfully${strategyType ? ` with ${getStrategyDisplayName(strategyType)}` : ''}`,
       response
     );
   } catch (error) {
@@ -241,5 +299,21 @@ export const generateRepaymentScheduleAndEmail = async (
       message: "Internal server error",
       error: error instanceof Error ? error.message : "Unknown error occurred",
     });
+  }
+};
+
+/**
+ * Helper function to get user-friendly strategy names
+ */
+const getStrategyDisplayName = (strategyType: string): string => {
+  switch (strategyType) {
+    case 'stepup':
+      return 'Step-up EMI Strategy';
+    case 'prepayment':
+      return 'Prepayment Strategy';
+    case 'secured':
+      return 'Secured Loan Option';
+    default:
+      return 'Optimization Strategy';
   }
 };

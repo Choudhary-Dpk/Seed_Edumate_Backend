@@ -4,7 +4,7 @@ import { LogEmailOptions } from "../../types/email.types";
 export const logEmailHistory = async (options: LogEmailOptions) => {
   const { userId, to, cc, bcc, type, subject } = options;
 
-  const emailType = await prisma.emailType.upsert({
+  const emailType = await prisma.emailTypes.upsert({
     where: { subject },
     update: {},
     create: {

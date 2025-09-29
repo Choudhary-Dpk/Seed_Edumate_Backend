@@ -3,7 +3,7 @@ import prisma from "../../config/prisma";
 import { LoginStatus } from "../../types/auth";
 
 export const revokePreviousEmailTokens = async (userId: number) => {
-  await prisma.token.deleteMany({
+  await prisma.b2BPartnersTokens.deleteMany({
     where: {
       user_id: userId,
     },
@@ -11,7 +11,7 @@ export const revokePreviousEmailTokens = async (userId: number) => {
 };
 
 export const saveEmailToken = async (userId: number, emailToken: string) => {
-  await prisma.token.create({
+  await prisma.b2BPartnersTokens.create({
     data: {
       user_id: userId,
       token: emailToken,
@@ -21,7 +21,7 @@ export const saveEmailToken = async (userId: number, emailToken: string) => {
 };
 
 export const getUserDetailsFromToken = async (emailToken: string) => {
-  const token = await prisma.token.findFirst({
+  const token = await prisma.b2BPartnersTokens.findFirst({
     select: {
       id: true,
       user_id: true,
@@ -39,9 +39,8 @@ export const getUserDetailsFromToken = async (emailToken: string) => {
   return token;
 };
 
-
 export const useEmailToken = async (userId: number, emailToken: string) => {
-  await prisma.token.deleteMany({
+  await prisma.b2BPartnersTokens.deleteMany({
     where: {
       user_id: userId,
       token: emailToken,
@@ -50,7 +49,7 @@ export const useEmailToken = async (userId: number, emailToken: string) => {
 };
 
 export const updatePassword = async (userId: number, passwordHash: string) => {
-  const updatedUser = await prisma.user.updateMany({
+  const updatedUser = await prisma.b2BPartnersUsers.updateMany({
     data: {
       password_hash: passwordHash,
       updated_at: new Date(),
@@ -66,7 +65,7 @@ export const updatePassword = async (userId: number, passwordHash: string) => {
 };
 
 export const deleteOtps = async (userId: number) => {
-  await prisma.userOtp.deleteMany({
+  await prisma.b2BPartnersUserOtps.deleteMany({
     where: {
       user_id: userId,
     },
@@ -74,7 +73,7 @@ export const deleteOtps = async (userId: number) => {
 };
 
 export const saveOtp = async (userId: number, otp: string) => {
-  await prisma.userOtp.create({
+  await prisma.b2BPartnersUserOtps.create({
     data: {
       user_id: userId,
       otp: otp,
@@ -84,7 +83,7 @@ export const saveOtp = async (userId: number, otp: string) => {
 };
 
 export const validateOtp = async (userId: number, otp: string) => {
-  const otpData = await prisma.userOtp.findFirst({
+  const otpData = await prisma.b2BPartnersUserOtps.findFirst({
     where: {
       user_id: userId,
       otp,
@@ -98,7 +97,7 @@ export const validateOtp = async (userId: number, otp: string) => {
 };
 
 export const useOtp = async (userId: number, otp: string) => {
-  const result = await prisma.userOtp.deleteMany({
+  const result = await prisma.b2BPartnersUserOtps.deleteMany({
     where: {
       user_id: userId,
       otp,
@@ -144,7 +143,7 @@ export const updateUserLastLoggedIn = async (
 };
 
 export const getUserById = async (userId: number, isActive: boolean) => {
-  const userData = await prisma.user.findUnique({
+  const userData = await prisma.b2BPartnersUsers.findUnique({
     where: {
       id: userId,
       is_active: isActive,
@@ -177,7 +176,7 @@ export const storeRefreshToken = async (
   ipAddress?: string,
   deviceInfo?: string
 ) => {
-  await prisma.session.deleteMany({
+  await prisma.b2BPartnersSessions.deleteMany({
     where: {
       user_id: userId,
     },
@@ -185,7 +184,7 @@ export const storeRefreshToken = async (
 
   const expiresAt = moment().add(7, "days").toDate();
 
-  const session = await prisma.session.create({
+  const session = await prisma.b2BPartnersSessions.create({
     data: {
       user_id: userId,
       refresh_token_hash: refreshToken,
@@ -208,12 +207,12 @@ export const deleteUserSession = async (
     orderBy: { created_at: "desc" },
   });
 
-  const lastLoginSession = await prisma.session.findFirst({
+  const lastLoginSession = await prisma.b2BPartnersSessions.findFirst({
     where: { user_id: userId },
     orderBy: { created_at: "desc" },
   });
 
-  await prisma.session.update({
+  await prisma.b2BPartnersSessions.update({
     where: {
       id: lastLoginSession!.id,
       user_id: userId,
@@ -232,7 +231,7 @@ export const deleteUserSession = async (
 };
 
 export const getUserSessionById = async (userId: number) => {
-  const userSession = await prisma.session.findFirst({
+  const userSession = await prisma.b2BPartnersSessions.findFirst({
     select: {
       id: true,
       is_valid: true,
