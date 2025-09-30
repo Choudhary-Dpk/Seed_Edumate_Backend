@@ -953,6 +953,8 @@ model HSEdumateContacts {
   system_tracking                   HSEdumateContactsSystemTracking?
   loan_application                  HSLoanApplications[]
   b2b_partner       HSB2BPartners? @relation("B2BPartnerContacts",fields: [b2b_partner_id], references: [id])
+  eligibility_lead  MktEligibilityCheckerLeads?
+  emi_lead          MktEmiCalculatorLeads?
   
   @@map("hs_edumate_contacts")
 }
@@ -2277,6 +2279,29 @@ model HSCommissionSettlementsPerformanceAnalytics {
   
   @@map("hs_commission_settlements_performance_analytics")
 }
+
+model MktEligibilityCheckerLeads {
+  id             Int               @id @default(autoincrement())
+  contact_id     Int               @unique
+  contact        HSEdumateContacts @relation(fields: [contact_id], references: [id])
+
+  created_at     DateTime          @default(now())
+  updated_at     DateTime          @updatedAt
+
+  @@map("mkt_eligibility_checker_leads")
+}
+
+model MktEmiCalculatorLeads {
+  id             Int               @id @default(autoincrement())
+  contact_id     Int               @unique
+  contact        HSEdumateContacts @relation(fields: [contact_id], references: [id])
+
+  created_at     DateTime          @default(now())
+  updated_at     DateTime          @updatedAt
+
+  @@map("mkt_emi_calculator_leads")
+}
+
 
 // ENUMS
 
