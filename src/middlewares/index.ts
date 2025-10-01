@@ -304,7 +304,7 @@ export const validateRefreshToken = async (
       return sendResponse(res, 400, "Refresh token is required");
     }
 
-    const session = await prisma.session.findFirst({
+    const session = await prisma.b2BPartnersSessions.findFirst({
       where: { refresh_token_hash: refreshToken },
       include: {
         user: {
