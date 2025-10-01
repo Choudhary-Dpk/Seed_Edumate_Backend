@@ -6,6 +6,9 @@ import { asyncHandler, createError } from "../middlewares/errorHandler";
 import logger from "../utils/logger";
 import { sendResponse } from "../utils/api";
 import { getPartners, getUserRoles } from "../models/helpers/partners.helper";
+import { getEdumateContactByEmail } from "../models/helpers/contact.helper";
+import { createContact, createContact2, updateContact2 } from "../services/DBServices/edumateContacts.service";
+import { createEligibilityCheckerLeads, createEmiCalculatorLeads, handleLeadCreation } from "../services/DBServices/loan.services";
 
 // Edumate Contact Controllers
 export const getEdumateContacts = asyncHandler(
@@ -86,47 +89,118 @@ export const updateEdumateContact = asyncHandler(
 export const upsertEdumateContact = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const contactData = req.body;
-    const { email } = contactData;
+    const { email, formType } = contactData;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is required",
+      });
+    }
 
     try {
-      const existingContacts =
-        await hubspotService.searchEdumateContactsByEmail(email);
+      const existingContactDb = await getEdumateContactByEmail(email);
+      let hubspotResult;
+      let dbContact;
+      let operationType: "update" | "create" = "create";
 
-      let result;
-      let operationType: "update" | "create";
+      // Case 1: Contact exists in DB with HubSpot ID - UPDATE both
+      if (existingContactDb?.hs_object_id) {
+        try {
+          hubspotResult = await hubspotService.updateEdumateContact(
+            existingContactDb.hs_object_id,
+            contactData
+          );
+          operationType = "update";
+        } catch (hubspotError) {
+          logger.error("HubSpot update failed", {
+            contactId: existingContactDb.hs_object_id,
+            email,
+            error: hubspotError,
+          });
+          // Continue with DB update even if HubSpot fails
+          hubspotResult = null;
+        }
 
-      if (existingContacts.length > 0) {
-        const existingContact = existingContacts[0];
-        result = await hubspotService.updateEdumateContact(
-          existingContact.id,
-          contactData
-        );
-        operationType = "update";
-        logger.info("Edumate contact updated successfully", {
-          contactId: existingContact.id,
+        dbContact = await updateContact2(existingContactDb.id, contactData);
+        
+        logger.info("Edumate contact updated", {
+          dbContactId: dbContact.id,
+          hsContactId: existingContactDb.hs_object_id,
           email,
+          hubspotSuccess: !!hubspotResult,
         });
-      } else {
-        result = await hubspotService.createEdumateContact(contactData);
+      } 
+      // Case 2: Contact exists in DB but no HubSpot ID - CREATE in HubSpot, UPDATE DB
+      else if (existingContactDb) {
+        try {
+          hubspotResult = await hubspotService.createEdumateContact(contactData);
+          
+          // Update DB with new HubSpot ID
+          dbContact = await updateContact2(existingContactDb.id, {
+            ...contactData,
+            hs_object_id: hubspotResult.id,
+          });
+          operationType = "create";
+          
+          logger.info("HubSpot contact created and linked to existing DB contact", {
+            dbContactId: dbContact.id,
+            hsContactId: hubspotResult.id,
+            email,
+          });
+        } catch (hubspotError) {
+          logger.error("HubSpot creation failed for existing DB contact", {
+            dbContactId: existingContactDb.id,
+            email,
+            error: hubspotError,
+          });
+          
+          // Update DB anyway without HubSpot ID
+          dbContact = await updateContact2(existingContactDb.id, contactData);
+          operationType = "update";
+          hubspotResult = null;
+        }
+      } 
+      // Case 3: Contact doesn't exist - CREATE both
+      else {
+        hubspotResult = await hubspotService.createEdumateContact(contactData);
+        
+        dbContact = await createContact2({
+          ...contactData,
+          hs_object_id: hubspotResult.id,
+        });
         operationType = "create";
-        logger.info("Edumate contact created successfully", {
-          contactId: result.id,
+        
+        logger.info("New Edumate contact created", {
+          dbContactId: dbContact.id,
+          hsContactId: hubspotResult.id,
           email,
         });
       }
 
+      // Handle form-specific lead creation
+      if (dbContact?.id && formType) {
+        await handleLeadCreation(dbContact.id, formType, email);
+      }
+
       const response: ApiResponse = {
         success: true,
-        data: result,
+        data: {
+          contact: dbContact,
+          hubspot: hubspotResult,
+        },
         message: `Edumate contact ${operationType}d successfully`,
-        meta: { operation: operationType },
+        meta: { 
+          operation: operationType
+        },
       };
 
       res.status(operationType === "update" ? 200 : 201).json(response);
     } catch (error) {
       logger.error("Failed to upsert Edumate Contact", {
         email,
-        error,
+        error: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
       });
       next(error);
     }

@@ -360,7 +360,7 @@ const mapToHubSpotProperties = async (contactData: Partial<MappedEdumateContact>
   if (contactData.loanPreference) properties.loan_type_preference = contactData.loanPreference;
   if (contactData.intakeMonth) properties.intake_month = contactData.intakeMonth;
   if (contactData.intakeYear) properties.intake_year = contactData.intakeYear;
-  if (contactData.loanAmount) properties.loan_amount_required = loanAmount || contactData?.loanAmount;
+  if (contactData?.loanAmount) properties.loan_amount_required = loanAmount || contactData?.loanAmount;
   
   // if (contactData.loanAmount) properties.co_applicant_1_name = contactData.loanAmount;
   if (contactData.coApplicant) properties.co_applicant_1_relationship = contactData.coApplicant;
@@ -381,7 +381,7 @@ const mapToHubSpotProperties = async (contactData: Partial<MappedEdumateContact>
 
   if (contactData.utm_campaign) properties.utm_campaign = contactData.utm_campaign;
   if (contactData.utm_medium) properties.loan_amount_required = contactData.utm_medium;
-  if (contactData.utm_source) properties.loan_amount_required = contactData.utm_source;
+  if (contactData.utm_source) properties.utm_source = contactData.utm_source;
 
   if(contactData.targetDegreeLevel) properties.target_degree_level = contactData.targetDegreeLevel;
   if(contactData.admissionStatus) properties.admission_status = contactData.admissionStatus;
