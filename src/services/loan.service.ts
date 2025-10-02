@@ -59,11 +59,13 @@ export const convertCurrency = async (
 ): Promise<number | null> => {
   try {
     const result = await prisma.$queryRawUnsafe<{ loan_amount_usd: number }[]>(
-      `SELECT convert_currency($1, $2, $3) as loan_amount_usd`,
-      amount,
-      from,
-      to
-    );
+          `SELECT $1 * exchange_rate as loan_amount_usd
+          FROM currency_conversion
+          WHERE from_currency = $2
+            AND to_currency = $3
+            AND is_active = true
+          LIMIT 1
+        `, amount, from, to);
     return result[0]?.loan_amount_usd ?? 0;
   } catch (error) {
     logger.error('Error in currency change', { 

@@ -2,6 +2,7 @@
 
 import prisma from "../../config/prisma";
 import { FIELD_MAPPINGS, mapAcademicProfile, mapAllFields, mapApplicationJourney, mapFinancialInfo, mapLeadAttribution, mapLoanPreferences, mapMainContact, mapPersonalInformation, mapSystemTracking } from "../../mappers/edumateContact/mapping";
+import logger from "../../utils/logger";
 
 /**
  * Categorizes flat input data into nested structure based on field mappings
@@ -206,96 +207,85 @@ const filterFields = (data: Record<string, any>, fields: string[]) => {
 };
 
 // ==================== SERVICE FUNCTIONS ====================
-
 /**
- * Create a new Edumate Contact with all related data in a transaction
- * Accepts flat input data and automatically categorizes fields into appropriate tables
+ * Create a contact
  */
-export const createContact = async (flatData: Record<string, any>) => {
+export const createContact = async (input: Record<string, any>) => {
   try {
-    // Categorize flat data into nested structure
-    const categorized = categorizeFields(flatData);
+    let contactId;
+    const mappedFields = await mapAllFields(input);
+    const categorized = categorizeByTable(mappedFields);
 
     const result = await prisma.$transaction(async (tx) => {
-      // 1. Create main contact
-      const mainContactData = categorized.mainContact || {};
       const contact = await tx.hSEdumateContacts.create({
-        data: mapMainContact(mainContactData),
+        data: categorized.mainContact || {} as any,
       });
 
-      const contactId = contact.id;
+      contactId = contact.id;
 
-      // 2. Create Personal Information
       if (categorized.personalInformation) {
         await tx.hSEdumateContactsPersonalInformation.create({
           data: {
             contact_id: contactId,
-            ...mapPersonalInformation(categorized.personalInformation),
-          },
+            ...categorized.personalInformation,
+          } as any,
         });
       }
 
-      // 3. Create Academic Profile
       if (categorized.academicProfile) {
         await tx.hSEdumateContactsAcademicProfiles.create({
           data: {
             contact_id: contactId,
-            ...mapAcademicProfile(categorized.academicProfile),
-          },
+            ...categorized.academicProfile,
+          } as any,
         });
       }
 
-      // 4. Create Application Journey
       if (categorized.applicationJourney) {
         await tx.hSEdumateContactsApplicationJourney.create({
           data: {
             contact_id: contactId,
-            ...mapApplicationJourney(categorized.applicationJourney),
-          },
+            ...categorized.applicationJourney,
+          } as any,
         });
       }
 
-      // 5. Create Financial Info
       if (categorized.financialInfo) {
         await tx.hSEdumateContactsFinancialInfo.create({
           data: {
             contact_id: contactId,
-            ...mapFinancialInfo(categorized.financialInfo),
-          },
+            ...categorized.financialInfo,
+          } as any,
         });
       }
 
-      // 6. Create Lead Attribution
       if (categorized.leadAttribution) {
         await tx.hSEdumateContactsLeadAttribution.create({
           data: {
             contact_id: contactId,
-            ...mapLeadAttribution(categorized.leadAttribution),
-          },
+            ...categorized.leadAttribution,
+          } as any,
         });
       }
 
-      // 7. Create Loan Preferences
       if (categorized.loanPreferences) {
         await tx.hSEdumateContactsLoanPreferences.create({
           data: {
             contact_id: contactId,
-            ...mapLoanPreferences(categorized.loanPreferences),
-          },
+            ...categorized.loanPreferences,
+          } as any,
         });
       }
 
-      // 8. Create System Tracking
       if (categorized.systemTracking) {
         await tx.hSEdumateContactsSystemTracking.create({
           data: {
             contact_id: contactId,
-            ...mapSystemTracking(categorized.systemTracking),
-          },
+            ...categorized.systemTracking,
+          } as any,
         });
       }
 
-      // Return the complete contact with all relations
       return await tx.hSEdumateContacts.findUnique({
         where: { id: contactId },
         include: {
@@ -310,112 +300,112 @@ export const createContact = async (flatData: Record<string, any>) => {
       });
     });
 
-    return { success: true, data: result };
+    logger.info("Contact created successfully", { 
+      contactId, 
+      email: input.email 
+    });
+    
+    return { success: true, data: result, id: contactId };
   } catch (error: any) {
-    console.error('Error creating contact:', error);
+    logger.error("Error creating contact", {
+      email: input.email,
+      error: error.message,
+      stack: error.stack,
+    });
     return { success: false, error: error.message };
   }
 };
 
 /**
- * Update an existing contact with related data
- * Accepts flat input data and automatically categorizes fields
+ * Update a contact
  */
-export const updateContact = async (contactId: number, flatData: Record<string, any>) => {
+export const updateContact = async (contactId: number, input: Record<string, any>) => {
   try {
-    // Categorize flat data into nested structure
-    const categorized = categorizeFields(flatData);
+    const mappedFields = await mapAllFields(input);
+    const categorized = categorizeByTable(mappedFields);
 
     const result = await prisma.$transaction(async (tx) => {
-      // 1. Update main contact if data exists
       if (categorized.mainContact) {
         await tx.hSEdumateContacts.update({
           where: { id: contactId },
-          data: mapMainContact(categorized.mainContact),
+          data: categorized.mainContact as any,
         });
       }
 
-      // 2. Upsert Personal Information
       if (categorized.personalInformation) {
         await tx.hSEdumateContactsPersonalInformation.upsert({
           where: { contact_id: contactId },
           create: {
             contact_id: contactId,
-            ...mapPersonalInformation(categorized.personalInformation),
-          },
-          update: mapPersonalInformation(categorized.personalInformation),
+            ...categorized.personalInformation,
+          } as any,
+          update: categorized.personalInformation as any,
         });
       }
 
-      // 3. Upsert Academic Profile
       if (categorized.academicProfile) {
         await tx.hSEdumateContactsAcademicProfiles.upsert({
           where: { contact_id: contactId },
           create: {
             contact_id: contactId,
-            ...mapAcademicProfile(categorized.academicProfile),
-          },
-          update: mapAcademicProfile(categorized.academicProfile),
+            ...categorized.academicProfile,
+          } as any,
+          update: categorized.academicProfile as any,
         });
       }
 
-      // 4. Upsert Application Journey
       if (categorized.applicationJourney) {
         await tx.hSEdumateContactsApplicationJourney.upsert({
           where: { contact_id: contactId },
           create: {
             contact_id: contactId,
-            ...mapApplicationJourney(categorized.applicationJourney),
-          },
-          update: mapApplicationJourney(categorized.applicationJourney),
+            ...categorized.applicationJourney,
+          } as any,
+          update: categorized.applicationJourney as any,
         });
       }
 
-      // 5. Upsert Financial Info
       if (categorized.financialInfo) {
         await tx.hSEdumateContactsFinancialInfo.upsert({
           where: { contact_id: contactId },
           create: {
             contact_id: contactId,
-            ...mapFinancialInfo(categorized.financialInfo),
-          },
-          update: mapFinancialInfo(categorized.financialInfo),
+            ...categorized.financialInfo,
+          } as any,
+          update: categorized.financialInfo as any,
         });
       }
 
-      // 6. Upsert Lead Attribution
       if (categorized.leadAttribution) {
         await tx.hSEdumateContactsLeadAttribution.upsert({
           where: { contact_id: contactId },
           create: {
             contact_id: contactId,
-            ...mapLeadAttribution(categorized.leadAttribution),
-          },
-          update: mapLeadAttribution(categorized.leadAttribution),
+            ...categorized.leadAttribution,
+          } as any,
+          update: categorized.leadAttribution as any,
         });
       }
 
-      // 7. Upsert Loan Preferences
       if (categorized.loanPreferences) {
         await tx.hSEdumateContactsLoanPreferences.upsert({
           where: { contact_id: contactId },
           create: {
             contact_id: contactId,
-            ...mapLoanPreferences(categorized.loanPreferences),
-          },
-          update: mapLoanPreferences(categorized.loanPreferences),
+            ...categorized.loanPreferences,
+          } as any,
+          update: categorized.loanPreferences as any,
         });
       }
 
-      // 8. Upsert System Tracking
       if (categorized.systemTracking) {
         await tx.hSEdumateContactsSystemTracking.upsert({
           where: { contact_id: contactId },
           create: {
             contact_id: contactId,
-            ...mapSystemTracking(categorized.systemTracking),
-          },
-          update: mapSystemTracking(categorized.systemTracking),
+            ...categorized.systemTracking,
+          } as any,
+          update: categorized.systemTracking as any,
         });
       }
 
@@ -433,12 +423,23 @@ export const updateContact = async (contactId: number, flatData: Record<string, 
       });
     });
 
-    return { success: true, data: result };
+    logger.info("Contact updated successfully", { 
+      contactId, 
+      email: input.email 
+    });
+    
+    return { success: true, data: result, id: contactId };
   } catch (error: any) {
-    console.error('Error updating contact:', error);
+    logger.error("Error updating contact", {
+      contactId,
+      email: input.email,
+      error: error.message,
+      stack: error.stack,
+    });
     return { success: false, error: error.message };
   }
 };
+
 
 /**
  * Soft delete a contact
@@ -485,239 +486,6 @@ export const getContactById = async (contactId: number) => {
   }
 };
 
-// ================================================
-export const createContact2 = async (input: Record<string, any>) => {
-  try {
-    let contactId;
-    // Step 1: Map all fields
-    const mappedFields = await mapAllFields(input);
-
-    // Step 2: Categorize by table
-    const categorized = categorizeByTable(mappedFields);
-
-    // Step 3: Insert into database with transaction
-    const result = await prisma.$transaction(async (tx) => {
-      // Create main contact
-      const contact = await tx.hSEdumateContacts.create({
-        data: categorized.mainContact || {} as any,
-      });
-
-      contactId = contact.id;
-
-      // Create personal information
-      if (categorized.personalInformation) {
-        await tx.hSEdumateContactsPersonalInformation.create({
-          data: {
-            contact_id: contactId,
-            ...categorized.personalInformation,
-          } as any,
-        });
-      }
-
-      // Create academic profile
-      if (categorized.academicProfile) {
-        await tx.hSEdumateContactsAcademicProfiles.create({
-          data: {
-            contact_id: contactId,
-            ...categorized.academicProfile,
-          } as any,
-        });
-      }
-
-      // Create application journey
-      if (categorized.applicationJourney) {
-        await tx.hSEdumateContactsApplicationJourney.create({
-          data: {
-            contact_id: contactId,
-            ...categorized.applicationJourney,
-          } as any,
-        });
-      }
-
-      // Create financial info
-      if (categorized.financialInfo) {
-        await tx.hSEdumateContactsFinancialInfo.create({
-          data: {
-            contact_id: contactId,
-            ...categorized.financialInfo,
-          } as any,
-        });
-      }
-
-      // Create lead attribution
-      if (categorized.leadAttribution) {
-        await tx.hSEdumateContactsLeadAttribution.create({
-          data: {
-            contact_id: contactId,
-            ...categorized.leadAttribution,
-          } as any,
-        });
-      }
-
-      // Create loan preferences
-      if (categorized.loanPreferences) {
-        await tx.hSEdumateContactsLoanPreferences.create({
-          data: {
-            contact_id: contactId,
-            ...categorized.loanPreferences,
-          } as any,
-        });
-      }
-
-      // Create system tracking
-      if (categorized.systemTracking) {
-        await tx.hSEdumateContactsSystemTracking.create({
-          data: {
-            contact_id: contactId,
-            ...categorized.systemTracking,
-          } as any,
-        });
-      }
-
-      return await tx.hSEdumateContacts.findUnique({
-        where: { id: contactId },
-        include: {
-          personal_information: true,
-          academic_profile: true,
-          application_journey: true,
-          financial_Info: true,
-          leads: true,
-          loan_preference: true,
-          system_tracking: true,
-        },
-      });
-    });
-
-    return { success: true, data: result, id: contactId };
-  } catch (error: any) {
-    console.error('Error creating contact:', error);
-    return { success: false, error: error.message };
-  }
-};
-
-
-export const updateContact2 = async (contactId: number, input: Record<string, any>) => {
-  try {
-    // Step 1: Map all fields
-    const mappedFields = await mapAllFields(input);
-
-    // Step 2: Categorize by table
-    const categorized = categorizeByTable(mappedFields);
-
-    // Step 3: Update database with transaction
-    const result = await prisma.$transaction(async (tx) => {
-      // Update main contact
-      if (categorized.mainContact) {
-        await tx.hSEdumateContacts.update({
-          where: { id: contactId },
-          data: categorized.mainContact as any,
-        });
-      }
-
-      // Upsert personal information
-      if (categorized.personalInformation) {
-        await tx.hSEdumateContactsPersonalInformation.upsert({
-          where: { contact_id: contactId },
-          create: {
-            contact_id: contactId,
-            ...categorized.personalInformation,
-          } as any,
-          update: categorized.personalInformation as any,
-        });
-      }
-
-      // Upsert academic profile
-      if (categorized.academicProfile) {
-        await tx.hSEdumateContactsAcademicProfiles.upsert({
-          where: { contact_id: contactId },
-          create: {
-            contact_id: contactId,
-            ...categorized.academicProfile,
-          } as any,
-          update: categorized.academicProfile as any,
-        });
-      }
-
-      // Upsert application journey
-      if (categorized.applicationJourney) {
-        await tx.hSEdumateContactsApplicationJourney.upsert({
-          where: { contact_id: contactId },
-          create: {
-            contact_id: contactId,
-            ...categorized.applicationJourney,
-          } as any,
-          update: categorized.applicationJourney as any,
-        });
-      }
-
-      // Upsert financial info
-      if (categorized.financialInfo) {
-        await tx.hSEdumateContactsFinancialInfo.upsert({
-          where: { contact_id: contactId },
-          create: {
-            contact_id: contactId,
-            ...categorized.financialInfo,
-          } as any,
-          update: categorized.financialInfo as any,
-        });
-      }
-
-      // Upsert lead attribution
-      if (categorized.leadAttribution) {
-        await tx.hSEdumateContactsLeadAttribution.upsert({
-          where: { contact_id: contactId },
-          create: {
-            contact_id: contactId,
-            ...categorized.leadAttribution,
-          } as any,
-          update: categorized.leadAttribution as any,
-        });
-      }
-
-      // Upsert loan preferences
-      if (categorized.loanPreferences) {
-        await tx.hSEdumateContactsLoanPreferences.upsert({
-          where: { contact_id: contactId },
-          create: {
-            contact_id: contactId,
-            ...categorized.loanPreferences,
-          } as any,
-          update: categorized.loanPreferences as any,
-        });
-      }
-
-      // Upsert system tracking
-      if (categorized.systemTracking) {
-        await tx.hSEdumateContactsSystemTracking.upsert({
-          where: { contact_id: contactId },
-          create: {
-            contact_id: contactId,
-            ...categorized.systemTracking,
-          } as any,
-          update: categorized.systemTracking as any,
-        });
-      }
-
-      return await tx.hSEdumateContacts.findUnique({
-        where: { id: contactId },
-        include: {
-          personal_information: true,
-          academic_profile: true,
-          application_journey: true,
-          financial_Info: true,
-          leads: true,
-          loan_preference: true,
-          system_tracking: true,
-        },
-      });
-    });
-
-    return { success: true, data: result, id: contactId };
-  } catch (error: any) {
-    console.error('Error updating contact:', error);
-    return { success: false, error: error.message };
-  }
-};
 
 
 

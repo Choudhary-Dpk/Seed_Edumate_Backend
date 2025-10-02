@@ -7,8 +7,8 @@ import logger from "../utils/logger";
 import { sendResponse } from "../utils/api";
 import { getPartners, getUserRoles } from "../models/helpers/partners.helper";
 import { getEdumateContactByEmail } from "../models/helpers/contact.helper";
-import { createContact, createContact2, updateContact2 } from "../services/DBServices/edumateContacts.service";
-import { createEligibilityCheckerLeads, createEmiCalculatorLeads, handleLeadCreation } from "../services/DBServices/loan.services";
+import { createContact, updateContact } from "../services/DBServices/edumateContacts.service";
+import { handleLeadCreation } from "../services/DBServices/loan.services";
 
 // Edumate Contact Controllers
 export const getEdumateContacts = asyncHandler(
@@ -99,6 +99,8 @@ export const upsertEdumateContact = asyncHandler(
     }
 
     try {
+      logger.info("Upsert contact request", { email, formType });
+      
       const existingContactDb = await getEdumateContactByEmail(email);
       let hubspotResult;
       let dbContact;
@@ -118,11 +120,10 @@ export const upsertEdumateContact = asyncHandler(
             email,
             error: hubspotError,
           });
-          // Continue with DB update even if HubSpot fails
           hubspotResult = null;
         }
 
-        dbContact = await updateContact2(existingContactDb.id, contactData);
+        dbContact = await updateContact(existingContactDb.id, contactData);
         
         logger.info("Edumate contact updated", {
           dbContactId: dbContact.id,
@@ -136,8 +137,7 @@ export const upsertEdumateContact = asyncHandler(
         try {
           hubspotResult = await hubspotService.createEdumateContact(contactData);
           
-          // Update DB with new HubSpot ID
-          dbContact = await updateContact2(existingContactDb.id, {
+          dbContact = await updateContact(existingContactDb.id, {
             ...contactData,
             hs_object_id: hubspotResult.id,
           });
@@ -155,8 +155,7 @@ export const upsertEdumateContact = asyncHandler(
             error: hubspotError,
           });
           
-          // Update DB anyway without HubSpot ID
-          dbContact = await updateContact2(existingContactDb.id, contactData);
+          dbContact = await updateContact(existingContactDb.id, contactData);
           operationType = "update";
           hubspotResult = null;
         }
@@ -165,7 +164,7 @@ export const upsertEdumateContact = asyncHandler(
       else {
         hubspotResult = await hubspotService.createEdumateContact(contactData);
         
-        dbContact = await createContact2({
+        dbContact = await createContact({
           ...contactData,
           hs_object_id: hubspotResult.id,
         });
@@ -195,14 +194,14 @@ export const upsertEdumateContact = asyncHandler(
         },
       };
 
-      res.status(operationType === "update" ? 200 : 201).json(response);
+      return res.status(operationType === "update" ? 200 : 201).json(response);
     } catch (error) {
       logger.error("Failed to upsert Edumate Contact", {
         email,
         error: error instanceof Error ? error.message : error,
         stack: error instanceof Error ? error.stack : undefined,
       });
-      next(error);
+      return next(error);
     }
   }
 );
