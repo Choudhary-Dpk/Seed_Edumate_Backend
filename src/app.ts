@@ -1,10 +1,10 @@
-import {  hubspotRoutes } from './routes/hubspot.routes';
-import { swaggerRouter } from './config/swagger';
-import { checkPrismaConnection } from './config/prisma';
-import { gupshupRoutes } from './routes/gupshup.routes';
-import { loanRoutes } from './routes/loan.routes';
-import { userRoutes } from './routes/user.routes';
-import { emailRouter } from './routes/email.routes';
+import { hubspotRoutes } from "./routes/hubspot.routes";
+import { swaggerRouter } from "./config/swagger";
+import { checkPrismaConnection } from "./config/prisma";
+import { gupshupRoutes } from "./routes/gupshup.routes";
+import { loanRoutes } from "./routes/loan.routes";
+import { userRoutes } from "./routes/user.routes";
+import { emailRouter } from "./routes/email.routes";
 import { healthRoutes } from "./routes/health.routes";
 import { loanApplicationRouter } from "./routes/loanApplication.routes";
 import { errorHandler } from "./middlewares/error";
@@ -12,7 +12,7 @@ import { partnerRoutes } from "./routes/partner.routes";
 import { contactRoutes } from "./routes/contact.routes";
 import { permissionsRoutes } from "./routes/permissions.routes";
 import app from "./setup/express";
-
+import "./setup/cron";
 const PORT = process.env.PORT || 3031;
 
 // API Routes
@@ -51,8 +51,8 @@ app.use("*", (req, res) => {
 // Error handler
 app.use(errorHandler);
 
-app.listen(PORT, async() => {
-    console.log(`Server is running on port ${PORT}`);
-    await checkPrismaConnection(); 
-    // console.log(`API Documentation available at http://localhost:${PORT}/`);
+app.listen(PORT, async () => {
+  console.log(`Server is running on port ${PORT}`);
+  await checkPrismaConnection();
+  // console.log(`API Documentation available at http://localhost:${PORT}/`);
 });

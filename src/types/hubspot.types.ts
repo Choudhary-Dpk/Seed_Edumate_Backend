@@ -61,16 +61,223 @@ export interface HubSpotDeal {
 }
 
 // Edumate Contact Custom Object Types
-export type AdmissionStatus = "Not Applied" | "Applied" | "Interview Scheduled" | "Waitlisted" | "Admitted" | "Rejected";
-export type EducationLevel = "High School" | "Bachelor's" | "Master's" | "PhD" | "Other";
-export type TargetDegreeLevel = "Bachelor's" | "Master's" | "PhD" | "Diploma" | "Certificate" | "Professional Course";
-export type StudyDestination = "US" | "UK" | "Canada" | "Australia" | "Germany" | "France" | "Singapore" | "Italy" | "UAE" | "Other";
-export type LeadSource = "Organic Search" | "Social Media" | "B2B Partner" | "Referral" | "Advertisement" | "Website" | "Walk-in" | "Other";
-export type StatusDisposition = "Not Interested" | "Wrong Number" | "Call not Answered" | "Follow Up" | "Int for Next Year" | "Partial Documents Received";
+export type AdmissionStatus =
+  | "Not Applied"
+  | "Applied"
+  | "Interview Scheduled"
+  | "Waitlisted"
+  | "Admitted"
+  | "Rejected";
+export type EducationLevel =
+  | "High School"
+  | "Bachelor's"
+  | "Master's"
+  | "PhD"
+  | "Other";
+export type TargetDegreeLevel =
+  | "Bachelor's"
+  | "Master's"
+  | "PhD"
+  | "Diploma"
+  | "Certificate"
+  | "Professional Course";
+export type StudyDestination =
+  | "US"
+  | "UK"
+  | "Canada"
+  | "Australia"
+  | "Germany"
+  | "France"
+  | "Singapore"
+  | "Italy"
+  | "UAE"
+  | "Other";
+export type LeadSource =
+  | "Organic Search"
+  | "Social Media"
+  | "B2B Partner"
+  | "Referral"
+  | "Advertisement"
+  | "Website"
+  | "Walk-in"
+  | "Other";
+export type StatusDisposition =
+  | "Not Interested"
+  | "Wrong Number"
+  | "Call not Answered"
+  | "Follow Up"
+  | "Int for Next Year"
+  | "Partial Documents Received";
 export type PriorityLevel = "High" | "Medium" | "Low";
 export type Gender = "Male" | "Female" | "Other" | "Prefer not to say";
-export type LoanTypePreference = "Secured" | "Unsecured" | "Education Loan" | "Personal Loan";
+export type LoanTypePreference =
+  | "Secured"
+  | "Unsecured"
+  | "Education Loan"
+  | "Personal Loan";
 export type RepaymentType = "EMI" | "Bullet Payment" | "Interest Only";
+
+export type ApiAccessProvided = "Yes" | "No" | "Not Required";
+export type B2BDataSource =
+  | "Manual Entry"
+  | "Import"
+  | "Partner Application"
+  | "Referral";
+
+export type B2BIntegrationStatus =
+  | "Not Required"
+  | "Pending"
+  | "Complete"
+  | "Issues";
+
+export type PartnerRecordStatus =
+  | "Active"
+  | "Inactive"
+  | "Suspended"
+  | "Under Review"
+  | "Archived";
+
+export type PortalAccessStatus = "Yes" | "No" | "Pending";
+
+export type ApiAccessStatus = "Yes" | "No" | "Pending";
+
+export interface HubSpotB2BPartner {
+  id: string;
+  properties: {
+    // Business Capabilities Properties
+    experience_years: number;
+    student_capacity_monthly: number;
+    student_capacity_yearly: number;
+    target_courses: string;
+    target_desrinations: string;
+    target_universities: string;
+    team_size: number;
+
+    // Commission Structure Properties
+    bank_account_number: number;
+    bank_branch: string;
+    bank_name: string;
+    beneficiary_name: string;
+    bonus_structure: string;
+    commission_model: string;
+    commission_rate: number;
+    commission_type: string;
+    fixed_commission_amount: number;
+    gst_applicable: string;
+    ifsc_code: string;
+    invoice_requirements: string;
+    payment_frequency: string;
+    payment_method: string;
+    payment_terms: string;
+    tds_applicable: string;
+    tds_rate: number;
+    tiered_commission_structure: string;
+
+    // Compliance & Documentation Properties
+    agreement_signed_date: string;
+    background_verification_status: string;
+    kyc_completion_date: string;
+    kyc_status: string;
+
+    // Contact Information Properties
+    accounts_contact_email: string;
+    accounts_contact_person: string;
+    accounts_contact_phone: string;
+    marketing_contact_email: string;
+    marketing_contact_person: string;
+    marketing_contact_phone: string;
+    primary_contact_designation: string;
+    primary_contact_email: string;
+    primary_contact_person: string;
+    primary_contact_phone: string;
+    secondary_contact_email: string;
+    secondary_contact_person: string;
+    secondary_contact_phone: string;
+
+    // Financial Tracking Properties
+    average_monthly_commission: number;
+    current_month_commission: number;
+    last_payment_amount: number;
+    last_payment_date: string;
+    lifetime_value: string;
+    next_payment_due_date: string;
+    outstanding_commission: number;
+    payment_status: string;
+    total_commission_earned: number;
+    total_commission_paid: number;
+    ytd_commission_earned: number;
+    ytd_commission_paid: number;
+
+    // Lead Attribution Properties
+    lead_submission_method: string;
+    lead_tracking_method: string;
+    tracking_link: string;
+    unique_referral_code: string;
+    utm_source_assigned: string;
+
+    // Marketing & Promotion Properties
+    brand_usage_guidelines: string;
+    co_marketing_approval: string;
+    content_collaboration: string;
+    digital_presence_rating: number;
+    event_participation: string;
+    marketing_materials_provided: string;
+    promotional_activities: string;
+    social_media_followers: number;
+
+    // Partnership Details Properties
+    agreement_type: string;
+    partnership_end_date: string;
+    partnership_start_date: string;
+    partnership_status: string;
+
+    // Performance Metrics Properties
+    application_conversion_rate: number;
+    applications_approved: number;
+    approval_conversion_rate: number;
+    average_lead_quality_score: number;
+    average_loan_amount: number;
+    best_performing_month: string;
+    last_lead_date: string;
+    lead_conversion_rate: number;
+    leads_converted_to_applications: number;
+    loans_disbursed: number;
+    partner_rating: number;
+    qualified_leads_provided: number;
+    seasonal_performance_pattern: string;
+    total_leads_provided: number;
+    total_loan_value_generated: number;
+
+    // Relationship Management Properties
+    assigned_account_manager: string;
+    communication_frequency: string;
+    escalation_history: string;
+    feedback_comments: string;
+    joint_marketing_activities: string;
+    last_interaction_date: string;
+    relationship_status: string;
+    satisfaction_score: number;
+    training_completed: string;
+
+    // System Tracking Properties
+    partner_name: string;
+    api_access_provided: ApiAccessProvided;
+    created_by: string;
+    created_date: string;
+    data_source: B2BDataSource;
+    integration_status: B2BIntegrationStatus;
+    internal_tags: string;
+    last_modified_by: string;
+    last_modified_date: string;
+    notes: string;
+    partner_record_status: PartnerRecordStatus;
+    portal_access_provided: PortalAccessStatus;
+    [key: string]: any;
+  };
+  createdAt: Date;
+  updatedAt: Date;
+  archived: boolean;
+}
 
 export interface HubSpotEdumateContact {
   id: string;
@@ -281,7 +488,7 @@ export interface MappedDeal {
 // Mapped Edumate Contact Interface
 export interface MappedEdumateContactEduToFrontend {
   id: string;
-  
+
   // Personal Information
   firstName: string;
   lastName: string;
@@ -291,7 +498,7 @@ export interface MappedEdumateContactEduToFrontend {
   dateOfBirth?: Date;
   gender?: string;
   nationality?: string;
-  
+
   // Address Information
   currentAddress?: {
     address?: string;
@@ -307,7 +514,7 @@ export interface MappedEdumateContactEduToFrontend {
     country?: string;
     pincode?: string;
   };
-  
+
   // Academic Information
   currentEducation?: {
     level?: string;
@@ -316,7 +523,7 @@ export interface MappedEdumateContactEduToFrontend {
     cgpaPercentage?: number;
     graduationYear?: number;
   };
-  
+
   targetEducation?: {
     degreeLevel?: string;
     courseMajor?: string;
@@ -326,7 +533,7 @@ export interface MappedEdumateContactEduToFrontend {
     intendedStartTerm?: string;
     courseDurationMonths?: number;
   };
-  
+
   testScores?: {
     gmat?: number;
     gre?: number;
@@ -334,7 +541,7 @@ export interface MappedEdumateContactEduToFrontend {
     ielts?: number;
     other?: string;
   };
-  
+
   // Application Journey
   admissionStatus?: string;
   applicationJourney?: {
@@ -348,7 +555,7 @@ export interface MappedEdumateContactEduToFrontend {
     nextFollowUpDate?: Date;
     followUpDate?: Date;
   };
-  
+
   // Financial Information
   financialProfile?: {
     annualFamilyIncome?: number;
@@ -361,27 +568,27 @@ export interface MappedEdumateContactEduToFrontend {
     scholarshipAmount?: number;
     currency?: string;
   };
-  
+
   coApplicants?: Array<{
     name?: string;
     relationship?: string;
     occupation?: string;
     income?: number;
   }>;
-  
+
   collateral?: Array<{
     available?: string;
     type?: string;
     value?: number;
   }>;
-  
+
   // Loan Preferences
   loanPreferences?: {
     loanTypePreference?: string;
     preferredLenders?: string;
     repaymentTypePreference?: string;
   };
-  
+
   // Lead Attribution
   leadAttribution?: {
     leadSource?: string;
@@ -399,7 +606,7 @@ export interface MappedEdumateContactEduToFrontend {
     utmTerm?: string;
     utmContent?: string;
   };
-  
+
   // System Information
   ownerId?: string;
   createdAt: Date;
@@ -412,10 +619,10 @@ export interface MappedEdumateContactEduToFrontend {
   studentRecordStatus?: string;
   tags?: string;
 
-  targetDegreeLevel:string;
-  educationLevel:string;
-  partnerName:string;
-  
+  targetDegreeLevel: string;
+  educationLevel: string;
+  partnerName: string;
+
   // Custom properties that don't fit into structured categories
   customProperties?: Record<string, any>;
 }
@@ -475,7 +682,7 @@ export interface SearchOptions extends PaginationOptions {
   properties?: string[];
   sorts?: {
     propertyName: string;
-    direction: 'ASCENDING' | 'DESCENDING';
+    direction: "ASCENDING" | "DESCENDING";
   }[];
 }
 
@@ -502,29 +709,51 @@ export interface HubspotResult {
     student_email?: string;
     student_name?: string;
     external_key?: string;
-    email?:string;
+    email?: string;
   };
   createdAt: string;
   updatedAt: string;
   archived: boolean;
 }
 
-
 // src/types/index.ts
 // Re-export all types for easier importing
-export * from './hubspot.types';
-export * from './mapped.types';
-export * from './common.types';
+export * from "./hubspot.types";
+export * from "./mapped.types";
+export * from "./common.types";
 
 // Type guards for runtime type checking
 export const isHubSpotContact = (obj: any): obj is HubSpotContact => {
-  return obj && typeof obj.id === 'string' && obj.properties && obj.createdAt && obj.updatedAt;
+  return (
+    obj &&
+    typeof obj.id === "string" &&
+    obj.properties &&
+    obj.createdAt &&
+    obj.updatedAt
+  );
 };
 
-export const isHubSpotEdumateContact = (obj: any): obj is HubSpotEdumateContact => {
-  return obj && typeof obj.id === 'string' && obj.properties && obj.createdAt && obj.updatedAt;
+export const isHubSpotEdumateContact = (
+  obj: any
+): obj is HubSpotEdumateContact => {
+  return (
+    obj &&
+    typeof obj.id === "string" &&
+    obj.properties &&
+    obj.createdAt &&
+    obj.updatedAt
+  );
 };
 
-export const isMappedEdumateContact = (obj: any): obj is MappedEdumateContact => {
-  return obj && typeof obj.id === 'string' && obj.firstName && obj.lastName && obj.createdAt && obj.updatedAt;
+export const isMappedEdumateContact = (
+  obj: any
+): obj is MappedEdumateContact => {
+  return (
+    obj &&
+    typeof obj.id === "string" &&
+    obj.firstName &&
+    obj.lastName &&
+    obj.createdAt &&
+    obj.updatedAt
+  );
 };
