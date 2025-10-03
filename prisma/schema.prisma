@@ -2302,6 +2302,26 @@ model MktEmiCalculatorLeads {
   @@map("mkt_emi_calculator_leads")
 }
 
+model CurrencyConfigs {
+  id                  Int      @id @default(autoincrement())
+  code                String   @unique
+  symbol              String
+  name                String
+  position            String
+  thousands_separator  String   @default(",")
+  decimal_separator    String   @default(".")
+  min_loan_amount       Int
+  max_loan_amount       Int
+  quick_amounts        Json
+  large_amount_units    Json
+  is_active            Boolean  @default(true)
+  created_at           DateTime @default(now())
+  updated_at          DateTime @updatedAt
+
+  @@index([code])
+  @@index([is_active])
+  @@map("currency_configs")
+}
 
 // ENUMS
 

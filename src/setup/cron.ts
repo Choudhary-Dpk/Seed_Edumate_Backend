@@ -1,9 +1,7 @@
 import cron from "node-cron";
-import { PrismaClient } from "@prisma/client";
 import axios from "axios";
 import { EXCHANGE_RATE_API_KEY } from "./secrets";
 import { upsertCurrencyConversion } from "../models/helpers/cron.helper";
-const prisma = new PrismaClient();
 
 // Configuration
 const API_KEY = EXCHANGE_RATE_API_KEY;
@@ -179,60 +177,55 @@ const CURRENCIES = [
 let isJobRunning = false;
 
 const processCurrencyBatch = async (baseCurrency: string) => {
-  // try {
-  //   const response = await axios.get(
-  //     `${BASE_URL}/${API_KEY}/latest/${baseCurrency}`,
-  //     {
-  //       timeout: 10000,
-  //     }
-  //   );
+  try {
+    const response: any = await axios.get(
+      `${BASE_URL}/${API_KEY}/latest/${baseCurrency}`,
+      {
+        timeout: 10000,
+      }
+    );
 
-  //   if (
-  //     response.data?.result !== "success" ||
-  //     !response.data?.conversion_rates
-  //   ) {
-  //     console.error(`Invalid API response for ${baseCurrency}`);
-  //     return { success: 0, errors: 1 };
-  //   }
+    if (
+      response.data?.result !== "success" ||
+      !response.data?.conversion_rates
+    ) {
+      console.error(`Invalid API response for ${baseCurrency}`);
+      return { success: 0, errors: 1 };
+    }
 
-  //   const conversionRates = response.data.conversion_rates;
-  //   let batchSuccess = 0;
-  //   let batchErrors = 0;
+    const conversionRates = response.data.conversion_rates;
+    let batchSuccess = 0;
+    let batchErrors = 0;
 
-  //   for (const targetCurrency of CURRENCIES) {
-  //     if (baseCurrency === targetCurrency) continue;
+    for (const targetCurrency of CURRENCIES) {
+      if (baseCurrency === targetCurrency) continue;
 
-  //     const forwardRate = Number(conversionRates[targetCurrency]);
-  //     if (!forwardRate || forwardRate <= 0) {
-  //       batchErrors++;
-  //       continue;
-  //     }
+      const forwardRate = Number(conversionRates[targetCurrency]);
+      if (!forwardRate || forwardRate <= 0) {
+        batchErrors++;
+        continue;
+      }
 
-  //     const reverseRate = 1 / forwardRate;
+      const reverseRate = 1 / forwardRate;
 
-  //     // Use helper to upsert DB
-  //     const result = await upsertCurrencyConversion({
-  //       baseCurrency,
-  //       targetCurrency,
-  //       forwardRate,
-  //       reverseRate,
-  //     });
+      // Use helper to upsert DB
+      const result = await upsertCurrencyConversion({
+        baseCurrency,
+        targetCurrency,
+        forwardRate,
+        reverseRate,
+      });
 
-  //     batchSuccess += result.success;
-  //     batchErrors += result.errors;
-  //   }
+      batchSuccess += result.success;
+      batchErrors += result.errors;
+    }
 
-  //   console.log(`${baseCurrency}: ${batchSuccess} pairs updated`);
-  //   return { success: batchSuccess, errors: batchErrors };
-  // } catch (apiError) {
-  //   console.error(
-  //     `API error for ${baseCurrency}:`,
-  //     axios.isAxiosError(apiError) ? apiError.message : "Unknown error"
-  //   );
-  //   return { success: 0, errors: 1 };
-  // }
-
-  console.log("hellof from cron")
+    console.log(`${baseCurrency}: ${batchSuccess} pairs updated`);
+    return { success: batchSuccess, errors: batchErrors };
+  } catch (apiError: any) {
+    console.error(`API error for ${baseCurrency}:`, apiError);
+    return { success: 0, errors: 1 };
+  }
 };
 
 // Main update function
@@ -244,8 +237,8 @@ const updateExchangeRates = async () => {
 
   for (const currency of CURRENCIES) {
     const result = await processCurrencyBatch(currency);
-    // totalSuccess += result.success;
-    // totalErrors += result.errors;
+    totalSuccess += result.success;
+    totalErrors += result.errors;
 
     // optional small delay to avoid API rate limits
     await new Promise((resolve) => setTimeout(resolve, 100));
