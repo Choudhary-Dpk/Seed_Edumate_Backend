@@ -11,6 +11,7 @@ import { errorHandler } from "./middlewares/error";
 import { partnerRoutes } from "./routes/partner.routes";
 import { contactRoutes } from "./routes/contact.routes";
 import { permissionsRoutes } from "./routes/permissions.routes";
+import { masterRoutes } from "./routes/index.routes";
 import app from "./setup/express";
 import "./setup/cron";
 const PORT = process.env.PORT || 3031;
@@ -26,7 +27,7 @@ app.use("/email", emailRouter);
 app.use("/loanApplications", loanApplicationRouter);
 app.use("/partners", partnerRoutes);
 app.use("/permissions", permissionsRoutes);
-
+app.use("/master", masterRoutes);
 // API Documentation - Make sure this comes before other routes
 app.use("/docs", swaggerRouter);
 

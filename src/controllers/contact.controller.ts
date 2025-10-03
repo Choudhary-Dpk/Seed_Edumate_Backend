@@ -93,7 +93,7 @@ export const createContactsLead = async (
     logger.debug(`Hubspot loan contacts leads created successfully`);
 
     // Use database transaction to ensure all related records are created atomically
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: any) => {
       logger.debug(`Creating edumate contact for userId: ${id}`);
       const contact = await createEdumateContact(
         tx,
@@ -276,7 +276,7 @@ export const editContactsLead = async (
     });
     logger.debug(`Hubspot loan application updated successfully`);
 
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: any) => {
       logger.debug(`Updating edumate contact for userId: ${id}`);
       const contact = await updateEdumateContact(tx, +leadId, course_type);
       logger.debug(`Contact udpated successfully with id: ${contact.id}`);
@@ -460,7 +460,7 @@ export const uploadContactsCSV = async (
 
     // 7. Insert into DB (safely with skipDuplicates)
     logger.debug(`Creating csv leads in database`);
-    const result = await createCSVContacts(toInsert,id);
+    const result = await createCSVContacts(toInsert, id);
     logger.debug(`Leads created successfully in database`);
 
     updateContactsSystemTracking(hubspotResults as any[]);

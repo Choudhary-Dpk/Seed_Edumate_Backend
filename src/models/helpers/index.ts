@@ -1,5 +1,4 @@
 import prisma from "../../config/prisma";
-import { AllowedPemissions } from "../../types";
 import { Row } from "../../types/leads.types";
 
 export const getEmailTemplate = async (title: string) => {
@@ -107,4 +106,13 @@ export const getModulePermissions = async (userId: number) => {
   });
 
   return user?.roles ?? [];
+};
+
+export const fetchCurrencyConfigs = async () => {
+  const currencyConfigs = await prisma.currencyConfigs.findMany({
+    orderBy: {
+      code: "asc",
+    },
+  });
+  return currencyConfigs;
 };
