@@ -12,29 +12,18 @@ import {
 import { HubspotResult } from "../../types";
 import { transformRow } from "../../utils/helper";
 import { getPartnerIdByUserId } from "./partners.helper";
+import { AnyNsRecord } from "dns";
 
 export const createEdumatePersonalInformation = async (
   tx: any,
   contactId: number,
-  data: {
-    first_name: string;
-    last_name?: string;
-    email?: string;
-    phone_number?: string;
-    date_of_birth?: string;
-    gender?: string;
-  }
+  personalData: any
 ) => {
   const personalInfo = await tx.hSEdumateContactsPersonalInformation.create({
     data: {
       contact_id: contactId,
-      first_name: data.first_name,
-      last_name: data.last_name,
-      email: data.email,
-      phone_number: data.phone_number,
-      date_of_birth: data.date_of_birth ? new Date(data.date_of_birth) : null,
-      gender: data.gender ? genderMap[data.gender] : null,
       created_at: new Date(),
+      ...personalData,
     },
   });
 
@@ -44,36 +33,13 @@ export const createEdumatePersonalInformation = async (
 export const createEdumateAcademicProfile = async (
   tx: any,
   contactId: number,
-  data: {
-    admission_status?: string;
-    current_education_level?: string;
-    target_degree_level?: string;
-    preferred_study_destination?: string;
-    intake_year?: string;
-    intake_month?: string;
-  }
+  academicsData: any
 ) => {
   const academicProfile = await tx.hSEdumateContactsAcademicProfiles.create({
     data: {
       contact_id: contactId,
-      admission_status: data?.admission_status
-        ? admissionStatusMap[data.admission_status]
-        : null,
-
-      current_education_level: data?.current_education_level
-        ? currentEducationLevelMap[data?.current_education_level]
-        : null, // if you also have a map, handle the same way
-
-      target_degree_level: data?.target_degree_level
-        ? targetDegreeLevelMap[data.target_degree_level]
-        : null,
-
-      preferred_study_destination: data?.preferred_study_destination
-        ? preferredStudyDestinationMap[data.preferred_study_destination]
-        : null,
-      intake_year: data.intake_year,
-      intake_month: data.intake_month,
       created_at: new Date(),
+      ...academicsData,
     },
   });
 
@@ -83,13 +49,13 @@ export const createEdumateAcademicProfile = async (
 export const createEdumateLeadAttribution = async (
   tx: any,
   contactId: number,
-  partnerName: string
+  leadData: any
 ) => {
   const leadAttribution = await tx.hSEdumateContactsLeadAttribution.create({
     data: {
       contact_id: contactId,
-      b2b_partner_name: partnerName,
       created_at: new Date(),
+      ...leadData,
     },
   });
 
@@ -162,14 +128,14 @@ export const getEdumateContactByPhone = async (phone: string) => {
 
 export const createEdumateContact = async (
   tx: any,
-  courseType?: string,
+  mainData?: any,
   hubspotId?: number,
   hsCreatedBy?: number,
   partnerId?: number
 ) => {
   const contact = await tx.hSEdumateContacts.create({
     data: {
-      course_type: courseType ? courseTypeMap[courseType] : null,
+      ...mainData,
       hs_object_id: hubspotId,
       hs_created_by_user_id: hsCreatedBy,
       b2b_partner_id: partnerId,
@@ -247,12 +213,15 @@ export const getContactsLead = async (leadId: number) => {
 export const updateEdumateContact = async (
   tx: any,
   contactId: number,
-  courseType?: string
+  mainData?: any
 ) => {
   const contact = await tx.hSEdumateContacts.update({
     where: { id: contactId },
     data: {
-      course_type: courseType ? courseTypeMap[courseType] : null,
+      course_type: mainData.course_type
+        ? courseTypeMap[mainData.course_type]
+        : null,
+      ...mainData,
       updated_at: new Date(),
     },
   });
@@ -263,25 +232,13 @@ export const updateEdumateContact = async (
 export const updateEdumatePersonalInformation = async (
   tx: any,
   contactId: number,
-  data: {
-    first_name?: string;
-    last_name?: string;
-    email?: string;
-    phone_number?: string;
-    date_of_birth?: string;
-    gender?: string;
-  }
+  personalData?: any
 ) => {
   const personalInfo = await tx.hSEdumateContactsPersonalInformation.update({
     where: { contact_id: contactId },
     data: {
-      first_name: data.first_name,
-      last_name: data.last_name,
-      email: data.email,
-      phone_number: data.phone_number,
-      date_of_birth: data.date_of_birth ? new Date(data.date_of_birth) : null,
-      gender: data.gender ? genderMap[data.gender] : null,
       updated_at: new Date(),
+      ...personalData,
     },
   });
 
@@ -291,37 +248,13 @@ export const updateEdumatePersonalInformation = async (
 export const updateEdumateAcademicProfile = async (
   tx: any,
   contactId: number,
-  data: {
-    admission_status?: string;
-    current_education_level?: string;
-    target_degree_level?: string;
-    preferred_study_destination?: string;
-    intake_year?: string;
-    intake_month?: string;
-  }
+  academicsData?: any
 ) => {
   const academicProfile = await tx.hSEdumateContactsAcademicProfiles.update({
     where: { contact_id: contactId },
     data: {
-      admission_status: data?.admission_status
-        ? admissionStatusMap[data.admission_status]
-        : null,
-
-      current_education_level: data?.current_education_level
-        ? currentEducationLevelMap[data.current_education_level]
-        : null,
-
-      target_degree_level: data?.target_degree_level
-        ? targetDegreeLevelMap[data.target_degree_level]
-        : null,
-
-      preferred_study_destination: data?.preferred_study_destination
-        ? preferredStudyDestinationMap[data.preferred_study_destination]
-        : null,
-
-      intake_year: data.intake_year,
-      intake_month: data.intake_month,
       updated_at: new Date(),
+      ...academicsData,
     },
   });
 
@@ -331,15 +264,15 @@ export const updateEdumateAcademicProfile = async (
 export const updateEdumateLeadAttribution = async (
   tx: any,
   contactId: number,
-  partnerName?: string
+  leadData?: any
 ) => {
-  if (!partnerName) return null;
+  if (!leadData.b2b_partner_name) return null;
 
   const leadAttribution = await tx.hSEdumateContactsLeadAttribution.update({
     where: { contact_id: contactId },
     data: {
-      b2b_partner_name: partnerName,
       updated_at: new Date(),
+      ...leadData,
     },
   });
 
