@@ -40,6 +40,8 @@ import {
   updateFileRecord,
 } from "../models/helpers";
 import { getPartnerIdByUserId } from "../models/helpers/partners.helper";
+import { mapAllFields } from "../mappers/edumateContact/mapping";
+import { categorizeByTable } from "../services/DBServices/edumateContacts.service";
 
 export const createContactsLead = async (
   req: RequestWithPayload<LoginPayload>,
@@ -48,24 +50,13 @@ export const createContactsLead = async (
 ) => {
   try {
     const { id } = req.payload!;
-    const {
-      intake_year,
-      intake_month,
-      preferred_study_destination,
-      date_of_birth,
-      gender,
-      course_type,
-      target_degree_level,
-      admission_status,
-      current_education_level,
-      b2b_partner_name,
-      last_name,
-      first_name,
-      phone_number,
-      email,
-    } = req.body;
     let data: any = {};
     let leadAttribution: any;
+
+    const mappedFields = await mapAllFields(req.body);
+    console.log("mappedFields", mappedFields);
+    const categorized = categorizeByTable(mappedFields);
+    console.log("categorized", categorized);
 
     logger.debug(`Fetching partner id from request`);
     const partnerId = await getPartnerIdByUserId(id);
@@ -74,30 +65,30 @@ export const createContactsLead = async (
     logger.debug(`Creating hubspot edumate contacts leads application`);
     const lead = await createEdumateContactsLeads([
       {
-        email,
-        phone: phone_number,
-        firstName: first_name,
-        lastName: last_name,
-        partnerName: b2b_partner_name,
-        educationLevel: current_education_level,
-        admissionStatus: admission_status,
-        targetDegreeLevel: target_degree_level,
-        courseType: course_type,
-        studyDestination: preferred_study_destination,
-        dateOfBirth: date_of_birth,
-        gender,
-        intakeYear: intake_year,
-        intakeMonth: intake_month,
+        email: req.body.email,
+        phone: req.body.phone_number,
+        firstName: req.body.first_name,
+        lastName: req.body.last_name,
+        partnerName: req.body.b2b_partner_name,
+        educationLevel: req.body.current_education_level,
+        admissionStatus: req.body.admission_status,
+        targetDegreeLevel: req.body.target_degree_level,
+        courseType: req.body.course_type,
+        studyDestination: req.body.preferred_study_destination,
+        dateOfBirth: req.body.date_of_birth,
+        gender: req.body.gender,
+        intakeYear: req.body.intake_year,
+        intakeMonth: req.body.intake_month,
       },
     ]);
     logger.debug(`Hubspot loan contacts leads created successfully`);
 
-    // Use database transaction to ensure all related records are created atomically
+    // // Use database transaction to ensure all related records are created atomically
     const result = await prisma.$transaction(async (tx: any) => {
       logger.debug(`Creating edumate contact for userId: ${id}`);
       const contact = await createEdumateContact(
         tx,
-        course_type,
+        categorized["mainContact"],
         lead[0]?.id,
         id,
         partnerId!.b2b_id
@@ -108,14 +99,7 @@ export const createContactsLead = async (
       const personalInfo = await createEdumatePersonalInformation(
         tx,
         contact.id,
-        {
-          first_name,
-          last_name,
-          email,
-          phone_number,
-          date_of_birth,
-          gender,
-        }
+        categorized["personalInformation"]
       );
       logger.debug(
         `Personal information created successfully for contact: ${contact.id}`
@@ -125,25 +109,18 @@ export const createContactsLead = async (
       const academicsProfile = await createEdumateAcademicProfile(
         tx,
         contact.id,
-        {
-          admission_status,
-          current_education_level,
-          target_degree_level,
-          preferred_study_destination,
-          intake_year,
-          intake_month,
-        }
+        categorized["academicProfile"]
       );
       logger.debug(
         `Academic profile created successfully for contact: ${contact.id}`
       );
 
-      if (b2b_partner_name) {
+      if (req.body.b2b_partner_name) {
         logger.debug(`Creating lead attribution for contact: ${contact.id}`);
         leadAttribution = await createEdumateLeadAttribution(
           tx,
           contact.id,
-          b2b_partner_name
+          categorized["leadAttribution"]
         );
         logger.debug(
           `Lead attribution created successfully for contact: ${contact.id}`
@@ -236,22 +213,11 @@ export const editContactsLead = async (
   try {
     const { id } = req.payload!;
     const leadId = req.params.id;
-    const {
-      intake_year,
-      intake_month,
-      preferred_study_destination,
-      date_of_birth,
-      gender,
-      course_type,
-      target_degree_level,
-      admission_status,
-      current_education_level,
-      b2b_partner_name,
-      last_name,
-      first_name,
-      phone_number,
-      email,
-    } = req.body;
+
+    const mappedFields = await mapAllFields(req.body);
+    console.log("mappedFields", mappedFields);
+    const categorized = categorizeByTable(mappedFields);
+    console.log("categorized", categorized);
 
     logger.debug(`Fethcing hubspot details by leadId: ${leadId}`);
     const lead = await getHubspotByContactLeadId(+leadId);
@@ -259,57 +225,59 @@ export const editContactsLead = async (
 
     logger.debug(`Updating hubspot loan application`);
     await updateContactsLoanLead(lead?.hs_object_id!, {
-      email,
-      phone: phone_number,
-      firstName: first_name,
-      lastName: last_name,
-      partnerName: b2b_partner_name,
-      educationLevel: current_education_level,
-      admissionStatus: admission_status,
-      targetDegreeLevel: target_degree_level,
-      courseType: course_type,
-      studyDestination: preferred_study_destination,
-      dateOfBirth: date_of_birth ? new Date(date_of_birth) : undefined,
-      gender,
-      intakeYear: intake_year,
-      intakeMonth: intake_month,
+      email: req.body.email,
+      phone: req.body.phone_number,
+      firstName: req.body.first_name,
+      lastName: req.body.last_name,
+      partnerName: req.body.b2b_partner_name,
+      educationLevel: req.body.current_education_level,
+      admissionStatus: req.body.admission_status,
+      targetDegreeLevel: req.body.target_degree_level,
+      courseType: req.body.course_type,
+      studyDestination: req.body.preferred_study_destination,
+      dateOfBirth: req.body.date_of_birth,
+      gender: req.body.gender,
+      intakeYear: req.body.intake_year,
+      intakeMonth: req.body.intake_month,
     });
     logger.debug(`Hubspot loan application updated successfully`);
 
     await prisma.$transaction(async (tx: any) => {
       logger.debug(`Updating edumate contact for userId: ${id}`);
-      const contact = await updateEdumateContact(tx, +leadId, course_type);
+      const contact = await updateEdumateContact(
+        tx,
+        +leadId,
+        categorized["mainContact"]
+      );
       logger.debug(`Contact udpated successfully with id: ${contact.id}`);
 
       logger.debug(`Updating personal information for contact: ${contact.id}`);
-      await updateEdumatePersonalInformation(tx, contact.id, {
-        first_name,
-        last_name,
-        email,
-        phone_number,
-        date_of_birth,
-        gender,
-      });
+      await updateEdumatePersonalInformation(
+        tx,
+        contact.id,
+        categorized["personalInformation"]
+      );
       logger.debug(
         `Personal information updated successfully for contact: ${contact.id}`
       );
 
       logger.debug(`Updating academic profile for contact: ${contact.id}`);
-      await updateEdumateAcademicProfile(tx, contact.id, {
-        admission_status,
-        current_education_level,
-        target_degree_level,
-        preferred_study_destination,
-        intake_year,
-        intake_month,
-      });
+      await updateEdumateAcademicProfile(
+        tx,
+        contact.id,
+        categorized["academicProfile"]
+      );
       logger.debug(
         `Academic profile updated successfully for contact: ${contact.id}`
       );
 
-      if (b2b_partner_name) {
+      if (req.body.b2b_partner_name) {
         logger.debug(`Updating lead attribution for contact: ${contact.id}`);
-        await updateEdumateLeadAttribution(tx, contact.id, b2b_partner_name);
+        await updateEdumateLeadAttribution(
+          tx,
+          contact.id,
+          categorized["leadAttribution"]
+        );
         logger.debug(
           `Lead attribution updated successfully for contact: ${contact.id}`
         );
