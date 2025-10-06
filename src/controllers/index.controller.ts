@@ -14,7 +14,7 @@ export const getCurrencyConfigs = async (
     logger.debug(`Fetching currency configs`);
     const data = await fetchCurrencyConfigs();
     logger.debug(`Currency configs fetched successfully`);
-    sendResponse(res, 200, "Contacts Lead created successfully", data);
+    sendResponse(res, 200, "Currency configs fetched successfully", data);
   } catch (error) {
     next(error);
   }

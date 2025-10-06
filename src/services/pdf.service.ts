@@ -2,6 +2,7 @@
 import puppeteer from 'puppeteer';
 import { CalculationResult } from '../types/loan-schedule.types';
 import { config } from '../config/config';
+import { convertTenureInYears } from '../utils/helper';
 
 interface customerDetails {
     name?: string;
@@ -26,6 +27,7 @@ const generateHTMLTemplate = (
   customerDetails?: customerDetails
 ): string => {
   const { loanDetails, monthlySchedule } = calculationResult;
+  const { years, months } = convertTenureInYears(loanDetails?.tenureYears)
 
   // Updated currency formatting with fallback
   const formatCurrency = (amount: number): string => {
@@ -497,7 +499,7 @@ const generateHTMLTemplate = (
             </tr>
             <tr>
               <td class="info-label">Loan Tenure</td>
-              <td class="info-value">${loanDetails.tenureYears} Years (${loanDetails.tenureYears * 12} Months)</td>
+              <td class="info-value">${years} Years ${months} Months</td>
               <td class="info-label">Total Interest Payable</td>
               <td class="info-value">${formatCurrency(loanDetails.totalInterest)}</td>
             </tr>

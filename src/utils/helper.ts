@@ -392,3 +392,11 @@ export const transformRow = <T extends { contactId: number }>(
   }
   return obj;
 };
+
+export const convertTenureInYears = (tenure: number) => {
+  const years = Math.floor(tenure);
+  const remaining = tenure - years;
+  const months = Math.round(remaining * 12);
+
+  return { years, months };
+};

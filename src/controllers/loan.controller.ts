@@ -41,7 +41,7 @@ export const checkLoanEligibility = async (
       return sendResponse(
         res,
         200,
-        "Not Eligible at This Time,Your application has been received, but you don't meet the current eligibility criteria"
+        "Thank you for showing interest, our team will reach out to you to understand your needs better"
       );
     }
 
