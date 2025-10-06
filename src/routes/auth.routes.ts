@@ -72,7 +72,7 @@ router.put(
   "/change-password",
   changePasswordValidationRules(),
   validateReqParams,
-  validateToken,
+  validateToken(["Admin", "Manager", "User"]),
   validateChangePassword,
   changePassword
 );
