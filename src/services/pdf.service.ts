@@ -1,45 +1,45 @@
 // src/services/pdf.service.ts
-import puppeteer from 'puppeteer';
-import { CalculationResult } from '../types/loan-schedule.types';
-import { config } from '../config/config';
-import { convertTenureInYears } from '../utils/helper';
+import puppeteer from "puppeteer";
+import { CalculationResult } from "../types/loan-schedule.types";
+import { config } from "../config/config";
+import { convertTenureInYears } from "../utils/helper";
 
 interface customerDetails {
-    name?: string;
-    customerId?: string;
-    agreementNumber?: string;
-    mobileNumber?: string;
-    email?: string;
-    address?: string;
-  }
+  name?: string;
+  customerId?: string;
+  agreementNumber?: string;
+  mobileNumber?: string;
+  email?: string;
+  address?: string;
+}
 
 export interface PDFGenerationOptions {
   fromName?: string;
   requestId?: string;
-  customerDetails?: customerDetails
+  customerDetails?: customerDetails;
 }
 
 const edumateLogo = config?.edumate?.logo;
 
 const generateHTMLTemplate = (
   calculationResult: CalculationResult,
-  fromName: string = 'Edumate',
+  fromName: string = "Edumate",
   customerDetails?: customerDetails
 ): string => {
   const { loanDetails, monthlySchedule } = calculationResult;
-  const { years, months } = convertTenureInYears(loanDetails?.tenureYears)
+  const { years, months } = convertTenureInYears(loanDetails?.tenureYears);
 
   // Updated currency formatting with fallback
   const formatCurrency = (amount: number): string => {
     try {
-      return new Intl.NumberFormat('en-IN', {
-        style: 'currency',
-        currency: 'INR',
+      return new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
         minimumFractionDigits: 2,
       }).format(amount);
     } catch (error) {
       // Fallback formatting if Intl fails
-      return `₹ ${new Intl.NumberFormat('en-IN', {
+      return `₹ ${new Intl.NumberFormat("en-IN", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       }).format(amount)}`;
@@ -47,7 +47,7 @@ const generateHTMLTemplate = (
   };
 
   const formatNumber = (num: number): string =>
-    new Intl.NumberFormat('en-IN', {
+    new Intl.NumberFormat("en-IN", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(num);
@@ -64,30 +64,29 @@ const generateHTMLTemplate = (
     </tr>
   `
     )
-    .join('');
+    .join("");
 
-//   const documentId = `LRS${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
-//   const referenceNumber = `REF${Math.random().toString(36).substr(2, 8).toUpperCase()}`;
+  //   const documentId = `LRS${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+  //   const referenceNumber = `REF${Math.random().toString(36).substr(2, 8).toUpperCase()}`;
 
-// Header
-  
-//   <div class="header">
-//         <span>Loan Repayment Schedule</span>
-//         <span>Document ID: ${documentId}</span>
-//       </div>
+  // Header
 
-// With Document Type & Generated On
+  //   <div class="header">
+  //         <span>Loan Repayment Schedule</span>
+  //         <span>Document ID: ${documentId}</span>
+  //       </div>
 
-// <td>
-//     <div class="doc-label">Reference Number</div>
-//     <div class="doc-value">${referenceNumber}</div>
-// </td>
+  // With Document Type & Generated On
 
+  // <td>
+  //     <div class="doc-label">Reference Number</div>
+  //     <div class="doc-value">${referenceNumber}</div>
+  // </td>
 
-// <td>
-//     <div class="doc-label">Status</div>
-//     <div class="doc-value" style="color: #059669;">● GENERATED</div>
-// </td>
+  // <td>
+  //     <div class="doc-label">Status</div>
+  //     <div class="doc-value" style="color: #059669;">● GENERATED</div>
+  // </td>
 
   return `
   <!DOCTYPE html>
@@ -405,7 +404,11 @@ const generateHTMLTemplate = (
       <!-- Company Header -->
       <div class="company-header">
         <div class="company-info">
-            ${edumateLogo ? `<img src="${edumateLogo}" alt="${fromName}" style="height: 48px; width: auto; display: block; filter: brightness(1.1);" />` : `<h1>${fromName}</h1>`}
+            ${
+              edumateLogo
+                ? `<img src="${edumateLogo}" alt="${fromName}" style="height: 48px; width: auto; display: block; filter: brightness(1.1);" />`
+                : `<h1>${fromName}</h1>`
+            }
         </div>
         <div>
             <div style="font-size: 13px; color: #0f172a; font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 600;">
@@ -428,15 +431,15 @@ const generateHTMLTemplate = (
             <td>
               <div class="doc-label">Generated On</div>
               <div class="doc-value">
-              ${new Date().toLocaleDateString('en-IN', { 
-                day: '2-digit', 
-                month: 'short', 
-                year: 'numeric' 
-              })} - ${new Date().toLocaleTimeString('en-IN', {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit'
-          })}
+              ${new Date().toLocaleDateString("en-IN", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+              })} - ${new Date().toLocaleTimeString("en-IN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  })}
               </div>
             </td>
           </tr>
@@ -444,7 +447,9 @@ const generateHTMLTemplate = (
       </div>
 
       <div class="content">
-        ${customerDetails ? `
+        ${
+          customerDetails
+            ? `
         <!-- Customer Information -->
         <div class="section">
           <div class="section-header">Customer Information</div>
@@ -460,13 +465,17 @@ const generateHTMLTemplate = (
               </tr>
               <tr>
                 <td class="info-label">Agreement Number</td>
-                <td class="info-value">${customerDetails.agreementNumber || "-"}</td>
+                <td class="info-value">${
+                  customerDetails.agreementNumber || "-"
+                }</td>
               </tr>
             </table>
             <table class="info-table">
               <tr>
                 <td class="info-label">Mobile Number</td>
-                <td class="info-value">${customerDetails.mobileNumber || "-"}</td>
+                <td class="info-value">${
+                  customerDetails.mobileNumber || "-"
+                }</td>
               </tr>
               <tr>
                 <td class="info-label">Email ID</td>
@@ -479,7 +488,9 @@ const generateHTMLTemplate = (
             </table>
           </div>
         </div>
-        ` : ''}
+        `
+            : ""
+        }
 
         <!-- Loan Details -->
         <div class="section loan-details">
@@ -487,21 +498,31 @@ const generateHTMLTemplate = (
           <table class="info-table">
             <tr>
               <td class="info-label">Principal Amount</td>
-              <td class="info-value ">${formatCurrency(loanDetails.principal)}</td>
+              <td class="info-value ">${formatCurrency(
+                loanDetails.principal
+              )}</td>
               <td class="info-label">Monthly EMI</td>
-              <td class="info-value ">${formatCurrency(loanDetails.monthlyEMI)}</td>
+              <td class="info-value ">${formatCurrency(
+                loanDetails.monthlyEMI
+              )}</td>
             </tr>
             <tr>
               <td class="info-label">Interest Rate (Annual)</td>
-              <td class="info-value ">${formatNumber(loanDetails.annualRate)}%</td>
+              <td class="info-value ">${formatNumber(
+                loanDetails.annualRate
+              )}%</td>
               <td class="info-label">Total Amount Payable</td>
-              <td class="info-value ">${formatCurrency(loanDetails.totalAmount)}</td>
+              <td class="info-value ">${formatCurrency(
+                loanDetails.totalAmount
+              )}</td>
             </tr>
             <tr>
               <td class="info-label">Loan Tenure</td>
               <td class="info-value">${years} Years ${months} Months</td>
               <td class="info-label">Total Interest Payable</td>
-              <td class="info-value">${formatCurrency(loanDetails.totalInterest)}</td>
+              <td class="info-value">${formatCurrency(
+                loanDetails.totalInterest
+              )}</td>
             </tr>
           </table>
         </div>
@@ -536,12 +557,12 @@ const generateHTMLTemplate = (
           </div>
           <div class="footer-brand">
             Generated by ${fromName}<br/>
-            ${new Date().toLocaleDateString('en-IN', { 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
+            ${new Date().toLocaleDateString("en-IN", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
             })}<br/>
-            ${new Date().toLocaleTimeString('en-IN')}
+            ${new Date().toLocaleTimeString("en-IN")}
           </div>
         </div>
       </div>
@@ -555,71 +576,77 @@ export const generatePDF = async (
   calculationResult: CalculationResult,
   options: PDFGenerationOptions = {}
 ): Promise<{ buffer: Buffer; fileName: string }> => {
-  const { fromName = 'Edumate', requestId, customerDetails } = options;
-  
-  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const { fromName = "Edumate", requestId, customerDetails } = options;
+
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
   const fileName = `repayment-schedule-${requestId || timestamp}.pdf`;
-  
+
   let browser;
   try {
     browser = await puppeteer.launch({
       headless: true,
       args: [
-        '--no-sandbox', 
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-accelerated-2d-canvas',
-        '--no-first-run',
-        '--no-zygote',
-        '--single-process',
-        '--disable-gpu',
-        '--font-render-hinting=none',
-        '--disable-font-subpixel-positioning'
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-accelerated-2d-canvas",
+        "--no-first-run",
+        "--no-zygote",
+        "--single-process",
+        "--disable-gpu",
+        "--font-render-hinting=none",
+        "--disable-font-subpixel-positioning",
       ],
     });
-    
+
     const page = await browser.newPage();
-    
+
     // Set viewport and encoding
     await page.setViewport({ width: 1920, height: 1080 });
-    
-    const htmlContent = generateHTMLTemplate(calculationResult, fromName, customerDetails);
-    
+
+    const htmlContent = generateHTMLTemplate(
+      calculationResult,
+      fromName,
+      customerDetails
+    );
+
     // Set content with proper encoding
-    await page.setContent(htmlContent, { 
-      waitUntil: 'networkidle0',
-      timeout: 30000 
+    await page.setContent(htmlContent, {
+      waitUntil: "networkidle0",
+      timeout: 30000,
     });
-    
+
     // Wait for fonts to load
-    await page.evaluateHandle('document.fonts.ready');
-    
-    const pdfBuffer = Buffer.from(await page.pdf({
-      format: 'A4',
-      margin: {
-        top: '15mm',
-        right: '15mm',
-        bottom: '20mm',
-        left: '15mm',
-      },
-      printBackground: true,
-      displayHeaderFooter: true,
-      footerTemplate: `
+    await page.evaluateHandle("document.fonts.ready");
+
+    const pdfBuffer = Buffer.from(
+      await page.pdf({
+        format: "A4",
+        margin: {
+          top: "15mm",
+          right: "15mm",
+          bottom: "20mm",
+          left: "15mm",
+        },
+        printBackground: true,
+        displayHeaderFooter: true,
+        footerTemplate: `
         <div style="font-size: 9px; color: #6c757d; text-align: center; width: 100%; margin: 0 15mm; font-family: Inter, Arial, sans-serif;">
           Page <span class="pageNumber"></span> of <span class="totalPages"></span>
         </div>
       `,
-      headerTemplate: '<div></div>',
-      preferCSSPageSize: true,
-    }));
-    
+        headerTemplate: "<div></div>",
+        preferCSSPageSize: true,
+      })
+    );
+
     return {
       buffer: pdfBuffer,
       fileName,
     };
   } catch (error) {
-    console.error('Error generating PDF:', error);
-    throw new Error('Failed to generate PDF');
+    console.error("Error generating PDF:", error);
+    throw new Error("Failed to generate PDF");
   } finally {
     if (browser) {
       await browser.close();

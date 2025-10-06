@@ -1,4 +1,4 @@
-import { NextFunction,Request,Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { body, validationResult, param, query } from "express-validator";
 import { sendResponse } from "../../utils/api";
 
@@ -490,8 +490,24 @@ export const createContactsLeadValidationRules = () => [
 
   body("intake_month")
     .optional({ checkFalsy: true })
-    .isInt({ min: 1, max: 12 })
-    .withMessage("Intake month must be between 1 and 12"),
+    .isString()
+    .isIn([
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ])
+    .withMessage(
+      "Intake month must be a valid month name (e.g., January, February, etc.)"
+    ),
 
   body("preferred_study_destination")
     .optional({ checkFalsy: true })
@@ -594,8 +610,24 @@ export const editContactsLeadValidationRules = () => [
 
   body("intake_month")
     .optional({ checkFalsy: true })
-    .isInt({ min: 1, max: 12 })
-    .withMessage("Intake month must be between 1 and 12"),
+    .isString()
+    .isIn([
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ])
+    .withMessage(
+      "Intake month must be a valid month name (e.g., January, February, etc.)"
+    ),
 
   body("preferred_study_destination")
     .optional({ checkFalsy: true })
@@ -647,10 +679,8 @@ export const contactsLeadPaginationValidationRules = () => [
   query("search").optional({ values: "falsy" }).toLowerCase().trim(),
   query("sortKey")
     .optional({ values: "falsy" })
-    .isIn(["name","email"])
-    .withMessage(
-      "SortKey should be one of name, email"
-    )
+    .isIn(["name", "email"])
+    .withMessage("SortKey should be one of name, email")
     .trim(),
   query("sortDir")
     .optional({ values: "falsy" })
