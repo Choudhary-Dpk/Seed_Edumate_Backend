@@ -139,7 +139,6 @@ export const createEdumateContact = async (
       hs_object_id: hubspotId,
       hs_created_by_user_id: hsCreatedBy,
       b2b_partner_id: partnerId,
-      hs_createDate: new Date(),
       created_at: new Date(),
     },
   });
