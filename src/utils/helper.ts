@@ -400,3 +400,12 @@ export const convertTenureInYears = (tenure: number) => {
 
   return { years, months };
 };
+
+// Helper function to chunk array into smaller batches
+export const chunkArray = <T>(array: T[], size: number): T[][] => {
+  const chunks: T[][] = [];
+  for (let i = 0; i < array.length; i += size) {
+    chunks.push(array.slice(i, i + size));
+  }
+  return chunks;
+};
