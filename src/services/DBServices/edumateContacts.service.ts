@@ -1,7 +1,18 @@
 // ==================== HELPER FUNCTIONS ====================
 
 import prisma from "../../config/prisma";
-import { FIELD_MAPPINGS, mapAcademicProfile, mapAllFields, mapApplicationJourney, mapFinancialInfo, mapLeadAttribution, mapLoanPreferences, mapMainContact, mapPersonalInformation, mapSystemTracking } from "../../mappers/edumateContact/mapping";
+import {
+  FIELD_MAPPINGS,
+  mapAcademicProfile,
+  mapAllFields,
+  mapApplicationJourney,
+  mapFinancialInfo,
+  mapLeadAttribution,
+  mapLoanPreferences,
+  mapMainContact,
+  mapPersonalInformation,
+  mapSystemTracking,
+} from "../../mappers/edumateContact/mapping";
 import logger from "../../utils/logger";
 
 /**
@@ -12,9 +23,13 @@ const categorizeFields = (flatData: Record<string, any>) => {
 
   for (const [category, fields] of Object.entries(FIELD_MAPPINGS)) {
     const categoryData: Record<string, any> = {};
-    
+
     for (const field of fields) {
-      if (field in flatData && flatData[field] !== undefined && flatData[field] !== null) {
+      if (
+        field in flatData &&
+        flatData[field] !== undefined &&
+        flatData[field] !== null
+      ) {
         categoryData[field] = flatData[field];
       }
     }
@@ -32,72 +47,157 @@ const categorizeFields = (flatData: Record<string, any>) => {
 /**
  * Categorizes mapped fields into their respective tables
  */
-const categorizeByTable = (mappedFields: Record<string, any>) => {
+export const categorizeByTable = (mappedFields: Record<string, any>) => {
   const categorized: Record<string, Record<string, any>> = {};
 
   // Main Contact Fields
   const mainContactFields = [
-    'deleted_by_id', 'b2b_partner_id', 'hs_created_by_user_id', 'hs_createdate',
-    'hs_lastmodifieddate', 'hs_object_id', 'hs_updated_by_user_id', 'hubspot_owner_id',
-    'base_currency', 'study_destination_currency', 'user_selected_currency', 'course_type',
-    'co_applicant_1_email', 'co_applicant_1_mobile_number', 'is_deleted'
+    "deleted_by_id",
+    "b2b_partner_id",
+    "hs_created_by_user_id",
+    "hs_createdate",
+    "hs_lastmodifieddate",
+    "hs_object_id",
+    "hs_updated_by_user_id",
+    "hubspot_owner_id",
+    "base_currency",
+    "study_destination_currency",
+    "user_selected_currency",
+    "course_type",
+    "co_applicant_1_email",
+    "co_applicant_1_mobile_number",
+    "is_deleted",
   ];
 
   // Personal Information Fields
   const personalInfoFields = [
-    'first_name', 'last_name', 'email', 'phone_number', 'date_of_birth', 'gender',
-    'nationality', 'current_address', 'city_current_address', 'state_current_address',
-    'country_current_address', 'pincode_current_address', 'permanent_address',
-    'city_permanent_address', 'state_permanent_address', 'country_permanent_address',
-    'pincode_permanent_address'
+    "first_name",
+    "last_name",
+    "email",
+    "phone_number",
+    "date_of_birth",
+    "gender",
+    "nationality",
+    "current_address",
+    "city_current_address",
+    "state_current_address",
+    "country_current_address",
+    "pincode_current_address",
+    "permanent_address",
+    "city_permanent_address",
+    "state_permanent_address",
+    "country_permanent_address",
+    "pincode_permanent_address",
   ];
 
   // Academic Profile Fields
   const academicProfileFields = [
-    'admission_status', 'current_education_level', 'current_institution', 'current_course_major',
-    'current_cgpa_percentage', 'current_graduation_year', 'course_duration_months', 'cat_score',
-    'gre_score', 'gmat_score', 'toefl_score', 'ielts_score', 'sat_score', 'duolingo_score',
-    'nmat_score', 'xat_score', 'other_test_scores', 'target_degree_level', 'target_course_major',
-    'preferred_study_destination', 'target_universities', 'intended_start_term',
-    'intended_start_date', 'intake_month', 'intake_year'
+    "admission_status",
+    "current_education_level",
+    "current_institution",
+    "current_course_major",
+    "current_cgpa_percentage",
+    "current_graduation_year",
+    "course_duration_months",
+    "cat_score",
+    "gre_score",
+    "gmat_score",
+    "toefl_score",
+    "ielts_score",
+    "sat_score",
+    "duolingo_score",
+    "nmat_score",
+    "xat_score",
+    "other_test_scores",
+    "target_degree_level",
+    "target_course_major",
+    "preferred_study_destination",
+    "target_universities",
+    "intended_start_term",
+    "intended_start_date",
+    "intake_month",
+    "intake_year",
   ];
 
   // Application Journey Fields
   const applicationJourneyFields = [
-    'assigned_counselor', 'counselor_notes', 'current_status_disposition',
-    'current_status_disposition_reason', 'priority_level', 'first_contact_date',
-    'last_contact_date', 'follow_up_date', 'next_follow_up_date'
+    "assigned_counselor",
+    "counselor_notes",
+    "current_status_disposition",
+    "current_status_disposition_reason",
+    "priority_level",
+    "first_contact_date",
+    "last_contact_date",
+    "follow_up_date",
+    "next_follow_up_date",
   ];
 
   // Financial Info Fields
   const financialInfoFields = [
-    'annual_family_income', 'currency', 'co_applicant_1_name', 'co_applicant_1_income',
-    'co_applicant_1_occupation', 'co_applicant_1_relationship', 'co_applicant_2_name',
-    'co_applicant_2_income', 'co_applicant_2_occupation', 'co_applicant_2_relationship',
-    'co_applicant_3_name', 'co_applicant_3_income', 'co_applicant_3_occupation',
-    'co_applicant_3_relationship', 'collateral_available', 'collateral_type',
-    'collateral_value', 'collateral_2_available', 'collateral_2_type', 'collateral_2_value',
-    'living_expenses', 'other_expenses', 'total_course_cost', 'tuition_fee',
-    'loan_amount_required', 'scholarship_amount', 'self_funding_amount'
+    "annual_family_income",
+    "currency",
+    "co_applicant_1_name",
+    "co_applicant_1_income",
+    "co_applicant_1_occupation",
+    "co_applicant_1_relationship",
+    "co_applicant_2_name",
+    "co_applicant_2_income",
+    "co_applicant_2_occupation",
+    "co_applicant_2_relationship",
+    "co_applicant_3_name",
+    "co_applicant_3_income",
+    "co_applicant_3_occupation",
+    "co_applicant_3_relationship",
+    "collateral_available",
+    "collateral_type",
+    "collateral_value",
+    "collateral_2_available",
+    "collateral_2_type",
+    "collateral_2_value",
+    "living_expenses",
+    "other_expenses",
+    "total_course_cost",
+    "tuition_fee",
+    "loan_amount_required",
+    "scholarship_amount",
+    "self_funding_amount",
   ];
 
   // Lead Attribution Fields
   const leadAttributionFields = [
-    'lead_source', 'lead_source_detail', 'lead_quality_score', 'lead_reference_code',
-    'b2b_partner_name', 'partner_commission_applicable', 'referral_person_name',
-    'referral_person_contact', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term',
-    'utm_content'
+    "lead_source",
+    "lead_source_detail",
+    "lead_quality_score",
+    "lead_reference_code",
+    "b2b_partner_name",
+    "partner_commission_applicable",
+    "referral_person_name",
+    "referral_person_contact",
+    "utm_source",
+    "utm_medium",
+    "utm_campaign",
+    "utm_term",
+    "utm_content",
   ];
 
   // Loan Preferences Fields
   const loanPreferencesFields = [
-    'loan_type_preference', 'preferred_lenders', 'repayment_type_preference'
+    "loan_type_preference",
+    "preferred_lenders",
+    "repayment_type_preference",
   ];
 
   // System Tracking Fields
   const systemTrackingFields = [
-    'created_by', 'created_date', 'last_modified_by', 'last_modified_date',
-    'data_source', 'student_record_status', 'tags', 'gdpr_consent', 'marketing_consent'
+    "created_by",
+    "created_date",
+    "last_modified_by",
+    "last_modified_date",
+    "data_source",
+    "student_record_status",
+    "tags",
+    "gdpr_consent",
+    "marketing_consent",
   ];
 
   // Categorize main contact
@@ -196,13 +296,13 @@ const categorizeByTable = (mappedFields: Record<string, any>) => {
  */
 const filterFields = (data: Record<string, any>, fields: string[]) => {
   const filtered: Record<string, any> = {};
-  
+
   for (const field of fields) {
     if (field in data && data[field] !== undefined && data[field] !== null) {
       filtered[field] = data[field];
     }
   }
-  
+
   return Object.keys(filtered).length > 0 ? filtered : null;
 };
 
@@ -216,9 +316,9 @@ export const createContact = async (input: Record<string, any>) => {
     const mappedFields = await mapAllFields(input);
     const categorized = categorizeByTable(mappedFields);
 
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: any) => {
       const contact = await tx.hSEdumateContacts.create({
-        data: categorized.mainContact || {} as any,
+        data: categorized.mainContact || ({} as any),
       });
 
       contactId = contact.id;
@@ -300,11 +400,11 @@ export const createContact = async (input: Record<string, any>) => {
       });
     });
 
-    logger.info("Contact created successfully", { 
-      contactId, 
-      email: input.email 
+    logger.info("Contact created successfully", {
+      contactId,
+      email: input.email,
     });
-    
+
     return { success: true, data: result, id: contactId };
   } catch (error: any) {
     logger.error("Error creating contact", {
@@ -319,12 +419,15 @@ export const createContact = async (input: Record<string, any>) => {
 /**
  * Update a contact
  */
-export const updateContact = async (contactId: number, input: Record<string, any>) => {
+export const updateContact = async (
+  contactId: number,
+  input: Record<string, any>
+) => {
   try {
     const mappedFields = await mapAllFields(input);
     const categorized = categorizeByTable(mappedFields);
 
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: any) => {
       if (categorized.mainContact) {
         await tx.hSEdumateContacts.update({
           where: { id: contactId },
@@ -423,11 +526,11 @@ export const updateContact = async (contactId: number, input: Record<string, any
       });
     });
 
-    logger.info("Contact updated successfully", { 
-      contactId, 
-      email: input.email 
+    logger.info("Contact updated successfully", {
+      contactId,
+      email: input.email,
     });
-    
+
     return { success: true, data: result, id: contactId };
   } catch (error: any) {
     logger.error("Error updating contact", {
@@ -439,7 +542,6 @@ export const updateContact = async (contactId: number, input: Record<string, any
     return { success: false, error: error.message };
   }
 };
-
 
 /**
  * Soft delete a contact
@@ -456,7 +558,7 @@ export const deleteContact = async (contactId: number, deletedById: number) => {
 
     return { success: true, data: result };
   } catch (error: any) {
-    console.error('Error deleting contact:', error);
+    console.error("Error deleting contact:", error);
     return { success: false, error: error.message };
   }
 };
@@ -481,11 +583,7 @@ export const getContactById = async (contactId: number) => {
 
     return { success: true, data: contact };
   } catch (error: any) {
-    console.error('Error fetching contact:', error);
+    console.error("Error fetching contact:", error);
     return { success: false, error: error.message };
   }
 };
-
-
-
-

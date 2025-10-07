@@ -2310,8 +2310,8 @@ model CurrencyConfigs {
   position            String
   thousands_separator  String   @default(",")
   decimal_separator    String   @default(".")
-  min_loan_amount       Int
-  max_loan_amount       Int
+  min_loan_amount       Decimal
+  max_loan_amount       Decimal
   quick_amounts        Json
   large_amount_units    Json
   is_active            Boolean  @default(true)
