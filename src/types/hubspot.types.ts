@@ -670,6 +670,7 @@ export interface MappedEdumateContact {
   educationLevel: string;
   partnerName: string;
   phone?: string;
+  b2bHubspotId?: string;
 }
 
 // src/types/common.types.ts

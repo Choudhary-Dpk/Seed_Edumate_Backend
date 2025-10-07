@@ -458,7 +458,7 @@ export const createCSVContacts = async (
   });
 };
 
-export const updateContactsSystemTracking = async (
+export const updateEdumateContactsHubspotTracking = async (
   hubspotResults: HubspotResult[],
   userId: number
 ) => {
@@ -466,7 +466,6 @@ export const updateContactsSystemTracking = async (
     for (const hs of hubspotResults) {
       const { email, hs_object_id, hs_createdate, hs_lastmodifieddate } =
         hs.properties;
-      console.log("hs_object_id", hs_object_id);
 
       if (!email) continue;
 

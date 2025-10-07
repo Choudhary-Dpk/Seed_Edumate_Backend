@@ -183,7 +183,7 @@ const parseCSVWithCsvParse = (buffer: Buffer): Promise<any[]> => {
   return new Promise((resolve, reject) => {
     const records: any[] = [];
 
-    // csv-parse options  
+    // csv-parse options
     const parser = parse({
       columns: true, // Use first line as column names
       skip_empty_lines: true, // Skip empty lines
@@ -221,11 +221,11 @@ const parseCSVWithCsvParse = (buffer: Buffer): Promise<any[]> => {
 
 const VALID_ADMISSION_STATUS = [
   "Not Applied",
-  "Applied", 
+  "Applied",
   "Interview Scheduled",
   "Waitlisted",
   "Admitted",
-  "Rejected"
+  "Rejected",
 ];
 
 const VALID_CURRENT_EDUCATION_LEVEL = [
@@ -234,19 +234,23 @@ const VALID_CURRENT_EDUCATION_LEVEL = [
   "Masters",
   "PhD",
   "Diploma",
-  "Other"
+  "Other",
 ];
 
 const VALID_TARGET_DEGREE_LEVEL = [
   "Bachelors",
   "Masters",
-  "PhD", 
+  "PhD",
   "Diploma",
   "Certificate",
-  "Professional Course"
+  "Professional Course",
 ];
 
-export const validateContactRows = (rows: any[], userId: number): ContactsValidationResult => {
+export const validateContactRows = (
+  rows: any[],
+  userId: number,
+  hubspotId: string
+): ContactsValidationResult => {
   const validRows: ContactsLead[] = [];
   const errors: { row: number; reason: string }[] = [];
 
@@ -265,7 +269,9 @@ export const validateContactRows = (rows: any[], userId: number): ContactsValida
     const b2bPartnerName = r["B2B Partner Name"]?.toString().trim();
     const courseType = r["Course Type"]?.toString().trim();
     const dateOfBirthRaw = r["Date of Birth"];
-    const preferredStudyDestination = r["Preferred Study Destination"]?.toString().trim();
+    const preferredStudyDestination = r["Preferred Study Destination"]
+      ?.toString()
+      .trim();
     const targetDegreeLevel = r["Target Degree Level"]?.toString().trim();
     const intakeMonth = r["Intake Month"]?.toString().trim();
     const admissionStatus = r["Admission Status"]?.toString().trim();
@@ -279,15 +285,33 @@ export const validateContactRows = (rows: any[], userId: number): ContactsValida
 
     // --- Enum validations ---
     if (admissionStatus && !VALID_ADMISSION_STATUS.includes(admissionStatus)) {
-      rowErrors.push(`Invalid Admission Status: "${admissionStatus}". Valid values: ${VALID_ADMISSION_STATUS.join(", ")}`);
+      rowErrors.push(
+        `Invalid Admission Status: "${admissionStatus}". Valid values: ${VALID_ADMISSION_STATUS.join(
+          ", "
+        )}`
+      );
     }
 
-    if (educationLevel && !VALID_CURRENT_EDUCATION_LEVEL.includes(educationLevel)) {
-      rowErrors.push(`Invalid Current Education Level: "${educationLevel}". Valid values: ${VALID_CURRENT_EDUCATION_LEVEL.join(", ")}`);
+    if (
+      educationLevel &&
+      !VALID_CURRENT_EDUCATION_LEVEL.includes(educationLevel)
+    ) {
+      rowErrors.push(
+        `Invalid Current Education Level: "${educationLevel}". Valid values: ${VALID_CURRENT_EDUCATION_LEVEL.join(
+          ", "
+        )}`
+      );
     }
 
-    if (targetDegreeLevel && !VALID_TARGET_DEGREE_LEVEL.includes(targetDegreeLevel)) {
-      rowErrors.push(`Invalid Target Degree Level: "${targetDegreeLevel}". Valid values: ${VALID_TARGET_DEGREE_LEVEL.join(", ")}`);
+    if (
+      targetDegreeLevel &&
+      !VALID_TARGET_DEGREE_LEVEL.includes(targetDegreeLevel)
+    ) {
+      rowErrors.push(
+        `Invalid Target Degree Level: "${targetDegreeLevel}". Valid values: ${VALID_TARGET_DEGREE_LEVEL.join(
+          ", "
+        )}`
+      );
     }
 
     // Optional but typed validations
@@ -322,6 +346,7 @@ export const validateContactRows = (rows: any[], userId: number): ContactsValida
         intakeMonth,
         userId,
         createdBy: userId,
+        b2bHubspotId: hubspotId,
       });
     }
   });

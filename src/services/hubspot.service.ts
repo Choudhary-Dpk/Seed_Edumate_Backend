@@ -389,6 +389,8 @@ const mapToHubSpotProperties = async (contactData: Partial<MappedEdumateContact>
   if(contactData.studyDestination) properties.preferred_study_destination = contactData.studyDestination;
   if(contactData.partnerName) properties.b2b_partner_name = contactData.partnerName;
   if (contactData.phone) properties.phone_number = contactData.phone;
+  if (contactData.b2bHubspotId)
+    properties.b2b_partner_id = contactData.b2bHubspotId;
 
   return properties;
 };
