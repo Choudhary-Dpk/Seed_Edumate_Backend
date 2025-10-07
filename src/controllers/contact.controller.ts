@@ -30,6 +30,7 @@ import {
 import { resolveLeadsCsvPath } from "../utils/leads";
 import { FileData } from "../types/leads.types";
 import {
+  chunkArray,
   deduplicateContactsInDb,
   deduplicateContactsInFile,
   validateContactRows,
@@ -40,6 +41,8 @@ import {
   updateFileRecord,
 } from "../models/helpers";
 import { getPartnerIdByUserId } from "../models/helpers/partners.helper";
+import { queue } from "async";
+import { BatchResult, ContactsLead } from "../types/contact.types";
 import { mapAllFields } from "../mappers/edumateContact/mapping";
 import { categorizeByTable } from "../services/DBServices/edumateContacts.service";
 
@@ -349,6 +352,109 @@ export const downloadContactsTemplate = (
   }
 };
 
+// export const uploadContactsCSV = async (
+//   req: RequestWithPayload<LoginPayload, FileData>,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   try {
+//     const { id } = req.payload!;
+//     const fileData = req.fileData;
+
+//     if (!fileData) {
+//       return sendResponse(res, 400, "Invalid or missing file data");
+//     }
+
+//     const {
+//       file_data: rows,
+//       total_records,
+//       filename,
+//       mime_type,
+//       entity_type,
+//     } = fileData;
+
+//     // 1. Store metadata into FileUpload table
+//     logger.debug(`Entering File type in database`);
+//     const fileEntity = await addFileType(entity_type);
+//     logger.debug(`File type added successfully`);
+
+//     // Now create file upload
+//     logger.debug(`Entering file records history`);
+//     const fileUpload = await addFileRecord(
+//       filename,
+//       mime_type,
+//       rows,
+//       total_records,
+//       id,
+//       fileEntity.id!
+//     );
+//     logger.debug(`File records history added successfully`);
+
+//     // 2. Validate + Normalize rows
+//     const { validRows, errors } = validateContactRows(rows, id);
+//     if (validRows.length === 0) {
+//       return sendResponse(res, 400, "No valid rows found in CSV", { errors });
+//     }
+
+//     // 3. Deduplicate inside file
+//     const { unique: uniqueInFile, duplicates: duplicatesInFile } =
+//       deduplicateContactsInFile(validRows);
+//     console.log("unique", uniqueInFile, duplicatesInFile);
+
+//     // 4. Deduplicate against DB
+//     const { unique: toInsert, duplicates: duplicatesInDb } =
+//       await deduplicateContactsInDb(uniqueInFile);
+//     console.log("toInsert", toInsert, duplicatesInDb);
+
+//     // 5. Handle no new records
+//     if (toInsert.length === 0) {
+//       logger.debug(`Updating fileUpload records`);
+//       await updateFileRecord(fileUpload.id, 0, validRows.length);
+//       logger.debug(`File upload records updated successfully`);
+
+//       return sendResponse(res, 200, "No new records to insert", {
+//         totalRows: rows.length,
+//         validRows: validRows.length,
+//         inserted: 0,
+//         skippedInvalid: errors.length,
+//         skippedDuplicatesInFile: duplicatesInFile,
+//         skippedDuplicatesInDb: duplicatesInDb,
+//         errors,
+//       });
+//     }
+
+//     // 6. Insert into HubSpot (batch)
+//     logger.debug(`Creating ${toInsert.length} HubSpot loan applications`);
+//     const hubspotResults = await createContactsLoanLeads(toInsert);
+//     console.log("hubspot", hubspotResults);
+//     logger.debug(`HubSpot loan applications created`);
+
+//     // 7. Insert into DB (safely with skipDuplicates)
+//     logger.debug(`Creating csv leads in database`);
+//     const result = await createCSVContacts(toInsert, id);
+//     logger.debug(`Leads created successfully in database`);
+
+//     updateContactsSystemTracking(hubspotResults as any[]);
+
+//     // 8. Update FileUpload stats
+//     logger.debug(`Updating fileUpload records`);
+//     await updateFileRecord(fileUpload.id, result.count, errors.length);
+//     logger.debug(`File upload records updated successfully`);
+
+//     return sendResponse(res, 201, "CSV processed successfully", {
+//       totalRows: rows.length,
+//       validRows: validRows.length,
+//       inserted: result.count,
+//       skippedInvalid: errors.length,
+//       skippedDuplicatesInFile: duplicatesInFile,
+//       skippedDuplicatesInDb: duplicatesInDb,
+//       errors,
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
 export const uploadContactsCSV = async (
   req: RequestWithPayload<LoginPayload, FileData>,
   res: Response,
@@ -420,34 +526,136 @@ export const uploadContactsCSV = async (
       });
     }
 
-    // 6. Insert into HubSpot (batch)
-    logger.debug(`Creating ${toInsert.length} HubSpot loan applications`);
-    const hubspotResults = await createContactsLoanLeads(toInsert);
-    console.log("hubspot", hubspotResults);
-    logger.debug(`HubSpot loan applications created`);
+    // 6. Process in batches of 50
+    const BATCH_SIZE = 50;
+    const batches = chunkArray(toInsert, BATCH_SIZE);
 
-    // 7. Insert into DB (safely with skipDuplicates)
-    logger.debug(`Creating csv leads in database`);
-    const result = await createCSVContacts(toInsert, id);
-    logger.debug(`Leads created successfully in database`);
+    logger.debug(
+      `Processing ${toInsert.length} records in ${batches.length} batches of ${BATCH_SIZE}`
+    );
 
-    updateContactsSystemTracking(hubspotResults as any[]);
+    // Track results across all batches
+    const batchResults: BatchResult[] = [];
+
+    // Process batches using queue
+    await processBatchesWithQueue(batches, id, batchResults);
+
+    logger.debug(`All ${batches.length} batches processed`);
+
+    // Calculate total results
+    const totalInserted = batchResults.reduce(
+      (sum, br) => sum + br.inserted,
+      0
+    );
+    const batchErrors = batchResults.flatMap((br) => br.errors);
 
     // 8. Update FileUpload stats
     logger.debug(`Updating fileUpload records`);
-    await updateFileRecord(fileUpload.id, result.count, errors.length);
+    await updateFileRecord(
+      fileUpload.id,
+      totalInserted,
+      errors.length + batchErrors.length
+    );
     logger.debug(`File upload records updated successfully`);
 
     return sendResponse(res, 201, "CSV processed successfully", {
       totalRows: rows.length,
       validRows: validRows.length,
-      inserted: result.count,
+      inserted: totalInserted,
       skippedInvalid: errors.length,
       skippedDuplicatesInFile: duplicatesInFile,
       skippedDuplicatesInDb: duplicatesInDb,
+      batchesProcessed: batches.length,
+      batchErrors: batchErrors.length > 0 ? batchErrors : undefined,
       errors,
     });
   } catch (error) {
     next(error);
   }
+};
+
+// Process batches using async queue
+const processBatchesWithQueue = (
+  batches: ContactsLead[][],
+  userId: number,
+  batchResults: BatchResult[]
+): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    // Create queue with concurrency of 1 to process batches sequentially
+    const processingQueue = queue(
+      (task: { batch: ContactsLead[]; index: number }, callback) => {
+        const { batch, index } = task;
+
+        (async () => {
+          try {
+            logger.debug(
+              `Processing batch ${index + 1}/${batches.length} with ${
+                batch.length
+              } records`
+            );
+
+            // Insert into HubSpot
+            const hubspotResults = await createContactsLoanLeads(batch);
+            logger.debug(`Batch ${index + 1}: HubSpot contacts created`);
+
+            // Insert into DB
+            const dbResult = await createCSVContacts(batch, userId);
+            logger.debug(
+              `Batch ${index + 1}: DB contacts created (${dbResult.count})`
+            );
+
+            // Update system tracking
+            await updateContactsSystemTracking(hubspotResults as any[], userId);
+            logger.debug(`Batch ${index + 1}: System tracking updated`);
+
+            // Store batch result
+            batchResults.push({
+              inserted: dbResult.count,
+              hubspotResults,
+              errors: [],
+            });
+
+            logger.debug(
+              `Batch ${index + 1}/${batches.length} completed successfully`
+            );
+
+            callback();
+          } catch (error) {
+            logger.error(`Error processing batch ${index + 1}`, { error });
+
+            // Store error
+            batchResults.push({
+              inserted: 0,
+              hubspotResults: [],
+              errors: [
+                {
+                  batch: index + 1,
+                  error:
+                    error instanceof Error ? error.message : "Unknown error",
+                },
+              ],
+            });
+
+            callback();
+          }
+        })();
+      },
+      1
+    ); // Concurrency of 1 for sequential processing
+
+    // Handle queue drain (all tasks completed)
+    processingQueue.drain(() => {
+      resolve();
+    });
+
+    // Handle queue errors
+    processingQueue.error((error) => {
+      logger.error("Queue processing error", { error });
+    });
+
+    // Add all batches to queue
+    batches.forEach((batch, index) => {
+      processingQueue.push({ batch, index });
+    });
+  });
 };

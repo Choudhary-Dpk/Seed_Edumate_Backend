@@ -685,8 +685,8 @@ export const contactsLeadPaginationValidationRules = () => [
   query("search").optional({ values: "falsy" }).toLowerCase().trim(),
   query("sortKey")
     .optional({ values: "falsy" })
-    .isIn(["name", "email"])
-    .withMessage("SortKey should be one of name, email")
+    .isIn(["name", "email", "id"])
+    .withMessage("SortKey should be one of name, email, id")
     .trim(),
   query("sortDir")
     .optional({ values: "falsy" })

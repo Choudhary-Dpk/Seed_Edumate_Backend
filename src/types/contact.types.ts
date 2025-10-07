@@ -83,7 +83,10 @@ export const LoanTypePreferenceMap: Record<string, LoanTypePreference> = {
   "No Preference": LoanTypePreference.NO_PREFERENCE,
 };
 
-export const preferredStudyDestinationMap: Record<string, PreferredStudyDestination> = {
+export const preferredStudyDestinationMap: Record<
+  string,
+  PreferredStudyDestination
+> = {
   US: PreferredStudyDestination.US,
   UK: PreferredStudyDestination.UK,
   UAE: PreferredStudyDestination.UAE,
@@ -118,7 +121,10 @@ export const coApplicantOccupationMap: Record<string, CoApplicantOccupation> = {
   Others: CoApplicantOccupation.OTHERS,
 };
 
-export const coApplicantRelationshipMap: Record<string, CoApplicantRelationship> = {
+export const coApplicantRelationshipMap: Record<
+  string,
+  CoApplicantRelationship
+> = {
   Father: CoApplicantRelationship.FATHER,
   Mother: CoApplicantRelationship.MOTHER,
   Spouse: CoApplicantRelationship.SPOUSE,
@@ -163,12 +169,18 @@ export const leadSourceMap: Record<string, LeadSource> = {
   Other: LeadSource.OTHER,
 };
 
-export const partnerCommissionApplicableMap: Record<string, PartnerCommissionApplicable> = {
+export const partnerCommissionApplicableMap: Record<
+  string,
+  PartnerCommissionApplicable
+> = {
   Yes: PartnerCommissionApplicable.YES,
   No: PartnerCommissionApplicable.NO,
 };
 
-export const repaymentTypePreferenceMap: Record<string, RepaymentTypePreference> = {
+export const repaymentTypePreferenceMap: Record<
+  string,
+  RepaymentTypePreference
+> = {
   EMI: RepaymentTypePreference.EMI,
   "Simple Int": RepaymentTypePreference.SIMPLE_INT,
   "Partial Int": RepaymentTypePreference.PARTIAL_INT,
@@ -204,16 +216,23 @@ export const marketingConsentMap: Record<string, MarketingConsent> = {
   No: MarketingConsent.NO,
 };
 
-export const currentStatusDispositionMap: Record<string, CurrentStatusDisposition> = {
+export const currentStatusDispositionMap: Record<
+  string,
+  CurrentStatusDisposition
+> = {
   "Not Interested": CurrentStatusDisposition.NOT_INTERESTED,
   "Wrong Number": CurrentStatusDisposition.WRONG_NUMBER,
   "Call Not Answered": CurrentStatusDisposition.CALL_NOT_ANSWERED,
   "Follow Up": CurrentStatusDisposition.FOLLOW_UP,
   "Int For Next Year": CurrentStatusDisposition.INT_FOR_NEXT_YEAR,
-  "Partial Documents Received": CurrentStatusDisposition.PARTIAL_DOCUMENTS_RECEIVED,
+  "Partial Documents Received":
+    CurrentStatusDisposition.PARTIAL_DOCUMENTS_RECEIVED,
 };
 
-export const statusDispositionReasonMap: Record<string, StatusDispositionReason> = {
+export const statusDispositionReasonMap: Record<
+  string,
+  StatusDispositionReason
+> = {
   "Already Applied": StatusDispositionReason.ALREADY_APPLIED,
   "Not Looking At Loan": StatusDispositionReason.NOT_LOOKING_AT_LOAN,
   "Self Funding": StatusDispositionReason.SELF_FUNDING,
@@ -237,4 +256,10 @@ export const intendedStartTermMap: Record<string, IntendedStartTerm> = {
 export type ContactsValidationResult = {
   validRows: ContactsLead[];
   errors: { row: number; reason: string }[];
+};
+
+export type BatchResult = {
+  inserted: number;
+  hubspotResults: any[];
+  errors: Array<{ batch: number; error: string }>;
 };

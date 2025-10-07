@@ -139,6 +139,7 @@ export const createEdumateContact = async (
       hs_object_id: hubspotId,
       hs_created_by_user_id: hsCreatedBy,
       b2b_partner_id: partnerId,
+      hs_createDate: new Date(),
       created_at: new Date(),
     },
   });
@@ -305,6 +306,11 @@ export const fetchContactsLeadList = async (
   let orderBy: any = { created_at: "desc" };
   if (sortKey) {
     switch (sortKey) {
+      case "id":
+        orderBy = {
+          personal_information: { id: sortDir || "asc" },
+        };
+        break;
       case "name":
         orderBy = {
           personal_information: { first_name: sortDir || "asc" },
@@ -352,6 +358,7 @@ export const findContacts = async (batch: any[]) => {
     where: {
       OR: batch.map((v) => ({
         OR: [{ email: v.email }, { phone_number: v.phoneNumber }],
+        is_deleted: false,
       })),
     },
     select: {
@@ -453,12 +460,14 @@ export const createCSVContacts = async (
 };
 
 export const updateContactsSystemTracking = async (
-  hubspotResults: HubspotResult[]
+  hubspotResults: HubspotResult[],
+  userId: number
 ) => {
   await prisma.$transaction(async (tx) => {
     for (const hs of hubspotResults) {
       const { email, hs_object_id, hs_createdate, hs_lastmodifieddate } =
         hs.properties;
+      console.log("hs_object_id", hs_object_id);
 
       if (!email) continue;
 
@@ -476,6 +485,7 @@ export const updateContactsSystemTracking = async (
           where: { id: contact.id },
           data: {
             hs_object_id: hs_object_id ?? hs.id,
+            hs_updated_by_user_id: userId,
             hs_createdate: hs_createdate ? new Date(hs_createdate) : undefined,
             hs_lastmodifieddate: hs_lastmodifieddate
               ? new Date(hs_lastmodifieddate)
