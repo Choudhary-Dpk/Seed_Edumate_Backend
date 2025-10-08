@@ -14,7 +14,10 @@ import { permissionsRoutes } from "./routes/permissions.routes";
 import { masterRoutes } from "./routes/index.routes";
 import app from "./setup/express";
 import "./setup/cron";
+import { setAuditContext } from "./middlewares/audit.middleware";
 const PORT = process.env.PORT || 3031;
+
+app.use(setAuditContext);
 
 // API Routes
 app.use("/loans", loanRoutes);

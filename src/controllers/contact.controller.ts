@@ -725,7 +725,8 @@ const processBatchesWithQueue = (
               try {
                 const dbResult = await createCSVContacts(
                   successfulRecords,
-                  userId
+                  userId,
+                  hubspotResults
                 );
                 dbInsertedCount = dbResult.count;
 
@@ -757,25 +758,7 @@ const processBatchesWithQueue = (
                 dbInsertedCount = 0;
               }
             }
-
-            // Step 3: Update system tracking
-            if (dbInsertedCount > 0 && hubspotResults.length > 0) {
-              try {
-                await updateEdumateContactsHubspotTracking(
-                  hubspotResults,
-                  userId
-                );
-                logger.debug(
-                  `Batch ${batchNumber}: System tracking updated successfully`
-                );
-              } catch (trackingError: any) {
-                logger.error(
-                  `Batch ${batchNumber}: System tracking error (non-critical)`,
-                  { error: trackingError }
-                );
-              }
-            }
-
+            
             // Store batch result
             batchResults.push({
               inserted: dbInsertedCount,
