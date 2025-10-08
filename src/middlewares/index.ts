@@ -36,10 +36,10 @@ export const validateCreateUser = async (
   try {
     const { email, b2bId, roleId } = req.body;
 
-    const existingEmail = await hubspotService.fetchPartnerByEmail(email);
-    if (existingEmail.total > 0 || existingEmail.results?.length > 0) {
-      return sendResponse(res, 400, "Email already exists in HubSpot");
-    }
+    // const existingEmail = await hubspotService.fetchPartnerByEmail(email);
+    // if (existingEmail.total > 0 || existingEmail.results?.length > 0) {
+    //   return sendResponse(res, 400, "Email already exists in HubSpot");
+    // }
 
     const existingPartner = await getPartnerById(b2bId);
     if (!existingPartner) {

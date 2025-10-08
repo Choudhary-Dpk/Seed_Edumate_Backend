@@ -58,3 +58,27 @@ export const getPartnerIdByUserId = async (userId: number) => {
   });
   return partnerId;
 };
+
+export const getHubspotIdByUserId = async (
+  userId: number
+): Promise<string | null> => {
+  try {
+    const user = await prisma.b2BPartnersUsers.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        b2b_partner: {
+          select: {
+            hs_object_id: true,
+          },
+        },
+      },
+    });
+
+    return user?.b2b_partner?.hs_object_id || null;
+  } catch (error) {
+    console.error("Error fetching Hubspot ID:", error);
+    throw error;
+  }
+};

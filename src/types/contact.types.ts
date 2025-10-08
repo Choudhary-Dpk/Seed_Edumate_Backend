@@ -41,6 +41,7 @@ export type ContactsLead = {
   intakeMonth?: string;
   userId?: number;
   createdBy?: number;
+  b2bHubspotId?: string;
 };
 
 // ==================== EXISTING MAPPINGS ====================
@@ -258,8 +259,20 @@ export type ContactsValidationResult = {
   errors: { row: number; reason: string }[];
 };
 
+export type RecordError = {
+  batchNumber: number;
+  recordIndex: number;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  stage: "hubspot" | "database" | "tracking";
+  reason: string;
+  timestamp: string;
+};
+
 export type BatchResult = {
   inserted: number;
+  failed: number;
   hubspotResults: any[];
-  errors: Array<{ batch: number; error: string }>;
+  errors: RecordError[];
 };

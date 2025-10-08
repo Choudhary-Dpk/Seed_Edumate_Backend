@@ -54,11 +54,11 @@ export const createUser = async (
   try {
     const { fullName, email, b2bId, roleId } = req.body;
 
-    logger.debug(`Creating hubspot partner`);
-    const hubspotPartner = await createPartner(email, fullName);
-    logger.debug(
-      `Hubspot partner created successfully for partnerId: ${hubspotPartner.id}`
-    );
+    // logger.debug(`Creating hubspot partner`);
+    // const hubspotPartner = await createPartner(email, fullName);
+    // logger.debug(
+    //   `Hubspot partner created successfully for partnerId: ${hubspotPartner.id}`
+    // );
 
     logger.debug(`Creating user in database`);
     const user = await createUsers(
