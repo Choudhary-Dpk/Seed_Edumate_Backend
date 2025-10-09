@@ -5,6 +5,21 @@ import { AsyncLocalStorage } from "async_hooks";
 import { Prisma } from "@prisma/client";
 import logger from "../utils/logger";
 import prisma from "../config/prisma";
+import { createEdumateContactsLeads } from "../services/hubspot.service";
+import {
+  getHubspotIdByUserId,
+  getPartnerIdByUserId,
+} from "../models/helpers/partners.helper";
+import {
+  admissionStatusMap,
+  courseTypeMap,
+  genderMap,
+  preferredStudyDestinationMap,
+  reverseCourseTypeMap,
+  reverseGenderMap,
+  targetDegreeLevelMap,
+} from "../types/contact.types";
+import { updateHsObjectIdByEmailSingleQuery } from "../models/helpers/contact.helper";
 
 export interface AuditContext {
   userId?: number;
@@ -381,6 +396,58 @@ function extractContactId(oldValues: any, newValues: any): number | null {
 // MAIN AUDIT LOGGING FUNCTION (runs OUTSIDE tx now)
 // ============================================================================
 
+function buildLeadPayload(auditLogs: any[], hubspotId: string) {
+  // 1. Extract data by table
+  const contacts =
+    auditLogs.find((a) => a.table_name === "HSEdumateContacts")?.new_values ||
+    {};
+  const personal =
+    auditLogs.find(
+      (a) => a.table_name === "HSEdumateContactsPersonalInformation"
+    )?.new_values || {};
+  const academic =
+    auditLogs.find((a) => a.table_name === "HSEdumateContactsAcademicProfiles")
+      ?.new_values || {};
+  const tracking =
+    auditLogs.find((a) => a.table_name === "HSEdumateContactsSystemTracking")
+      ?.new_values || {};
+
+  // 2. Merge all into one unified object
+  const contactData = {
+    ...contacts,
+    ...personal,
+    ...academic,
+    ...tracking,
+  };
+
+  console.log("contactDAtassssss", contactData);
+
+  // 3. Map into leadPayload structure
+  const leadPayload = [
+    {
+      email: contactData.email,
+      phone: contactData.phone_number,
+      firstName: contactData.first_name,
+      lastName: contactData.last_name,
+      partnerName: contactData.b2b_partner_name,
+      educationLevel: contactData.current_education_level,
+      admissionStatus: admissionStatusMap[contactData.admission_status],
+      targetDegreeLevel: targetDegreeLevelMap[contactData.target_degree_level],
+      courseType: reverseCourseTypeMap[contactData.course_type],
+      studyDestination:
+        preferredStudyDestinationMap[contactData.preferred_study_destination],
+      dateOfBirth: new Date(contactData.date_of_birth),
+      gender: reverseGenderMap[contactData.gender],
+      intakeYear: contactData.intake_year,
+      intakeMonth: contactData.intake_month,
+      b2bHubspotId: hubspotId,
+    },
+  ];
+
+  return leadPayload;
+}
+
+let arr: any = [];
 async function logAudit(
   client: any,
   tableName: string,
@@ -390,6 +457,7 @@ async function logAudit(
   newValues: any,
   context?: AuditContext
 ): Promise<void> {
+  console.log("inside middleware hai bhai", context);
   try {
     const { fields, hasChanges } = getChangedFields(oldValues, newValues);
     if (action === "UPDATE" && !hasChanges) {
@@ -399,7 +467,7 @@ async function logAudit(
       return;
     }
 
-    await client.auditLog.create({
+    const result = await client.auditLog.create({
       data: {
         table_name: tableName,
         record_id: String(recordId),
@@ -413,6 +481,40 @@ async function logAudit(
         metadata: null,
       },
     });
+    arr.push(result);
+    console.log("result", result);
+    console.log("arr", arr);
+
+    if (
+      result?.table_name === "HSEdumateContacts" &&
+      result?.new_values?.single_lead
+    ) {
+      debugger;
+      console.log("context?.userId", context?.userId);
+      logger.debug(`Fetching hubspotId from userId: ${context?.userId}`);
+      const hubspotId = await getHubspotIdByUserId(Number(context?.userId));
+      console.log("hubspotId", hubspotId);
+      logger.debug(`Hubspot id fetched successfully`);
+
+      logger.debug(`Creating hubspot edumate contacts leads application`);
+      // Extract fields from new_values
+      const contactData = result.new_values;
+      console.log("contactData", contactData);
+
+      const leadPayload = buildLeadPayload(arr, hubspotId!);
+      console.log("leadPayload", leadPayload);
+      const lead = await createEdumateContactsLeads(leadPayload);
+
+      if (leadPayload?.[0]?.email) {
+        console.log("inside payload....");
+        await updateHsObjectIdByEmailSingleQuery(
+          leadPayload[0].email,
+          lead[0]?.id!
+        );
+      }
+      console.log("lead inside middleware", lead);
+      logger.debug(`Hubspot loan contacts leads created successfully`);
+    }
 
     logger.debug(
       `✅ Audit: ${action} ${tableName}#${recordId} - ${fields.length} field(s) changed`

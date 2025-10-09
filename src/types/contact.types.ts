@@ -53,6 +53,13 @@ export const genderMap: Record<string, Gender> = {
   "Prefer not to say": Gender.PREFER_NOT_TO_SAY,
 };
 
+export const reverseGenderMap: Record<string, string> = {
+  [Gender.MALE]: "Male",
+  [Gender.FEMALE]: "Female",
+  [Gender.OTHER]: "Other",
+  [Gender.PREFER_NOT_TO_SAY]: "Prefer not to say",
+};
+
 export const admissionStatusMap: Record<string, AdmissionStatus> = {
   "Not Applied": AdmissionStatus.NOT_APPLIED,
   Applied: AdmissionStatus.APPLIED,
@@ -77,12 +84,27 @@ export const courseTypeMap: Record<string, EdumateContactCourseType> = {
   Others: EdumateContactCourseType.OTHERS,
 };
 
+export const reverseCourseTypeMap: Record<string, string> = {
+  [EdumateContactCourseType.STEM]: "STEM",
+  [EdumateContactCourseType.BUSINESS]: "Business",
+  [EdumateContactCourseType.OTHERS]: "Others",
+};
+
 export const LoanTypePreferenceMap: Record<string, LoanTypePreference> = {
   Secured: LoanTypePreference.SECURED,
   Unsecured: LoanTypePreference.UNSECURED,
   "Government Scheme": LoanTypePreference.GOVERNMENT_SCHEME,
   "No Preference": LoanTypePreference.NO_PREFERENCE,
 };
+
+// Reverse map for LoanTypePreference
+export const reverseLoanTypePreferenceMap: Record<LoanTypePreference, string> =
+  {
+    [LoanTypePreference.SECURED]: "SECURED",
+    [LoanTypePreference.UNSECURED]: "UNSECURED",
+    [LoanTypePreference.GOVERNMENT_SCHEME]: "GOVERNMENT_SCHEME",
+    [LoanTypePreference.NO_PREFERENCE]: "NO_PREFERENCE",
+  };
 
 export const preferredStudyDestinationMap: Record<
   string,

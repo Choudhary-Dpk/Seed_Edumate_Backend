@@ -1,4 +1,4 @@
-import { NextFunction,Request,Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { sendResponse } from "../utils/api";
 import { getUserByEmail } from "../models/helpers/user.helper";
 import {
@@ -27,6 +27,7 @@ import { API_KEY } from "../setup/secrets";
 import moment from "moment";
 import prisma from "../config/prisma";
 import { AllowedPemissions } from "../types";
+import { auditContext } from "./audit.middleware";
 
 export const validateCreateUser = async (
   req: Request,
@@ -201,6 +202,10 @@ export const validateToken =
         passwordHash: user.password_hash,
         roles,
       };
+
+      auditContext.enterWith({
+        userId: user.id,
+      });
 
       if (allowedRoles && allowedRoles.length > 0) {
         const hasAccess = roles.some((r) =>

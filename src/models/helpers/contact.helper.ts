@@ -507,3 +507,34 @@ export const updateEdumateContactsHubspotTracking = async (
     }
   });
 };
+
+export const updateHsObjectIdByEmailSingleQuery = async (
+  email: string,
+  hubspotId: string
+) => {
+  if (!email) throw new Error("Email is required to update hs_object_id");
+
+  try {
+    // Update the main contact by filtering through the personal information relation
+    const updatedContact = await prisma.hSEdumateContacts.updateMany({
+      where: {
+        personal_information: {
+          email: email,
+        },
+      },
+      data: {
+        hs_object_id: hubspotId,
+      },
+    });
+
+    if (updatedContact.count === 0) {
+      throw new Error(`No contact found with email: ${email}`);
+    }
+
+    console.log(`✅ Updated ${updatedContact.count} contact(s) hs_object_id`);
+    return updatedContact;
+  } catch (error) {
+    console.error("Error updating hs_object_id:", error);
+    throw error;
+  }
+};

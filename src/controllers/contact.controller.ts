@@ -54,6 +54,7 @@ export const createContactsLead = async (
   res: Response,
   next: NextFunction
 ) => {
+  console.log("inside controller");
   try {
     const { id } = req.payload!;
     let data: any = {};
@@ -62,6 +63,8 @@ export const createContactsLead = async (
     logger.debug(`Fetching hubspotId from userId: ${id}`);
     const hubspotId = await getHubspotIdByUserId(id);
     logger.debug(`Hubspot id fetched successfully`);
+
+    console.log("req.body", req.body);
 
     const mappedFields = await mapAllFields(req.body);
     console.log("mappedFields", mappedFields);
@@ -72,27 +75,27 @@ export const createContactsLead = async (
     const partnerId = await getPartnerIdByUserId(id);
     logger.debug(`Partner id fetched successfully`);
 
-    logger.debug(`Creating hubspot edumate contacts leads application`);
-    const lead = await createEdumateContactsLeads([
-      {
-        email: req.body.email,
-        phone: req.body.phone_number,
-        firstName: req.body.first_name,
-        lastName: req.body.last_name,
-        partnerName: req.body.b2b_partner_name,
-        educationLevel: req.body.current_education_level,
-        admissionStatus: req.body.admission_status,
-        targetDegreeLevel: req.body.target_degree_level,
-        courseType: req.body.course_type,
-        studyDestination: req.body.preferred_study_destination,
-        dateOfBirth: req.body.date_of_birth,
-        gender: req.body.gender,
-        intakeYear: req.body.intake_year,
-        intakeMonth: req.body.intake_month,
-        b2bHubspotId: hubspotId!,
-      },
-    ]);
-    logger.debug(`Hubspot loan contacts leads created successfully`);
+    // logger.debug(`Creating hubspot edumate contacts leads application`);
+    // const lead = await createEdumateContactsLeads([
+    //   {
+    //     email: req.body.email,
+    //     phone: req.body.phone_number,
+    //     firstName: req.body.first_name,
+    //     lastName: req.body.last_name,
+    //     partnerName: req.body.b2b_partner_name,
+    //     educationLevel: req.body.current_education_level,
+    //     admissionStatus: req.body.admission_status,
+    //     targetDegreeLevel: req.body.target_degree_level,
+    //     courseType: req.body.course_type,
+    //     studyDestination: req.body.preferred_study_destination,
+    //     dateOfBirth: req.body.date_of_birth,
+    //     gender: req.body.gender,
+    //     intakeYear: req.body.intake_year,
+    //     intakeMonth: req.body.intake_month,
+    //     b2bHubspotId: hubspotId!,
+    //   },
+    // ]);
+    // logger.debug(`Hubspot loan contacts leads created successfully`);
 
     // // Use database transaction to ensure all related records are created atomically
     const result = await prisma.$transaction(async (tx: any) => {
@@ -100,7 +103,7 @@ export const createContactsLead = async (
       const contact = await createEdumateContact(
         tx,
         categorized["mainContact"],
-        lead[0]?.id,
+        undefined,
         id,
         partnerId!.b2b_id
       );
@@ -165,7 +168,7 @@ export const createContactsLead = async (
     logger.debug(
       `All contact data created successfully for contactId: ${result.id}`
     );
-    sendResponse(res, 200, "Contacts Lead created successfully", data);
+    sendResponse(res, 200, "Contacts Lead created successfully");
   } catch (error) {
     next(error);
   }
