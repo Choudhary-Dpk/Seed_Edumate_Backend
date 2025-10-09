@@ -22,6 +22,7 @@
     "@hubspot/api-client": "^9.0.0",
     "@prisma/client": "^6.16.3",
     "async": "^3.2.6",
+    "async_hooks": "^1.0.0",
     "axios": "^1.12.2",
     "bcrypt": "^6.0.0",
     "compression": "^1.7.4",

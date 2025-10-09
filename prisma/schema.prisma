@@ -2323,7 +2323,32 @@ model CurrencyConfigs {
   @@map("currency_configs")
 }
 
+model AuditLog {
+  id              Int         @id @default(autoincrement())
+  table_name      String      @map("table_name")
+  record_id       String      @map("record_id")
+  action          AuditAction @map("action")
+  old_values      Json?       @map("old_values")
+  new_values      Json?       @map("new_values")
+  changed_fields  String[]    @map("changed_fields")
+  changed_by      Int?        @map("changed_by")
+  changed_at      DateTime    @default(now()) @map("changed_at")
+  ip_address      String?     @map("ip_address")
+  user_agent      String?     @map("user_agent")
+  
+  @@map("audit_logs")
+  @@index([table_name, record_id])
+  @@index([changed_by])
+  @@index([changed_at])
+}
+
 // ENUMS
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+}
 
 enum I20CasStatus {
   YES               @map("Yes")

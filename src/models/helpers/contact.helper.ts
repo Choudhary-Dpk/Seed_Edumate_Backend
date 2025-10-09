@@ -416,23 +416,39 @@ const tableMappings = {
 
 export const createCSVContacts = async (
   rows: ContactsLead[],
-  userId: number
+  userId: number,
+  hubspotResults?: HubspotResult[]
 ) => {
   const partnerId = await getPartnerIdByUserId(userId);
 
   return await prisma.$transaction(async (tx) => {
     // 1. Insert into main table
     const createdContacts = await Promise.all(
-      rows.map((row) =>
-        tx.hSEdumateContacts.create({
+      rows.map((row, index) => {
+        // Get corresponding HubSpot result by email
+        const hsResult = hubspotResults?.find(
+          (hs) => hs.properties?.email === row.email
+        );
+
+        return tx.hSEdumateContacts.create({
           data: {
             course_type: row.courseType ? courseTypeMap[row.courseType] : null,
-            hs_object_id: null,
+            // ↓ ADD HUBSPOT DATA HERE
+            hs_object_id:
+              hsResult?.properties?.hs_object_id ?? hsResult?.id ?? null,
+            hs_created_by_user_id: userId,
+            hs_updated_by_user_id: userId,
+            hs_createdate: hsResult?.properties?.hs_createdate
+              ? new Date(hsResult.properties.hs_createdate)
+              : undefined,
+            hs_lastmodifieddate: hsResult?.properties?.hs_lastmodifieddate
+              ? new Date(hsResult.properties.hs_lastmodifieddate)
+              : undefined,
             b2b_partner_id: partnerId!.b2b_id,
           },
           select: { id: true },
-        })
-      )
+        });
+      })
     );
 
     // 2. Attach IDs back to rows
