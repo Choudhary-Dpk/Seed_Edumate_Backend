@@ -917,6 +917,10 @@ model HSEdumateContacts {
   id                              Int                           @id @default(autoincrement())
   deleted_by_id Int?
   b2b_partner_id Int?
+  single_lead Boolean?
+  bulk_lead Boolean?
+  batch_id  String?
+  batch_total Int?
 
  // HubSpot System Fields
   hs_created_by_user_id     Int?       @map("hs_created_by_user_id")     
@@ -2335,6 +2339,7 @@ model AuditLog {
   changed_at      DateTime    @default(now()) @map("changed_at")
   ip_address      String?     @map("ip_address")
   user_agent      String?     @map("user_agent")
+  metadata        Json?       @map("metadata")
   
   @@map("audit_logs")
   @@index([table_name, record_id])

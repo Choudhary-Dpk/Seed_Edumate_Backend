@@ -139,6 +139,7 @@ export const createEdumateContact = async (
       hs_object_id: hubspotId,
       hs_created_by_user_id: hsCreatedBy,
       b2b_partner_id: partnerId,
+      single_lead: true,
       created_at: new Date(),
     },
   });
@@ -222,7 +223,6 @@ export const updateEdumateContact = async (
         ? courseTypeMap[mainData.course_type]
         : null,
       ...mainData,
-      updated_at: new Date(),
     },
   });
 
@@ -237,7 +237,6 @@ export const updateEdumatePersonalInformation = async (
   const personalInfo = await tx.hSEdumateContactsPersonalInformation.update({
     where: { contact_id: contactId },
     data: {
-      updated_at: new Date(),
       ...personalData,
     },
   });
@@ -253,7 +252,6 @@ export const updateEdumateAcademicProfile = async (
   const academicProfile = await tx.hSEdumateContactsAcademicProfiles.update({
     where: { contact_id: contactId },
     data: {
-      updated_at: new Date(),
       ...academicsData,
     },
   });
@@ -271,7 +269,6 @@ export const updateEdumateLeadAttribution = async (
   const leadAttribution = await tx.hSEdumateContactsLeadAttribution.update({
     where: { contact_id: contactId },
     data: {
-      updated_at: new Date(),
       ...leadData,
     },
   });
