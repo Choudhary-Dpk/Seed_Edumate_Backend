@@ -77,6 +77,27 @@ export const createEdumateSystemTracking = async (
   });
 };
 
+export const createEdumateContactView = async (
+  tx: any,
+  contactId: number,
+  viewData: any
+) => {
+  return tx.hSEdumateContactsAudit.create({
+    data: {
+      ...viewData,
+      contact_id: contactId,
+    },
+  });
+};
+
+export const getEdumateContactView = async (contactId: number) => {
+  return await prisma.hSEdumateContactsAudit.findFirst({
+    where: {
+      contact_id: contactId,
+    },
+  });
+};
+
 // Updated function to get contact by email
 export const getEdumateContactByEmail = async (email: string) => {
   const contact = await prisma.hSEdumateContacts.findFirst({
@@ -508,11 +529,11 @@ export const updateEdumateContactsHubspotTracking = async (
   });
 };
 
-export const updateHsObjectIdByEmailSingleQuery = async (
+export const updateHsObjectIdByContactId = async (
   email: string,
   hubspotId: string
 ) => {
-  if (!email) throw new Error("Email is required to update hs_object_id");
+  if (!email) throw new Error("contactId is required to update hs_object_id");
 
   try {
     // Update the main contact by filtering through the personal information relation

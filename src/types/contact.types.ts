@@ -35,7 +35,7 @@ export type ContactsLead = {
   targetDegreeLevel?: string;
   courseType?: string;
   studyDestination?: string;
-  dateOfBirth?: Date;
+  dateOfBirth?: Date | any;
   gender?: string;
   intakeYear?: string;
   intakeMonth?: string;
@@ -53,11 +53,11 @@ export const genderMap: Record<string, Gender> = {
   "Prefer not to say": Gender.PREFER_NOT_TO_SAY,
 };
 
-export const reverseGenderMap: Record<string, string> = {
-  [Gender.MALE]: "Male",
-  [Gender.FEMALE]: "Female",
-  [Gender.OTHER]: "Other",
-  [Gender.PREFER_NOT_TO_SAY]: "Prefer not to say",
+export const genderReverseMap: Record<string, string> = {
+  MALE: "Male",
+  FEMALE: "Female",
+  OTHER: "Other",
+  PREFER_NOT_TO_SAY: "Prefer not to say",
 };
 
 export const admissionStatusMap: Record<string, AdmissionStatus> = {
@@ -69,6 +69,15 @@ export const admissionStatusMap: Record<string, AdmissionStatus> = {
   Rejected: AdmissionStatus.REJECTED,
 };
 
+export const admissionStatusReverseMap: Record<string, string> = {
+  NOT_APPLIED: "Not Applied",
+  APPLIED: "Applied",
+  INTERVIEW_SCHEDULED: "Interview Scheduled",
+  WAITLISTED: "Waitlisted",
+  ADMITTED: "Admitted",
+  REJECTED: "Rejected",
+};
+
 export const targetDegreeLevelMap: Record<string, TargetDegreeLevel> = {
   Bachelors: TargetDegreeLevel.BACHELORS,
   Masters: TargetDegreeLevel.MASTERS,
@@ -78,16 +87,25 @@ export const targetDegreeLevelMap: Record<string, TargetDegreeLevel> = {
   "Professional Course": TargetDegreeLevel.PROFESSIONAL_COURSE,
 };
 
+export const targetDegreeLevelReverseMap: Record<string, string> = {
+  BACHELORS: "Bachelors",
+  MASTERS: "Masters",
+  PHD: "PhD",
+  DIPLOMA: "Diploma",
+  CERTIFICATE: "Certificate",
+  PROFESSIONAL_COURSE: "Professional Course",
+};
+
 export const courseTypeMap: Record<string, EdumateContactCourseType> = {
   STEM: EdumateContactCourseType.STEM,
   Business: EdumateContactCourseType.BUSINESS,
   Others: EdumateContactCourseType.OTHERS,
 };
 
-export const reverseCourseTypeMap: Record<string, string> = {
-  [EdumateContactCourseType.STEM]: "STEM",
-  [EdumateContactCourseType.BUSINESS]: "Business",
-  [EdumateContactCourseType.OTHERS]: "Others",
+export const courseTypeReverseMap: Record<string, string> = {
+  STEM: "STEM",
+  BUSINESS: "Business",
+  OTHERS: "Others",
 };
 
 export const LoanTypePreferenceMap: Record<string, LoanTypePreference> = {
@@ -126,6 +144,19 @@ export const preferredStudyDestinationMap: Record<
   Other: PreferredStudyDestination.OTHER,
 };
 
+export const preferredStudyDestinationReverseMap: Record<string, string> = {
+  US: "US",
+  UK: "UK",
+  UAE: "UAE",
+  CANADA: "Canada",
+  AUSTRALIA: "Australia",
+  GERMANY: "Germany",
+  FRANCE: "France",
+  SINGAPORE: "Singapore",
+  ITALY: "Italy",
+  JAPAN: "Japan",
+};
+
 export const currentEducationLevelMap: Record<string, CurrentEducationLevel> = {
   "High School": CurrentEducationLevel.HIGH_SCHOOL,
   Bachelors: CurrentEducationLevel.BACHELORS,
@@ -135,6 +166,14 @@ export const currentEducationLevelMap: Record<string, CurrentEducationLevel> = {
   Other: CurrentEducationLevel.OTHER,
 };
 
+export const currentEducationLevelReverseMap: Record<string, string> = {
+  HIGH_SCHOOL: "High School",
+  BACHELORS: "Bachelors",
+  MASTERS: "Masters",
+  PHD: "PhD",
+  DIPLOMA: "Diploma",
+  OTHER: "Other",
+};
 // ==================== NEW MAPPINGS ====================
 
 export const coApplicantOccupationMap: Record<string, CoApplicantOccupation> = {

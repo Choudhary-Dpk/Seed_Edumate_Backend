@@ -1133,6 +1133,211 @@ model HSEdumateContactsPersonalInformation {
   @@map("hs_edumate_contacts_personal_information")
 }
 
+// View for audit log - combines all contact tables with transformed enum values
+model HSEdumateContactsAudit {
+  id   Int @id @default(autoincrement())
+  contact_id                           Int
+  
+  // === HSEdumateContacts fields ===
+  deleted_by_id Int?
+  b2b_partner_id Int?
+  single_lead Boolean?
+  bulk_lead Boolean?
+  batch_id  String?
+  batch_total Int?
+
+ // HubSpot System Fields
+  hs_created_by_user_id     Int?       @map("hs_created_by_user_id")     
+  hs_createdate             DateTime?  @map("hs_createdate")            
+  hs_lastmodifieddate       DateTime?  @map("hs_lastmodifieddate")       
+  hs_object_id              String?       @map("hs_object_id")              
+  hs_updated_by_user_id     Int?       @map("hs_updated_by_user_id")     
+  hubspot_owner_id          String?    @map("hubspot_owner_id")          
+
+  // Currency Information
+  base_currency                   String?         @map("base_currency")
+  study_destination_currency      String?         @map("study_destination_currency")
+  user_selected_currency          String?         @map("user_selected_currency")
+  
+  // Course Information
+  course_type                     String?     @map("course_type")
+  
+  // Co-applicant Information
+  co_applicant_1_email            String?         @map("co_applicant_1_email")
+  co_applicant_1_mobile_number    String?         @map("co_applicant_1_mobile_number")
+  
+  is_deleted                           Boolean?   @map("is_deleted")
+  created_at                   DateTime?  @map("contact_created_at")
+  updated_at                   DateTime?  @map("contact_updated_at")
+  
+  // === Personal Information fields ===
+  first_name                      String           @map("first_name")  // Required field
+  last_name                       String?          @map("last_name")
+  email                           String?          @map("email")
+  phone_number                    String?          @map("phone_number")
+  date_of_birth                   DateTime?        @map("date_of_birth")
+  gender                          String?          @map("gender")
+  nationality                     String?     @map("nationality")
+  
+  // Current Address
+  current_address                 String?          @map("current_address") @db.Text
+  city_current_address         String?          @map("citycurrent_address")
+  state_current_address        String?          @map("state_current_address")
+  country_current_address     String?          @map("country_current_address")
+  pincode_current_address    String?          @map("pincode_current_address")
+  
+  // Permanent Address
+  permanent_address               String?          @map("permanent_address") @db.Text
+  city_permanent_address       String?          @map("city_permanent_address")
+  state_permanent_address     String?          @map("state_permanent_address")
+  country_permanent_address    String?          @map("country_permanent_address")
+  pincode_permanent_address    String?          @map("pincode_permanent_address")
+  
+  // === Academic Profile fields ===
+   admission_status              String?              @map("admission_status")
+  
+  // Current Education
+  current_education_level       String?        @map("current_education_level")
+  current_institution           String?                       @map("current_institution")
+  current_course_major          String?                       @map("current_course_major")
+  current_cgpa_percentage       Float?                        @map("current_cgpa_percentage")
+  current_graduation_year       Int?                          @map("current_graduation_year")
+  
+  // Course Details
+  course_duration_months        Int?                          @map("course_duration_months")
+  
+  // Test Scores
+  cat_score                     Int?                          @map("cat_score")
+  gre_score                     Int?                          @map("gre_score")
+  gmat_score                    Int?                          @map("gmat_score")
+  toefl_score                   Int?                          @map("toefl_score")
+  ielts_score                   Float?                        @map("ielts_score")
+  sat_score                     Int?                          @map("sat_score")
+  duolingo_score                Int?                          @map("duolingo_score")
+  nmat_score                    Int?                          @map("nmat_score")
+  xat_score                     Int?                          @map("xat_score")
+  other_test_scores             String?                       @map("other_test_scores") @db.Text
+  
+  // Target Education
+  target_degree_level           String?            @map("target_degree_level")
+  target_course_major           String?                       @map("target_course_major")
+  preferred_study_destination   String?    @map("preferred_study_destination")
+  target_universities           String?                       @map("target_universities") @db.Text
+  
+  // Intake Details
+  intended_start_term           String?            @map("intended_start_term")
+  intended_start_date           DateTime?                     @map("intended_start_date")
+  intake_month                  String?                       @map("intake_month")
+  intake_year                   String?                       @map("intake_year")
+  
+  // === Application Journey fields ===
+ // Counselor Information
+  assigned_counselor                    String?                      @map("assigned_counselor")
+  counselor_notes                       String?                      @map("counselor_notes") @db.Text
+  
+  // Status Information
+  current_status_disposition            String?    @map("current_status_disposition")
+  current_status_disposition_reason     String?    @map("current_status_disposition_reason")
+  priority_level                        String?               @map("priority_level")
+  
+  // Contact Dates
+  first_contact_date                    DateTime?                    @map("first_contact_date")
+  last_contact_date                     DateTime?                    @map("last_contact_date")
+  follow_up_date                        DateTime?                    @map("follow_up_date")
+  next_follow_up_date                   DateTime?                    @map("next_follow_up_date")
+  
+  // === Financial Info fields ===
+  // General Financial Info
+  annual_family_income          Decimal?                      @db.Decimal(15, 2) @map("annual_family_income")
+  currency                      String?            @map("currency")
+  
+  // Co-applicant 1
+  co_applicant_1_name           String?                       @map("co_applicant_1_name")
+  co_applicant_1_income         Decimal?                      @db.Decimal(15, 2) @map("co_applicant_1_income")
+  co_applicant_1_occupation     String?        @map("co_applicant_1_occupation")
+  co_applicant_1_relationship   String?     @map("co_applicant_1_relationship")
+  
+  // Co-applicant 2
+  co_applicant_2_name           String?                       @map("co_applicant_2_name")
+  co_applicant_2_income         Decimal?                      @db.Decimal(15, 2) @map("co_applicant_2_income")
+  co_applicant_2_occupation     String?        @map("co_applicant_2_occupation")
+  co_applicant_2_relationship   String?     @map("co_applicant_2_relationship")
+  
+  // Co-applicant 3
+  co_applicant_3_name           String?                       @map("co_applicant_3_name")
+  co_applicant_3_income         Decimal?                      @db.Decimal(15, 2) @map("co_applicant_3_income")
+  co_applicant_3_occupation     String?        @map("co_applicant_3_occupation")
+  co_applicant_3_relationship   String?     @map("co_applicant_3_relationship")
+  
+  // Collateral 1
+  collateral_available          String?          @map("collateral_available")
+  collateral_type               String?               @map("collateral_type")
+  collateral_value              Decimal?                      @db.Decimal(15, 2) @map("collateral_value")
+  
+  // Collateral 2
+  collateral_2_available        String?          @map("collateral_2_available")
+  collateral_2_type             String?               @map("collateral_2_type")
+  collateral_2_value            Decimal?                      @db.Decimal(15, 2) @map("collateral_2_value")
+  
+  // Expenses
+  living_expenses               Decimal?                      @db.Decimal(15, 2) @map("living_expenses")
+  other_expenses                Decimal?                      @db.Decimal(15, 2) @map("other_expenses")
+  
+  // Education Costs
+  total_course_cost             Decimal?                      @db.Decimal(15, 2) @map("total_course_cost")
+  tuition_fee                   Decimal?                      @db.Decimal(15, 2) @map("tuition_fee")
+  
+  // Funding
+  loan_amount_required          Decimal?                      @db.Decimal(15, 2) @map("loan_amount_required")
+  scholarship_amount            Decimal?                      @db.Decimal(15, 2) @map("scholarship_amount")
+  self_funding_amount           Decimal?                      @db.Decimal(15, 2) @map("self_funding_amount")
+    
+  // === Lead Attribution fields ===
+  // Lead Information
+  lead_source                     String?                       @map("lead_source")
+  lead_source_detail              String?                           @map("lead_source_detail")
+  lead_quality_score              Float?                            @map("lead_quality_score")
+  lead_reference_code             String?                           @map("lead_reference_code")
+  
+  // B2B Partner Information
+  b2b_partner_name                String?                           @map("b2b_partner_name")
+  partner_commission_applicable   String?     @map("partner_commission_applicable")
+  
+  // Referral Information
+  referral_person_name            String?                           @map("referral_person_name")
+  referral_person_contact         String?                           @map("referral_person_contact")
+  
+  // UTM Parameters
+  utm_source                      String?                           @map("utm_source")
+  utm_medium                      String?                           @map("utm_medium")
+  utm_campaign                    String?                           @map("utm_campaign")
+  utm_term                        String?                           @map("utm_term")
+  utm_content                     String?                           @map("utm_content")
+  
+  // === Loan Preferences fields ===
+  // Loan Preferences
+  loan_type_preference         String?          @map("loan_type_preference")
+  repayment_type_preference    String?     @map("repayment_type_preference")
+  
+  // === System Tracking fields ===
+// Creation & Modification Info
+  created_by                Int?                 @map("created_by")
+  created_date              DateTime?               @map("created_date")
+  last_modified_by          String?                 @map("last_modified_by")
+  last_modified_date        DateTime?               @map("last_modified_date")
+  
+  // Data Management
+  data_source               String?             @map("data_source")
+  student_record_status     String?    @map("student_record_status")
+  tags                      String?                 @map("tags") @db.Text
+  
+  // Consent Management
+  gdpr_consent              String?            @map("gdpr_consent")
+  marketing_consent         String?       @map("marketing_consent")
+  
+  @@map("hs_edumate_contacts_audit")
+}
+
 // Main lender table
 model HSLenders {
   id                    Int                 @id @default(autoincrement())

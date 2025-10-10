@@ -6,20 +6,19 @@ import { Prisma } from "@prisma/client";
 import logger from "../utils/logger";
 import prisma from "../config/prisma";
 import { createEdumateContactsLeads } from "../services/hubspot.service";
+import { getHubspotIdByUserId } from "../models/helpers/partners.helper";
 import {
-  getHubspotIdByUserId,
-  getPartnerIdByUserId,
-} from "../models/helpers/partners.helper";
-import {
-  admissionStatusMap,
-  courseTypeMap,
-  genderMap,
-  preferredStudyDestinationMap,
-  reverseCourseTypeMap,
-  reverseGenderMap,
-  targetDegreeLevelMap,
+  admissionStatusReverseMap,
+  courseTypeReverseMap,
+  currentEducationLevelReverseMap,
+  genderReverseMap,
+  preferredStudyDestinationReverseMap,
+  targetDegreeLevelReverseMap,
 } from "../types/contact.types";
-import { updateHsObjectIdByEmailSingleQuery } from "../models/helpers/contact.helper";
+import {
+  getEdumateContactView,
+  updateHsObjectIdByContactId,
+} from "../models/helpers/contact.helper";
 
 export interface AuditContext {
   userId?: number;
@@ -420,8 +419,6 @@ function buildLeadPayload(auditLogs: any[], hubspotId: string) {
     ...tracking,
   };
 
-  console.log("contactDAtassssss", contactData);
-
   // 3. Map into leadPayload structure
   const leadPayload = [
     {
@@ -430,14 +427,18 @@ function buildLeadPayload(auditLogs: any[], hubspotId: string) {
       firstName: contactData.first_name,
       lastName: contactData.last_name,
       partnerName: contactData.b2b_partner_name,
-      educationLevel: contactData.current_education_level,
-      admissionStatus: admissionStatusMap[contactData.admission_status],
-      targetDegreeLevel: targetDegreeLevelMap[contactData.target_degree_level],
-      courseType: reverseCourseTypeMap[contactData.course_type],
+      educationLevel:
+        currentEducationLevelReverseMap[contactData.current_education_level],
+      admissionStatus: admissionStatusReverseMap[contactData.admission_status],
+      targetDegreeLevel:
+        targetDegreeLevelReverseMap[contactData.target_degree_level],
+      courseType: courseTypeReverseMap[contactData.course_type],
       studyDestination:
-        preferredStudyDestinationMap[contactData.preferred_study_destination],
-      dateOfBirth: new Date(contactData.date_of_birth),
-      gender: reverseGenderMap[contactData.gender],
+        preferredStudyDestinationReverseMap[
+          contactData.preferred_study_destination
+        ],
+      dateOfBirth: contactData.date_of_birth,
+      gender: genderReverseMap[contactData.gender],
       intakeYear: contactData.intake_year,
       intakeMonth: contactData.intake_month,
       b2bHubspotId: hubspotId,
@@ -448,6 +449,7 @@ function buildLeadPayload(auditLogs: any[], hubspotId: string) {
 }
 
 let arr: any = [];
+// let details: any = {};
 async function logAudit(
   client: any,
   tableName: string,
@@ -458,6 +460,37 @@ async function logAudit(
   context?: AuditContext
 ): Promise<void> {
   console.log("inside middleware hai bhai", context);
+  debugger;
+  console.log("recordId", recordId);
+  // let viewData = await getEdumateContactView(Number(recordId));
+  // console.log("viewDataaaaa", viewData);
+  // details = {
+  //   ...viewData,
+  //   gender: viewData!.gender
+  //     ? genderReverseMap[viewData!.gender] || viewData!.gender
+  //     : null,
+  //   admission_status: viewData!.admission_status
+  //     ? admissionStatusReverseMap[viewData!.admission_status] ||
+  //       viewData!.admission_status
+  //     : null,
+  //   target_degree_level: viewData!.target_degree_level
+  //     ? targetDegreeLevelReverseMap[viewData!.target_degree_level] ||
+  //       viewData!.target_degree_level
+  //     : null,
+  //   course_type: viewData!.course_type
+  //     ? courseTypeReverseMap[viewData!.course_type] || viewData!.course_type
+  //     : null,
+  //   preferred_study_destination: viewData!.preferred_study_destination
+  //     ? preferredStudyDestinationReverseMap[
+  //         viewData!.preferred_study_destination
+  //       ] || viewData!.preferred_study_destination
+  //     : null,
+  //   current_education_level: viewData!.current_education_level
+  //     ? currentEducationLevelReverseMap[viewData!.current_education_level] ||
+  //       viewData!.current_education_level
+  //     : null,
+  // };
+  // console.log("details", details);
   try {
     const { fields, hasChanges } = getChangedFields(oldValues, newValues);
     if (action === "UPDATE" && !hasChanges) {
@@ -489,28 +522,21 @@ async function logAudit(
       result?.table_name === "HSEdumateContacts" &&
       result?.new_values?.single_lead
     ) {
-      debugger;
-      console.log("context?.userId", context?.userId);
       logger.debug(`Fetching hubspotId from userId: ${context?.userId}`);
       const hubspotId = await getHubspotIdByUserId(Number(context?.userId));
-      console.log("hubspotId", hubspotId);
       logger.debug(`Hubspot id fetched successfully`);
 
       logger.debug(`Creating hubspot edumate contacts leads application`);
-      // Extract fields from new_values
       const contactData = result.new_values;
       console.log("contactData", contactData);
-
       const leadPayload = buildLeadPayload(arr, hubspotId!);
       console.log("leadPayload", leadPayload);
       const lead = await createEdumateContactsLeads(leadPayload);
 
-      if (leadPayload?.[0]?.email) {
-        console.log("inside payload....");
-        await updateHsObjectIdByEmailSingleQuery(
-          leadPayload[0].email,
-          lead[0]?.id!
-        );
+      console.log("going inside recordId");
+      if (recordId && lead) {
+        console.log("insdie details and recordId");
+        await updateHsObjectIdByContactId(recordId, lead[0]?.id!);
       }
       console.log("lead inside middleware", lead);
       logger.debug(`Hubspot loan contacts leads created successfully`);

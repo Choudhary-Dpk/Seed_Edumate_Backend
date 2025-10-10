@@ -26,6 +26,7 @@ import {
   fetchContactsLeadList,
   createCSVContacts,
   updateEdumateContactsHubspotTracking,
+  createEdumateContactView,
 } from "../models/helpers/contact.helper";
 import { resolveLeadsCsvPath } from "../utils/leads";
 import { FileData } from "../types/leads.types";
@@ -45,7 +46,17 @@ import {
   getPartnerIdByUserId,
 } from "../models/helpers/partners.helper";
 import { queue } from "async";
-import { BatchResult, ContactsLead, RecordError } from "../types/contact.types";
+import {
+  admissionStatusReverseMap,
+  BatchResult,
+  ContactsLead,
+  courseTypeReverseMap,
+  currentEducationLevelReverseMap,
+  genderReverseMap,
+  preferredStudyDestinationReverseMap,
+  RecordError,
+  targetDegreeLevelReverseMap,
+} from "../types/contact.types";
 import { mapAllFields } from "../mappers/edumateContact/mapping";
 import { categorizeByTable } from "../services/DBServices/edumateContacts.service";
 
@@ -58,11 +69,12 @@ export const createContactsLead = async (
   try {
     const { id } = req.payload!;
     let data: any = {};
+    let viewData: any = {};
     let leadAttribution: any;
 
-    logger.debug(`Fetching hubspotId from userId: ${id}`);
-    const hubspotId = await getHubspotIdByUserId(id);
-    logger.debug(`Hubspot id fetched successfully`);
+    // logger.debug(`Fetching hubspotId from userId: ${id}`);
+    // const hubspotId = await getHubspotIdByUserId(id);
+    // logger.debug(`Hubspot id fetched successfully`);
 
     console.log("req.body", req.body);
 
@@ -147,6 +159,47 @@ export const createContactsLead = async (
         `System tracking created successfully for contact: ${contact.id}`
       );
 
+      viewData = {
+        ...contact,
+        ...personalInfo,
+        ...academicsProfile,
+        ...leadAttribution,
+      };
+
+      viewData = {
+        ...viewData,
+        gender: viewData.gender
+          ? genderReverseMap[viewData.gender] || viewData.gender
+          : null,
+        admission_status: viewData.admission_status
+          ? admissionStatusReverseMap[viewData.admission_status] ||
+            viewData.admission_status
+          : null,
+        target_degree_level: viewData.target_degree_level
+          ? targetDegreeLevelReverseMap[viewData.target_degree_level] ||
+            viewData.target_degree_level
+          : null,
+        course_type: viewData.course_type
+          ? courseTypeReverseMap[viewData.course_type] || viewData.course_type
+          : null,
+        preferred_study_destination: viewData.preferred_study_destination
+          ? preferredStudyDestinationReverseMap[
+              viewData.preferred_study_destination
+            ] || viewData.preferred_study_destination
+          : null,
+        current_education_level: viewData.current_education_level
+          ? currentEducationLevelReverseMap[viewData.current_education_level] ||
+            viewData.current_education_level
+          : null,
+      };
+      delete viewData.id;
+      console.log("viewData", viewData);
+      logger.debug(
+        `Creating edumate contacts view for contactId: ${contact.id}`
+      );
+      await createEdumateContactView(tx, contact.id, viewData);
+      logger.debug(`Edumate contact view created successfully`);
+
       data = {
         contact: {
           ...contact,
@@ -168,7 +221,7 @@ export const createContactsLead = async (
     logger.debug(
       `All contact data created successfully for contactId: ${result.id}`
     );
-    sendResponse(res, 200, "Contacts Lead created successfully");
+    sendResponse(res, 200, "Contacts Lead created successfully", data);
   } catch (error) {
     next(error);
   }
