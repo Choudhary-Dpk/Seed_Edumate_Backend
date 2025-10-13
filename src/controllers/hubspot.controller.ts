@@ -100,7 +100,7 @@ export const upsertEdumateContact = asyncHandler(
 
     try {
       logger.info("Upsert contact request", { email, formType });
-      
+
       const existingContactDb = await getEdumateContactByEmail(email);
       let hubspotResult;
       let dbContact;
@@ -124,52 +124,57 @@ export const upsertEdumateContact = asyncHandler(
         }
 
         dbContact = await updateContact(existingContactDb.id, contactData);
-        
+
         logger.info("Edumate contact updated", {
           dbContactId: dbContact.id,
           hsContactId: existingContactDb.hs_object_id,
           email,
           hubspotSuccess: !!hubspotResult,
         });
-      } 
+      }
       // Case 2: Contact exists in DB but no HubSpot ID - CREATE in HubSpot, UPDATE DB
       else if (existingContactDb) {
         try {
-          hubspotResult = await hubspotService.createEdumateContact(contactData);
-          
+          hubspotResult = await hubspotService.createEdumateContact(
+            contactData
+          );
+
           dbContact = await updateContact(existingContactDb.id, {
             ...contactData,
             hs_object_id: hubspotResult.id,
           });
           operationType = "create";
-          
-          logger.info("HubSpot contact created and linked to existing DB contact", {
-            dbContactId: dbContact.id,
-            hsContactId: hubspotResult.id,
-            email,
-          });
+
+          logger.info(
+            "HubSpot contact created and linked to existing DB contact",
+            {
+              dbContactId: dbContact.id,
+              hsContactId: hubspotResult.id,
+              email,
+            }
+          );
         } catch (hubspotError) {
           logger.error("HubSpot creation failed for existing DB contact", {
             dbContactId: existingContactDb.id,
             email,
             error: hubspotError,
           });
-          
+
           dbContact = await updateContact(existingContactDb.id, contactData);
           operationType = "update";
           hubspotResult = null;
         }
-      } 
+      }
       // Case 3: Contact doesn't exist - CREATE both
       else {
         hubspotResult = await hubspotService.createEdumateContact(contactData);
-        
+
         dbContact = await createContact({
           ...contactData,
           hs_object_id: hubspotResult.id,
         });
         operationType = "create";
-        
+
         logger.info("New Edumate contact created", {
           dbContactId: dbContact.id,
           hsContactId: hubspotResult.id,
@@ -189,8 +194,8 @@ export const upsertEdumateContact = asyncHandler(
           hubspot: hubspotResult,
         },
         message: `Edumate contact ${operationType}d successfully`,
-        meta: { 
-          operation: operationType
+        meta: {
+          operation: operationType,
         },
       };
 

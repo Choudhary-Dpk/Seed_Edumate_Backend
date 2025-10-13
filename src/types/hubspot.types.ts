@@ -671,6 +671,7 @@ export interface MappedEdumateContact {
   partnerName: string;
   phone?: string;
   b2bHubspotId?: string;
+  countryOfStudy?: string;
 }
 
 // src/types/common.types.ts

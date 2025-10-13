@@ -354,7 +354,9 @@ const mapToHubSpotProperties = async (contactData: Partial<MappedEdumateContact>
   if (contactData.studyDestinationCurrency) properties.study_destination_currency = contactData.studyDestinationCurrency;
   
   if (contactData.levelOfEducation) properties.current_education_level = contactData.levelOfEducation;
-  if (contactData.studyDestination) properties.preferred_study_destination = contactData.studyDestination;
+  if (contactData.studyDestination || contactData.countryOfStudy)
+    properties.preferred_study_destination =
+      contactData.studyDestination || contactData.countryOfStudy;
   // if (contactData.nonUsaCountry) properties.nationality = contactData.nonUsaCountry;
   if (contactData.courseType) properties.course_type = contactData.courseType;
   if (contactData.loanPreference) properties.loan_type_preference = contactData.loanPreference;

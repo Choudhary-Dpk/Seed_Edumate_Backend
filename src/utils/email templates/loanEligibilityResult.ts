@@ -414,7 +414,11 @@ export const generateCoApplicantSection = (formdata: FormData): string => {
 /**
  * Generates the complete application summary section (vertical stacking)
  */
-export const generateApplicationSummary = (personalInfo: PersonalInfo, formdata: FormData): string => {
+export const generateApplicationSummary = (
+  personalInfo: PersonalInfo,
+  formdata: FormData
+): string => {
+  console.log("personalInfo", personalInfo);
   return `
     <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 32px;">
       <tr>
@@ -463,40 +467,39 @@ export const generateApplicationSummary = (personalInfo: PersonalInfo, formdata:
  * Main function to generate complete email HTML
  */
 export const generateLoanApplicationEmail = (data: EmailData): string => {
-  const {
-    personalInfo,
-    formdata,
-    eligibilityResult,
-  } = data;
+  console.log("data", data);
+  const { personalInfo, formdata, eligibilityResult } = data;
 
-  const companyName = "Edumate"
+  const companyName = "Edumate";
   const isEligible = eligibilityResult?.isEligible || false;
   const isNotEligible = eligibilityResult && !eligibilityResult.isEligible;
   const currentYear = new Date().getFullYear();
-  
+
   // Generate email sections
   const statusBanner = generateStatusBanner(eligibilityResult);
-  const whatThisMeansSection = isNotEligible ? generateWhatThisMeansSection() : '';
+  const whatThisMeansSection = isNotEligible
+    ? generateWhatThisMeansSection()
+    : "";
   const quickActions = generateQuickActions();
   const applicationSummary = generateApplicationSummary(personalInfo, formdata);
 
   // Generate greeting message based on eligibility status
-  const greetingMessage = isEligible 
-    ? 'Your loan application has been processed and we have an update regarding your eligibility status.' 
-    : isNotEligible 
-      ? 'Thank you for submitting your loan application. We have completed our initial review and wanted to provide you with an update.'
-      : 'Thank you for submitting your loan application. We have received all your information and wanted to provide you with a summary.';
+  const greetingMessage = isEligible
+    ? "Your loan application has been processed and we have an update regarding your eligibility status."
+    : isNotEligible
+    ? "Thank you for submitting your loan application. We have completed our initial review and wanted to provide you with an update."
+    : "Thank you for submitting your loan application. We have received all your information and wanted to provide you with a summary.";
 
   // Generate closing message based on eligibility status
-  const closingMessage = isEligible 
-    ? 'Our loan specialists will contact you within the next 24 hours to discuss your pre-approval and guide you through the next steps.' 
+  const closingMessage = isEligible
+    ? "Our loan specialists will contact you within the next 24 hours to discuss your pre-approval and guide you through the next steps."
     : isNotEligible
-      ? 'While you don\'t currently meet our standard eligibility criteria, our team will continue to review your application for alternative options.'
-      : 'Our underwriting team will review your application and contact you with a decision within 3-5 business days.';
+    ? "While you don't currently meet our standard eligibility criteria, our team will continue to review your application for alternative options."
+    : "Our underwriting team will review your application and contact you with a decision within 3-5 business days.";
 
-  const closingSubMessage = isNotEligible 
-    ? 'We encourage you to stay in touch as our lending criteria and available products are regularly updated.'
-    : 'If you have any questions about your application or need immediate assistance, please don\'t hesitate to contact our support team.';
+  const closingSubMessage = isNotEligible
+    ? "We encourage you to stay in touch as our lending criteria and available products are regularly updated."
+    : "If you have any questions about your application or need immediate assistance, please don't hesitate to contact our support team.";
 
   return `
     <!DOCTYPE html>
@@ -587,7 +590,7 @@ export const generateLoanApplicationEmail = (data: EmailData): string => {
                 <!-- Greeting -->
                 <div style="margin-bottom: 32px;">
                   <h2 style="margin: 0 0 12px 0; font-size: 22px; color: #0f172a; font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 700;">
-                    Dear ${personalInfo?.name || 'Applicant'},
+                    Dear ${personalInfo?.name || "Applicant"},
                   </h2>
                   <p class="mobile-text" style="margin: 0; font-size: 16px; color: #64748b; line-height: 1.6; font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 400;">
                     ${greetingMessage}
