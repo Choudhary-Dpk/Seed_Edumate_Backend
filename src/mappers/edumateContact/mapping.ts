@@ -1,14 +1,3 @@
-import { Prisma } from "@prisma/client";
-import {
-  AcademicProfileInput,
-  ApplicationJourneyInput,
-  EdumateContactInput,
-  FinancialInfoInput,
-  LeadAttributionInput,
-  LoanPreferencesInput,
-  PersonalInformationInput,
-  SystemTrackingInput,
-} from "../../types/DBTypes/edumateContact.types";
 import { convertCurrency } from "../../services/loan.service";
 import {
   admissionStatusMap,
@@ -715,12 +704,17 @@ export const mapAllFields = async (
 
   if (
     input.studyDestination !== undefined ||
+    input.countryOfStudy !== undefined ||
     input.preferred_study_destination !== undefined
   ) {
     const destination =
-      input.studyDestination ?? input.preferred_study_destination;
+      input.countryOfStudy?.trim() ||
+      input.studyDestination?.trim() ||
+      input.preferred_study_destination?.trim() ||
+      null;
+
     mapped.preferred_study_destination = destination
-      ? preferredStudyDestinationMap[destination]
+      ? preferredStudyDestinationMap[destination] ?? null
       : null;
   }
 

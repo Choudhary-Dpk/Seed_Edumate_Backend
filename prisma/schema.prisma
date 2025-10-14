@@ -3717,6 +3717,7 @@ enum PreferredStudyDestination {
   CHINA         @map("China")
   INDIA         @map("India")
   NEW_ZEALAND   @map("New Zealand")
+  IRELAND               @map("Ireland")
   OTHER         @map("Other")
   
   @@map("preferred_study_destination")
