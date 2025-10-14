@@ -853,12 +853,23 @@ export const mapAllFields = async (
       input.coApplicant1Name ?? input.co_applicant_1_name ?? null;
   }
 
+  // if (
+  //   input.coApplicantAnnualIncome !== undefined ||
+  //   input.co_applicant_1_income !== undefined
+  // ) {
+  //   mapped.co_applicant_1_income =
+  //     coApplicantAnnualIncome ?? input.co_applicant_1_income ?? null;
+  // }
+
   if (
     input.coApplicantAnnualIncome !== undefined ||
     input.co_applicant_1_income !== undefined
   ) {
-    mapped.co_applicant_1_income =
+    const income =
       coApplicantAnnualIncome ?? input.co_applicant_1_income ?? null;
+
+    mapped.co_applicant_1_income =
+      income === "" || income === undefined ? null : income;
   }
 
   if (
