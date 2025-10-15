@@ -42,6 +42,7 @@ export type ContactsLead = {
   userId?: number;
   createdBy?: number;
   b2bHubspotId?: string;
+  countryOfStudy?: string;
 };
 
 // ==================== EXISTING MAPPINGS ====================
@@ -101,7 +102,26 @@ export const preferredStudyDestinationMap: Record<
   China: PreferredStudyDestination.CHINA,
   India: PreferredStudyDestination.INDIA,
   "New Zealand": PreferredStudyDestination.NEW_ZEALAND,
+  Ireland: PreferredStudyDestination.IRELAND,
   Other: PreferredStudyDestination.OTHER,
+};
+
+export const preferredStudyDestinationReverseMap: Record<string, string> = {
+  US: "US",
+  UK: "UK",
+  UAE: "UAE",
+  CANADA: "Canada",
+  AUSTRALIA: "Australia",
+  GERMANY: "Germany",
+  FRANCE: "France",
+  SINGAPORE: "Singapore",
+  ITALY: "Italy",
+  JAPAN: "Japan",
+  CHINA: "China",
+  INDIA: "India",
+  NEW_ZEALAND: "New Zealand",
+  IRELAND: "Ireland",
+  OTHER: "Other",
 };
 
 export const currentEducationLevelMap: Record<string, CurrentEducationLevel> = {

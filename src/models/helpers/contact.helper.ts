@@ -393,10 +393,14 @@ const tableMappings = {
         row.targetDegreeLevel
           ? targetDegreeLevelMap[row.targetDegreeLevel]
           : null,
-      preferred_study_destination: (row: ContactsLead) =>
-        row.studyDestination
-          ? preferredStudyDestinationMap[row.studyDestination]
-          : null,
+      preferred_study_destination: (row: ContactsLead) => {
+        const destination =
+          row.studyDestination?.trim() || row.countryOfStudy?.trim() || null;
+
+        return destination
+          ? preferredStudyDestinationMap[destination] ?? null
+          : null;
+      },
       intake_month: (row: ContactsLead) => row.intakeMonth ?? null,
       intake_year: (row: ContactsLead) => row.intakeYear ?? null,
     },

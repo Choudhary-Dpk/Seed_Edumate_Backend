@@ -3,15 +3,7 @@
 import prisma from "../../config/prisma";
 import {
   FIELD_MAPPINGS,
-  mapAcademicProfile,
   mapAllFields,
-  mapApplicationJourney,
-  mapFinancialInfo,
-  mapLeadAttribution,
-  mapLoanPreferences,
-  mapMainContact,
-  mapPersonalInformation,
-  mapSystemTracking,
 } from "../../mappers/edumateContact/mapping";
 import logger from "../../utils/logger";
 
@@ -315,6 +307,7 @@ export const createContact = async (input: Record<string, any>) => {
     let contactId;
     const mappedFields = await mapAllFields(input);
     const categorized = categorizeByTable(mappedFields);
+    console.log("categorized", categorized.academicProfile);
 
     const result = await prisma.$transaction(async (tx: any) => {
       const contact = await tx.hSEdumateContacts.create({
@@ -337,6 +330,8 @@ export const createContact = async (input: Record<string, any>) => {
           data: {
             contact_id: contactId,
             ...categorized.academicProfile,
+            preferred_study_destination:
+              categorized.academicProfile.preferred_study_destination,
           } as any,
         });
       }
