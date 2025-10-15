@@ -17,8 +17,6 @@ const EDUMATE_CONTACT_REQUIRED_FIELDS = [
   "intakeMonth",
   "intakeYear",
   "loanAmount",
-  "coApplicant",
-  "coApplicantIncomeType",
   "formType",
   "submissionDate",
   "userAgent",
@@ -31,14 +29,18 @@ export const validateEdumateContact = (
 ) => {
   try {
     const contactData = req.body;
-    const { coApplicantIncomeType, formType } = contactData;
+    const { hasCoApplicant , coApplicantIncomeType, formType } = contactData;
 
     let requiredFields: string[] = [];
 
     if (formType === "loan_eligibility_checker") {
       requiredFields = [...EDUMATE_CONTACT_REQUIRED_FIELDS];
 
-      if (coApplicantIncomeType !== "Retired") {
+      if (hasCoApplicant) {
+        requiredFields.push("coApplicantIncomeType")
+        requiredFields.push("coApplicant");
+      }
+      if (hasCoApplicant && coApplicantIncomeType && coApplicantIncomeType !== "Retired") {
         requiredFields.push("coApplicantAnnualIncome");
       }
     } else if (formType === "loan_emi_calculator") {
