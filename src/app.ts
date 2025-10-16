@@ -15,6 +15,8 @@ import { masterRoutes } from "./routes/index.routes";
 import app from "./setup/express";
 import "./setup/cron";
 import { setAuditContext } from "./middlewares/audit.middleware";
+import { loanProuductRoutes } from "./routes/loanProudct.routes";
+import { commissionRoutes } from "./routes/commission.routes";
 const PORT = process.env.PORT || 3031;
 
 app.use(setAuditContext);
@@ -31,6 +33,8 @@ app.use("/loanApplications", loanApplicationRouter);
 app.use("/partners", partnerRoutes);
 app.use("/permissions", permissionsRoutes);
 app.use("/master", masterRoutes);
+app.use("/loanProduct", loanProuductRoutes);
+app.use("/commission", commissionRoutes);
 // API Documentation - Make sure this comes before other routes
 app.use("/docs", swaggerRouter);
 

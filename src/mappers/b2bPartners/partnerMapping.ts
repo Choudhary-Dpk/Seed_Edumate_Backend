@@ -655,15 +655,21 @@ export const mapAllB2BPartnerFields = async (
   if (input.partner_name !== undefined)
     mapped.partner_name = input.partner_name || null;
   if (input.api_access_provided !== undefined)
-    mapped.api_access_provided = input.api_access_provided || null;
+    mapped.api_access_provided = input.api_access_provided
+      ? apiAccessStatusMap[input.api_access_provided]
+      : null;
   if (input.created_by !== undefined)
     mapped.created_by = input.created_by || null;
   if (input.created_date !== undefined)
     mapped.created_date = input.created_date || null;
   if (input.data_source !== undefined)
-    mapped.data_source = input.data_source || null;
+    mapped.data_source = input.data_source
+      ? b2bDataSourceMap[input.data_source]
+      : null;
   if (input.integration_status !== undefined)
-    mapped.integration_status = input.integration_status || null;
+    mapped.integration_status = input.integration_status
+      ? b2bIntegrationStatusMap[input.integration_status]
+      : null;
   if (input.internal_tags !== undefined)
     mapped.internal_tags = input.internal_tags || null;
   if (input.last_modified_by !== undefined)
@@ -672,9 +678,13 @@ export const mapAllB2BPartnerFields = async (
     mapped.last_modified_date = input.last_modified_date || null;
   if (input.notes !== undefined) mapped.notes = input.notes || null;
   if (input.partner_record_status !== undefined)
-    mapped.partner_record_status = input.partner_record_status || null;
+    mapped.partner_record_status = input.partner_record_status
+      ? partnerRecordStatusMap[input.partner_record_status]
+      : null;
   if (input.portal_access_provided !== undefined)
-    mapped.portal_access_provided = input.portal_access_provided || null;
+    mapped.portal_access_provided = input.portal_access_provided
+      ? portalAccessStatusMap[input.portal_access_provided]
+      : null;
 
   return mapped;
 };
