@@ -12,7 +12,6 @@ import {
 import { HubspotResult } from "../../types";
 import { transformRow } from "../../utils/helper";
 import { getPartnerIdByUserId } from "./partners.helper";
-import { AnyNsRecord } from "dns";
 
 export const createEdumatePersonalInformation = async (
   tx: any,

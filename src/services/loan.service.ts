@@ -1,6 +1,7 @@
 // src/services/loan.service.ts
-import prisma from '../config/prisma';
-import { LoanEligibilityRequest } from '../middlewares/validators/loan.validator';
+import { Prisma } from "@prisma/client";
+import prisma from "../config/prisma";
+import { LoanEligibilityRequest } from "../middlewares/validators/loan.validator";
 import logger from "../utils/logger";
 
 export interface LoanEligibilityResult {
@@ -38,7 +39,11 @@ export const findLoanEligibility = async (
       },
     });
 
-    if (!loanRecord || !loanRecord.loan_amount || !loanRecord.loan_amount_currency) {
+    if (
+      !loanRecord ||
+      !loanRecord.loan_amount ||
+      !loanRecord.loan_amount_currency
+    ) {
       return null;
     }
 
@@ -47,8 +52,8 @@ export const findLoanEligibility = async (
       loan_amount_currency: loanRecord.loan_amount_currency,
     };
   } catch (error) {
-    console.error('Error finding loan eligibility:', error);
-    throw new Error('Failed to check loan eligibility');
+    console.error("Error finding loan eligibility:", error);
+    throw new Error("Failed to check loan eligibility");
   }
 };
 
@@ -59,21 +64,26 @@ export const convertCurrency = async (
 ): Promise<number | null> => {
   try {
     const result = await prisma.$queryRawUnsafe<{ loan_amount_usd: number }[]>(
-          `SELECT $1 * exchange_rate as loan_amount_usd
+      `SELECT $1 * exchange_rate as loan_amount_usd
           FROM currency_conversion
           WHERE from_currency = $2
             AND to_currency = $3
             AND is_active = true
           LIMIT 1
-        `, amount, from, to);
+        `,
+      amount,
+      from,
+      to
+    );
     return result[0]?.loan_amount_usd ?? 0;
   } catch (error) {
-    logger.error('Error in currency change', { 
-          amount,
-          from,
-          to,
-          error 
-        });
-        return null
+    logger.error("Error in currency change", {
+      amount,
+      from,
+      to,
+      error,
+    });
+    return null;
   }
 };
+

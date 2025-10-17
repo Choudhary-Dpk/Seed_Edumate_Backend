@@ -25,7 +25,6 @@ import {
   updateEdumateLeadAttribution,
   fetchContactsLeadList,
   createCSVContacts,
-  updateEdumateContactsHubspotTracking,
 } from "../models/helpers/contact.helper";
 import { resolveLeadsCsvPath } from "../utils/leads";
 import { FileData } from "../types/leads.types";
@@ -359,109 +358,6 @@ export const downloadContactsTemplate = (
     next(error);
   }
 };
-
-// export const uploadContactsCSV = async (
-//   req: RequestWithPayload<LoginPayload, FileData>,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   try {
-//     const { id } = req.payload!;
-//     const fileData = req.fileData;
-
-//     if (!fileData) {
-//       return sendResponse(res, 400, "Invalid or missing file data");
-//     }
-
-//     const {
-//       file_data: rows,
-//       total_records,
-//       filename,
-//       mime_type,
-//       entity_type,
-//     } = fileData;
-
-//     // 1. Store metadata into FileUpload table
-//     logger.debug(`Entering File type in database`);
-//     const fileEntity = await addFileType(entity_type);
-//     logger.debug(`File type added successfully`);
-
-//     // Now create file upload
-//     logger.debug(`Entering file records history`);
-//     const fileUpload = await addFileRecord(
-//       filename,
-//       mime_type,
-//       rows,
-//       total_records,
-//       id,
-//       fileEntity.id!
-//     );
-//     logger.debug(`File records history added successfully`);
-
-//     // 2. Validate + Normalize rows
-//     const { validRows, errors } = validateContactRows(rows, id);
-//     if (validRows.length === 0) {
-//       return sendResponse(res, 400, "No valid rows found in CSV", { errors });
-//     }
-
-//     // 3. Deduplicate inside file
-//     const { unique: uniqueInFile, duplicates: duplicatesInFile } =
-//       deduplicateContactsInFile(validRows);
-//     console.log("unique", uniqueInFile, duplicatesInFile);
-
-//     // 4. Deduplicate against DB
-//     const { unique: toInsert, duplicates: duplicatesInDb } =
-//       await deduplicateContactsInDb(uniqueInFile);
-//     console.log("toInsert", toInsert, duplicatesInDb);
-
-//     // 5. Handle no new records
-//     if (toInsert.length === 0) {
-//       logger.debug(`Updating fileUpload records`);
-//       await updateFileRecord(fileUpload.id, 0, validRows.length);
-//       logger.debug(`File upload records updated successfully`);
-
-//       return sendResponse(res, 200, "No new records to insert", {
-//         totalRows: rows.length,
-//         validRows: validRows.length,
-//         inserted: 0,
-//         skippedInvalid: errors.length,
-//         skippedDuplicatesInFile: duplicatesInFile,
-//         skippedDuplicatesInDb: duplicatesInDb,
-//         errors,
-//       });
-//     }
-
-//     // 6. Insert into HubSpot (batch)
-//     logger.debug(`Creating ${toInsert.length} HubSpot loan applications`);
-//     const hubspotResults = await createContactsLoanLeads(toInsert);
-//     console.log("hubspot", hubspotResults);
-//     logger.debug(`HubSpot loan applications created`);
-
-//     // 7. Insert into DB (safely with skipDuplicates)
-//     logger.debug(`Creating csv leads in database`);
-//     const result = await createCSVContacts(toInsert, id);
-//     logger.debug(`Leads created successfully in database`);
-
-//     updateContactsSystemTracking(hubspotResults as any[]);
-
-//     // 8. Update FileUpload stats
-//     logger.debug(`Updating fileUpload records`);
-//     await updateFileRecord(fileUpload.id, result.count, errors.length);
-//     logger.debug(`File upload records updated successfully`);
-
-//     return sendResponse(res, 201, "CSV processed successfully", {
-//       totalRows: rows.length,
-//       validRows: validRows.length,
-//       inserted: result.count,
-//       skippedInvalid: errors.length,
-//       skippedDuplicatesInFile: duplicatesInFile,
-//       skippedDuplicatesInDb: duplicatesInDb,
-//       errors,
-//     });
-//   } catch (error) {
-//     next(error);
-//   }
-// };
 
 export const uploadContactsCSV = async (
   req: RequestWithPayload<LoginPayload, FileData>,

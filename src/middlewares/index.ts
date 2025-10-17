@@ -1,4 +1,4 @@
-import { NextFunction,Request,Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { sendResponse } from "../utils/api";
 import { getUserByEmail } from "../models/helpers/user.helper";
 import {
@@ -150,13 +150,17 @@ export const validatePassword = async (
 };
 
 export const validateToken =
-  (allowedRoles?: AllowedRoles[]) =>
+  (allowedRoles?: AllowedRoles[], requireAuth: boolean = true) =>
   async (
     req: RequestWithPayload<ProtectedPayload>,
     res: Response,
     next: NextFunction
   ) => {
     try {
+      if (!requireAuth) {
+        return next();
+      }
+
       const authHeader = req.headers.authorization;
 
       if (!authHeader || !authHeader.startsWith("Bearer ")) {
