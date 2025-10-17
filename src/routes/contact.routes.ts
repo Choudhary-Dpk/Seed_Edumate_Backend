@@ -42,7 +42,7 @@ router.delete(
 );
 router.get(
   "/details/:id",
-  validateToken(["Admin", "Manager", "User"]),
+  // validateToken(["Admin", "Manager", "User"]),
   validateId(),
   validateReqParams,
   validateContactLeadById,

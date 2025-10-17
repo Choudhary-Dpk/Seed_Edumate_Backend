@@ -6,6 +6,7 @@ import {
   deletePartner,
   getB2bPartnerDetails,
   getB2bPartnersList,
+  getLeadsByPartnerFieldsController,
   updateB2bPartner,
 } from "../controllers/partner.controller";
 import {
@@ -48,6 +49,11 @@ router.get(
   "/pagination",
   validateToken(["Admin", "Manager", "User"]),
   getB2bPartnersList
+);
+router.get(
+  "/filter",
+  validateToken(["Admin", "Manager", "User"], false),
+  getLeadsByPartnerFieldsController
 );
 
 export { router as partnerRoutes };

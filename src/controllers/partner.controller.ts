@@ -1,4 +1,4 @@
-import { NextFunction, Response } from "express";
+import { NextFunction, Response, Request } from "express";
 import { RequestWithPayload } from "../types/api.types";
 import { LoginPayload } from "../types/auth";
 import logger from "../utils/logger";
@@ -18,6 +18,7 @@ import {
   deleteB2bPartner,
   fetchB2BPartnersList,
   getB2BPartner,
+  getLeadsByDynamicFilters,
   updateB2BBusinessCapabilities,
   updateB2BCommissionStructure,
   updateB2BComplianceDocumentation,
@@ -427,6 +428,24 @@ export const getB2bPartnersList = async (
     });
   } catch (error) {
     logger.error(`Error fetching B2B partners list: ${error}`);
+    next(error);
+  }
+};
+
+export const getLeadsByPartnerFieldsController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const filters = req.query;
+    console.log("filters", filters);
+
+    const leads = await getLeadsByDynamicFilters(filters);
+
+    sendResponse(res, 200, "Leads fetched successfully", leads);
+  } catch (error) {
+    logger.error(`Error fetching contacts list: ${error}`);
     next(error);
   }
 };

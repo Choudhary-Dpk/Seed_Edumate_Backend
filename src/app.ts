@@ -17,6 +17,7 @@ import "./setup/cron";
 import { setAuditContext } from "./middlewares/audit.middleware";
 import { loanProuductRoutes } from "./routes/loanProudct.routes";
 import { commissionRoutes } from "./routes/commission.routes";
+import { lenderRoutes } from "./routes/lender.routes";
 const PORT = process.env.PORT || 3031;
 
 app.use(setAuditContext);
@@ -35,6 +36,7 @@ app.use("/permissions", permissionsRoutes);
 app.use("/master", masterRoutes);
 app.use("/loanProduct", loanProuductRoutes);
 app.use("/commission", commissionRoutes);
+app.use("/lenders", lenderRoutes);
 // API Documentation - Make sure this comes before other routes
 app.use("/docs", swaggerRouter);
 

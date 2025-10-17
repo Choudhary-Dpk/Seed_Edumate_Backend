@@ -649,3 +649,30 @@ export const checkLoanProductFields = async (
 
   return result;
 };
+
+export const getLoanProductsByLender = async (lenderId: number) => {
+  if (!lenderId) return [];
+
+  const loanProducts = await prisma.hSLoanProducts.findMany({
+    where: {
+      lender_id: lenderId,
+      is_deleted: false,
+    },
+    include: {
+      eligibility_criteria: true,
+      financial_terms: true,
+      collateral_security: true,
+      repayment_terms: true,
+      processing_details: true,
+      geographic_coverage: true,
+      special_features: true,
+      performance_metrics: true,
+      system_integration: true,
+      loan_product_competitive_analysis: true,
+      system_tracking: true,
+      lender: true, // optional: includes basic lender info if needed
+    },
+  });
+
+  return loanProducts;
+};
