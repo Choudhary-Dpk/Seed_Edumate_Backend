@@ -1,13 +1,21 @@
 [
   {
     "code": "INR",
+    "iso_code": "INR",
     "symbol": "₹",
     "name": "Indian Rupee",
+    "countries": ["India"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 100000,
     "max_loan_amount": 50000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 0,
+      "k_threshold": 100000,
+      "m_threshold": 10000000
+    },
     "quick_amounts": [
       { "amount": 1000000, "label": "₹10L" },
       { "amount": 2500000, "label": "₹25L" },
@@ -17,20 +25,28 @@
       { "amount": 50000000, "label": "₹5Cr" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 100000, "suffix": "L" },
-      "billion": { "divisor": 10000000, "suffix": "Cr" }
+      "lakh": { "divisor": 100000, "suffix": "L" },
+      "crore": { "divisor": 10000000, "suffix": "Cr" }
     },
     "is_active": true
   },
   {
     "code": "USD",
+    "iso_code": "USD",
     "symbol": "$",
     "name": "US Dollar",
+    "countries": ["United States", "Ecuador", "El Salvador", "Zimbabwe", "Timor-Leste", "Panama", "Palau", "Micronesia", "Marshall Islands"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 1000,
     "max_loan_amount": 500000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
       { "amount": 10000, "label": "$10K" },
       { "amount": 25000, "label": "$25K" },
@@ -40,20 +56,28 @@
       { "amount": 500000, "label": "$500K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "EUR",
+    "iso_code": "EUR",
     "symbol": "€",
     "name": "Euro",
+    "countries": ["Germany", "France", "Italy", "Spain", "Netherlands", "Belgium", "Austria", "Greece", "Portugal", "Finland", "Ireland", "Slovakia", "Slovenia", "Luxembourg", "Latvia", "Estonia", "Cyprus", "Malta", "Lithuania", "Croatia"],
     "position": "before",
-    "thousands_separator": ",",
-    "decimal_separator": ".",
+    "thousands_separator": ".",
+    "decimal_separator": ",",
     "min_loan_amount": 1000,
     "max_loan_amount": 400000,
+    "formatting": {
+      "k_format_decimals": 1,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
       { "amount": 10000, "label": "€10K" },
       { "amount": 25000, "label": "€25K" },
@@ -63,20 +87,28 @@
       { "amount": 400000, "label": "€400K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "GBP",
+    "iso_code": "GBP",
     "symbol": "£",
     "name": "British Pound",
+    "countries": ["United Kingdom"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 1000,
     "max_loan_amount": 350000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
       { "amount": 10000, "label": "£10K" },
       { "amount": 25000, "label": "£25K" },
@@ -86,66 +118,90 @@
       { "amount": 350000, "label": "£350K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "CAD",
-    "symbol": "C$",
+    "iso_code": "CAD",
+    "symbol": "CA$",
     "name": "Canadian Dollar",
+    "countries": ["Canada"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 1000,
     "max_loan_amount": 400000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 10000, "label": "C$10K" },
-      { "amount": 25000, "label": "C$25K" },
-      { "amount": 50000, "label": "C$50K" },
-      { "amount": 100000, "label": "C$100K" },
-      { "amount": 250000, "label": "C$250K" },
-      { "amount": 400000, "label": "C$400K" }
+      { "amount": 10000, "label": "CAD 10K" },
+      { "amount": 25000, "label": "CAD 25K" },
+      { "amount": 50000, "label": "CAD 50K" },
+      { "amount": 100000, "label": "CAD 100K" },
+      { "amount": 250000, "label": "CAD 250K" },
+      { "amount": 400000, "label": "CAD 400K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "AUD",
+    "iso_code": "AUD",
     "symbol": "A$",
     "name": "Australian Dollar",
+    "countries": ["Australia", "Kiribati", "Nauru", "Tuvalu"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 1000,
     "max_loan_amount": 400000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 10000, "label": "A$10K" },
-      { "amount": 25000, "label": "A$25K" },
-      { "amount": 50000, "label": "A$50K" },
-      { "amount": 100000, "label": "A$100K" },
-      { "amount": 250000, "label": "A$250K" },
-      { "amount": 400000, "label": "A$400K" }
+      { "amount": 10000, "label": "AUD 10K" },
+      { "amount": 25000, "label": "AUD 25K" },
+      { "amount": 50000, "label": "AUD 50K" },
+      { "amount": 100000, "label": "AUD 100K" },
+      { "amount": 250000, "label": "AUD 250K" },
+      { "amount": 400000, "label": "AUD 400K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "AFN",
+    "iso_code": "AFN",
     "symbol": "؋",
     "name": "Afghan Afghani",
+    "countries": ["Afghanistan"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 50000,
     "max_loan_amount": 5000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
       { "amount": 100000, "label": "؋100K" },
       { "amount": 250000, "label": "؋250K" },
@@ -155,43 +211,59 @@
       { "amount": 5000000, "label": "؋5M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "ALL",
+    "iso_code": "ALL",
     "symbol": "L",
     "name": "Albanian Lek",
+    "countries": ["Albania"],
     "position": "after",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 100000,
     "max_loan_amount": 10000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 250000, "label": "250K L" },
-      { "amount": 500000, "label": "500K L" },
-      { "amount": 1000000, "label": "1M L" },
-      { "amount": 2500000, "label": "2.5M L" },
-      { "amount": 5000000, "label": "5M L" },
-      { "amount": 10000000, "label": "10M L" }
+      { "amount": 250000, "label": "ALL 250K" },
+      { "amount": 500000, "label": "ALL 500K" },
+      { "amount": 1000000, "label": "ALL 1M" },
+      { "amount": 2500000, "label": "ALL 2.5M" },
+      { "amount": 5000000, "label": "ALL 5M" },
+      { "amount": 10000000, "label": "ALL 10M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "AMD",
+    "iso_code": "AMD",
     "symbol": "֏",
     "name": "Armenian Dram",
+    "countries": ["Armenia"],
     "position": "after",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 100000,
     "max_loan_amount": 20000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
       { "amount": 500000, "label": "500K ֏" },
       { "amount": 1000000, "label": "1M ֏" },
@@ -201,112 +273,152 @@
       { "amount": 20000000, "label": "20M ֏" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "ANG",
+    "iso_code": "ANG",
     "symbol": "ƒ",
     "name": "Netherlands Antillean Guilder",
+    "countries": ["Curaçao", "Sint Maarten"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 1000,
     "max_loan_amount": 100000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 10000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 5000, "label": "ƒ5K" },
-      { "amount": 10000, "label": "ƒ10K" },
-      { "amount": 25000, "label": "ƒ25K" },
-      { "amount": 50000, "label": "ƒ50K" },
-      { "amount": 75000, "label": "ƒ75K" },
-      { "amount": 100000, "label": "ƒ100K" }
+      { "amount": 5000, "label": "ANG 5K" },
+      { "amount": 10000, "label": "ANG 10K" },
+      { "amount": 25000, "label": "ANG 25K" },
+      { "amount": 50000, "label": "ANG 50K" },
+      { "amount": 75000, "label": "ANG 75K" },
+      { "amount": 100000, "label": "ANG 100K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "AOA",
+    "iso_code": "AOA",
     "symbol": "Kz",
     "name": "Angolan Kwanza",
+    "countries": ["Angola"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 100000,
     "max_loan_amount": 50000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 500000, "label": "Kz500K" },
-      { "amount": 1000000, "label": "Kz1M" },
-      { "amount": 5000000, "label": "Kz5M" },
-      { "amount": 10000000, "label": "Kz10M" },
-      { "amount": 25000000, "label": "Kz25M" },
-      { "amount": 50000000, "label": "Kz50M" }
+      { "amount": 500000, "label": "AOA 500K" },
+      { "amount": 1000000, "label": "AOA 1M" },
+      { "amount": 5000000, "label": "AOA 5M" },
+      { "amount": 10000000, "label": "AOA 10M" },
+      { "amount": 25000000, "label": "AOA 25M" },
+      { "amount": 50000000, "label": "AOA 50M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "ARS",
-    "symbol": "$",
+    "iso_code": "ARS",
+    "symbol": "AR$",
     "name": "Argentine Peso",
+    "countries": ["Argentina"],
     "position": "before",
     "thousands_separator": ".",
     "decimal_separator": ",",
     "min_loan_amount": 100000,
     "max_loan_amount": 50000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 1000000,
+      "m_threshold": 10000000
+    },
     "quick_amounts": [
-      { "amount": 500000, "label": "$500K" },
-      { "amount": 1000000, "label": "$1M" },
-      { "amount": 5000000, "label": "$5M" },
-      { "amount": 10000000, "label": "$10M" },
-      { "amount": 25000000, "label": "$25M" },
-      { "amount": 50000000, "label": "$50M" }
+      { "amount": 500000, "label": "ARS 500K" },
+      { "amount": 1000000, "label": "ARS 1M" },
+      { "amount": 5000000, "label": "ARS 5M" },
+      { "amount": 10000000, "label": "ARS 10M" },
+      { "amount": 25000000, "label": "ARS 25M" },
+      { "amount": 50000000, "label": "ARS 50M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "AWG",
+    "iso_code": "AWG",
     "symbol": "ƒ",
     "name": "Aruban Florin",
+    "countries": ["Aruba"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 1000,
     "max_loan_amount": 100000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 10000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 5000, "label": "ƒ5K" },
-      { "amount": 10000, "label": "ƒ10K" },
-      { "amount": 25000, "label": "ƒ25K" },
-      { "amount": 50000, "label": "ƒ50K" },
-      { "amount": 75000, "label": "ƒ75K" },
-      { "amount": 100000, "label": "ƒ100K" }
+      { "amount": 5000, "label": "AWG 5K" },
+      { "amount": 10000, "label": "AWG 10K" },
+      { "amount": 25000, "label": "AWG 25K" },
+      { "amount": 50000, "label": "AWG 50K" },
+      { "amount": 75000, "label": "AWG 75K" },
+      { "amount": 100000, "label": "AWG 100K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "AZN",
+    "iso_code": "AZN",
     "symbol": "₼",
     "name": "Azerbaijani Manat",
+    "countries": ["Azerbaijan"],
     "position": "after",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 1000,
     "max_loan_amount": 100000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 10000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
       { "amount": 5000, "label": "5K ₼" },
       { "amount": 10000, "label": "10K ₼" },
@@ -316,66 +428,90 @@
       { "amount": 100000, "label": "100K ₼" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "BAM",
+    "iso_code": "BAM",
     "symbol": "KM",
     "name": "Bosnia-Herzegovina Convertible Mark",
+    "countries": ["Bosnia and Herzegovina"],
     "position": "after",
     "thousands_separator": ".",
     "decimal_separator": ",",
     "min_loan_amount": 1000,
     "max_loan_amount": 100000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 10000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 5000, "label": "5K KM" },
-      { "amount": 10000, "label": "10K KM" },
-      { "amount": 25000, "label": "25K KM" },
-      { "amount": 50000, "label": "50K KM" },
-      { "amount": 75000, "label": "75K KM" },
-      { "amount": 100000, "label": "100K KM" }
+      { "amount": 5000, "label": "BAM 5K" },
+      { "amount": 10000, "label": "BAM 10K" },
+      { "amount": 25000, "label": "BAM 25K" },
+      { "amount": 50000, "label": "BAM 50K" },
+      { "amount": 75000, "label": "BAM 75K" },
+      { "amount": 100000, "label": "BAM 100K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "BBD",
+    "iso_code": "BBD",
     "symbol": "$",
     "name": "Barbadian Dollar",
+    "countries": ["Barbados"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 1000,
     "max_loan_amount": 200000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 10000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 5000, "label": "$5K" },
-      { "amount": 10000, "label": "$10K" },
-      { "amount": 25000, "label": "$25K" },
-      { "amount": 50000, "label": "$50K" },
-      { "amount": 100000, "label": "$100K" },
-      { "amount": 200000, "label": "$200K" }
+      { "amount": 5000, "label": "BBD 5K" },
+      { "amount": 10000, "label": "BBD 10K" },
+      { "amount": 25000, "label": "BBD 25K" },
+      { "amount": 50000, "label": "BBD 50K" },
+      { "amount": 100000, "label": "BBD 100K" },
+      { "amount": 200000, "label": "BBD 200K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "BDT",
+    "iso_code": "BDT",
     "symbol": "৳",
     "name": "Bangladeshi Taka",
+    "countries": ["Bangladesh"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 50000,
     "max_loan_amount": 10000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
       { "amount": 100000, "label": "৳100K" },
       { "amount": 250000, "label": "৳250K" },
@@ -385,20 +521,28 @@
       { "amount": 10000000, "label": "৳10M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "BGN",
+    "iso_code": "BGN",
     "symbol": "лв",
     "name": "Bulgarian Lev",
+    "countries": ["Bulgaria"],
     "position": "after",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 1000,
     "max_loan_amount": 200000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 10000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
       { "amount": 5000, "label": "5K лв" },
       { "amount": 10000, "label": "10K лв" },
@@ -408,342 +552,462 @@
       { "amount": 200000, "label": "200K лв" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "BHD",
-    "symbol": ".د.ب",
+    "iso_code": "BHD",
+    "symbol": "د.ب",
     "name": "Bahraini Dinar",
+    "countries": ["Bahrain"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 500,
     "max_loan_amount": 50000,
+    "formatting": {
+      "k_format_decimals": 1,
+      "m_format_decimals": 1,
+      "k_threshold": 10000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 2000, "label": ".د.ب2K" },
-      { "amount": 5000, "label": ".د.ب5K" },
-      { "amount": 10000, "label": ".د.ب10K" },
-      { "amount": 20000, "label": ".د.ب20K" },
-      { "amount": 30000, "label": ".د.ب30K" },
-      { "amount": 50000, "label": ".د.ب50K" }
+      { "amount": 2000, "label": "د.ب2K" },
+      { "amount": 5000, "label": "د.ب5K" },
+      { "amount": 10000, "label": "د.ب10K" },
+      { "amount": 20000, "label": "د.ب20K" },
+      { "amount": 30000, "label": "د.ب30K" },
+      { "amount": 50000, "label": "د.ب50K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "BIF",
+    "iso_code": "BIF",
     "symbol": "FBu",
     "name": "Burundian Franc",
+    "countries": ["Burundi"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 1000000,
     "max_loan_amount": 100000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 1000000,
+      "m_threshold": 10000000
+    },
     "quick_amounts": [
-      { "amount": 2000000, "label": "FBu2M" },
-      { "amount": 5000000, "label": "FBu5M" },
-      { "amount": 10000000, "label": "FBu10M" },
-      { "amount": 25000000, "label": "FBu25M" },
-      { "amount": 50000000, "label": "FBu50M" },
-      { "amount": 100000000, "label": "FBu100M" }
+      { "amount": 2000000, "label": "BIF 2M" },
+      { "amount": 5000000, "label": "BIF 5M" },
+      { "amount": 10000000, "label": "BIF 10M" },
+      { "amount": 25000000, "label": "BIF 25M" },
+      { "amount": 50000000, "label": "BIF 50M" },
+      { "amount": 100000000, "label": "BIF 100M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "BMD",
+    "iso_code": "BMD",
     "symbol": "$",
     "name": "Bermudian Dollar",
+    "countries": ["Bermuda"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 1000,
     "max_loan_amount": 200000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 10000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 5000, "label": "$5K" },
-      { "amount": 10000, "label": "$10K" },
-      { "amount": 25000, "label": "$25K" },
-      { "amount": 50000, "label": "$50K" },
-      { "amount": 100000, "label": "$100K" },
-      { "amount": 200000, "label": "$200K" }
+      { "amount": 5000, "label": "BMD 5K" },
+      { "amount": 10000, "label": "BMD 10K" },
+      { "amount": 25000, "label": "BMD 25K" },
+      { "amount": 50000, "label": "BMD 50K" },
+      { "amount": 100000, "label": "BMD 100K" },
+      { "amount": 200000, "label": "BMD 200K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "BND",
+    "iso_code": "BND",
     "symbol": "$",
     "name": "Brunei Dollar",
+    "countries": ["Brunei"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 1000,
     "max_loan_amount": 200000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 10000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 5000, "label": "$5K" },
-      { "amount": 10000, "label": "$10K" },
-      { "amount": 25000, "label": "$25K" },
-      { "amount": 50000, "label": "$50K" },
-      { "amount": 100000, "label": "$100K" },
-      { "amount": 200000, "label": "$200K" }
+      { "amount": 5000, "label": "BND 5K" },
+      { "amount": 10000, "label": "BND 10K" },
+      { "amount": 25000, "label": "BND 25K" },
+      { "amount": 50000, "label": "BND 50K" },
+      { "amount": 100000, "label": "BND 100K" },
+      { "amount": 200000, "label": "BND 200K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "BOB",
+    "iso_code": "BOB",
     "symbol": "Bs.",
     "name": "Bolivian Boliviano",
+    "countries": ["Bolivia"],
     "position": "before",
     "thousands_separator": ".",
     "decimal_separator": ",",
     "min_loan_amount": 5000,
     "max_loan_amount": 500000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 10000, "label": "Bs.10K" },
-      { "amount": 25000, "label": "Bs.25K" },
-      { "amount": 50000, "label": "Bs.50K" },
-      { "amount": 100000, "label": "Bs.100K" },
-      { "amount": 250000, "label": "Bs.250K" },
-      { "amount": 500000, "label": "Bs.500K" }
+      { "amount": 10000, "label": "BOB 10K" },
+      { "amount": 25000, "label": "BOB 25K" },
+      { "amount": 50000, "label": "BOB 50K" },
+      { "amount": 100000, "label": "BOB 100K" },
+      { "amount": 250000, "label": "BOB 250K" },
+      { "amount": 500000, "label": "BOB 500K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "BRL",
+    "iso_code": "BRL",
     "symbol": "R$",
     "name": "Brazilian Real",
+    "countries": ["Brazil"],
     "position": "before",
     "thousands_separator": ".",
     "decimal_separator": ",",
     "min_loan_amount": 5000,
     "max_loan_amount": 2000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 10000, "label": "R$10K" },
-      { "amount": 25000, "label": "R$25K" },
-      { "amount": 50000, "label": "R$50K" },
-      { "amount": 100000, "label": "R$100K" },
-      { "amount": 500000, "label": "R$500K" },
-      { "amount": 2000000, "label": "R$2M" }
+      { "amount": 10000, "label": "BRL 10K" },
+      { "amount": 25000, "label": "BRL 25K" },
+      { "amount": 50000, "label": "BRL 50K" },
+      { "amount": 100000, "label": "BRL 100K" },
+      { "amount": 500000, "label": "BRL 500K" },
+      { "amount": 2000000, "label": "BRL 2M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "BSD",
+    "iso_code": "BSD",
     "symbol": "$",
     "name": "Bahamian Dollar",
+    "countries": ["Bahamas"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 1000,
     "max_loan_amount": 200000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 10000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 5000, "label": "$5K" },
-      { "amount": 10000, "label": "$10K" },
-      { "amount": 25000, "label": "$25K" },
-      { "amount": 50000, "label": "$50K" },
-      { "amount": 100000, "label": "$100K" },
-      { "amount": 200000, "label": "$200K" }
+      { "amount": 5000, "label": "BSD 5K" },
+      { "amount": 10000, "label": "BSD 10K" },
+      { "amount": 25000, "label": "BSD 25K" },
+      { "amount": 50000, "label": "BSD 50K" },
+      { "amount": 100000, "label": "BSD 100K" },
+      { "amount": 200000, "label": "BSD 200K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "BTN",
+    "iso_code": "BTN",
     "symbol": "Nu.",
     "name": "Bhutanese Ngultrum",
+    "countries": ["Bhutan"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 50000,
     "max_loan_amount": 5000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 100000, "label": "Nu.100K" },
-      { "amount": 250000, "label": "Nu.250K" },
-      { "amount": 500000, "label": "Nu.500K" },
-      { "amount": 1000000, "label": "Nu.1M" },
-      { "amount": 2500000, "label": "Nu.2.5M" },
-      { "amount": 5000000, "label": "Nu.5M" }
+      { "amount": 100000, "label": "BTN 100K" },
+      { "amount": 250000, "label": "BTN 250K" },
+      { "amount": 500000, "label": "BTN 500K" },
+      { "amount": 1000000, "label": "BTN 1M" },
+      { "amount": 2500000, "label": "BTN 2.5M" },
+      { "amount": 5000000, "label": "BTN 5M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "BWP",
+    "iso_code": "BWP",
     "symbol": "P",
     "name": "Botswanan Pula",
+    "countries": ["Botswana"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 10000,
     "max_loan_amount": 1000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 25000, "label": "P25K" },
-      { "amount": 50000, "label": "P50K" },
-      { "amount": 100000, "label": "P100K" },
-      { "amount": 250000, "label": "P250K" },
-      { "amount": 500000, "label": "P500K" },
-      { "amount": 1000000, "label": "P1M" }
+      { "amount": 25000, "label": "BWP 25K" },
+      { "amount": 50000, "label": "BWP 50K" },
+      { "amount": 100000, "label": "BWP 100K" },
+      { "amount": 250000, "label": "BWP 250K" },
+      { "amount": 500000, "label": "BWP 500K" },
+      { "amount": 1000000, "label": "BWP 1M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "BYN",
+    "iso_code": "BYN",
     "symbol": "Br",
     "name": "Belarusian Ruble",
+    "countries": ["Belarus"],
     "position": "after",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 1000,
     "max_loan_amount": 200000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 10000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 5000, "label": "5K Br" },
-      { "amount": 10000, "label": "10K Br" },
-      { "amount": 25000, "label": "25K Br" },
-      { "amount": 50000, "label": "50K Br" },
-      { "amount": 100000, "label": "100K Br" },
-      { "amount": 200000, "label": "200K Br" }
+      { "amount": 5000, "label": "BYN 5K" },
+      { "amount": 10000, "label": "BYN 10K" },
+      { "amount": 25000, "label": "BYN 25K" },
+      { "amount": 50000, "label": "BYN 50K" },
+      { "amount": 100000, "label": "BYN 100K" },
+      { "amount": 200000, "label": "BYN 200K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "BZD",
+    "iso_code": "BZD",
     "symbol": "$",
     "name": "Belize Dollar",
+    "countries": ["Belize"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 1000,
     "max_loan_amount": 200000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 10000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 5000, "label": "$5K" },
-      { "amount": 10000, "label": "$10K" },
-      { "amount": 25000, "label": "$25K" },
-      { "amount": 50000, "label": "$50K" },
-      { "amount": 100000, "label": "$100K" },
-      { "amount": 200000, "label": "$200K" }
+      { "amount": 5000, "label": "BZD 5K" },
+      { "amount": 10000, "label": "BZD 10K" },
+      { "amount": 25000, "label": "BZD 25K" },
+      { "amount": 50000, "label": "BZD 50K" },
+      { "amount": 100000, "label": "BZD 100K" },
+      { "amount": 200000, "label": "BZD 200K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "CDF",
+    "iso_code": "CDF",
     "symbol": "FC",
     "name": "Congolese Franc",
+    "countries": ["Democratic Republic of the Congo"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 1000000,
     "max_loan_amount": 100000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 1000000,
+      "m_threshold": 10000000
+    },
     "quick_amounts": [
-      { "amount": 2000000, "label": "FC2M" },
-      { "amount": 5000000, "label": "FC5M" },
-      { "amount": 10000000, "label": "FC10M" },
-      { "amount": 25000000, "label": "FC25M" },
-      { "amount": 50000000, "label": "FC50M" },
-      { "amount": 100000000, "label": "FC100M" }
+      { "amount": 2000000, "label": "CDF 2M" },
+      { "amount": 5000000, "label": "CDF 5M" },
+      { "amount": 10000000, "label": "CDF 10M" },
+      { "amount": 25000000, "label": "CDF 25M" },
+      { "amount": 50000000, "label": "CDF 50M" },
+      { "amount": 100000000, "label": "CDF 100M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "CHF",
+    "iso_code": "CHF",
     "symbol": "CHF",
     "name": "Swiss Franc",
-    "position": "after",
+    "countries": ["Switzerland", "Liechtenstein"],
+    "position": "before",
     "thousands_separator": "'",
     "decimal_separator": ".",
     "min_loan_amount": 1000,
     "max_loan_amount": 400000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 10000, "label": "10K CHF" },
-      { "amount": 25000, "label": "25K CHF" },
-      { "amount": 50000, "label": "50K CHF" },
-      { "amount": 100000, "label": "100K CHF" },
-      { "amount": 200000, "label": "200K CHF" },
-      { "amount": 400000, "label": "400K CHF" }
+      { "amount": 10000, "label": "CHF 10K" },
+      { "amount": 25000, "label": "CHF 25K" },
+      { "amount": 50000, "label": "CHF 50K" },
+      { "amount": 100000, "label": "CHF 100K" },
+      { "amount": 200000, "label": "CHF 200K" },
+      { "amount": 400000, "label": "CHF 400K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "CLP",
-    "symbol": "$",
+    "iso_code": "CLP",
+    "symbol": "CL$",
     "name": "Chilean Peso",
+    "countries": ["Chile"],
     "position": "before",
     "thousands_separator": ".",
     "decimal_separator": ",",
     "min_loan_amount": 500000,
     "max_loan_amount": 200000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 1000000,
+      "m_threshold": 10000000
+    },
     "quick_amounts": [
-      { "amount": 1000000, "label": "$1M" },
-      { "amount": 5000000, "label": "$5M" },
-      { "amount": 10000000, "label": "$10M" },
-      { "amount": 25000000, "label": "$25M" },
-      { "amount": 100000000, "label": "$100M" },
-      { "amount": 200000000, "label": "$200M" }
+      { "amount": 1000000, "label": "CLP 1M" },
+      { "amount": 5000000, "label": "CLP 5M" },
+      { "amount": 10000000, "label": "CLP 10M" },
+      { "amount": 25000000, "label": "CLP 25M" },
+      { "amount": 100000000, "label": "CLP 100M" },
+      { "amount": 200000000, "label": "CLP 200M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "CNY",
+    "iso_code": "CNY",
     "symbol": "¥",
     "name": "Chinese Yuan",
+    "countries": ["China"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 5000,
     "max_loan_amount": 1000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
       { "amount": 10000, "label": "¥10K" },
       { "amount": 25000, "label": "¥25K" },
@@ -753,43 +1017,59 @@
       { "amount": 1000000, "label": "¥1M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "COP",
-    "symbol": "$",
+    "iso_code": "COP",
+    "symbol": "CO$",
     "name": "Colombian Peso",
+    "countries": ["Colombia"],
     "position": "before",
     "thousands_separator": ".",
     "decimal_separator": ",",
     "min_loan_amount": 1000000,
     "max_loan_amount": 500000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 1000000,
+      "m_threshold": 10000000
+    },
     "quick_amounts": [
-      { "amount": 5000000, "label": "$5M" },
-      { "amount": 10000000, "label": "$10M" },
-      { "amount": 25000000, "label": "$25M" },
-      { "amount": 50000000, "label": "$50M" },
-      { "amount": 100000000, "label": "$100M" },
-      { "amount": 500000000, "label": "$500M" }
+      { "amount": 5000000, "label": "COP 5M" },
+      { "amount": 10000000, "label": "COP 10M" },
+      { "amount": 25000000, "label": "COP 25M" },
+      { "amount": 50000000, "label": "COP 50M" },
+      { "amount": 100000000, "label": "COP 100M" },
+      { "amount": 500000000, "label": "COP 500M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "CRC",
+    "iso_code": "CRC",
     "symbol": "₡",
     "name": "Costa Rican Colón",
+    "countries": ["Costa Rica"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 500000,
     "max_loan_amount": 50000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 1000000,
+      "m_threshold": 10000000
+    },
     "quick_amounts": [
       { "amount": 1000000, "label": "₡1M" },
       { "amount": 2500000, "label": "₡2.5M" },
@@ -799,158 +1079,214 @@
       { "amount": 50000000, "label": "₡50M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "CUP",
+    "iso_code": "CUP",
     "symbol": "$",
     "name": "Cuban Peso",
+    "countries": ["Cuba"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 10000,
     "max_loan_amount": 1000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 25000, "label": "$25K" },
-      { "amount": 50000, "label": "$50K" },
-      { "amount": 100000, "label": "$100K" },
-      { "amount": 250000, "label": "$250K" },
-      { "amount": 500000, "label": "$500K" },
-      { "amount": 1000000, "label": "$1M" }
+      { "amount": 25000, "label": "CUP 25K" },
+      { "amount": 50000, "label": "CUP 50K" },
+      { "amount": 100000, "label": "CUP 100K" },
+      { "amount": 250000, "label": "CUP 250K" },
+      { "amount": 500000, "label": "CUP 500K" },
+      { "amount": 1000000, "label": "CUP 1M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "CVE",
+    "iso_code": "CVE",
     "symbol": "$",
     "name": "Cape Verdean Escudo",
+    "countries": ["Cape Verde"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 50000,
     "max_loan_amount": 5000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 100000, "label": "$100K" },
-      { "amount": 250000, "label": "$250K" },
-      { "amount": 500000, "label": "$500K" },
-      { "amount": 1000000, "label": "$1M" },
-      { "amount": 2500000, "label": "$2.5M" },
-      { "amount": 5000000, "label": "$5M" }
+      { "amount": 100000, "label": "CVE 100K" },
+      { "amount": 250000, "label": "CVE 250K" },
+      { "amount": 500000, "label": "CVE 500K" },
+      { "amount": 1000000, "label": "CVE 1M" },
+      { "amount": 2500000, "label": "CVE 2.5M" },
+      { "amount": 5000000, "label": "CVE 5M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "CZK",
+    "iso_code": "CZK",
     "symbol": "Kč",
     "name": "Czech Koruna",
-    "position": "after",
+    "countries": ["Czech Republic"],
+    "position": "before",
     "thousands_separator": " ",
     "decimal_separator": ",",
     "min_loan_amount": 20000,
     "max_loan_amount": 5000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 50000, "label": "50K Kč" },
-      { "amount": 100000, "label": "100K Kč" },
-      { "amount": 250000, "label": "250K Kč" },
-      { "amount": 500000, "label": "500K Kč" },
-      { "amount": 1000000, "label": "1M Kč" },
-      { "amount": 5000000, "label": "5M Kč" }
+      { "amount": 50000, "label": "CZK 50K" },
+      { "amount": 100000, "label": "CZK 100K" },
+      { "amount": 250000, "label": "CZK 250K" },
+      { "amount": 500000, "label": "CZK 500K" },
+      { "amount": 1000000, "label": "CZK 1M" },
+      { "amount": 5000000, "label": "CZK 5M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "DJF",
+    "iso_code": "DJF",
     "symbol": "Fdj",
     "name": "Djiboutian Franc",
+    "countries": ["Djibouti"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 100000,
     "max_loan_amount": 10000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 250000, "label": "Fdj250K" },
-      { "amount": 500000, "label": "Fdj500K" },
-      { "amount": 1000000, "label": "Fdj1M" },
-      { "amount": 2500000, "label": "Fdj2.5M" },
-      { "amount": 5000000, "label": "Fdj5M" },
-      { "amount": 10000000, "label": "Fdj10M" }
+      { "amount": 250000, "label": "DJF 250K" },
+      { "amount": 500000, "label": "DJF 500K" },
+      { "amount": 1000000, "label": "DJF 1M" },
+      { "amount": 2500000, "label": "DJF 2.5M" },
+      { "amount": 5000000, "label": "DJF 5M" },
+      { "amount": 10000000, "label": "DJF 10M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "DKK",
+    "iso_code": "DKK",
     "symbol": "kr",
     "name": "Danish Krone",
-    "position": "after",
+    "countries": ["Denmark", "Faroe Islands", "Greenland"],
+    "position": "before",
     "thousands_separator": ".",
     "decimal_separator": ",",
     "min_loan_amount": 5000,
     "max_loan_amount": 2000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 25000, "label": "25K kr" },
-      { "amount": 50000, "label": "50K kr" },
-      { "amount": 100000, "label": "100K kr" },
-      { "amount": 250000, "label": "250K kr" },
-      { "amount": 500000, "label": "500K kr" },
-      { "amount": 2000000, "label": "2M kr" }
+      { "amount": 25000, "label": "DKK 25K" },
+      { "amount": 50000, "label": "DKK 50K" },
+      { "amount": 100000, "label": "DKK 100K" },
+      { "amount": 250000, "label": "DKK 250K" },
+      { "amount": 500000, "label": "DKK 500K" },
+      { "amount": 2000000, "label": "DKK 2M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "DOP",
+    "iso_code": "DOP",
     "symbol": "$",
     "name": "Dominican Peso",
+    "countries": ["Dominican Republic"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 50000,
     "max_loan_amount": 5000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 100000, "label": "$100K" },
-      { "amount": 250000, "label": "$250K" },
-      { "amount": 500000, "label": "$500K" },
-      { "amount": 1000000, "label": "$1M" },
-      { "amount": 2500000, "label": "$2.5M" },
-      { "amount": 5000000, "label": "$5M" }
+      { "amount": 100000, "label": "DOP 100K" },
+      { "amount": 250000, "label": "DOP 250K" },
+      { "amount": 500000, "label": "DOP 500K" },
+      { "amount": 1000000, "label": "DOP 1M" },
+      { "amount": 2500000, "label": "DOP 2.5M" },
+      { "amount": 5000000, "label": "DOP 5M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "DZD",
+    "iso_code": "DZD",
     "symbol": "د.ج",
     "name": "Algerian Dinar",
+    "countries": ["Algeria"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 100000,
     "max_loan_amount": 20000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
       { "amount": 250000, "label": "د.ج250K" },
       { "amount": 500000, "label": "د.ج500K" },
@@ -960,158 +1296,214 @@
       { "amount": 20000000, "label": "د.ج20M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "EGP",
-    "symbol": "£",
+    "iso_code": "EGP",
+    "symbol": "E£",
     "name": "Egyptian Pound",
+    "countries": ["Egypt"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 10000,
     "max_loan_amount": 2000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 25000, "label": "£25K" },
-      { "amount": 50000, "label": "£50K" },
-      { "amount": 100000, "label": "£100K" },
-      { "amount": 250000, "label": "£250K" },
-      { "amount": 500000, "label": "£500K" },
-      { "amount": 2000000, "label": "£2M" }
+      { "amount": 25000, "label": "EGP 25K" },
+      { "amount": 50000, "label": "EGP 50K" },
+      { "amount": 100000, "label": "EGP 100K" },
+      { "amount": 250000, "label": "EGP 250K" },
+      { "amount": 500000, "label": "EGP 500K" },
+      { "amount": 2000000, "label": "EGP 2M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "ERN",
+    "iso_code": "ERN",
     "symbol": "Nfk",
     "name": "Eritrean Nakfa",
+    "countries": ["Eritrea"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 10000,
     "max_loan_amount": 1000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 25000, "label": "Nfk25K" },
-      { "amount": 50000, "label": "Nfk50K" },
-      { "amount": 100000, "label": "Nfk100K" },
-      { "amount": 250000, "label": "Nfk250K" },
-      { "amount": 500000, "label": "Nfk500K" },
-      { "amount": 1000000, "label": "Nfk1M" }
+      { "amount": 25000, "label": "ERN 25K" },
+      { "amount": 50000, "label": "ERN 50K" },
+      { "amount": 100000, "label": "ERN 100K" },
+      { "amount": 250000, "label": "ERN 250K" },
+      { "amount": 500000, "label": "ERN 500K" },
+      { "amount": 1000000, "label": "ERN 1M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "ETB",
+    "iso_code": "ETB",
     "symbol": "Br",
     "name": "Ethiopian Birr",
+    "countries": ["Ethiopia"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 25000,
     "max_loan_amount": 5000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 50000, "label": "Br50K" },
-      { "amount": 100000, "label": "Br100K" },
-      { "amount": 250000, "label": "Br250K" },
-      { "amount": 500000, "label": "Br500K" },
-      { "amount": 1000000, "label": "Br1M" },
-      { "amount": 5000000, "label": "Br5M" }
+      { "amount": 50000, "label": "ETB 50K" },
+      { "amount": 100000, "label": "ETB 100K" },
+      { "amount": 250000, "label": "ETB 250K" },
+      { "amount": 500000, "label": "ETB 500K" },
+      { "amount": 1000000, "label": "ETB 1M" },
+      { "amount": 5000000, "label": "ETB 5M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "FJD",
+    "iso_code": "FJD",
     "symbol": "$",
     "name": "Fijian Dollar",
+    "countries": ["Fiji"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 1000,
     "max_loan_amount": 200000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 10000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 5000, "label": "$5K" },
-      { "amount": 10000, "label": "$10K" },
-      { "amount": 25000, "label": "$25K" },
-      { "amount": 50000, "label": "$50K" },
-      { "amount": 100000, "label": "$100K" },
-      { "amount": 200000, "label": "$200K" }
+      { "amount": 5000, "label": "FJD 5K" },
+      { "amount": 10000, "label": "FJD 10K" },
+      { "amount": 25000, "label": "FJD 25K" },
+      { "amount": 50000, "label": "FJD 50K" },
+      { "amount": 100000, "label": "FJD 100K" },
+      { "amount": 200000, "label": "FJD 200K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "FKP",
+    "iso_code": "FKP",
     "symbol": "£",
     "name": "Falkland Islands Pound",
+    "countries": ["Falkland Islands"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 1000,
     "max_loan_amount": 100000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 10000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 5000, "label": "£5K" },
-      { "amount": 10000, "label": "£10K" },
-      { "amount": 25000, "label": "£25K" },
-      { "amount": 50000, "label": "£50K" },
-      { "amount": 75000, "label": "£75K" },
-      { "amount": 100000, "label": "£100K" }
+      { "amount": 5000, "label": "FKP 5K" },
+      { "amount": 10000, "label": "FKP 10K" },
+      { "amount": 25000, "label": "FKP 25K" },
+      { "amount": 50000, "label": "FKP 50K" },
+      { "amount": 75000, "label": "FKP 75K" },
+      { "amount": 100000, "label": "FKP 100K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "FOK",
+    "iso_code": "FOK",
     "symbol": "kr",
     "name": "Faroese Króna",
+    "countries": ["Faroe Islands"],
     "position": "after",
     "thousands_separator": ".",
     "decimal_separator": ",",
     "min_loan_amount": 5000,
     "max_loan_amount": 500000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 25000, "label": "25K kr" },
-      { "amount": 50000, "label": "50K kr" },
-      { "amount": 100000, "label": "100K kr" },
-      { "amount": 200000, "label": "200K kr" },
-      { "amount": 350000, "label": "350K kr" },
-      { "amount": 500000, "label": "500K kr" }
+      { "amount": 25000, "label": "FOK 25K" },
+      { "amount": 50000, "label": "FOK 50K" },
+      { "amount": 100000, "label": "FOK 100K" },
+      { "amount": 200000, "label": "FOK 200K" },
+      { "amount": 350000, "label": "FOK 350K" },
+      { "amount": 500000, "label": "FOK 500K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "GEL",
+    "iso_code": "GEL",
     "symbol": "₾",
     "name": "Georgian Lari",
+    "countries": ["Georgia"],
     "position": "after",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 1000,
     "max_loan_amount": 200000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 10000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
       { "amount": 5000, "label": "5K ₾" },
       { "amount": 10000, "label": "10K ₾" },
@@ -1121,319 +1513,431 @@
       { "amount": 200000, "label": "200K ₾" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "GGP",
+    "iso_code": "GGP",
     "symbol": "£",
     "name": "Guernsey Pound",
+    "countries": ["Guernsey"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 1000,
     "max_loan_amount": 200000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 10000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 5000, "label": "£5K" },
-      { "amount": 10000, "label": "£10K" },
-      { "amount": 25000, "label": "£25K" },
-      { "amount": 50000, "label": "£50K" },
-      { "amount": 100000, "label": "£100K" },
-      { "amount": 200000, "label": "£200K" }
+      { "amount": 5000, "label": "GGP 5K" },
+      { "amount": 10000, "label": "GGP 10K" },
+      { "amount": 25000, "label": "GGP 25K" },
+      { "amount": 50000, "label": "GGP 50K" },
+      { "amount": 100000, "label": "GGP 100K" },
+      { "amount": 200000, "label": "GGP 200K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "GHS",
+    "iso_code": "GHS",
     "symbol": "GH₵",
     "name": "Ghanaian Cedi",
+    "countries": ["Ghana"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 5000,
     "max_loan_amount": 1000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 10000, "label": "GH₵10K" },
-      { "amount": 25000, "label": "GH₵25K" },
-      { "amount": 50000, "label": "GH₵50K" },
-      { "amount": 100000, "label": "GH₵100K" },
-      { "amount": 500000, "label": "GH₵500K" },
-      { "amount": 1000000, "label": "GH₵1M" }
+      { "amount": 10000, "label": "GHS 10K" },
+      { "amount": 25000, "label": "GHS 25K" },
+      { "amount": 50000, "label": "GHS 50K" },
+      { "amount": 100000, "label": "GHS 100K" },
+      { "amount": 500000, "label": "GHS 500K" },
+      { "amount": 1000000, "label": "GHS 1M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "GIP",
+    "iso_code": "GIP",
     "symbol": "£",
     "name": "Gibraltar Pound",
+    "countries": ["Gibraltar"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 1000,
     "max_loan_amount": 200000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 10000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 5000, "label": "£5K" },
-      { "amount": 10000, "label": "£10K" },
-      { "amount": 25000, "label": "£25K" },
-      { "amount": 50000, "label": "£50K" },
-      { "amount": 100000, "label": "£100K" },
-      { "amount": 200000, "label": "£200K" }
+      { "amount": 5000, "label": "GIP 5K" },
+      { "amount": 10000, "label": "GIP 10K" },
+      { "amount": 25000, "label": "GIP 25K" },
+      { "amount": 50000, "label": "GIP 50K" },
+      { "amount": 100000, "label": "GIP 100K" },
+      { "amount": 200000, "label": "GIP 200K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "GMD",
+    "iso_code": "GMD",
     "symbol": "D",
     "name": "Gambian Dalasi",
+    "countries": ["Gambia"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 25000,
     "max_loan_amount": 2500000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 50000, "label": "D50K" },
-      { "amount": 100000, "label": "D100K" },
-      { "amount": 250000, "label": "D250K" },
-      { "amount": 500000, "label": "D500K" },
-      { "amount": 1000000, "label": "D1M" },
-      { "amount": 2500000, "label": "D2.5M" }
+      { "amount": 50000, "label": "GMD 50K" },
+      { "amount": 100000, "label": "GMD 100K" },
+      { "amount": 250000, "label": "GMD 250K" },
+      { "amount": 500000, "label": "GMD 500K" },
+      { "amount": 1000000, "label": "GMD 1M" },
+      { "amount": 2500000, "label": "GMD 2.5M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "GNF",
+    "iso_code": "GNF",
     "symbol": "FG",
     "name": "Guinean Franc",
+    "countries": ["Guinea"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 5000000,
     "max_loan_amount": 500000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 10000000,
+      "m_threshold": 100000000
+    },
     "quick_amounts": [
-      { "amount": 10000000, "label": "FG10M" },
-      { "amount": 25000000, "label": "FG25M" },
-      { "amount": 50000000, "label": "FG50M" },
-      { "amount": 100000000, "label": "FG100M" },
-      { "amount": 250000000, "label": "FG250M" },
-      { "amount": 500000000, "label": "FG500M" }
+      { "amount": 10000000, "label": "GNF 10M" },
+      { "amount": 25000000, "label": "GNF 25M" },
+      { "amount": 50000000, "label": "GNF 50M" },
+      { "amount": 100000000, "label": "GNF 100M" },
+      { "amount": 250000000, "label": "GNF 250M" },
+      { "amount": 500000000, "label": "GNF 500M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "GTQ",
+    "iso_code": "GTQ",
     "symbol": "Q",
     "name": "Guatemalan Quetzal",
+    "countries": ["Guatemala"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 5000,
     "max_loan_amount": 500000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 10000, "label": "Q10K" },
-      { "amount": 25000, "label": "Q25K" },
-      { "amount": 50000, "label": "Q50K" },
-      { "amount": 100000, "label": "Q100K" },
-      { "amount": 250000, "label": "Q250K" },
-      { "amount": 500000, "label": "Q500K" }
+      { "amount": 10000, "label": "GTQ 10K" },
+      { "amount": 25000, "label": "GTQ 25K" },
+      { "amount": 50000, "label": "GTQ 50K" },
+      { "amount": 100000, "label": "GTQ 100K" },
+      { "amount": 250000, "label": "GTQ 250K" },
+      { "amount": 500000, "label": "GTQ 500K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "GYD",
+    "iso_code": "GYD",
     "symbol": "$",
     "name": "Guyanese Dollar",
+    "countries": ["Guyana"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 100000,
     "max_loan_amount": 20000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 250000, "label": "$250K" },
-      { "amount": 500000, "label": "$500K" },
-      { "amount": 1000000, "label": "$1M" },
-      { "amount": 5000000, "label": "$5M" },
-      { "amount": 10000000, "label": "$10M" },
-      { "amount": 20000000, "label": "$20M" }
+      { "amount": 250000, "label": "GYD 250K" },
+      { "amount": 500000, "label": "GYD 500K" },
+      { "amount": 1000000, "label": "GYD 1M" },
+      { "amount": 5000000, "label": "GYD 5M" },
+      { "amount": 10000000, "label": "GYD 10M" },
+      { "amount": 20000000, "label": "GYD 20M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "HKD",
-    "symbol": "$",
+    "iso_code": "HKD",
+    "symbol": "HK$",
     "name": "Hong Kong Dollar",
+    "countries": ["Hong Kong"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 10000,
     "max_loan_amount": 2000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 25000, "label": "$25K" },
-      { "amount": 50000, "label": "$50K" },
-      { "amount": 100000, "label": "$100K" },
-      { "amount": 250000, "label": "$250K" },
-      { "amount": 500000, "label": "$500K" },
-      { "amount": 2000000, "label": "$2M" }
+      { "amount": 25000, "label": "HKD 25K" },
+      { "amount": 50000, "label": "HKD 50K" },
+      { "amount": 100000, "label": "HKD 100K" },
+      { "amount": 250000, "label": "HKD 250K" },
+      { "amount": 500000, "label": "HKD 500K" },
+      { "amount": 2000000, "label": "HKD 2M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "HNL",
+    "iso_code": "HNL",
     "symbol": "L",
     "name": "Honduran Lempira",
+    "countries": ["Honduras"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 20000,
     "max_loan_amount": 2000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 50000, "label": "L50K" },
-      { "amount": 100000, "label": "L100K" },
-      { "amount": 250000, "label": "L250K" },
-      { "amount": 500000, "label": "L500K" },
-      { "amount": 1000000, "label": "L1M" },
-      { "amount": 2000000, "label": "L2M" }
+      { "amount": 50000, "label": "HNL 50K" },
+      { "amount": 100000, "label": "HNL 100K" },
+      { "amount": 250000, "label": "HNL 250K" },
+      { "amount": 500000, "label": "HNL 500K" },
+      { "amount": 1000000, "label": "HNL 1M" },
+      { "amount": 2000000, "label": "HNL 2M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "HRK",
+    "iso_code": "HRK",
     "symbol": "kn",
     "name": "Croatian Kuna",
+    "countries": ["Croatia"],
     "position": "after",
     "thousands_separator": ".",
     "decimal_separator": ",",
     "min_loan_amount": 5000,
     "max_loan_amount": 1000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 25000, "label": "25K kn" },
-      { "amount": 50000, "label": "50K kn" },
-      { "amount": 100000, "label": "100K kn" },
-      { "amount": 250000, "label": "250K kn" },
-      { "amount": 500000, "label": "500K kn" },
-      { "amount": 1000000, "label": "1M kn" }
+      { "amount": 25000, "label": "HRK 25K" },
+      { "amount": 50000, "label": "HRK 50K" },
+      { "amount": 100000, "label": "HRK 100K" },
+      { "amount": 250000, "label": "HRK 250K" },
+      { "amount": 500000, "label": "HRK 500K" },
+      { "amount": 1000000, "label": "HRK 1M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "HTG",
+    "iso_code": "HTG",
     "symbol": "G",
     "name": "Haitian Gourde",
+    "countries": ["Haiti"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 50000,
     "max_loan_amount": 10000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 100000, "label": "G100K" },
-      { "amount": 250000, "label": "G250K" },
-      { "amount": 500000, "label": "G500K" },
-      { "amount": 1000000, "label": "G1M" },
-      { "amount": 5000000, "label": "G5M" },
-      { "amount": 10000000, "label": "G10M" }
+      { "amount": 100000, "label": "HTG 100K" },
+      { "amount": 250000, "label": "HTG 250K" },
+      { "amount": 500000, "label": "HTG 500K" },
+      { "amount": 1000000, "label": "HTG 1M" },
+      { "amount": 5000000, "label": "HTG 5M" },
+      { "amount": 10000000, "label": "HTG 10M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "HUF",
+    "iso_code": "HUF",
     "symbol": "Ft",
     "name": "Hungarian Forint",
-    "position": "after",
+    "countries": ["Hungary"],
+    "position": "before",
     "thousands_separator": " ",
     "decimal_separator": ",",
     "min_loan_amount": 250000,
     "max_loan_amount": 50000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 1000000,
+      "m_threshold": 10000000
+    },
     "quick_amounts": [
-      { "amount": 500000, "label": "500K Ft" },
-      { "amount": 1000000, "label": "1M Ft" },
-      { "amount": 2500000, "label": "2.5M Ft" },
-      { "amount": 5000000, "label": "5M Ft" },
-      { "amount": 10000000, "label": "10M Ft" },
-      { "amount": 50000000, "label": "50M Ft" }
+      { "amount": 500000, "label": "HUF 500K" },
+      { "amount": 1000000, "label": "HUF 1M" },
+      { "amount": 2500000, "label": "HUF 2.5M" },
+      { "amount": 5000000, "label": "HUF 5M" },
+      { "amount": 10000000, "label": "HUF 10M" },
+      { "amount": 50000000, "label": "HUF 50M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "IDR",
+    "iso_code": "IDR",
     "symbol": "Rp",
     "name": "Indonesian Rupiah",
+    "countries": ["Indonesia"],
     "position": "before",
     "thousands_separator": ".",
     "decimal_separator": ",",
     "min_loan_amount": 10000000,
     "max_loan_amount": 5000000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 10000000,
+      "m_threshold": 100000000
+    },
     "quick_amounts": [
-      { "amount": 50000000, "label": "Rp50M" },
-      { "amount": 100000000, "label": "Rp100M" },
-      { "amount": 250000000, "label": "Rp250M" },
-      { "amount": 500000000, "label": "Rp500M" },
-      { "amount": 1000000000, "label": "Rp1B" },
-      { "amount": 5000000000, "label": "Rp5B" }
+      { "amount": 50000000, "label": "IDR 50M" },
+      { "amount": 100000000, "label": "IDR 100M" },
+      { "amount": 250000000, "label": "IDR 250M" },
+      { "amount": 500000000, "label": "IDR 500M" },
+      { "amount": 1000000000, "label": "IDR 1B" },
+      { "amount": 5000000000, "label": "IDR 5B" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "million": { "divisor": 1000000, "suffix": "M" },
+      "billion": { "divisor": 1000000000, "suffix": "B" }
     },
     "is_active": true
   },
   {
     "code": "ILS",
+    "iso_code": "ILS",
     "symbol": "₪",
     "name": "Israeli New Shekel",
+    "countries": ["Israel", "Palestine"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 5000,
     "max_loan_amount": 1000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
       { "amount": 10000, "label": "₪10K" },
       { "amount": 25000, "label": "₪25K" },
@@ -1443,43 +1947,59 @@
       { "amount": 1000000, "label": "₪1M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "IMP",
+    "iso_code": "IMP",
     "symbol": "£",
     "name": "Isle of Man Pound",
+    "countries": ["Isle of Man"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 1000,
     "max_loan_amount": 200000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 10000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 5000, "label": "£5K" },
-      { "amount": 10000, "label": "£10K" },
-      { "amount": 25000, "label": "£25K" },
-      { "amount": 50000, "label": "£50K" },
-      { "amount": 100000, "label": "£100K" },
-      { "amount": 200000, "label": "£200K" }
+      { "amount": 5000, "label": "IMP 5K" },
+      { "amount": 10000, "label": "IMP 10K" },
+      { "amount": 25000, "label": "IMP 25K" },
+      { "amount": 50000, "label": "IMP 50K" },
+      { "amount": 100000, "label": "IMP 100K" },
+      { "amount": 200000, "label": "IMP 200K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "IQD",
+    "iso_code": "IQD",
     "symbol": "ع.د",
     "name": "Iraqi Dinar",
+    "countries": ["Iraq"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 1000000,
     "max_loan_amount": 100000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 1000000,
+      "m_threshold": 10000000
+    },
     "quick_amounts": [
       { "amount": 2500000, "label": "ع.د2.5M" },
       { "amount": 5000000, "label": "ع.د5M" },
@@ -1489,89 +2009,121 @@
       { "amount": 100000000, "label": "ع.د100M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "ISK",
+    "iso_code": "ISK",
     "symbol": "kr",
     "name": "Icelandic Króna",
+    "countries": ["Iceland"],
     "position": "after",
     "thousands_separator": ".",
     "decimal_separator": ",",
     "min_loan_amount": 100000,
     "max_loan_amount": 20000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 250000, "label": "250K kr" },
-      { "amount": 500000, "label": "500K kr" },
-      { "amount": 1000000, "label": "1M kr" },
-      { "amount": 5000000, "label": "5M kr" },
-      { "amount": 10000000, "label": "10M kr" },
-      { "amount": 20000000, "label": "20M kr" }
+      { "amount": 250000, "label": "ISK 250K" },
+      { "amount": 500000, "label": "ISK 500K" },
+      { "amount": 1000000, "label": "ISK 1M" },
+      { "amount": 5000000, "label": "ISK 5M" },
+      { "amount": 10000000, "label": "ISK 10M" },
+      { "amount": 20000000, "label": "ISK 20M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "JEP",
+    "iso_code": "JEP",
     "symbol": "£",
     "name": "Jersey Pound",
+    "countries": ["Jersey"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 1000,
     "max_loan_amount": 200000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 10000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 5000, "label": "£5K" },
-      { "amount": 10000, "label": "£10K" },
-      { "amount": 25000, "label": "£25K" },
-      { "amount": 50000, "label": "£50K" },
-      { "amount": 100000, "label": "£100K" },
-      { "amount": 200000, "label": "£200K" }
+      { "amount": 5000, "label": "JEP 5K" },
+      { "amount": 10000, "label": "JEP 10K" },
+      { "amount": 25000, "label": "JEP 25K" },
+      { "amount": 50000, "label": "JEP 50K" },
+      { "amount": 100000, "label": "JEP 100K" },
+      { "amount": 200000, "label": "JEP 200K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "JMD",
+    "iso_code": "JMD",
     "symbol": "$",
     "name": "Jamaican Dollar",
+    "countries": ["Jamaica"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 100000,
     "max_loan_amount": 20000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 250000, "label": "$250K" },
-      { "amount": 500000, "label": "$500K" },
-      { "amount": 1000000, "label": "$1M" },
-      { "amount": 5000000, "label": "$5M" },
-      { "amount": 10000000, "label": "$10M" },
-      { "amount": 20000000, "label": "$20M" }
+      { "amount": 250000, "label": "JMD 250K" },
+      { "amount": 500000, "label": "JMD 500K" },
+      { "amount": 1000000, "label": "JMD 1M" },
+      { "amount": 5000000, "label": "JMD 5M" },
+      { "amount": 10000000, "label": "JMD 10M" },
+      { "amount": 20000000, "label": "JMD 20M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "JOD",
+    "iso_code": "JOD",
     "symbol": "د.ا",
     "name": "Jordanian Dinar",
+    "countries": ["Jordan", "Palestine"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 500,
     "max_loan_amount": 100000,
+    "formatting": {
+      "k_format_decimals": 1,
+      "m_format_decimals": 1,
+      "k_threshold": 10000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
       { "amount": 2000, "label": "د.ا2K" },
       { "amount": 5000, "label": "د.ا5K" },
@@ -1581,20 +2133,28 @@
       { "amount": 100000, "label": "د.ا100K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "JPY",
+    "iso_code": "JPY",
     "symbol": "¥",
     "name": "Japanese Yen",
+    "countries": ["Japan"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 100000,
     "max_loan_amount": 50000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 1000000,
+      "m_threshold": 10000000
+    },
     "quick_amounts": [
       { "amount": 1000000, "label": "¥1M" },
       { "amount": 2500000, "label": "¥2.5M" },
@@ -1604,43 +2164,59 @@
       { "amount": 50000000, "label": "¥50M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "KES",
+    "iso_code": "KES",
     "symbol": "KSh",
     "name": "Kenyan Shilling",
+    "countries": ["Kenya"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 10000,
     "max_loan_amount": 5000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 50000, "label": "KSh50K" },
-      { "amount": 100000, "label": "KSh100K" },
-      { "amount": 250000, "label": "KSh250K" },
-      { "amount": 500000, "label": "KSh500K" },
-      { "amount": 1000000, "label": "KSh1M" },
-      { "amount": 5000000, "label": "KSh5M" }
+      { "amount": 50000, "label": "KES 50K" },
+      { "amount": 100000, "label": "KES 100K" },
+      { "amount": 250000, "label": "KES 250K" },
+      { "amount": 500000, "label": "KES 500K" },
+      { "amount": 1000000, "label": "KES 1M" },
+      { "amount": 5000000, "label": "KES 5M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "KGS",
+    "iso_code": "KGS",
     "symbol": "с",
     "name": "Kyrgyzstani Som",
+    "countries": ["Kyrgyzstan"],
     "position": "after",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 50000,
     "max_loan_amount": 5000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
       { "amount": 100000, "label": "100K с" },
       { "amount": 250000, "label": "250K с" },
@@ -1650,20 +2226,28 @@
       { "amount": 5000000, "label": "5M с" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "KHR",
+    "iso_code": "KHR",
     "symbol": "៛",
     "name": "Cambodian Riel",
+    "countries": ["Cambodia"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 2000000,
     "max_loan_amount": 200000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 10000000,
+      "m_threshold": 100000000
+    },
     "quick_amounts": [
       { "amount": 5000000, "label": "៛5M" },
       { "amount": 10000000, "label": "៛10M" },
@@ -1673,66 +2257,90 @@
       { "amount": 200000000, "label": "៛200M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "KID",
+    "iso_code": "KID",
     "symbol": "$",
     "name": "Kiribati Dollar",
+    "countries": ["Kiribati"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 1000,
     "max_loan_amount": 200000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 10000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 5000, "label": "$5K" },
-      { "amount": 10000, "label": "$10K" },
-      { "amount": 25000, "label": "$25K" },
-      { "amount": 50000, "label": "$50K" },
-      { "amount": 100000, "label": "$100K" },
-      { "amount": 200000, "label": "$200K" }
+      { "amount": 5000, "label": "KID 5K" },
+      { "amount": 10000, "label": "KID 10K" },
+      { "amount": 25000, "label": "KID 25K" },
+      { "amount": 50000, "label": "KID 50K" },
+      { "amount": 100000, "label": "KID 100K" },
+      { "amount": 200000, "label": "KID 200K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "KMF",
+    "iso_code": "KMF",
     "symbol": "CF",
     "name": "Comorian Franc",
+    "countries": ["Comoros"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 250000,
     "max_loan_amount": 25000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 1000000,
+      "m_threshold": 10000000
+    },
     "quick_amounts": [
-      { "amount": 500000, "label": "CF500K" },
-      { "amount": 1000000, "label": "CF1M" },
-      { "amount": 2500000, "label": "CF2.5M" },
-      { "amount": 5000000, "label": "CF5M" },
-      { "amount": 10000000, "label": "CF10M" },
-      { "amount": 25000000, "label": "CF25M" }
+      { "amount": 500000, "label": "KMF 500K" },
+      { "amount": 1000000, "label": "KMF 1M" },
+      { "amount": 2500000, "label": "KMF 2.5M" },
+      { "amount": 5000000, "label": "KMF 5M" },
+      { "amount": 10000000, "label": "KMF 10M" },
+      { "amount": 25000000, "label": "KMF 25M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "KRW",
+    "iso_code": "KRW",
     "symbol": "₩",
     "name": "South Korean Won",
+    "countries": ["South Korea"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 1000000,
     "max_loan_amount": 50000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 1000000,
+      "m_threshold": 10000000
+    },
     "quick_amounts": [
       { "amount": 5000000, "label": "₩5M" },
       { "amount": 10000000, "label": "₩10M" },
@@ -1742,20 +2350,28 @@
       { "amount": 50000000, "label": "₩50M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "KWD",
+    "iso_code": "KWD",
     "symbol": "د.ك",
     "name": "Kuwaiti Dinar",
+    "countries": ["Kuwait"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 500,
     "max_loan_amount": 50000,
+    "formatting": {
+      "k_format_decimals": 1,
+      "m_format_decimals": 1,
+      "k_threshold": 10000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
       { "amount": 1000, "label": "د.ك1K" },
       { "amount": 2500, "label": "د.ك2.5K" },
@@ -1765,43 +2381,59 @@
       { "amount": 50000, "label": "د.ك50K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "KYD",
+    "iso_code": "KYD",
     "symbol": "$",
     "name": "Cayman Islands Dollar",
+    "countries": ["Cayman Islands"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 1000,
     "max_loan_amount": 200000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 10000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 5000, "label": "$5K" },
-      { "amount": 10000, "label": "$10K" },
-      { "amount": 25000, "label": "$25K" },
-      { "amount": 50000, "label": "$50K" },
-      { "amount": 100000, "label": "$100K" },
-      { "amount": 200000, "label": "$200K" }
+      { "amount": 5000, "label": "KYD 5K" },
+      { "amount": 10000, "label": "KYD 10K" },
+      { "amount": 25000, "label": "KYD 25K" },
+      { "amount": 50000, "label": "KYD 50K" },
+      { "amount": 100000, "label": "KYD 100K" },
+      { "amount": 200000, "label": "KYD 200K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "KZT",
+    "iso_code": "KZT",
     "symbol": "₸",
     "name": "Kazakhstani Tenge",
+    "countries": ["Kazakhstan"],
     "position": "after",
     "thousands_separator": " ",
     "decimal_separator": ",",
     "min_loan_amount": 250000,
     "max_loan_amount": 50000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 1000000,
+      "m_threshold": 10000000
+    },
     "quick_amounts": [
       { "amount": 500000, "label": "500K ₸" },
       { "amount": 1000000, "label": "1M ₸" },
@@ -1811,20 +2443,28 @@
       { "amount": 50000000, "label": "50M ₸" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "LAK",
+    "iso_code": "LAK",
     "symbol": "₭",
     "name": "Lao Kip",
+    "countries": ["Laos"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 5000000,
     "max_loan_amount": 500000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 10000000,
+      "m_threshold": 100000000
+    },
     "quick_amounts": [
       { "amount": 10000000, "label": "₭10M" },
       { "amount": 25000000, "label": "₭25M" },
@@ -1834,20 +2474,28 @@
       { "amount": 500000000, "label": "₭500M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "LBP",
+    "iso_code": "LBP",
     "symbol": "ل.ل",
     "name": "Lebanese Pound",
+    "countries": ["Lebanon"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 1000000,
     "max_loan_amount": 500000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 10000000,
+      "m_threshold": 100000000
+    },
     "quick_amounts": [
       { "amount": 5000000, "label": "ل.ل5M" },
       { "amount": 10000000, "label": "ل.ل10M" },
@@ -1857,89 +2505,121 @@
       { "amount": 500000000, "label": "ل.ل500M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "LKR",
+    "iso_code": "LKR",
     "symbol": "Rs",
     "name": "Sri Lankan Rupee",
+    "countries": ["Sri Lanka"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 100000,
     "max_loan_amount": 20000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 250000, "label": "Rs250K" },
-      { "amount": 500000, "label": "Rs500K" },
-      { "amount": 1000000, "label": "Rs1M" },
-      { "amount": 5000000, "label": "Rs5M" },
-      { "amount": 10000000, "label": "Rs10M" },
-      { "amount": 20000000, "label": "Rs20M" }
+      { "amount": 250000, "label": "LKR 250K" },
+      { "amount": 500000, "label": "LKR 500K" },
+      { "amount": 1000000, "label": "LKR 1M" },
+      { "amount": 5000000, "label": "LKR 5M" },
+      { "amount": 10000000, "label": "LKR 10M" },
+      { "amount": 20000000, "label": "LKR 20M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "LRD",
+    "iso_code": "LRD",
     "symbol": "$",
     "name": "Liberian Dollar",
+    "countries": ["Liberia"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 100000,
     "max_loan_amount": 10000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 250000, "label": "$250K" },
-      { "amount": 500000, "label": "$500K" },
-      { "amount": 1000000, "label": "$1M" },
-      { "amount": 2500000, "label": "$2.5M" },
-      { "amount": 5000000, "label": "$5M" },
-      { "amount": 10000000, "label": "$10M" }
+      { "amount": 250000, "label": "LRD 250K" },
+      { "amount": 500000, "label": "LRD 500K" },
+      { "amount": 1000000, "label": "LRD 1M" },
+      { "amount": 2500000, "label": "LRD 2.5M" },
+      { "amount": 5000000, "label": "LRD 5M" },
+      { "amount": 10000000, "label": "LRD 10M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "LSL",
+    "iso_code": "LSL",
     "symbol": "L",
     "name": "Lesotho Loti",
+    "countries": ["Lesotho"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 10000,
     "max_loan_amount": 1000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 25000, "label": "L25K" },
-      { "amount": 50000, "label": "L50K" },
-      { "amount": 100000, "label": "L100K" },
-      { "amount": 250000, "label": "L250K" },
-      { "amount": 500000, "label": "L500K" },
-      { "amount": 1000000, "label": "L1M" }
+      { "amount": 25000, "label": "LSL 25K" },
+      { "amount": 50000, "label": "LSL 50K" },
+      { "amount": 100000, "label": "LSL 100K" },
+      { "amount": 250000, "label": "LSL 250K" },
+      { "amount": 500000, "label": "LSL 500K" },
+      { "amount": 1000000, "label": "LSL 1M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "LYD",
+    "iso_code": "LYD",
     "symbol": "ل.د",
     "name": "Libyan Dinar",
+    "countries": ["Libya"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 5000,
     "max_loan_amount": 500000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
       { "amount": 10000, "label": "ل.د10K" },
       { "amount": 25000, "label": "ل.د25K" },
@@ -1949,20 +2629,28 @@
       { "amount": 500000, "label": "ل.د500K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "MAD",
+    "iso_code": "MAD",
     "symbol": "د.م.",
     "name": "Moroccan Dirham",
+    "countries": ["Morocco", "Western Sahara"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 10000,
     "max_loan_amount": 2000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
       { "amount": 25000, "label": "د.م.25K" },
       { "amount": 50000, "label": "د.م.50K" },
@@ -1972,112 +2660,152 @@
       { "amount": 2000000, "label": "د.م.2M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "MDL",
+    "iso_code": "MDL",
     "symbol": "L",
     "name": "Moldovan Leu",
+    "countries": ["Moldova"],
     "position": "after",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 10000,
     "max_loan_amount": 1000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 25000, "label": "25K L" },
-      { "amount": 50000, "label": "50K L" },
-      { "amount": 100000, "label": "100K L" },
-      { "amount": 250000, "label": "250K L" },
-      { "amount": 500000, "label": "500K L" },
-      { "amount": 1000000, "label": "1M L" }
+      { "amount": 25000, "label": "MDL 25K" },
+      { "amount": 50000, "label": "MDL 50K" },
+      { "amount": 100000, "label": "MDL 100K" },
+      { "amount": 250000, "label": "MDL 250K" },
+      { "amount": 500000, "label": "MDL 500K" },
+      { "amount": 1000000, "label": "MDL 1M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "MGA",
+    "iso_code": "MGA",
     "symbol": "Ar",
     "name": "Malagasy Ariary",
+    "countries": ["Madagascar"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 2000000,
     "max_loan_amount": 200000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 10000000,
+      "m_threshold": 100000000
+    },
     "quick_amounts": [
-      { "amount": 5000000, "label": "Ar5M" },
-      { "amount": 10000000, "label": "Ar10M" },
-      { "amount": 25000000, "label": "Ar25M" },
-      { "amount": 50000000, "label": "Ar50M" },
-      { "amount": 100000000, "label": "Ar100M" },
-      { "amount": 200000000, "label": "Ar200M" }
+      { "amount": 5000000, "label": "MGA 5M" },
+      { "amount": 10000000, "label": "MGA 10M" },
+      { "amount": 25000000, "label": "MGA 25M" },
+      { "amount": 50000000, "label": "MGA 50M" },
+      { "amount": 100000000, "label": "MGA 100M" },
+      { "amount": 200000000, "label": "MGA 200M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "MKD",
+    "iso_code": "MKD",
     "symbol": "ден",
     "name": "Macedonian Denar",
+    "countries": ["North Macedonia"],
     "position": "after",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 50000,
     "max_loan_amount": 5000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 100000, "label": "100K ден" },
-      { "amount": 250000, "label": "250K ден" },
-      { "amount": 500000, "label": "500K ден" },
-      { "amount": 1000000, "label": "1M ден" },
-      { "amount": 2500000, "label": "2.5M ден" },
-      { "amount": 5000000, "label": "5M ден" }
+      { "amount": 100000, "label": "MKD 100K" },
+      { "amount": 250000, "label": "MKD 250K" },
+      { "amount": 500000, "label": "MKD 500K" },
+      { "amount": 1000000, "label": "MKD 1M" },
+      { "amount": 2500000, "label": "MKD 2.5M" },
+      { "amount": 5000000, "label": "MKD 5M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "MMK",
+    "iso_code": "MMK",
     "symbol": "K",
     "name": "Myanmar Kyat",
+    "countries": ["Myanmar"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 1000000,
     "max_loan_amount": 100000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 1000000,
+      "m_threshold": 10000000
+    },
     "quick_amounts": [
-      { "amount": 2500000, "label": "K2.5M" },
-      { "amount": 5000000, "label": "K5M" },
-      { "amount": 10000000, "label": "K10M" },
-      { "amount": 25000000, "label": "K25M" },
-      { "amount": 50000000, "label": "K50M" },
-      { "amount": 100000000, "label": "K100M" }
+      { "amount": 2500000, "label": "MMK 2.5M" },
+      { "amount": 5000000, "label": "MMK 5M" },
+      { "amount": 10000000, "label": "MMK 10M" },
+      { "amount": 25000000, "label": "MMK 25M" },
+      { "amount": 50000000, "label": "MMK 50M" },
+      { "amount": 100000000, "label": "MMK 100M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "MNT",
+    "iso_code": "MNT",
     "symbol": "₮",
     "name": "Mongolian Tögrög",
+    "countries": ["Mongolia"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 1000000,
     "max_loan_amount": 100000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 1000000,
+      "m_threshold": 10000000
+    },
     "quick_amounts": [
       { "amount": 2500000, "label": "₮2.5M" },
       { "amount": 5000000, "label": "₮5M" },
@@ -2087,66 +2815,90 @@
       { "amount": 100000000, "label": "₮100M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "MOP",
+    "iso_code": "MOP",
     "symbol": "P",
     "name": "Macanese Pataca",
+    "countries": ["Macau"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 10000,
     "max_loan_amount": 2000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 25000, "label": "P25K" },
-      { "amount": 50000, "label": "P50K" },
-      { "amount": 100000, "label": "P100K" },
-      { "amount": 250000, "label": "P250K" },
-      { "amount": 500000, "label": "P500K" },
-      { "amount": 2000000, "label": "P2M" }
+      { "amount": 25000, "label": "MOP 25K" },
+      { "amount": 50000, "label": "MOP 50K" },
+      { "amount": 100000, "label": "MOP 100K" },
+      { "amount": 250000, "label": "MOP 250K" },
+      { "amount": 500000, "label": "MOP 500K" },
+      { "amount": 2000000, "label": "MOP 2M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "MRU",
+    "iso_code": "MRU",
     "symbol": "UM",
     "name": "Mauritanian Ouguiya",
+    "countries": ["Mauritania"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 20000,
     "max_loan_amount": 2000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 50000, "label": "UM50K" },
-      { "amount": 100000, "label": "UM100K" },
-      { "amount": 250000, "label": "UM250K" },
-      { "amount": 500000, "label": "UM500K" },
-      { "amount": 1000000, "label": "UM1M" },
-      { "amount": 2000000, "label": "UM2M" }
+      { "amount": 50000, "label": "MRU 50K" },
+      { "amount": 100000, "label": "MRU 100K" },
+      { "amount": 250000, "label": "MRU 250K" },
+      { "amount": 500000, "label": "MRU 500K" },
+      { "amount": 1000000, "label": "MRU 1M" },
+      { "amount": 2000000, "label": "MRU 2M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "MUR",
+    "iso_code": "MUR",
     "symbol": "₨",
     "name": "Mauritian Rupee",
+    "countries": ["Mauritius"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 25000,
     "max_loan_amount": 5000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
       { "amount": 50000, "label": "₨50K" },
       { "amount": 100000, "label": "₨100K" },
@@ -2156,158 +2908,214 @@
       { "amount": 5000000, "label": "₨5M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "MVR",
+    "iso_code": "MVR",
     "symbol": "ރ.",
     "name": "Maldivian Rufiyaa",
+    "countries": ["Maldives"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 10000,
     "max_loan_amount": 1000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 25000, "label": "ރ.25K" },
-      { "amount": 50000, "label": "ރ.50K" },
-      { "amount": 100000, "label": "ރ.100K" },
-      { "amount": 250000, "label": "ރ.250K" },
-      { "amount": 500000, "label": "ރ.500K" },
-      { "amount": 1000000, "label": "ރ.1M" }
+      { "amount": 25000, "label": "MVR 25K" },
+      { "amount": 50000, "label": "MVR 50K" },
+      { "amount": 100000, "label": "MVR 100K" },
+      { "amount": 250000, "label": "MVR 250K" },
+      { "amount": 500000, "label": "MVR 500K" },
+      { "amount": 1000000, "label": "MVR 1M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "MWK",
+    "iso_code": "MWK",
     "symbol": "MK",
     "name": "Malawian Kwacha",
+    "countries": ["Malawi"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 500000,
     "max_loan_amount": 50000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 1000000,
+      "m_threshold": 10000000
+    },
     "quick_amounts": [
-      { "amount": 1000000, "label": "MK1M" },
-      { "amount": 2500000, "label": "MK2.5M" },
-      { "amount": 5000000, "label": "MK5M" },
-      { "amount": 10000000, "label": "MK10M" },
-      { "amount": 25000000, "label": "MK25M" },
-      { "amount": 50000000, "label": "MK50M" }
+      { "amount": 1000000, "label": "MWK 1M" },
+      { "amount": 2500000, "label": "MWK 2.5M" },
+      { "amount": 5000000, "label": "MWK 5M" },
+      { "amount": 10000000, "label": "MWK 10M" },
+      { "amount": 25000000, "label": "MWK 25M" },
+      { "amount": 50000000, "label": "MWK 50M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "MXN",
-    "symbol": "$",
+    "iso_code": "MXN",
+    "symbol": "MX$",
     "name": "Mexican Peso",
+    "countries": ["Mexico"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 10000,
     "max_loan_amount": 5000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 25000, "label": "$25K" },
-      { "amount": 50000, "label": "$50K" },
-      { "amount": 100000, "label": "$100K" },
-      { "amount": 250000, "label": "$250K" },
-      { "amount": 500000, "label": "$500K" },
-      { "amount": 5000000, "label": "$5M" }
+      { "amount": 25000, "label": "MXN 25K" },
+      { "amount": 50000, "label": "MXN 50K" },
+      { "amount": 100000, "label": "MXN 100K" },
+      { "amount": 250000, "label": "MXN 250K" },
+      { "amount": 500000, "label": "MXN 500K" },
+      { "amount": 5000000, "label": "MXN 5M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "MYR",
+    "iso_code": "MYR",
     "symbol": "RM",
     "name": "Malaysian Ringgit",
+    "countries": ["Malaysia"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 5000,
     "max_loan_amount": 500000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 10000, "label": "RM10K" },
-      { "amount": 25000, "label": "RM25K" },
-      { "amount": 50000, "label": "RM50K" },
-      { "amount": 100000, "label": "RM100K" },
-      { "amount": 250000, "label": "RM250K" },
-      { "amount": 500000, "label": "RM500K" }
+      { "amount": 10000, "label": "MYR 10K" },
+      { "amount": 25000, "label": "MYR 25K" },
+      { "amount": 50000, "label": "MYR 50K" },
+      { "amount": 100000, "label": "MYR 100K" },
+      { "amount": 250000, "label": "MYR 250K" },
+      { "amount": 500000, "label": "MYR 500K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "MZN",
+    "iso_code": "MZN",
     "symbol": "MT",
     "name": "Mozambican Metical",
+    "countries": ["Mozambique"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 50000,
     "max_loan_amount": 5000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 100000, "label": "MT100K" },
-      { "amount": 250000, "label": "MT250K" },
-      { "amount": 500000, "label": "MT500K" },
-      { "amount": 1000000, "label": "MT1M" },
-      { "amount": 2500000, "label": "MT2.5M" },
-      { "amount": 5000000, "label": "MT5M" }
+      { "amount": 100000, "label": "MZN 100K" },
+      { "amount": 250000, "label": "MZN 250K" },
+      { "amount": 500000, "label": "MZN 500K" },
+      { "amount": 1000000, "label": "MZN 1M" },
+      { "amount": 2500000, "label": "MZN 2.5M" },
+      { "amount": 5000000, "label": "MZN 5M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "NAD",
+    "iso_code": "NAD",
     "symbol": "$",
     "name": "Namibian Dollar",
+    "countries": ["Namibia"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 10000,
     "max_loan_amount": 1000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 25000, "label": "$25K" },
-      { "amount": 50000, "label": "$50K" },
-      { "amount": 100000, "label": "$100K" },
-      { "amount": 250000, "label": "$250K" },
-      { "amount": 500000, "label": "$500K" },
-      { "amount": 1000000, "label": "$1M" }
+      { "amount": 25000, "label": "NAD 25K" },
+      { "amount": 50000, "label": "NAD 50K" },
+      { "amount": 100000, "label": "NAD 100K" },
+      { "amount": 250000, "label": "NAD 250K" },
+      { "amount": 500000, "label": "NAD 500K" },
+      { "amount": 1000000, "label": "NAD 1M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "NGN",
+    "iso_code": "NGN",
     "symbol": "₦",
     "name": "Nigerian Naira",
+    "countries": ["Nigeria"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 50000,
     "max_loan_amount": 10000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
       { "amount": 100000, "label": "₦100K" },
       { "amount": 250000, "label": "₦250K" },
@@ -2317,112 +3125,152 @@
       { "amount": 10000000, "label": "₦10M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "NIO",
+    "iso_code": "NIO",
     "symbol": "C$",
     "name": "Nicaraguan Córdoba",
+    "countries": ["Nicaragua"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 20000,
     "max_loan_amount": 2000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 50000, "label": "C$50K" },
-      { "amount": 100000, "label": "C$100K" },
-      { "amount": 250000, "label": "C$250K" },
-      { "amount": 500000, "label": "C$500K" },
-      { "amount": 1000000, "label": "C$1M" },
-      { "amount": 2000000, "label": "C$2M" }
+      { "amount": 50000, "label": "NIO 50K" },
+      { "amount": 100000, "label": "NIO 100K" },
+      { "amount": 250000, "label": "NIO 250K" },
+      { "amount": 500000, "label": "NIO 500K" },
+      { "amount": 1000000, "label": "NIO 1M" },
+      { "amount": 2000000, "label": "NIO 2M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "NOK",
+    "iso_code": "NOK",
     "symbol": "kr",
     "name": "Norwegian Krone",
-    "position": "after",
-    "thousands_separator": ",",
-    "decimal_separator": ".",
+    "countries": ["Norway", "Svalbard", "Jan Mayen"],
+    "position": "before",
+    "thousands_separator": " ",
+    "decimal_separator": ",",
     "min_loan_amount": 10000,
     "max_loan_amount": 400000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 25000, "label": "25K kr" },
-      { "amount": 50000, "label": "50K kr" },
-      { "amount": 100000, "label": "100K kr" },
-      { "amount": 200000, "label": "200K kr" },
-      { "amount": 300000, "label": "300K kr" },
-      { "amount": 400000, "label": "400K kr" }
+      { "amount": 25000, "label": "NOK 25K" },
+      { "amount": 50000, "label": "NOK 50K" },
+      { "amount": 100000, "label": "NOK 100K" },
+      { "amount": 200000, "label": "NOK 200K" },
+      { "amount": 300000, "label": "NOK 300K" },
+      { "amount": 400000, "label": "NOK 400K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "NPR",
+    "iso_code": "NPR",
     "symbol": "₨",
     "name": "Nepalese Rupee",
+    "countries": ["Nepal"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 100000,
     "max_loan_amount": 10000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 250000, "label": "₨250K" },
-      { "amount": 500000, "label": "₨500K" },
-      { "amount": 1000000, "label": "₨1M" },
-      { "amount": 2500000, "label": "₨2.5M" },
-      { "amount": 5000000, "label": "₨5M" },
-      { "amount": 10000000, "label": "₨10M" }
+      { "amount": 250000, "label": "NPR 250K" },
+      { "amount": 500000, "label": "NPR 500K" },
+      { "amount": 1000000, "label": "NPR 1M" },
+      { "amount": 2500000, "label": "NPR 2.5M" },
+      { "amount": 5000000, "label": "NPR 5M" },
+      { "amount": 10000000, "label": "NPR 10M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "NZD",
+    "iso_code": "NZD",
     "symbol": "NZ$",
     "name": "New Zealand Dollar",
+    "countries": ["New Zealand", "Cook Islands", "Niue", "Tokelau", "Pitcairn Islands"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 1000,
     "max_loan_amount": 300000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 10000, "label": "NZ$10K" },
-      { "amount": 25000, "label": "NZ$25K" },
-      { "amount": 50000, "label": "NZ$50K" },
-      { "amount": 100000, "label": "NZ$100K" },
-      { "amount": 200000, "label": "NZ$200K" },
-      { "amount": 300000, "label": "NZ$300K" }
+      { "amount": 10000, "label": "NZD 10K" },
+      { "amount": 25000, "label": "NZD 25K" },
+      { "amount": 50000, "label": "NZD 50K" },
+      { "amount": 100000, "label": "NZD 100K" },
+      { "amount": 200000, "label": "NZD 200K" },
+      { "amount": 300000, "label": "NZD 300K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "OMR",
+    "iso_code": "OMR",
     "symbol": "ر.ع.",
     "name": "Omani Rial",
+    "countries": ["Oman"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 500,
     "max_loan_amount": 50000,
+    "formatting": {
+      "k_format_decimals": 1,
+      "m_format_decimals": 1,
+      "k_threshold": 10000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
       { "amount": 2000, "label": "ر.ع.2K" },
       { "amount": 5000, "label": "ر.ع.5K" },
@@ -2432,89 +3280,121 @@
       { "amount": 50000, "label": "ر.ع.50K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "PAB",
+    "iso_code": "PAB",
     "symbol": "B/.",
     "name": "Panamanian Balboa",
+    "countries": ["Panama"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 1000,
     "max_loan_amount": 200000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 10000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 5000, "label": "B/.5K" },
-      { "amount": 10000, "label": "B/.10K" },
-      { "amount": 25000, "label": "B/.25K" },
-      { "amount": 50000, "label": "B/.50K" },
-      { "amount": 100000, "label": "B/.100K" },
-      { "amount": 200000, "label": "B/.200K" }
+      { "amount": 5000, "label": "PAB 5K" },
+      { "amount": 10000, "label": "PAB 10K" },
+      { "amount": 25000, "label": "PAB 25K" },
+      { "amount": 50000, "label": "PAB 50K" },
+      { "amount": 100000, "label": "PAB 100K" },
+      { "amount": 200000, "label": "PAB 200K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "PEN",
+    "iso_code": "PEN",
     "symbol": "S/",
     "name": "Peruvian Sol",
+    "countries": ["Peru"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 5000,
     "max_loan_amount": 500000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 10000, "label": "S/10K" },
-      { "amount": 25000, "label": "S/25K" },
-      { "amount": 50000, "label": "S/50K" },
-      { "amount": 100000, "label": "S/100K" },
-      { "amount": 250000, "label": "S/250K" },
-      { "amount": 500000, "label": "S/500K" }
+      { "amount": 10000, "label": "PEN 10K" },
+      { "amount": 25000, "label": "PEN 25K" },
+      { "amount": 50000, "label": "PEN 50K" },
+      { "amount": 100000, "label": "PEN 100K" },
+      { "amount": 250000, "label": "PEN 250K" },
+      { "amount": 500000, "label": "PEN 500K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "PGK",
+    "iso_code": "PGK",
     "symbol": "K",
     "name": "Papua New Guinean Kina",
+    "countries": ["Papua New Guinea"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 5000,
     "max_loan_amount": 500000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 10000, "label": "K10K" },
-      { "amount": 25000, "label": "K25K" },
-      { "amount": 50000, "label": "K50K" },
-      { "amount": 100000, "label": "K100K" },
-      { "amount": 250000, "label": "K250K" },
-      { "amount": 500000, "label": "K500K" }
+      { "amount": 10000, "label": "PGK 10K" },
+      { "amount": 25000, "label": "PGK 25K" },
+      { "amount": 50000, "label": "PGK 50K" },
+      { "amount": 100000, "label": "PGK 100K" },
+      { "amount": 250000, "label": "PGK 250K" },
+      { "amount": 500000, "label": "PGK 500K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "PHP",
+    "iso_code": "PHP",
     "symbol": "₱",
     "name": "Philippine Peso",
+    "countries": ["Philippines"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 10000,
     "max_loan_amount": 2000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
       { "amount": 50000, "label": "₱50K" },
       { "amount": 100000, "label": "₱100K" },
@@ -2524,66 +3404,90 @@
       { "amount": 2000000, "label": "₱2M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "PKR",
+    "iso_code": "PKR",
     "symbol": "₨",
     "name": "Pakistani Rupee",
+    "countries": ["Pakistan"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 100000,
     "max_loan_amount": 20000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 250000, "label": "₨250K" },
-      { "amount": 500000, "label": "₨500K" },
-      { "amount": 1000000, "label": "₨1M" },
-      { "amount": 5000000, "label": "₨5M" },
-      { "amount": 10000000, "label": "₨10M" },
-      { "amount": 20000000, "label": "₨20M" }
+      { "amount": 250000, "label": "PKR 250K" },
+      { "amount": 500000, "label": "PKR 500K" },
+      { "amount": 1000000, "label": "PKR 1M" },
+      { "amount": 5000000, "label": "PKR 5M" },
+      { "amount": 10000000, "label": "PKR 10M" },
+      { "amount": 20000000, "label": "PKR 20M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "PLN",
+    "iso_code": "PLN",
     "symbol": "zł",
     "name": "Polish Złoty",
-    "position": "after",
-    "thousands_separator": ",",
-    "decimal_separator": ".",
+    "countries": ["Poland"],
+    "position": "before",
+    "thousands_separator": " ",
+    "decimal_separator": ",",
     "min_loan_amount": 5000,
     "max_loan_amount": 300000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 10000, "label": "10K zł" },
-      { "amount": 25000, "label": "25K zł" },
-      { "amount": 50000, "label": "50K zł" },
-      { "amount": 100000, "label": "100K zł" },
-      { "amount": 200000, "label": "200K zł" },
-      { "amount": 300000, "label": "300K zł" }
+      { "amount": 10000, "label": "PLN 10K" },
+      { "amount": 25000, "label": "PLN 25K" },
+      { "amount": 50000, "label": "PLN 50K" },
+      { "amount": 100000, "label": "PLN 100K" },
+      { "amount": 200000, "label": "PLN 200K" },
+      { "amount": 300000, "label": "PLN 300K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "PYG",
+    "iso_code": "PYG",
     "symbol": "₲",
     "name": "Paraguayan Guaraní",
+    "countries": ["Paraguay"],
     "position": "before",
     "thousands_separator": ".",
     "decimal_separator": ",",
     "min_loan_amount": 5000000,
     "max_loan_amount": 500000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 10000000,
+      "m_threshold": 100000000
+    },
     "quick_amounts": [
       { "amount": 10000000, "label": "₲10M" },
       { "amount": 25000000, "label": "₲25M" },
@@ -2593,20 +3497,28 @@
       { "amount": 500000000, "label": "₲500M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "QAR",
+    "iso_code": "QAR",
     "symbol": "ر.ق",
     "name": "Qatari Riyal",
+    "countries": ["Qatar"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 5000,
     "max_loan_amount": 1000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
       { "amount": 10000, "label": "ر.ق10K" },
       { "amount": 25000, "label": "ر.ق25K" },
@@ -2616,112 +3528,152 @@
       { "amount": 1000000, "label": "ر.ق1M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "RON",
+    "iso_code": "RON",
     "symbol": "lei",
     "name": "Romanian Leu",
+    "countries": ["Romania"],
     "position": "after",
     "thousands_separator": ".",
     "decimal_separator": ",",
     "min_loan_amount": 5000,
     "max_loan_amount": 1000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 10000, "label": "10K lei" },
-      { "amount": 25000, "label": "25K lei" },
-      { "amount": 50000, "label": "50K lei" },
-      { "amount": 100000, "label": "100K lei" },
-      { "amount": 500000, "label": "500K lei" },
-      { "amount": 1000000, "label": "1M lei" }
+      { "amount": 10000, "label": "RON 10K" },
+      { "amount": 25000, "label": "RON 25K" },
+      { "amount": 50000, "label": "RON 50K" },
+      { "amount": 100000, "label": "RON 100K" },
+      { "amount": 500000, "label": "RON 500K" },
+      { "amount": 1000000, "label": "RON 1M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "RSD",
+    "iso_code": "RSD",
     "symbol": "дин",
     "name": "Serbian Dinar",
+    "countries": ["Serbia"],
     "position": "after",
     "thousands_separator": ".",
     "decimal_separator": ",",
     "min_loan_amount": 100000,
     "max_loan_amount": 20000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 250000, "label": "250K дин" },
-      { "amount": 500000, "label": "500K дин" },
-      { "amount": 1000000, "label": "1M дин" },
-      { "amount": 5000000, "label": "5M дин" },
-      { "amount": 10000000, "label": "10M дин" },
-      { "amount": 20000000, "label": "20M дин" }
+      { "amount": 250000, "label": "RSD 250K" },
+      { "amount": 500000, "label": "RSD 500K" },
+      { "amount": 1000000, "label": "RSD 1M" },
+      { "amount": 5000000, "label": "RSD 5M" },
+      { "amount": 10000000, "label": "RSD 10M" },
+      { "amount": 20000000, "label": "RSD 20M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "RUB",
+    "iso_code": "RUB",
     "symbol": "₽",
     "name": "Russian Ruble",
-    "position": "after",
+    "countries": ["Russia"],
+    "position": "before",
     "thousands_separator": " ",
     "decimal_separator": ",",
     "min_loan_amount": 50000,
     "max_loan_amount": 20000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 100000, "label": "100K ₽" },
-      { "amount": 250000, "label": "250K ₽" },
-      { "amount": 500000, "label": "500K ₽" },
-      { "amount": 1000000, "label": "1M ₽" },
-      { "amount": 5000000, "label": "5M ₽" },
-      { "amount": 20000000, "label": "20M ₽" }
+      { "amount": 100000, "label": "₽100K" },
+      { "amount": 250000, "label": "₽250K" },
+      { "amount": 500000, "label": "₽500K" },
+      { "amount": 1000000, "label": "₽1M" },
+      { "amount": 5000000, "label": "₽5M" },
+      { "amount": 20000000, "label": "₽20M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "RWF",
+    "iso_code": "RWF",
     "symbol": "FRw",
     "name": "Rwandan Franc",
+    "countries": ["Rwanda"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 500000,
     "max_loan_amount": 50000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 1000000,
+      "m_threshold": 10000000
+    },
     "quick_amounts": [
-      { "amount": 1000000, "label": "FRw1M" },
-      { "amount": 2500000, "label": "FRw2.5M" },
-      { "amount": 5000000, "label": "FRw5M" },
-      { "amount": 10000000, "label": "FRw10M" },
-      { "amount": 25000000, "label": "FRw25M" },
-      { "amount": 50000000, "label": "FRw50M" }
+      { "amount": 1000000, "label": "RWF 1M" },
+      { "amount": 2500000, "label": "RWF 2.5M" },
+      { "amount": 5000000, "label": "RWF 5M" },
+      { "amount": 10000000, "label": "RWF 10M" },
+      { "amount": 25000000, "label": "RWF 25M" },
+      { "amount": 50000000, "label": "RWF 50M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "SAR",
+    "iso_code": "SAR",
     "symbol": "ر.س",
     "name": "Saudi Riyal",
+    "countries": ["Saudi Arabia"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 5000,
     "max_loan_amount": 1000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
       { "amount": 10000, "label": "ر.س10K" },
       { "amount": 25000, "label": "ر.س25K" },
@@ -2731,66 +3683,90 @@
       { "amount": 1000000, "label": "ر.س1M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "SBD",
+    "iso_code": "SBD",
     "symbol": "$",
     "name": "Solomon Islands Dollar",
+    "countries": ["Solomon Islands"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 5000,
     "max_loan_amount": 500000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 10000, "label": "$10K" },
-      { "amount": 25000, "label": "$25K" },
-      { "amount": 50000, "label": "$50K" },
-      { "amount": 100000, "label": "$100K" },
-      { "amount": 250000, "label": "$250K" },
-      { "amount": 500000, "label": "$500K" }
+      { "amount": 10000, "label": "SBD 10K" },
+      { "amount": 25000, "label": "SBD 25K" },
+      { "amount": 50000, "label": "SBD 50K" },
+      { "amount": 100000, "label": "SBD 100K" },
+      { "amount": 250000, "label": "SBD 250K" },
+      { "amount": 500000, "label": "SBD 500K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "SCR",
+    "iso_code": "SCR",
     "symbol": "₨",
     "name": "Seychellois Rupee",
+    "countries": ["Seychelles"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 10000,
     "max_loan_amount": 1000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 25000, "label": "₨25K" },
-      { "amount": 50000, "label": "₨50K" },
-      { "amount": 100000, "label": "₨100K" },
-      { "amount": 250000, "label": "₨250K" },
-      { "amount": 500000, "label": "₨500K" },
-      { "amount": 1000000, "label": "₨1M" }
+      { "amount": 25000, "label": "SCR 25K" },
+      { "amount": 50000, "label": "SCR 50K" },
+      { "amount": 100000, "label": "SCR 100K" },
+      { "amount": 250000, "label": "SCR 250K" },
+      { "amount": 500000, "label": "SCR 500K" },
+      { "amount": 1000000, "label": "SCR 1M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "SDG",
+    "iso_code": "SDG",
     "symbol": "ج.س.",
     "name": "Sudanese Pound",
+    "countries": ["Sudan"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 250000,
     "max_loan_amount": 50000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 1000000,
+      "m_threshold": 10000000
+    },
     "quick_amounts": [
       { "amount": 500000, "label": "ج.س.500K" },
       { "amount": 1000000, "label": "ج.س.1M" },
@@ -2800,273 +3776,369 @@
       { "amount": 50000000, "label": "ج.س.50M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "SEK",
+    "iso_code": "SEK",
     "symbol": "kr",
     "name": "Swedish Krona",
-    "position": "after",
-    "thousands_separator": ",",
-    "decimal_separator": ".",
+    "countries": ["Sweden"],
+    "position": "before",
+    "thousands_separator": " ",
+    "decimal_separator": ",",
     "min_loan_amount": 10000,
     "max_loan_amount": 500000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 25000, "label": "25K kr" },
-      { "amount": 50000, "label": "50K kr" },
-      { "amount": 100000, "label": "100K kr" },
-      { "amount": 200000, "label": "200K kr" },
-      { "amount": 400000, "label": "400K kr" },
-      { "amount": 500000, "label": "500K kr" }
+      { "amount": 25000, "label": "SEK 25K" },
+      { "amount": 50000, "label": "SEK 50K" },
+      { "amount": 100000, "label": "SEK 100K" },
+      { "amount": 200000, "label": "SEK 200K" },
+      { "amount": 400000, "label": "SEK 400K" },
+      { "amount": 500000, "label": "SEK 500K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "SGD",
+    "iso_code": "SGD",
     "symbol": "S$",
     "name": "Singapore Dollar",
+    "countries": ["Singapore"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 1000,
     "max_loan_amount": 300000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 10000, "label": "S$10K" },
-      { "amount": 25000, "label": "S$25K" },
-      { "amount": 50000, "label": "S$50K" },
-      { "amount": 100000, "label": "S$100K" },
-      { "amount": 200000, "label": "S$200K" },
-      { "amount": 300000, "label": "S$300K" }
+      { "amount": 10000, "label": "SGD 10K" },
+      { "amount": 25000, "label": "SGD 25K" },
+      { "amount": 50000, "label": "SGD 50K" },
+      { "amount": 100000, "label": "SGD 100K" },
+      { "amount": 200000, "label": "SGD 200K" },
+      { "amount": 300000, "label": "SGD 300K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "SHP",
+    "iso_code": "SHP",
     "symbol": "£",
     "name": "Saint Helena Pound",
+    "countries": ["Saint Helena", "Ascension Island", "Tristan da Cunha"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 1000,
     "max_loan_amount": 100000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 10000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 5000, "label": "£5K" },
-      { "amount": 10000, "label": "£10K" },
-      { "amount": 25000, "label": "£25K" },
-      { "amount": 50000, "label": "£50K" },
-      { "amount": 75000, "label": "£75K" },
-      { "amount": 100000, "label": "£100K" }
+      { "amount": 5000, "label": "SHP 5K" },
+      { "amount": 10000, "label": "SHP 10K" },
+      { "amount": 25000, "label": "SHP 25K" },
+      { "amount": 50000, "label": "SHP 50K" },
+      { "amount": 75000, "label": "SHP 75K" },
+      { "amount": 100000, "label": "SHP 100K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "SLE",
+    "iso_code": "SLE",
     "symbol": "Le",
     "name": "Sierra Leonean Leone",
+    "countries": ["Sierra Leone"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 10000,
     "max_loan_amount": 5000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 25000, "label": "Le25K" },
-      { "amount": 50000, "label": "Le50K" },
-      { "amount": 100000, "label": "Le100K" },
-      { "amount": 500000, "label": "Le500K" },
-      { "amount": 1000000, "label": "Le1M" },
-      { "amount": 5000000, "label": "Le5M" }
+      { "amount": 25000, "label": "SLE 25K" },
+      { "amount": 50000, "label": "SLE 50K" },
+      { "amount": 100000, "label": "SLE 100K" },
+      { "amount": 500000, "label": "SLE 500K" },
+      { "amount": 1000000, "label": "SLE 1M" },
+      { "amount": 5000000, "label": "SLE 5M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "SLL",
+    "iso_code": "SLL",
     "symbol": "Le",
     "name": "Sierra Leonean Leone (Old)",
+    "countries": ["Sierra Leone"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 5000000,
     "max_loan_amount": 500000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 10000000,
+      "m_threshold": 100000000
+    },
     "quick_amounts": [
-      { "amount": 10000000, "label": "Le10M" },
-      { "amount": 25000000, "label": "Le25M" },
-      { "amount": 50000000, "label": "Le50M" },
-      { "amount": 100000000, "label": "Le100M" },
-      { "amount": 250000000, "label": "Le250M" },
-      { "amount": 500000000, "label": "Le500M" }
+      { "amount": 10000000, "label": "SLL 10M" },
+      { "amount": 25000000, "label": "SLL 25M" },
+      { "amount": 50000000, "label": "SLL 50M" },
+      { "amount": 100000000, "label": "SLL 100M" },
+      { "amount": 250000000, "label": "SLL 250M" },
+      { "amount": 500000000, "label": "SLL 500M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "SOS",
+    "iso_code": "SOS",
     "symbol": "Sh",
     "name": "Somali Shilling",
+    "countries": ["Somalia"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 500000,
     "max_loan_amount": 50000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 1000000,
+      "m_threshold": 10000000
+    },
     "quick_amounts": [
-      { "amount": 1000000, "label": "Sh1M" },
-      { "amount": 2500000, "label": "Sh2.5M" },
-      { "amount": 5000000, "label": "Sh5M" },
-      { "amount": 10000000, "label": "Sh10M" },
-      { "amount": 25000000, "label": "Sh25M" },
-      { "amount": 50000000, "label": "Sh50M" }
+      { "amount": 1000000, "label": "SOS 1M" },
+      { "amount": 2500000, "label": "SOS 2.5M" },
+      { "amount": 5000000, "label": "SOS 5M" },
+      { "amount": 10000000, "label": "SOS 10M" },
+      { "amount": 25000000, "label": "SOS 25M" },
+      { "amount": 50000000, "label": "SOS 50M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "SRD",
+    "iso_code": "SRD",
     "symbol": "$",
     "name": "Surinamese Dollar",
+    "countries": ["Suriname"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 10000,
     "max_loan_amount": 2000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 25000, "label": "$25K" },
-      { "amount": 50000, "label": "$50K" },
-      { "amount": 100000, "label": "$100K" },
-      { "amount": 250000, "label": "$250K" },
-      { "amount": 500000, "label": "$500K" },
-      { "amount": 2000000, "label": "$2M" }
+      { "amount": 25000, "label": "SRD 25K" },
+      { "amount": 50000, "label": "SRD 50K" },
+      { "amount": 100000, "label": "SRD 100K" },
+      { "amount": 250000, "label": "SRD 250K" },
+      { "amount": 500000, "label": "SRD 500K" },
+      { "amount": 2000000, "label": "SRD 2M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "SSP",
+    "iso_code": "SSP",
     "symbol": "£",
     "name": "South Sudanese Pound",
+    "countries": ["South Sudan"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 500000,
     "max_loan_amount": 50000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 1000000,
+      "m_threshold": 10000000
+    },
     "quick_amounts": [
-      { "amount": 1000000, "label": "£1M" },
-      { "amount": 2500000, "label": "£2.5M" },
-      { "amount": 5000000, "label": "£5M" },
-      { "amount": 10000000, "label": "£10M" },
-      { "amount": 25000000, "label": "£25M" },
-      { "amount": 50000000, "label": "£50M" }
+      { "amount": 1000000, "label": "SSP 1M" },
+      { "amount": 2500000, "label": "SSP 2.5M" },
+      { "amount": 5000000, "label": "SSP 5M" },
+      { "amount": 10000000, "label": "SSP 10M" },
+      { "amount": 25000000, "label": "SSP 25M" },
+      { "amount": 50000000, "label": "SSP 50M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "STN",
+    "iso_code": "STN",
     "symbol": "Db",
     "name": "São Tomé and Príncipe Dobra",
+    "countries": ["São Tomé and Príncipe"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 10000,
     "max_loan_amount": 1000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 25000, "label": "Db25K" },
-      { "amount": 50000, "label": "Db50K" },
-      { "amount": 100000, "label": "Db100K" },
-      { "amount": 250000, "label": "Db250K" },
-      { "amount": 500000, "label": "Db500K" },
-      { "amount": 1000000, "label": "Db1M" }
+      { "amount": 25000, "label": "STN 25K" },
+      { "amount": 50000, "label": "STN 50K" },
+      { "amount": 100000, "label": "STN 100K" },
+      { "amount": 250000, "label": "STN 250K" },
+      { "amount": 500000, "label": "STN 500K" },
+      { "amount": 1000000, "label": "STN 1M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "SYP",
+    "iso_code": "SYP",
     "symbol": "£",
     "name": "Syrian Pound",
+    "countries": ["Syria"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 1000000,
     "max_loan_amount": 100000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 10000000,
+      "m_threshold": 100000000
+    },
     "quick_amounts": [
-      { "amount": 2500000, "label": "£2.5M" },
-      { "amount": 5000000, "label": "£5M" },
-      { "amount": 10000000, "label": "£10M" },
-      { "amount": 25000000, "label": "£25M" },
-      { "amount": 50000000, "label": "£50M" },
-      { "amount": 100000000, "label": "£100M" }
+      { "amount": 2500000, "label": "SYP 2.5M" },
+      { "amount": 5000000, "label": "SYP 5M" },
+      { "amount": 10000000, "label": "SYP 10M" },
+      { "amount": 25000000, "label": "SYP 25M" },
+      { "amount": 50000000, "label": "SYP 50M" },
+      { "amount": 100000000, "label": "SYP 100M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "SZL",
+    "iso_code": "SZL",
     "symbol": "E",
     "name": "Swazi Lilangeni",
+    "countries": ["Eswatini"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 10000,
     "max_loan_amount": 1000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 25000, "label": "E25K" },
-      { "amount": 50000, "label": "E50K" },
-      { "amount": 100000, "label": "E100K" },
-      { "amount": 250000, "label": "E250K" },
-      { "amount": 500000, "label": "E500K" },
-      { "amount": 1000000, "label": "E1M" }
+      { "amount": 25000, "label": "SZL 25K" },
+      { "amount": 50000, "label": "SZL 50K" },
+      { "amount": 100000, "label": "SZL 100K" },
+      { "amount": 250000, "label": "SZL 250K" },
+      { "amount": 500000, "label": "SZL 500K" },
+      { "amount": 1000000, "label": "SZL 1M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "THB",
+    "iso_code": "THB",
     "symbol": "฿",
     "name": "Thai Baht",
+    "countries": ["Thailand"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 25000,
     "max_loan_amount": 10000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
       { "amount": 50000, "label": "฿50K" },
       { "amount": 100000, "label": "฿100K" },
@@ -3076,66 +4148,90 @@
       { "amount": 10000000, "label": "฿10M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "TJS",
+    "iso_code": "TJS",
     "symbol": "ЅМ",
     "name": "Tajikistani Somoni",
+    "countries": ["Tajikistan"],
     "position": "after",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 10000,
     "max_loan_amount": 1000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 25000, "label": "25K ЅМ" },
-      { "amount": 50000, "label": "50K ЅМ" },
-      { "amount": 100000, "label": "100K ЅМ" },
-      { "amount": 250000, "label": "250K ЅМ" },
-      { "amount": 500000, "label": "500K ЅМ" },
-      { "amount": 1000000, "label": "1M ЅМ" }
+      { "amount": 25000, "label": "TJS 25K" },
+      { "amount": 50000, "label": "TJS 50K" },
+      { "amount": 100000, "label": "TJS 100K" },
+      { "amount": 250000, "label": "TJS 250K" },
+      { "amount": 500000, "label": "TJS 500K" },
+      { "amount": 1000000, "label": "TJS 1M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "TMT",
+    "iso_code": "TMT",
     "symbol": "m",
     "name": "Turkmenistani Manat",
+    "countries": ["Turkmenistan"],
     "position": "after",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 5000,
     "max_loan_amount": 500000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 10000, "label": "10K m" },
-      { "amount": 25000, "label": "25K m" },
-      { "amount": 50000, "label": "50K m" },
-      { "amount": 100000, "label": "100K m" },
-      { "amount": 250000, "label": "250K m" },
-      { "amount": 500000, "label": "500K m" }
+      { "amount": 10000, "label": "TMT 10K" },
+      { "amount": 25000, "label": "TMT 25K" },
+      { "amount": 50000, "label": "TMT 50K" },
+      { "amount": 100000, "label": "TMT 100K" },
+      { "amount": 250000, "label": "TMT 250K" },
+      { "amount": 500000, "label": "TMT 500K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "TND",
+    "iso_code": "TND",
     "symbol": "د.ت",
     "name": "Tunisian Dinar",
+    "countries": ["Tunisia"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 2000,
     "max_loan_amount": 200000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
       { "amount": 5000, "label": "د.ت5K" },
       { "amount": 10000, "label": "د.ت10K" },
@@ -3145,43 +4241,59 @@
       { "amount": 200000, "label": "د.ت200K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "TOP",
+    "iso_code": "TOP",
     "symbol": "T$",
     "name": "Tongan Paʻanga",
+    "countries": ["Tonga"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 2000,
     "max_loan_amount": 200000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 10000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 5000, "label": "T$5K" },
-      { "amount": 10000, "label": "T$10K" },
-      { "amount": 25000, "label": "T$25K" },
-      { "amount": 50000, "label": "T$50K" },
-      { "amount": 100000, "label": "T$100K" },
-      { "amount": 200000, "label": "T$200K" }
+      { "amount": 5000, "label": "TOP 5K" },
+      { "amount": 10000, "label": "TOP 10K" },
+      { "amount": 25000, "label": "TOP 25K" },
+      { "amount": 50000, "label": "TOP 50K" },
+      { "amount": 100000, "label": "TOP 100K" },
+      { "amount": 200000, "label": "TOP 200K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "TRY",
+    "iso_code": "TRY",
     "symbol": "₺",
     "name": "Turkish Lira",
+    "countries": ["Turkey", "Northern Cyprus"],
     "position": "before",
-    "thousands_separator": ",",
-    "decimal_separator": ".",
+    "thousands_separator": ".",
+    "decimal_separator": ",",
     "min_loan_amount": 10000,
     "max_loan_amount": 1000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
       { "amount": 25000, "label": "₺25K" },
       { "amount": 50000, "label": "₺50K" },
@@ -3191,365 +4303,431 @@
       { "amount": 1000000, "label": "₺1M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "TTD",
+    "iso_code": "TTD",
     "symbol": "$",
     "name": "Trinidad and Tobago Dollar",
+    "countries": ["Trinidad and Tobago"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 5000,
     "max_loan_amount": 500000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 10000, "label": "$10K" },
-      { "amount": 25000, "label": "$25K" },
-      { "amount": 50000, "label": "$50K" },
-      { "amount": 100000, "label": "$100K" },
-      { "amount": 250000, "label": "$250K" },
-      { "amount": 500000, "label": "$500K" }
+      { "amount": 10000, "label": "TTD 10K" },
+      { "amount": 25000, "label": "TTD 25K" },
+      { "amount": 50000, "label": "TTD 50K" },
+      { "amount": 100000, "label": "TTD 100K" },
+      { "amount": 250000, "label": "TTD 250K" },
+      { "amount": 500000, "label": "TTD 500K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "TVD",
+    "iso_code": "TVD",
     "symbol": "$",
     "name": "Tuvaluan Dollar",
+    "countries": ["Tuvalu"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 1000,
     "max_loan_amount": 100000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 10000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 5000, "label": "$5K" },
-      { "amount": 10000, "label": "$10K" },
-      { "amount": 25000, "label": "$25K" },
-      { "amount": 50000, "label": "$50K" },
-      { "amount": 75000, "label": "$75K" },
-      { "amount": 100000, "label": "$100K" }
+      { "amount": 5000, "label": "TVD 5K" },
+      { "amount": 10000, "label": "TVD 10K" },
+      { "amount": 25000, "label": "TVD 25K" },
+      { "amount": 50000, "label": "TVD 50K" },
+      { "amount": 75000, "label": "TVD 75K" },
+      { "amount": 100000, "label": "TVD 100K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "TWD",
+    "iso_code": "TWD",
     "symbol": "$",
     "name": "New Taiwan Dollar",
+    "countries": ["Taiwan"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 25000,
     "max_loan_amount": 10000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 50000, "label": "$50K" },
-      { "amount": 100000, "label": "$100K" },
-      { "amount": 250000, "label": "$250K" },
-      { "amount": 500000, "label": "$500K" },
-      { "amount": 1000000, "label": "$1M" },
-      { "amount": 10000000, "label": "$10M" }
+      { "amount": 50000, "label": "TWD 50K" },
+      { "amount": 100000, "label": "TWD 100K" },
+      { "amount": 250000, "label": "TWD 250K" },
+      { "amount": 500000, "label": "TWD 500K" },
+      { "amount": 1000000, "label": "TWD 1M" },
+      { "amount": 10000000, "label": "TWD 10M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "TZS",
+    "iso_code": "TZS",
     "symbol": "Sh",
     "name": "Tanzanian Shilling",
+    "countries": ["Tanzania"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 50000,
     "max_loan_amount": 5000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 100000, "label": "Sh100K" },
-      { "amount": 250000, "label": "Sh250K" },
-      { "amount": 500000, "label": "Sh500K" },
-      { "amount": 1000000, "label": "Sh1M" },
-      { "amount": 2500000, "label": "Sh2.5M" },
-      { "amount": 5000000, "label": "Sh5M" }
+      { "amount": 100000, "label": "TZS 100K" },
+      { "amount": 250000, "label": "TZS 250K" },
+      { "amount": 500000, "label": "TZS 500K" },
+      { "amount": 1000000, "label": "TZS 1M" },
+      { "amount": 2500000, "label": "TZS 2.5M" },
+      { "amount": 5000000, "label": "TZS 5M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "UAH",
+    "iso_code": "UAH",
     "symbol": "₴",
     "name": "Ukrainian Hryvnia",
-    "position": "after",
-    "thousands_separator": ",",
-    "decimal_separator": ".",
+    "countries": ["Ukraine"],
+    "position": "before",
+    "thousands_separator": " ",
+    "decimal_separator": ",",
     "min_loan_amount": 10000,
     "max_loan_amount": 1000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 25000, "label": "25K ₴" },
-      { "amount": 50000, "label": "50K ₴" },
-      { "amount": 100000, "label": "100K ₴" },
-      { "amount": 250000, "label": "250K ₴" },
-      { "amount": 500000, "label": "500K ₴" },
-      { "amount": 1000000, "label": "1M ₴" }
+      { "amount": 25000, "label": "₴25K" },
+      { "amount": 50000, "label": "₴50K" },
+      { "amount": 100000, "label": "₴100K" },
+      { "amount": 250000, "label": "₴250K" },
+      { "amount": 500000, "label": "₴500K" },
+      { "amount": 1000000, "label": "₴1M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "UGX",
+    "iso_code": "UGX",
     "symbol": "USh",
     "name": "Ugandan Shilling",
+    "countries": ["Uganda"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 100000,
     "max_loan_amount": 10000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 250000, "label": "USh250K" },
-      { "amount": 500000, "label": "USh500K" },
-      { "amount": 1000000, "label": "USh1M" },
-      { "amount": 2500000, "label": "USh2.5M" },
-      { "amount": 5000000, "label": "USh5M" },
-      { "amount": 10000000, "label": "USh10M" }
+      { "amount": 250000, "label": "UGX 250K" },
+      { "amount": 500000, "label": "UGX 500K" },
+      { "amount": 1000000, "label": "UGX 1M" },
+      { "amount": 2500000, "label": "UGX 2.5M" },
+      { "amount": 5000000, "label": "UGX 5M" },
+      { "amount": 10000000, "label": "UGX 10M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "UYU",
+    "iso_code": "UYU",
     "symbol": "$U",
     "name": "Uruguayan Peso",
+    "countries": ["Uruguay"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 20000,
     "max_loan_amount": 2000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 50000, "label": "$U50K" },
-      { "amount": 100000, "label": "$U100K" },
-      { "amount": 250000, "label": "$U250K" },
-      { "amount": 500000, "label": "$U500K" },
-      { "amount": 1000000, "label": "$U1M" },
-      { "amount": 2000000, "label": "$U2M" }
+      { "amount": 50000, "label": "UYU 50K" },
+      { "amount": 100000, "label": "UYU 100K" },
+      { "amount": 250000, "label": "UYU 250K" },
+      { "amount": 500000, "label": "UYU 500K" },
+      { "amount": 1000000, "label": "UYU 1M" },
+      { "amount": 2000000, "label": "UYU 2M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "UZS",
+    "iso_code": "UZS",
     "symbol": "soʻm",
     "name": "Uzbekistani Soʻm",
+    "countries": ["Uzbekistan"],
     "position": "after",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 1000000,
     "max_loan_amount": 100000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 1000000,
+      "m_threshold": 10000000
+    },
     "quick_amounts": [
-      { "amount": 2500000, "label": "2.5M soʻm" },
-      { "amount": 5000000, "label": "5M soʻm" },
-      { "amount": 10000000, "label": "10M soʻm" },
-      { "amount": 25000000, "label": "25M soʻm" },
-      { "amount": 50000000, "label": "50M soʻm" },
-      { "amount": 100000000, "label": "100M soʻm" }
+      { "amount": 2500000, "label": "UZS 2.5M" },
+      { "amount": 5000000, "label": "UZS 5M" },
+      { "amount": 10000000, "label": "UZS 10M" },
+      { "amount": 25000000, "label": "UZS 25M" },
+      { "amount": 50000000, "label": "UZS 50M" },
+      { "amount": 100000000, "label": "UZS 100M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "VES",
+    "iso_code": "VES",
     "symbol": "Bs.",
     "name": "Venezuelan Bolívar",
+    "countries": ["Venezuela"],
     "position": "before",
     "thousands_separator": ",",
     "decimal_separator": ".",
     "min_loan_amount": 10000,
     "max_loan_amount": 10000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 25000, "label": "Bs.25K" },
-      { "amount": 50000, "label": "Bs.50K" },
-      { "amount": 100000, "label": "Bs.100K" },
-      { "amount": 500000, "label": "Bs.500K" },
-      { "amount": 1000000, "label": "Bs.1M" },
-      { "amount": 10000000, "label": "Bs.10M" }
+      { "amount": 25000, "label": "VES 25K" },
+      { "amount": 50000, "label": "VES 50K" },
+      { "amount": 100000, "label": "VES 100K" },
+      { "amount": 500000, "label": "VES 500K" },
+      { "amount": 1000000, "label": "VES 1M" },
+      { "amount": 10000000, "label": "VES 10M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "WST",
+    "iso_code": "WST",
     "symbol": "T",
     "name": "Samoan Tala",
+    "countries": ["Samoa"],
     "position": "before",
     "thousands_separator": ".",
     "decimal_separator": ",",
     "min_loan_amount": 2000,
     "max_loan_amount": 200000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 10000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 5000, "label": "T5K" },
-      { "amount": 10000, "label": "T10K" },
-      { "amount": 25000, "label": "T25K" },
-      { "amount": 50000, "label": "T50K" },
-      { "amount": 100000, "label": "T100K" },
-      { "amount": 200000, "label": "T200K" }
+      { "amount": 5000, "label": "WST 5K" },
+      { "amount": 10000, "label": "WST 10K" },
+      { "amount": 25000, "label": "WST 25K" },
+      { "amount": 50000, "label": "WST 50K" },
+      { "amount": 100000, "label": "WST 100K" },
+      { "amount": 200000, "label": "WST 200K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "XAF",
+    "iso_code": "XAF",
     "symbol": "FCFA",
     "name": "Central African CFA Franc",
+    "countries": ["Cameroon", "Central African Republic", "Chad", "Republic of the Congo", "Equatorial Guinea", "Gabon"],
     "position": "before",
     "thousands_separator": ".",
     "decimal_separator": ",",
     "min_loan_amount": 500000,
     "max_loan_amount": 100000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 1000000,
+      "m_threshold": 10000000
+    },
     "quick_amounts": [
-      { "amount": 1000000, "label": "FCFA1M" },
-      { "amount": 2500000, "label": "FCFA2.5M" },
-      { "amount": 5000000, "label": "FCFA5M" },
-      { "amount": 10000000, "label": "FCFA10M" },
-      { "amount": 50000000, "label": "FCFA50M" },
-      { "amount": 100000000, "label": "FCFA100M" }
+      { "amount": 1000000, "label": "XAF 1M" },
+      { "amount": 2500000, "label": "XAF 2.5M" },
+      { "amount": 5000000, "label": "XAF 5M" },
+      { "amount": 10000000, "label": "XAF 10M" },
+      { "amount": 50000000, "label": "XAF 50M" },
+      { "amount": 100000000, "label": "XAF 100M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "XCD",
+    "iso_code": "XCD",
     "symbol": "$",
     "name": "East Caribbean Dollar",
+    "countries": ["Antigua and Barbuda", "Dominica", "Grenada", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Anguilla", "Montserrat"],
     "position": "before",
     "thousands_separator": ".",
     "decimal_separator": ",",
     "min_loan_amount": 2000,
     "max_loan_amount": 200000,
-    "quick_amounts": [
-      { "amount": 5000, "label": "$5K" },
-      { "amount": 10000, "label": "$10K" },
-      { "amount": 25000, "label": "$25K" },
-      { "amount": 50000, "label": "$50K" },
-      { "amount": 100000, "label": "$100K" },
-      { "amount": 200000, "label": "$200K" }
-    ],
-    "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 10000,
+      "m_threshold": 1000000
     },
-    "is_active": true
-  },
-  {
-    "code": "XCG",
-    "symbol": "CG",
-    "name": "Congolese Franc",
-    "position": "before",
-    "thousands_separator": ".",
-    "decimal_separator": ",",
-    "min_loan_amount": 1000000,
-    "max_loan_amount": 100000000,
     "quick_amounts": [
-      { "amount": 2000000, "label": "CG2M" },
-      { "amount": 5000000, "label": "CG5M" },
-      { "amount": 10000000, "label": "CG10M" },
-      { "amount": 25000000, "label": "CG25M" },
-      { "amount": 50000000, "label": "CG50M" },
-      { "amount": 100000000, "label": "CG100M" }
+      { "amount": 5000, "label": "XCD 5K" },
+      { "amount": 10000, "label": "XCD 10K" },
+      { "amount": 25000, "label": "XCD 25K" },
+      { "amount": 50000, "label": "XCD 50K" },
+      { "amount": 100000, "label": "XCD 100K" },
+      { "amount": 200000, "label": "XCD 200K" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
-    },
-    "is_active": true
-  },
-  {
-    "code": "XDR",
-    "symbol": "SDR",
-    "name": "Special Drawing Rights",
-    "position": "before",
-    "thousands_separator": ".",
-    "decimal_separator": ",",
-    "min_loan_amount": 1000,
-    "max_loan_amount": 100000,
-    "quick_amounts": [
-      { "amount": 5000, "label": "SDR5K" },
-      { "amount": 10000, "label": "SDR10K" },
-      { "amount": 25000, "label": "SDR25K" },
-      { "amount": 50000, "label": "SDR50K" },
-      { "amount": 75000, "label": "SDR75K" },
-      { "amount": 100000, "label": "SDR100K" }
-    ],
-    "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "XOF",
+    "iso_code": "XOF",
     "symbol": "CFA",
     "name": "West African CFA Franc",
+    "countries": ["Benin", "Burkina Faso", "Côte d'Ivoire", "Guinea-Bissau", "Mali", "Niger", "Senegal", "Togo"],
     "position": "before",
     "thousands_separator": ".",
     "decimal_separator": ",",
     "min_loan_amount": 500000,
     "max_loan_amount": 100000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 1000000,
+      "m_threshold": 10000000
+    },
     "quick_amounts": [
-      { "amount": 1000000, "label": "CFA1M" },
-      { "amount": 2500000, "label": "CFA2.5M" },
-      { "amount": 5000000, "label": "CFA5M" },
-      { "amount": 10000000, "label": "CFA10M" },
-      { "amount": 50000000, "label": "CFA50M" },
-      { "amount": 100000000, "label": "CFA100M" }
+      { "amount": 1000000, "label": "XOF 1M" },
+      { "amount": 2500000, "label": "XOF 2.5M" },
+      { "amount": 5000000, "label": "XOF 5M" },
+      { "amount": 10000000, "label": "XOF 10M" },
+      { "amount": 50000000, "label": "XOF 50M" },
+      { "amount": 100000000, "label": "XOF 100M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "XPF",
+    "iso_code": "XPF",
     "symbol": "₣",
     "name": "CFP Franc",
+    "countries": ["French Polynesia", "New Caledonia", "Wallis and Futuna"],
     "position": "before",
     "thousands_separator": ".",
     "decimal_separator": ",",
     "min_loan_amount": 100000,
     "max_loan_amount": 20000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
       { "amount": 250000, "label": "₣250K" },
       { "amount": 500000, "label": "₣500K" },
@@ -3559,20 +4737,28 @@
       { "amount": 20000000, "label": "₣20M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "YER",
+    "iso_code": "YER",
     "symbol": "﷼",
     "name": "Yemeni Rial",
+    "countries": ["Yemen"],
     "position": "before",
     "thousands_separator": ".",
     "decimal_separator": ",",
     "min_loan_amount": 250000,
     "max_loan_amount": 50000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 1000000,
+      "m_threshold": 10000000
+    },
     "quick_amounts": [
       { "amount": 500000, "label": "﷼500K" },
       { "amount": 1000000, "label": "﷼1M" },
@@ -3582,89 +4768,121 @@
       { "amount": 50000000, "label": "﷼50M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "ZAR",
+    "iso_code": "ZAR",
     "symbol": "R",
     "name": "South African Rand",
+    "countries": ["South Africa", "Lesotho", "Namibia", "Eswatini"],
     "position": "before",
-    "thousands_separator": ".",
+    "thousands_separator": " ",
     "decimal_separator": ",",
     "min_loan_amount": 10000,
     "max_loan_amount": 5000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 50000, "label": "R50K" },
-      { "amount": 100000, "label": "R100K" },
-      { "amount": 250000, "label": "R250K" },
-      { "amount": 500000, "label": "R500K" },
-      { "amount": 1000000, "label": "R1M" },
-      { "amount": 5000000, "label": "R5M" }
+      { "amount": 50000, "label": "ZAR 50K" },
+      { "amount": 100000, "label": "ZAR 100K" },
+      { "amount": 250000, "label": "ZAR 250K" },
+      { "amount": 500000, "label": "ZAR 500K" },
+      { "amount": 1000000, "label": "ZAR 1M" },
+      { "amount": 5000000, "label": "ZAR 5M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "ZMW",
+    "iso_code": "ZMW",
     "symbol": "ZK",
     "name": "Zambian Kwacha",
+    "countries": ["Zambia"],
     "position": "before",
     "thousands_separator": ".",
     "decimal_separator": ",",
     "min_loan_amount": 10000,
     "max_loan_amount": 2000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
-      { "amount": 25000, "label": "ZK25K" },
-      { "amount": 50000, "label": "ZK50K" },
-      { "amount": 100000, "label": "ZK100K" },
-      { "amount": 250000, "label": "ZK250K" },
-      { "amount": 500000, "label": "ZK500K" },
-      { "amount": 2000000, "label": "ZK2M" }
+      { "amount": 25000, "label": "ZMW 25K" },
+      { "amount": 50000, "label": "ZMW 50K" },
+      { "amount": 100000, "label": "ZMW 100K" },
+      { "amount": 250000, "label": "ZMW 250K" },
+      { "amount": 500000, "label": "ZMW 500K" },
+      { "amount": 2000000, "label": "ZMW 2M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "ZWL",
+    "iso_code": "ZWL",
     "symbol": "$",
     "name": "Zimbabwean Dollar",
+    "countries": ["Zimbabwe"],
     "position": "before",
     "thousands_separator": ".",
     "decimal_separator": ",",
     "min_loan_amount": 100000,
     "max_loan_amount": 50000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 1000000,
+      "m_threshold": 10000000
+    },
     "quick_amounts": [
-      { "amount": 250000, "label": "$250K" },
-      { "amount": 500000, "label": "$500K" },
-      { "amount": 1000000, "label": "$1M" },
-      { "amount": 5000000, "label": "$5M" },
-      { "amount": 10000000, "label": "$10M" },
-      { "amount": 50000000, "label": "$50M" }
+      { "amount": 250000, "label": "ZWL 250K" },
+      { "amount": 500000, "label": "ZWL 500K" },
+      { "amount": 1000000, "label": "ZWL 1M" },
+      { "amount": 5000000, "label": "ZWL 5M" },
+      { "amount": 10000000, "label": "ZWL 10M" },
+      { "amount": 50000000, "label": "ZWL 50M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   },
   {
     "code": "AED",
+    "iso_code": "AED",
     "symbol": "د.إ",
     "name": "UAE Dirham",
+    "countries": ["United Arab Emirates"],
     "position": "before",
-    "thousands_separator": ".",
-    "decimal_separator": ",",
+    "thousands_separator": ",",
+    "decimal_separator": ".",
     "min_loan_amount": 5000,
     "max_loan_amount": 1000000,
+    "formatting": {
+      "k_format_decimals": 0,
+      "m_format_decimals": 1,
+      "k_threshold": 100000,
+      "m_threshold": 1000000
+    },
     "quick_amounts": [
       { "amount": 10000, "label": "د.إ10K" },
       { "amount": 25000, "label": "د.إ25K" },
@@ -3674,8 +4892,8 @@
       { "amount": 1000000, "label": "د.إ1M" }
     ],
     "large_amount_units": {
-      "million": { "divisor": 1000, "suffix": "K" },
-      "billion": { "divisor": 1000000, "suffix": "M" }
+      "thousand": { "divisor": 1000, "suffix": "K" },
+      "million": { "divisor": 1000000, "suffix": "M" }
     },
     "is_active": true
   }
