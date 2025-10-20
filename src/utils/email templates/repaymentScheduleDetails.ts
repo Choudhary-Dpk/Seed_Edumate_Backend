@@ -1,4 +1,5 @@
 import { config } from "../../config/config";
+import { EMAIL_TEMPLATES } from "../../config/email-config";
 
 
 const edumateLogo = config?.edumate?.logo;
@@ -9,6 +10,9 @@ const edumateLogo = config?.edumate?.logo;
 export const generateEMIRepaymentScheduleEmail = (name: string): string => {
   const companyName = "Edumate";
   const currentYear = new Date().getFullYear();
+  const contactEmail = EMAIL_TEMPLATES?.contact_info?.email || 'info@edumateglobal.com';
+  const calendlyLink = EMAIL_TEMPLATES?.links?.contactTeam || 'https://calendly.com/priyank-edumateglobal/speak-to-our-financing-expert?month=2025-07'; 
+  const contactPhone = EMAIL_TEMPLATES?.contact_info?.phone_number || '+91 7208743607';
 
   return `
     <!DOCTYPE html>
@@ -16,7 +20,7 @@ export const generateEMIRepaymentScheduleEmail = (name: string): string => {
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Your EMI Repayment Schedule - ${companyName}</title>
+      <title>Your Monthy Repayment Schedule - ${companyName}</title>
       <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         
@@ -96,18 +100,100 @@ export const generateEMIRepaymentScheduleEmail = (name: string): string => {
                     Dear ${name || 'Customer'},
                   </h2>
                   <p class="mobile-text" style="margin: 0; font-size: 16px; color: #64748b; line-height: 1.6; font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 400;">
-                    Your EMI calculation is complete. Please find your detailed repayment schedule attached as a PDF document.
+                    Your Monthy Repayment calculation is complete. Please find your detailed repayment schedule attached as a PDF document.
                   </p>
                 </div>
 
                 <!-- Closing Message -->
-                <div style="background: #ffffff; border: 1px solid #e0f2fe; border-radius: 12px; padding: 32px; text-align: center; box-shadow: 0 4px 16px rgba(0,0,0,0.08);">
+                <div style="background: #ffffff; border: 1px solid #e0f2fe; border-radius: 12px; padding: 32px; text-align: center; box-shadow: 0 4px 16px rgba(0,0,0,0.08); margin-bottom: 24px;">
                   <p style="margin: 0 0 16px 0; font-size: 16px; color: #0f172a; font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 600; line-height: 1.5;">
-                    The attached PDF contains your complete payment breakdown with monthly EMI details, interest calculations, and outstanding balances.
+                    The attached PDF contains your complete payment breakdown with monthly Monthy Repayment details, interest calculations, and outstanding balances.
                   </p>
                   <p style="margin: 0; font-size: 15px; color: #64748b; font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif; line-height: 1.6; font-weight: 500;">
                     If you have any questions about your calculation, please don't hesitate to contact our support team.
                   </p>
+                </div>
+
+                <!-- Next Steps Section -->
+                <div style="background: #ffffff; border: 1px solid #e0f2fe; border-radius: 12px; padding: 32px; box-shadow: 0 4px 16px rgba(0,0,0,0.08);">
+                  <h3 style="margin: 0 0 20px 0; font-size: 18px; color: #0f172a; font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 700; text-align: center;">
+                    📋 What's Next?
+                  </h3>
+                  <p style="margin: 0 0 24px 0; font-size: 15px; color: #64748b; font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif; line-height: 1.6; text-align: center;">
+                    Our team is here to help you move forward with your education loan. Reach out to us through any of the following channels:
+                  </p>
+
+                  <!-- Contact Details -->
+                  <table width="100%" cellpadding="0" cellspacing="0" style="margin-top: 24px;">
+                    <!-- Email -->
+                    <tr>
+                      <td style="padding: 12px 0; border-top: 1px solid #e0f2fe;">
+                        <table width="100%" cellpadding="0" cellspacing="0">
+                          <tr>
+                            <td style="width: 40px; vertical-align: top; padding-top: 2px;">
+                              <div style="width: 32px; height: 32px; background: linear-gradient(135deg, rgba(222, 156, 111, 0.15) 0%, rgba(102, 153, 220, 0.15) 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 32px; font-size: 16px;">
+                                ✉️
+                              </div>
+                            </td>
+                            <td style="vertical-align: middle;">
+                              <div style="font-size: 13px; color: #64748b; font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 500; margin-bottom: 4px;">
+                                Email Us
+                              </div>
+                              <a href="mailto:${contactEmail}" style="font-size: 15px; color: #0f172a; font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 600; text-decoration: none;">
+                                ${contactEmail}
+                              </a>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+
+                    <!-- Calendly -->
+                    <tr>
+                      <td style="padding: 12px 0; border-top: 1px solid #e0f2fe;">
+                        <table width="100%" cellpadding="0" cellspacing="0">
+                          <tr>
+                            <td style="width: 40px; vertical-align: top; padding-top: 2px;">
+                              <div style="width: 32px; height: 32px; background: linear-gradient(135deg, rgba(222, 156, 111, 0.15) 0%, rgba(102, 153, 220, 0.15) 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 32px; font-size: 16px;">
+                                📅
+                              </div>
+                            </td>
+                            <td style="vertical-align: middle;">
+                              <div style="font-size: 13px; color: #64748b; font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 500; margin-bottom: 4px;">
+                                Schedule a Call
+                              </div>
+                              <a href="${calendlyLink}" style="font-size: 15px; color: #0f172a; font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 600; text-decoration: none;">
+                                Book Your Consultation
+                              </a>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+
+                    <!-- Phone -->
+                    <tr>
+                      <td style="padding: 12px 0; border-top: 1px solid #e0f2fe;">
+                        <table width="100%" cellpadding="0" cellspacing="0">
+                          <tr>
+                            <td style="width: 40px; vertical-align: top; padding-top: 2px;">
+                              <div style="width: 32px; height: 32px; background: linear-gradient(135deg, rgba(222, 156, 111, 0.15) 0%, rgba(102, 153, 220, 0.15) 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 32px; font-size: 16px;">
+                                📞
+                              </div>
+                            </td>
+                            <td style="vertical-align: middle;">
+                              <div style="font-size: 13px; color: #64748b; font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 500; margin-bottom: 4px;">
+                                Call Us
+                              </div>
+                              <a href="tel:${contactPhone.replace(/[^0-9+]/g, '')}" style="font-size: 15px; color: #0f172a; font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 600; text-decoration: none;">
+                                ${contactPhone}
+                              </a>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
                 </div>
               </td>
             </tr>
@@ -121,7 +207,7 @@ export const generateEMIRepaymentScheduleEmail = (name: string): string => {
                   © ${currentYear} ${companyName}. All rights reserved.
                 </p>
                 <p style="margin: 0 0 20px 0; font-size: 12px; color: #0f172aae; font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif; line-height: 1.5;">
-                  This email contains your EMI calculation results. The attached PDF is for informational purposes only and does not constitute a loan offer.
+                  This email contains your Monthy Repayment calculation results. The attached PDF is for informational purposes only and does not constitute a loan offer.
                 </p>
               </td>
             </tr>

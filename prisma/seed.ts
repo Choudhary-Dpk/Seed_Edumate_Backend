@@ -7,14 +7,24 @@ const prisma = new PrismaClient();
 interface CurrencyData {
   code: string;
   symbol: string;
+  iso_code: string;
+  countries: string[];
   name: string;
   position: string;
   thousands_separator: string;
   decimal_separator: string;
   min_loan_amount: number;
   max_loan_amount: number;
-  quick_amounts: any;
-  large_amount_units: any;
+  formatting?: {
+    k_format_decimals: number;
+    m_format_decimals: number;
+    k_threshold: number;
+    m_threshold: number;
+  };
+  quick_amounts: Array<{ amount: number; label: string }>;
+  large_amount_units: {
+    [key: string]: { divisor: number; suffix: string } | undefined;
+  };
   is_active: boolean;
 }
 
@@ -36,11 +46,14 @@ const seedCurrencies = async () => {
         update: {
           symbol: currency.symbol,
           name: currency.name,
+          iso_code: currency.iso_code,
+          countries: currency.countries,
           position: currency.position,
           thousands_separator: currency.thousands_separator,
           decimal_separator: currency.decimal_separator,
           min_loan_amount: currency.min_loan_amount,
           max_loan_amount: currency.max_loan_amount,
+          formatting: currency.formatting || {},
           quick_amounts: currency.quick_amounts,
           large_amount_units: currency.large_amount_units,
           is_active: currency.is_active,
@@ -49,28 +62,31 @@ const seedCurrencies = async () => {
           code: currency.code,
           symbol: currency.symbol,
           name: currency.name,
+          iso_code: currency.iso_code,
+          countries: currency.countries,
           position: currency.position,
           thousands_separator: currency.thousands_separator,
           decimal_separator: currency.decimal_separator,
           min_loan_amount: currency.min_loan_amount,
           max_loan_amount: currency.max_loan_amount,
+          formatting: currency.formatting || {},
           quick_amounts: currency.quick_amounts,
           large_amount_units: currency.large_amount_units,
           is_active: currency.is_active,
         },
       });
       successCount++;
-      console.log(`Seeded ${currency.code} - ${currency.name}`);
+      console.log(`✅ Seeded ${currency.code} - ${currency.name}`);
     } catch (error) {
       errorCount++;
       console.error(
-        `Error seeding ${currency.code}:`,
+        `❌ Error seeding ${currency.code}:`,
         (error as Error).message
       );
     }
   }
 
-  console.log("\nCurrency Seeding Summary:");
+  console.log("\n📊 Currency Seeding Summary:");
   console.log(`   Total currencies: ${currencyData.length}`);
   console.log(`   Successfully seeded: ${successCount}`);
   console.log(`   Errors: ${errorCount}\n`);

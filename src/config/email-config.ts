@@ -28,6 +28,10 @@ export const EMAIL_TEMPLATES = {
   links: {
     contactTeam: process.env.CONTACT_TEAM_URL || 'https://calendly.com/priyank-edumateglobal/speak-to-our-financing-expert?month=2025-07',
     checkEligibility: process.env.CHECK_ELIGIBILITY_URL || '#'
+  },
+  contact_info:{
+    phone_number:process.env.CONTACT_PHONE,
+    email:process.env.CONTACT_EMAIL,
   }
 } as const;
 
