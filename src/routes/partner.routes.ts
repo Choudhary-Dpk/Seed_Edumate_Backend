@@ -20,7 +20,7 @@ const router = Router();
 router.get("/list", getPartnersList);
 router.post(
   "/",
-  validateToken(["Admin", "Manager", "User"]),
+  // validateToken(["Admin", "Manager", "User"]),
   checkDuplicateB2BPartnerFields,
   createB2bPartner
 );

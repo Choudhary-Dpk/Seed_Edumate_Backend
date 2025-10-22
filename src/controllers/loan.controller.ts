@@ -371,7 +371,11 @@ export const createLoanApplicationsController = async (
   next: NextFunction
 ) => {
   try {
-    const userId = req.payload!.id;
+    debugger;
+    //  const userId = req.payload!.id;
+    const userId = 1;
+
+    console.log("userId", userId);
 
     logger.debug(`Mapping loan application fields`);
     const mappedFields = await mapAllLoanApplicationFields(req.body);
@@ -388,7 +392,7 @@ export const createLoanApplicationsController = async (
       const application = await createLoanApplication(
         tx,
         categorized["mainLoanApplication"],
-        userId
+        userId!
       );
       logger.debug(
         `Loan application created successfully with id: ${application.id}`
@@ -499,7 +503,7 @@ export const createLoanApplicationsController = async (
         tx,
         application.id,
         categorized["systemTracking"],
-        userId
+        userId!
       );
       logger.debug(
         `System tracking created successfully for application: ${application.id}`

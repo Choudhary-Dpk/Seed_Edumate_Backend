@@ -586,7 +586,7 @@ model HSLoanApplicationsFinancialRequirements {
 // APPLICATION STATUS
 model HSLoanApplicationsStatus {
   id                    Int             @id @default(autoincrement())
-   loan_application_id        Int @unique
+  loan_application_id        Int @unique
   status               ApplicationStatusEnum? @default(PRE_APPROVED)
   priority_level       PriorityLevel?   @default(LOW)
   application_notes    String?         @db.Text

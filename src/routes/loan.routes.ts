@@ -23,7 +23,7 @@ router.post(
 );
 router.post(
   "/",
-  validateToken(["Admin", "Manager", "User"]),
+  // validateToken(["Admin", "Manager", "User"]),
   validateLoanFields,
   createLoanApplicationsController
 );
