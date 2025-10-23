@@ -327,9 +327,9 @@ export const getLoanList = async (
           { student_email: { contains: search, mode: "insensitive" } },
         ],
         is_deleted: false,
-        b2b_partner_id: partnerId,
+        // b2b_partner_id: partnerId,
       }
-    : { is_deleted: false, b2b_partner_id: partnerId };
+    : { is_deleted: false };
 
   let orderBy: any = { created_at: "desc" };
   if (sortKey) {

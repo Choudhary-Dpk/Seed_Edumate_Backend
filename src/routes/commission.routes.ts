@@ -12,7 +12,6 @@ const router = Router();
 
 router.post(
   "/",
-  validateToken(["Admin", "Manager", "User"]),
   checkDuplicateCommissionSettlementFields,
   createCommissionSettlementController
 );

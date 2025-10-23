@@ -1151,6 +1151,7 @@ model HSLenders {
   
   // System fields
   is_active             Boolean?             @default(true) @map("is_active")
+  is_deleted Boolean?           @default(false)
   created_at            DateTime?            @default(now()) @map("created_at")
   updated_at            DateTime?            @updatedAt @map("updated_at")
   created_by            String?             @map("created_by")
@@ -1181,10 +1182,10 @@ model HSLenders {
 model HSLendersSystemTracking {
   id                   Int                @default(autoincrement())
   lender_id            Int                @unique
-  data_source          LenderDataSource   @default(MANUAL_ENTRY)
-  lender_record_status LenderRecordStatus @default(INACTIVE)
+  data_source          LenderDataSource?   @default(MANUAL_ENTRY)
+  lender_record_status LenderRecordStatus? @default(INACTIVE)
   notes                String?
-  performance_rating   PerformanceRating  @default(AVERAGE)
+  performance_rating   PerformanceRating?  @default(AVERAGE)
 
   created_at         DateTime  @default(now())
   updated_at         DateTime  @default(now()) @updatedAt
@@ -1234,7 +1235,7 @@ model HSLendersContactInfo {
 model HSLendersBusinessMetrics {
   id                    Int                 @id @default(autoincrement())
   lender_id             Int                 @unique @map("lender_id")
-  lender                HSLenders              @relation(fields: [lender_id], references: [id], onDelete: Cascade)
+  lender                HSLenders?              @relation(fields: [lender_id], references: [id], onDelete: Cascade)
   
   average_approval_rate Int?              @map("average_approval_rate")
   monthly_application_volume  Int? @map("monthly_application_volume")
@@ -1251,8 +1252,8 @@ model HSLendersBusinessMetrics {
 
 model HSLendersLoanOfferings {
     id                    Int                 @id @default(autoincrement())
-    co_signer_requirements  CoSignerRequirement @default(NOT_REQUIRED)
-    collateral_requirements LenderCollateralType @default(NO_COLLATERAL)
+    co_signer_requirements  CoSignerRequirement? @default(NOT_REQUIRED)
+    collateral_requirements LenderCollateralType? @default(NO_COLLATERAL)
     interest_rate_range_max_secured Int? @map("interest_rate_range_max_secured")
     interest_rate_range_max_unsecured Int? @map("interest_rate_range_max_unsecured")
     interest_rate_range_min_secured Int? @map("interest_rate_range_min_secured")
@@ -1265,8 +1266,8 @@ model HSLendersLoanOfferings {
     not_supported_universities String? @map("not_supported_universities")
     processing_fee_range String? @map("processing_fee_range")
     special_programs String? @map("special_programs")
-    supported_course_types  SupportedCourseTypes @default(CERTIFICATE)
-    supported_destinations SupportedDestinations @default(US)
+    supported_course_types  SupportedCourseTypes? @default(CERTIFICATE)
+    supported_destinations SupportedDestinations? @default(US)
 
     created_at              DateTime         @default(now())
     updated_at              DateTime         @default(now()) @updatedAt
@@ -1278,16 +1279,16 @@ model HSLendersLoanOfferings {
 model HSLendersOperationalDetails {
   id                    Int                 @id @default(autoincrement())
   lender_id             Int                 @unique @map("lender_id")
-  lender                HSLenders              @relation(fields: [lender_id], references: [id], onDelete: Cascade)
+  lender                HSLenders?              @relation(fields: [lender_id], references: [id], onDelete: Cascade)
   
   // Digital Integration
   api_connectivity_status APIConnectivityStatus? @map("api_connectivity_status")
   digital_integration_level     IntegrationLevel?   @map("digital_integration_level")
   documentation_requirements Json?          @map("documentation_requirements")
-  holiday_processing HolidayProcessing @default(NO)
+  holiday_processing HolidayProcessing? @default(NO)
   late_payment_charges          String?             @map("late_payment_charges")
   prepayment_charges      String?               @map("prepayment_charges")
-  repayment_options RepaymentOptions @default(EMI)
+  repayment_options RepaymentOptions? @default(EMI)
   turnaround_time_commitment Int? @map("turnaround_time_commitment")
   working_hours         String?             @map("working_hours")
   
@@ -1301,7 +1302,7 @@ model HSLendersOperationalDetails {
 model HSLendersPartnershipsDetails {
   id                    Int                 @id @default(autoincrement())
   lender_id             Int                 @unique @map("lender_id")
-  lender                HSLenders              @relation(fields: [lender_id], references: [id], onDelete: Cascade)
+  lender                HSLenders?              @relation(fields: [lender_id], references: [id], onDelete: Cascade)
   
   partnership_type      String?             @map("partnership_type") // EXCLUSIVE, NON_EXCLUSIVE
   
@@ -1315,8 +1316,8 @@ model HSLendersPartnershipsDetails {
   commission_percentage Decimal?            @db.Decimal(10, 2) @map("commission_percentage")
   partnership_end_date  DateTime? @map("partnership_end_date")
   partnership_start_date  DateTime? @map("partnership_start_date")
-  partnership_status    PartnershipStatus   @default(PENDING) @map("partnership_status")
-  payout_terms PayoutTerms @default(CUSTOM)
+  partnership_status    PartnershipStatus?   @default(PENDING) @map("partnership_status")
+  payout_terms PayoutTerms? @default(CUSTOM)
   revenue_share_model String? @map("revenue_share_model")
 
   created_at            DateTime            @default(now()) @map("created_at")

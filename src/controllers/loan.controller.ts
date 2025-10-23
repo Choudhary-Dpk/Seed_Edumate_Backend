@@ -371,9 +371,8 @@ export const createLoanApplicationsController = async (
   next: NextFunction
 ) => {
   try {
-    debugger;
-    //  const userId = req.payload!.id;
-    const userId = 1;
+     const userId = req.payload!.id;
+    // const userId = 1;
 
     console.log("userId", userId);
 

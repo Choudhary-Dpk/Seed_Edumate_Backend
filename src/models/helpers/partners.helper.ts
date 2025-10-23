@@ -39,6 +39,7 @@ export const getUserRoleById = async (roleId: number) => {
   const role = await prisma.b2BPartnersRoles.findFirst({
     select: {
       id: true,
+      role: true,
     },
     where: {
       id: roleId,
@@ -46,6 +47,29 @@ export const getUserRoleById = async (roleId: number) => {
   });
 
   return role;
+};
+
+export const getUserRole = async (userId: number) => {
+  const userWithRoles = await prisma.b2BPartnersUsers.findUnique({
+    where: { id: userId },
+    include: {
+      roles: {
+        include: {
+          role: true,
+        },
+      },
+    },
+  });
+
+  if (!userWithRoles || userWithRoles.roles.length === 0) {
+    return null;
+  }
+
+  const userRole = userWithRoles.roles[0].role;
+  return {
+    id: userRole.id,
+    role: userRole.role,
+  };
 };
 
 export const getPartnerIdByUserId = async (userId: number) => {
@@ -834,4 +858,3 @@ export const getLeadsByDynamicFilters = async (
 
   return contacts;
 };
-

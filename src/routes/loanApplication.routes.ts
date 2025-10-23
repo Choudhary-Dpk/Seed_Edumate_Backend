@@ -26,7 +26,7 @@ const router = Router();
 
 router.post(
   "/create",
-  // validateToken(["Admin", "Manager", "User"]),
+  validateToken(["Admin", "Manager", "User"]),
   createValidationRules(),
   validateReqParams,
   validateLoanApplicationPayload,
