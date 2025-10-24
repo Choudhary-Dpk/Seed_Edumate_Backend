@@ -162,8 +162,6 @@ export const validateToken =
       }
 
       const authHeader = req.headers.authorization;
-      console.log("authHeader", authHeader);
-
       if (!authHeader || !authHeader.startsWith("Bearer ")) {
         return sendResponse(
           res,

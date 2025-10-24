@@ -312,24 +312,125 @@ export const deleteLoan = async (leadId: number, userId: number) => {
   });
 };
 
+// export const getLoanList = async (
+//   partnerId: number,
+//   limit: number,
+//   offset: number,
+//   sortKey: string | null,
+//   sortDir: "asc" | "desc" | null,
+//   search: string | null
+// ) => {
+//   const where: Prisma.HSLoanApplicationsWhereInput = search
+//     ? {
+//         OR: [
+//           { student_name: { contains: search, mode: "insensitive" } },
+//           { student_email: { contains: search, mode: "insensitive" } },
+//         ],
+//         is_deleted: false,
+//         // b2b_partner_id: partnerId,
+//       }
+//     : { is_deleted: false };
+
+//   let orderBy: any = { created_at: "desc" };
+//   if (sortKey) {
+//     switch (sortKey) {
+//       case "name":
+//         orderBy = { student_name: sortDir || "desc" };
+//         break;
+//       case "email":
+//         orderBy = { student_email: sortDir || "desc" };
+//         break;
+//       case "loanTenureYears":
+//         orderBy = {
+//           lender_information: { loan_tenure_years: sortDir || "desc" },
+//         };
+//         break;
+//       case "loanAmountRequested":
+//         orderBy = {
+//           financial_requirements: { loan_amount_requested: sortDir || "desc" },
+//         };
+//         break;
+//       case "loanAmountApproved":
+//         orderBy = {
+//           financial_requirements: { loan_amount_approved: sortDir || "desc" },
+//         };
+//         break;
+//       case "applicationStatus":
+//         orderBy = { application_status: { status: sortDir || "desc" } };
+//         break;
+//       default:
+//         orderBy = { created_at: "desc" };
+//     }
+//   }
+
+//   const [rows, count] = await Promise.all([
+//     prisma.hSLoanApplications.findMany({
+//       where,
+//       skip: offset,
+//       take: limit,
+//       orderBy,
+//       include: {
+//         financial_requirements: true,
+//         loan_application_status: true,
+//         lender_information: true,
+//       },
+//     }),
+//     prisma.hSLoanApplications.count({ where }),
+//   ]);
+
+//   return { rows, count };
+// };
+
 export const getLoanList = async (
   partnerId: number,
   limit: number,
   offset: number,
   sortKey: string | null,
   sortDir: "asc" | "desc" | null,
-  search: string | null
+  search: string | null,
+  filters: {
+    partner: string | null;
+    lender: string | null;
+    loanProduct: string | null;
+    status: string | null;
+  }
 ) => {
-  const where: Prisma.HSLoanApplicationsWhereInput = search
-    ? {
-        OR: [
-          { student_name: { contains: search, mode: "insensitive" } },
-          { student_email: { contains: search, mode: "insensitive" } },
-        ],
-        is_deleted: false,
-        // b2b_partner_id: partnerId,
-      }
-    : { is_deleted: false };
+  const where: any = {
+    is_deleted: false,
+  };
+
+  // Add search filter
+  if (search) {
+    where.OR = [
+      { student_name: { contains: search, mode: "insensitive" } },
+      { student_email: { contains: search, mode: "insensitive" } },
+    ];
+  }
+
+  // Apply filters
+  if (filters.partner) {
+    where.b2b_partner_id = Number(filters.partner);
+  }
+
+  if (filters.lender) {
+    where.lender_information = {
+      ...where.lender_information,
+      primary_lender_id: filters.lender,
+    };
+  }
+
+  if (filters.loanProduct) {
+    where.lender_information = {
+      ...where.lender_information,
+      loan_product_id: filters.loanProduct,
+    };
+  }
+
+  if (filters.status) {
+    where.loan_application_status = {
+      status: filters.status,
+    };
+  }
 
   let orderBy: any = { created_at: "desc" };
   if (sortKey) {
@@ -356,7 +457,7 @@ export const getLoanList = async (
         };
         break;
       case "applicationStatus":
-        orderBy = { application_status: { status: sortDir || "desc" } };
+        orderBy = { loan_application_status: { status: sortDir || "desc" } };
         break;
       default:
         orderBy = { created_at: "desc" };
@@ -365,7 +466,7 @@ export const getLoanList = async (
 
   const [rows, count] = await Promise.all([
     prisma.hSLoanApplications.findMany({
-      where,
+      where: where as Prisma.HSLoanApplicationsWhereInput,
       skip: offset,
       take: limit,
       orderBy,
@@ -373,9 +474,12 @@ export const getLoanList = async (
         financial_requirements: true,
         loan_application_status: true,
         lender_information: true,
+        user: true,
       },
     }),
-    prisma.hSLoanApplications.count({ where }),
+    prisma.hSLoanApplications.count({
+      where: where as Prisma.HSLoanApplicationsWhereInput,
+    }),
   ]);
 
   return { rows, count };
