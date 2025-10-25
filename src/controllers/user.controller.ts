@@ -20,7 +20,6 @@ import {
   updatePassword,
 } from "../models/helpers/auth";
 import { FRONTEND_URL } from "../setup/secrets";
-import { createPartner } from "../services/hubspot.service";
 import { logEmailHistory } from "../models/helpers/email.helper";
 
 export const getIpInfo = async (req: Request, res: Response) => {

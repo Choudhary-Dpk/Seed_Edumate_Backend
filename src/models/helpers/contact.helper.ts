@@ -365,7 +365,7 @@ export const fetchContactsLeadList = async (
 ) => {
   const where: Prisma.HSEdumateContactsWhereInput = {
     is_deleted: false,
-    b2b_partner_id: partnerId,
+    // b2b_partner_id: partnerId,
   };
 
   // Add search filter
