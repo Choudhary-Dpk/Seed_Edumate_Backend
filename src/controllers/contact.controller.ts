@@ -25,7 +25,6 @@ import {
   updateEdumateLeadAttribution,
   fetchContactsLeadList,
   createCSVContacts,
-  updateEdumateContactsHubspotTracking,
 } from "../models/helpers/contact.helper";
 import { resolveLeadsCsvPath } from "../utils/leads";
 import { FileData } from "../types/leads.types";
@@ -303,17 +302,72 @@ export const editContactsLead = async (
   }
 };
 
+// export const getContactsLeadsList = async (
+//   req: RequestWithPayload<LoginPayload>,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   try {
+//     const size = Number(req.query.size) || 10;
+//     const page = Number(req.query.page) || 1;
+//     const search = (req.query.search as string) || null;
+//     const sortKey = (req.query.sortKey as string) || null;
+//     const sortDir = (req.query.sortDir as "asc" | "desc") || null;
+
+//     const offset = size * (page - 1);
+
+//     logger.debug(`Fetching partner id from request`);
+//     const partnerId = await getPartnerIdByUserId(req.payload!.id);
+//     logger.debug(`Partner id fetched successfully`);
+
+//     logger.debug(`Fetching leads list with pagination and filters`);
+//     const list = await fetchContactsLeadList(
+//       size,
+//       offset,
+//       sortKey,
+//       sortDir,
+//       search,
+//       partnerId!.b2b_id
+//     );
+//     logger.debug(`Leads list fetched successfully`);
+
+//     sendResponse(res, 200, "Leads list fetched successfully", {
+//       total: list.count,
+//       page,
+//       size,
+//       data: list.rows,
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
 export const getContactsLeadsList = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
   next: NextFunction
 ) => {
   try {
+    console.log("req.query", req.query);
     const size = Number(req.query.size) || 10;
     const page = Number(req.query.page) || 1;
     const search = (req.query.search as string) || null;
     const sortKey = (req.query.sortKey as string) || null;
     const sortDir = (req.query.sortDir as "asc" | "desc") || null;
+
+    // Extract filters from query params (filters is already an object)
+    const filtersFromQuery =
+      (req.query.filters as {
+        partner?: string;
+        status?: string;
+      }) || {};
+
+    const filters = {
+      partner: filtersFromQuery.partner || null,
+      status: filtersFromQuery.status || null,
+    };
+
+    console.log("Parsed filters:", filters);
 
     const offset = size * (page - 1);
 
@@ -321,16 +375,20 @@ export const getContactsLeadsList = async (
     const partnerId = await getPartnerIdByUserId(req.payload!.id);
     logger.debug(`Partner id fetched successfully`);
 
-    logger.debug(`Fetching leads list with pagination and filters`);
+    logger.debug(
+      `Fetching contacts leads list with pagination and filters`,
+      filters
+    );
     const list = await fetchContactsLeadList(
       size,
       offset,
       sortKey,
       sortDir,
       search,
-      partnerId!.b2b_id
+      partnerId!.b2b_id,
+      filters
     );
-    logger.debug(`Leads list fetched successfully`);
+    logger.debug(`Contacts leads list fetched successfully`);
 
     sendResponse(res, 200, "Leads list fetched successfully", {
       total: list.count,
@@ -359,109 +417,6 @@ export const downloadContactsTemplate = (
     next(error);
   }
 };
-
-// export const uploadContactsCSV = async (
-//   req: RequestWithPayload<LoginPayload, FileData>,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   try {
-//     const { id } = req.payload!;
-//     const fileData = req.fileData;
-
-//     if (!fileData) {
-//       return sendResponse(res, 400, "Invalid or missing file data");
-//     }
-
-//     const {
-//       file_data: rows,
-//       total_records,
-//       filename,
-//       mime_type,
-//       entity_type,
-//     } = fileData;
-
-//     // 1. Store metadata into FileUpload table
-//     logger.debug(`Entering File type in database`);
-//     const fileEntity = await addFileType(entity_type);
-//     logger.debug(`File type added successfully`);
-
-//     // Now create file upload
-//     logger.debug(`Entering file records history`);
-//     const fileUpload = await addFileRecord(
-//       filename,
-//       mime_type,
-//       rows,
-//       total_records,
-//       id,
-//       fileEntity.id!
-//     );
-//     logger.debug(`File records history added successfully`);
-
-//     // 2. Validate + Normalize rows
-//     const { validRows, errors } = validateContactRows(rows, id);
-//     if (validRows.length === 0) {
-//       return sendResponse(res, 400, "No valid rows found in CSV", { errors });
-//     }
-
-//     // 3. Deduplicate inside file
-//     const { unique: uniqueInFile, duplicates: duplicatesInFile } =
-//       deduplicateContactsInFile(validRows);
-//     console.log("unique", uniqueInFile, duplicatesInFile);
-
-//     // 4. Deduplicate against DB
-//     const { unique: toInsert, duplicates: duplicatesInDb } =
-//       await deduplicateContactsInDb(uniqueInFile);
-//     console.log("toInsert", toInsert, duplicatesInDb);
-
-//     // 5. Handle no new records
-//     if (toInsert.length === 0) {
-//       logger.debug(`Updating fileUpload records`);
-//       await updateFileRecord(fileUpload.id, 0, validRows.length);
-//       logger.debug(`File upload records updated successfully`);
-
-//       return sendResponse(res, 200, "No new records to insert", {
-//         totalRows: rows.length,
-//         validRows: validRows.length,
-//         inserted: 0,
-//         skippedInvalid: errors.length,
-//         skippedDuplicatesInFile: duplicatesInFile,
-//         skippedDuplicatesInDb: duplicatesInDb,
-//         errors,
-//       });
-//     }
-
-//     // 6. Insert into HubSpot (batch)
-//     logger.debug(`Creating ${toInsert.length} HubSpot loan applications`);
-//     const hubspotResults = await createContactsLoanLeads(toInsert);
-//     console.log("hubspot", hubspotResults);
-//     logger.debug(`HubSpot loan applications created`);
-
-//     // 7. Insert into DB (safely with skipDuplicates)
-//     logger.debug(`Creating csv leads in database`);
-//     const result = await createCSVContacts(toInsert, id);
-//     logger.debug(`Leads created successfully in database`);
-
-//     updateContactsSystemTracking(hubspotResults as any[]);
-
-//     // 8. Update FileUpload stats
-//     logger.debug(`Updating fileUpload records`);
-//     await updateFileRecord(fileUpload.id, result.count, errors.length);
-//     logger.debug(`File upload records updated successfully`);
-
-//     return sendResponse(res, 201, "CSV processed successfully", {
-//       totalRows: rows.length,
-//       validRows: validRows.length,
-//       inserted: result.count,
-//       skippedInvalid: errors.length,
-//       skippedDuplicatesInFile: duplicatesInFile,
-//       skippedDuplicatesInDb: duplicatesInDb,
-//       errors,
-//     });
-//   } catch (error) {
-//     next(error);
-//   }
-// };
 
 export const uploadContactsCSV = async (
   req: RequestWithPayload<LoginPayload, FileData>,

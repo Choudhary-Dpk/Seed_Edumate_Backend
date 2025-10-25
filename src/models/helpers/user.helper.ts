@@ -13,6 +13,19 @@ export const getUserByEmail = async (email: string) => {
   return user;
 };
 
+export const getAdminUserByEmail = async (email: string) => {
+  const user = await prisma.adminUsers.findFirst({
+    select: {
+      id: true,
+    },
+    where: {
+      email: email,
+    },
+  });
+
+  return user;
+};
+
 export const createUsers = async (
   email: string,
   b2bId: number,
@@ -35,6 +48,24 @@ export const createUsers = async (
   return user;
 };
 
+export const createAdmin = async (
+  fullName: string,
+  email: string,
+  phone: number
+) => {
+  const user = await prisma.adminUsers.create({
+    data: {
+      full_name: fullName,
+      email,
+      password_hash: null,
+      phone: phone.toString(),
+      created_at: new Date(),
+    },
+  });
+
+  return user;
+};
+
 export const assignRole = async (userId: number, roleId: number) => {
   await prisma.b2BPartnersUserRoles.create({
     data: {
@@ -44,7 +75,16 @@ export const assignRole = async (userId: number, roleId: number) => {
   });
 };
 
-export const getUserProflie = async (userId: number) => {
+export const assignAdminRole = async (userId: number, roleId: number) => {
+  await prisma.adminUserRoles.create({
+    data: {
+      user_id: userId,
+      role_id: roleId,
+    },
+  });
+};
+
+export const getUserProfile = async (userId: number) => {
   const userProfileDetails = await prisma.b2BPartnersUsers.findFirst({
     select: {
       id: true,
@@ -78,4 +118,41 @@ export const getUserProflie = async (userId: number) => {
   });
 
   return userProfileDetails;
+};
+
+export const getAdminUserProfile = async (userId: number) => {
+  const userProfileDetails = await prisma.adminUsers.findFirst({
+    select: {
+      id: true,
+      full_name: true,
+      email: true,
+      is_active: true,
+      admin_user_roles: {
+        select: {
+          role: {
+            select: {
+              id: true,
+              role: true,
+              display_name: true,
+              description: true,
+            },
+          },
+        },
+      },
+    },
+    where: {
+      id: userId,
+    },
+  });
+
+  if (!userProfileDetails) {
+    return null;
+  }
+
+  const { admin_user_roles, ...rest } = userProfileDetails;
+
+  return {
+    ...rest,
+    roles: admin_user_roles.map((ur) => ur.role),
+  };
 };

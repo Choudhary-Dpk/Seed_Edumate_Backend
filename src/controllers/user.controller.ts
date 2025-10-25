@@ -5,7 +5,7 @@ import { sendResponse } from "../utils/api";
 import {
   assignRole,
   createUsers,
-  getUserProflie,
+  getUserProfile,
 } from "../models/helpers/user.helper";
 import { generateEmailToken, hashPassword } from "../utils/auth";
 import moment from "moment";
@@ -20,7 +20,6 @@ import {
   updatePassword,
 } from "../models/helpers/auth";
 import { FRONTEND_URL } from "../setup/secrets";
-import { createPartner } from "../services/hubspot.service";
 import { logEmailHistory } from "../models/helpers/email.helper";
 
 export const getIpInfo = async (req: Request, res: Response) => {
@@ -152,7 +151,7 @@ export const getProfile = async (
   try {
     const { id } = req.payload!;
 
-    const profile = await getUserProflie(id);
+    const profile = await getUserProfile(id);
     if (!profile) {
       return sendResponse(res, 404, "Profile not found");
     }

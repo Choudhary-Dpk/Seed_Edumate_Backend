@@ -1,40 +1,36 @@
 import { Response, NextFunction } from "express";
-import { RequestWithPayload } from "../../types/api.types";
+import moment from "moment";
+import { getEmailTemplate } from "../../../models/helpers";
+import {
+  updateUserLastLoggedIn,
+  storeAdminRefreshToken,
+  revokePreviousAdminEmailTokens,
+  saveAdminEmailToken,
+  useAdminEmailToken,
+  updateAdminPassword,
+  deleteAdminSession,
+} from "../../../models/helpers/auth";
+import { logEmailHistory } from "../../../models/helpers/email.helper";
+import { getAdminRole } from "../../../models/helpers/partners.helper";
+import { FRONTEND_URL } from "../../../setup/secrets";
+import { RequestWithPayload } from "../../../types/api.types";
 import {
   LoginPayload,
-  ProtectedPayload,
   ResetPasswordPayload,
-} from "../../types/auth";
-import logger from "../../utils/logger";
-import {
-  deleteOtps,
-  deleteUserSession,
-  revokePreviousEmailTokens,
-  saveEmailToken,
-  saveOtp,
-  storeRefreshToken,
-  updatePassword,
-  updateUserLastLoggedIn,
-  useEmailToken,
-} from "../../models/helpers/auth";
-import { generateOtp, sendResponse } from "../../utils/api";
+  ProtectedPayload,
+} from "../../../types/auth";
+import { sendResponse } from "../../../utils/api";
 import {
   generateJWTToken,
-  hashPassword,
-  generateEmailToken,
   generateRefreshToken,
-} from "../../utils/auth";
-import { getEmailTemplate } from "../../models/helpers";
-import { emailQueue } from "../../utils/queue";
-import moment from "moment";
-import { FRONTEND_URL } from "../../setup/secrets";
-import { logEmailHistory } from "../../models/helpers/email.helper";
-import {
-  getUserRole,
-  getUserRoleById,
-} from "../../models/helpers/partners.helper";
+  generateEmailToken,
+  hashPassword,
+} from "../../../utils/auth";
+import logger from "../../../utils/logger";
+import { emailQueue } from "../../../utils/queue";
+import { getAdminUserProfile } from "../../../models/helpers/user.helper";
 
-export const login = async (
+export const adminLoginController = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
   next: NextFunction
@@ -63,7 +59,12 @@ export const login = async (
     logger.debug(`Refresh Token generated successfully`);
 
     logger.debug(`Storing refresh token in database`);
-    await storeRefreshToken(id, refreshToken, ipDetails, deviceDetails?.device);
+    await storeAdminRefreshToken(
+      id,
+      refreshToken,
+      ipDetails,
+      deviceDetails?.device
+    );
     logger.debug(`Refresh token stored successfully`);
 
     logger.debug(`Updating login history for userId: ${id}`);
@@ -76,7 +77,7 @@ export const login = async (
     logger.debug(`User login history updated successfully`);
 
     logger.debug(`Fetching role of userId: ${id}`);
-    const role = await getUserRole(id);
+    const role = await getAdminRole(id);
     logger.debug(`Role fetched successfully`);
 
     sendResponse(res, 200, "User logged in successfully", {
@@ -89,61 +90,7 @@ export const login = async (
   }
 };
 
-export const sendOtp = async (
-  req: RequestWithPayload<LoginPayload>,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { email, id, name } = req.payload!;
-
-    logger.debug(`Generating otp for userId: ${id}`);
-    const otp = await generateOtp();
-    logger.debug(`Otp generated successfully`);
-
-    logger.debug(`Deleting previous otps for userId: ${id}`);
-    await deleteOtps(id);
-    logger.debug(`Otp deleted successfully for userId: ${id}`);
-
-    logger.debug(`Saving otp for userId: ${id}`);
-    await saveOtp(id, otp);
-    logger.debug(`Otp saved successfully`);
-
-    logger.debug(`Fetching email template`);
-    let emailTemplate = await getEmailTemplate("otp");
-    if (!emailTemplate) {
-      return sendResponse(res, 500, "Email template not found");
-    }
-
-    emailTemplate = emailTemplate.replace(
-      /{%currentYear%}/,
-      moment().format("YYYY")
-    );
-    emailTemplate = emailTemplate.replace(
-      /{%name%}/g,
-      name!.charAt(0).toUpperCase() + name!.slice(1)
-    );
-    const html = emailTemplate.replace(`{%otp%}`, otp);
-    const subject = "EDUMATE - One time password";
-
-    logger.debug(`Saving email history for userId: ${id}`);
-    await logEmailHistory({
-      userId: id,
-      to: email,
-      subject,
-      type: "OTP",
-    });
-    logger.debug(`Email history saved successfully`);
-
-    emailQueue.push({ to: email, subject, html, retry: 0 });
-
-    sendResponse(res, 200, "Otp sent successfully");
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const forgotPassword = async (
+export const forgotAdminPassword = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
   next: NextFunction
@@ -163,7 +110,7 @@ export const forgotPassword = async (
     logger.debug(`Forgot password template fetched successfully`);
 
     const expiry = moment().add(30, "minutes").toDate().toISOString();
-    const redirectUri = `${FRONTEND_URL}/partners/reset-password?token=${emailToken}&expiry=${expiry}`;
+    const redirectUri = `${FRONTEND_URL}/admin/reset-password?token=${emailToken}&expiry=${expiry}`;
     console.log("Redirect URI:", redirectUri);
     content = content.replace(/{%currentYear%}/, moment().format("YYYY"));
     content = content.replace(
@@ -174,11 +121,11 @@ export const forgotPassword = async (
     const subject = "Forgot Password";
 
     logger.debug(`Revoking previous email tokens`);
-    await revokePreviousEmailTokens(id);
+    await revokePreviousAdminEmailTokens(id);
     logger.debug(`Email tokens revoked successfully`);
 
     logger.debug(`Saving email token for userId: ${id}`);
-    await saveEmailToken(id, emailToken);
+    await saveAdminEmailToken(id, emailToken);
     logger.debug(`Email token saved successfully`);
 
     logger.debug(`Saving email history for userId: ${id}`);
@@ -198,7 +145,7 @@ export const forgotPassword = async (
   }
 };
 
-export const resetPassword = async (
+export const resetAdminPassword = async (
   req: RequestWithPayload<ResetPasswordPayload>,
   res: Response,
   next: NextFunction
@@ -208,7 +155,7 @@ export const resetPassword = async (
     const { id, email } = req.payload!;
 
     logger.debug(`Using emailToken: ${emailToken} for userId: ${id}`);
-    await useEmailToken(id, emailToken);
+    await useAdminEmailToken(id, emailToken);
     logger.debug(`Email token used successfully`);
 
     logger.debug(`Hashing password for userId: ${id}`);
@@ -216,7 +163,7 @@ export const resetPassword = async (
     logger.debug(`Password hashed successfully`);
 
     logger.debug(`Updating password for userId: ${id}`);
-    await updatePassword(id, hashedPassword);
+    await updateAdminPassword(id, hashedPassword);
     logger.debug(`Password updated successfully`);
 
     logger.debug(`Saving email history for userId: ${id}`);
@@ -234,7 +181,7 @@ export const resetPassword = async (
   }
 };
 
-export const setPassword = async (
+export const setAdminPassword = async (
   req: RequestWithPayload<ResetPasswordPayload>,
   res: Response,
   next: NextFunction
@@ -244,7 +191,7 @@ export const setPassword = async (
     const { id, email } = req.payload!;
 
     logger.debug(`Using email token for userId: ${id}`);
-    await useEmailToken(id, emailToken);
+    await useAdminEmailToken(id, emailToken);
     logger.debug(`Email token used successfully`);
 
     logger.debug(`Hashing password for userId: ${id}`);
@@ -252,7 +199,7 @@ export const setPassword = async (
     logger.debug(`Password hashed successfully`);
 
     logger.debug(`Updating password for userId: ${id}`);
-    await updatePassword(id, hashedPassword);
+    await updateAdminPassword(id, hashedPassword);
     logger.debug(`Password updated successfully`);
 
     logger.debug(`Saving email history for userId: ${id}`);
@@ -270,7 +217,7 @@ export const setPassword = async (
   }
 };
 
-export const logout = async (
+export const logoutAdmin = async (
   req: RequestWithPayload<ProtectedPayload>,
   res: Response,
   next: NextFunction
@@ -279,7 +226,7 @@ export const logout = async (
     const { id } = req.payload!;
 
     logger.debug(`Deleting sesssion for userId: ${id}`);
-    await deleteUserSession(id, "logout");
+    await deleteAdminSession(id, "logout");
     logger.debug(`Session deleted successfully`);
 
     sendResponse(res, 200, "User logged out successfully");
@@ -288,18 +235,43 @@ export const logout = async (
   }
 };
 
-export const getAccessToken = async (
+export const changeAdminPassword = async (
+  req: RequestWithPayload<ProtectedPayload>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req.payload!;
+    const { newPassword } = req.body;
+
+    logger.debug(`Encrypting password for userId: ${id}`);
+    const hash = await hashPassword(newPassword);
+    logger.debug(`Password encrypted successfully`);
+
+    logger.debug(`Updating password for userId: ${id}`);
+    await updateAdminPassword(id, hash);
+    logger.debug(`Password updated successfully`);
+
+    sendResponse(res, 200, "Password changed successfully");
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAdminProfile = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const { id, email } = req.payload!;
-    logger.debug(`Generating access token`);
-    const refreshToken = await generateJWTToken(id, email);
-    logger.debug(`Access token generated successfully`);
+    const { id } = req.payload!;
 
-    sendResponse(res, 200, "Access token generated successfully", refreshToken);
+    const profile = await getAdminUserProfile(id);
+    if (!profile) {
+      return sendResponse(res, 404, "Profile not found");
+    }
+
+    sendResponse(res, 200, "Profile fetched successfully", profile);
   } catch (error) {
     next(error);
   }

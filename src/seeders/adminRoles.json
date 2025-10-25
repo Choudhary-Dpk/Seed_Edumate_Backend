@@ -1,0 +1,7 @@
+[
+  {
+    "role": "Admin",
+    "display_name": "Administrator",
+    "description": "Has full access to all modules"
+  }
+]

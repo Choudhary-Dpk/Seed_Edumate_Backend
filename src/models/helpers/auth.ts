@@ -10,8 +10,29 @@ export const revokePreviousEmailTokens = async (userId: number) => {
   });
 };
 
+export const revokePreviousAdminEmailTokens = async (userId: number) => {
+  await prisma.adminTokens.deleteMany({
+    where: {
+      user_id: userId,
+    },
+  });
+};
+
 export const saveEmailToken = async (userId: number, emailToken: string) => {
   await prisma.b2BPartnersTokens.create({
+    data: {
+      user_id: userId,
+      token: emailToken,
+      createdOn: new Date(),
+    },
+  });
+};
+
+export const saveAdminEmailToken = async (
+  userId: number,
+  emailToken: string
+) => {
+  await prisma.adminTokens.create({
     data: {
       user_id: userId,
       token: emailToken,
@@ -39,6 +60,25 @@ export const getUserDetailsFromToken = async (emailToken: string) => {
   return token;
 };
 
+export const getAdminDetailsFromToken = async (emailToken: string) => {
+  const token = await prisma.adminTokens.findFirst({
+    select: {
+      id: true,
+      user_id: true,
+      user: {
+        select: {
+          email: true,
+        },
+      },
+    },
+    where: {
+      token: emailToken,
+    },
+  });
+
+  return token;
+};
+
 export const useEmailToken = async (userId: number, emailToken: string) => {
   await prisma.b2BPartnersTokens.deleteMany({
     where: {
@@ -48,8 +88,39 @@ export const useEmailToken = async (userId: number, emailToken: string) => {
   });
 };
 
+export const useAdminEmailToken = async (
+  userId: number,
+  emailToken: string
+) => {
+  await prisma.adminTokens.deleteMany({
+    where: {
+      user_id: userId,
+      token: emailToken,
+    },
+  });
+};
+
 export const updatePassword = async (userId: number, passwordHash: string) => {
   const updatedUser = await prisma.b2BPartnersUsers.updateMany({
+    data: {
+      password_hash: passwordHash,
+      updated_at: new Date(),
+    },
+    where: {
+      id: userId,
+    },
+  });
+
+  if (updatedUser.count === 0) {
+    throw new Error("Could not update password");
+  }
+};
+
+export const updateAdminPassword = async (
+  userId: number,
+  passwordHash: string
+) => {
+  const updatedUser = await prisma.adminUsers.updateMany({
     data: {
       password_hash: passwordHash,
       updated_at: new Date(),
@@ -170,6 +241,38 @@ export const getUserById = async (userId: number, isActive: boolean) => {
   return userData;
 };
 
+export const getAdminUserById = async (userId: number, isActive: boolean) => {
+  const adminUserData = await prisma.adminUsers.findUnique({
+    where: {
+      id: userId,
+    },
+    select: {
+      id: true,
+      is_active: true,
+      email: true,
+      password_hash: true,
+      admin_user_roles: {
+        select: {
+          role: {
+            select: {
+              id: true,
+              role: true,
+              display_name: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  // Check if user is active after fetching
+  if (adminUserData && !adminUserData.is_active) {
+    return null;
+  }
+
+  return adminUserData;
+};
+
 export const storeRefreshToken = async (
   userId: number,
   refreshToken: string,
@@ -185,6 +288,34 @@ export const storeRefreshToken = async (
   const expiresAt = moment().add(7, "days").toDate();
 
   const session = await prisma.b2BPartnersSessions.create({
+    data: {
+      user_id: userId,
+      refresh_token_hash: refreshToken,
+      device_info: deviceInfo || null,
+      ip_address: ipAddress || null,
+      is_valid: true,
+      expires_at: expiresAt,
+    },
+  });
+
+  return session;
+};
+
+export const storeAdminRefreshToken = async (
+  userId: number,
+  refreshToken: string,
+  ipAddress?: string,
+  deviceInfo?: string
+) => {
+  await prisma.adminSessions.deleteMany({
+    where: {
+      user_id: userId,
+    },
+  });
+
+  const expiresAt = moment().add(7, "days").toDate();
+
+  const session = await prisma.adminSessions.create({
     data: {
       user_id: userId,
       refresh_token_hash: refreshToken,
@@ -230,6 +361,38 @@ export const deleteUserSession = async (
   });
 };
 
+export const deleteAdminSession = async (
+  userId: number,
+  status: LoginStatus
+) => {
+  const lastLogin = await prisma.loginHistory.findFirst({
+    where: { user_id: userId },
+    orderBy: { created_at: "desc" },
+  });
+
+  const lastLoginSession = await prisma.adminSessions.findFirst({
+    where: { user_id: userId },
+    orderBy: { created_at: "desc" },
+  });
+
+  await prisma.adminSessions.update({
+    where: {
+      id: lastLoginSession!.id,
+      user_id: userId,
+    },
+    data: {
+      is_valid: false,
+    },
+  });
+
+  await prisma.loginHistory.update({
+    where: { id: lastLogin!.id },
+    data: {
+      status,
+    },
+  });
+};
+
 export const getUserSessionById = async (userId: number) => {
   const userSession = await prisma.b2BPartnersSessions.findFirst({
     select: {
@@ -242,4 +405,18 @@ export const getUserSessionById = async (userId: number) => {
   });
 
   return userSession;
+};
+
+export const getAdminUserSessionById = async (userId: number) => {
+  const adminUserSession = await prisma.adminSessions.findFirst({
+    select: {
+      id: true,
+      is_valid: true,
+    },
+    where: {
+      user_id: userId,
+    },
+  });
+
+  return adminUserSession;
 };

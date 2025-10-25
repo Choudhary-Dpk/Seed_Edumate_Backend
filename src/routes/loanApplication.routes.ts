@@ -69,6 +69,10 @@ router.post(
   validateAndParseCSVFile("CSV"),
   uploadCSV
 );
-router.get("/download-template",validateToken,downloadTemplate)
+router.get(
+  "/download-template",
+  validateToken(["Admin", "Manager", "User"]),
+  downloadTemplate
+);
 
 export { router as loanApplicationRouter };

@@ -1,6 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 import currencyData from "../src/seeders/currencyConfigs.json";
 import rolesData from "../src/seeders/b2bPartnersRoles.json";
+import adminRolesData from "../src/seeders/adminRoles.json";
+import { hashPassword } from "../src/utils/auth";
 
 const prisma = new PrismaClient();
 
@@ -33,6 +35,105 @@ interface RoleData {
   display_name: string;
   description: string;
 }
+
+interface AdminRoleData {
+  role: string;
+  display_name: string;
+  description: string;
+}
+
+const seedAdminRoles = async () => {
+  console.log("Starting admin roles seeding...");
+  let successCount = 0;
+
+  for (const roleData of adminRolesData as AdminRoleData[]) {
+    try {
+      await prisma.adminRoles.upsert({
+        where: { role: roleData.role },
+        update: {
+          display_name: roleData.display_name,
+          description: roleData.description,
+        },
+        create: {
+          role: roleData.role,
+          display_name: roleData.display_name,
+          description: roleData.description,
+        },
+      });
+      successCount++;
+      console.log(
+        `✅ Seeded admin role: ${roleData.role} - ${roleData.display_name}`
+      );
+    } catch (error) {
+      console.error(
+        `❌ Error seeding admin role ${roleData.role}:`,
+        (error as Error).message
+      );
+    }
+  }
+
+  console.log(
+    `\n📊 Admin Roles Seeding Summary: ${successCount}/${adminRolesData.length}\n`
+  );
+};
+
+const seedAdminUser = async () => {
+  console.log("Starting admin user seeding...");
+  try {
+    const adminEmail = "edumate@yopmail.com";
+    const hashedPassword = await hashPassword("Admin@1234");
+
+    const adminUser = await prisma.adminUsers.upsert({
+      where: { email: adminEmail },
+      update: {
+        full_name: "Edumate",
+        password_hash: hashedPassword,
+        is_active: true,
+      },
+      create: {
+        email: adminEmail,
+        full_name: "Edumate",
+        password_hash: hashedPassword,
+        is_active: true,
+      },
+    });
+
+    console.log(
+      `✅ Admin user created: ${adminUser.email} (${adminUser.full_name})`
+    );
+
+    // Fetch super_admin role
+    const superAdminRole = await prisma.adminRoles.findUnique({
+      where: { role: "Admin" },
+    });
+
+    if (!superAdminRole) {
+      console.error(
+        "❌ Super admin role not found. Ensure roles are seeded first."
+      );
+      return;
+    }
+
+    // Assign super_admin role
+    await prisma.adminUserRoles.upsert({
+      where: {
+        user_id_role_id: {
+          user_id: adminUser.id,
+          role_id: superAdminRole.id,
+        },
+      },
+      update: {},
+      create: {
+        user_id: adminUser.id,
+        role_id: superAdminRole.id,
+      },
+    });
+
+    console.log(`✅ Assigned super_admin role to ${adminUser.email}\n`);
+  } catch (error) {
+    console.error(`❌ Error seeding admin user:`, (error as Error).message);
+  }
+};
 
 const seedCurrencies = async () => {
   console.log("Starting currency seeding...");
@@ -93,7 +194,7 @@ const seedCurrencies = async () => {
 };
 
 const seedRoles = async () => {
-  console.log("Starting roles seeding...");
+  console.log("Starting B2B partner roles seeding...");
   let successCount = 0;
   let errorCount = 0;
 
@@ -112,17 +213,19 @@ const seedRoles = async () => {
         },
       });
       successCount++;
-      console.log(`Seeded role: ${roleData.role} - ${roleData.display_name}`);
+      console.log(
+        `✅ Seeded B2B role: ${roleData.role} - ${roleData.display_name}`
+      );
     } catch (error) {
       errorCount++;
       console.error(
-        `Error seeding role ${roleData.role}:`,
+        `❌ Error seeding B2B role ${roleData.role}:`,
         (error as Error).message
       );
     }
   }
 
-  console.log("\nRoles Seeding Summary:");
+  console.log("\n📊 B2B Partner Roles Seeding Summary:");
   console.log(`   Total roles: ${rolesData.length}`);
   console.log(`   Successfully seeded: ${successCount}`);
   console.log(`   Errors: ${errorCount}\n`);
@@ -130,11 +233,13 @@ const seedRoles = async () => {
 
 const main = async () => {
   try {
+    await seedAdminRoles();
+    await seedAdminUser();
     await seedRoles();
     await seedCurrencies();
-    console.log("All seeding completed successfully!");
+    console.log("✅ All seeding completed successfully!");
   } catch (error) {
-    console.error("Seeding failed:", error);
+    console.error("❌ Seeding failed:", error);
     throw error;
   }
 };
