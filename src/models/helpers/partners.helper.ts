@@ -72,6 +72,29 @@ export const getUserRole = async (userId: number) => {
   };
 };
 
+export const getAdminRole = async (userId: number) => {
+  const userWithRoles = await prisma.adminUsers.findUnique({
+    where: { id: userId },
+    include: {
+      admin_user_roles: {
+        include: {
+          role: true,
+        },
+      },
+    },
+  });
+
+  if (!userWithRoles || userWithRoles.admin_user_roles.length === 0) {
+    return null;
+  }
+
+  const userRole = userWithRoles.admin_user_roles[0].role;
+  return {
+    id: userRole.id,
+    role: userRole.role,
+  };
+};
+
 export const getPartnerIdByUserId = async (userId: number) => {
   const partnerId = await prisma.b2BPartnersUsers.findFirst({
     select: {

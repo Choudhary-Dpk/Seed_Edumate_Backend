@@ -37,6 +37,25 @@ export const getUserDetailsByEmail = async (email: string) => {
   return userData;
 };
 
+export const getAdminDetailsByEmail = async (email: string) => {
+  const adminData = await prisma.adminUsers.findFirst({
+    where: {
+      email,  
+      is_active: true,
+    },
+    select: {
+      id: true,
+      is_active: true,
+      email: true,
+      password_hash: true,
+      updated_at: true,
+      full_name: true,
+    },
+  });
+
+  return adminData;
+};
+
 export const addFileType = async (fileName: string) => {
   const fileType = await prisma.fileEntities.upsert({
     where: { type: fileName },

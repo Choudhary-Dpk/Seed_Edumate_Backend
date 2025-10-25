@@ -1,16 +1,25 @@
 import { NextFunction, Request, Response } from "express";
 import { sendResponse } from "../utils/api";
-import { getUserByEmail } from "../models/helpers/user.helper";
+import { getAdminUserByEmail, getUserByEmail } from "../models/helpers/user.helper";
 import {
+  getAdminDetailsFromToken,
+  getAdminUserById,
+  getAdminUserSessionById,
   getUserById,
   getUserDetailsFromToken,
   getUserSessionById,
 } from "../models/helpers/auth";
-import { getModulePermissions, getUserDetailsByEmail } from "../models/helpers";
+import {
+  getAdminDetailsByEmail,
+  getModulePermissions,
+  getUserDetailsByEmail,
+} from "../models/helpers";
 import { decodeToken, validateUserPassword } from "../utils/auth";
 import { JwtPayload } from "jsonwebtoken";
 import { RequestWithPayload } from "../types/api.types";
 import {
+  AdminProtectedPayload,
+  AllowedAdminRoles,
   AllowedRoles,
   LoginPayload,
   ProtectedPayload,
@@ -63,6 +72,26 @@ export const validateCreateUser = async (
   }
 };
 
+export const validateCreateAdminUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { email } = req.body;
+
+    const userByEmail = await getAdminUserByEmail(email);
+    if (userByEmail) {
+      return sendResponse(res, 400, "Email already exists");
+    }
+
+    next();
+  } catch (error) {
+    console.error(error);
+    return sendResponse(res, 500, "Error while validating creation");
+  }
+};
+
 export const validateEmailToken = async (
   req: RequestWithPayload<ResetPasswordPayload>,
   res: Response,
@@ -91,6 +120,34 @@ export const validateEmailToken = async (
   }
 };
 
+export const validateAdminEmailToken = async (
+  req: RequestWithPayload<ResetPasswordPayload>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { emailToken } = req.body as { emailToken?: string };
+
+    if (!emailToken) {
+      return sendResponse(res, 400, "Email token is required");
+    }
+
+    const details = await getAdminDetailsFromToken(emailToken);
+    if (!details?.id) {
+      return sendResponse(res, 401, "Invalid token");
+    }
+
+    req.payload = {
+      id: details.user_id,
+      email: details.user.email,
+    };
+
+    next();
+  } catch (error) {
+    return sendResponse(res, 500, "Internal server error");
+  }
+};
+
 export const validateEmail = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
@@ -100,6 +157,36 @@ export const validateEmail = async (
     const email = req.body.email;
 
     const userDetails = await getUserDetailsByEmail(email);
+    if (!userDetails) {
+      return sendResponse(res, 400, "User not found");
+    }
+
+    if (!userDetails.is_active) {
+      return sendResponse(res, 400, "User is disabled");
+    }
+
+    req.payload = {
+      id: userDetails.id,
+      email: email,
+      name: userDetails.full_name!,
+      passwordHash: userDetails.password_hash,
+      passwordSetOn: userDetails.updated_at,
+    };
+    next();
+  } catch (error) {
+    sendResponse(res, 500, "Internal Server Error");
+  }
+};
+
+export const validateAdminEmail = async (
+  req: RequestWithPayload<LoginPayload>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const email = req.body.email;
+
+    const userDetails = await getAdminDetailsByEmail(email);
     if (!userDetails) {
       return sendResponse(res, 400, "User not found");
     }
@@ -148,6 +235,84 @@ export const validatePassword = async (
     return sendResponse(res, 500, "Internal server error");
   }
 };
+
+export const validateAdminToken =
+  (allowedRoles?: AllowedAdminRoles[], requireAuth: boolean = true) =>
+  async (
+    req: RequestWithPayload<AdminProtectedPayload>,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      if (!requireAuth) {
+        return next();
+      }
+
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return sendResponse(
+          res,
+          401,
+          "Missing or invalid Authorization header"
+        );
+      }
+
+      const token = authHeader.split(" ")[1];
+      let decodedToken: JwtPayload;
+      try {
+        decodedToken = await decodeToken(token);
+      } catch (error) {
+        console.log("error", error);
+        return sendResponse(res, 401, "Unauthorized user");
+      }
+
+      const adminUser = await getAdminUserById(decodedToken.id, true);
+      console.log("adminUsr", adminUser);
+      if (!adminUser) {
+        return sendResponse(res, 401, "Admin user not found");
+      }
+
+      if (!adminUser.is_active) {
+        return sendResponse(
+          res,
+          401,
+          "Your account has been disabled, please contact system administrator"
+        );
+      }
+
+      const adminUserSession = await getAdminUserSessionById(decodedToken.id);
+      console.log(adminUserSession);
+      if (!adminUserSession?.is_valid) {
+        return sendResponse(res, 401, "Invalid admin user session");
+      }
+
+      const roles = adminUser.admin_user_roles.map((ur) => ur.role.role);
+      console.log("roles", roles);
+      req.payload = {
+        id: adminUser.id,
+        email: adminUser.email,
+        passwordHash: adminUser.password_hash,
+        roles,
+      };
+
+      if (allowedRoles && allowedRoles.length > 0) {
+        const hasAccess = roles.some((r) =>
+          allowedRoles.includes(r as AllowedAdminRoles)
+        );
+        if (!hasAccess) {
+          return sendResponse(res, 403, "Access Denied");
+        }
+      }
+
+      next();
+    } catch (error: any) {
+      return sendResponse(
+        res,
+        500,
+        error?.message?.toString() || "Internal server error"
+      );
+    }
+  };
 
 export const validateToken =
   (allowedRoles?: AllowedRoles[], requireAuth: boolean = true) =>
@@ -338,6 +503,56 @@ export const validateRefreshToken = async (
       id: session.user.id,
       email: session.user.email,
       passwordHash: session.user.password_hash,
+    };
+
+    next();
+  } catch (error: any) {
+    return sendResponse(res, 500, error?.message || "Internal server error");
+  }
+};
+
+export const validateAdminRefreshToken = async (
+  req: RequestWithPayload<LoginPayload>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { refreshToken } = req.body;
+    if (!refreshToken) {
+      return sendResponse(res, 400, "Refresh token is required");
+    }
+
+    const session = await prisma.adminSessions.findFirst({
+      where: { refresh_token_hash: refreshToken },
+      include: {
+        admin_user: {
+          select: {
+            id: true,
+            email: true,
+            full_name: true,
+            is_active: true,
+            password_hash: true,
+          },
+        },
+      },
+    });
+
+    if (!session) {
+      return sendResponse(res, 401, "Invalid or revoked refresh token");
+    }
+
+    if (session.expires_at && moment().isAfter(session.expires_at)) {
+      return sendResponse(res, 401, "Refresh token expired");
+    }
+
+    if (!session.admin_user) {
+      return sendResponse(res, 401, "User not found");
+    }
+
+    req.payload = {
+      id: session.admin_user.id,
+      email: session.admin_user.email,
+      passwordHash: session.admin_user.password_hash,
     };
 
     next();

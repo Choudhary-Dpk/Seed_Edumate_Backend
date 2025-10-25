@@ -7,6 +7,104 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model AdminUsers {
+  id            Int      @id @default(autoincrement())
+  email         String   @unique              
+  password_hash String?                       
+  full_name     String? 
+  phone         String?                      
+  is_active     Boolean  @default(true)       
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  admin_user_roles AdminUserRoles[] @relation("AdminRole")
+  admin_tokens AdminTokens[] @relation("AdminTokens")
+  admin_sessions AdminSessions[] @relation("AdminSessions")
+
+  @@map("admin_users")
+}
+
+model AdminRoles {
+  id           Int     @id @default(autoincrement())
+  role         String  @unique
+  display_name String
+  description  String?
+
+  users       AdminUserRoles[]
+  permissions AdminRolePermissions[]
+
+  @@map("admin_roles")
+}
+
+model AdminUserRoles {
+  id          Int @id @default(autoincrement())
+  user_id     Int
+  role_id     Int
+  assigned_at DateTime @default(now())
+
+  // Relations
+  admin_user AdminUsers @relation("AdminRole", fields: [user_id], references: [id], onDelete: Cascade)
+  role AdminRoles @relation(fields: [role_id], references: [id], onDelete: Cascade)
+  
+  @@unique([user_id, role_id])
+
+  @@map("admin_user_roles")
+}
+
+model AdminPermissions {
+  id          Int @id @default(autoincrement())
+  permission  String @unique               
+  module      String?                       
+  description String?
+
+  admin_role_permissions AdminRolePermissions[]                    
+
+  @@map("admin_permissions")
+}
+
+model AdminRolePermissions {
+  id            Int @id @default(autoincrement())
+  role_id       Int
+  permission_id Int
+
+   // Relations
+  role       AdminRoles       @relation(fields: [role_id], references: [id], onDelete: Cascade)
+  permission AdminPermissions @relation(fields: [permission_id], references: [id], onDelete: Cascade)
+  
+  @@unique([role_id, permission_id])
+
+  @@map("admin_role_permissions")
+}
+
+model AdminSessions {
+  id                 Int @id @default(autoincrement())
+  user_id            Int
+  refresh_token_hash String?
+  device_info        String?
+  ip_address         String?
+  is_valid           Boolean? @default(true)
+  created_at         DateTime? @default(now())
+  expires_at         DateTime? @default(now())
+
+  // Relation
+  admin_user AdminUsers @relation("AdminSessions", fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([id])
+
+  @@map("admin_sessions")
+}
+
+model AdminTokens {
+  id        Int      @id @default(autoincrement())
+  token     String
+  user_id   Int
+  createdOn DateTime @default(now())
+
+  user AdminUsers @relation("AdminTokens", fields: [user_id], references: [id])
+
+  @@map("admin_tokens")
+}
+
 model LoanEligibilityMatrix {
   id                      Int      @id @default(autoincrement())
   country_of_study        String?  @db.VarChar(100)
