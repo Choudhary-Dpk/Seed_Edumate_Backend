@@ -1,8 +1,9 @@
-import { Response, NextFunction } from "express";
+import { Response, NextFunction, Request } from "express";
 import { sendResponse } from "../utils/api";
 import { RequestWithPayload } from "../types/api.types";
 import { LoginPayload } from "../types/auth";
 import {
+  checkLoanApplicationFields,
   getLeadByEmail,
   getLeadById,
 } from "../models/helpers/loanApplication.helper";
@@ -191,5 +192,64 @@ export const validateLoanApplicationById = async (
   } catch (error) {
     console.error(error);
     sendResponse(res, 500, "Error while validating lead id");
+  }
+};
+
+export const validateLoanFields = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { lead_reference_code, student_id, student_email } = req.body;
+
+    if (!lead_reference_code && !student_id && !student_email) {
+      return next();
+    }
+
+    const existing = await checkLoanApplicationFields(
+      lead_reference_code,
+      student_id,
+      student_email
+    );
+    if (existing) {
+      if (
+        lead_reference_code &&
+        existing.lead_reference_code === lead_reference_code
+      ) {
+        return sendResponse(
+          res,
+          409,
+          "Lead reference code already exists in the system"
+        );
+      }
+
+      if (student_id && existing.student_id === student_id) {
+        return sendResponse(
+          res,
+          409,
+          "Student ID already exists in the system"
+        );
+      }
+
+      if (student_email && existing.student_email === student_email) {
+        return sendResponse(
+          res,
+          409,
+          "Student email already exists in the system"
+        );
+      }
+
+      return sendResponse(res, 409, "Loan Application already exists");
+    }
+
+    next();
+  } catch (error) {
+    console.error("Error in duplicate field check middleware:", error);
+    return sendResponse(
+      res,
+      500,
+      "Internal server error during duplicate validation"
+    );
   }
 };

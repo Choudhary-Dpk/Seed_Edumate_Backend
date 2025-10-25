@@ -12,7 +12,6 @@ import {
 import { HubspotResult } from "../../types";
 import { transformRow } from "../../utils/helper";
 import { getPartnerIdByUserId } from "./partners.helper";
-import { AnyNsRecord } from "dns";
 
 export const createEdumatePersonalInformation = async (
   tx: any,
@@ -279,28 +278,119 @@ export const updateEdumateLeadAttribution = async (
   return leadAttribution;
 };
 
+// export const fetchContactsLeadList = async (
+//   limit: number,
+//   offset: number,
+//   sortKey: string | null,
+//   sortDir: "asc" | "desc" | null,
+//   search: string | null,
+//   partnerId: number
+// ) => {
+//   const where: Prisma.HSEdumateContactsWhereInput = {
+//     is_deleted: false,
+//     b2b_partner_id: partnerId,
+//     personal_information: search
+//       ? {
+//           OR: [
+//             { first_name: { contains: search, mode: "insensitive" } },
+//             { last_name: { contains: search, mode: "insensitive" } },
+//             { email: { contains: search, mode: "insensitive" } },
+//             { phone_number: { contains: search, mode: "insensitive" } },
+//           ],
+//         }
+//       : undefined,
+//   };
+
+//   let orderBy: any = { created_at: "desc" };
+//   if (sortKey) {
+//     switch (sortKey) {
+//       case "id":
+//         orderBy = {
+//           personal_information: { id: sortDir || "asc" },
+//         };
+//         break;
+//       case "name":
+//         orderBy = {
+//           personal_information: { first_name: sortDir || "asc" },
+//         };
+//         break;
+//       case "email":
+//         orderBy = {
+//           personal_information: { email: sortDir || "asc" },
+//         };
+//         break;
+//       default:
+//         orderBy = { created_at: "desc" };
+//     }
+//   }
+
+//   const [rows, count] = await Promise.all([
+//     prisma.hSEdumateContacts.findMany({
+//       where,
+//       skip: offset,
+//       take: limit,
+//       orderBy,
+//       include: {
+//         personal_information: true,
+//         academic_profile: true,
+//         financial_Info: true,
+//         leads: true,
+//         loan_preference: true,
+//         b2b_partner: {
+//           select: {
+//             id: true,
+//             partner_name: true,
+//             partner_display_name: true,
+//           },
+//         },
+//       },
+//     }),
+//     prisma.hSEdumateContacts.count({ where }),
+//   ]);
+
+//   return { rows, count };
+// };
+
 export const fetchContactsLeadList = async (
   limit: number,
   offset: number,
   sortKey: string | null,
   sortDir: "asc" | "desc" | null,
   search: string | null,
-  partnerId: number
+  partnerId: number,
+  filters: {
+    partner: string | null;
+    status: string | null;
+  }
 ) => {
   const where: Prisma.HSEdumateContactsWhereInput = {
     is_deleted: false,
-    b2b_partner_id: partnerId,
-    personal_information: search
-      ? {
-          OR: [
-            { first_name: { contains: search, mode: "insensitive" } },
-            { last_name: { contains: search, mode: "insensitive" } },
-            { email: { contains: search, mode: "insensitive" } },
-            { phone_number: { contains: search, mode: "insensitive" } },
-          ],
-        }
-      : undefined,
+    // b2b_partner_id: partnerId,
   };
+
+  // Add search filter
+  if (search) {
+    where.personal_information = {
+      OR: [
+        { first_name: { contains: search, mode: "insensitive" } },
+        { last_name: { contains: search, mode: "insensitive" } },
+        { email: { contains: search, mode: "insensitive" } },
+        { phone_number: { contains: search, mode: "insensitive" } },
+      ],
+    };
+  }
+
+  // Apply partner filter
+  if (filters.partner) {
+    where.b2b_partner_id = Number(filters.partner);
+  }
+
+  // Apply admission status filter
+  if (filters.status) {
+    where.academic_profile = {
+      admission_status: filters.status as any
+    };
+  }
 
   let orderBy: any = { created_at: "desc" };
   if (sortKey) {
@@ -320,6 +410,11 @@ export const fetchContactsLeadList = async (
           personal_information: { email: sortDir || "asc" },
         };
         break;
+      case "admissionStatus":
+        orderBy = {
+          academic_profile: { admission_status: sortDir || "asc" },
+        };
+        break;
       default:
         orderBy = { created_at: "desc" };
     }
@@ -337,6 +432,7 @@ export const fetchContactsLeadList = async (
         financial_Info: true,
         leads: true,
         loan_preference: true,
+        application_journey: true,
         b2b_partner: {
           select: {
             id: true,
@@ -351,6 +447,7 @@ export const fetchContactsLeadList = async (
 
   return { rows, count };
 };
+
 
 export const findContacts = async (batch: any[]) => {
   const contacts = await prisma.hSEdumateContactsPersonalInformation.findMany({

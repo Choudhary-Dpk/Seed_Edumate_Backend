@@ -8,6 +8,7 @@ import {
   Row,
 } from "../../types/leads.types";
 import { HubspotResult } from "../../types";
+import { string } from "zod";
 
 export const createLoan = async (
   userId: number,
@@ -311,24 +312,125 @@ export const deleteLoan = async (leadId: number, userId: number) => {
   });
 };
 
+// export const getLoanList = async (
+//   partnerId: number,
+//   limit: number,
+//   offset: number,
+//   sortKey: string | null,
+//   sortDir: "asc" | "desc" | null,
+//   search: string | null
+// ) => {
+//   const where: Prisma.HSLoanApplicationsWhereInput = search
+//     ? {
+//         OR: [
+//           { student_name: { contains: search, mode: "insensitive" } },
+//           { student_email: { contains: search, mode: "insensitive" } },
+//         ],
+//         is_deleted: false,
+//         // b2b_partner_id: partnerId,
+//       }
+//     : { is_deleted: false };
+
+//   let orderBy: any = { created_at: "desc" };
+//   if (sortKey) {
+//     switch (sortKey) {
+//       case "name":
+//         orderBy = { student_name: sortDir || "desc" };
+//         break;
+//       case "email":
+//         orderBy = { student_email: sortDir || "desc" };
+//         break;
+//       case "loanTenureYears":
+//         orderBy = {
+//           lender_information: { loan_tenure_years: sortDir || "desc" },
+//         };
+//         break;
+//       case "loanAmountRequested":
+//         orderBy = {
+//           financial_requirements: { loan_amount_requested: sortDir || "desc" },
+//         };
+//         break;
+//       case "loanAmountApproved":
+//         orderBy = {
+//           financial_requirements: { loan_amount_approved: sortDir || "desc" },
+//         };
+//         break;
+//       case "applicationStatus":
+//         orderBy = { application_status: { status: sortDir || "desc" } };
+//         break;
+//       default:
+//         orderBy = { created_at: "desc" };
+//     }
+//   }
+
+//   const [rows, count] = await Promise.all([
+//     prisma.hSLoanApplications.findMany({
+//       where,
+//       skip: offset,
+//       take: limit,
+//       orderBy,
+//       include: {
+//         financial_requirements: true,
+//         loan_application_status: true,
+//         lender_information: true,
+//       },
+//     }),
+//     prisma.hSLoanApplications.count({ where }),
+//   ]);
+
+//   return { rows, count };
+// };
+
 export const getLoanList = async (
   partnerId: number,
   limit: number,
   offset: number,
   sortKey: string | null,
   sortDir: "asc" | "desc" | null,
-  search: string | null
+  search: string | null,
+  filters: {
+    partner: string | null;
+    lender: string | null;
+    loanProduct: string | null;
+    status: string | null;
+  }
 ) => {
-  const where: Prisma.HSLoanApplicationsWhereInput = search
-    ? {
-        OR: [
-          { student_name: { contains: search, mode: "insensitive" } },
-          { student_email: { contains: search, mode: "insensitive" } },
-        ],
-        is_deleted: false,
-        b2b_partner_id: partnerId,
-      }
-    : { is_deleted: false, b2b_partner_id: partnerId };
+  const where: any = {
+    is_deleted: false,
+  };
+
+  // Add search filter
+  if (search) {
+    where.OR = [
+      { student_name: { contains: search, mode: "insensitive" } },
+      { student_email: { contains: search, mode: "insensitive" } },
+    ];
+  }
+
+  // Apply filters
+  if (filters.partner) {
+    where.b2b_partner_id = Number(filters.partner);
+  }
+
+  if (filters.lender) {
+    where.lender_information = {
+      ...where.lender_information,
+      primary_lender_id: filters.lender,
+    };
+  }
+
+  if (filters.loanProduct) {
+    where.lender_information = {
+      ...where.lender_information,
+      loan_product_id: filters.loanProduct,
+    };
+  }
+
+  if (filters.status) {
+    where.loan_application_status = {
+      status: filters.status,
+    };
+  }
 
   let orderBy: any = { created_at: "desc" };
   if (sortKey) {
@@ -355,7 +457,7 @@ export const getLoanList = async (
         };
         break;
       case "applicationStatus":
-        orderBy = { application_status: { status: sortDir || "desc" } };
+        orderBy = { loan_application_status: { status: sortDir || "desc" } };
         break;
       default:
         orderBy = { created_at: "desc" };
@@ -364,7 +466,7 @@ export const getLoanList = async (
 
   const [rows, count] = await Promise.all([
     prisma.hSLoanApplications.findMany({
-      where,
+      where: where as Prisma.HSLoanApplicationsWhereInput,
       skip: offset,
       take: limit,
       orderBy,
@@ -372,9 +474,12 @@ export const getLoanList = async (
         financial_requirements: true,
         loan_application_status: true,
         lender_information: true,
+        user: true,
       },
     }),
-    prisma.hSLoanApplications.count({ where }),
+    prisma.hSLoanApplications.count({
+      where: where as Prisma.HSLoanApplicationsWhereInput,
+    }),
   ]);
 
   return { rows, count };
@@ -433,4 +538,693 @@ export const getHubspotByLeadId = async (leadId: number) => {
       system_tracking: true,
     },
   });
+};
+
+export const deleteLoanApplication = async (
+  applicationId: number,
+  userId: number
+) => {
+  const application = await prisma.hSLoanApplications.update({
+    where: {
+      id: applicationId,
+      is_deleted: false,
+    },
+    data: {
+      is_deleted: true,
+      deleted_by_id: userId,
+      deleted_at: new Date(),
+      updated_at: new Date(),
+    },
+  });
+
+  if (!application) {
+    throw new Error("Loan application not found or already deleted");
+  }
+
+  return application;
+};
+
+export const createLoanApplication = async (
+  tx: any,
+  mainData: any,
+  userId: number
+) => {
+  const application = await tx.hSLoanApplications.create({
+    data: {
+      ...mainData,
+      user_id: userId,
+      created_at: new Date(),
+      updated_at: new Date(),
+    },
+  });
+
+  return application;
+};
+
+export const createLoanApplicationProcessingTimeline = async (
+  tx: any,
+  loanApplicationId: number,
+  timelineData: any
+) => {
+  if (!timelineData || Object.keys(timelineData).length === 0) {
+    return null;
+  }
+
+  const timeline = await tx.hSLoanApplicationsProcessingTimeline.create({
+    data: {
+      loan_application: {
+        connect: { id: loanApplicationId },
+      },
+      ...timelineData,
+    },
+  });
+
+  return timeline;
+};
+
+export const createLoanApplicationAcademicDetails = async (
+  tx: any,
+  loanApplicationId: number,
+  academicData: any
+) => {
+  if (!academicData || Object.keys(academicData).length === 0) {
+    return null;
+  }
+
+  const academic = await tx.hSLoanApplicationsAcademicDetails.create({
+    data: {
+      loan_application: {
+        connect: { id: loanApplicationId },
+      },
+      ...academicData,
+    },
+  });
+
+  return academic;
+};
+
+export const createLoanApplicationFinancialRequirements = async (
+  tx: any,
+  loanApplicationId: number,
+  financialData: any
+) => {
+  if (!financialData || Object.keys(financialData).length === 0) {
+    return null;
+  }
+
+  const financial = await tx.hSLoanApplicationsFinancialRequirements.create({
+    data: {
+      loan_application: {
+        connect: { id: loanApplicationId },
+      },
+      ...financialData,
+    },
+  });
+
+  return financial;
+};
+
+export const createLoanApplicationStatus = async (
+  tx: any,
+  loanApplicationId: number,
+  statusData: any
+) => {
+  if (!statusData || Object.keys(statusData).length === 0) {
+    return null;
+  }
+
+  const status = await tx.hSLoanApplicationsStatus.create({
+    data: {
+      loan_application: {
+        connect: { id: loanApplicationId },
+      },
+      ...statusData,
+    },
+  });
+
+  return status;
+};
+
+export const createLoanApplicationLenderInformation = async (
+  tx: any,
+  loanApplicationId: number,
+  lenderData: any
+) => {
+  if (!lenderData || Object.keys(lenderData).length === 0) {
+    return null;
+  }
+
+  const lender = await tx.hSLoanApplicationsLenderInformation.create({
+    data: {
+      loan_application: {
+        connect: { id: loanApplicationId },
+      },
+      ...lenderData,
+    },
+  });
+
+  return lender;
+};
+
+export const createLoanApplicationDocumentManagement = async (
+  tx: any,
+  loanApplicationId: number,
+  documentData: any
+) => {
+  if (!documentData || Object.keys(documentData).length === 0) {
+    return null;
+  }
+
+  const document = await tx.hSLoanApplicationsDocumentManagement.create({
+    data: {
+      loan_application: {
+        connect: { id: loanApplicationId },
+      },
+      ...documentData,
+    },
+  });
+
+  return document;
+};
+
+export const createLoanApplicationRejectionDetails = async (
+  tx: any,
+  loanApplicationId: number,
+  rejectionData: any
+) => {
+  if (!rejectionData || Object.keys(rejectionData).length === 0) {
+    return null;
+  }
+
+  const rejection = await tx.hSLoanApplicationsRejectionDetails.create({
+    data: {
+      loan_application: {
+        connect: { id: loanApplicationId },
+      },
+      ...rejectionData,
+    },
+  });
+
+  return rejection;
+};
+
+export const createLoanApplicationCommunicationPreferences = async (
+  tx: any,
+  loanApplicationId: number,
+  commData: any
+) => {
+  if (!commData || Object.keys(commData).length === 0) {
+    return null;
+  }
+
+  const comm = await tx.hSLoanApplicationsCommunicationPreferences.create({
+    data: {
+      loan_application: {
+        connect: { id: loanApplicationId },
+      },
+      ...commData,
+    },
+  });
+
+  return comm;
+};
+
+export const createLoanApplicationSystemTracking = async (
+  tx: any,
+  loanApplicationId: number,
+  systemData: any,
+  userId: number
+) => {
+  if (!systemData || Object.keys(systemData).length === 0) {
+    return null;
+  }
+
+  const system = await tx.hSLoanApplicationsSystemTracking.create({
+    data: {
+      loan_application: {
+        connect: { id: loanApplicationId },
+      },
+      ...systemData,
+    },
+  });
+
+  return system;
+};
+
+export const createLoanApplicationCommissionRecord = async (
+  tx: any,
+  loanApplicationId: number,
+  commissionData: any
+) => {
+  if (!commissionData || Object.keys(commissionData).length === 0) {
+    return null;
+  }
+
+  const commission = await tx.hSLoanApplicationsCommissionRecords.create({
+    data: {
+      loan_application: {
+        connect: { id: loanApplicationId },
+      },
+      ...commissionData,
+    },
+  });
+
+  return commission;
+};
+
+export const createLoanApplicationAdditionalService = async (
+  tx: any,
+  loanApplicationId: number,
+  serviceData: any
+) => {
+  if (!serviceData || Object.keys(serviceData).length === 0) {
+    return null;
+  }
+
+  const service = await tx.hSLoanApplicationsAdditionalServices.create({
+    data: {
+      loan_application: {
+        connect: { id: loanApplicationId },
+      },
+      ...serviceData,
+    },
+  });
+
+  return service;
+};
+
+export const updateLoanApplication = async (
+  tx: any,
+  applicationId: number,
+  mainData: any
+) => {
+  const application = await tx.hSLoanApplications.update({
+    where: {
+      id: applicationId,
+    },
+    data: {
+      ...mainData,
+      updated_at: new Date(),
+    },
+  });
+
+  return application;
+};
+
+export const updateLoanApplicationAcademicDetails = async (
+  tx: any,
+  applicationId: number,
+  academicData: any
+) => {
+  if (!academicData || Object.keys(academicData).length === 0) {
+    return null;
+  }
+
+  const academicDetails = await tx.hSLoanApplicationsAcademicDetails.update({
+    where: {
+      loan_application_id: applicationId,
+    },
+    data: {
+      ...academicData,
+      updated_at: new Date(),
+    },
+  });
+
+  return academicDetails;
+};
+
+export const updateLoanApplicationFinancialRequirements = async (
+  tx: any,
+  applicationId: number,
+  financialData: any
+) => {
+  if (!financialData || Object.keys(financialData).length === 0) {
+    return null;
+  }
+
+  const financialRequirements =
+    await tx.hSLoanApplicationsFinancialRequirements.update({
+      where: {
+        loan_application_id: applicationId,
+      },
+      data: {
+        ...financialData,
+        updated_at: new Date(),
+      },
+    });
+
+  return financialRequirements;
+};
+
+export const updateLoanApplicationStatus = async (
+  tx: any,
+  applicationId: number,
+  statusData: any
+) => {
+  if (!statusData || Object.keys(statusData).length === 0) {
+    return null;
+  }
+
+  const status = await tx.hSLoanApplicationsStatus.update({
+    where: {
+      loan_application_id: applicationId,
+    },
+    data: {
+      ...statusData,
+      updated_at: new Date(),
+    },
+  });
+
+  return status;
+};
+
+export const updateLoanApplicationLenderInformation = async (
+  tx: any,
+  applicationId: number,
+  lenderData: any
+) => {
+  if (!lenderData || Object.keys(lenderData).length === 0) {
+    return null;
+  }
+
+  const lenderInfo = await tx.hSLoanApplicationsLenderInformation.update({
+    where: {
+      loan_application_id: applicationId,
+    },
+    data: {
+      ...lenderData,
+      updated_at: new Date(),
+    },
+  });
+
+  return lenderInfo;
+};
+
+export const updateLoanApplicationDocumentManagement = async (
+  tx: any,
+  applicationId: number,
+  documentData: any
+) => {
+  if (!documentData || Object.keys(documentData).length === 0) {
+    return null;
+  }
+
+  const documents = await tx.hSLoanApplicationsDocumentManagement.update({
+    where: {
+      loan_application_id: applicationId,
+    },
+    data: {
+      ...documentData,
+      updated_at: new Date(),
+    },
+  });
+
+  return documents;
+};
+
+export const updateLoanApplicationProcessingTimeline = async (
+  tx: any,
+  applicationId: number,
+  timelineData: any
+) => {
+  if (!timelineData || Object.keys(timelineData).length === 0) {
+    return null;
+  }
+
+  const timeline = await tx.hSLoanApplicationsProcessingTimeline.update({
+    where: {
+      loan_application_id: applicationId,
+    },
+    data: {
+      ...timelineData,
+      updated_at: new Date(),
+    },
+  });
+
+  return timeline;
+};
+
+export const updateLoanApplicationRejectionDetails = async (
+  tx: any,
+  applicationId: number,
+  rejectionData: any
+) => {
+  if (!rejectionData || Object.keys(rejectionData).length === 0) {
+    return null;
+  }
+
+  const rejection = await tx.hSLoanApplicationsRejectionDetails.update({
+    where: {
+      loan_application_id: applicationId,
+    },
+    data: {
+      ...rejectionData,
+      updated_at: new Date(),
+    },
+  });
+
+  return rejection;
+};
+
+export const updateLoanApplicationCommunicationPreferences = async (
+  tx: any,
+  applicationId: number,
+  communicationData: any
+) => {
+  if (!communicationData || Object.keys(communicationData).length === 0) {
+    return null;
+  }
+
+  const communication =
+    await tx.hSLoanApplicationsCommunicationPreferences.update({
+      where: {
+        loan_application_id: applicationId,
+      },
+      data: {
+        ...communicationData,
+        updated_at: new Date(),
+      },
+    });
+
+  return communication;
+};
+
+export const updateLoanApplicationSystemTracking = async (
+  tx: any,
+  applicationId: number,
+  systemTrackingData: any,
+  userId: number
+) => {
+  if (!systemTrackingData || Object.keys(systemTrackingData).length === 0) {
+    return null;
+  }
+
+  const systemTracking = await tx.hSLoanApplicationsSystemTracking.update({
+    where: {
+      loan_application_id: applicationId,
+    },
+    data: {
+      ...systemTrackingData,
+      last_modified_by: userId.toString(),
+      updated_at: new Date(),
+    },
+  });
+
+  return systemTracking;
+};
+
+export const updateLoanApplicationCommissionRecord = async (
+  tx: any,
+  applicationId: number,
+  commissionData: any
+) => {
+  if (!commissionData || Object.keys(commissionData).length === 0) {
+    return null;
+  }
+
+  const commission = await tx.hSLoanApplicationsCommissionRecords.update({
+    where: {
+      loan_application_id: applicationId,
+    },
+    data: {
+      ...commissionData,
+      updated_at: new Date(),
+    },
+  });
+
+  return commission;
+};
+
+export const updateLoanApplicationAdditionalService = async (
+  tx: any,
+  applicationId: number,
+  serviceData: any
+) => {
+  if (!serviceData || Object.keys(serviceData).length === 0) {
+    return null;
+  }
+
+  const service = await tx.hSLoanApplicationsAdditionalServices.update({
+    where: {
+      loan_application_id: applicationId,
+    },
+    data: {
+      ...serviceData,
+      updated_at: new Date(),
+    },
+  });
+
+  return service;
+};
+
+export const getLoanApplication = async (applicationId: number) => {
+  const application = await prisma.hSLoanApplications.findUnique({
+    where: {
+      id: applicationId,
+      is_deleted: false,
+    },
+    include: {
+      academic_details: true,
+      financial_requirements: true,
+      loan_application_status: true,
+      lender_information: true,
+      document_management: true,
+      processing_timeline: true,
+      rejection_details: true,
+      communication_prefs: true,
+      system_tracking: true,
+      commission_records: true,
+      additional_services: true,
+    },
+  });
+
+  if (!application) {
+    throw new Error("Loan application not found");
+  }
+
+  return application;
+};
+
+export const fetchLoanApplicationsList = async (
+  limit: number,
+  offset: number,
+  sortKey: string | null,
+  sortDir: "asc" | "desc" | null,
+  search: string | null,
+  userId?: number
+) => {
+  const where: Prisma.HSLoanApplicationsWhereInput = {
+    is_deleted: false,
+    ...(userId && { user_id: userId }),
+    OR: search
+      ? [
+          { student_name: { contains: search, mode: "insensitive" } },
+          { student_email: { contains: search, mode: "insensitive" } },
+          { student_phone: { contains: search, mode: "insensitive" } },
+          { student_id: { contains: search, mode: "insensitive" } },
+          { lead_reference_code: { contains: search, mode: "insensitive" } },
+          {
+            academic_details: {
+              OR: [
+                { target_course: { contains: search, mode: "insensitive" } },
+                {
+                  target_university: { contains: search, mode: "insensitive" },
+                },
+                {
+                  target_university_country: {
+                    contains: search,
+                    mode: "insensitive",
+                  },
+                },
+              ],
+            },
+          },
+        ]
+      : undefined,
+  };
+
+  let orderBy: any = { created_at: "desc" };
+  if (sortKey) {
+    switch (sortKey) {
+      case "id":
+        orderBy = { id: sortDir || "asc" };
+        break;
+      case "student_name":
+        orderBy = { student_name: sortDir || "asc" };
+        break;
+      case "student_email":
+        orderBy = { student_email: sortDir || "asc" };
+        break;
+      case "application_date":
+        orderBy = { application_date: sortDir || "desc" };
+        break;
+      case "application_source":
+        orderBy = { application_source: sortDir || "asc" };
+        break;
+      case "status":
+        orderBy = {
+          loan_application_status: { status: sortDir || "asc" },
+        };
+        break;
+      case "created_at":
+        orderBy = { created_at: sortDir || "desc" };
+        break;
+      default:
+        orderBy = { created_at: "desc" };
+    }
+  }
+
+  const [rows, count] = await Promise.all([
+    prisma.hSLoanApplications.findMany({
+      where,
+      skip: offset,
+      take: limit,
+      orderBy,
+      include: {
+        academic_details: true,
+        financial_requirements: true,
+        loan_application_status: true,
+        lender_information: true,
+        document_management: true,
+        processing_timeline: true,
+        rejection_details: true,
+        communication_prefs: true,
+        system_tracking: true,
+        commission_records: true,
+        additional_services: true,
+      },
+    }),
+    prisma.hSLoanApplications.count({ where }),
+  ]);
+
+  return { rows, count };
+};
+
+export const checkLoanApplicationFields = async (
+  lead_reference_code?: string,
+  student_id?: string,
+  student_email?: string
+) => {
+  const conditions: any[] = [];
+  if (lead_reference_code) conditions.push({ lead_reference_code });
+  if (student_id) conditions.push({ student_id });
+  if (student_email) conditions.push({ student_email });
+
+  if (conditions.length === 0) {
+    return null;
+  }
+
+  const result = await prisma.hSLoanApplications.findFirst({
+    where: {
+      OR: conditions,
+    },
+    select: {
+      id: true,
+      lead_reference_code: true,
+      student_id: true,
+      student_email: true,
+    },
+  });
+
+  return result;
 };
