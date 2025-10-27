@@ -485,7 +485,7 @@ export const getLoanList = async (
   return { rows, count };
 };
 
-export const getLeads = async (leadId: number) => {
+export const getLoanApplicationById = async (leadId: number) => {
   const leads = await prisma.hSLoanApplications.findFirst({
     where: {
       id: leadId,
