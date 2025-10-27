@@ -19,8 +19,6 @@ SELECT
   c.is_deleted,
   c.created_at,
   c.updated_at,
-  
-  -- Personal Info
   pi.first_name,
   pi.last_name,
   pi.email,
@@ -38,8 +36,6 @@ SELECT
   pi.state_permanent_address,
   pi.country_permanent_address,
   pi.pincode_permanent_address,
-  
-  -- Academic Profile
   ap.admission_status,
   ap.current_education_level,
   ap.current_institution,
@@ -65,8 +61,6 @@ SELECT
   ap.intended_start_date,
   ap.intake_month,
   ap.intake_year,
-  
-  -- Application Journey
   aj.assigned_counselor,
   aj.counselor_notes,
   aj.current_status_disposition,
@@ -76,8 +70,6 @@ SELECT
   aj.last_contact_date,
   aj.follow_up_date,
   aj.next_follow_up_date,
-  
-  -- Financial Info
   fi.annual_family_income,
   fi.currency,
   fi.co_applicant_1_name,
@@ -105,8 +97,6 @@ SELECT
   fi.loan_amount_required,
   fi.scholarship_amount,
   fi.self_funding_amount,
-  
-  -- Lead Attribution
   la.lead_source,
   la.lead_source_detail,
   la.lead_quality_score,
@@ -120,12 +110,8 @@ SELECT
   la.utm_campaign,
   la.utm_term,
   la.utm_content,
-  
-  -- Loan Preferences
   lp.loan_type_preference,
   lp.repayment_type_preference,
-  
-  -- System Tracking
   st.created_by,
   st.created_date,
   st.last_modified_by,
@@ -135,7 +121,6 @@ SELECT
   st.tags,
   st.gdpr_consent,
   st.marketing_consent
-
 FROM public.hs_edumate_contacts c
 LEFT JOIN public.hs_edumate_contacts_personal_information pi ON c.id = pi.contact_id
 LEFT JOIN public.hs_edumate_contacts_academic_profiles ap ON c.id = ap.contact_id
