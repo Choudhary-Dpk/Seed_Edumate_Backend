@@ -1,9 +1,14 @@
 import { PrismaClient } from "@prisma/client";
 import { createAuditExtension } from "../middlewares/audit.middleware"; // ← ADD THIS LINE
+import { createHubSpotSyncExtension } from "../middlewares/hubspot-sync.middleware";
+import { createLoanHubSpotSyncExtension } from "../middlewares/hubspot-loan-sync.middleware";
 
 const basePrisma = new PrismaClient(); // ← RENAME from 'prisma' to 'basePrisma'
 
-const prisma = basePrisma.$extends(createAuditExtension()); // ← ADD THIS LINE
+const prisma = basePrisma
+  .$extends(createAuditExtension())           // Audit logging extension
+  .$extends(createHubSpotSyncExtension())    // HubSpot sync extension
+  .$extends(createLoanHubSpotSyncExtension()); // 🆕 ADD THIS LINE - Loan sync
 
 export const checkPrismaConnection = async () => {
   try {

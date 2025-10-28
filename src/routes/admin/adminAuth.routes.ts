@@ -37,7 +37,7 @@ router.post(
   validateReqParams,
   validateAdminEmail,
   validatePassword,
-  getUserIpDetails,
+  // getUserIpDetails,
   adminLoginController
 );
 router.post(

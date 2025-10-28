@@ -5,6 +5,7 @@ import {
   FIELD_MAPPINGS,
   mapAllFields,
 } from "../../mappers/edumateContact/mapping";
+import { CategorizedContactData } from "../../types/contact.types";
 import logger from "../../utils/logger";
 
 /**
@@ -40,7 +41,7 @@ const categorizeFields = (flatData: Record<string, any>) => {
  * Categorizes mapped fields into their respective tables
  */
 export const categorizeByTable = (mappedFields: Record<string, any>) => {
-  const categorized: Record<string, Record<string, any>> = {};
+  const categorized: CategorizedContactData = {};
 
   // Main Contact Fields
   const mainContactFields = [

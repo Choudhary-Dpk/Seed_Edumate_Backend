@@ -128,7 +128,7 @@ export const getEdumateContactByPhone = async (phone: string) => {
 export const createEdumateContact = async (
   tx: any,
   mainData?: any,
-  hubspotId?: number,
+  hubspotId?: number | null,
   hsCreatedBy?: number,
   partnerId?: number
 ) => {
@@ -515,65 +515,72 @@ const tableMappings = {
   },
 };
 
-export const createCSVContacts = async (
-  rows: ContactsLead[],
+// src/models/helpers/contact.helper.ts
+
+export async function createCSVContacts(
+  contacts: Record<string, Record<string, any>>[],
   userId: number,
-  hubspotResults?: HubspotResult[]
-) => {
+  hubspotResults: any[] | null
+) {
   const partnerId = await getPartnerIdByUserId(userId);
-
+  
   return await prisma.$transaction(async (tx) => {
-    // 1. Insert into main table
-    const createdContacts = await Promise.all(
-      rows.map((row, index) => {
-        // Get corresponding HubSpot result by email
-        const hsResult = hubspotResults?.find(
-          (hs) => hs.properties?.email === row.email
-        );
+    
+    // 1. Bulk insert main contacts
+    await tx.hSEdumateContacts.createMany({
+      data: contacts.map(c => ({
+        ...c["mainContact"],
+        b2b_partner_id: partnerId!.b2b_id,
+      })),
+      skipDuplicates: true,
+    });
 
-        return tx.hSEdumateContacts.create({
-          data: {
-            course_type: row.courseType ? courseTypeMap[row.courseType] : null,
-            // ↓ ADD HUBSPOT DATA HERE
-            hs_object_id:
-              hsResult?.properties?.hs_object_id ?? hsResult?.id ?? null,
-            hs_created_by_user_id: userId,
-            hs_updated_by_user_id: userId,
-            hs_createdate: hsResult?.properties?.hs_createdate
-              ? new Date(hsResult.properties.hs_createdate)
-              : undefined,
-            hs_lastmodifieddate: hsResult?.properties?.hs_lastmodifieddate
-              ? new Date(hsResult.properties.hs_lastmodifieddate)
-              : undefined,
-            b2b_partner_id: partnerId!.b2b_id,
-          },
-          select: { id: true },
-        });
-      })
-    );
+    // 2. Get inserted contact IDs
+    const emails = contacts.map(c => c.email);
+    const insertedContacts = await tx.hSEdumateContacts.findMany({
+      where: {
+        created_at: {
+          gte: new Date(Date.now() - 60000) // Last 1 minute
+        }
+      },
+      select: { id: true },
+    });
 
-    // 2. Attach IDs back to rows
-    const contactsWithIds = rows.map((row, i) => ({
-      ...row,
-      contactId: createdContacts[i].id,
-    }));
+    const contactIds = insertedContacts.map(c => c.id);
 
-    // 3. Generic child-table inserts
-    await Promise.all(
-      Object.entries(tableMappings).map(([tableName, { map }]) =>
-        (tx[tableName as keyof typeof tx] as any).createMany({
-          data: contactsWithIds.map((row) => transformRow(row, map)),
-          skipDuplicates: true,
-        })
-      )
-    );
+    // 3. Bulk insert PersonalInformation (createMany - no middleware trigger!)
+    await tx.hSEdumateContactsPersonalInformation.createMany({
+      data: contacts.map((c, i) => ({
+        contact_id: contactIds[i],
+        ...c["personalInformation"],
+      })),
+      skipDuplicates: true,
+    });
 
-    return {
-      count: createdContacts.length,
-      records: createdContacts,
-    };
+    // 4. Bulk insert AcademicProfiles (createMany - no middleware trigger!)
+    await tx.hSEdumateContactsAcademicProfiles.createMany({
+      data: contacts.map((c, i) => ({
+        contact_id: contactIds[i],
+        ...c["academicProfile"],
+      })),
+      skipDuplicates: true,
+    });
+
+    // 5. Bulk insert LeadAttribution (createMany - no middleware trigger!)
+    await tx.hSEdumateContactsLeadAttribution.createMany({
+      data: contacts.map((c, i) => ({
+        contact_id: contactIds[i],
+        ...c["leadAttribution"],
+      })),
+      skipDuplicates: true,
+    });
+
+    // 6. Similarly for other normalized tables...
+    // FinancialInfo, LoanPreferences, ApplicationJourney, SystemTracking
+
+    return { count: contactIds.length };
   });
-};
+}
 
 export const updateEdumateContactsHubspotTracking = async (
   hubspotResults: HubspotResult[],

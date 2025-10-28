@@ -1,19 +1,16 @@
 import { NextFunction, Response, Request } from "express";
+import { v4 as uuidv4 } from "uuid";
 import { RequestWithPayload } from "../types/api.types";
 import { LoginPayload } from "../types/auth";
 import logger from "../utils/logger";
 import { sendResponse } from "../utils/api";
 import {
   createContactsLoanLeads,
-  createEdumateContactsLeads,
-  deleteHubspotByContactsLeadId,
-  updateContactsLoanLead,
 } from "../services/hubspot.service";
 import prisma from "../config/prisma";
 import {
   deleteContactsLoan,
   getContactsLead,
-  getHubspotByContactLeadId,
   createEdumateContact,
   createEdumateAcademicProfile,
   createEdumateLeadAttribution,
@@ -58,48 +55,22 @@ export const createContactsLead = async (
     let data: any = {};
     let leadAttribution: any;
 
-    logger.debug(`Fetching hubspotId from userId: ${id}`);
-    const hubspotId = await getHubspotIdByUserId(id);
-    logger.debug(`Hubspot id fetched successfully`);
+    logger.debug(`Fetching partner id from request`);
+    const partnerId = await getPartnerIdByUserId(id);
+    logger.debug(`Partner id fetched successfully`);
 
     const mappedFields = await mapAllFields(req.body);
     console.log("mappedFields", mappedFields);
     const categorized = categorizeByTable(mappedFields);
     console.log("categorized", categorized);
 
-    logger.debug(`Fetching partner id from request`);
-    const partnerId = await getPartnerIdByUserId(id);
-    logger.debug(`Partner id fetched successfully`);
-
-    logger.debug(`Creating hubspot edumate contacts leads application`);
-    const lead = await createEdumateContactsLeads([
-      {
-        email: req.body.email,
-        phone: req.body.phone_number,
-        firstName: req.body.first_name,
-        lastName: req.body.last_name,
-        partnerName: req.body.b2b_partner_name,
-        educationLevel: req.body.current_education_level,
-        admissionStatus: req.body.admission_status,
-        targetDegreeLevel: req.body.target_degree_level,
-        courseType: req.body.course_type,
-        studyDestination: req.body.preferred_study_destination,
-        dateOfBirth: req.body.date_of_birth,
-        gender: req.body.gender,
-        intakeYear: req.body.intake_year,
-        intakeMonth: req.body.intake_month,
-        b2bHubspotId: hubspotId!,
-      },
-    ]);
-    logger.debug(`Hubspot loan contacts leads created successfully`);
-
-    // // Use database transaction to ensure all related records are created atomically
+    // ✅ SIRF DB operation - HubSpot call REMOVE
     const result = await prisma.$transaction(async (tx: any) => {
       logger.debug(`Creating edumate contact for userId: ${id}`);
       const contact = await createEdumateContact(
         tx,
         categorized["mainContact"],
-        lead[0]?.id,
+        null, // ⬅️ HubSpot ID ab null hai
         id,
         partnerId!.b2b_id
       );
@@ -164,7 +135,9 @@ export const createContactsLead = async (
     logger.debug(
       `All contact data created successfully for contactId: ${result.id}`
     );
-    sendResponse(res, 200, "Contacts Lead created successfully", data);
+    // ✅ Middleware ne automatically outbox entry create kar di
+    
+    sendResponse(res, 200, "Contacts Lead created successfully (sync queued)", data);
   } catch (error) {
     next(error);
   }
@@ -179,19 +152,13 @@ export const deleteContactLead = async (
     const { id } = req.payload!;
     const leadId = req.params.id;
 
-    logger.debug(`Fethcing hubspot details by leadId: ${leadId}`);
-    const lead = await getHubspotByContactLeadId(+leadId);
-    logger.debug(`Hubspot details fetched successfully`);
-
-    logger.debug(`Deleting hubspot lead details for id: ${lead?.hs_object_id}`);
-    await deleteHubspotByContactsLeadId(lead?.hs_object_id!);
-    logger.debug(`Hubspot contact leads deleted successfully`);
-
+    // ✅ HubSpot delete call REMOVE - sirf DB delete
     logger.debug(`Deleting contact leads for userId: ${id}`);
     await deleteContactsLoan(+leadId, id);
     logger.debug(`Contact leads deleted successfully`);
 
-    sendResponse(res, 200, "Lead deleted successfully");
+    // ✅ Middleware ne automatically outbox entry create kar di
+    sendResponse(res, 200, "Lead deleted successfully (sync queued)");
   } catch (error) {
     next(error);
   }
@@ -229,29 +196,7 @@ export const editContactsLead = async (
     const categorized = categorizeByTable(mappedFields);
     console.log("categorized", categorized);
 
-    logger.debug(`Fethcing hubspot details by leadId: ${leadId}`);
-    const lead = await getHubspotByContactLeadId(+leadId);
-    logger.debug(`Hubspot details fetched successfully`);
-
-    logger.debug(`Updating hubspot loan application`);
-    await updateContactsLoanLead(lead?.hs_object_id!, {
-      email: req.body.email,
-      phone: req.body.phone_number,
-      firstName: req.body.first_name,
-      lastName: req.body.last_name,
-      partnerName: req.body.b2b_partner_name,
-      educationLevel: req.body.current_education_level,
-      admissionStatus: req.body.admission_status,
-      targetDegreeLevel: req.body.target_degree_level,
-      courseType: req.body.course_type,
-      studyDestination: req.body.preferred_study_destination,
-      dateOfBirth: req.body.date_of_birth,
-      gender: req.body.gender,
-      intakeYear: req.body.intake_year,
-      intakeMonth: req.body.intake_month,
-    });
-    logger.debug(`Hubspot loan application updated successfully`);
-
+    // ✅ HubSpot update call REMOVE - sirf DB update
     await prisma.$transaction(async (tx: any) => {
       logger.debug(`Updating edumate contact for userId: ${id}`);
       const contact = await updateEdumateContact(
@@ -259,7 +204,7 @@ export const editContactsLead = async (
         +leadId,
         categorized["mainContact"]
       );
-      logger.debug(`Contact udpated successfully with id: ${contact.id}`);
+      logger.debug(`Contact updated successfully with id: ${contact.id}`);
 
       logger.debug(`Updating personal information for contact: ${contact.id}`);
       await updateEdumatePersonalInformation(
@@ -296,7 +241,8 @@ export const editContactsLead = async (
       return contact;
     });
 
-    sendResponse(res, 200, "Lead updated successfully");
+    // ✅ Middleware ne automatically outbox entry create kar di
+    sendResponse(res, 200, "Lead updated successfully (sync queued)");
   } catch (error) {
     next(error);
   }
@@ -448,7 +394,6 @@ export const uploadContactsCSV = async (
     const fileEntity = await addFileType(entity_type);
     logger.debug(`File type added successfully`);
 
-    // Now create file upload
     logger.debug(`Entering file records history`);
     const fileUpload = await addFileRecord(
       filename,
@@ -493,40 +438,74 @@ export const uploadContactsCSV = async (
       });
     }
 
-    // 6. Process in batches of 50
-    const BATCH_SIZE = 50;
-    const batches = chunkArray(toInsert, BATCH_SIZE);
-    console.log("batches", batches);
+    // ✅ 6. Generate unique batch ID for this upload
+    const batchId = uuidv4();
+    logger.debug(`Generated batch ID: ${batchId} for ${toInsert.length} records`);
 
-    logger.debug(
-      `Processing ${toInsert.length} records in ${batches.length} batches of ${BATCH_SIZE}`
+    const mappedRecords = await Promise.all(
+      toInsert.map(contact => mapAllFields(contact))
     );
 
-    // Track results across all batches
-    const batchResults: BatchResult[] = [];
+    // ✅ 7. Process in batches (DB insertion only - NO HubSpot calls)
+    const BATCH_SIZE = 50;
+    const batches = chunkArray(mappedRecords, BATCH_SIZE);
+    
+    logger.debug(
+      `Processing ${mappedRecords.length} records in ${batches.length} batches of ${BATCH_SIZE}`
+    );
 
-    // Process batches using queue
-    await processBatchesWithQueue(batches, id, batchResults);
+    let totalInserted = 0;
+    const insertionErrors: any[] = [];
+
+    // Process each batch
+    for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
+      const batch = batches[batchIndex];
+      const batchNumber = batchIndex + 1;
+      const categorizedRecords = await Promise.all(
+        batch.map(contact => categorizeByTable(contact))
+      );
+      try {
+        logger.debug(`Processing batch ${batchNumber}/${batches.length}`);
+
+        // ✅ Insert into DB only
+        const result = await createCSVContacts(categorizedRecords, id, null); // No HubSpot results
+        totalInserted += result.count;
+
+        logger.debug(
+          `Batch ${batchNumber}: ${result.count} records inserted into DB`
+        );
+
+        // ✅ Manually create outbox entries for this batch
+        // (Because createMany doesn't trigger individual create hooks)
+        await createBulkOutboxEntries(batch, batchId, batchIndex * BATCH_SIZE);
+
+        logger.debug(
+          `Batch ${batchNumber}: Outbox entries created for sync queue`
+        );
+
+      } catch (error: any) {
+        logger.error(`Batch ${batchNumber}: DB insertion failed`, { error });
+        
+        insertionErrors.push({
+          batchNumber,
+          error: error.message,
+          recordCount: batch.length,
+        });
+      }
+    }
 
     logger.debug(`All ${batches.length} batches processed`);
-
-    // Calculate total results
-    const totalInserted = batchResults.reduce(
-      (sum, br) => sum + br.inserted,
-      0
-    );
-    const batchErrors = batchResults.flatMap((br) => br.errors);
 
     // 8. Update FileUpload stats
     logger.debug(`Updating fileUpload records`);
     await updateFileRecord(
       fileUpload.id,
       totalInserted,
-      errors.length + batchErrors.length
+      errors.length + insertionErrors.length
     );
     logger.debug(`File upload records updated successfully`);
 
-    return sendResponse(res, 201, "CSV processed successfully", {
+    return sendResponse(res, 201, "CSV processed successfully (sync queued)", {
       totalRows: rows.length,
       validRows: validRows.length,
       inserted: totalInserted,
@@ -534,298 +513,372 @@ export const uploadContactsCSV = async (
       skippedDuplicatesInFile: duplicatesInFile,
       skippedDuplicatesInDb: duplicatesInDb,
       batchesProcessed: batches.length,
-      batchErrors: batchErrors.length > 0 ? batchErrors : undefined,
-      errors,
+      batchId: batchId,
+      syncStatus: "queued",
+      errors: errors.concat(insertionErrors),
     });
   } catch (error) {
     next(error);
   }
 };
 
-// Process batches using async queue with optimized batch-first approach
-const processBatchesWithQueue = (
-  batches: ContactsLead[][],
-  userId: number,
-  batchResults: BatchResult[]
-): Promise<void> => {
-  return new Promise((resolve, reject) => {
-    const processingQueue = queue(
-      (task: { batch: ContactsLead[]; index: number }, callback) => {
-        const { batch, index } = task;
-        const batchNumber = index + 1;
+/**
+ * ✅ Helper: Create bulk outbox entries for CSV batch
+ */
+async function createBulkOutboxEntries(
+  contacts: ContactsLead[],
+  batchId: string,
+  startPosition: number
+): Promise<void> {
+  try {
+    const outboxEntries = contacts.map((contact, index) => ({
+      id: uuidv4(),
+      entity_type: "HSEdumateContacts",
+      entity_id: 0, // Will be updated after we fetch actual IDs
+      operation: "CREATE",
+      payload: contact,
+      status: "PENDING",
+      batch_id: batchId,
+      batch_size: contacts.length,
+      batch_position: startPosition + index,
+      priority: 7, // Lower priority for bulk
+      created_at: new Date(),
+      updated_at: new Date(),
+      attempts: 0,
+      max_attempts: 5,
+    }));
 
-        (async () => {
-          try {
-            logger.debug(
-              `Processing batch ${batchNumber}/${batches.length} with ${batch.length} records`
-            );
-
-            let successfulRecords: ContactsLead[] = [];
-            let hubspotResults: any[] = [];
-            const recordErrors: RecordError[] = [];
-
-            // Step 1: Try to insert entire batch at once (OPTIMIZED)
-            logger.debug(
-              `Batch ${batchNumber}: Attempting bulk HubSpot insertion`
-            );
-
-            try {
-              const batchHubspotResults = await createContactsLoanLeads(batch);
-
-              // If successful, all records are good!
-              if (batchHubspotResults && batchHubspotResults.length > 0) {
-                successfulRecords = [...batch];
-                hubspotResults = batchHubspotResults;
-
-                logger.debug(
-                  `Batch ${batchNumber}: Bulk HubSpot insertion successful - all ${batch.length} records inserted`
-                );
-              }
-            } catch (batchError: any) {
-              // Batch failed - now we need to identify problem records
-              logger.warn(
-                `Batch ${batchNumber}: Bulk insertion failed - identifying problematic records`,
-                { error: batchError.message }
-              );
-
-              // Try to extract which records failed from error message
-              const failedEmails = extractFailedEmailsFromError(batchError);
-
-              if (failedEmails.length > 0) {
-                // We know which records failed - process accordingly
-                logger.debug(
-                  `Batch ${batchNumber}: Identified ${failedEmails.length} problematic records`
-                );
-
-                // Separate good and bad records
-                const validRecords = batch.filter(
-                  (record) => !failedEmails.includes(record.email)
-                );
-                const invalidRecords = batch.filter((record) =>
-                  failedEmails.includes(record.email)
-                );
-
-                // Add errors for invalid records
-                invalidRecords.forEach((record) => {
-                  const recordIndex =
-                    batch.findIndex((r) => r.email === record.email) + 1;
-                  recordErrors.push({
-                    batchNumber,
-                    recordIndex,
-                    email: record.email,
-                    firstName: record.firstName,
-                    lastName: record.lastName,
-                    stage: "hubspot",
-                    reason: extractErrorReasonForEmail(
-                      batchError,
-                      record.email
-                    ),
-                    timestamp: new Date().toISOString(),
-                  });
-                });
-
-                // Retry with only valid records
-                if (validRecords.length > 0) {
-                  try {
-                    logger.debug(
-                      `Batch ${batchNumber}: Retrying with ${validRecords.length} valid records`
-                    );
-
-                    const retryResults = await createContactsLoanLeads(
-                      validRecords
-                    );
-                    successfulRecords = validRecords;
-                    hubspotResults = retryResults;
-
-                    logger.debug(
-                      `Batch ${batchNumber}: Retry successful - ${validRecords.length} records inserted`
-                    );
-                  } catch (retryError: any) {
-                    logger.error(
-                      `Batch ${batchNumber}: Retry also failed - falling back to individual processing`,
-                      { error: retryError }
-                    );
-
-                    // Fall back to individual processing
-                    const individualResult = await processRecordsIndividually(
-                      validRecords,
-                      batchNumber,
-                      batch
-                    );
-                    successfulRecords = individualResult.successful;
-                    hubspotResults = individualResult.hubspotResults;
-                    recordErrors.push(...individualResult.errors);
-                  }
-                }
-              } else {
-                // Can't identify specific failures - process individually
-                logger.debug(
-                  `Batch ${batchNumber}: Cannot identify specific failures - processing individually`
-                );
-
-                const individualResult = await processRecordsIndividually(
-                  batch,
-                  batchNumber,
-                  batch
-                );
-                successfulRecords = individualResult.successful;
-                hubspotResults = individualResult.hubspotResults;
-                recordErrors.push(...individualResult.errors);
-              }
-            }
-
-            // Step 2: Insert successful records into DB
-            let dbInsertedCount = 0;
-            if (successfulRecords.length > 0) {
-              try {
-                const dbResult = await createCSVContacts(
-                  successfulRecords,
-                  userId,
-                  hubspotResults
-                );
-                dbInsertedCount = dbResult.count;
-
-                logger.debug(
-                  `Batch ${batchNumber}: DB insertion completed (${dbInsertedCount} records)`
-                );
-              } catch (dbError: any) {
-                logger.error(`Batch ${batchNumber}: DB insertion error`, {
-                  error: dbError,
-                });
-
-                // Mark all as DB failures
-                successfulRecords.forEach((record) => {
-                  const originalIndex =
-                    batch.findIndex((r) => r.email === record.email) + 1;
-
-                  recordErrors.push({
-                    batchNumber,
-                    recordIndex: originalIndex,
-                    email: record.email,
-                    firstName: record.firstName,
-                    lastName: record.lastName,
-                    stage: "database",
-                    reason: dbError?.message || "Database insertion failed",
-                    timestamp: new Date().toISOString(),
-                  });
-                });
-
-                dbInsertedCount = 0;
-              }
-            }
-            
-            // Store batch result
-            batchResults.push({
-              inserted: dbInsertedCount,
-              failed: batch.length - dbInsertedCount,
-              hubspotResults,
-              errors: recordErrors,
-            });
-
-            logger.debug(
-              `Batch ${batchNumber}/${batches.length} completed - Inserted: ${dbInsertedCount}, Failed: ${recordErrors.length}`
-            );
-
-            callback();
-          } catch (error) {
-            logger.error(`Batch ${batchNumber}: Unexpected error`, { error });
-
-            batchResults.push({
-              inserted: 0,
-              failed: batch.length,
-              hubspotResults: [],
-              errors: batch.map((record, recordIndex) => ({
-                batchNumber,
-                recordIndex: recordIndex + 1,
-                email: record.email,
-                firstName: record.firstName,
-                lastName: record.lastName,
-                stage: "hubspot",
-                reason:
-                  error instanceof Error
-                    ? error.message
-                    : "Unexpected batch processing error",
-                timestamp: new Date().toISOString(),
-              })),
-            });
-
-            callback();
-          }
-        })();
+    // Fetch actual contact IDs from DB
+    const emails = contacts
+      .map(c => c.email)
+      .filter((email): email is string => typeof email === "string" && email.trim() !== "");
+    let insertedContacts: Array<any> = [];
+    if(emails.length > 0){
+      insertedContacts = await prisma.hSEdumateContacts.findMany({
+      where: { 
+        personal_information: {
+          email: { in: emails }
+        }
       },
-      1
+      select: { 
+        id: true,
+        personal_information: {
+          select: { email: true }
+        }
+      },
+    });
+    }
+
+    // Map emails to IDs
+    const emailToIdMap = new Map(
+      insertedContacts.map(c => [c.personal_information?.email, c.id])
     );
 
-    processingQueue.drain(() => {
-      resolve();
+    // Update outbox entries with actual IDs
+    outboxEntries.forEach(entry => {
+      const contact = entry.payload as ContactsLead;
+      const actualId = emailToIdMap.get(contact.email);
+      if (actualId) {
+        entry.entity_id = actualId;
+      }
     });
 
-    processingQueue.error((error) => {
-      logger.error("Queue processing error", { error });
+    // Bulk insert outbox entries
+    await prisma.syncOutbox.createMany({
+      data: outboxEntries.filter(e => e.entity_id !== 0), // Only insert entries with valid IDs
     });
 
-    batches.forEach((batch, index) => {
-      processingQueue.push({ batch, index });
-    });
-  });
-};
+    logger.debug(`Created ${outboxEntries.length} outbox entries for batch ${batchId}`);
+  } catch (error) {
+    logger.error(`Failed to create bulk outbox entries:`, error);
+    throw error;
+  }
+}
+
+// Process batches using async queue with optimized batch-first approach
+// const processBatchesWithQueue = (
+//   batches: ContactsLead[][],
+//   userId: number,
+//   batchResults: BatchResult[]
+// ): Promise<void> => {
+//   return new Promise((resolve, reject) => {
+//     const processingQueue = queue(
+//       (task: { batch: ContactsLead[]; index: number }, callback) => {
+//         const { batch, index } = task;
+//         const batchNumber = index + 1;
+
+//         (async () => {
+//           try {
+//             logger.debug(
+//               `Processing batch ${batchNumber}/${batches.length} with ${batch.length} records`
+//             );
+
+//             let successfulRecords: ContactsLead[] = [];
+//             let hubspotResults: any[] = [];
+//             const recordErrors: RecordError[] = [];
+
+//             // Step 1: Try to insert entire batch at once (OPTIMIZED)
+//             logger.debug(
+//               `Batch ${batchNumber}: Attempting bulk HubSpot insertion`
+//             );
+
+//             try {
+//               const batchHubspotResults = await createContactsLoanLeads(batch);
+
+//               // If successful, all records are good!
+//               if (batchHubspotResults && batchHubspotResults.length > 0) {
+//                 successfulRecords = [...batch];
+//                 hubspotResults = batchHubspotResults;
+
+//                 logger.debug(
+//                   `Batch ${batchNumber}: Bulk HubSpot insertion successful - all ${batch.length} records inserted`
+//                 );
+//               }
+//             } catch (batchError: any) {
+//               // Batch failed - now we need to identify problem records
+//               logger.warn(
+//                 `Batch ${batchNumber}: Bulk insertion failed - identifying problematic records`,
+//                 { error: batchError.message }
+//               );
+
+//               // Try to extract which records failed from error message
+//               const failedEmails = extractFailedEmailsFromError(batchError);
+
+//               if (failedEmails.length > 0) {
+//                 // We know which records failed - process accordingly
+//                 logger.debug(
+//                   `Batch ${batchNumber}: Identified ${failedEmails.length} problematic records`
+//                 );
+
+//                 // Separate good and bad records
+//                 const validRecords = batch.filter(
+//                   (record) => !failedEmails.includes(record.email)
+//                 );
+//                 const invalidRecords = batch.filter((record) =>
+//                   failedEmails.includes(record.email)
+//                 );
+
+//                 // Add errors for invalid records
+//                 invalidRecords.forEach((record) => {
+//                   const recordIndex =
+//                     batch.findIndex((r) => r.email === record.email) + 1;
+//                   recordErrors.push({
+//                     batchNumber,
+//                     recordIndex,
+//                     email: record.email,
+//                     firstName: record.firstName,
+//                     lastName: record.lastName,
+//                     stage: "hubspot",
+//                     reason: extractErrorReasonForEmail(
+//                       batchError,
+//                       record.email
+//                     ),
+//                     timestamp: new Date().toISOString(),
+//                   });
+//                 });
+
+//                 // Retry with only valid records
+//                 if (validRecords.length > 0) {
+//                   try {
+//                     logger.debug(
+//                       `Batch ${batchNumber}: Retrying with ${validRecords.length} valid records`
+//                     );
+
+//                     const retryResults = await createContactsLoanLeads(
+//                       validRecords
+//                     );
+//                     successfulRecords = validRecords;
+//                     hubspotResults = retryResults;
+
+//                     logger.debug(
+//                       `Batch ${batchNumber}: Retry successful - ${validRecords.length} records inserted`
+//                     );
+//                   } catch (retryError: any) {
+//                     logger.error(
+//                       `Batch ${batchNumber}: Retry also failed - falling back to individual processing`,
+//                       { error: retryError }
+//                     );
+
+//                     // Fall back to individual processing
+//                     const individualResult = await processRecordsIndividually(
+//                       validRecords,
+//                       batchNumber,
+//                       batch
+//                     );
+//                     successfulRecords = individualResult.successful;
+//                     hubspotResults = individualResult.hubspotResults;
+//                     recordErrors.push(...individualResult.errors);
+//                   }
+//                 }
+//               } else {
+//                 // Can't identify specific failures - process individually
+//                 logger.debug(
+//                   `Batch ${batchNumber}: Cannot identify specific failures - processing individually`
+//                 );
+
+//                 const individualResult = await processRecordsIndividually(
+//                   batch,
+//                   batchNumber,
+//                   batch
+//                 );
+//                 successfulRecords = individualResult.successful;
+//                 hubspotResults = individualResult.hubspotResults;
+//                 recordErrors.push(...individualResult.errors);
+//               }
+//             }
+
+//             // Step 2: Insert successful records into DB
+//             let dbInsertedCount = 0;
+//             if (successfulRecords.length > 0) {
+//               try {
+//                 const dbResult = await createCSVContacts(
+//                   successfulRecords,
+//                   userId,
+//                   hubspotResults
+//                 );
+//                 dbInsertedCount = dbResult.count;
+
+//                 logger.debug(
+//                   `Batch ${batchNumber}: DB insertion completed (${dbInsertedCount} records)`
+//                 );
+//               } catch (dbError: any) {
+//                 logger.error(`Batch ${batchNumber}: DB insertion error`, {
+//                   error: dbError,
+//                 });
+
+//                 // Mark all as DB failures
+//                 successfulRecords.forEach((record) => {
+//                   const originalIndex =
+//                     batch.findIndex((r) => r.email === record.email) + 1;
+
+//                   recordErrors.push({
+//                     batchNumber,
+//                     recordIndex: originalIndex,
+//                     email: record.email,
+//                     firstName: record.firstName,
+//                     lastName: record.lastName,
+//                     stage: "database",
+//                     reason: dbError?.message || "Database insertion failed",
+//                     timestamp: new Date().toISOString(),
+//                   });
+//                 });
+
+//                 dbInsertedCount = 0;
+//               }
+//             }
+            
+//             // Store batch result
+//             batchResults.push({
+//               inserted: dbInsertedCount,
+//               failed: batch.length - dbInsertedCount,
+//               hubspotResults,
+//               errors: recordErrors,
+//             });
+
+//             logger.debug(
+//               `Batch ${batchNumber}/${batches.length} completed - Inserted: ${dbInsertedCount}, Failed: ${recordErrors.length}`
+//             );
+
+//             callback();
+//           } catch (error) {
+//             logger.error(`Batch ${batchNumber}: Unexpected error`, { error });
+
+//             batchResults.push({
+//               inserted: 0,
+//               failed: batch.length,
+//               hubspotResults: [],
+//               errors: batch.map((record, recordIndex) => ({
+//                 batchNumber,
+//                 recordIndex: recordIndex + 1,
+//                 email: record.email,
+//                 firstName: record.firstName,
+//                 lastName: record.lastName,
+//                 stage: "hubspot",
+//                 reason:
+//                   error instanceof Error
+//                     ? error.message
+//                     : "Unexpected batch processing error",
+//                 timestamp: new Date().toISOString(),
+//               })),
+//             });
+
+//             callback();
+//           }
+//         })();
+//       },
+//       1
+//     );
+
+//     processingQueue.drain(() => {
+//       resolve();
+//     });
+
+//     processingQueue.error((error) => {
+//       logger.error("Queue processing error", { error });
+//     });
+
+//     batches.forEach((batch, index) => {
+//       processingQueue.push({ batch, index });
+//     });
+//   });
+// };
 
 // Helper: Process records individually (fallback)
-const processRecordsIndividually = async (
-  records: ContactsLead[],
-  batchNumber: number,
-  originalBatch: ContactsLead[]
-): Promise<{
-  successful: ContactsLead[];
-  hubspotResults: any[];
-  errors: RecordError[];
-}> => {
-  const successful: ContactsLead[] = [];
-  const hubspotResults: any[] = [];
-  const errors: RecordError[] = [];
+// const processRecordsIndividually = async (
+//   records: ContactsLead[],
+//   batchNumber: number,
+//   originalBatch: ContactsLead[]
+// ): Promise<{
+//   successful: ContactsLead[];
+//   hubspotResults: any[];
+//   errors: RecordError[];
+// }> => {
+//   const successful: ContactsLead[] = [];
+//   const hubspotResults: any[] = [];
+//   const errors: RecordError[] = [];
 
-  for (const record of records) {
-    try {
-      const result = await createContactsLoanLeads([record]);
+//   for (const record of records) {
+//     try {
+//       const result = await createContactsLoanLeads([record]);
 
-      if (result && result.length > 0) {
-        successful.push(record);
-        hubspotResults.push(result[0]);
-      } else {
-        const recordIndex =
-          originalBatch.findIndex((r) => r.email === record.email) + 1;
-        errors.push({
-          batchNumber,
-          recordIndex,
-          email: record.email,
-          firstName: record.firstName,
-          lastName: record.lastName,
-          stage: "hubspot",
-          reason: "HubSpot returned empty result",
-          timestamp: new Date().toISOString(),
-        });
-      }
-    } catch (error: any) {
-      const recordIndex =
-        originalBatch.findIndex((r) => r.email === record.email) + 1;
-      errors.push({
-        batchNumber,
-        recordIndex,
-        email: record.email,
-        firstName: record.firstName,
-        lastName: record.lastName,
-        stage: "hubspot",
-        reason:
-          error?.response?.data?.message ||
-          error?.message ||
-          "HubSpot insertion failed",
-        timestamp: new Date().toISOString(),
-      });
-    }
-  }
+//       if (result && result.length > 0) {
+//         successful.push(record);
+//         hubspotResults.push(result[0]);
+//       } else {
+//         const recordIndex =
+//           originalBatch.findIndex((r) => r.email === record.email) + 1;
+//         errors.push({
+//           batchNumber,
+//           recordIndex,
+//           email: record.email,
+//           firstName: record.firstName,
+//           lastName: record.lastName,
+//           stage: "hubspot",
+//           reason: "HubSpot returned empty result",
+//           timestamp: new Date().toISOString(),
+//         });
+//       }
+//     } catch (error: any) {
+//       const recordIndex =
+//         originalBatch.findIndex((r) => r.email === record.email) + 1;
+//       errors.push({
+//         batchNumber,
+//         recordIndex,
+//         email: record.email,
+//         firstName: record.firstName,
+//         lastName: record.lastName,
+//         stage: "hubspot",
+//         reason:
+//           error?.response?.data?.message ||
+//           error?.message ||
+//           "HubSpot insertion failed",
+//         timestamp: new Date().toISOString(),
+//       });
+//     }
+//   }
 
-  return { successful, hubspotResults, errors };
-};
+//   return { successful, hubspotResults, errors };
+// };
 
 // Helper: Extract failed emails from error message
 const extractFailedEmailsFromError = (error: any): string[] => {

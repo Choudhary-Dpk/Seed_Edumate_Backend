@@ -36,7 +36,7 @@ router.post(
   validateReqParams,
   validateEmail,
   validatePassword,
-  getUserIpDetails,
+  // getUserIpDetails,
   login
 );
 router.post(

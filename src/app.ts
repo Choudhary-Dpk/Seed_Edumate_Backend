@@ -19,6 +19,7 @@ import { loanProuductRoutes } from "./routes/loanProudct.routes";
 import { commissionRoutes } from "./routes/commission.routes";
 import { lenderRoutes } from "./routes/lender.routes";
 import { adminRoutes } from "./routes/admin/index.routes";
+import { startWorkers } from "./workers";
 const PORT = process.env.PORT || 3031;
 
 app.use(setAuditContext);
@@ -67,5 +68,8 @@ app.use(errorHandler);
 app.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`);
   await checkPrismaConnection();
+  // ✅ Start background workers
+  await startWorkers();
+
   // console.log(`API Documentation available at http://localhost:${PORT}/`);
 });

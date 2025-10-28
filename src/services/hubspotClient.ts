@@ -57,7 +57,7 @@ const convertToHubSpotObject = <T>(item: SimplePublicObject): T => {
 /**
  * Handle HubSpot API errors
  */
-const handleHubSpotError = (error: any): Error => {
+export const handleHubSpotError = (error: any): Error => {
   // Handle HubSpot API response errors
   if (error.response?.body) {
     const hubspotError = error.response.body as HubSpotError;
