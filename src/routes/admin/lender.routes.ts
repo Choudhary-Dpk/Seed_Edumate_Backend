@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { validateAdminToken } from "../../middlewares";
 import { getLenderListController, getLoanProductsByLenderController, createLenderController, updateLenderController, getLendersListController, deleteLendersController, getLenderDetailsController } from "../../controllers/lender.controller";
+import { checkDuplicateLenderFields } from "../../middlewares/lender.middleware";
 const router = Router();
 
 router.get("/list", getLenderListController);
@@ -8,6 +9,7 @@ router.get("/filter", getLoanProductsByLenderController);
 router.post(
   "/",
   validateAdminToken(["Admin"]),
+  checkDuplicateLenderFields,
   createLenderController
 );
 router.put(

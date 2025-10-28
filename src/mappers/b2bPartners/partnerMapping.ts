@@ -656,7 +656,9 @@ export const mapAllB2BPartnerFields = async (
     mapped.partner_name = input.partner_name || null;
   if (input.api_access_provided !== undefined)
     mapped.api_access_provided = input.api_access_provided
-      ? apiAccessStatusMap[input.api_access_provided]
+      ? apiAccessStatusMap[
+          input.api_access_provided ? input.api_access_provided : "No"
+        ]
       : null;
   if (input.created_by !== undefined)
     mapped.created_by = input.created_by || null;
@@ -683,7 +685,9 @@ export const mapAllB2BPartnerFields = async (
       : null;
   if (input.portal_access_provided !== undefined)
     mapped.portal_access_provided = input.portal_access_provided
-      ? portalAccessStatusMap[input.portal_access_provided]
+      ? portalAccessStatusMap[
+          input.portal_access_provided ? input.portal_access_provided : "No"
+        ]
       : null;
 
   return mapped;
