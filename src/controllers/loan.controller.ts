@@ -371,10 +371,7 @@ export const createLoanApplicationsController = async (
   next: NextFunction
 ) => {
   try {
-     const userId = req.payload!.id;
-    // const userId = 1;
-
-    console.log("userId", userId);
+    const userId = req.payload!.id;
 
     logger.debug(`Mapping loan application fields`);
     const mappedFields = await mapAllLoanApplicationFields(req.body);
