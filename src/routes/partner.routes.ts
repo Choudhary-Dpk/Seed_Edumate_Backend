@@ -26,23 +26,23 @@ router.post(
 );
 router.put(
   "/:id",
-  validateToken(["Admin", "Manager", "User"]),
   validateId(),
   validateReqParams,
+  validateToken(["Admin", "Manager", "User"]),
   updateB2bPartner
 );
 router.delete(
   "/:id",
-  validateToken(["Admin", "Manager", "User"]),
   validateId(),
   validateReqParams,
+  validateToken(["Admin", "Manager", "User"]),
   deletePartner
 );
 router.get(
   "/details/:id",
-  validateToken(["Admin", "Manager", "User"]),
   validateId(),
   validateReqParams,
+  validateToken(["Admin", "Manager", "User"]),
   getB2bPartnerDetails
 );
 router.get(
@@ -50,6 +50,10 @@ router.get(
   validateToken(["Admin", "Manager", "User"]),
   getB2bPartnersList
 );
-router.get("/filter", getLeadsByPartnerFieldsController);
+router.get(
+  "/filter",
+  validateToken(["Admin", "Manager", "User"], false),
+  getLeadsByPartnerFieldsController
+);
 
 export { router as partnerRoutes };

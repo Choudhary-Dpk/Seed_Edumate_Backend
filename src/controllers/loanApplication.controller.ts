@@ -11,7 +11,7 @@ import {
   createSystemTracking,
   deleteLoan,
   getHubspotByLeadId,
-  getLoanApplicationById,
+  getLeads,
   getLoanList,
   updateApplicationStatus,
   updateFinancialRequirements,
@@ -444,15 +444,10 @@ export const getLoanApplicationDetails = async (
     const leadId = req.params.id;
 
     logger.debug(`Fetching lead details for id: ${leadId}`);
-    const loanApplicationDetails = await getLoanApplicationById(+leadId);
+    const leadDetails = await getLeads(+leadId);
     logger.debug(`Lead details fetched successfully`);
 
-    sendResponse(
-      res,
-      200,
-      "Lead details fetched successfully",
-      loanApplicationDetails
-    );
+    sendResponse(res, 200, "Lead details fetched successfully", leadDetails);
   } catch (error) {
     next(error);
   }
