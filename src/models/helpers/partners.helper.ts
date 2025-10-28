@@ -1,5 +1,10 @@
 import { Prisma } from "@prisma/client";
 import prisma from "../../config/prisma";
+import {
+  apiAccessStatusMap,
+  portalAccessStatusMap,
+} from "../../types/partner.type";
+import { dataSourceMap } from "../../types/contact.types";
 
 export const getPartners = async () => {
   const partnersList = await prisma.hSB2BPartners.findMany({
@@ -352,24 +357,12 @@ export const createB2BSystemTracking = async (
 
   const systemTracking = await tx.hSB2BPartnersSystemTracking.create({
     data: {
-      partner_id: partnerId,
-      partner_name: systemTrackingData.partner_name || "Unknown Partner",
-      api_access_provided:
-        systemTrackingData.api_access_provided || "NOT_PROVIDED",
-      created_by: systemTrackingData.created_by || userId.toString(),
-      created_date: systemTrackingData.created_date || new Date(),
-      data_source: systemTrackingData.data_source || "MANUAL",
-      integration_status:
-        systemTrackingData.integration_status || "NOT_INTEGRATED",
-      last_modified_by:
-        systemTrackingData.last_modified_by || userId.toString(),
-      last_modified_date: systemTrackingData.last_modified_date || new Date(),
-      partner_record_status:
-        systemTrackingData.partner_record_status || "ACTIVE",
-      portal_access_provided:
-        systemTrackingData.portal_access_provided || "NOT_PROVIDED",
-      internal_tags: systemTrackingData.internal_tags,
-      notes: systemTrackingData.notes,
+      partner: {
+        connect: {
+          id: partnerId,
+        },
+      },
+      ...systemTrackingData,
     },
   });
 

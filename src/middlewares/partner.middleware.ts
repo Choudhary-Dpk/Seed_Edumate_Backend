@@ -94,10 +94,5 @@ export const checkDuplicateB2BPartnerFields = async (
       "Error in duplicate B2B partner field check middleware:",
       error
     );
-    return sendResponse(
-      res,
-      500,
-      "Internal server error during duplicate validation"
-    );
   }
 };
