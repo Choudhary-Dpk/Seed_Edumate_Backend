@@ -76,7 +76,7 @@ export const residencyRequirementsMap: Record<string, string> = {
 export const targetSegmentMap: Record<string, string> = {
   Undergraduate: "UNDERGRADUATE",
   Graduate: "GRADUATE",
-  Phd: "PHD",
+  PhD: "PHD",
   Diploma: "DIPLOMA",
   Certificate: "CERTIFICATE",
   Professional: "PROFESSIONAL",

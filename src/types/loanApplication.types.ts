@@ -405,7 +405,7 @@ export const commissionStatusMap: Record<string, string> = {
 export const courseLevelMap: Record<string, string> = {
   "Bachelors": "BACHELORS",
   "Masters": "MASTERS",
-  "Phd": "PHD",
+  "PhD": "PHD",
   "Diploma": "DIPLOMA",
   "Certificate": "CERTIFICATE",
   "Professional": "PROFESSIONAL",

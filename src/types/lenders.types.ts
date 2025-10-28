@@ -110,7 +110,7 @@ export const lenderCollateralTypeReverseMap: Record<string, string> = {
 export const supportedCourseTypesMap: Record<string, string> = {
   Undergraduate: "UNDERGRADUATE",
   Graduate: "GRADUATE",
-  Phd: "PHD",
+  PhD: "PHD",
   Diploma: "DIPLOMA",
   Certificate: "CERTIFICATE",
   Professional: "PROFESSIONAL",
@@ -120,7 +120,7 @@ export const supportedCourseTypesMap: Record<string, string> = {
 export const supportedCourseTypesReverseMap: Record<string, string> = {
   UNDERGRADUATE: "Undergraduate",
   GRADUATE: "Graduate",
-  PHD: "Phd",
+  PHD: "PhD",
   DIPLOMA: "Diploma",
   CERTIFICATE: "Certificate",
   PROFESSIONAL: "Professional",

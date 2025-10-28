@@ -15,7 +15,7 @@ model AdminUsers {
   full_name        String?
   is_active        Boolean          @default(true)
   created_at       DateTime         @default(now())
-  updated_at       DateTime         @updatedAt
+  updated_at       DateTime         @default(now()) @updatedAt
   phone            String?
   admin_sessions   AdminSessions[]  @relation("AdminSessions")
   admin_tokens     AdminTokens[]    @relation("AdminTokens")
@@ -768,7 +768,7 @@ model FileUploads {
   failed_records    Int              @default(0)
   uploaded_by_id    Int
   created_at        DateTime         @default(now())
-  updated_at        DateTime         @updatedAt
+  updated_at        DateTime         @default(now()) @updatedAt
   processed_at      DateTime?
   entity_type       FileEntities     @relation(fields: [entity_type_id], references: [id])
   uploaded_by       B2BPartnersUsers @relation("FileUpload", fields: [uploaded_by_id], references: [id])
@@ -830,7 +830,7 @@ model HSEdumateContactsApplicationJourney {
   follow_up_date                    DateTime?                 @map("follow_up_date")
   next_follow_up_date               DateTime?                 @map("next_follow_up_date")
   created_at                        DateTime                  @default(now()) @map("created_at")
-  updated_at                        DateTime                  @updatedAt @map("updated_at")
+  updated_at                        DateTime                  @default(now()) @updatedAt @map("updated_at")
   contact                           HSEdumateContacts         @relation(fields: [contact_id], references: [id], onDelete: Cascade)
 
   @@map("hs_edumate_contacts_application_journey")
@@ -865,7 +865,7 @@ model HSEdumateContactsAcademicProfiles {
   intake_month                String?                        @map("intake_month")
   intake_year                 String?                        @map("intake_year")
   created_at                  DateTime                       @default(now()) @map("created_at")
-  updated_at                  DateTime                       @updatedAt @map("updated_at")
+  updated_at                  DateTime                       @default(now()) @updatedAt @map("updated_at")
   contact                     HSEdumateContacts              @relation(fields: [contact_id], references: [id], onDelete: Cascade)
 
   @@map("hs_edumate_contacts_academic_profiles")
@@ -888,7 +888,7 @@ model HSEdumateContacts {
   co_applicant_1_email         String?                               @map("co_applicant_1_email")
   co_applicant_1_mobile_number String?                               @map("co_applicant_1_mobile_number")
   created_at                   DateTime                              @default(now()) @map("created_at")
-  updated_at                   DateTime                              @updatedAt @map("updated_at")
+  updated_at                   DateTime                              @default(now()) @updatedAt @map("updated_at")
   is_deleted                   Boolean                               @default(false)
   b2b_partner                  HSB2BPartners?                        @relation("B2BPartnerContacts", fields: [b2b_partner_id], references: [id])
   deleted_by                   B2BPartnersUsers?                     @relation("ContactsDeletedBy", fields: [deleted_by_id], references: [id])
@@ -919,7 +919,7 @@ model HSEdumateContactsSystemTracking {
   gdpr_consent          GDPRConsent?         @map("gdpr_consent")
   marketing_consent     MarketingConsent?    @map("marketing_consent")
   created_at            DateTime             @default(now()) @map("created_at")
-  updated_at            DateTime             @updatedAt @map("updated_at")
+  updated_at            DateTime             @default(now()) @updatedAt @map("updated_at")
   contact               HSEdumateContacts    @relation(fields: [contact_id], references: [id], onDelete: Cascade)
 
   @@map("hs_edumate_contacts_system_tracking")
@@ -956,7 +956,7 @@ model HSEdumateContactsFinancialInfo {
   scholarship_amount          Decimal?                      @map("scholarship_amount") @db.Decimal(15, 2)
   self_funding_amount         Decimal?                      @map("self_funding_amount") @db.Decimal(15, 2)
   created_at                  DateTime                      @default(now()) @map("created_at")
-  updated_at                  DateTime                      @updatedAt @map("updated_at")
+  updated_at                  DateTime                      @default(now()) @updatedAt @map("updated_at")
   contact                     HSEdumateContacts             @relation(fields: [contact_id], references: [id], onDelete: Cascade)
 
   @@map("hs_edumate_contacts_financial_info")
@@ -980,7 +980,7 @@ model HSEdumateContactsLeadAttribution {
   utm_term                      String?                      @map("utm_term")
   utm_content                   String?                      @map("utm_content")
   created_at                    DateTime                     @default(now()) @map("created_at")
-  updated_at                    DateTime                     @updatedAt @map("updated_at")
+  updated_at                    DateTime                     @default(now()) @updatedAt @map("updated_at")
   contact                       HSEdumateContacts            @relation(fields: [contact_id], references: [id], onDelete: Cascade)
 
   @@map("hs_edumate_contacts_lead_attribution")
@@ -993,7 +993,7 @@ model HSEdumateContactsLoanPreferences {
   preferred_lenders         PreferredLenders[]       @map("preferred_lenders")
   repayment_type_preference RepaymentTypePreference? @map("repayment_type_preference")
   created_at                DateTime                 @default(now()) @map("created_at")
-  updated_at                DateTime                 @updatedAt @map("updated_at")
+  updated_at                DateTime                 @default(now()) @updatedAt @map("updated_at")
   contact                   HSEdumateContacts        @relation(fields: [contact_id], references: [id], onDelete: Cascade)
 
   @@map("hs_edumate_contacts_loan_preferences")
@@ -1002,7 +1002,7 @@ model HSEdumateContactsLoanPreferences {
 model HSEdumateContactsPersonalInformation {
   id                        Int               @id @default(autoincrement())
   contact_id                Int               @unique @map("contact_id")
-  first_name                String            @map("first_name")
+  first_name                String?            @map("first_name")
   last_name                 String?           @map("last_name")
   email                     String?           @map("email")
   phone_number              String?           @map("phone_number")
@@ -1020,7 +1020,7 @@ model HSEdumateContactsPersonalInformation {
   country_permanent_address String?           @map("country_permanent_address")
   pincode_permanent_address String?           @map("pincode_permanent_address")
   created_at                DateTime          @default(now()) @map("created_at")
-  updated_at                DateTime          @updatedAt @map("updated_at")
+  updated_at                DateTime          @default(now()) @updatedAt @map("updated_at")
   deleted_by_id             Int?
   is_deleted                Boolean           @default(false)
   contact                   HSEdumateContacts @relation(fields: [contact_id], references: [id], onDelete: Cascade)
@@ -1042,7 +1042,7 @@ model HSLenders {
   lender_type            LenderType?                   @map("lender_type")
   is_active              Boolean?                      @default(true) @map("is_active")
   created_at             DateTime?                     @default(now()) @map("created_at")
-  updated_at             DateTime?                     @updatedAt @map("updated_at")
+  updated_at             DateTime?                     @default(now()) @updatedAt @map("updated_at")
   created_by             String?                       @map("created_by")
   updated_by             String?                       @map("updated_by")
   hs_created_by_user_id  Int?                          @map("hs_created_by_user_id")
@@ -1098,7 +1098,7 @@ model HSLendersContactInfo {
   customer_service_email             String?   @map("customer_service_email")
   customer_service_number            String?   @map("customer_service_number")
   created_at                         DateTime  @default(now()) @map("created_at")
-  updated_at                         DateTime  @updatedAt @map("updated_at")
+  updated_at                         DateTime  @default(now()) @updatedAt @map("updated_at")
   lender                             HSLenders @relation(fields: [lender_id], references: [id], onDelete: Cascade)
 
   @@map("hs_lenders_contact_info")
@@ -1114,7 +1114,7 @@ model HSLendersBusinessMetrics {
   average_processing_days      Int?      @map("average_processing_days")
   average_disbursement_days    Int?      @map("average_disbursement_days")
   created_at                   DateTime  @default(now()) @map("created_at")
-  updated_at                   DateTime  @updatedAt @map("updated_at")
+  updated_at                   DateTime  @default(now()) @updatedAt @map("updated_at")
   lender                       HSLenders @relation(fields: [lender_id], references: [id], onDelete: Cascade)
 
   @@map("hs_lenders_business_metrics")
@@ -1157,7 +1157,7 @@ model HSLendersOperationalDetails {
   turnaround_time_commitment Int?                   @map("turnaround_time_commitment")
   working_hours              String?                @map("working_hours")
   created_at                 DateTime               @default(now()) @map("created_at")
-  updated_at                 DateTime               @updatedAt @map("updated_at")
+  updated_at                 DateTime               @default(now()) @updatedAt @map("updated_at")
   lender                     HSLenders              @relation(fields: [lender_id], references: [id], onDelete: Cascade)
 
   @@map("hs_lenders_operational_details")
@@ -1179,7 +1179,7 @@ model HSLendersPartnershipsDetails {
   payout_terms           PayoutTerms?       @default(CUSTOM)
   revenue_share_model    String?            @map("revenue_share_model")
   created_at             DateTime           @default(now()) @map("created_at")
-  updated_at             DateTime           @updatedAt @map("updated_at")
+  updated_at             DateTime           @default(now()) @updatedAt @map("updated_at")
   lender                 HSLenders          @relation(fields: [lender_id], references: [id], onDelete: Cascade)
 
   @@map("hs_lenders_partnerships_details")
@@ -1200,7 +1200,7 @@ model HSLoanProducts {
   last_updated_date                 DateTime?                               @map("last_updated_date")
   is_active                         Boolean?                                @default(true) @map("is_active")
   created_at                        DateTime?                               @default(now()) @map("created_at")
-  updated_at                        DateTime?                               @updatedAt @map("updated_at")
+  updated_at                        DateTime?                               @default(now()) @updatedAt @map("updated_at")
   created_by                        String?                                 @map("created_by")
   updated_by                        String?                                 @map("updated_by")
   hs_created_by_user_id             Int?                                    @map("hs_created_by_user_id")
@@ -1300,7 +1300,7 @@ model HSLoanProductsEligibilityCriteria {
   min_work_experience_months      Int?                     @map("min_work_experience_months")
   admission_confirmation_required Boolean?                 @default(true) @map("admission_confirmation_required")
   created_at                      DateTime                 @default(now()) @map("created_at")
-  updated_at                      DateTime                 @updatedAt @map("updated_at")
+  updated_at                      DateTime                 @default(now()) @updatedAt @map("updated_at")
   loan_product                    HSLoanProducts           @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
 
   @@index([loan_product_id])
@@ -1309,7 +1309,7 @@ model HSLoanProductsEligibilityCriteria {
 
 model HSLoanProductsCollateralAndSecurity {
   id                             Int                          @id @default(autoincrement())
-  loan_product_id                Int                          @unique @map("product_id")
+  loan_product_id                Int                          @unique
   collateral_margin              Int?                         @map("collateral_margin")
   collateral_required            CollateralRequirement?       @map("collateral_required")
   collateral_threshold_amount    Decimal?                     @map("collateral_threshold_amount") @db.Decimal(10, 2)
@@ -1319,7 +1319,7 @@ model HSLoanProductsCollateralAndSecurity {
   insurance_required             InsuranceRequired?           @default(NOT_REQUIRED)
   third_party_guarantee_required ThirdPartyGuaranteeRequired? @default(NO)
   created_at                     DateTime                     @default(now()) @map("created_at")
-  updated_at                     DateTime                     @updatedAt @map("updated_at")
+  updated_at                     DateTime                     @default(now()) @updatedAt @map("updated_at")
   product                        HSLoanProducts               @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
 
   @@map("hs_loan_products_collateral_and_security")
@@ -1327,7 +1327,7 @@ model HSLoanProductsCollateralAndSecurity {
 
 model HSLoanProductsRepaymentTerms {
   id                        Int                 @id @default(autoincrement())
-  loan_product_id           Int                 @unique @map("product_id")
+  loan_product_id           Int                 @unique
   moratorium_type           MoratoriumType?     @map("moratorium_type")
   moratorium_period         Int?                @map("moratorium_period")
   repayment_frequency       RepaymentFrequency? @map("repayment_frequency")
@@ -1343,7 +1343,7 @@ model HSLoanProductsRepaymentTerms {
   part_payment_allowed      PartPaymentAllowed? @map("part_payment_allowed")
   part_payment_minimum      Int?                @map("part_payment_minimum")
   created_at                DateTime            @default(now()) @map("created_at")
-  updated_at                DateTime            @updatedAt @map("updated_at")
+  updated_at                DateTime            @default(now()) @updatedAt @map("updated_at")
   product                   HSLoanProducts      @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
 
   @@map("hs_loan_products_repayment_terms")
@@ -1351,7 +1351,7 @@ model HSLoanProductsRepaymentTerms {
 
 model HSLoanProductsApplicationAndProcessing {
   id                           Int                  @id @default(autoincrement())
-  loan_product_id              Int                  @unique @map("product_id")
+  loan_product_id              Int                  @unique
   application_mode             ApplicationMode?     @map("application_mode")
   disbursement_process         DisbursementProcess? @map("disbursement_process")
   disbursement_timeline        String?              @map("disbursement_timeline")
@@ -1361,7 +1361,7 @@ model HSLoanProductsApplicationAndProcessing {
   mandatory_documents          String?              @map("mandatory_documents")
   optional_documents           String?              @map("optional_documents")
   created_at                   DateTime             @default(now()) @map("created_at")
-  updated_at                   DateTime             @updatedAt @map("updated_at")
+  updated_at                   DateTime             @default(now()) @updatedAt @map("updated_at")
   product                      HSLoanProducts       @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
 
   @@map("hs_loan_products_application_and_processing")
@@ -1369,7 +1369,7 @@ model HSLoanProductsApplicationAndProcessing {
 
 model HSLoanProductsGeographicCoverage {
   id                         Int                     @id @default(autoincrement())
-  loan_product_id            Int                     @unique @map("product_id")
+  loan_product_id            Int                     @unique
   course_restrictions        String?                 @map("course_restrictions")
   not_supported_universities String?                 @map("not_supported_universities")
   restricted_countries       String?                 @map("restricted_countries")
@@ -1377,7 +1377,7 @@ model HSLoanProductsGeographicCoverage {
   course_duration_maximum    Int?                    @map("course_duration_maximum")
   supported_course_types     LoanProductCourseTypes? @map("supported_course_types")
   created_at                 DateTime                @default(now()) @map("created_at")
-  updated_at                 DateTime                @updatedAt @map("updated_at")
+  updated_at                 DateTime                @default(now()) @updatedAt @map("updated_at")
   product                    HSLoanProducts          @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
 
   @@map("hs_loan_products_geographic_coverage")
@@ -1385,7 +1385,7 @@ model HSLoanProductsGeographicCoverage {
 
 model HSLoanProductsSpecialFeatures {
   id                          Int                       @id @default(autoincrement())
-  loan_product_id             Int                       @unique @map("product_id")
+  loan_product_id             Int                       @unique
   digital_features            DigitalFeatures?          @map("digital_features")
   customer_support_features   CustomerSupportFeatures?  @map("customer_support_features")
   flexible_repayment_options  FlexibleRepaymentOptions? @map("flexible_repayment_options")
@@ -1395,7 +1395,7 @@ model HSLoanProductsSpecialFeatures {
   insurance_coverage_included Boolean?                  @default(false) @map("insurance_coverage_included")
   loyalty_benefits            String?                   @map("loyalty_benefits")
   created_at                  DateTime                  @default(now()) @map("created_at")
-  updated_at                  DateTime                  @updatedAt @map("updated_at")
+  updated_at                  DateTime                  @default(now()) @updatedAt @map("updated_at")
   product                     HSLoanProducts            @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
 
   @@map("hs_loan_products_special_features")
@@ -1403,7 +1403,7 @@ model HSLoanProductsSpecialFeatures {
 
 model HSLoanProductsPerformanceMetrics {
   id                           Int            @id @default(autoincrement())
-  loan_product_id              Int            @unique @map("product_id")
+  loan_product_id              Int            @unique
   application_volume_monthly   Int?           @map("application_volume_monthly")
   application_volume_quarterly Int?           @map("application_volume_quarterly")
   application_volume_yearly    Int?           @map("application_volume_yearly")
@@ -1413,7 +1413,7 @@ model HSLoanProductsPerformanceMetrics {
   customer_satisfaction_rating Int?           @map("customer_satisfaction_rating")
   product_popularity_score     Int?           @map("product_popularity_score")
   created_at                   DateTime?      @default(now()) @map("created_at")
-  updated_at                   DateTime?      @updatedAt @map("updated_at")
+  updated_at                   DateTime?      @default(now())  @updatedAt @map("updated_at")
   product                      HSLoanProducts @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
 
   @@map("hs_loan_products_performance_metrics")
@@ -1421,7 +1421,7 @@ model HSLoanProductsPerformanceMetrics {
 
 model HSLoanProductsSystemIntegration {
   id                          Int                    @id @default(autoincrement())
-  loan_product_id             Int                    @unique @map("product_id")
+  loan_product_id             Int                    @unique
   api_availability            ApiAvailability?       @map("api_availability")
   technical_documentation_url String?                @map("technical_documentation_url")
   integration_complexity      IntegrationComplexity? @map("integration_complexity")
@@ -1429,7 +1429,7 @@ model HSLoanProductsSystemIntegration {
   sandbox_environment         SandboxEnvironment?    @map("sandbox_environment")
   webhook_support             WebHookSupport?        @map("webhook_support")
   created_at                  DateTime?              @default(now()) @map("created_at")
-  updated_at                  DateTime?              @updatedAt @map("updated_at")
+  updated_at                  DateTime?              @default(now()) @updatedAt @map("updated_at")
   product                     HSLoanProducts         @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
 
   @@map("hs_loan_products_system_integration")
@@ -1437,7 +1437,7 @@ model HSLoanProductsSystemIntegration {
 
 model HSLoanProductsFinancialTerms {
   id                            Int                @id @default(autoincrement())
-  loan_product_id               Int                @unique @map("product_id")
+  loan_product_id               Int                @unique
   interest_rate_type            InterestRateType?  @map("interest_rate_type")
   interest_rate_range_min       Decimal?           @map("interest_rate_range_min") @db.Decimal(10, 2)
   interest_rate_range_max       Decimal?           @map("interest_rate_range_max") @db.Decimal(10, 2)
@@ -1457,7 +1457,7 @@ model HSLoanProductsFinancialTerms {
   minimum_loan_amount_secured   Decimal?           @map("minimum_loan_amount_secured") @db.Decimal(10, 2)
   minimum_loan_amount_unsecured Decimal?           @map("minimum_loan_amount_unsecured") @db.Decimal(10, 2)
   created_at                    DateTime?          @default(now()) @map("created_at")
-  updated_at                    DateTime?          @updatedAt @map("updated_at")
+  updated_at                    DateTime?          @default(now()) @updatedAt @map("updated_at")
   product                       HSLoanProducts     @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
 
   @@map("hs_loan_products_financial_terms")
@@ -1476,7 +1476,7 @@ model HSLoanDocuments {
   document_type         DocumentType?                        @map("document_type")
   is_active             Boolean?                             @default(true) @map("is_active")
   created_at            DateTime?                            @default(now()) @map("created_at")
-  updated_at            DateTime?                            @updatedAt @map("updated_at")
+  updated_at            DateTime?                            @default(now()) @updatedAt @map("updated_at")
   created_by            String?                              @map("created_by")
   updated_by            String?                              @map("updated_by")
   hs_created_by_user_id Int?                                 @map("hs_created_by_user_id")
@@ -1516,7 +1516,7 @@ model HSLoanDocumentsSystemTracking {
   review_frequency        ReviewFrequency?      @map("review_frequency")
   version_number          String?               @map("version_number")
   created_at              DateTime              @default(now()) @map("created_at")
-  updated_at              DateTime              @updatedAt @map("updated_at")
+  updated_at              DateTime              @default(now()) @updatedAt @map("updated_at")
   document_master         HSLoanDocuments       @relation(fields: [document_master_id], references: [id], onDelete: Cascade)
 
   @@map("hs_loan_documents_system_tracking")
@@ -1534,7 +1534,7 @@ model HSLoanDocumentsProcessingWorkflow {
   resubmission_allowed          ResubmissionAllowed?       @map("resubmission_allowed")
   validation_rules              String?                    @map("validation_rules")
   created_at                    DateTime                   @default(now()) @map("created_at")
-  updated_at                    DateTime                   @updatedAt @map("updated_at")
+  updated_at                    DateTime                   @default(now()) @updatedAt @map("updated_at")
   document_master               HSLoanDocuments            @relation(fields: [document_master_id], references: [id], onDelete: Cascade)
 
   @@map("hs_loan_documents_processing_workflow")
@@ -1575,7 +1575,7 @@ model HSLoanDocumentsApplicability {
   required_for_lenders        Json?                 @map("required_for_lenders")
   required_for_loan_products  Json?                 @map("required_for_loan_products")
   created_at                  DateTime              @default(now()) @map("created_at")
-  updated_at                  DateTime              @updatedAt @map("updated_at")
+  updated_at                  DateTime              @default(now()) @updatedAt @map("updated_at")
   document_master             HSLoanDocuments       @relation(fields: [document_master_id], references: [id], onDelete: Cascade)
 
   @@map("hs_loan_documents_applicability")
@@ -1588,7 +1588,7 @@ model HSLoanDocumentsCompliance {
   data_sensitivity      DataSensitivity @map("data_sensitivity")
   gdpr_relevance        GdprRelevance?  @map("gdpr_relevance")
   created_at            DateTime        @default(now()) @map("created_at")
-  updated_at            DateTime        @updatedAt @map("updated_at")
+  updated_at            DateTime        @default(now()) @updatedAt @map("updated_at")
   document_master       HSLoanDocuments @relation(fields: [document_master_id], references: [id], onDelete: Cascade)
 
   @@map("hs_loan_documents_compliance")
@@ -1604,7 +1604,7 @@ model HSLoanDocumentsDigitalConfigs {
   e_signature_accepted       ESignatureAccepted?       @map("e_signature_accepted")
   real_time_verification     RealTimeVerification?     @map("real_time_verification")
   created_at                 DateTime                  @default(now()) @map("created_at")
-  updated_at                 DateTime                  @updatedAt @map("updated_at")
+  updated_at                 DateTime                  @default(now()) @updatedAt @map("updated_at")
   document_master            HSLoanDocuments           @relation(fields: [document_master_id], references: [id], onDelete: Cascade)
 
   @@map("hs_loan_documents_digital_configs")
@@ -1619,7 +1619,7 @@ model HSLoanDocumentsAlternativeDocuments {
   special_cases_handling         String?         @map("special_cases_handling")
   waiver_conditions              String?         @map("waiver_conditions")
   created_at                     DateTime        @default(now()) @map("created_at")
-  updated_at                     DateTime        @updatedAt @map("updated_at")
+  updated_at                     DateTime        @default(now()) @updatedAt @map("updated_at")
   primary_document               HSLoanDocuments @relation(fields: [primary_document_id], references: [id], onDelete: Cascade)
 
   @@index([primary_document_id])
@@ -1640,7 +1640,7 @@ model HSLoanDocumentsPerformanceMetrics {
   submission_rate               Float?          @map("submission_rate")
   verification_success_rate     Float?          @map("verification_success_rate")
   created_at                    DateTime        @default(now()) @map("created_at")
-  updated_at                    DateTime        @updatedAt @map("updated_at")
+  updated_at                    DateTime        @default(now()) @updatedAt @map("updated_at")
   document_master               HSLoanDocuments @relation(fields: [document_master_id], references: [id], onDelete: Cascade)
 
   @@map("hs_loan_documents_performance_metrics")
@@ -1652,7 +1652,7 @@ model HSLoanDocumentsCustomerExperience {
   customer_support_faq      Json?                 @map("customer_support_faq")
   sample_document_available DocumentAvailability?
   created_at                DateTime              @default(now()) @map("created_at")
-  updated_at                DateTime              @updatedAt @map("updated_at")
+  updated_at                DateTime              @default(now()) @updatedAt @map("updated_at")
   document_master           HSLoanDocuments       @relation(fields: [document_master_id], references: [id], onDelete: Cascade)
 
   @@map("hs_loan_documents_customer_experience")
@@ -1674,7 +1674,7 @@ model HSCommissionSettlements {
   is_deleted                  Boolean?                                      @default(false)
   is_active                   Boolean?                                      @default(true) @map("is_active")
   created_at                  DateTime?                                     @default(now()) @map("created_at")
-  updated_at                  DateTime?                                     @updatedAt @map("updated_at")
+  updated_at                  DateTime?                                     @default(now()) @updatedAt @map("updated_at")
   created_by                  String?                                       @map("created_by")
   updated_by                  String?                                       @map("updated_by")
   hs_created_by_user_id       Int?                                          @map("hs_created_by_user_id")
@@ -1713,7 +1713,7 @@ model HSCommissionSettlementsSettlementStatus {
   verification_date   DateTime?
   verification_status VerificationStatus?
   created_at          DateTime                @default(now()) @map("created_at")
-  updated_at          DateTime                @updatedAt @map("updated_at")
+  updated_at          DateTime                @default(now()) @updatedAt @map("updated_at")
   settlement          HSCommissionSettlements @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
 
   @@index([settlement_id])
@@ -1744,7 +1744,7 @@ model HSCommissionSettlementsSystemTracking {
   transaction_sub_type       String?                 @map("transaction_sub_type")
   transaction_type           TransactionTypes?       @map("transaction_type")
   created_at                 DateTime                @default(now()) @map("created_at")
-  updated_at                 DateTime                @updatedAt @map("updated_at")
+  updated_at                 DateTime                @default(now()) @updatedAt @map("updated_at")
   settlement_system_tracking HSCommissionSettlements @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
 
   @@map("hs_commission_settlements_system_tracking")
@@ -1760,7 +1760,7 @@ model HSCommissionSettlementsTransactionDetails {
   transaction_sub_type    String?                 @map("transaction_sub_type")
   transaction_type        TransactionTypes?       @map("transaction_type")
   created_at              DateTime                @default(now()) @map("created_at")
-  updated_at              DateTime                @updatedAt @map("updated_at")
+  updated_at              DateTime                @default(now()) @updatedAt @map("updated_at")
   transaction             HSCommissionSettlements @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
 
   @@map("hs_commission_settlements_transaction_details")
@@ -1781,7 +1781,7 @@ model HSCommissionSettlementsCommissionCalculation {
   penalty_amount          Decimal?                @map("penalty_amount") @db.Decimal(12, 2)
   total_gross_amount      Decimal?                @map("total_gross_amount") @db.Decimal(12, 2)
   created_at              DateTime                @default(now()) @map("created_at")
-  updated_at              DateTime                @updatedAt @map("updated_at")
+  updated_at              DateTime                @default(now()) @updatedAt @map("updated_at")
   settlement              HSCommissionSettlements @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
 
   @@map("hs_commission_settlements_commission_calculations")
@@ -1800,7 +1800,7 @@ model HSCommissionSettlementsCommunication {
   partner_notification_sent PartnerNotificationSent? @map("partner_notification_sent")
   sms_sent_count            Int?                     @map("sms_sent_count")
   created_at                DateTime                 @default(now()) @map("created_at")
-  updated_at                DateTime                 @updatedAt @map("updated_at")
+  updated_at                DateTime                 @default(now()) @updatedAt @map("updated_at")
   settlement                HSCommissionSettlements  @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
 
   @@map("hs_commission_settlements_communication")
@@ -1817,7 +1817,7 @@ model HSCommissionSettlementsLoanDetails {
   student_destination_country String?                 @map("student_destination_country")
   university_name             String?                 @map("university_name")
   created_at                  DateTime                @default(now()) @map("created_at")
-  updated_at                  DateTime                @updatedAt @map("updated_at")
+  updated_at                  DateTime                @default(now()) @updatedAt @map("updated_at")
   settlement                  HSCommissionSettlements @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
 
   @@index([settlement_id])
@@ -1843,7 +1843,7 @@ model HSCommissionSettlementsPaymentProcessing {
   bank_transaction_id        String?                 @unique @map("bank_transaction_id")
   payment_gateway_reference  String?                 @map("payment_gateway_reference")
   created_at                 DateTime                @default(now()) @map("created_at")
-  updated_at                 DateTime                @updatedAt @map("updated_at")
+  updated_at                 DateTime                @default(now()) @updatedAt @map("updated_at")
   settlement                 HSCommissionSettlements @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
 
   @@map("hs_commission_settlements_payment_processing")
@@ -1868,7 +1868,7 @@ model HSCommissionSettlementsTaxAndDeductions {
   withholding_tax_amount       Decimal?                @map("withholding_tax_amount") @db.Decimal(12, 2)
   total_deductions             Decimal?                @map("total_deductions") @db.Decimal(12, 2)
   created_at                   DateTime                @default(now()) @map("created_at")
-  updated_at                   DateTime                @updatedAt @map("updated_at")
+  updated_at                   DateTime                @default(now()) @updatedAt @map("updated_at")
   settlement                   HSCommissionSettlements @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
 
   @@map("hs_commission_settlements_tax_and_deductions")
@@ -1889,7 +1889,7 @@ model HSCommissionSettlementsDocumentation {
   tax_certificate_required TaxCertificateRequired? @map("tax_certificate_required")
   tax_certificate_url      String?                 @map("tax_certificate_url")
   created_at               DateTime                @default(now()) @map("created_at")
-  updated_at               DateTime                @updatedAt @map("updated_at")
+  updated_at               DateTime                @default(now()) @updatedAt @map("updated_at")
   settlement               HSCommissionSettlements @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
 
   @@map("hs_commission_settlements_documentation")
@@ -1912,7 +1912,7 @@ model HSCommissionSettlementsHoldAndDisputes {
   hold_release_date        DateTime?               @map("hold_release_date")
   on_hold                  Boolean?                @default(false) @map("on_hold")
   created_at               DateTime                @default(now()) @map("created_at")
-  updated_at               DateTime                @updatedAt @map("updated_at")
+  updated_at               DateTime                @default(now()) @updatedAt @map("updated_at")
   settlement               HSCommissionSettlements @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
 
   @@map("hs_commission_settlements_hold_and_disputes")
@@ -1929,7 +1929,7 @@ model HSCommissionSettlementsReconciliations {
   discrepancy_amount       Decimal?                @map("discrepancy_amount") @db.Decimal(12, 2)
   discrepancy_reason       String?                 @map("discrepancy_reason")
   created_at               DateTime                @default(now()) @map("created_at")
-  updated_at               DateTime                @updatedAt @map("updated_at")
+  updated_at               DateTime                @default(now()) @updatedAt @map("updated_at")
   settlement               HSCommissionSettlements @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
 
   @@map("hs_commission_settlements_reconciliations")
@@ -1944,7 +1944,7 @@ model HSCommissionSettlementsPerformanceAnalytics {
   payment_delay_days          Int?                    @map("payment_delay_days")
   processing_time_days        Int?                    @map("processing_time_days")
   created_at                  DateTime                @default(now()) @map("created_at")
-  updated_at                  DateTime                @updatedAt @map("updated_at")
+  updated_at                  DateTime                @default(now()) @updatedAt @map("updated_at")
   settlement                  HSCommissionSettlements @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
 
   @@map("hs_commission_settlements_performance_analytics")
@@ -1954,7 +1954,7 @@ model MktEligibilityCheckerLeads {
   id         Int               @id @default(autoincrement())
   contact_id Int               @unique
   created_at DateTime          @default(now())
-  updated_at DateTime          @updatedAt
+  updated_at DateTime          @default(now()) @updatedAt
   contact    HSEdumateContacts @relation(fields: [contact_id], references: [id])
 
   @@map("mkt_eligibility_checker_leads")
@@ -1964,7 +1964,7 @@ model MktEmiCalculatorLeads {
   id         Int               @id @default(autoincrement())
   contact_id Int               @unique
   created_at DateTime          @default(now())
-  updated_at DateTime          @updatedAt
+  updated_at DateTime          @default(now()) @updatedAt
   contact    HSEdumateContacts @relation(fields: [contact_id], references: [id])
 
   @@map("mkt_emi_calculator_leads")
@@ -1987,7 +1987,7 @@ model CurrencyConfigs {
   large_amount_units  Json
   is_active           Boolean  @default(true)
   created_at          DateTime @default(now())
-  updated_at          DateTime @updatedAt
+  updated_at          DateTime @default(now()) @updatedAt
 
   @@index([code], map: "idx_currency_code")
   @@index([is_active], map: "idx_currency_active")
@@ -2161,12 +2161,12 @@ enum AdmissionStatus {
 }
 
 enum EducationLevel {
-  HIGH_SCHOOL @map("High School")
-  BACHELOR    @map("Bachelor")
-  MASTER      @map("Master")
-  PHD         @map("Phd")
-  DIPLOMA     @map("Diploma")
-  OTHER       @map("Other")
+  HIGH_SCHOOL   @map("High School")
+  BACHELOR      @map("Bachelor")
+  MASTER        @map("Master")
+  PHD           @map("PhD")
+  DIPLOMA       @map("Diploma")
+  OTHER         @map("Other")
 
   @@map("education_level")
 }
@@ -2221,12 +2221,12 @@ enum ApplicationSource {
 }
 
 enum CourseLevel {
-  BACHELORS    @map("Bachelors")
-  MASTERS      @map("Masters")
-  PHD          @map("Phd")
-  DIPLOMA      @map("Diploma")
-  CERTIFICATE  @map("Certificate")
-  PROFESSIONAL @map("Professional")
+  BACHELORS     @map("Bachelors")
+  MASTERS       @map("Masters")
+  PHD           @map("PhD")
+  DIPLOMA       @map("Diploma")
+  CERTIFICATE   @map("Certificate")
+  PROFESSIONAL  @map("Professional")
 }
 
 enum LenderCategory {
@@ -2286,20 +2286,20 @@ enum CollateralType {
 }
 
 enum CourseType {
-  UNDERGRADUATE     @map("Undergraduate")
-  GRADUATE          @map("Graduate")
-  PHD               @map("Phd")
-  DIPLOMA           @map("Diploma")
-  CERTIFICATE       @map("Certificate")
-  PROFESSIONAL      @map("Professional")
-  TECHNICAL         @map("Technical")
-  FULL_TIME         @map("Full Time")
-  PART_TIME         @map("Part Time")
-  DISTANCE_LEARNING @map("Distance Learning")
-  ONLINE            @map("Online")
-  EXECUTIVE         @map("Executive")
-  REGULAR           @map("Regular")
-  ACCELERATED       @map("Accelerated")
+  UNDERGRADUATE       @map("Undergraduate")
+  GRADUATE           @map("Graduate")
+  PHD                @map("PhD")
+  DIPLOMA            @map("Diploma")
+  CERTIFICATE        @map("Certificate")
+  PROFESSIONAL       @map("Professional")
+  TECHNICAL          @map("Technical")
+  FULL_TIME          @map("Full Time")
+  PART_TIME          @map("Part Time")
+  DISTANCE_LEARNING  @map("Distance Learning")
+  ONLINE             @map("Online")
+  EXECUTIVE          @map("Executive")
+  REGULAR            @map("Regular")
+  ACCELERATED        @map("Accelerated")
 
   @@map("course_type")
 }
@@ -2807,13 +2807,13 @@ enum LenderCollateralType {
 }
 
 enum SupportedCourseTypes {
-  UNDERGRADUATE @map("Undergraduate")
-  GRADUATE      @map("Graduate")
-  PHD           @map("Phd")
-  DIPLOMA       @map("Diploma")
-  CERTIFICATE   @map("Certificate")
-  PROFESSIONAL  @map("Professional")
-  TECHNICAL     @map("Technical")
+  UNDERGRADUATE   @map("Undergraduate")
+  GRADUATE        @map("Graduate")
+  PHD             @map("PhD")
+  DIPLOMA         @map("Diploma")
+  CERTIFICATE     @map("Certificate")
+  PROFESSIONAL    @map("Professional")
+  TECHNICAL       @map("Technical")
 }
 
 enum SupportedDestinations {
@@ -2939,15 +2939,15 @@ enum ResidencyRequirements {
 }
 
 enum TargetSegment {
-  UNDERGRADUATE @map("Undergraduate")
-  GRADUATE      @map("Graduate")
-  PHD           @map("Phd")
-  DIPLOMA       @map("Diploma")
-  CERTIFICATE   @map("Certificate")
-  PROFESSIONAL  @map("Professional")
-  TECHNICAL     @map("Technical")
-  MEDICAL       @map("Medical")
-  MANAGEMENT    @map("Management")
+  UNDERGRADUATE   @map("Undergraduate")
+  GRADUATE        @map("Graduate")
+  PHD             @map("PhD")
+  DIPLOMA         @map("Diploma")
+  CERTIFICATE     @map("Certificate")
+  PROFESSIONAL    @map("Professional")
+  TECHNICAL       @map("Technical")
+  MEDICAL         @map("Medical")
+  MANAGEMENT      @map("Management")
 
   @@map("target_segment")
 }
@@ -3350,13 +3350,13 @@ enum EdumateContactAdmissionStatus {
 }
 
 enum CurrentEducationLevel {
-  HIGH_SCHOOL @map("High School")
-  BACHELORS   @map("Bachelors")
-  MASTERS     @map("Masters")
-  PHD         @map("Phd")
-  DIPLOMA     @map("Diploma")
-  OTHER       @map("Other")
-
+  HIGH_SCHOOL   @map("High School")
+  BACHELORS     @map("Bachelors")
+  MASTERS       @map("Masters")
+  PHD           @map("PhD")
+  DIPLOMA       @map("Diploma")
+  OTHER         @map("Other")
+  
   @@map("current_education_level")
 }
 
@@ -3392,7 +3392,7 @@ enum PreferredStudyDestination {
 enum TargetDegreeLevel {
   BACHELORS           @map("Bachelors")
   MASTERS             @map("Masters")
-  PHD                 @map("Phd")
+  PHD                 @map("PhD")
   DIPLOMA             @map("Diploma")
   CERTIFICATE         @map("Certificate")
   PROFESSIONAL_COURSE @map("Professional Course")
@@ -3804,4 +3804,48 @@ enum StudentRecordStatus {
   MERGED    @map("Merged")
 
   @@map("student_record_status")
+}
+
+model SyncOutbox {
+  id                String   @id @default(uuid())
+  
+  // Entity identification
+  entity_type       String              // 'HSEdumateContacts', 'HSEdumateContactsPersonalInformation', etc.
+  entity_id         Int                 // ID of the record in respective table
+  operation         String              // 'CREATE', 'UPDATE', 'DELETE'
+  
+  // Payload
+  payload           Json                // Complete data snapshot
+  
+  // Processing state
+  status            String   @default("PENDING")  // PENDING, PROCESSING, COMPLETED, FAILED
+  attempts          Int      @default(0)
+  max_attempts      Int      @default(5)
+  
+  // Error tracking
+  last_error        String?
+  error_code        String?
+  
+  // HubSpot reference
+  hubspot_id        String?
+  
+  // Batch grouping (for CSV uploads)
+  batch_id          String?
+  batch_size        Int?
+  batch_position    Int?
+  
+  // Timestamps
+  created_at        DateTime @default(now())
+  updated_at        DateTime @default(now()) @updatedAt
+  processing_at     DateTime?
+  processed_at      DateTime?
+  
+  // Priority
+  priority          Int      @default(5)  // 1=highest, 10=lowest
+  
+  @@index([status, created_at])
+  @@index([batch_id, batch_position])
+  @@index([entity_type, entity_id])
+  @@index([priority, status, created_at])
+  @@map("sync_outbox")
 }

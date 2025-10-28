@@ -5,6 +5,7 @@ import {
   coApplicantRelationshipMap,
   collateralAvailableMap,
   collateralTypeMap,
+  ContactsLead,
   courseTypeMap,
   currentEducationLevelMap,
   currentStatusDispositionMap,
@@ -354,9 +355,9 @@ export const mapSystemTracking = (data: Record<string, any>) => {
 };
 
 export const mapAllFields = async (
-  input: Record<string, any>
-): Promise<Record<string, any>> => {
-  const mapped: Record<string, any> = {};
+  input: ContactsLead
+): Promise<Partial<ContactsLead>> => {
+  const mapped: Partial<ContactsLead> = {};
 
   // Currency conversions
   const loanAmount =
@@ -364,7 +365,7 @@ export const mapAllFields = async (
     input?.selectedLoanCurrency != "INR" &&
     input?.loanAmount
       ? await convertCurrency(
-          parseInt(input?.loanAmount) || 0,
+          Number(input?.loanAmount) || 0,
           input?.selectedLoanCurrency || "INR",
           "INR"
         )
@@ -373,7 +374,7 @@ export const mapAllFields = async (
   const coApplicantAnnualIncome =
     input?.baseCurrency != "INR" && input?.coApplicantAnnualIncome
       ? await convertCurrency(
-          parseInt(input?.coApplicantAnnualIncome),
+          Number(input?.coApplicantAnnualIncome),
           input?.baseCurrency || "INR",
           "INR"
         )
@@ -497,7 +498,7 @@ export const mapAllFields = async (
 
   if (input.dateOfBirth !== undefined || input.date_of_birth !== undefined) {
     const dob = input.dateOfBirth ?? input.date_of_birth;
-    mapped.date_of_birth = parseDate(dob);
+    mapped.date_of_birth = dob;
   }
 
   if (input.gender !== undefined) {
@@ -649,33 +650,33 @@ export const mapAllFields = async (
 
   // Analytical exams
   if (input?.analyticalExam?.CAT !== undefined) {
-    mapped.cat_score = parseInt(input.analyticalExam.CAT) || null;
+    mapped.cat_score = Number(input.analyticalExam.CAT) || null;
   }
   if (input?.analyticalExam?.GRE !== undefined) {
-    mapped.gre_score = parseInt(input.analyticalExam.GRE) || null;
+    mapped.gre_score = Number(input.analyticalExam.GRE) || null;
   }
   if (input?.analyticalExam?.GMAT !== undefined) {
-    mapped.gmat_score = parseInt(input.analyticalExam.GMAT) || null;
+    mapped.gmat_score = Number(input.analyticalExam.GMAT) || null;
   }
   if (input?.analyticalExam?.SAT !== undefined) {
-    mapped.sat_score = parseInt(input.analyticalExam.SAT) || null;
+    mapped.sat_score = Number(input.analyticalExam.SAT) || null;
   }
   if (input?.analyticalExam?.NMAT !== undefined) {
-    mapped.nmat_score = parseInt(input.analyticalExam.NMAT) || null;
+    mapped.nmat_score = Number(input.analyticalExam.NMAT) || null;
   }
   if (input?.analyticalExam?.XAT !== undefined) {
-    mapped.xat_score = parseInt(input.analyticalExam.XAT) || null;
+    mapped.xat_score = Number(input.analyticalExam.XAT) || null;
   }
 
   // Language exams
   if (input?.languageExam?.TOEFL !== undefined) {
-    mapped.toefl_score = parseInt(input.languageExam.TOEFL) || null;
+    mapped.toefl_score = Number(input.languageExam.TOEFL) || null;
   }
   if (input?.languageExam?.IELTS !== undefined) {
-    mapped.ielts_score = parseInt(input.languageExam.IELTS) || null;
+    mapped.ielts_score = Number(input.languageExam.IELTS) || null;
   }
   if (input?.languageExam?.Duolingo !== undefined) {
-    mapped.duolingo_score = parseInt(input.languageExam.Duolingo) || null;
+    mapped.duolingo_score = Number(input.languageExam.Duolingo) || null;
   }
 
   if (
@@ -683,7 +684,7 @@ export const mapAllFields = async (
     input.other_test_scores !== undefined
   ) {
     mapped.other_test_scores =
-      parseInt(input.otherTestScores ?? input.other_test_scores) || null;
+      Number(input.otherTestScores ?? input.other_test_scores) || null;
   }
 
   if (
