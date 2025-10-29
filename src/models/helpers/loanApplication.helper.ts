@@ -382,7 +382,6 @@ export const deleteLoan = async (leadId: number, userId: number) => {
 // };
 
 export const getLoanList = async (
-  partnerId: number,
   limit: number,
   offset: number,
   sortKey: string | null,
@@ -435,6 +434,9 @@ export const getLoanList = async (
   let orderBy: any = { created_at: "desc" };
   if (sortKey) {
     switch (sortKey) {
+      case "id":
+        orderBy = { id: sortDir || "desc" };
+        break;
       case "name":
         orderBy = { student_name: sortDir || "desc" };
         break;
@@ -479,6 +481,93 @@ export const getLoanList = async (
     }),
     prisma.hSLoanApplications.count({
       where: where as Prisma.HSLoanApplicationsWhereInput,
+    }),
+  ]);
+
+  return { rows, count };
+};
+
+export const getLeadViewList = async (
+  partnerId: number,
+  limit: number,
+  offset: number,
+  sortKey: string | null,
+  sortDir: "asc" | "desc" | null,
+  search: string | null,
+  filters: {
+    partner: string | null;
+    lender: string | null;
+    loanProduct: string | null;
+    status: string | null;
+  }
+) => {
+  const where: any = {};
+
+  // Add search filter
+  if (search) {
+    where.OR = [
+      { student_name: { contains: search, mode: "insensitive" } },
+      { student_email: { contains: search, mode: "insensitive" } },
+      { first_name: { contains: search, mode: "insensitive" } },
+      { last_name: { contains: search, mode: "insensitive" } },
+    ];
+  }
+
+  // Apply filters
+  if (filters.partner) {
+    where.b2b_partner_id = Number(filters.partner);
+  }
+
+  if (filters.status) {
+    where.status = filters.status;
+  }
+
+  if (filters.lender) {
+    where.primary_lender_name = filters.lender;
+  }
+
+  if (filters.loanProduct) {
+    where.loan_product_name = filters.loanProduct;
+  }
+
+  let orderBy: any = { application_date: "desc" };
+  if (sortKey) {
+    switch (sortKey) {
+      case "id":
+        orderBy = { contact_id: sortDir || "desc" };
+        break;
+      case "name":
+        orderBy = { student_name: sortDir || "desc" };
+        break;
+      case "email":
+        orderBy = { student_email: sortDir || "desc" };
+        break;
+      case "status":
+        orderBy = { status: sortDir || "desc" };
+        break;
+      case "loanAmountRequested":
+        orderBy = { loan_amount_requested: sortDir || "desc" };
+        break;
+      case "loanAmountApproved":
+        orderBy = { loan_amount_approved: sortDir || "desc" };
+        break;
+      case "commissionAmount":
+        orderBy = { commission_amount: sortDir || "desc" };
+        break;
+      default:
+        orderBy = { application_date: "desc" };
+    }
+  }
+
+  const [rows, count] = await Promise.all([
+    prisma.createLeadsView.findMany({
+      where,
+      skip: offset,
+      take: limit,
+      orderBy,
+    }),
+    prisma.createLeadsView.count({
+      where,
     }),
   ]);
 
