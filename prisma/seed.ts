@@ -235,8 +235,8 @@ const main = async () => {
   try {
     await seedAdminRoles();
     await seedAdminUser();
-    // await seedRoles();
-    // await seedCurrencies();
+    await seedRoles();
+    await seedCurrencies();
     console.log("✅ All seeding completed successfully!");
   } catch (error) {
     console.error("❌ Seeding failed:", error);
