@@ -7,7 +7,7 @@ import {
 } from "../services/hubspot.service";
 import { mapEnumValue } from "../constants/enumMappingDbToHs";
 
-const BATCH_SIZE = 100; // HubSpot batch limit
+const BATCH_SIZE = 95; // HubSpot batch limit
 const POLL_INTERVAL = 60000; // 5 seconds
 const MAX_RETRIES = 5;
 
@@ -134,7 +134,7 @@ async function processSingleEntry(entry: any) {
         hubspotId = await handleUpdate(payload, entry.entity_id);
         break;
       case "DELETE":
-        await handleDelete(entry.entity_id);
+        await handleDelete(payload?.hs_object_id);
         break;
     }
 
@@ -189,7 +189,7 @@ async function processBatchEntries(entries: any[]) {
       include: {
         personal_information: true,
         academic_profile: true,
-        leads: true,
+        lead_attribution: true,
         financial_Info: true,
         loan_preference: true,
         application_journey: true,
@@ -305,14 +305,9 @@ async function handleUpdate(payload: any, entityId: number): Promise<string | un
 /**
  * Handle DELETE operation
  */
-async function handleDelete(entityId: number): Promise<void> {
-  const contact = await prisma.hSEdumateContacts.findUnique({
-    where: { id: entityId },
-    select: { hs_object_id: true },
-  });
-
-  if (contact?.hs_object_id) {
-    await deleteHubspotByContactsLeadId(contact.hs_object_id);
+async function handleDelete(hs_object_id: string): Promise<void> {
+  if (hs_object_id) {
+    await deleteHubspotByContactsLeadId(hs_object_id);
   }
 }
 
@@ -401,7 +396,7 @@ async function fetchCompleteContactData(contactId: number) {
       include: {
         personal_information: true,
         academic_profile: true,
-        // lead_attribution: true,
+        lead_attribution: true,
         financial_Info: true,
         loan_preference: true,
         application_journey: true,
@@ -423,7 +418,7 @@ async function fetchCompleteContactData(contactId: number) {
 function transformToHubSpotFormat(contact: any) {
   const personalInfo = contact.personal_information || {};
   const academicProfile = contact.academic_profile || {};
-  const leadAttribution = contact.leads || {};
+  const leadAttribution = contact.lead_attribution || {};
   const financialInfo = contact.financial_Info || {};
   const loanPreference = contact.loan_preference || {};
   const applicationJourney = contact.application_journey || {};
@@ -647,7 +642,7 @@ function transformToHubSpotFormat(contact: any) {
     
     // Don't send these on CREATE, only on UPDATE
     ...(contact.hs_object_id && {
-      hs_object_id: contact.hs_object_id,
+      // hs_object_id: contact.hs_object_id,
     }),
   };
 }

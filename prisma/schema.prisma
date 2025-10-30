@@ -874,6 +874,7 @@ model HSEdumateContactsAcademicProfiles {
 
 model HSEdumateContacts {
   id                           Int                                   @id @default(autoincrement())
+  email                        String?                               @map("email")
   deleted_by_id                Int?
   b2b_partner_id               Int?
   hs_created_by_user_id        Int?                                  @map("hs_created_by_user_id")
@@ -896,7 +897,7 @@ model HSEdumateContacts {
   academic_profile             HSEdumateContactsAcademicProfiles?
   application_journey          HSEdumateContactsApplicationJourney?
   financial_Info               HSEdumateContactsFinancialInfo?
-  leads                        HSEdumateContactsLeadAttribution?
+  lead_attribution             HSEdumateContactsLeadAttribution?
   loan_preference              HSEdumateContactsLoanPreferences?
   personal_information         HSEdumateContactsPersonalInformation?
   system_tracking              HSEdumateContactsSystemTracking?
