@@ -22,6 +22,7 @@ import {
   upsertContactsLead,
 } from "../controllers/contact.controller";
 import { validateAndParseCSVFile } from "../middlewares/loanApplication.middleware";
+import { getLeadsViewList } from "../controllers/loanApplication.controller";
 
 const router = Router();
 
@@ -72,7 +73,7 @@ router.get(
   validateToken(["Admin", "Manager", "User"]),
   contactsLeadPaginationValidationRules(),
   validateReqParams,
-  getContactsLeadsList
+  getLeadsViewList
 );
 router.post(
   "/upload-csv",

@@ -21,6 +21,7 @@ import {
 } from "../../controllers/contact.controller";
 import { validateAndParseCSVFile } from "../../middlewares/loanApplication.middleware";
 import { validateAdminToken } from "../../middlewares";
+import { getLeadsViewList } from "../../controllers/loanApplication.controller";
 
 const router = Router();
 
@@ -61,7 +62,7 @@ router.get(
   validateAdminToken(["Admin"]),
   contactsLeadPaginationValidationRules(),
   validateReqParams,
-  getContactsLeadsList
+  getLeadsViewList
 );
 router.post(
   "/upload-csv",
