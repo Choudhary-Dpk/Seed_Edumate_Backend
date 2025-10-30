@@ -530,16 +530,15 @@ export const getLeadsViewList = async (
 
     const offset = size * (page - 1);
 
-    logger.debug(`Fetching partner id from request`);
-    const partnerId = await getPartnerIdByUserId(id);
-    logger.debug(`Partner id fetched successfully`);
+    // logger.debug(`Fetching partner id from request`);
+    // const partnerId = await getPartnerIdByUserId(id);
+    // logger.debug(`Partner id fetched successfully`);
 
     logger.debug(
       `Fetching leads view list with pagination and filters`,
       filters
     );
     const list = await getLeadViewList(
-      partnerId!.b2b_id,
       size,
       offset,
       sortKey,

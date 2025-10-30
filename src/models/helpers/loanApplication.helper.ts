@@ -488,7 +488,6 @@ export const getLoanList = async (
 };
 
 export const getLeadViewList = async (
-  partnerId: number,
   limit: number,
   offset: number,
   sortKey: string | null,
@@ -519,7 +518,7 @@ export const getLeadViewList = async (
   }
 
   if (filters.status) {
-    where.status = filters.status;
+    where.admission_status = filters.status;
   }
 
   if (filters.lender) {
