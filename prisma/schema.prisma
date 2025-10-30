@@ -552,6 +552,7 @@ model HSLoanApplications {
   rejection_details       HSLoanApplicationsRejectionDetails?
   loan_application_status HSLoanApplicationsStatus?
   system_tracking         HSLoanApplicationsSystemTracking?
+  commission_settlements  HSCommissionSettlements[]
 
   @@index([student_email])
   @@index([application_date])
@@ -1660,6 +1661,7 @@ model HSLoanDocumentsCustomerExperience {
 
 model HSCommissionSettlements {
   id                          Int                                           @id @default(autoincrement())
+  loan_application_id         Int?
   lead_reference_id           String?                                       @map("lead_reference_id")
   student_id                  String?                                       @map("student_id")
   deleted_by_id               Int?
@@ -1696,6 +1698,7 @@ model HSCommissionSettlements {
   system_tracking             HSCommissionSettlementsSystemTracking?
   tax_deductions              HSCommissionSettlementsTaxAndDeductions?
   transaction                 HSCommissionSettlementsTransactionDetails?
+  loan_application            HSLoanApplications[]
 
   @@index([partner_id])
   @@index([lead_reference_id])
