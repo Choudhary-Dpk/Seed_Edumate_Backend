@@ -660,7 +660,7 @@ export const createLoanApplication = async (
   const application = await tx.hSLoanApplications.create({
     data: {
       ...mainData,
-      user_id: userId,
+      // user_id: userId,
       created_at: new Date(),
       updated_at: new Date(),
     },
