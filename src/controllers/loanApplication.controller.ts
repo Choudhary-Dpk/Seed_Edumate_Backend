@@ -11,7 +11,8 @@ import {
   createSystemTracking,
   deleteLoan,
   getHubspotByLeadId,
-  getLeads,
+  getLeadViewList,
+  getLoanApplicationById,
   getLoanList,
   updateApplicationStatus,
   updateFinancialRequirements,
@@ -333,6 +334,47 @@ export const deleteLoanApplication = async (
   }
 };
 
+// export const getLoanApplicationsList = async (
+//   req: RequestWithPayload<LoginPayload>,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   try {
+//     const { id } = req.payload!;
+//     const size = Number(req.query.size) || 10;
+//     const page = Number(req.query.page) || 1;
+//     const search = (req.query.search as string) || null;
+//     const sortKey = (req.query.sortKey as string) || null;
+//     const sortDir = (req.query.sortDir as "asc" | "desc") || null;
+
+//     const offset = size * (page - 1);
+
+//     logger.debug(`Fetching partner id from request`);
+//     const partnerId = await getPartnerIdByUserId(id);
+//     logger.debug(`Partner id fetched successfully`);
+
+//     logger.debug(`Fetching leads list with pagination and filters`);
+//     const list = await getLoanList(
+//       partnerId!.b2b_id,
+//       size,
+//       offset,
+//       sortKey,
+//       sortDir,
+//       search
+//     );
+//     logger.debug(`Leads list fetched successfully`);
+
+//     sendResponse(res, 200, "Leads list fetched successfully", {
+//       total: list.count,
+//       page,
+//       size,
+//       data: list.rows,
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
 export const getLoanApplicationsList = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
@@ -340,28 +382,171 @@ export const getLoanApplicationsList = async (
 ) => {
   try {
     const { id } = req.payload!;
+    console.log("req.query", req.query);
     const size = Number(req.query.size) || 10;
     const page = Number(req.query.page) || 1;
     const search = (req.query.search as string) || null;
     const sortKey = (req.query.sortKey as string) || null;
     const sortDir = (req.query.sortDir as "asc" | "desc") || null;
 
+    // Extract filters from query params (filters is already an object)
+    const filtersFromQuery =
+      (req.query.filters as {
+        partner?: string;
+        lender?: string;
+        loanProduct?: string;
+        status?: string;
+      }) || {};
+
+    const filters = {
+      partner: filtersFromQuery.partner || null,
+      lender: filtersFromQuery.lender || null,
+      loanProduct: filtersFromQuery.loanProduct || null,
+      status: filtersFromQuery.status || null,
+    };
+
+    console.log("Parsed filters:", filters);
+
     const offset = size * (page - 1);
 
-    logger.debug(`Fetching partner id from request`);
-    const partnerId = await getPartnerIdByUserId(id);
-    logger.debug(`Partner id fetched successfully`);
+    // logger.debug(`Fetching partner id from request`);
+    // const partnerId = await getPartnerIdByUserId(id);
+    // logger.debug(`Partner id fetched successfully`);
 
-    logger.debug(`Fetching leads list with pagination and filters`);
+    logger.debug(`Fetching leads list with pagination and filters`, filters);
     const list = await getLoanList(
-      partnerId!.b2b_id,
       size,
       offset,
       sortKey,
       sortDir,
-      search
+      search,
+      filters
     );
     logger.debug(`Leads list fetched successfully`);
+
+    sendResponse(res, 200, "Leads list fetched successfully", {
+      total: list.count,
+      page,
+      size,
+      data: list.rows,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAdminLoanApplicationsList = async (
+  req: RequestWithPayload<LoginPayload>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req.payload!;
+    console.log("req.query", req.query);
+    const size = Number(req.query.size) || 10;
+    const page = Number(req.query.page) || 1;
+    const search = (req.query.search as string) || null;
+    const sortKey = (req.query.sortKey as string) || null;
+    const sortDir = (req.query.sortDir as "asc" | "desc") || null;
+
+    // Extract filters from query params (filters is already an object)
+    const filtersFromQuery =
+      (req.query.filters as {
+        partner?: string;
+        lender?: string;
+        loanProduct?: string;
+        status?: string;
+      }) || {};
+
+    const filters = {
+      partner: filtersFromQuery.partner || null,
+      lender: filtersFromQuery.lender || null,
+      loanProduct: filtersFromQuery.loanProduct || null,
+      status: filtersFromQuery.status || null,
+    };
+
+    console.log("Parsed filters:", filters);
+
+    const offset = size * (page - 1);
+
+    // logger.debug(`Fetching partner id from request`);
+    // const partnerId = await getPartnerIdByUserId(id);
+    // logger.debug(`Partner id fetched successfully`);
+
+    logger.debug(`Fetching leads list with pagination and filters`, filters);
+    const list = await getLoanList(
+      size,
+      offset,
+      sortKey,
+      sortDir,
+      search,
+      filters
+    );
+    logger.debug(`Leads list fetched successfully`);
+
+    sendResponse(res, 200, "Leads list fetched successfully", {
+      total: list.count,
+      page,
+      size,
+      data: list.rows,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getLeadsViewList = async (
+  req: RequestWithPayload<LoginPayload>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req.payload!;
+    console.log("req.query", req.query);
+
+    const size = Number(req.query.size) || 10;
+    const page = Number(req.query.page) || 1;
+    const search = (req.query.search as string) || null;
+    const sortKey = (req.query.sortKey as string) || null;
+    const sortDir = (req.query.sortDir as "asc" | "desc") || null;
+
+    // Extract filters from query params
+    const filtersFromQuery =
+      (req.query.filters as {
+        partner?: string;
+        lender?: string;
+        loanProduct?: string;
+        status?: string;
+      }) || {};
+
+    const filters = {
+      partner: filtersFromQuery.partner || null,
+      lender: filtersFromQuery.lender || null,
+      loanProduct: filtersFromQuery.loanProduct || null,
+      status: filtersFromQuery.status || null,
+    };
+
+    console.log("Parsed filters:", filters);
+
+    const offset = size * (page - 1);
+
+    // logger.debug(`Fetching partner id from request`);
+    // const partnerId = await getPartnerIdByUserId(id);
+    // logger.debug(`Partner id fetched successfully`);
+
+    logger.debug(
+      `Fetching leads view list with pagination and filters`,
+      filters
+    );
+    const list = await getLeadViewList(
+      size,
+      offset,
+      sortKey,
+      sortDir,
+      search,
+      filters
+    );
+    logger.debug(`Leads view list fetched successfully`);
 
     sendResponse(res, 200, "Leads list fetched successfully", {
       total: list.count,
@@ -383,10 +568,15 @@ export const getLoanApplicationDetails = async (
     const leadId = req.params.id;
 
     logger.debug(`Fetching lead details for id: ${leadId}`);
-    const leadDetails = await getLeads(+leadId);
+    const loanApplicationDetails = await getLoanApplicationById(+leadId);
     logger.debug(`Lead details fetched successfully`);
 
-    sendResponse(res, 200, "Lead details fetched successfully", leadDetails);
+    sendResponse(
+      res,
+      200,
+      "Lead details fetched successfully",
+      loanApplicationDetails
+    );
   } catch (error) {
     next(error);
   }

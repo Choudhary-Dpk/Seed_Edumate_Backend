@@ -19,8 +19,10 @@ import {
   getContactsLeadDetails,
   getContactsLeadsList,
   uploadContactsCSV,
+  upsertContactsLead,
 } from "../controllers/contact.controller";
 import { validateAndParseCSVFile } from "../middlewares/loanApplication.middleware";
+import { getLeadsViewList } from "../controllers/loanApplication.controller";
 
 const router = Router();
 
@@ -32,6 +34,16 @@ router.post(
   validateContactsLeadPayload,
   createContactsLead
 );
+
+router.post(
+  "/upsert",
+  // validateToken(["Admin", "Manager", "User"]),
+  // createContactsLeadValidationRules(),
+  validateReqParams,
+  // validateContactsLeadPayload,
+  upsertContactsLead
+);
+
 router.delete(
   "/:id",
   validateToken(["Admin", "Manager", "User"]),
@@ -61,7 +73,7 @@ router.get(
   validateToken(["Admin", "Manager", "User"]),
   contactsLeadPaginationValidationRules(),
   validateReqParams,
-  getContactsLeadsList
+  getLeadsViewList
 );
 router.post(
   "/upload-csv",

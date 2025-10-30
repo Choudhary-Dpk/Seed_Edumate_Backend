@@ -2,37 +2,10 @@
 
 import prisma from "../../config/prisma";
 import {
-  FIELD_MAPPINGS,
   mapAllFields,
 } from "../../mappers/edumateContact/mapping";
+import { CategorizedContactData } from "../../types/contact.types";
 import logger from "../../utils/logger";
-
-/**
- * Categorizes flat input data into nested structure based on field mappings
- */
-const categorizeFields = (flatData: Record<string, any>) => {
-  const categorized: Record<string, Record<string, any>> = {};
-
-  for (const [category, fields] of Object.entries(FIELD_MAPPINGS)) {
-    const categoryData: Record<string, any> = {};
-
-    for (const field of fields) {
-      if (
-        field in flatData &&
-        flatData[field] !== undefined &&
-        flatData[field] !== null
-      ) {
-        categoryData[field] = flatData[field];
-      }
-    }
-
-    if (Object.keys(categoryData).length > 0) {
-      categorized[category] = categoryData;
-    }
-  }
-
-  return categorized;
-};
 
 // ==================== STEP 2: CATEGORIZATION FUNCTION ====================
 
@@ -40,10 +13,11 @@ const categorizeFields = (flatData: Record<string, any>) => {
  * Categorizes mapped fields into their respective tables
  */
 export const categorizeByTable = (mappedFields: Record<string, any>) => {
-  const categorized: Record<string, Record<string, any>> = {};
+  const categorized: CategorizedContactData = {};
 
   // Main Contact Fields
   const mainContactFields = [
+    "email",
     "deleted_by_id",
     "b2b_partner_id",
     "hs_created_by_user_id",
@@ -388,7 +362,7 @@ export const createContact = async (input: Record<string, any>) => {
           academic_profile: true,
           application_journey: true,
           financial_Info: true,
-          leads: true,
+          lead_attribution: true,
           loan_preference: true,
           system_tracking: true,
         },
@@ -514,7 +488,7 @@ export const updateContact = async (
           academic_profile: true,
           application_journey: true,
           financial_Info: true,
-          leads: true,
+          lead_attribution: true,
           loan_preference: true,
           system_tracking: true,
         },
@@ -570,7 +544,7 @@ export const getContactById = async (contactId: number) => {
         academic_profile: true,
         application_journey: true,
         financial_Info: true,
-        leads: true,
+        lead_attribution: true,
         loan_preference: true,
         system_tracking: true,
       },

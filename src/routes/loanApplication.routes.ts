@@ -7,6 +7,7 @@ import {
   deleteLoanApplication,
   getLoanApplicationsList,
   getLoanApplicationDetails,
+  getLeadsViewList,
 } from "../controllers/loanApplication.controller";
 import { validateToken } from "../middlewares";
 import {
@@ -53,7 +54,7 @@ router.get(
   validateToken(["Admin", "Manager", "User"]),
   loanApplicationPaginationValidationRules(),
   validateReqParams,
-  getLoanApplicationsList
+  getLeadsViewList
 );
 router.get(
   "/details/:id",
@@ -69,6 +70,10 @@ router.post(
   validateAndParseCSVFile("CSV"),
   uploadCSV
 );
-router.get("/download-template",validateToken,downloadTemplate)
+router.get(
+  "/download-template",
+  validateToken(["Admin", "Manager", "User"]),
+  downloadTemplate
+);
 
 export { router as loanApplicationRouter };

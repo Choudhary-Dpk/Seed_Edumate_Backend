@@ -5,6 +5,7 @@ import {
   coApplicantRelationshipMap,
   collateralAvailableMap,
   collateralTypeMap,
+  ContactsLead,
   courseTypeMap,
   currentEducationLevelMap,
   currentStatusDispositionMap,
@@ -38,163 +39,11 @@ const parseDate = (
     : dateObj.toISOString(); // full ISO-8601
 };
 
-export const FIELD_MAPPINGS = {
-  // Main Contact Table
-  mainContact: [
-    "deleted_by_id",
-    "b2b_partner_id",
-    "hs_created_by_user_id",
-    "hs_createdate",
-    "hs_lastmodifieddate",
-    "hs_object_id",
-    "hs_updated_by_user_id",
-    "hubspot_owner_id",
-    "base_currency",
-    "study_destination_currency",
-    "user_selected_currency",
-    "course_type",
-    "co_applicant_1_email",
-    "co_applicant_1_mobile_number",
-    "is_deleted",
-  ],
-
-  // Personal Information
-  personalInformation: [
-    "first_name",
-    "last_name",
-    "email",
-    "phone_number",
-    "date_of_birth",
-    "gender",
-    "nationality",
-    "current_address",
-    "city_current_address",
-    "state_current_address",
-    "country_current_address",
-    "pincode_current_address",
-    "permanent_address",
-    "city_permanent_address",
-    "state_permanent_address",
-    "country_permanent_address",
-    "pincode_permanent_address",
-  ],
-
-  // Academic Profile
-  academicProfile: [
-    "admission_status",
-    "current_education_level",
-    "current_institution",
-    "current_course_major",
-    "current_cgpa_percentage",
-    "current_graduation_year",
-    "course_duration_months",
-    "cat_score",
-    "gre_score",
-    "gmat_score",
-    "toefl_score",
-    "ielts_score",
-    "sat_score",
-    "duolingo_score",
-    "nmat_score",
-    "xat_score",
-    "other_test_scores",
-    "target_degree_level",
-    "target_course_major",
-    "preferred_study_destination",
-    "target_universities",
-    "intended_start_term",
-    "intended_start_date",
-    "intake_month",
-    "intake_year",
-  ],
-
-  // Application Journey
-  applicationJourney: [
-    "assigned_counselor",
-    "counselor_notes",
-    "current_status_disposition",
-    "current_status_disposition_reason",
-    "priority_level",
-    "first_contact_date",
-    "last_contact_date",
-    "follow_up_date",
-    "next_follow_up_date",
-  ],
-
-  // Financial Info
-  financialInfo: [
-    "annual_family_income",
-    "currency",
-    "co_applicant_1_name",
-    "co_applicant_1_income",
-    "co_applicant_1_occupation",
-    "co_applicant_1_relationship",
-    "co_applicant_2_name",
-    "co_applicant_2_income",
-    "co_applicant_2_occupation",
-    "co_applicant_2_relationship",
-    "co_applicant_3_name",
-    "co_applicant_3_income",
-    "co_applicant_3_occupation",
-    "co_applicant_3_relationship",
-    "collateral_available",
-    "collateral_type",
-    "collateral_value",
-    "collateral_2_available",
-    "collateral_2_type",
-    "collateral_2_value",
-    "living_expenses",
-    "other_expenses",
-    "total_course_cost",
-    "tuition_fee",
-    "loan_amount_required",
-    "scholarship_amount",
-    "self_funding_amount",
-  ],
-
-  // Lead Attribution
-  leadAttribution: [
-    "lead_source",
-    "lead_source_detail",
-    "lead_quality_score",
-    "lead_reference_code",
-    "b2b_partner_id",
-    "b2b_partner_name",
-    "partner_commission_applicable",
-    "referral_person_name",
-    "referral_person_contact",
-    "utm_source",
-    "utm_medium",
-    "utm_campaign",
-    "utm_term",
-    "utm_content",
-  ],
-
-  // Loan Preferences
-  loanPreferences: [
-    "loan_type_preference",
-    "preferred_lenders",
-    "repayment_type_preference",
-  ],
-
-  // System Tracking
-  systemTracking: [
-    "created_by",
-    "created_date",
-    "last_modified_by",
-    "last_modified_date",
-    "data_source",
-    "student_record_status",
-    "tags",
-    "gdpr_consent",
-    "marketing_consent",
-  ],
-};
-
 // ==================== MAPPING FUNCTIONS ====================
 
 export const mapMainContact = (data: Record<string, any>) => {
   return {
+    email: data.email,
     deleted_by_id: data.deleted_by_id,
     b2b_partner_id: data.b2b_partner_id,
     hs_created_by_user_id: data.hs_created_by_user_id,
@@ -354,9 +203,9 @@ export const mapSystemTracking = (data: Record<string, any>) => {
 };
 
 export const mapAllFields = async (
-  input: Record<string, any>
-): Promise<Record<string, any>> => {
-  const mapped: Record<string, any> = {};
+  input: ContactsLead
+): Promise<Partial<ContactsLead>> => {
+  const mapped: Partial<ContactsLead> = {};
 
   // Currency conversions
   const loanAmount =
@@ -364,7 +213,7 @@ export const mapAllFields = async (
     input?.selectedLoanCurrency != "INR" &&
     input?.loanAmount
       ? await convertCurrency(
-          parseInt(input?.loanAmount) || 0,
+          Number(input?.loanAmount) || 0,
           input?.selectedLoanCurrency || "INR",
           "INR"
         )
@@ -373,7 +222,7 @@ export const mapAllFields = async (
   const coApplicantAnnualIncome =
     input?.baseCurrency != "INR" && input?.coApplicantAnnualIncome
       ? await convertCurrency(
-          parseInt(input?.coApplicantAnnualIncome),
+          Number(input?.coApplicantAnnualIncome),
           input?.baseCurrency || "INR",
           "INR"
         )
@@ -497,7 +346,7 @@ export const mapAllFields = async (
 
   if (input.dateOfBirth !== undefined || input.date_of_birth !== undefined) {
     const dob = input.dateOfBirth ?? input.date_of_birth;
-    mapped.date_of_birth = parseDate(dob);
+    mapped.date_of_birth = dob;
   }
 
   if (input.gender !== undefined) {
@@ -649,33 +498,33 @@ export const mapAllFields = async (
 
   // Analytical exams
   if (input?.analyticalExam?.CAT !== undefined) {
-    mapped.cat_score = parseInt(input.analyticalExam.CAT) || null;
+    mapped.cat_score = Number(input.analyticalExam.CAT) || null;
   }
   if (input?.analyticalExam?.GRE !== undefined) {
-    mapped.gre_score = parseInt(input.analyticalExam.GRE) || null;
+    mapped.gre_score = Number(input.analyticalExam.GRE) || null;
   }
   if (input?.analyticalExam?.GMAT !== undefined) {
-    mapped.gmat_score = parseInt(input.analyticalExam.GMAT) || null;
+    mapped.gmat_score = Number(input.analyticalExam.GMAT) || null;
   }
   if (input?.analyticalExam?.SAT !== undefined) {
-    mapped.sat_score = parseInt(input.analyticalExam.SAT) || null;
+    mapped.sat_score = Number(input.analyticalExam.SAT) || null;
   }
   if (input?.analyticalExam?.NMAT !== undefined) {
-    mapped.nmat_score = parseInt(input.analyticalExam.NMAT) || null;
+    mapped.nmat_score = Number(input.analyticalExam.NMAT) || null;
   }
   if (input?.analyticalExam?.XAT !== undefined) {
-    mapped.xat_score = parseInt(input.analyticalExam.XAT) || null;
+    mapped.xat_score = Number(input.analyticalExam.XAT) || null;
   }
 
   // Language exams
   if (input?.languageExam?.TOEFL !== undefined) {
-    mapped.toefl_score = parseInt(input.languageExam.TOEFL) || null;
+    mapped.toefl_score = Number(input.languageExam.TOEFL) || null;
   }
   if (input?.languageExam?.IELTS !== undefined) {
-    mapped.ielts_score = parseInt(input.languageExam.IELTS) || null;
+    mapped.ielts_score = Number(input.languageExam.IELTS) || null;
   }
   if (input?.languageExam?.Duolingo !== undefined) {
-    mapped.duolingo_score = parseInt(input.languageExam.Duolingo) || null;
+    mapped.duolingo_score = Number(input.languageExam.Duolingo) || null;
   }
 
   if (
@@ -683,7 +532,7 @@ export const mapAllFields = async (
     input.other_test_scores !== undefined
   ) {
     mapped.other_test_scores =
-      parseInt(input.otherTestScores ?? input.other_test_scores) || null;
+      Number(input.otherTestScores ?? input.other_test_scores) || null;
   }
 
   if (

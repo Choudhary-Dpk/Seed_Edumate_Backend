@@ -12,7 +12,7 @@ import {
 import { HubspotResult } from "../../types";
 import { transformRow } from "../../utils/helper";
 import { getPartnerIdByUserId } from "./partners.helper";
-import { AnyNsRecord } from "dns";
+import logger from "../../utils/logger";
 
 export const createEdumatePersonalInformation = async (
   tx: any,
@@ -65,7 +65,7 @@ export const createEdumateLeadAttribution = async (
 export const createEdumateSystemTracking = async (
   tx: any,
   contactId: number,
-  userId: number
+  userId?: number
 ) => {
   return tx.hSEdumateContactsSystemTracking.create({
     data: {
@@ -79,6 +79,7 @@ export const createEdumateSystemTracking = async (
 
 // Updated function to get contact by email
 export const getEdumateContactByEmail = async (email: string) => {
+
   const contact = await prisma.hSEdumateContacts.findFirst({
     include: {
       personal_information: {
@@ -129,7 +130,7 @@ export const getEdumateContactByPhone = async (phone: string) => {
 export const createEdumateContact = async (
   tx: any,
   mainData?: any,
-  hubspotId?: number,
+  hubspotId?: number | null,
   hsCreatedBy?: number,
   partnerId?: number
 ) => {
@@ -203,7 +204,7 @@ export const getContactsLead = async (leadId: number) => {
       personal_information: true,
       academic_profile: true,
       financial_Info: true,
-      leads: true,
+      lead_attribution: true,
     },
   });
 
@@ -266,7 +267,7 @@ export const updateEdumateLeadAttribution = async (
   contactId: number,
   leadData?: any
 ) => {
-  if (!leadData.b2b_partner_name) return null;
+  // if (!leadData.b2b_partner_name) return null;
 
   const leadAttribution = await tx.hSEdumateContactsLeadAttribution.update({
     where: { contact_id: contactId },
@@ -279,28 +280,119 @@ export const updateEdumateLeadAttribution = async (
   return leadAttribution;
 };
 
+// export const fetchContactsLeadList = async (
+//   limit: number,
+//   offset: number,
+//   sortKey: string | null,
+//   sortDir: "asc" | "desc" | null,
+//   search: string | null,
+//   partnerId: number
+// ) => {
+//   const where: Prisma.HSEdumateContactsWhereInput = {
+//     is_deleted: false,
+//     b2b_partner_id: partnerId,
+//     personal_information: search
+//       ? {
+//           OR: [
+//             { first_name: { contains: search, mode: "insensitive" } },
+//             { last_name: { contains: search, mode: "insensitive" } },
+//             { email: { contains: search, mode: "insensitive" } },
+//             { phone_number: { contains: search, mode: "insensitive" } },
+//           ],
+//         }
+//       : undefined,
+//   };
+
+//   let orderBy: any = { created_at: "desc" };
+//   if (sortKey) {
+//     switch (sortKey) {
+//       case "id":
+//         orderBy = {
+//           personal_information: { id: sortDir || "asc" },
+//         };
+//         break;
+//       case "name":
+//         orderBy = {
+//           personal_information: { first_name: sortDir || "asc" },
+//         };
+//         break;
+//       case "email":
+//         orderBy = {
+//           personal_information: { email: sortDir || "asc" },
+//         };
+//         break;
+//       default:
+//         orderBy = { created_at: "desc" };
+//     }
+//   }
+
+//   const [rows, count] = await Promise.all([
+//     prisma.hSEdumateContacts.findMany({
+//       where,
+//       skip: offset,
+//       take: limit,
+//       orderBy,
+//       include: {
+//         personal_information: true,
+//         academic_profile: true,
+//         financial_Info: true,
+//         lead_attribution: true,
+//         loan_preference: true,
+//         b2b_partner: {
+//           select: {
+//             id: true,
+//             partner_name: true,
+//             partner_display_name: true,
+//           },
+//         },
+//       },
+//     }),
+//     prisma.hSEdumateContacts.count({ where }),
+//   ]);
+
+//   return { rows, count };
+// };
+
 export const fetchContactsLeadList = async (
   limit: number,
   offset: number,
   sortKey: string | null,
   sortDir: "asc" | "desc" | null,
   search: string | null,
-  partnerId: number
+  partnerId: number,
+  filters: {
+    partner: string | null;
+    status: string | null;
+  }
 ) => {
   const where: Prisma.HSEdumateContactsWhereInput = {
     is_deleted: false,
-    b2b_partner_id: partnerId,
-    personal_information: search
-      ? {
-          OR: [
-            { first_name: { contains: search, mode: "insensitive" } },
-            { last_name: { contains: search, mode: "insensitive" } },
-            { email: { contains: search, mode: "insensitive" } },
-            { phone_number: { contains: search, mode: "insensitive" } },
-          ],
-        }
-      : undefined,
+    // b2b_partner_id: partnerId,
   };
+
+  // Add search filter
+  if (search) {
+    where.personal_information = {
+      OR: [
+        { first_name: { contains: search, mode: "insensitive" } },
+        { last_name: { contains: search, mode: "insensitive" } },
+        { email: { contains: search, mode: "insensitive" } },
+        { phone_number: { contains: search, mode: "insensitive" } },
+      ],
+    };
+  }
+
+  // Apply partner filter
+  if (filters.partner) {
+    where.b2b_partner_id = Number(filters.partner);
+  }
+
+  // Apply admission status filter
+  if (filters.status) {
+    where.academic_profile = {
+      admission_status: filters.status as any
+    };
+  }
 
   let orderBy: any = { created_at: "desc" };
   if (sortKey) {
@@ -320,6 +412,11 @@ export const fetchContactsLeadList = async (
           personal_information: { email: sortDir || "asc" },
         };
         break;
+      case "admissionStatus":
+        orderBy = {
+          academic_profile: { admission_status: sortDir || "asc" },
+        };
+        break;
       default:
         orderBy = { created_at: "desc" };
     }
@@ -335,8 +432,9 @@ export const fetchContactsLeadList = async (
         personal_information: true,
         academic_profile: true,
         financial_Info: true,
-        leads: true,
+        lead_attribution: true,
         loan_preference: true,
+        application_journey: true,
         b2b_partner: {
           select: {
             id: true,
@@ -351,6 +449,7 @@ export const fetchContactsLeadList = async (
 
   return { rows, count };
 };
+
 
 export const findContacts = async (batch: any[]) => {
   const contacts = await prisma.hSEdumateContactsPersonalInformation.findMany({
@@ -418,65 +517,198 @@ const tableMappings = {
   },
 };
 
-export const createCSVContacts = async (
-  rows: ContactsLead[],
+// src/models/helpers/contact.helper.ts
+
+export async function createCSVContacts(
+  contacts: Record<string, Record<string, any>>[],
   userId: number,
-  hubspotResults?: HubspotResult[]
-) => {
+  hubspotResults: any[] | null,
+  batchId: string | null = null,
+  batchPosition: number = 0
+) {
   const partnerId = await getPartnerIdByUserId(userId);
-
+  
   return await prisma.$transaction(async (tx) => {
-    // 1. Insert into main table
-    const createdContacts = await Promise.all(
-      rows.map((row, index) => {
-        // Get corresponding HubSpot result by email
-        const hsResult = hubspotResults?.find(
-          (hs) => hs.properties?.email === row.email
-        );
+    
+    // ✅ Step 1: Bulk insert main contacts with EMAIL
+    await tx.hSEdumateContacts.createMany({
+      data: contacts.map(c => ({
+        ...c["mainContact"],
+        email: c["personalInformation"]?.email, // ✅ Set email on main table
+        b2b_partner_id: partnerId!.b2b_id,
+      })),
+      skipDuplicates: true,
+    });
 
-        return tx.hSEdumateContacts.create({
-          data: {
-            course_type: row.courseType ? courseTypeMap[row.courseType] : null,
-            // ↓ ADD HUBSPOT DATA HERE
-            hs_object_id:
-              hsResult?.properties?.hs_object_id ?? hsResult?.id ?? null,
-            hs_created_by_user_id: userId,
-            hs_updated_by_user_id: userId,
-            hs_createdate: hsResult?.properties?.hs_createdate
-              ? new Date(hsResult.properties.hs_createdate)
-              : undefined,
-            hs_lastmodifieddate: hsResult?.properties?.hs_lastmodifieddate
-              ? new Date(hsResult.properties.hs_lastmodifieddate)
-              : undefined,
-            b2b_partner_id: partnerId!.b2b_id,
-          },
-          select: { id: true },
-        });
+    // ✅ Step 2: Fetch inserted contacts by EMAIL (super reliable!)
+    const emails = contacts
+      .map(c => c["personalInformation"]?.email)
+      .filter((email): email is string => !!email && email.trim() !== "");
+    
+    if (emails.length === 0) {
+      throw new Error("No valid emails found in contacts");
+    }
+
+    const insertedContacts = await tx.hSEdumateContacts.findMany({
+      where: {
+        email: { in: emails }
+      },
+      select: { 
+        id: true,
+        email: true
+      },
+    });
+
+    // ✅ Step 3: Create email-to-ID mapping
+    const emailToIdMap = new Map(
+      insertedContacts.map(c => [c.email, c.id])
+    );
+
+    logger.debug(`Mapped ${emailToIdMap.size} contacts by email`);
+
+    // ✅ Step 4: Build data arrays with proper contact_id mapping
+    const personalInfoData = contacts
+      .map(c => {
+        const email = c["personalInformation"]?.email;
+        const contactId = email ? emailToIdMap.get(email) : null;
+        if (!contactId) return null;
+        return {
+          contact_id: contactId,
+          ...c["personalInformation"],
+        };
       })
-    );
+      .filter((item): item is NonNullable<typeof item> => item !== null);
 
-    // 2. Attach IDs back to rows
-    const contactsWithIds = rows.map((row, i) => ({
-      ...row,
-      contactId: createdContacts[i].id,
-    }));
+    const academicProfileData = contacts
+      .map(c => {
+        const email = c["personalInformation"]?.email;
+        const contactId = email ? emailToIdMap.get(email) : null;
+        if (!contactId) return null;
+        return {
+          contact_id: contactId,
+          ...c["academicProfile"],
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null);
 
-    // 3. Generic child-table inserts
-    await Promise.all(
-      Object.entries(tableMappings).map(([tableName, { map }]) =>
-        (tx[tableName as keyof typeof tx] as any).createMany({
-          data: contactsWithIds.map((row) => transformRow(row, map)),
-          skipDuplicates: true,
-        })
-      )
-    );
+    const leadAttributionData = contacts
+      .map(c => {
+        const email = c["personalInformation"]?.email;
+        const contactId = email ? emailToIdMap.get(email) : null;
+        if (!contactId) return null;
+        return {
+          contact_id: contactId,
+          ...c["leadAttribution"],
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null);
 
-    return {
-      count: createdContacts.length,
-      records: createdContacts,
+    const financialInfoData = contacts
+      .map(c => {
+        const email = c["personalInformation"]?.email;
+        const contactId = email ? emailToIdMap.get(email) : null;
+        if (!contactId || !c["financialInfo"]) return null;
+        return {
+          contact_id: contactId,
+          ...c["financialInfo"],
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null);
+
+    const loanPreferenceData = contacts
+      .map(c => {
+        const email = c["personalInformation"]?.email;
+        const contactId = email ? emailToIdMap.get(email) : null;
+        if (!contactId || !c["loanPreference"]) return null;
+        return {
+          contact_id: contactId,
+          ...c["loanPreference"],
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null);
+
+    const applicationJourneyData = contacts
+      .map(c => {
+        const email = c["personalInformation"]?.email;
+        const contactId = email ? emailToIdMap.get(email) : null;
+        if (!contactId || !c["applicationJourney"]) return null;
+        return {
+          contact_id: contactId,
+          ...c["applicationJourney"],
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null);
+
+    const systemTrackingData = contacts
+      .map(c => {
+        const email = c["personalInformation"]?.email;
+        const contactId = email ? emailToIdMap.get(email) : null;
+        if (!contactId || !c["systemTracking"]) return null;
+        return {
+          contact_id: contactId,
+          ...c["systemTracking"],
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null);
+
+    // ✅ Step 5: Bulk insert all normalized tables
+    if (personalInfoData.length > 0) {
+      await tx.hSEdumateContactsPersonalInformation.createMany({
+        data: personalInfoData,
+        skipDuplicates: true,
+      });
+    }
+
+    if (academicProfileData.length > 0) {
+      await tx.hSEdumateContactsAcademicProfiles.createMany({
+        data: academicProfileData,
+        skipDuplicates: true,
+      });
+    }
+
+    if (leadAttributionData.length > 0) {
+      await tx.hSEdumateContactsLeadAttribution.createMany({
+        data: leadAttributionData,
+        skipDuplicates: true,
+      });
+    }
+
+    if (financialInfoData.length > 0) {
+      await tx.hSEdumateContactsFinancialInfo.createMany({
+        data: financialInfoData,
+        skipDuplicates: true,
+      });
+    }
+
+    if (loanPreferenceData.length > 0) {
+      await tx.hSEdumateContactsLoanPreferences.createMany({
+        data: loanPreferenceData,
+        skipDuplicates: true,
+      });
+    }
+
+    if (applicationJourneyData.length > 0) {
+      await tx.hSEdumateContactsApplicationJourney.createMany({
+        data: applicationJourneyData,
+        skipDuplicates: true,
+      });
+    }
+
+    if (systemTrackingData.length > 0) {
+      await tx.hSEdumateContactsSystemTracking.createMany({
+        data: systemTrackingData,
+        skipDuplicates: true,
+      });
+    }
+
+    const insertedContactIds = Array.from(emailToIdMap.values());
+
+    return { 
+      count: insertedContactIds.length,
+      insertedContactIds
     };
   });
-};
+}
 
 export const updateEdumateContactsHubspotTracking = async (
   hubspotResults: HubspotResult[],

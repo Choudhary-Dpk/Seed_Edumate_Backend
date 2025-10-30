@@ -1,6 +1,10 @@
-import { Response,NextFunction } from "express";
+import { Response, NextFunction } from "express";
 import { RequestWithPayload } from "../../types/api.types";
-import { LoginPayload, ProtectedPayload, ResetPasswordPayload } from "../../types/auth";
+import {
+  LoginPayload,
+  ProtectedPayload,
+  ResetPasswordPayload,
+} from "../../types/auth";
 import logger from "../../utils/logger";
 import {
   deleteOtps,
@@ -25,6 +29,10 @@ import { emailQueue } from "../../utils/queue";
 import moment from "moment";
 import { FRONTEND_URL } from "../../setup/secrets";
 import { logEmailHistory } from "../../models/helpers/email.helper";
+import {
+  getUserRole,
+  getUserRoleById,
+} from "../../models/helpers/partners.helper";
 
 export const login = async (
   req: RequestWithPayload<LoginPayload>,
@@ -67,9 +75,14 @@ export const login = async (
     );
     logger.debug(`User login history updated successfully`);
 
+    logger.debug(`Fetching role of userId: ${id}`);
+    const role = await getUserRole(id);
+    logger.debug(`Role fetched successfully`);
+
     sendResponse(res, 200, "User logged in successfully", {
       jwtToken: jwt,
       refreshToken: refreshToken,
+      role,
     });
   } catch (error) {
     next(error);

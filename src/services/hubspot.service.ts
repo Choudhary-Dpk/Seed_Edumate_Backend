@@ -337,10 +337,10 @@ export const searchEdumateContactsByStudyDestination = async (destination: strin
 /**
  * Convert mapped contact data back to HubSpot properties format
  */
-const mapToHubSpotProperties = async (contactData: Partial<MappedEdumateContact>): Promise<Record<string, any>> => {
+const mapToHubSpotProperties = async (contactData: Partial<ContactsLead>): Promise<Record<string, any>> => {
   const properties: Record<string, any> = {};
-  const loanAmount = contactData?.selectedLoanCurrency != 'INR' && contactData?.loanAmount ? await convertCurrency(parseInt(contactData?.loanAmount) || 0, contactData?.selectedLoanCurrency || 'INR', 'INR') : contactData?.loanAmount;
-  const coApplicantAnnualIncome = contactData?.baseCurrency != 'INR' && contactData?.coApplicantAnnualIncome ? await convertCurrency(parseInt(contactData?.coApplicantAnnualIncome), contactData?.baseCurrency || 'INR', 'INR') : contactData?.coApplicantAnnualIncome;
+  const loanAmount = contactData?.selectedLoanCurrency != 'INR' && contactData?.loanAmount ? await convertCurrency(Number(contactData?.loanAmount) || 0, contactData?.selectedLoanCurrency || 'INR', 'INR') : contactData?.loanAmount;
+  const coApplicantAnnualIncome = contactData?.baseCurrency != 'INR' && contactData?.coApplicantAnnualIncome ? await convertCurrency(Number(contactData?.coApplicantAnnualIncome), contactData?.baseCurrency || 'INR', 'INR') : contactData?.coApplicantAnnualIncome;
   
   // Map personal information
   if (contactData.firstName) properties.first_name = contactData.firstName;
@@ -641,9 +641,9 @@ export const updateContactsLoanLead = async (
   leads: ContactsLead
 ) => {
   try {
-    const hubspotMappedData = await mapToHubSpotProperties(leads);
-    console.log("hubspotMappedData",hubspotMappedData)
-    const response = await hubspotClient.updateContactsLoanLeadInHubspot(leadId,hubspotMappedData);
+    // const hubspotMappedData = await mapToHubSpotProperties(leads);
+    // console.log("hubspotMappedData",hubspotMappedData)
+    const response = await hubspotClient.updateContactsLoanLeadInHubspot(leadId, leads);
     return response;
   } catch (error) {
     logger.error("Error in upateContactsLoanLead service", { error });
@@ -657,11 +657,7 @@ export const updateContactsLoanLead = async (
 
 export const createContactsLoanLeads = async (leads: ContactsLead[]) => {
   try {
-    const hubspotPropertiesList = await Promise.all(
-      leads.map((lead) => mapToHubSpotProperties(lead))
-    );
-
-    const response = await hubspotClient.createMultiContactsLead(hubspotPropertiesList);
+    const response = await hubspotClient.createMultiContactsLead(leads);
 
     return response;
   } catch (error) {
