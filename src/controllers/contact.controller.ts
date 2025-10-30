@@ -22,6 +22,7 @@ import {
   updateEdumateLeadAttribution,
   fetchContactsLeadList,
   createCSVContacts,
+  getEdumateContactByEmail,
 } from "../models/helpers/contact.helper";
 import { resolveLeadsCsvPath } from "../utils/leads";
 import { FileData } from "../types/leads.types";
@@ -44,6 +45,7 @@ import { queue } from "async";
 import { BatchResult, ContactsLead, RecordError } from "../types/contact.types";
 import { mapAllFields } from "../mappers/edumateContact/mapping";
 import { categorizeByTable } from "../services/DBServices/edumateContacts.service";
+import { handleLeadCreation } from "../services/DBServices/loan.services";
 
 export const createContactsLead = async (
   req: RequestWithPayload<LoginPayload>,
@@ -131,6 +133,157 @@ export const createContactsLead = async (
 
       return contact;
     });
+
+    logger.debug(
+      `All contact data created successfully for contactId: ${result.id}`
+    );
+    // ✅ Middleware ne automatically outbox entry create kar di
+    
+    sendResponse(res, 200, "Contacts Lead created successfully (sync queued)", data);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const upsertContactsLead = async (
+  req: RequestWithPayload<LoginPayload>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    // const { id } = req.payload!;
+    const { email, formType } = req.body;
+    let data: any = {};
+    let leadAttribution: any;
+
+    logger.debug(`Fetching partner id from request`);
+    // const partnerId = await getPartnerIdByUserId(id);
+    logger.debug(`Partner id fetched successfully`);
+
+    const mappedFields = await mapAllFields(req.body);
+    console.log("mappedFields", mappedFields);
+    const categorized = categorizeByTable(mappedFields);
+    console.log("categorized", categorized);
+
+    const existingContactDb = await getEdumateContactByEmail(email);
+    let result;
+    if (existingContactDb?.id) {
+    const leadId = existingContactDb?.id;
+          // ✅ HubSpot update call REMOVE - sirf DB update
+    result = await prisma.$transaction(async (tx: any) => {
+      // logger.debug(`Updating edumate contact for userId: ${id}`);
+      const contact = await updateEdumateContact(
+        tx,
+        +leadId,
+        categorized["mainContact"]
+      );
+      logger.debug(`Contact updated successfully with id: ${contact.id}`);
+
+      logger.debug(`Updating personal information for contact: ${contact.id}`);
+      await updateEdumatePersonalInformation(
+        tx,
+        contact.id,
+        categorized["personalInformation"]
+      );
+      logger.debug(
+        `Personal information updated successfully for contact: ${contact.id}`
+      );
+
+      logger.debug(`Updating academic profile for contact: ${contact.id}`);
+      await updateEdumateAcademicProfile(
+        tx,
+        contact.id,
+        categorized["academicProfile"]
+      );
+      logger.debug(
+        `Academic profile updated successfully for contact: ${contact.id}`
+      );
+
+      logger.debug(`Updating lead attribution for contact: ${contact.id}`);
+      await updateEdumateLeadAttribution(
+        tx,
+        contact.id,
+        categorized["leadAttribution"]
+      );
+      logger.debug(
+        `Lead attribution updated successfully for contact: ${contact.id}`
+      );
+
+      return contact;
+    });
+    } else {
+    // Create New Record
+    result = await prisma.$transaction(async (tx: any) => {
+      // logger.debug(`Creating edumate contact for userId: ${id}`);
+      const contact = await createEdumateContact(
+        tx,
+        categorized["mainContact"],
+        null, // ⬅️ HubSpot ID ab null hai
+      );
+      logger.debug(`Contact created successfully with id: ${contact.id}`);
+
+      logger.debug(`Creating personal information for contact: ${contact.id}`);
+      const personalInfo = await createEdumatePersonalInformation(
+        tx,
+        contact.id,
+        categorized["personalInformation"]
+      );
+      logger.debug(
+        `Personal information created successfully for contact: ${contact.id}`
+      );
+
+      logger.debug(`Creating academic profile for contact: ${contact.id}`);
+      const academicsProfile = await createEdumateAcademicProfile(
+        tx,
+        contact.id,
+        categorized["academicProfile"]
+      );
+      logger.debug(
+        `Academic profile created successfully for contact: ${contact.id}`
+      );
+
+      logger.debug(`Creating lead attribution for contact: ${contact.id}`);
+      leadAttribution = await createEdumateLeadAttribution(
+        tx,
+        contact.id,
+        categorized["leadAttribution"]
+      );
+      logger.debug(
+        `Lead attribution created successfully for contact: ${contact.id}`
+      );
+
+      logger.debug(`Creating system tracking for contact: ${contact.id}`);
+      await createEdumateSystemTracking(tx, contact.id);
+      logger.debug(
+        `System tracking created successfully for contact: ${contact.id}`
+      );
+
+      data = {
+        contact: {
+          ...contact,
+        },
+        personalInfo: {
+          ...personalInfo,
+        },
+        academicsProfile: {
+          ...academicsProfile,
+        },
+        leadAttribution: {
+          ...leadAttribution,
+        },
+      };
+
+      return contact;
+    },
+  {
+  timeout: 180000 
+}
+);
+    }
+
+    if (result?.id && formType) {
+      await handleLeadCreation(result.id, formType, email);
+    }
 
     logger.debug(
       `All contact data created successfully for contactId: ${result.id}`

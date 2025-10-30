@@ -569,7 +569,12 @@ export const createLoanApplicationsController = async (
       };
 
       return application;
-    });
+    },
+  
+  {
+  timeout: 180000 
+}
+);
 
     logger.debug(
       `Loan application creation transaction completed successfully`,

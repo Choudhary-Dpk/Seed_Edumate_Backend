@@ -834,7 +834,6 @@ export const getLeadsByDynamicFilters = async (
   filters: Record<string, any>
 ) => {
   if (!Object.keys(filters).length) return [];
-
   const numericFields = [
     "id",
     "b2b_partner_id",
@@ -865,7 +864,7 @@ export const getLeadsByDynamicFilters = async (
       academic_profile: true,
       application_journey: true,
       financial_Info: true,
-      leads: true,
+      lead_attribution: true,
       loan_preference: true,
       system_tracking: true,
       b2b_partner: true,

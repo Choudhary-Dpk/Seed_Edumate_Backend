@@ -75,7 +75,6 @@ export function createLoanHubSpotSyncExtension() {
           // Handle CREATE
           async create({ args, query, model }: any) {
             const result = await query(args);
-
             if (!LOAN_SYNC_MODELS.includes(model)) {
               return result;
             }

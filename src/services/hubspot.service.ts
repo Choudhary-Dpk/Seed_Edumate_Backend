@@ -641,8 +641,8 @@ export const updateContactsLoanLead = async (
   leads: ContactsLead
 ) => {
   try {
-    const hubspotMappedData = await mapToHubSpotProperties(leads);
-    console.log("hubspotMappedData",hubspotMappedData)
+    // const hubspotMappedData = await mapToHubSpotProperties(leads);
+    // console.log("hubspotMappedData",hubspotMappedData)
     const response = await hubspotClient.updateContactsLoanLeadInHubspot(leadId, leads);
     return response;
   } catch (error) {
@@ -657,7 +657,6 @@ export const updateContactsLoanLead = async (
 
 export const createContactsLoanLeads = async (leads: ContactsLead[]) => {
   try {
-
     const response = await hubspotClient.createMultiContactsLead(leads);
 
     return response;

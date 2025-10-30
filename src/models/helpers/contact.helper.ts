@@ -12,6 +12,7 @@ import {
 import { HubspotResult } from "../../types";
 import { transformRow } from "../../utils/helper";
 import { getPartnerIdByUserId } from "./partners.helper";
+import logger from "../../utils/logger";
 
 export const createEdumatePersonalInformation = async (
   tx: any,
@@ -64,7 +65,7 @@ export const createEdumateLeadAttribution = async (
 export const createEdumateSystemTracking = async (
   tx: any,
   contactId: number,
-  userId: number
+  userId?: number
 ) => {
   return tx.hSEdumateContactsSystemTracking.create({
     data: {
@@ -78,6 +79,7 @@ export const createEdumateSystemTracking = async (
 
 // Updated function to get contact by email
 export const getEdumateContactByEmail = async (email: string) => {
+
   const contact = await prisma.hSEdumateContacts.findFirst({
     include: {
       personal_information: {
@@ -202,7 +204,7 @@ export const getContactsLead = async (leadId: number) => {
       personal_information: true,
       academic_profile: true,
       financial_Info: true,
-      leads: true,
+      lead_attribution: true,
     },
   });
 
@@ -265,7 +267,7 @@ export const updateEdumateLeadAttribution = async (
   contactId: number,
   leadData?: any
 ) => {
-  if (!leadData.b2b_partner_name) return null;
+  // if (!leadData.b2b_partner_name) return null;
 
   const leadAttribution = await tx.hSEdumateContactsLeadAttribution.update({
     where: { contact_id: contactId },
@@ -334,7 +336,7 @@ export const updateEdumateLeadAttribution = async (
 //         personal_information: true,
 //         academic_profile: true,
 //         financial_Info: true,
-//         leads: true,
+//         lead_attribution: true,
 //         loan_preference: true,
 //         b2b_partner: {
 //           select: {
@@ -430,7 +432,7 @@ export const fetchContactsLeadList = async (
         personal_information: true,
         academic_profile: true,
         financial_Info: true,
-        leads: true,
+        lead_attribution: true,
         loan_preference: true,
         application_journey: true,
         b2b_partner: {
@@ -520,65 +522,191 @@ const tableMappings = {
 export async function createCSVContacts(
   contacts: Record<string, Record<string, any>>[],
   userId: number,
-  hubspotResults: any[] | null
+  hubspotResults: any[] | null,
+  batchId: string | null = null,
+  batchPosition: number = 0
 ) {
   const partnerId = await getPartnerIdByUserId(userId);
   
   return await prisma.$transaction(async (tx) => {
     
-    // 1. Bulk insert main contacts
+    // ✅ Step 1: Bulk insert main contacts with EMAIL
     await tx.hSEdumateContacts.createMany({
       data: contacts.map(c => ({
         ...c["mainContact"],
+        email: c["personalInformation"]?.email, // ✅ Set email on main table
         b2b_partner_id: partnerId!.b2b_id,
       })),
       skipDuplicates: true,
     });
 
-    // 2. Get inserted contact IDs
-    const emails = contacts.map(c => c.email);
+    // ✅ Step 2: Fetch inserted contacts by EMAIL (super reliable!)
+    const emails = contacts
+      .map(c => c["personalInformation"]?.email)
+      .filter((email): email is string => !!email && email.trim() !== "");
+    
+    if (emails.length === 0) {
+      throw new Error("No valid emails found in contacts");
+    }
+
     const insertedContacts = await tx.hSEdumateContacts.findMany({
       where: {
-        created_at: {
-          gte: new Date(Date.now() - 60000) // Last 1 minute
-        }
+        email: { in: emails }
       },
-      select: { id: true },
+      select: { 
+        id: true,
+        email: true
+      },
     });
 
-    const contactIds = insertedContacts.map(c => c.id);
+    // ✅ Step 3: Create email-to-ID mapping
+    const emailToIdMap = new Map(
+      insertedContacts.map(c => [c.email, c.id])
+    );
 
-    // 3. Bulk insert PersonalInformation (createMany - no middleware trigger!)
-    await tx.hSEdumateContactsPersonalInformation.createMany({
-      data: contacts.map((c, i) => ({
-        contact_id: contactIds[i],
-        ...c["personalInformation"],
-      })),
-      skipDuplicates: true,
-    });
+    logger.debug(`Mapped ${emailToIdMap.size} contacts by email`);
 
-    // 4. Bulk insert AcademicProfiles (createMany - no middleware trigger!)
-    await tx.hSEdumateContactsAcademicProfiles.createMany({
-      data: contacts.map((c, i) => ({
-        contact_id: contactIds[i],
-        ...c["academicProfile"],
-      })),
-      skipDuplicates: true,
-    });
+    // ✅ Step 4: Build data arrays with proper contact_id mapping
+    const personalInfoData = contacts
+      .map(c => {
+        const email = c["personalInformation"]?.email;
+        const contactId = email ? emailToIdMap.get(email) : null;
+        if (!contactId) return null;
+        return {
+          contact_id: contactId,
+          ...c["personalInformation"],
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null);
 
-    // 5. Bulk insert LeadAttribution (createMany - no middleware trigger!)
-    await tx.hSEdumateContactsLeadAttribution.createMany({
-      data: contacts.map((c, i) => ({
-        contact_id: contactIds[i],
-        ...c["leadAttribution"],
-      })),
-      skipDuplicates: true,
-    });
+    const academicProfileData = contacts
+      .map(c => {
+        const email = c["personalInformation"]?.email;
+        const contactId = email ? emailToIdMap.get(email) : null;
+        if (!contactId) return null;
+        return {
+          contact_id: contactId,
+          ...c["academicProfile"],
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null);
 
-    // 6. Similarly for other normalized tables...
-    // FinancialInfo, LoanPreferences, ApplicationJourney, SystemTracking
+    const leadAttributionData = contacts
+      .map(c => {
+        const email = c["personalInformation"]?.email;
+        const contactId = email ? emailToIdMap.get(email) : null;
+        if (!contactId) return null;
+        return {
+          contact_id: contactId,
+          ...c["leadAttribution"],
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null);
 
-    return { count: contactIds.length };
+    const financialInfoData = contacts
+      .map(c => {
+        const email = c["personalInformation"]?.email;
+        const contactId = email ? emailToIdMap.get(email) : null;
+        if (!contactId || !c["financialInfo"]) return null;
+        return {
+          contact_id: contactId,
+          ...c["financialInfo"],
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null);
+
+    const loanPreferenceData = contacts
+      .map(c => {
+        const email = c["personalInformation"]?.email;
+        const contactId = email ? emailToIdMap.get(email) : null;
+        if (!contactId || !c["loanPreference"]) return null;
+        return {
+          contact_id: contactId,
+          ...c["loanPreference"],
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null);
+
+    const applicationJourneyData = contacts
+      .map(c => {
+        const email = c["personalInformation"]?.email;
+        const contactId = email ? emailToIdMap.get(email) : null;
+        if (!contactId || !c["applicationJourney"]) return null;
+        return {
+          contact_id: contactId,
+          ...c["applicationJourney"],
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null);
+
+    const systemTrackingData = contacts
+      .map(c => {
+        const email = c["personalInformation"]?.email;
+        const contactId = email ? emailToIdMap.get(email) : null;
+        if (!contactId || !c["systemTracking"]) return null;
+        return {
+          contact_id: contactId,
+          ...c["systemTracking"],
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null);
+
+    // ✅ Step 5: Bulk insert all normalized tables
+    if (personalInfoData.length > 0) {
+      await tx.hSEdumateContactsPersonalInformation.createMany({
+        data: personalInfoData,
+        skipDuplicates: true,
+      });
+    }
+
+    if (academicProfileData.length > 0) {
+      await tx.hSEdumateContactsAcademicProfiles.createMany({
+        data: academicProfileData,
+        skipDuplicates: true,
+      });
+    }
+
+    if (leadAttributionData.length > 0) {
+      await tx.hSEdumateContactsLeadAttribution.createMany({
+        data: leadAttributionData,
+        skipDuplicates: true,
+      });
+    }
+
+    if (financialInfoData.length > 0) {
+      await tx.hSEdumateContactsFinancialInfo.createMany({
+        data: financialInfoData,
+        skipDuplicates: true,
+      });
+    }
+
+    if (loanPreferenceData.length > 0) {
+      await tx.hSEdumateContactsLoanPreferences.createMany({
+        data: loanPreferenceData,
+        skipDuplicates: true,
+      });
+    }
+
+    if (applicationJourneyData.length > 0) {
+      await tx.hSEdumateContactsApplicationJourney.createMany({
+        data: applicationJourneyData,
+        skipDuplicates: true,
+      });
+    }
+
+    if (systemTrackingData.length > 0) {
+      await tx.hSEdumateContactsSystemTracking.createMany({
+        data: systemTrackingData,
+        skipDuplicates: true,
+      });
+    }
+
+    const insertedContactIds = Array.from(emailToIdMap.values());
+
+    return { 
+      count: insertedContactIds.length,
+      insertedContactIds
+    };
   });
 }
 

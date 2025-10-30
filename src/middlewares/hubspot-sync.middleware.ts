@@ -67,7 +67,6 @@ export function createHubSpotSyncExtension() {
           // Handle CREATE
           async create({ args, query, model }: any) {
             const result = await query(args);
-
             if (!SYNC_MODELS.includes(model)) {
               return result;
             }
