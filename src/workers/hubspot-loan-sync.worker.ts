@@ -129,7 +129,7 @@ async function processSingleLoanEntry(entry: any) {
         hubspotId = await handleLoanUpdate(payload, entry.entity_id);
         break;
       case "DELETE":
-        await handleLoanDelete(entry.entity_id);
+        await handleLoanDelete(payload?.hs_object_id);
         break;
     }
 
@@ -240,21 +240,21 @@ async function handleLoanUpdate(payload: any, loanId: number): Promise<string | 
 /**
  * Handle DELETE operation for loan application
  */
-async function handleLoanDelete(loanId: number): Promise<void> {
+async function handleLoanDelete(hs_object_id: string): Promise<void> {
   // Try to find the loan application (might be soft-deleted)
-  const loanApplication = await prisma.hSLoanApplications.findUnique({
-    where: { id: loanId },
-  });
+  // const loanApplication = await prisma.hSLoanApplications.findUnique({
+  //   where: { id: loanId },
+  // });
 
-  const hubspotId = loanApplication?.hs_object_id;
+  // const hubspotId = loanApplication?.hs_object_id;
 
-  if (!hubspotId) {
-    logger.warn(`No HubSpot ID found for loan ${loanId}, skipping delete`);
+  if (!hs_object_id) {
+    logger.warn(`No HubSpot ID found for loan ${hs_object_id}, skipping delete`);
     return;
   }
 
   // Delete from HubSpot
-  await deleteLoanApplication(hubspotId);
+  await deleteLoanApplication(hs_object_id);
 }
 
 /**
@@ -495,7 +495,7 @@ function transformLoanToHubSpotFormat(loanApp: any): any {
     
     // Don't send these on CREATE, only on UPDATE
     ...(loanApp.hs_object_id && {
-      hs_object_id: loanApp.hs_object_id,
+      // hs_object_id: loanApp.hs_object_id,
     }),
   };
 }
