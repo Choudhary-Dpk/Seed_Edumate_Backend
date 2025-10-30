@@ -1329,7 +1329,7 @@ model HSLoanProductsCollateralAndSecurity {
 
 model HSLoanProductsRepaymentTerms {
   id                        Int                 @id @default(autoincrement())
-  loan_product_id           Int                 @unique @map("product_id")
+  loan_product_id           Int                 @unique
   moratorium_type           MoratoriumType?     @default(dbgenerated()) @map("moratorium_type")
   moratorium_period         Int?                @map("moratorium_period")
   repayment_frequency       RepaymentFrequency? @default(dbgenerated()) @map("repayment_frequency")
@@ -1353,7 +1353,7 @@ model HSLoanProductsRepaymentTerms {
 
 model HSLoanProductsApplicationAndProcessing {
   id                           Int                  @id @default(autoincrement())
-  loan_product_id              Int                  @unique @map("product_id")
+  loan_product_id              Int                  @unique
   application_mode             ApplicationMode?     @default(dbgenerated()) @map("application_mode")
   disbursement_process         DisbursementProcess? @default(dbgenerated()) @map("disbursement_process")
   disbursement_timeline        String?              @map("disbursement_timeline")
@@ -1387,7 +1387,7 @@ model HSLoanProductsGeographicCoverage {
 
 model HSLoanProductsSpecialFeatures {
   id                          Int                       @id @default(autoincrement())
-  loan_product_id             Int                       @unique @map("product_id")
+  loan_product_id             Int                       @unique
   digital_features            DigitalFeatures?          @default(dbgenerated()) @map("digital_features")
   customer_support_features   CustomerSupportFeatures?  @default(dbgenerated()) @map("customer_support_features")
   flexible_repayment_options  FlexibleRepaymentOptions? @default(dbgenerated()) @map("flexible_repayment_options")
@@ -1423,7 +1423,7 @@ model HSLoanProductsPerformanceMetrics {
 
 model HSLoanProductsSystemIntegration {
   id                          Int                    @id @default(autoincrement())
-  loan_product_id             Int                    @unique @map("product_id")
+  loan_product_id             Int                    @unique
   api_availability            ApiAvailability?       @default(dbgenerated()) @map("api_availability")
   technical_documentation_url String?                @map("technical_documentation_url")
   integration_complexity      IntegrationComplexity? @default(dbgenerated()) @map("integration_complexity")
@@ -1439,7 +1439,7 @@ model HSLoanProductsSystemIntegration {
 
 model HSLoanProductsFinancialTerms {
   id                            Int                @id @default(autoincrement())
-  loan_product_id               Int                @unique @map("product_id")
+  loan_product_id               Int                @unique
   interest_rate_type            InterestRateType?  @default(dbgenerated()) @map("interest_rate_type")
   interest_rate_range_min       Decimal?           @map("interest_rate_range_min") @db.Decimal(10, 2)
   interest_rate_range_max       Decimal?           @map("interest_rate_range_max") @db.Decimal(10, 2)
@@ -2075,8 +2075,8 @@ model CreateLeadsView {
   loan_amount_approved        Decimal?                       @db.Decimal(12, 2)
   loan_amount_disbursed       Decimal?                       @db.Decimal(12, 2)
   processing_fee              Decimal?                       @db.Decimal(12, 2)
-
   @@map("create_leads_view")
+  
 }
 
 enum AuditAction {
