@@ -67,6 +67,7 @@ async function processOutboxEntries() {
   // Fetch pending entries
   const pendingEntries = await prisma.syncOutbox.findMany({
     where: {
+      entity_type: "HSEdumateContacts",
       status: "PENDING",
       attempts: {
         lt: MAX_RETRIES,
