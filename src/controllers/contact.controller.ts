@@ -611,6 +611,7 @@ export const uploadContactsCSV = async (
     const mappedRecords = await Promise.all(
       toInsert.map((contact) => mapAllFields(contact))
     );
+    console.log("mappedRecords", mappedRecords);
 
     // ✅ 7. Process in batches (DB insertion only - NO HubSpot calls)
     const BATCH_SIZE = 50;
@@ -630,6 +631,7 @@ export const uploadContactsCSV = async (
       const categorizedRecords = await Promise.all(
         batch.map((contact) => categorizeByTable(contact))
       );
+      console.log("categorizedRecords", categorizedRecords);
       try {
         logger.debug(`Processing batch ${batchNumber}/${batches.length}`);
 
