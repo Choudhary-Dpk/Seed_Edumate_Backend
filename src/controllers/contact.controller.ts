@@ -4,9 +4,7 @@ import { RequestWithPayload } from "../types/api.types";
 import { LoginPayload } from "../types/auth";
 import logger from "../utils/logger";
 import { sendResponse } from "../utils/api";
-import {
-  createContactsLoanLeads,
-} from "../services/hubspot.service";
+import { createContactsLoanLeads } from "../services/hubspot.service";
 import prisma from "../config/prisma";
 import {
   deleteContactsLoan,
@@ -66,7 +64,6 @@ export const createContactsLead = async (
     const categorized = categorizeByTable(mappedFields);
     console.log("categorized", categorized);
 
-    // ✅ SIRF DB operation - HubSpot call REMOVE
     const result = await prisma.$transaction(async (tx: any) => {
       logger.debug(`Creating edumate contact for userId: ${id}`);
       const contact = await createEdumateContact(
@@ -137,9 +134,13 @@ export const createContactsLead = async (
     logger.debug(
       `All contact data created successfully for contactId: ${result.id}`
     );
-    // ✅ Middleware ne automatically outbox entry create kar di
-    
-    sendResponse(res, 200, "Contacts Lead created successfully (sync queued)", data);
+
+    sendResponse(
+      res,
+      200,
+      "Contacts Lead created successfully (sync queued)",
+      data
+    );
   } catch (error) {
     next(error);
   }
@@ -168,117 +169,122 @@ export const upsertContactsLead = async (
     const existingContactDb = await getEdumateContactByEmail(email);
     let result;
     if (existingContactDb?.id) {
-    const leadId = existingContactDb?.id;
-          // ✅ HubSpot update call REMOVE - sirf DB update
-    result = await prisma.$transaction(async (tx: any) => {
-      // logger.debug(`Updating edumate contact for userId: ${id}`);
-      const contact = await updateEdumateContact(
-        tx,
-        +leadId,
-        categorized["mainContact"]
-      );
-      logger.debug(`Contact updated successfully with id: ${contact.id}`);
+      const leadId = existingContactDb?.id;
+      // ✅ HubSpot update call REMOVE - sirf DB update
+      result = await prisma.$transaction(async (tx: any) => {
+        // logger.debug(`Updating edumate contact for userId: ${id}`);
+        const contact = await updateEdumateContact(
+          tx,
+          +leadId,
+          categorized["mainContact"]
+        );
+        logger.debug(`Contact updated successfully with id: ${contact.id}`);
 
-      logger.debug(`Updating personal information for contact: ${contact.id}`);
-      await updateEdumatePersonalInformation(
-        tx,
-        contact.id,
-        categorized["personalInformation"]
-      );
-      logger.debug(
-        `Personal information updated successfully for contact: ${contact.id}`
-      );
+        logger.debug(
+          `Updating personal information for contact: ${contact.id}`
+        );
+        await updateEdumatePersonalInformation(
+          tx,
+          contact.id,
+          categorized["personalInformation"]
+        );
+        logger.debug(
+          `Personal information updated successfully for contact: ${contact.id}`
+        );
 
-      logger.debug(`Updating academic profile for contact: ${contact.id}`);
-      await updateEdumateAcademicProfile(
-        tx,
-        contact.id,
-        categorized["academicProfile"]
-      );
-      logger.debug(
-        `Academic profile updated successfully for contact: ${contact.id}`
-      );
+        logger.debug(`Updating academic profile for contact: ${contact.id}`);
+        await updateEdumateAcademicProfile(
+          tx,
+          contact.id,
+          categorized["academicProfile"]
+        );
+        logger.debug(
+          `Academic profile updated successfully for contact: ${contact.id}`
+        );
 
-      logger.debug(`Updating lead attribution for contact: ${contact.id}`);
-      await updateEdumateLeadAttribution(
-        tx,
-        contact.id,
-        categorized["leadAttribution"]
-      );
-      logger.debug(
-        `Lead attribution updated successfully for contact: ${contact.id}`
-      );
+        logger.debug(`Updating lead attribution for contact: ${contact.id}`);
+        await updateEdumateLeadAttribution(
+          tx,
+          contact.id,
+          categorized["leadAttribution"]
+        );
+        logger.debug(
+          `Lead attribution updated successfully for contact: ${contact.id}`
+        );
 
-      return contact;
-    });
+        return contact;
+      });
     } else {
-    // Create New Record
-    result = await prisma.$transaction(async (tx: any) => {
-      // logger.debug(`Creating edumate contact for userId: ${id}`);
-      const contact = await createEdumateContact(
-        tx,
-        categorized["mainContact"],
-        null, // ⬅️ HubSpot ID ab null hai
-      );
-      logger.debug(`Contact created successfully with id: ${contact.id}`);
+      // Create New Record
+      result = await prisma.$transaction(
+        async (tx: any) => {
+          // logger.debug(`Creating edumate contact for userId: ${id}`);
+          const contact = await createEdumateContact(
+            tx,
+            categorized["mainContact"],
+            null // ⬅️ HubSpot ID ab null hai
+          );
+          logger.debug(`Contact created successfully with id: ${contact.id}`);
 
-      logger.debug(`Creating personal information for contact: ${contact.id}`);
-      const personalInfo = await createEdumatePersonalInformation(
-        tx,
-        contact.id,
-        categorized["personalInformation"]
-      );
-      logger.debug(
-        `Personal information created successfully for contact: ${contact.id}`
-      );
+          logger.debug(
+            `Creating personal information for contact: ${contact.id}`
+          );
+          const personalInfo = await createEdumatePersonalInformation(
+            tx,
+            contact.id,
+            categorized["personalInformation"]
+          );
+          logger.debug(
+            `Personal information created successfully for contact: ${contact.id}`
+          );
 
-      logger.debug(`Creating academic profile for contact: ${contact.id}`);
-      const academicsProfile = await createEdumateAcademicProfile(
-        tx,
-        contact.id,
-        categorized["academicProfile"]
-      );
-      logger.debug(
-        `Academic profile created successfully for contact: ${contact.id}`
-      );
+          logger.debug(`Creating academic profile for contact: ${contact.id}`);
+          const academicsProfile = await createEdumateAcademicProfile(
+            tx,
+            contact.id,
+            categorized["academicProfile"]
+          );
+          logger.debug(
+            `Academic profile created successfully for contact: ${contact.id}`
+          );
 
-      logger.debug(`Creating lead attribution for contact: ${contact.id}`);
-      leadAttribution = await createEdumateLeadAttribution(
-        tx,
-        contact.id,
-        categorized["leadAttribution"]
-      );
-      logger.debug(
-        `Lead attribution created successfully for contact: ${contact.id}`
-      );
+          logger.debug(`Creating lead attribution for contact: ${contact.id}`);
+          leadAttribution = await createEdumateLeadAttribution(
+            tx,
+            contact.id,
+            categorized["leadAttribution"]
+          );
+          logger.debug(
+            `Lead attribution created successfully for contact: ${contact.id}`
+          );
 
-      logger.debug(`Creating system tracking for contact: ${contact.id}`);
-      await createEdumateSystemTracking(tx, contact.id);
-      logger.debug(
-        `System tracking created successfully for contact: ${contact.id}`
-      );
+          logger.debug(`Creating system tracking for contact: ${contact.id}`);
+          await createEdumateSystemTracking(tx, contact.id);
+          logger.debug(
+            `System tracking created successfully for contact: ${contact.id}`
+          );
 
-      data = {
-        contact: {
-          ...contact,
+          data = {
+            contact: {
+              ...contact,
+            },
+            personalInfo: {
+              ...personalInfo,
+            },
+            academicsProfile: {
+              ...academicsProfile,
+            },
+            leadAttribution: {
+              ...leadAttribution,
+            },
+          };
+
+          return contact;
         },
-        personalInfo: {
-          ...personalInfo,
-        },
-        academicsProfile: {
-          ...academicsProfile,
-        },
-        leadAttribution: {
-          ...leadAttribution,
-        },
-      };
-
-      return contact;
-    },
-  {
-  timeout: 180000 
-}
-);
+        {
+          timeout: 180000,
+        }
+      );
     }
 
     if (result?.id && formType) {
@@ -289,8 +295,13 @@ export const upsertContactsLead = async (
       `All contact data created successfully for contactId: ${result.id}`
     );
     // ✅ Middleware ne automatically outbox entry create kar di
-    
-    sendResponse(res, 200, "Contacts Lead created successfully (sync queued)", data);
+
+    sendResponse(
+      res,
+      200,
+      "Contacts Lead created successfully (sync queued)",
+      data
+    );
   } catch (error) {
     next(error);
   }
@@ -593,16 +604,18 @@ export const uploadContactsCSV = async (
 
     // ✅ 6. Generate unique batch ID for this upload
     const batchId = uuidv4();
-    logger.debug(`Generated batch ID: ${batchId} for ${toInsert.length} records`);
+    logger.debug(
+      `Generated batch ID: ${batchId} for ${toInsert.length} records`
+    );
 
     const mappedRecords = await Promise.all(
-      toInsert.map(contact => mapAllFields(contact))
+      toInsert.map((contact) => mapAllFields(contact))
     );
 
     // ✅ 7. Process in batches (DB insertion only - NO HubSpot calls)
     const BATCH_SIZE = 50;
     const batches = chunkArray(mappedRecords, BATCH_SIZE);
-    
+
     logger.debug(
       `Processing ${mappedRecords.length} records in ${batches.length} batches of ${BATCH_SIZE}`
     );
@@ -615,7 +628,7 @@ export const uploadContactsCSV = async (
       const batch = batches[batchIndex];
       const batchNumber = batchIndex + 1;
       const categorizedRecords = await Promise.all(
-        batch.map(contact => categorizeByTable(contact))
+        batch.map((contact) => categorizeByTable(contact))
       );
       try {
         logger.debug(`Processing batch ${batchNumber}/${batches.length}`);
@@ -635,10 +648,9 @@ export const uploadContactsCSV = async (
         logger.debug(
           `Batch ${batchNumber}: Outbox entries created for sync queue`
         );
-
       } catch (error: any) {
         logger.error(`Batch ${batchNumber}: DB insertion failed`, { error });
-        
+
         insertionErrors.push({
           batchNumber,
           error: error.message,
@@ -703,32 +715,35 @@ async function createBulkOutboxEntries(
 
     // Fetch actual contact IDs from DB
     const emails = contacts
-      .map(c => c.email)
-      .filter((email): email is string => typeof email === "string" && email.trim() !== "");
+      .map((c) => c.email)
+      .filter(
+        (email): email is string =>
+          typeof email === "string" && email.trim() !== ""
+      );
     let insertedContacts: Array<any> = [];
-    if(emails.length > 0){
+    if (emails.length > 0) {
       insertedContacts = await prisma.hSEdumateContacts.findMany({
-      where: { 
-        personal_information: {
-          email: { in: emails }
-        }
-      },
-      select: { 
-        id: true,
-        personal_information: {
-          select: { email: true }
-        }
-      },
-    });
+        where: {
+          personal_information: {
+            email: { in: emails },
+          },
+        },
+        select: {
+          id: true,
+          personal_information: {
+            select: { email: true },
+          },
+        },
+      });
     }
 
     // Map emails to IDs
     const emailToIdMap = new Map(
-      insertedContacts.map(c => [c.personal_information?.email, c.id])
+      insertedContacts.map((c) => [c.personal_information?.email, c.id])
     );
 
     // Update outbox entries with actual IDs
-    outboxEntries.forEach(entry => {
+    outboxEntries.forEach((entry) => {
       const contact = entry.payload as ContactsLead;
       const actualId = emailToIdMap.get(contact.email);
       if (actualId) {
@@ -738,10 +753,12 @@ async function createBulkOutboxEntries(
 
     // Bulk insert outbox entries
     await prisma.syncOutbox.createMany({
-      data: outboxEntries.filter(e => e.entity_id !== 0), // Only insert entries with valid IDs
+      data: outboxEntries.filter((e) => e.entity_id !== 0), // Only insert entries with valid IDs
     });
 
-    logger.debug(`Created ${outboxEntries.length} outbox entries for batch ${batchId}`);
+    logger.debug(
+      `Created ${outboxEntries.length} outbox entries for batch ${batchId}`
+    );
   } catch (error) {
     logger.error(`Failed to create bulk outbox entries:`, error);
     throw error;
@@ -919,7 +936,7 @@ async function createBulkOutboxEntries(
 //                 dbInsertedCount = 0;
 //               }
 //             }
-            
+
 //             // Store batch result
 //             batchResults.push({
 //               inserted: dbInsertedCount,

@@ -182,12 +182,15 @@ export const useOtp = async (userId: number, otp: string) => {
 
 export const updateUserLastLoggedIn = async (
   userId: number,
+  userType: "partner" | "admin",
   ip: string,
   status: LoginStatus,
   device?: string
 ) => {
+  const whereClause =
+    userType === "admin" ? { admin_user_id: userId } : { b2b_user_id: userId };
   const lastLogin = await prisma.loginHistory.findFirst({
-    where: { user_id: userId },
+    where: { ...whereClause, user_type: userType },
     orderBy: { created_at: "desc" },
   });
 
@@ -195,6 +198,7 @@ export const updateUserLastLoggedIn = async (
     await prisma.loginHistory.update({
       where: { id: lastLogin.id },
       data: {
+        user_type: userType,
         device_info: device,
         ip_address: ip,
         created_at: new Date(),
@@ -204,10 +208,13 @@ export const updateUserLastLoggedIn = async (
   } else {
     await prisma.loginHistory.create({
       data: {
-        user_id: userId,
         device_info: device,
         ip_address: ip,
         status,
+        user_type: userType,
+        ...(userType === "admin"
+          ? { admin_user_id: userId }
+          : { b2b_user_id: userId }),
       },
     });
   }
@@ -334,7 +341,7 @@ export const deleteUserSession = async (
   status: LoginStatus
 ) => {
   const lastLogin = await prisma.loginHistory.findFirst({
-    where: { user_id: userId },
+    where: { b2b_user_id: userId },
     orderBy: { created_at: "desc" },
   });
 
@@ -366,7 +373,7 @@ export const deleteAdminSession = async (
   status: LoginStatus
 ) => {
   const lastLogin = await prisma.loginHistory.findFirst({
-    where: { user_id: userId },
+    where: { admin_user_id: userId },
     orderBy: { created_at: "desc" },
   });
 

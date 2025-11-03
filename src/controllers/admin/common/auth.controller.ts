@@ -70,6 +70,7 @@ export const adminLoginController = async (
     logger.debug(`Updating login history for userId: ${id}`);
     await updateUserLastLoggedIn(
       id,
+      "admin",
       ipDetails,
       "success",
       deviceDetails?.device

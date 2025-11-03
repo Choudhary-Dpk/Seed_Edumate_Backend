@@ -20,6 +20,8 @@ model AdminUsers {
   admin_sessions   AdminSessions[]  @relation("AdminSessions")
   admin_tokens     AdminTokens[]    @relation("AdminTokens")
   admin_user_roles AdminUserRoles[] @relation("AdminRole")
+  admin_login_history LoginHistory[] @relation("AdminLoginHistory")
+  loan_application  HSLoanApplications[] @relation("UserLoanApplications")
 
   @@map("admin_users")
 }
@@ -160,13 +162,17 @@ model B2BPartnersSessions {
 }
 
 model LoginHistory {
-  id          Int              @id @default(autoincrement())
-  user_id     Int              @map("user_id")
-  ip_address  String?          @map("ip_address") @db.Inet
-  device_info String?          @map("device_info")
-  status      LoginStatus      @default(dbgenerated()) @map("status")
-  created_at  DateTime         @default(now()) @map("created_at")
-  user        B2BPartnersUsers @relation("LoginHistory", fields: [user_id], references: [id], onDelete: Cascade)
+  id             Int               @id @default(autoincrement())
+  b2b_user_id    Int?              @map("b2b_user_id")
+  admin_user_id  Int?              @map("admin_user_id")
+  user_type      String?           @map("user_type")
+  ip_address     String?           @map("ip_address") @db.Inet
+  device_info    String?           @map("device_info")
+  status         LoginStatus       @default(dbgenerated()) @map("status")
+  created_at     DateTime          @default(now()) @map("created_at")
+  
+  b2b_user       B2BPartnersUsers? @relation("LoginHistory", fields: [b2b_user_id], references: [id], onDelete: Cascade)
+  admin_user     AdminUsers?       @relation("AdminLoginHistory", fields: [admin_user_id], references: [id], onDelete: Cascade)
 
   @@map("login_history")
 }
@@ -502,7 +508,7 @@ model B2BPartnersUsers {
   created_applications         HSLoanApplications[]                   @relation("CreatedBy")
   deleted_by_loan_applications HSLoanApplications[]                   @relation("DeletedBy")
   modified_applications        HSLoanApplications[]                   @relation("LastModifiedBy")
-  loan_applications            HSLoanApplications[]                   @relation("UserLoanApplications")
+  // loan_applications            HSLoanApplications[]                   @relation("UserLoanApplications")
   deleted_by_loan_products     HSLoanProducts[]                       @relation("LoanProuductsDeletedBy")
   login_history                LoginHistory[]                         @relation("LoginHistory")
 
@@ -540,7 +546,7 @@ model HSLoanApplications {
   created_by              B2BPartnersUsers?                           @relation("CreatedBy", fields: [created_by_id], references: [id])
   deleted_by              B2BPartnersUsers?                           @relation("DeletedBy", fields: [deleted_by_id], references: [id])
   last_modified_by        B2BPartnersUsers?                           @relation("LastModifiedBy", fields: [last_modified_by_id], references: [id])
-  user                    B2BPartnersUsers?                           @relation("UserLoanApplications", fields: [user_id], references: [id])
+  user                    AdminUsers?                           @relation("UserLoanApplications", fields: [user_id], references: [id])
   academic_details        HSLoanApplicationsAcademicDetails?
   additional_services     HSLoanApplicationsAdditionalServices?
   commission_records      HSLoanApplicationsCommissionRecords?
