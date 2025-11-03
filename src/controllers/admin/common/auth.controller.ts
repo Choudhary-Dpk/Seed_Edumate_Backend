@@ -68,12 +68,13 @@ export const adminLoginController = async (
     logger.debug(`Refresh token stored successfully`);
 
     logger.debug(`Updating login history for userId: ${id}`);
-    // await updateUserLastLoggedIn(
-    //   id,
-    //   ipDetails,
-    //   "success",
-    //   deviceDetails?.device
-    // );
+    await updateUserLastLoggedIn(
+      id,
+      "admin",
+      ipDetails,
+      "success",
+      deviceDetails?.device
+    );
     logger.debug(`User login history updated successfully`);
 
     logger.debug(`Fetching role of userId: ${id}`);

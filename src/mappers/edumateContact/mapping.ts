@@ -340,8 +340,13 @@ export const mapAllFields = async (
     mapped.email = input.email ?? null;
   }
 
-  if (input.phoneNumber !== undefined || input.phone_number !== undefined) {
-    mapped.phone_number = input.phoneNumber ?? input.phone_number ?? null;
+  if (
+    input.phoneNumber !== undefined ||
+    input.phone !== undefined ||
+    input.phone_number !== undefined
+  ) {
+    mapped.phone_number =
+      input.phoneNumber ?? input.phone ?? input.phone_number ?? null;
   }
 
   if (input.dateOfBirth !== undefined || input.date_of_birth !== undefined) {
@@ -448,11 +453,16 @@ export const mapAllFields = async (
 
   if (
     input.levelOfEducation !== undefined ||
+    input.educationLevel !== undefined ||
     input.current_education_level !== undefined
   ) {
-    const level = input.levelOfEducation ?? input.current_education_level;
+    const level =
+      input.levelOfEducation ??
+      input.educationLevel ??
+      input.current_education_level;
+
     mapped.current_education_level = level
-      ? currentEducationLevelMap[level]
+      ? currentEducationLevelMap[level] ?? null
       : null;
   }
 

@@ -69,6 +69,7 @@ export const login = async (
     logger.debug(`Updating login history for userId: ${id}`);
     await updateUserLastLoggedIn(
       id,
+      "partner",
       ipDetails,
       "success",
       deviceDetails?.device
