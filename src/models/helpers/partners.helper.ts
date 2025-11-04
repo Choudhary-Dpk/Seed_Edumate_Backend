@@ -160,9 +160,6 @@ export const createB2BBusinessCapabilities = async (
   partnerId: number,
   capabilitiesData: any
 ) => {
-  if (!capabilitiesData || Object.keys(capabilitiesData).length === 0) {
-    return null;
-  }
 
   const capabilities = await tx.hSB2BPartnersBusinessCapabilities.create({
     data: {
@@ -179,9 +176,6 @@ export const createB2BCommissionStructure = async (
   partnerId: number,
   commissionData: any
 ) => {
-  if (!commissionData || Object.keys(commissionData).length === 0) {
-    return null;
-  }
 
   const commission = await tx.hSB2BPartnersCommissionStructure.create({
     data: {
@@ -198,10 +192,6 @@ export const createB2BComplianceDocumentation = async (
   partnerId: number,
   complianceData: any
 ) => {
-  if (!complianceData || Object.keys(complianceData).length === 0) {
-    return null;
-  }
-
   const compliance = await tx.hSB2BPartnersComplianceAndDocumentation.create({
     data: {
       partner_id: partnerId,
@@ -217,9 +207,6 @@ export const createB2BContactInfo = async (
   partnerId: number,
   contactData: any
 ) => {
-  if (!contactData || Object.keys(contactData).length === 0) {
-    return null;
-  }
 
   const contactInfo = await tx.hSB2BPartnersContactInfo.create({
     data: {
@@ -236,10 +223,6 @@ export const createB2BFinancialTracking = async (
   partnerId: number,
   financialData: any
 ) => {
-  if (!financialData || Object.keys(financialData).length === 0) {
-    return null;
-  }
-
   const financial = await tx.hSB2BPartnersFinancialTracking.create({
     data: {
       partner_id: partnerId,
@@ -255,10 +238,6 @@ export const createB2BLeadAttribution = async (
   partnerId: number,
   leadAttributionData: any
 ) => {
-  if (!leadAttributionData || Object.keys(leadAttributionData).length === 0) {
-    return null;
-  }
-
   const leadAttribution = await tx.hSB2BPartnersLeadAttribution.create({
     data: {
       partner_id: partnerId,
@@ -274,9 +253,6 @@ export const createB2BMarketingPromotion = async (
   partnerId: number,
   marketingData: any
 ) => {
-  if (!marketingData || Object.keys(marketingData).length === 0) {
-    return null;
-  }
 
   const marketing = await tx.hSB2BPartnersMarketingAndPromotion.create({
     data: {
@@ -293,10 +269,6 @@ export const createB2BPartnershipDetails = async (
   partnerId: number,
   partnershipData: any
 ) => {
-  if (!partnershipData || Object.keys(partnershipData).length === 0) {
-    return null;
-  }
-
   const partnership = await tx.hSB2BPartnersPartnershipDetails.create({
     data: {
       partner_id: partnerId,
@@ -312,10 +284,6 @@ export const createB2BPerformanceMetrics = async (
   partnerId: number,
   performanceData: any
 ) => {
-  if (!performanceData || Object.keys(performanceData).length === 0) {
-    return null;
-  }
-
   const performance = await tx.hSB2BPartnersPerformanceMetrics.create({
     data: {
       partner_id: partnerId,
@@ -331,9 +299,6 @@ export const createB2BRelationshipManagement = async (
   partnerId: number,
   relationshipData: any
 ) => {
-  if (!relationshipData || Object.keys(relationshipData).length === 0) {
-    return null;
-  }
 
   const relationship = await tx.hSB2BPartnersRelationshipManagement.create({
     data: {
@@ -348,13 +313,8 @@ export const createB2BRelationshipManagement = async (
 export const createB2BSystemTracking = async (
   tx: any,
   partnerId: number,
-  systemTrackingData: any,
-  userId: number
+  systemTrackingData: any
 ) => {
-  if (!systemTrackingData || Object.keys(systemTrackingData).length === 0) {
-    return null;
-  }
-
   const systemTracking = await tx.hSB2BPartnersSystemTracking.create({
     data: {
       partner: {
@@ -369,14 +329,13 @@ export const createB2BSystemTracking = async (
   return systemTracking;
 };
 
-export const deleteB2bPartner = async (partnerId: number, userId: number) => {
+export const deleteB2bPartner = async (partnerId: number) => {
   await prisma.$transaction(async (tx) => {
     await tx.hSB2BPartners.update({
       where: { id: partnerId },
       data: {
         is_deleted: true,
         updated_at: new Date(),
-        deleted_by_id: userId,
       },
     });
   });
@@ -613,8 +572,7 @@ export const updateB2BRelationshipManagement = async (
 export const updateB2BSystemTracking = async (
   tx: any,
   partnerId: number,
-  systemTrackingData: any,
-  userId: number
+  systemTrackingData: any
 ) => {
   if (!systemTrackingData || Object.keys(systemTrackingData).length === 0) {
     return null;
@@ -626,7 +584,6 @@ export const updateB2BSystemTracking = async (
     },
     data: {
       ...systemTrackingData,
-      last_modified_by: userId.toString(),
       last_modified_date: new Date(),
       updated_at: new Date(),
     },

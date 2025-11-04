@@ -168,7 +168,7 @@ model LoginHistory {
   user_type      String?           @map("user_type")
   ip_address     String?           @map("ip_address") @db.Inet
   device_info    String?           @map("device_info")
-  status         LoginStatus       @default(dbgenerated()) @map("status")
+  status         LoginStatus?       @default(dbgenerated()) @map("status")
   created_at     DateTime          @default(now()) @map("created_at")
   
   b2b_user       B2BPartnersUsers? @relation("LoginHistory", fields: [b2b_user_id], references: [id], onDelete: Cascade)
@@ -208,10 +208,10 @@ model HSB2BPartners {
   incorporation_date       DateTime?
   pan_number               String?
   partner_display_name     String?
-  partner_name             String?
+  partner_name             String
   partner_type             String?
   pincode                  String?
-  registration_number      String?
+  registration_number      String
   state                    String?
   website_url              String?
   created_by               String?
@@ -431,17 +431,17 @@ model HSB2BPartnersSystemTracking {
   id                     Int                  @id @default(autoincrement())
   partner_id             Int                  @unique @map("partner_id")
   partner_name           String?              @map("partner_name")
-  api_access_provided    ApiAccessStatus      @default(dbgenerated()) @map("api_access_provided")
+  api_access_provided    ApiAccessStatus?      @default(dbgenerated()) @map("api_access_provided")
   created_by             String?              @map("created_by")
   created_date           DateTime?            @map("created_date")
-  data_source            B2BDataSource        @default(dbgenerated()) @map("data_source")
-  integration_status     B2BIntegrationStatus @default(dbgenerated()) @map("integration_status")
+  data_source            B2BDataSource?        @default(dbgenerated()) @map("data_source")
+  integration_status     B2BIntegrationStatus? @default(dbgenerated()) @map("integration_status")
   internal_tags          String?              @map("internal_tags")
   last_modified_by       String?              @map("last_modified_by")
   last_modified_date     DateTime?            @map("last_modified_date")
   notes                  String?              @map("notes")
-  partner_record_status  PartnerRecordStatus  @default(dbgenerated()) @map("partner_record_status")
-  portal_access_provided PortalAccessStatus   @default(dbgenerated()) @map("portal_access_provided")
+  partner_record_status  PartnerRecordStatus?  @default(dbgenerated()) @map("partner_record_status")
+  portal_access_provided PortalAccessStatus?   @default(dbgenerated()) @map("portal_access_provided")
   created_at             DateTime?            @default(now()) @map("created_at")
   updated_at             DateTime?            @default(now()) @updatedAt @map("updated_at")
   partner                HSB2BPartners        @relation(fields: [partner_id], references: [id], onDelete: Cascade)
@@ -1040,7 +1040,7 @@ model HSEdumateContactsPersonalInformation {
 model HSLenders {
   id                     Int                           @id @default(autoincrement())
   external_id            String?                       @unique @map("external_id")
-  lender_display_name    String                        @map("lender_display_name")
+  lender_display_name    String?                        @map("lender_display_name")
   lender_name            String                        @map("lender_name")
   legal_name             String?                       @map("legal_name")
   short_code             String?                       @map("short_code")
@@ -1080,8 +1080,8 @@ model HSLendersSystemTracking {
   lender_record_status   LenderRecordStatus?  @default(dbgenerated()) 
   notes                  String?
   performance_rating     PerformanceRating? @default(dbgenerated()) 
-  created_at             DateTime            @default(now())
-  updated_at             DateTime            @default(now()) @updatedAt
+  created_at             DateTime?            @default(now())
+  updated_at             DateTime?            @default(now()) @updatedAt
   last_modified_by       String?
   last_modified_date     DateTime?
   lender_system_tracking HSLenders           @relation(fields: [lender_id], references: [id], onDelete: Cascade)
@@ -1105,8 +1105,8 @@ model HSLendersContactInfo {
   escalation_hierarchy_1_phone       String?   @map("escalation_hierarchy_1_phone")
   customer_service_email             String?   @map("customer_service_email")
   customer_service_number            String?   @map("customer_service_number")
-  created_at                         DateTime  @default(now()) @map("created_at")
-  updated_at                         DateTime  @default(now()) @updatedAt @map("updated_at")
+  created_at                         DateTime?  @default(now()) @map("created_at")
+  updated_at                         DateTime?  @default(now()) @updatedAt @map("updated_at")
   lender                             HSLenders @relation(fields: [lender_id], references: [id], onDelete: Cascade)
 
   @@map("hs_lenders_contact_info")
@@ -1121,8 +1121,8 @@ model HSLendersBusinessMetrics {
   yearly_application_volume    Int?      @map("yearly_application_volume")
   average_processing_days      Int?      @map("average_processing_days")
   average_disbursement_days    Int?      @map("average_disbursement_days")
-  created_at                   DateTime  @default(now()) @map("created_at")
-  updated_at                   DateTime  @default(now()) @updatedAt @map("updated_at")
+  created_at                   DateTime?  @default(now()) @map("created_at")
+  updated_at                   DateTime?  @default(now()) @updatedAt @map("updated_at")
   lender                       HSLenders @relation(fields: [lender_id], references: [id], onDelete: Cascade)
 
   @@map("hs_lenders_business_metrics")
@@ -1146,8 +1146,8 @@ model HSLendersLoanOfferings {
   special_programs                  String?                @map("special_programs")
   supported_course_types            SupportedCourseTypes?
   supported_destinations            SupportedDestinations?
-  created_at                        DateTime               @default(now())
-  updated_at                        DateTime               @default(now()) @updatedAt
+  created_at                        DateTime?               @default(now())
+  updated_at                        DateTime?               @default(now()) @updatedAt
 
   @@map("hs_lenders_loan_offerings")
 }
@@ -1164,8 +1164,8 @@ model HSLendersOperationalDetails {
   repayment_options          RepaymentOptions?  @default(dbgenerated()) 
   turnaround_time_commitment Int?                   @map("turnaround_time_commitment")
   working_hours              String?                @map("working_hours")
-  created_at                 DateTime               @default(now()) @map("created_at")
-  updated_at                 DateTime               @default(now()) @updatedAt @map("updated_at")
+  created_at                 DateTime?               @default(now()) @map("created_at")
+  updated_at                 DateTime?               @default(now()) @updatedAt @map("updated_at")
   lender                     HSLenders              @relation(fields: [lender_id], references: [id], onDelete: Cascade)
 
   @@map("hs_lenders_operational_details")
@@ -1186,8 +1186,8 @@ model HSLendersPartnershipsDetails {
   partnership_status     PartnershipStatus? @default(dbgenerated()) @map("partnership_status")
   payout_terms           PayoutTerms? @default(dbgenerated()) 
   revenue_share_model    String?            @map("revenue_share_model")
-  created_at             DateTime           @default(now()) @map("created_at")
-  updated_at             DateTime           @default(now()) @updatedAt @map("updated_at")
+  created_at             DateTime?           @default(now()) @map("created_at")
+  updated_at             DateTime?           @default(now()) @updatedAt @map("updated_at")
   lender                 HSLenders          @relation(fields: [lender_id], references: [id], onDelete: Cascade)
 
   @@map("hs_lenders_partnerships_details")
@@ -1218,7 +1218,7 @@ model HSLoanProducts {
   hs_updated_by_user_id             Int?                                    @map("hs_updated_by_user_id")
   hubspot_owner_id                  String?                                 @map("hubspot_owner_id")
   deleted_by                        B2BPartnersUsers?                       @relation("LoanProuductsDeletedBy", fields: [deleted_by_id], references: [id])
-  lender                            HSLenders                               @relation(fields: [lender_id], references: [id], onDelete: Cascade)
+  lender                            HSLenders?                               @relation(fields: [lender_id], references: [id], onDelete: Cascade)
   processing_details                HSLoanProductsApplicationAndProcessing?
   collateral_security               HSLoanProductsCollateralAndSecurity?
   loan_product_competitive_analysis HSLoanProductsCompetitiveAnalytics?
@@ -1253,9 +1253,9 @@ model HSLoanProductsSystemTracking {
   product_record_status ProductRecordStatus?  @default(dbgenerated()) 
   review_frequency      ReviewFrequency?  @default(dbgenerated()) 
   version_number        Int?                 @map("version_number")
-  created_at            DateTime             @default(now())
-  updated_at            DateTime             @default(now()) @updatedAt
-  product               HSLoanProducts       @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
+  created_at            DateTime?             @default(now())
+  updated_at            DateTime?             @default(now()) @updatedAt
+  product               HSLoanProducts?       @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
 
   @@map("hs_loan_products_system_tracking")
 }
@@ -1267,7 +1267,7 @@ model HSLoanProductsCompetitiveAnalytics {
   pricing_strategy                  PricingStrategy?  @default(dbgenerated()) 
   created_at                        DateTime                      @default(now())
   updated_at                        DateTime                      @default(now()) @updatedAt
-  loan_product_competitive_analysis HSLoanProducts                @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
+  loan_product_competitive_analysis HSLoanProducts?                @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
 
   @@map("hs_loan_products_competitive_analysis")
 }
@@ -1307,9 +1307,9 @@ model HSLoanProductsEligibilityCriteria {
   work_experience_required        Boolean?                 @default(false) @map("work_experience_required")
   min_work_experience_months      Int?                     @map("min_work_experience_months")
   admission_confirmation_required Boolean?                 @default(true) @map("admission_confirmation_required")
-  created_at                      DateTime                 @default(now()) @map("created_at")
-  updated_at                      DateTime                 @default(now()) @updatedAt @map("updated_at")
-  loan_product                    HSLoanProducts           @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
+  created_at                      DateTime?                 @default(now()) @map("created_at")
+  updated_at                      DateTime?                 @default(now()) @updatedAt @map("updated_at")
+  loan_product                    HSLoanProducts?           @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
 
   @@index([loan_product_id])
   @@map("hs_loan_products_eligibility_criteria")
@@ -1326,9 +1326,9 @@ model HSLoanProductsCollateralAndSecurity {
   insurance_coverage_percentage  Int?                         @map("insurance_coverage_percentage")
   insurance_required             InsuranceRequired? @default(dbgenerated()) 
   third_party_guarantee_required ThirdPartyGuaranteeRequired? @default(dbgenerated()) 
-  created_at                     DateTime                     @default(now()) @map("created_at")
-  updated_at                     DateTime                     @default(now()) @updatedAt @map("updated_at")
-  product                        HSLoanProducts               @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
+  created_at                     DateTime?                     @default(now()) @map("created_at")
+  updated_at                     DateTime?                     @default(now()) @updatedAt @map("updated_at")
+  product                        HSLoanProducts?               @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
 
   @@map("hs_loan_products_collateral_and_security")
 }
@@ -1352,7 +1352,7 @@ model HSLoanProductsRepaymentTerms {
   part_payment_minimum      Int?                @map("part_payment_minimum")
   created_at                DateTime            @default(now()) @map("created_at")
   updated_at                DateTime            @default(now()) @updatedAt @map("updated_at")
-  product                   HSLoanProducts      @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
+  product                   HSLoanProducts?      @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
 
   @@map("hs_loan_products_repayment_terms")
 }
@@ -1370,7 +1370,7 @@ model HSLoanProductsApplicationAndProcessing {
   optional_documents           String?              @map("optional_documents")
   created_at                   DateTime             @default(now()) @map("created_at")
   updated_at                   DateTime             @default(now()) @updatedAt @map("updated_at")
-  product                      HSLoanProducts       @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
+  product                      HSLoanProducts?       @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
 
   @@map("hs_loan_products_application_and_processing")
 }
@@ -1386,7 +1386,7 @@ model HSLoanProductsGeographicCoverage {
   supported_course_types     LoanProductCourseTypes? @default(dbgenerated()) @map("supported_course_types")
   created_at                 DateTime                @default(now()) @map("created_at")
   updated_at                 DateTime                @default(now()) @updatedAt @map("updated_at")
-  product                    HSLoanProducts          @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
+  product                    HSLoanProducts?          @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
 
   @@map("hs_loan_products_geographic_coverage")
 }
@@ -1404,7 +1404,7 @@ model HSLoanProductsSpecialFeatures {
   loyalty_benefits            String?                   @map("loyalty_benefits")
   created_at                  DateTime                  @default(now()) @map("created_at")
   updated_at                  DateTime                  @default(now()) @updatedAt @map("updated_at")
-  product                     HSLoanProducts            @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
+  product                     HSLoanProducts?            @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
 
   @@map("hs_loan_products_special_features")
 }
@@ -1422,7 +1422,7 @@ model HSLoanProductsPerformanceMetrics {
   product_popularity_score     Int?           @map("product_popularity_score")
   created_at                   DateTime?      @default(now()) @map("created_at")
   updated_at                   DateTime?      @default(now()) @updatedAt @map("updated_at")
-  product                      HSLoanProducts @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
+  product                      HSLoanProducts? @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
 
   @@map("hs_loan_products_performance_metrics")
 }
@@ -1438,7 +1438,7 @@ model HSLoanProductsSystemIntegration {
   webhook_support             WebHookSupport?        @map("webhook_support")
   created_at                  DateTime?              @default(now()) @map("created_at")
   updated_at                  DateTime?              @default(now()) @updatedAt @map("updated_at")
-  product                     HSLoanProducts         @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
+  product                     HSLoanProducts?         @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
 
   @@map("hs_loan_products_system_integration")
 }
@@ -1466,7 +1466,7 @@ model HSLoanProductsFinancialTerms {
   minimum_loan_amount_unsecured Decimal?           @map("minimum_loan_amount_unsecured") @db.Decimal(10, 2)
   created_at                    DateTime?          @default(now()) @map("created_at")
   updated_at                    DateTime?          @default(now()) @updatedAt @map("updated_at")
-  product                       HSLoanProducts     @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
+  product                       HSLoanProducts?     @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
 
   @@map("hs_loan_products_financial_terms")
 }
@@ -1820,7 +1820,7 @@ model HSCommissionSettlementsLoanDetails {
   id                          Int                     @id @default(autoincrement())
   settlement_id               Int                     @unique @map("settlement_id")
   course_name                 String?                 @map("course_name")
-  lender_name                 String                  @map("lender_name")
+  lender_name                 String?                  @map("lender_name")
   loan_amount_disbursed       Decimal?                @map("loan_amount_disbursed") @db.Decimal(12, 2)
   loan_disbursement_date      DateTime?               @map("loan_disbursement_date")
   loan_product_name           String?                 @map("loan_product_name")

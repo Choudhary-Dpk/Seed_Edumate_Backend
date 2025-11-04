@@ -44,8 +44,7 @@ export const updateCommissionSettlementStatus = async (
 export const updateCommissionSettlementSystemTracking = async (
   tx: any,
   settlementId: number,
-  systemTrackingData: any,
-  userId: number
+  systemTrackingData: any
 ) => {
   if (!systemTrackingData || Object.keys(systemTrackingData).length === 0) {
     return null;
@@ -57,7 +56,6 @@ export const updateCommissionSettlementSystemTracking = async (
     },
     data: {
       ...systemTrackingData,
-      last_modified_by: userId.toString(),
       last_modified_date: new Date(),
       updated_at: new Date(),
     },

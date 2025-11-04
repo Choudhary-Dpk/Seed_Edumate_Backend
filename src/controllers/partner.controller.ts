@@ -43,11 +43,17 @@ export const createB2bPartner = async (
   next: NextFunction
 ) => {
   try {
-    const userId = req.payload!.id;
-
     // logger.debug(`Fetching hubspotId from userId: ${userId}`);
     // const hubspotId = await getHubspotIdByUserId(userId);
     // logger.debug(`Hubspot id fetched successfully`);
+
+    if (!req.body.partner_name && !req.body.registration_number) {
+      return sendResponse(
+        res,
+        400,
+        "Partner name and Registration number is required"
+      );
+    }
 
     logger.debug(`Mapping B2B partner fields`);
     const mappedFields = await mapAllB2BPartnerFields(req.body);
@@ -60,7 +66,7 @@ export const createB2bPartner = async (
     let data: any = {};
 
     const result = await prisma.$transaction(async (tx: any) => {
-      logger.debug(`Creating B2B partner for userId: ${userId}`);
+      logger.debug(`Creating B2B partner`);
       const partner = await createB2BPartner(
         tx,
         categorized["mainPartner"]
@@ -177,8 +183,7 @@ export const createB2bPartner = async (
       const systemTracking = await createB2BSystemTracking(
         tx,
         partner.id,
-        categorized["systemTracking"],
-        userId
+        categorized["systemTracking"]
       );
       logger.debug(
         `System tracking created successfully for partner: ${partner.id}`
@@ -244,13 +249,10 @@ export const deletePartner = async (
   next: NextFunction
 ) => {
   try {
-    const userId = req.payload!.id;
     const partnerId = req.params.id;
 
-    logger.debug(
-      `Deleting B2B partner with id: ${partnerId} by userId: ${userId}`
-    );
-    await deleteB2bPartner(+partnerId, userId);
+    logger.debug(`Deleting B2B partner with id: ${partnerId}`);
+    await deleteB2bPartner(+partnerId);
     logger.debug(`B2B partner deleted successfully`);
 
     sendResponse(res, 200, "Partner deleted successfully");
@@ -288,8 +290,15 @@ export const updateB2bPartner = async (
   next: NextFunction
 ) => {
   try {
-    const userId = req.payload!.id;
     const partnerId = parseInt(req.params.id);
+
+    if (!req.body.partner_name && !req.body.registration_number) {
+      return sendResponse(
+        res,
+        400,
+        "Partner name and Registration number is required"
+      );
+    }
 
     logger.debug(`Mapping B2B partner fields for update`);
     const mappedFields = await mapAllB2BPartnerFields(req.body);
@@ -380,8 +389,7 @@ export const updateB2bPartner = async (
       await updateB2BSystemTracking(
         tx,
         partnerId,
-        categorized["systemTracking"],
-        userId
+        categorized["systemTracking"]
       );
 
       return partner;

@@ -67,7 +67,9 @@ export const createLenderController = async (
   next: NextFunction
 ) => {
   try {
-    const userId = req.payload!.id;
+    if (!req.body.lender_name) {
+      return sendResponse(res, 400, "Lender Name is required");
+    }
 
     logger.debug(`Mapping HSLender fields`);
     const mappedFields = await mapAllHSLendersFields(req.body);
@@ -80,12 +82,8 @@ export const createLenderController = async (
     let data: any = {};
 
     const result = await prisma.$transaction(async (tx: any) => {
-      logger.debug(`Creating HSLender for userId: ${userId}`);
-      const lender = await createHSLender(
-        tx,
-        categorized["hsLenders"],
-        userId!
-      );
+      logger.debug(`Creating HSLender`);
+      const lender = await createHSLender(tx, categorized["hsLenders"]);
       logger.debug(`HSLender created successfully with id: ${lender.id}`);
 
       logger.debug(`Creating contact info for lender: ${lender.id}`);
@@ -142,8 +140,7 @@ export const createLenderController = async (
       const systemTracking = await createHSLendersSystemTracking(
         tx,
         lender.id,
-        categorized["hsLendersSystemTracking"],
-        userId!
+        categorized["hsLendersSystemTracking"]
       );
       logger.debug(
         `System tracking created successfully for lender: ${lender.id}`
@@ -194,7 +191,6 @@ export const updateLenderController = async (
   next: NextFunction
 ) => {
   try {
-    const userId = req.payload!.id;
     const lenderId = parseInt(req.params.id);
 
     if (!lenderId) {
@@ -221,8 +217,7 @@ export const updateLenderController = async (
       const lender = await updateHSLender(
         tx,
         lenderId,
-        categorized["hsLenders"],
-        userId!
+        categorized["hsLenders"]
       );
       logger.debug(`HSLender updated successfully: ${lenderId}`);
 
@@ -268,8 +263,7 @@ export const updateLenderController = async (
       await updateHSLendersSystemTracking(
         tx,
         lenderId,
-        categorized["hsLendersSystemTracking"],
-        userId!
+        categorized["hsLendersSystemTracking"]
       );
       logger.debug(
         `System tracking updated successfully for lender: ${lenderId}`
@@ -293,7 +287,6 @@ export const deleteLendersController = async (
   next: NextFunction
 ) => {
   try {
-    const userId = req.payload!.id;
     const lenderId = parseInt(req.params.id);
 
     if (!lenderId) {
@@ -308,7 +301,7 @@ export const deleteLendersController = async (
         throw new Error(`Lender with id ${lenderId} not found`);
       }
 
-      return await softDeleteHSLender(tx, lenderId, userId!);
+      return await softDeleteHSLender(tx, lenderId);
     });
 
     logger.debug(`HSLender soft deleted successfully: ${lenderId}`);
@@ -326,7 +319,6 @@ export const getLendersListController = async (
   next: NextFunction
 ) => {
   try {
-    const userId = req.payload!.id;
     const size = parseInt(req.query.size as string) || 10;
     const page = parseInt(req.query.page as string) || 1;
     const sortKey = (req.query.sortKey as string) || null;
@@ -345,7 +337,6 @@ export const getLendersListController = async (
       sortKey,
       sortDir,
       search,
-      filterByUser ? userId : undefined
     );
     logger.debug(`Lenders list fetched successfully. Count: ${count}`);
 

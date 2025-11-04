@@ -46,7 +46,9 @@ export const createCommissionSettlementController = async (
   next: NextFunction
 ) => {
   try {
-    const userId = req.payload!.id;
+    if (!req.body.settlement_reference_number) {
+      return sendResponse(res, 400, "Settlement reference number is required");
+    }
 
     logger.debug(`Mapping commission settlement fields`);
     const mappedFields = await mapAllCommissionSettlementFields(req.body);
@@ -59,7 +61,7 @@ export const createCommissionSettlementController = async (
     let data: any = {};
 
     const result = await prisma.$transaction(async (tx: any) => {
-      logger.debug(`Creating commission settlement for userId: ${userId}`);
+      logger.debug(`Creating commission settlement`);
       const settlement = await createCommissionSettlement(
         tx,
         categorized["mainSettlement"]
@@ -81,8 +83,7 @@ export const createCommissionSettlementController = async (
       const systemTracking = await createCommissionSettlementSystemTracking(
         tx,
         settlement.id,
-        categorized["systemTracking"],
-        userId
+        categorized["systemTracking"]
       );
 
       logger.debug(
@@ -203,8 +204,11 @@ export const updateCommissionSettlementController = async (
   next: NextFunction
 ) => {
   try {
-    const userId = req.payload!.id;
     const settlementId = parseInt(req.params.id);
+
+    if (!req.body.settlement_reference_number) {
+      return sendResponse(res, 400, "Settlement reference number is required");
+    }
 
     logger.debug(`Mapping commission settlement fields for update`);
     const mappedFields = await mapAllCommissionSettlementFields(req.body);
@@ -236,8 +240,7 @@ export const updateCommissionSettlementController = async (
       await updateCommissionSettlementSystemTracking(
         tx,
         settlementId,
-        categorized["systemTracking"],
-        userId
+        categorized["systemTracking"]
       );
 
       logger.debug(
@@ -275,11 +278,11 @@ export const updateCommissionSettlementController = async (
       logger.debug(
         `Updating payment processing for settlement: ${settlementId}`
       );
-        await updateCommissionSettlementPaymentProcessing(
-          tx,
-          settlementId,
-          categorized["paymentProcessing"]
-        );
+      await updateCommissionSettlementPaymentProcessing(
+        tx,
+        settlementId,
+        categorized["paymentProcessing"]
+      );
 
       logger.debug(`Updating tax deductions for settlement: ${settlementId}`);
       await updateCommissionSettlementTaxDeductions(

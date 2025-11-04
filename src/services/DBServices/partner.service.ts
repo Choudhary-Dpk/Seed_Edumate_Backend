@@ -1,5 +1,19 @@
 export const categorizeB2BByTable = (mappedFields: Record<string, any>) => {
-  const categorized: Record<string, Record<string, any>> = {};
+  // Initialize with empty objects for ALL categories
+  const categorized: Record<string, Record<string, any>> = {
+    mainPartner: {},
+    businessCapabilities: {},
+    commissionStructure: {},
+    complianceDocumentation: {},
+    contactInfo: {},
+    financialTracking: {},
+    leadAttribution: {},
+    marketingPromotion: {},
+    partnershipDetails: {},
+    performanceMetrics: {},
+    relationshipManagement: {},
+    systemTracking: {},
+  };
 
   // Main Partner Fields
   const mainPartnerFields = [
@@ -176,136 +190,88 @@ export const categorizeB2BByTable = (mappedFields: Record<string, any>) => {
     "portal_access_provided",
   ];
 
-  // Categorize main partner
-  const mainPartner: Record<string, any> = {};
+  // Populate mainPartner
   for (const field of mainPartnerFields) {
     if (field in mappedFields) {
-      mainPartner[field] = mappedFields[field];
+      categorized.mainPartner[field] = mappedFields[field];
     }
   }
-  if (Object.keys(mainPartner).length > 0) {
-    categorized.mainPartner = mainPartner;
-  }
 
-  // Categorize business capabilities
-  const businessCapabilities: Record<string, any> = {};
+  // Populate businessCapabilities
   for (const field of businessCapabilitiesFields) {
     if (field in mappedFields) {
-      businessCapabilities[field] = mappedFields[field];
+      categorized.businessCapabilities[field] = mappedFields[field];
     }
   }
-  if (Object.keys(businessCapabilities).length > 0) {
-    categorized.businessCapabilities = businessCapabilities;
-  }
 
-  // Categorize commission structure
-  const commissionStructure: Record<string, any> = {};
+  // Populate commissionStructure
   for (const field of commissionStructureFields) {
     if (field in mappedFields) {
-      commissionStructure[field] = mappedFields[field];
+      categorized.commissionStructure[field] = mappedFields[field];
     }
   }
-  if (Object.keys(commissionStructure).length > 0) {
-    categorized.commissionStructure = commissionStructure;
-  }
 
-  // Categorize compliance documentation
-  const complianceDocumentation: Record<string, any> = {};
+  // Populate complianceDocumentation
   for (const field of complianceDocumentationFields) {
     if (field in mappedFields) {
-      complianceDocumentation[field] = mappedFields[field];
+      categorized.complianceDocumentation[field] = mappedFields[field];
     }
   }
-  if (Object.keys(complianceDocumentation).length > 0) {
-    categorized.complianceDocumentation = complianceDocumentation;
-  }
 
-  // Categorize contact info
-  const contactInfo: Record<string, any> = {};
+  // Populate contactInfo
   for (const field of contactInfoFields) {
     if (field in mappedFields) {
-      contactInfo[field] = mappedFields[field];
+      categorized.contactInfo[field] = mappedFields[field];
     }
   }
-  if (Object.keys(contactInfo).length > 0) {
-    categorized.contactInfo = contactInfo;
-  }
 
-  // Categorize financial tracking
-  const financialTracking: Record<string, any> = {};
+  // Populate financialTracking
   for (const field of financialTrackingFields) {
     if (field in mappedFields) {
-      financialTracking[field] = mappedFields[field];
+      categorized.financialTracking[field] = mappedFields[field];
     }
   }
-  if (Object.keys(financialTracking).length > 0) {
-    categorized.financialTracking = financialTracking;
-  }
 
-  // Categorize lead attribution
-  const leadAttribution: Record<string, any> = {};
+  // Populate leadAttribution
   for (const field of leadAttributionFields) {
     if (field in mappedFields) {
-      leadAttribution[field] = mappedFields[field];
+      categorized.leadAttribution[field] = mappedFields[field];
     }
   }
-  if (Object.keys(leadAttribution).length > 0) {
-    categorized.leadAttribution = leadAttribution;
-  }
 
-  // Categorize marketing promotion
-  const marketingPromotion: Record<string, any> = {};
+  // Populate marketingPromotion
   for (const field of marketingPromotionFields) {
     if (field in mappedFields) {
-      marketingPromotion[field] = mappedFields[field];
+      categorized.marketingPromotion[field] = mappedFields[field];
     }
   }
-  if (Object.keys(marketingPromotion).length > 0) {
-    categorized.marketingPromotion = marketingPromotion;
-  }
 
-  // Categorize partnership details
-  const partnershipDetails: Record<string, any> = {};
+  // Populate partnershipDetails
   for (const field of partnershipDetailsFields) {
     if (field in mappedFields) {
-      partnershipDetails[field] = mappedFields[field];
+      categorized.partnershipDetails[field] = mappedFields[field];
     }
   }
-  if (Object.keys(partnershipDetails).length > 0) {
-    categorized.partnershipDetails = partnershipDetails;
-  }
 
-  // Categorize performance metrics
-  const performanceMetrics: Record<string, any> = {};
+  // Populate performanceMetrics
   for (const field of performanceMetricsFields) {
     if (field in mappedFields) {
-      performanceMetrics[field] = mappedFields[field];
+      categorized.performanceMetrics[field] = mappedFields[field];
     }
   }
-  if (Object.keys(performanceMetrics).length > 0) {
-    categorized.performanceMetrics = performanceMetrics;
-  }
 
-  // Categorize relationship management
-  const relationshipManagement: Record<string, any> = {};
+  // Populate relationshipManagement
   for (const field of relationshipManagementFields) {
     if (field in mappedFields) {
-      relationshipManagement[field] = mappedFields[field];
+      categorized.relationshipManagement[field] = mappedFields[field];
     }
-  }
-  if (Object.keys(relationshipManagement).length > 0) {
-    categorized.relationshipManagement = relationshipManagement;
   }
 
-  // Categorize system tracking
-  const systemTracking: Record<string, any> = {};
+  // Populate systemTracking
   for (const field of systemTrackingFields) {
     if (field in mappedFields) {
-      systemTracking[field] = mappedFields[field];
+      categorized.systemTracking[field] = mappedFields[field];
     }
-  }
-  if (Object.keys(systemTracking).length > 0) {
-    categorized.systemTracking = systemTracking;
   }
 
   return categorized;

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { validateToken } from "../middlewares";
+import { validateApiKey, validateToken } from "../middlewares";
 import {
   createCommissionSettlementController,
   deleteCommissionSettlementController,
@@ -12,28 +12,16 @@ const router = Router();
 
 router.post(
   "/",
-  validateToken(["Admin", "Manager", "User"]),
+  validateApiKey,
   checkDuplicateCommissionSettlementFields,
   createCommissionSettlementController
 );
-router.put(
-  "/:id",
-  validateToken(["Admin", "Manager", "User"]),
-  updateCommissionSettlementController
-);
-router.delete(
-  "/:id",
-  validateToken(["Admin", "Manager", "User"]),
-  deleteCommissionSettlementController
-);
-router.get(
-  "/details/:id",
-  validateToken(["Admin", "Manager", "User"]),
-  getCommissionSettlementDetails
-);
+router.put("/:id", validateApiKey, updateCommissionSettlementController);
+router.delete("/:id", validateApiKey, deleteCommissionSettlementController);
+router.get("/details/:id", validateApiKey, getCommissionSettlementDetails);
 router.get(
   "/pagination",
-  validateToken(["Admin", "Manager", "User"]),
+  validateApiKey,
   getCommissionSettlementsListController
 );
 
