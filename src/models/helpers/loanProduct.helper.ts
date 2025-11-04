@@ -16,27 +16,12 @@ export const createLoanProduct = async (tx: any, mainData: any) => {
 export const createLoanProductSystemTracking = async (
   tx: any,
   productId: number,
-  systemTrackingData: any,
-  userId: number
+  systemTrackingData: any
 ) => {
-  if (!systemTrackingData || Object.keys(systemTrackingData).length === 0) {
-    return null;
-  }
-
   const systemTracking = await tx.hSLoanProductsSystemTracking.create({
     data: {
       loan_product_id: productId,
-      change_log: systemTrackingData.change_log,
-      created_by: systemTrackingData.created_by || userId.toString(),
-      created_date: systemTrackingData.created_date || new Date(),
-      last_modified_by:
-        systemTrackingData.last_modified_by || userId.toString(),
-      last_modified_date: systemTrackingData.last_modified_date || new Date(),
-      next_review_date: systemTrackingData.next_review_date,
-      notes: systemTrackingData.notes,
-      product_record_status: systemTrackingData.product_record_status,
-      review_frequency: systemTrackingData.review_frequency,
-      version_number: systemTrackingData.version_number,
+      ...systemTrackingData,
     },
   });
 
@@ -48,10 +33,6 @@ export const createLoanProductCompetitiveAnalytics = async (
   productId: number,
   competitiveData: any
 ) => {
-  if (!competitiveData || Object.keys(competitiveData).length === 0) {
-    return null;
-  }
-
   const competitive = await tx.hSLoanProductsCompetitiveAnalytics.create({
     data: {
       loan_product_id: productId,
@@ -67,11 +48,6 @@ export const createLoanProductEligibilityCriteria = async (
   productId: number,
   criteriaData: any
 ) => {
-  if (!criteriaData || Object.keys(criteriaData).length === 0) {
-    return null;
-  }
-
-  // If it's a single criteria object
   const criteria = await tx.hSLoanProductsEligibilityCriteria.create({
     data: {
       loan_product_id: productId,
@@ -87,10 +63,6 @@ export const createLoanProductCollateralSecurity = async (
   productId: number,
   collateralData: any
 ) => {
-  if (!collateralData || Object.keys(collateralData).length === 0) {
-    return null;
-  }
-
   const collateral = await tx.hSLoanProductsCollateralAndSecurity.create({
     data: {
       loan_product_id: productId,
@@ -106,10 +78,6 @@ export const createLoanProductRepaymentTerms = async (
   productId: number,
   repaymentData: any
 ) => {
-  if (!repaymentData || Object.keys(repaymentData).length === 0) {
-    return null;
-  }
-
   const repayment = await tx.hSLoanProductsRepaymentTerms.create({
     data: {
       loan_product_id: productId,
@@ -125,10 +93,6 @@ export const createLoanProductApplicationProcessing = async (
   productId: number,
   processingData: any
 ) => {
-  if (!processingData || Object.keys(processingData).length === 0) {
-    return null;
-  }
-
   const processing = await tx.hSLoanProductsApplicationAndProcessing.create({
     data: {
       loan_product_id: productId,
@@ -144,10 +108,6 @@ export const createLoanProductGeographicCoverage = async (
   productId: number,
   geographicData: any
 ) => {
-  if (!geographicData || Object.keys(geographicData).length === 0) {
-    return null;
-  }
-
   const geographic = await tx.hSLoanProductsGeographicCoverage.create({
     data: {
       loan_product_id: productId,
@@ -163,10 +123,6 @@ export const createLoanProductSpecialFeatures = async (
   productId: number,
   featuresData: any
 ) => {
-  if (!featuresData || Object.keys(featuresData).length === 0) {
-    return null;
-  }
-
   const features = await tx.hSLoanProductsSpecialFeatures.create({
     data: {
       loan_product_id: productId,
@@ -182,10 +138,6 @@ export const createLoanProductPerformanceMetrics = async (
   productId: number,
   metricsData: any
 ) => {
-  if (!metricsData || Object.keys(metricsData).length === 0) {
-    return null;
-  }
-
   const metrics = await tx.hSLoanProductsPerformanceMetrics.create({
     data: {
       loan_product_id: productId,
@@ -201,10 +153,6 @@ export const createLoanProductSystemIntegration = async (
   productId: number,
   integrationData: any
 ) => {
-  if (!integrationData || Object.keys(integrationData).length === 0) {
-    return null;
-  }
-
   const integration = await tx.hSLoanProductsSystemIntegration.create({
     data: {
       loan_product_id: productId,
@@ -220,10 +168,6 @@ export const createLoanProductFinancialTerms = async (
   productId: number,
   financialData: any
 ) => {
-  if (!financialData || Object.keys(financialData).length === 0) {
-    return null;
-  }
-
   const financial = await tx.hSLoanProductsFinancialTerms.create({
     data: {
       loan_product_id: productId,
@@ -255,8 +199,7 @@ export const updateLoanProduct = async (
 export const updateLoanProductSystemTracking = async (
   tx: any,
   productId: number,
-  systemTrackingData: any,
-  userId: number
+  systemTrackingData: any
 ) => {
   if (!systemTrackingData || Object.keys(systemTrackingData).length === 0) {
     return null;
@@ -268,7 +211,6 @@ export const updateLoanProductSystemTracking = async (
     },
     data: {
       ...systemTrackingData,
-      last_modified_by: userId.toString(),
       last_modified_date: new Date(),
       updated_at: new Date(),
     },

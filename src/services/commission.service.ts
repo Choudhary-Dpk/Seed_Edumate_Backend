@@ -15,10 +15,6 @@ export const createCommissionSettlementStatus = async (
   settlementId: number,
   statusData: any
 ) => {
-  if (!statusData || Object.keys(statusData).length === 0) {
-    return null;
-  }
-
   const status = await tx.hSCommissionSettlementsSettlementStatus.create({
     data: {
       settlement_id: settlementId,
@@ -32,19 +28,11 @@ export const createCommissionSettlementStatus = async (
 export const createCommissionSettlementSystemTracking = async (
   tx: any,
   settlementId: number,
-  systemTrackingData: any,
-  userId: number
+  systemTrackingData: any
 ) => {
-  if (!systemTrackingData || Object.keys(systemTrackingData).length === 0) {
-    return null;
-  }
-
   const systemTracking = await tx.hSCommissionSettlementsSystemTracking.create({
     data: {
       settlement_id: settlementId,
-      created_by: systemTrackingData.created_by || userId.toString(),
-      last_modified_by:
-        systemTrackingData.last_modified_by || userId.toString(),
       ...systemTrackingData,
     },
   });
@@ -57,9 +45,6 @@ export const createCommissionSettlementTransactionDetails = async (
   settlementId: number,
   transactionData: any
 ) => {
-  if (!transactionData || Object.keys(transactionData).length === 0) {
-    return null;
-  }
 
   const transaction = await tx.hSCommissionSettlementsTransactionDetails.create(
     {
@@ -78,10 +63,6 @@ export const createCommissionSettlementCalculation = async (
   settlementId: number,
   calculationData: any
 ) => {
-  if (!calculationData || Object.keys(calculationData).length === 0) {
-    return null;
-  }
-
   const calculation =
     await tx.hSCommissionSettlementsCommissionCalculation.create({
       data: {
@@ -98,10 +79,6 @@ export const createCommissionSettlementCommunication = async (
   settlementId: number,
   communicationData: any
 ) => {
-  if (!communicationData || Object.keys(communicationData).length === 0) {
-    return null;
-  }
-
   const communication = await tx.hSCommissionSettlementsCommunication.create({
     data: {
       settlement_id: settlementId,
@@ -117,10 +94,6 @@ export const createCommissionSettlementLoanDetails = async (
   settlementId: number,
   loanData: any
 ) => {
-  if (!loanData || Object.keys(loanData).length === 0) {
-    return null;
-  }
-
   const loanDetails = await tx.hSCommissionSettlementsLoanDetails.create({
     data: {
       settlement_id: settlementId,
@@ -136,10 +109,6 @@ export const createCommissionSettlementPaymentProcessing = async (
   settlementId: number,
   paymentData: any
 ) => {
-  if (!paymentData || Object.keys(paymentData).length === 0) {
-    return null;
-  }
-
   const payment = await tx.hSCommissionSettlementsPaymentProcessing.create({
     data: {
       settlement_id: settlementId,
@@ -155,10 +124,6 @@ export const createCommissionSettlementTaxDeductions = async (
   settlementId: number,
   taxData: any
 ) => {
-  if (!taxData || Object.keys(taxData).length === 0) {
-    return null;
-  }
-
   const tax = await tx.hSCommissionSettlementsTaxAndDeductions.create({
     data: {
       settlement_id: settlementId,
@@ -174,10 +139,6 @@ export const createCommissionSettlementDocumentation = async (
   settlementId: number,
   documentData: any
 ) => {
-  if (!documentData || Object.keys(documentData).length === 0) {
-    return null;
-  }
-
   const documentation = await tx.hSCommissionSettlementsDocumentation.create({
     data: {
       settlement_id: settlementId,
@@ -193,10 +154,6 @@ export const createCommissionSettlementHoldDisputes = async (
   settlementId: number,
   holdData: any
 ) => {
-  if (!holdData || Object.keys(holdData).length === 0) {
-    return null;
-  }
-
   const hold = await tx.hSCommissionSettlementsHoldAndDisputes.create({
     data: {
       settlement_id: settlementId,
@@ -212,10 +169,6 @@ export const createCommissionSettlementReconciliation = async (
   settlementId: number,
   reconciliationData: any
 ) => {
-  if (!reconciliationData || Object.keys(reconciliationData).length === 0) {
-    return null;
-  }
-
   const reconciliation = await tx.hSCommissionSettlementsReconciliations.create(
     {
       data: {
@@ -233,10 +186,6 @@ export const createCommissionSettlementPerformanceAnalytics = async (
   settlementId: number,
   performanceData: any
 ) => {
-  if (!performanceData || Object.keys(performanceData).length === 0) {
-    return null;
-  }
-
   const performance =
     await tx.hSCommissionSettlementsPerformanceAnalytics.create({
       data: {

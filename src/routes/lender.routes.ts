@@ -8,7 +8,7 @@ import {
   updateLenderController,
   getLenderDetailsController,
 } from "../controllers/lender.controller";
-import { validateToken } from "../middlewares";
+import { validateApiKey, validateToken } from "../middlewares";
 import { checkDuplicateLenderFields } from "../middlewares/lender.middleware";
 const router = Router();
 
@@ -16,29 +16,13 @@ router.get("/list", getLenderListController);
 router.get("/filter", getLoanProductsByLenderController);
 router.post(
   "/",
-  validateToken(["Admin", "Manager", "User"]),
+  validateApiKey,
   checkDuplicateLenderFields,
   createLenderController
 );
-router.put(
-  "/:id",
-  validateToken(["Admin", "Manager", "User"]),
-  updateLenderController
-);
-router.get(
-  "/pagination",
-  validateToken(["Admin", "Manager", "User"]),
-  getLendersListController
-);
-router.delete(
-  "/:id",
-  validateToken(["Admin", "Manager", "User"]),
-  deleteLendersController
-);
-router.get(
-  "/details/:id",
-  validateToken(["Admin", "Manager", "User"]),
-  getLenderDetailsController
-);
+router.put("/:id", validateApiKey, updateLenderController);
+router.get("/pagination", validateApiKey, getLendersListController);
+router.delete("/:id", validateApiKey, deleteLendersController);
+router.get("/details/:id", validateApiKey, getLenderDetailsController);
 
 export { router as lenderRoutes };
