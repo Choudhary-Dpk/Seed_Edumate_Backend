@@ -421,9 +421,7 @@ export const checkCommissionSettlementFields = async (
   student_id?: string,
   settlement_reference_number?: string,
   hs_object_id?: string,
-  partner_id?: number,
-  settlement_month?: string,
-  settlement_year?: number
+  partner_id?: number
 ) => {
   const conditions: any[] = [];
 
@@ -433,14 +431,9 @@ export const checkCommissionSettlementFields = async (
     conditions.push({ settlement_reference_number });
   if (hs_object_id) conditions.push({ hs_object_id });
 
-  if (partner_id && student_id && settlement_month && settlement_year) {
+  if (partner_id && student_id) {
     conditions.push({
-      AND: [
-        { partner_id },
-        { student_id },
-        { settlement_month },
-        { settlement_year },
-      ],
+      AND: [{ partner_id }, { student_id }],
     });
   }
 
@@ -462,8 +455,6 @@ export const checkCommissionSettlementFields = async (
       partner_id: true,
       partner_name: true,
       student_name: true,
-      settlement_month: true,
-      settlement_year: true,
     },
   });
 
