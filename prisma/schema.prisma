@@ -1059,12 +1059,23 @@ model HSLenders {
   hs_object_id           String?                       @map("hs_object_id")
   hs_updated_by_user_id  Int?                          @map("hs_updated_by_user_id")
   hubspot_owner_id       String?                       @map("hubspot_owner_id")
+  db_id String?
+  hs_merged_object_ids String?
+  hs_object_source_detail_1 String?
+  hs_object_source_detail_2 String?
+  hs_object_source_detail_3 String? 
+  hs_object_source_label String? 
+  hs_shared_team_ids String? 
+  hs_shared_user_ids String? 
+  hubspot_owner_assigneddate DateTime? 
+  hubspot_team_id String?
   is_deleted             Boolean?                      @default(false)
   business_metrics       HSLendersBusinessMetrics?
   contact_info           HSLendersContactInfo?
   operational_details    HSLendersOperationalDetails?
   partnership            HSLendersPartnershipsDetails?
   lender_system_tracking HSLendersSystemTracking?
+  loan_offerings         HSLendersLoanOfferings?
   loan_products          HSLoanProducts[]
 
   @@index([lender_category])
@@ -1130,6 +1141,7 @@ model HSLendersBusinessMetrics {
 
 model HSLendersLoanOfferings {
   id                                Int                    @id @default(autoincrement())
+  lender_id Int                    @unique @map("lender_id")
   co_signer_requirements            CoSignerRequirement?  @default(dbgenerated()) 
   collateral_requirements           LenderCollateralType? @default(dbgenerated()) 
   interest_rate_range_max_secured   Int?                   @map("interest_rate_range_max_secured")
@@ -1148,6 +1160,8 @@ model HSLendersLoanOfferings {
   supported_destinations            SupportedDestinations?
   created_at                        DateTime?               @default(now())
   updated_at                        DateTime?               @default(now()) @updatedAt
+
+  lender                       HSLenders @relation(fields: [lender_id], references: [id], onDelete: Cascade)
 
   @@map("hs_lenders_loan_offerings")
 }
@@ -1252,7 +1266,7 @@ model HSLoanProductsSystemTracking {
   notes                 String?              @map("notes")
   product_record_status ProductRecordStatus?  @default(dbgenerated()) 
   review_frequency      ReviewFrequency?  @default(dbgenerated()) 
-  version_number        Int?                 @map("version_number")
+  version_number        Int?                 @map("version_number")  
   created_at            DateTime?             @default(now())
   updated_at            DateTime?             @default(now()) @updatedAt
   product               HSLoanProducts?       @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
@@ -1669,6 +1683,8 @@ model HSLoanDocumentsCustomerExperience {
 model HSCommissionSettlements {
   id                          Int                                           @id @default(autoincrement())
   loan_application_id         Int?
+  db_id String?
+  settlement_date DateTime?
   lead_reference_id           String?                                       @map("lead_reference_id")
   student_id                  String?                                       @map("student_id")
   deleted_by_id               Int?
@@ -1692,6 +1708,15 @@ model HSCommissionSettlements {
   hs_object_id                String?                                       @map("hs_object_id")
   hs_updated_by_user_id       Int?                                          @map("hs_updated_by_user_id")
   hubspot_owner_id            String?                                       @map("hubspot_owner_id")
+  hs_merged_object_ids String?
+  hs_object_source_detail_1 String?
+  hs_object_source_detail_2 String?
+  hs_object_source_detail_3 String? 
+  hs_object_source_label String? 
+  hs_shared_team_ids String? 
+  hs_shared_user_ids String? 
+  hubspot_owner_assigneddate DateTime? 
+  hubspot_team_id String?
   deleted_by                  B2BPartnersUsers?                             @relation("CommissionDeletedBy", fields: [deleted_by_id], references: [id])
   calculation_details         HSCommissionSettlementsCommissionCalculation?
   communication               HSCommissionSettlementsCommunication?
