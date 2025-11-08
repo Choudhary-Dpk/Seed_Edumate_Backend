@@ -445,6 +445,7 @@ export const checkCommissionSettlementFields = async (
     where: {
       OR: conditions,
       is_deleted: false,
+      is_active: true,
     },
     select: {
       id: true,

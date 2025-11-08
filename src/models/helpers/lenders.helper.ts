@@ -7,7 +7,6 @@ export const createHSLender = async (tx: any, mainData: any) => {
     data: {
       ...mainData,
       created_at: new Date(),
-      updated_at: new Date(),
     },
   });
 
@@ -20,7 +19,6 @@ export const createHSLendersContactInfo = async (
   lenderId: number,
   contactData: any
 ) => {
-
   const contactInfo = await tx.hSLendersContactInfo.create({
     data: {
       lender: {
@@ -28,7 +26,6 @@ export const createHSLendersContactInfo = async (
       },
       ...contactData,
       created_at: new Date(),
-      updated_at: new Date(),
     },
   });
 
@@ -41,7 +38,6 @@ export const createHSLendersBusinessMetrics = async (
   lenderId: number,
   metricsData: any
 ) => {
-
   const businessMetrics = await tx.hSLendersBusinessMetrics.create({
     data: {
       lender: {
@@ -49,7 +45,6 @@ export const createHSLendersBusinessMetrics = async (
       },
       ...metricsData,
       created_at: new Date(),
-      updated_at: new Date(),
     },
   });
 
@@ -65,8 +60,10 @@ export const createHSLendersLoanOfferings = async (
   const loanOfferings = await tx.hSLendersLoanOfferings.create({
     data: {
       ...offeringsData,
+      lender: {
+        connect: { id: lenderId },
+      },
       created_at: new Date(),
-      updated_at: new Date(),
     },
   });
 
@@ -79,7 +76,6 @@ export const createHSLendersOperationalDetails = async (
   lenderId: number,
   operationalData: any
 ) => {
-
   const operationalDetails = await tx.hSLendersOperationalDetails.create({
     data: {
       lender: {
@@ -87,7 +83,6 @@ export const createHSLendersOperationalDetails = async (
       },
       ...operationalData,
       created_at: new Date(),
-      updated_at: new Date(),
     },
   });
 
@@ -107,7 +102,6 @@ export const createHSLendersPartnershipsDetails = async (
       },
       ...partnershipData,
       created_at: new Date(),
-      updated_at: new Date(),
     },
   });
 
@@ -120,16 +114,13 @@ export const createHSLendersSystemTracking = async (
   lenderId: number,
   trackingData: any
 ) => {
-
   const systemTracking = await tx.hSLendersSystemTracking.create({
     data: {
-      lender_system_tracking: {
+      lender: {
         connect: { id: lenderId },
       },
       ...trackingData,
-      last_modified_date: new Date(),
       created_at: new Date(),
-      updated_at: new Date(),
     },
   });
 
@@ -141,7 +132,7 @@ export const createHSLendersSystemTracking = async (
 export const updateHSLender = async (
   tx: any,
   lenderId: number,
-  updateData: any,
+  updateData: any
 ) => {
   const lender = await tx.hSLenders.update({
     where: { id: lenderId },
@@ -261,7 +252,7 @@ export const updateHSLendersPartnershipsDetails = async (
 export const updateHSLendersSystemTracking = async (
   tx: any,
   lenderId: number,
-  trackingData: any,
+  trackingData: any
 ) => {
   const existingTracking = await tx.hSLendersSystemTracking.findUnique({
     where: { lender_id: lenderId },
@@ -283,10 +274,7 @@ export const updateHSLendersSystemTracking = async (
   return systemTracking;
 };
 
-export const softDeleteHSLender = async (
-  tx: any,
-  lenderId: number,
-) => {
+export const softDeleteHSLender = async (tx: any, lenderId: number) => {
   const lender = await tx.hSLenders.update({
     where: { id: lenderId },
     data: {
@@ -404,7 +392,7 @@ export const fetchLendersList = async (
   offset: number,
   sortKey: string | null,
   sortDir: "asc" | "desc" | null,
-  search: string | null,
+  search: string | null
 ) => {
   const where: Prisma.HSLendersWhereInput = {
     is_active: true,
@@ -412,9 +400,6 @@ export const fetchLendersList = async (
       ? [
           { lender_display_name: { contains: search, mode: "insensitive" } },
           { lender_name: { contains: search, mode: "insensitive" } },
-          { legal_name: { contains: search, mode: "insensitive" } },
-          { short_code: { contains: search, mode: "insensitive" } },
-          { external_id: { contains: search, mode: "insensitive" } },
           { website_url: { contains: search, mode: "insensitive" } },
           { hs_object_id: { contains: search, mode: "insensitive" } },
           {
