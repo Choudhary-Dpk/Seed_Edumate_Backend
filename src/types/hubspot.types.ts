@@ -149,7 +149,7 @@ export interface HubSpotB2BPartner {
     student_capacity_monthly: number;
     student_capacity_yearly: number;
     target_courses: string;
-    target_desrinations: string;
+    target_destinations: string;
     target_universities: string;
     team_size: number;
 

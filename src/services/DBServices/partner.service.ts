@@ -34,9 +34,18 @@ export const categorizeB2BByTable = (mappedFields: Record<string, any>) => {
     "hs_created_by_user_id",
     "hs_createdate",
     "hs_lastmodifieddate",
+    "hs_merged_object_ids",
     "hs_object_id",
+    "hs_object_source_detail_1",
+    "hs_object_source_detail_2",
+    "hs_object_source_detail_3",
+    "hs_object_source_label",
+    "hs_shared_team_ids",
+    "hs_shared_user_ids",
     "hs_updated_by_user_id",
+    "hubspot_owner_assigneddate",
     "hubspot_owner_id",
+    "hubspot_team_id",
   ];
 
   // Business Capabilities Fields
@@ -45,7 +54,7 @@ export const categorizeB2BByTable = (mappedFields: Record<string, any>) => {
     "student_capacity_monthly",
     "student_capacity_yearly",
     "target_courses",
-    "target_desrinations",
+    "target_destinations",
     "target_universities",
     "team_size",
   ];
@@ -176,7 +185,6 @@ export const categorizeB2BByTable = (mappedFields: Record<string, any>) => {
 
   // System Tracking Fields
   const systemTrackingFields = [
-    "partner_name",
     "api_access_provided",
     "created_by",
     "created_date",

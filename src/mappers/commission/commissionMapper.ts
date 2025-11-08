@@ -1758,6 +1758,4 @@ export const mapAllCommissionSettlementFields = async (
   }
 
   return mapped;
-
-  return mapped;
 };

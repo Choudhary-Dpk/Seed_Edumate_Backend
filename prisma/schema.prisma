@@ -516,6 +516,7 @@ model HSB2BPartners {
   performance_metrics      HSB2BPartnersPerformanceMetrics?
   relationship_management  HSB2BPartnersRelationshipManagement?
   system_tracking          HSB2BPartnersSystemTracking?
+  b2b_partner_contacts     HSEdumateContacts[]                      @relation("B2BPartnerContacts")
 
   @@index([partner_name])
   @@index([partner_type])
@@ -1648,6 +1649,7 @@ model EmailHistory {
 
 model HSEdumateContacts  {
   id Int @id @default(autoincrement())
+  b2b_partner_id Int?
 
   // Basic Information
   seed_contact               String?
@@ -1695,6 +1697,7 @@ model HSEdumateContacts  {
   system_tracking              HSEdumateContactsSystemTracking?
   eligibility_lead             MktEligibilityCheckerLeads?
   emi_lead                     MktEmiCalculatorLeads?
+  b2b_partner                  HSB2BPartners?                        @relation("B2BPartnerContacts", fields: [b2b_partner_id], references: [id])
 
   @@index([hs_object_id])
   @@index([seed_contact])

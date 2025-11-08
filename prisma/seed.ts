@@ -2792,7 +2792,2260 @@ const seedCommissionEnumMappings = async () => {
   }
 };
 
-export default seedCommissionEnumMappings;
+const seedPartnerEnumMappings = async () => {
+  console.log("Starting Partner Enum Mappings seeding...");
+  let successCount = 0;
+  let errorCount = 0;
+
+  const hubspotObjectType = "2-46470693"; // Your HubSpot Partners Object ID
+
+  try {
+    // ===== 1. BUSINESS TYPE =====
+    console.log("\nSeeding Business Type...");
+    const businessTypeEnum = await prisma.enumMapping.upsert({
+      where: {
+        enumName_version: {
+          enumName: "businessType",
+          version: 1,
+        },
+      },
+      update: {
+        hubspotProperty: "business_type",
+        hubspotObjectType: hubspotObjectType,
+        isActive: true,
+      },
+      create: {
+        enumName: "businessType",
+        hubspotProperty: "business_type",
+        hubspotObjectType: hubspotObjectType,
+        version: 1,
+        isActive: true,
+        description: "Type of business entity",
+      },
+    });
+
+    await prisma.enumValue.createMany({
+      data: [
+        {
+          enumMappingId: businessTypeEnum.id,
+          sourceValue: "individual",
+          hubspotValue: "Individual",
+          displayLabel: "Individual",
+          sortOrder: 1,
+          isActive: true,
+        },
+        {
+          enumMappingId: businessTypeEnum.id,
+          sourceValue: "partnership",
+          hubspotValue: "Partnership",
+          displayLabel: "Partnership",
+          sortOrder: 2,
+          isActive: true,
+        },
+        {
+          enumMappingId: businessTypeEnum.id,
+          sourceValue: "private_limited",
+          hubspotValue: "Private Limited",
+          displayLabel: "Private Limited",
+          sortOrder: 3,
+          isActive: true,
+        },
+        {
+          enumMappingId: businessTypeEnum.id,
+          sourceValue: "public_limited",
+          hubspotValue: "Public Limited",
+          displayLabel: "Public Limited",
+          sortOrder: 4,
+          isActive: true,
+        },
+        {
+          enumMappingId: businessTypeEnum.id,
+          sourceValue: "llp",
+          hubspotValue: "LLP",
+          displayLabel: "LLP",
+          sortOrder: 5,
+          isActive: true,
+        },
+        {
+          enumMappingId: businessTypeEnum.id,
+          sourceValue: "ngo",
+          hubspotValue: "NGO",
+          displayLabel: "NGO",
+          sortOrder: 6,
+          isActive: true,
+        },
+        {
+          enumMappingId: businessTypeEnum.id,
+          sourceValue: "educational_trust",
+          hubspotValue: "Educational Trust",
+          displayLabel: "Educational Trust",
+          sortOrder: 7,
+          isActive: true,
+        },
+      ],
+      skipDuplicates: true,
+    });
+    successCount++;
+    console.log("Business Type seeded (7 values)");
+
+    // ===== 2. PARTNER TYPE =====
+    console.log("\nSeeding Partner Type...");
+    const partnerTypeEnum = await prisma.enumMapping.upsert({
+      where: {
+        enumName_version: {
+          enumName: "partnerType",
+          version: 1,
+        },
+      },
+      update: {
+        hubspotProperty: "partner_type",
+        hubspotObjectType: hubspotObjectType,
+        isActive: true,
+      },
+      create: {
+        enumName: "partnerType",
+        hubspotProperty: "partner_type",
+        hubspotObjectType: hubspotObjectType,
+        version: 1,
+        isActive: true,
+        description: "Type of partner organization",
+      },
+    });
+
+    await prisma.enumValue.createMany({
+      data: [
+        {
+          enumMappingId: partnerTypeEnum.id,
+          sourceValue: "test_prep_center",
+          hubspotValue: "Test Prep Center",
+          displayLabel: "Test Prep Center",
+          sortOrder: 1,
+          isActive: true,
+        },
+        {
+          enumMappingId: partnerTypeEnum.id,
+          sourceValue: "study_abroad_consultant",
+          hubspotValue: "Study Abroad Consultant",
+          displayLabel: "Study Abroad Consultant",
+          sortOrder: 2,
+          isActive: true,
+        },
+        {
+          enumMappingId: partnerTypeEnum.id,
+          sourceValue: "educational_institution",
+          hubspotValue: "Educational Institution",
+          displayLabel: "Educational Institution",
+          sortOrder: 3,
+          isActive: true,
+        },
+        {
+          enumMappingId: partnerTypeEnum.id,
+          sourceValue: "online_platform",
+          hubspotValue: "Online Platform",
+          displayLabel: "Online Platform",
+          sortOrder: 4,
+          isActive: true,
+        },
+        {
+          enumMappingId: partnerTypeEnum.id,
+          sourceValue: "coaching_institute",
+          hubspotValue: "Coaching Institute",
+          displayLabel: "Coaching Institute",
+          sortOrder: 5,
+          isActive: true,
+        },
+        {
+          enumMappingId: partnerTypeEnum.id,
+          sourceValue: "career_counselor",
+          hubspotValue: "Career Counselor",
+          displayLabel: "Career Counselor",
+          sortOrder: 6,
+          isActive: true,
+        },
+        {
+          enumMappingId: partnerTypeEnum.id,
+          sourceValue: "immigration_consultant",
+          hubspotValue: "Immigration Consultant",
+          displayLabel: "Immigration Consultant",
+          sortOrder: 7,
+          isActive: true,
+        },
+        {
+          enumMappingId: partnerTypeEnum.id,
+          sourceValue: "university_representative",
+          hubspotValue: "University Representative",
+          displayLabel: "University Representative",
+          sortOrder: 8,
+          isActive: true,
+        },
+        {
+          enumMappingId: partnerTypeEnum.id,
+          sourceValue: "dsa",
+          hubspotValue: "DSA",
+          displayLabel: "DSA",
+          sortOrder: 9,
+          isActive: true,
+        },
+        {
+          enumMappingId: partnerTypeEnum.id,
+          sourceValue: "forex_service_provider",
+          hubspotValue: "Forex Service Provider",
+          displayLabel: "Forex Service Provider",
+          sortOrder: 10,
+          isActive: true,
+        },
+        {
+          enumMappingId: partnerTypeEnum.id,
+          sourceValue: "other",
+          hubspotValue: "Other",
+          displayLabel: "Other",
+          sortOrder: 11,
+          isActive: true,
+        },
+      ],
+      skipDuplicates: true,
+    });
+    successCount++;
+    console.log("Partner Type seeded (11 values)");
+
+    // ===== 3. TARGET COURSES =====
+    console.log("\nSeeding Target Courses...");
+    const targetCoursesEnum = await prisma.enumMapping.upsert({
+      where: {
+        enumName_version: {
+          enumName: "targetCourses",
+          version: 1,
+        },
+      },
+      update: {
+        hubspotProperty: "target_courses",
+        hubspotObjectType: hubspotObjectType,
+        isActive: true,
+      },
+      create: {
+        enumName: "targetCourses",
+        hubspotProperty: "target_courses",
+        hubspotObjectType: hubspotObjectType,
+        version: 1,
+        isActive: true,
+        description: "Target courses for partner",
+      },
+    });
+
+    await prisma.enumValue.createMany({
+      data: [
+        {
+          enumMappingId: targetCoursesEnum.id,
+          sourceValue: "engineering",
+          hubspotValue: "Engineering",
+          displayLabel: "Engineering",
+          sortOrder: 1,
+          isActive: true,
+        },
+        {
+          enumMappingId: targetCoursesEnum.id,
+          sourceValue: "mba",
+          hubspotValue: "MBA",
+          displayLabel: "MBA",
+          sortOrder: 2,
+          isActive: true,
+        },
+        {
+          enumMappingId: targetCoursesEnum.id,
+          sourceValue: "ms",
+          hubspotValue: "MS",
+          displayLabel: "MS",
+          sortOrder: 3,
+          isActive: true,
+        },
+        {
+          enumMappingId: targetCoursesEnum.id,
+          sourceValue: "medicine",
+          hubspotValue: "Medicine",
+          displayLabel: "Medicine",
+          sortOrder: 4,
+          isActive: true,
+        },
+        {
+          enumMappingId: targetCoursesEnum.id,
+          sourceValue: "law",
+          hubspotValue: "Law",
+          displayLabel: "Law",
+          sortOrder: 5,
+          isActive: true,
+        },
+        {
+          enumMappingId: targetCoursesEnum.id,
+          sourceValue: "arts",
+          hubspotValue: "Arts",
+          displayLabel: "Arts",
+          sortOrder: 6,
+          isActive: true,
+        },
+        {
+          enumMappingId: targetCoursesEnum.id,
+          sourceValue: "science",
+          hubspotValue: "Science",
+          displayLabel: "Science",
+          sortOrder: 7,
+          isActive: true,
+        },
+        {
+          enumMappingId: targetCoursesEnum.id,
+          sourceValue: "management",
+          hubspotValue: "Management",
+          displayLabel: "Management",
+          sortOrder: 8,
+          isActive: true,
+        },
+        {
+          enumMappingId: targetCoursesEnum.id,
+          sourceValue: "other",
+          hubspotValue: "Other",
+          displayLabel: "Other",
+          sortOrder: 9,
+          isActive: true,
+        },
+      ],
+      skipDuplicates: true,
+    });
+    successCount++;
+    console.log("Target Courses seeded (9 values)");
+
+    // ===== 4. TARGET DESTINATIONS =====
+    console.log("\nSeeding Target Destinations...");
+    const targetDestinationsEnum = await prisma.enumMapping.upsert({
+      where: {
+        enumName_version: {
+          enumName: "targetDestinations",
+          version: 1,
+        },
+      },
+      update: {
+        hubspotProperty: "target_destinations",
+        hubspotObjectType: hubspotObjectType,
+        isActive: true,
+      },
+      create: {
+        enumName: "targetDestinations",
+        hubspotProperty: "target_destinations",
+        hubspotObjectType: hubspotObjectType,
+        version: 1,
+        isActive: true,
+        description: "Target destination countries",
+      },
+    });
+
+    await prisma.enumValue.createMany({
+      data: [
+        {
+          enumMappingId: targetDestinationsEnum.id,
+          sourceValue: "us",
+          hubspotValue: "US",
+          displayLabel: "United States",
+          sortOrder: 1,
+          isActive: true,
+        },
+        {
+          enumMappingId: targetDestinationsEnum.id,
+          sourceValue: "uk",
+          hubspotValue: "UK",
+          displayLabel: "United Kingdom",
+          sortOrder: 2,
+          isActive: true,
+        },
+        {
+          enumMappingId: targetDestinationsEnum.id,
+          sourceValue: "canada",
+          hubspotValue: "Canada",
+          displayLabel: "Canada",
+          sortOrder: 3,
+          isActive: true,
+        },
+        {
+          enumMappingId: targetDestinationsEnum.id,
+          sourceValue: "australia",
+          hubspotValue: "Australia",
+          displayLabel: "Australia",
+          sortOrder: 4,
+          isActive: true,
+        },
+        {
+          enumMappingId: targetDestinationsEnum.id,
+          sourceValue: "germany",
+          hubspotValue: "Germany",
+          displayLabel: "Germany",
+          sortOrder: 5,
+          isActive: true,
+        },
+        {
+          enumMappingId: targetDestinationsEnum.id,
+          sourceValue: "france",
+          hubspotValue: "France",
+          displayLabel: "France",
+          sortOrder: 6,
+          isActive: true,
+        },
+        {
+          enumMappingId: targetDestinationsEnum.id,
+          sourceValue: "singapore",
+          hubspotValue: "Singapore",
+          displayLabel: "Singapore",
+          sortOrder: 7,
+          isActive: true,
+        },
+        {
+          enumMappingId: targetDestinationsEnum.id,
+          sourceValue: "italy",
+          hubspotValue: "Italy",
+          displayLabel: "Italy",
+          sortOrder: 8,
+          isActive: true,
+        },
+        {
+          enumMappingId: targetDestinationsEnum.id,
+          sourceValue: "uae",
+          hubspotValue: "UAE",
+          displayLabel: "UAE",
+          sortOrder: 9,
+          isActive: true,
+        },
+        {
+          enumMappingId: targetDestinationsEnum.id,
+          sourceValue: "other",
+          hubspotValue: "Other",
+          displayLabel: "Other",
+          sortOrder: 10,
+          isActive: true,
+        },
+      ],
+      skipDuplicates: true,
+    });
+    successCount++;
+    console.log("Target Destinations seeded (10 values)");
+
+    // ===== 5. COMMISSION MODEL =====
+    console.log("\nSeeding Commission Model...");
+    const commissionModelEnum = await prisma.enumMapping.upsert({
+      where: {
+        enumName_version: {
+          enumName: "partnerCommissionModel",
+          version: 1,
+        },
+      },
+      update: {
+        hubspotProperty: "commission_model",
+        hubspotObjectType: hubspotObjectType,
+        isActive: true,
+      },
+      create: {
+        enumName: "partnerCommissionModel",
+        hubspotProperty: "commission_model",
+        hubspotObjectType: hubspotObjectType,
+        version: 1,
+        isActive: true,
+        description: "Commission model for partner",
+      },
+    });
+
+    await prisma.enumValue.createMany({
+      data: [
+        {
+          enumMappingId: commissionModelEnum.id,
+          sourceValue: "fixed_amount",
+          hubspotValue: "Fixed Amount",
+          displayLabel: "Fixed Amount",
+          sortOrder: 1,
+          isActive: true,
+        },
+        {
+          enumMappingId: commissionModelEnum.id,
+          sourceValue: "percentage",
+          hubspotValue: "Percentage",
+          displayLabel: "Percentage",
+          sortOrder: 2,
+          isActive: true,
+        },
+        {
+          enumMappingId: commissionModelEnum.id,
+          sourceValue: "tiered",
+          hubspotValue: "Tiered",
+          displayLabel: "Tiered",
+          sortOrder: 3,
+          isActive: true,
+        },
+        {
+          enumMappingId: commissionModelEnum.id,
+          sourceValue: "hybrid",
+          hubspotValue: "Hybrid",
+          displayLabel: "Hybrid",
+          sortOrder: 4,
+          isActive: true,
+        },
+        {
+          enumMappingId: commissionModelEnum.id,
+          sourceValue: "performance_based",
+          hubspotValue: "Performance Based",
+          displayLabel: "Performance Based",
+          sortOrder: 5,
+          isActive: true,
+        },
+      ],
+      skipDuplicates: true,
+    });
+    successCount++;
+    console.log("Commission Model seeded (5 values)");
+
+    // ===== 6. COMMISSION TYPE =====
+    console.log("\nSeeding Commission Type...");
+    const commissionTypeEnum = await prisma.enumMapping.upsert({
+      where: {
+        enumName_version: {
+          enumName: "partnerCommissionType",
+          version: 1,
+        },
+      },
+      update: {
+        hubspotProperty: "commission_type",
+        hubspotObjectType: hubspotObjectType,
+        isActive: true,
+      },
+      create: {
+        enumName: "partnerCommissionType",
+        hubspotProperty: "commission_type",
+        hubspotObjectType: hubspotObjectType,
+        version: 1,
+        isActive: true,
+        description: "Commission type for partner",
+      },
+    });
+
+    await prisma.enumValue.createMany({
+      data: [
+        {
+          enumMappingId: commissionTypeEnum.id,
+          sourceValue: "per_lead",
+          hubspotValue: "Per Lead",
+          displayLabel: "Per Lead",
+          sortOrder: 1,
+          isActive: true,
+        },
+        {
+          enumMappingId: commissionTypeEnum.id,
+          sourceValue: "per_application",
+          hubspotValue: "Per Application",
+          displayLabel: "Per Application",
+          sortOrder: 2,
+          isActive: true,
+        },
+        {
+          enumMappingId: commissionTypeEnum.id,
+          sourceValue: "per_approval",
+          hubspotValue: "Per Approval",
+          displayLabel: "Per Approval",
+          sortOrder: 3,
+          isActive: true,
+        },
+        {
+          enumMappingId: commissionTypeEnum.id,
+          sourceValue: "per_disbursement",
+          hubspotValue: "Per Disbursement",
+          displayLabel: "Per Disbursement",
+          sortOrder: 4,
+          isActive: true,
+        },
+      ],
+      skipDuplicates: true,
+    });
+    successCount++;
+    console.log("Commission Type seeded (4 values)");
+
+    // ===== 7. GST APPLICABLE =====
+    console.log("\nSeeding GST Applicable...");
+    const gstApplicableEnum = await prisma.enumMapping.upsert({
+      where: {
+        enumName_version: {
+          enumName: "gstApplicable",
+          version: 1,
+        },
+      },
+      update: {
+        hubspotProperty: "gst_applicable",
+        hubspotObjectType: hubspotObjectType,
+        isActive: true,
+      },
+      create: {
+        enumName: "gstApplicable",
+        hubspotProperty: "gst_applicable",
+        hubspotObjectType: hubspotObjectType,
+        version: 1,
+        isActive: true,
+        description: "Whether GST is applicable",
+      },
+    });
+
+    await prisma.enumValue.createMany({
+      data: [
+        {
+          enumMappingId: gstApplicableEnum.id,
+          sourceValue: "yes",
+          hubspotValue: "Yes",
+          displayLabel: "Yes",
+          sortOrder: 1,
+          isActive: true,
+        },
+        {
+          enumMappingId: gstApplicableEnum.id,
+          sourceValue: "no",
+          hubspotValue: "No",
+          displayLabel: "No",
+          sortOrder: 2,
+          isActive: true,
+        },
+      ],
+      skipDuplicates: true,
+    });
+    successCount++;
+    console.log("GST Applicable seeded (2 values)");
+
+    // ===== 8. PAYMENT FREQUENCY =====
+    console.log("\nSeeding Payment Frequency...");
+    const paymentFrequencyEnum = await prisma.enumMapping.upsert({
+      where: {
+        enumName_version: {
+          enumName: "partnerPaymentFrequency",
+          version: 1,
+        },
+      },
+      update: {
+        hubspotProperty: "payment_frequency",
+        hubspotObjectType: hubspotObjectType,
+        isActive: true,
+      },
+      create: {
+        enumName: "partnerPaymentFrequency",
+        hubspotProperty: "payment_frequency",
+        hubspotObjectType: hubspotObjectType,
+        version: 1,
+        isActive: true,
+        description: "Payment frequency for partner",
+      },
+    });
+
+    await prisma.enumValue.createMany({
+      data: [
+        {
+          enumMappingId: paymentFrequencyEnum.id,
+          sourceValue: "monthly",
+          hubspotValue: "Monthly",
+          displayLabel: "Monthly",
+          sortOrder: 1,
+          isActive: true,
+        },
+        {
+          enumMappingId: paymentFrequencyEnum.id,
+          sourceValue: "quarterly",
+          hubspotValue: "Quarterly",
+          displayLabel: "Quarterly",
+          sortOrder: 2,
+          isActive: true,
+        },
+        {
+          enumMappingId: paymentFrequencyEnum.id,
+          sourceValue: "on_achievement",
+          hubspotValue: "On Achievement",
+          displayLabel: "On Achievement",
+          sortOrder: 3,
+          isActive: true,
+        },
+        {
+          enumMappingId: paymentFrequencyEnum.id,
+          sourceValue: "custom",
+          hubspotValue: "Custom",
+          displayLabel: "Custom",
+          sortOrder: 4,
+          isActive: true,
+        },
+      ],
+      skipDuplicates: true,
+    });
+    successCount++;
+    console.log("Payment Frequency seeded (4 values)");
+
+    // ===== 9. PAYMENT METHOD =====
+    console.log("\nSeeding Payment Method...");
+    const paymentMethodEnum = await prisma.enumMapping.upsert({
+      where: {
+        enumName_version: {
+          enumName: "partnerPaymentMethod",
+          version: 1,
+        },
+      },
+      update: {
+        hubspotProperty: "payment_method",
+        hubspotObjectType: hubspotObjectType,
+        isActive: true,
+      },
+      create: {
+        enumName: "partnerPaymentMethod",
+        hubspotProperty: "payment_method",
+        hubspotObjectType: hubspotObjectType,
+        version: 1,
+        isActive: true,
+        description: "Payment method for partner",
+      },
+    });
+
+    await prisma.enumValue.createMany({
+      data: [
+        {
+          enumMappingId: paymentMethodEnum.id,
+          sourceValue: "bank_transfer",
+          hubspotValue: "Bank Transfer",
+          displayLabel: "Bank Transfer",
+          sortOrder: 1,
+          isActive: true,
+        },
+        {
+          enumMappingId: paymentMethodEnum.id,
+          sourceValue: "cheque",
+          hubspotValue: "Cheque",
+          displayLabel: "Cheque",
+          sortOrder: 2,
+          isActive: true,
+        },
+        {
+          enumMappingId: paymentMethodEnum.id,
+          sourceValue: "upi",
+          hubspotValue: "UPI",
+          displayLabel: "UPI",
+          sortOrder: 3,
+          isActive: true,
+        },
+        {
+          enumMappingId: paymentMethodEnum.id,
+          sourceValue: "digital_wallet",
+          hubspotValue: "Digital Wallet",
+          displayLabel: "Digital Wallet",
+          sortOrder: 4,
+          isActive: true,
+        },
+        {
+          enumMappingId: paymentMethodEnum.id,
+          sourceValue: "cash",
+          hubspotValue: "Cash",
+          displayLabel: "Cash",
+          sortOrder: 5,
+          isActive: true,
+        },
+      ],
+      skipDuplicates: true,
+    });
+    successCount++;
+    console.log("Payment Method seeded (5 values)");
+
+    // ===== 10. PAYMENT TERMS =====
+    console.log("\nSeeding Payment Terms...");
+    const paymentTermsEnum = await prisma.enumMapping.upsert({
+      where: {
+        enumName_version: {
+          enumName: "paymentTerms",
+          version: 1,
+        },
+      },
+      update: {
+        hubspotProperty: "payment_terms",
+        hubspotObjectType: hubspotObjectType,
+        isActive: true,
+      },
+      create: {
+        enumName: "paymentTerms",
+        hubspotProperty: "payment_terms",
+        hubspotObjectType: hubspotObjectType,
+        version: 1,
+        isActive: true,
+        description: "Payment terms for partner",
+      },
+    });
+
+    await prisma.enumValue.createMany({
+      data: [
+        {
+          enumMappingId: paymentTermsEnum.id,
+          sourceValue: "net_30",
+          hubspotValue: "Net 30",
+          displayLabel: "Net 30",
+          sortOrder: 1,
+          isActive: true,
+        },
+        {
+          enumMappingId: paymentTermsEnum.id,
+          sourceValue: "net_45",
+          hubspotValue: "Net 45",
+          displayLabel: "Net 45",
+          sortOrder: 2,
+          isActive: true,
+        },
+        {
+          enumMappingId: paymentTermsEnum.id,
+          sourceValue: "net_60",
+          hubspotValue: "Net 60",
+          displayLabel: "Net 60",
+          sortOrder: 3,
+          isActive: true,
+        },
+        {
+          enumMappingId: paymentTermsEnum.id,
+          sourceValue: "immediate",
+          hubspotValue: "Immediate",
+          displayLabel: "Immediate",
+          sortOrder: 4,
+          isActive: true,
+        },
+        {
+          enumMappingId: paymentTermsEnum.id,
+          sourceValue: "custom",
+          hubspotValue: "Custom",
+          displayLabel: "Custom",
+          sortOrder: 5,
+          isActive: true,
+        },
+      ],
+      skipDuplicates: true,
+    });
+    successCount++;
+    console.log("Payment Terms seeded (5 values)");
+
+    // ===== 11. TDS APPLICABLE =====
+    console.log("\nSeeding TDS Applicable...");
+    const tdsApplicableEnum = await prisma.enumMapping.upsert({
+      where: {
+        enumName_version: {
+          enumName: "tdsApplicable",
+          version: 1,
+        },
+      },
+      update: {
+        hubspotProperty: "tds_applicable",
+        hubspotObjectType: hubspotObjectType,
+        isActive: true,
+      },
+      create: {
+        enumName: "tdsApplicable",
+        hubspotProperty: "tds_applicable",
+        hubspotObjectType: hubspotObjectType,
+        version: 1,
+        isActive: true,
+        description: "Whether TDS is applicable",
+      },
+    });
+
+    await prisma.enumValue.createMany({
+      data: [
+        {
+          enumMappingId: tdsApplicableEnum.id,
+          sourceValue: "yes",
+          hubspotValue: "Yes",
+          displayLabel: "Yes",
+          sortOrder: 1,
+          isActive: true,
+        },
+        {
+          enumMappingId: tdsApplicableEnum.id,
+          sourceValue: "no",
+          hubspotValue: "No",
+          displayLabel: "No",
+          sortOrder: 2,
+          isActive: true,
+        },
+      ],
+      skipDuplicates: true,
+    });
+    successCount++;
+    console.log("TDS Applicable seeded (2 values)");
+
+    // ===== 12. BACKGROUND VERIFICATION STATUS =====
+    console.log("\nSeeding Background Verification Status...");
+    const bgVerificationStatusEnum = await prisma.enumMapping.upsert({
+      where: {
+        enumName_version: {
+          enumName: "backgroundVerificationStatus",
+          version: 1,
+        },
+      },
+      update: {
+        hubspotProperty: "background_verification_status",
+        hubspotObjectType: hubspotObjectType,
+        isActive: true,
+      },
+      create: {
+        enumName: "backgroundVerificationStatus",
+        hubspotProperty: "background_verification_status",
+        hubspotObjectType: hubspotObjectType,
+        version: 1,
+        isActive: true,
+        description: "Background verification status",
+      },
+    });
+
+    await prisma.enumValue.createMany({
+      data: [
+        {
+          enumMappingId: bgVerificationStatusEnum.id,
+          sourceValue: "pending",
+          hubspotValue: "Pending",
+          displayLabel: "Pending",
+          sortOrder: 1,
+          isActive: true,
+        },
+        {
+          enumMappingId: bgVerificationStatusEnum.id,
+          sourceValue: "complete",
+          hubspotValue: "Complete",
+          displayLabel: "Complete",
+          sortOrder: 2,
+          isActive: true,
+        },
+        {
+          enumMappingId: bgVerificationStatusEnum.id,
+          sourceValue: "failed",
+          hubspotValue: "Failed",
+          displayLabel: "Failed",
+          sortOrder: 3,
+          isActive: true,
+        },
+        {
+          enumMappingId: bgVerificationStatusEnum.id,
+          sourceValue: "not_required",
+          hubspotValue: "Not Required",
+          displayLabel: "Not Required",
+          sortOrder: 4,
+          isActive: true,
+        },
+      ],
+      skipDuplicates: true,
+    });
+    successCount++;
+    console.log("Background Verification Status seeded (4 values)");
+
+    // ===== 13. KYC STATUS =====
+    console.log("\nSeeding KYC Status...");
+    const kycStatusEnum = await prisma.enumMapping.upsert({
+      where: {
+        enumName_version: {
+          enumName: "kycStatus",
+          version: 1,
+        },
+      },
+      update: {
+        hubspotProperty: "kyc_status",
+        hubspotObjectType: hubspotObjectType,
+        isActive: true,
+      },
+      create: {
+        enumName: "kycStatus",
+        hubspotProperty: "kyc_status",
+        hubspotObjectType: hubspotObjectType,
+        version: 1,
+        isActive: true,
+        description: "KYC verification status",
+      },
+    });
+
+    await prisma.enumValue.createMany({
+      data: [
+        {
+          enumMappingId: kycStatusEnum.id,
+          sourceValue: "pending",
+          hubspotValue: "Pending",
+          displayLabel: "Pending",
+          sortOrder: 1,
+          isActive: true,
+        },
+        {
+          enumMappingId: kycStatusEnum.id,
+          sourceValue: "complete",
+          hubspotValue: "Complete",
+          displayLabel: "Complete",
+          sortOrder: 2,
+          isActive: true,
+        },
+        {
+          enumMappingId: kycStatusEnum.id,
+          sourceValue: "expired",
+          hubspotValue: "Expired",
+          displayLabel: "Expired",
+          sortOrder: 3,
+          isActive: true,
+        },
+        {
+          enumMappingId: kycStatusEnum.id,
+          sourceValue: "under_review",
+          hubspotValue: "Under Review",
+          displayLabel: "Under Review",
+          sortOrder: 4,
+          isActive: true,
+        },
+      ],
+      skipDuplicates: true,
+    });
+    successCount++;
+    console.log("KYC Status seeded (4 values)");
+
+    // ===== 14. PAYMENT STATUS =====
+    console.log("\nSeeding Payment Status...");
+    const paymentStatusEnum = await prisma.enumMapping.upsert({
+      where: {
+        enumName_version: {
+          enumName: "partnerPaymentStatus",
+          version: 1,
+        },
+      },
+      update: {
+        hubspotProperty: "payment_status",
+        hubspotObjectType: hubspotObjectType,
+        isActive: true,
+      },
+      create: {
+        enumName: "partnerPaymentStatus",
+        hubspotProperty: "payment_status",
+        hubspotObjectType: hubspotObjectType,
+        version: 1,
+        isActive: true,
+        description: "Payment status for partner",
+      },
+    });
+
+    await prisma.enumValue.createMany({
+      data: [
+        {
+          enumMappingId: paymentStatusEnum.id,
+          sourceValue: "up_to_date",
+          hubspotValue: "Up to Date",
+          displayLabel: "Up to Date",
+          sortOrder: 1,
+          isActive: true,
+        },
+        {
+          enumMappingId: paymentStatusEnum.id,
+          sourceValue: "pending",
+          hubspotValue: "Pending",
+          displayLabel: "Pending",
+          sortOrder: 2,
+          isActive: true,
+        },
+        {
+          enumMappingId: paymentStatusEnum.id,
+          sourceValue: "overdue",
+          hubspotValue: "Overdue",
+          displayLabel: "Overdue",
+          sortOrder: 3,
+          isActive: true,
+        },
+        {
+          enumMappingId: paymentStatusEnum.id,
+          sourceValue: "on_hold",
+          hubspotValue: "On Hold",
+          displayLabel: "On Hold",
+          sortOrder: 4,
+          isActive: true,
+        },
+      ],
+      skipDuplicates: true,
+    });
+    successCount++;
+    console.log("Payment Status seeded (4 values)");
+
+    // ===== 15. LEAD SUBMISSION METHOD =====
+    console.log("\nSeeding Lead Submission Method...");
+    const leadSubmissionMethodEnum = await prisma.enumMapping.upsert({
+      where: {
+        enumName_version: {
+          enumName: "leadSubmissionMethod",
+          version: 1,
+        },
+      },
+      update: {
+        hubspotProperty: "lead_submission_method",
+        hubspotObjectType: hubspotObjectType,
+        isActive: true,
+      },
+      create: {
+        enumName: "leadSubmissionMethod",
+        hubspotProperty: "lead_submission_method",
+        hubspotObjectType: hubspotObjectType,
+        version: 1,
+        isActive: true,
+        description: "Method used to submit leads",
+      },
+    });
+
+    await prisma.enumValue.createMany({
+      data: [
+        {
+          enumMappingId: leadSubmissionMethodEnum.id,
+          sourceValue: "online_form",
+          hubspotValue: "Online Form",
+          displayLabel: "Online Form",
+          sortOrder: 1,
+          isActive: true,
+        },
+        {
+          enumMappingId: leadSubmissionMethodEnum.id,
+          sourceValue: "email",
+          hubspotValue: "Email",
+          displayLabel: "Email",
+          sortOrder: 2,
+          isActive: true,
+        },
+        {
+          enumMappingId: leadSubmissionMethodEnum.id,
+          sourceValue: "phone",
+          hubspotValue: "Phone",
+          displayLabel: "Phone",
+          sortOrder: 3,
+          isActive: true,
+        },
+        {
+          enumMappingId: leadSubmissionMethodEnum.id,
+          sourceValue: "whatsapp",
+          hubspotValue: "WhatsApp",
+          displayLabel: "WhatsApp",
+          sortOrder: 4,
+          isActive: true,
+        },
+        {
+          enumMappingId: leadSubmissionMethodEnum.id,
+          sourceValue: "portal",
+          hubspotValue: "Portal",
+          displayLabel: "Portal",
+          sortOrder: 5,
+          isActive: true,
+        },
+        {
+          enumMappingId: leadSubmissionMethodEnum.id,
+          sourceValue: "api",
+          hubspotValue: "API",
+          displayLabel: "API",
+          sortOrder: 6,
+          isActive: true,
+        },
+      ],
+      skipDuplicates: true,
+    });
+    successCount++;
+    console.log("Lead Submission Method seeded (6 values)");
+
+    // ===== 16. LEAD TRACKING METHOD =====
+    console.log("\nSeeding Lead Tracking Method...");
+    const leadTrackingMethodEnum = await prisma.enumMapping.upsert({
+      where: {
+        enumName_version: {
+          enumName: "leadTrackingMethod",
+          version: 1,
+        },
+      },
+      update: {
+        hubspotProperty: "lead_tracking_method",
+        hubspotObjectType: hubspotObjectType,
+        isActive: true,
+      },
+      create: {
+        enumName: "leadTrackingMethod",
+        hubspotProperty: "lead_tracking_method",
+        hubspotObjectType: hubspotObjectType,
+        version: 1,
+        isActive: true,
+        description: "Method used to track leads",
+      },
+    });
+
+    await prisma.enumValue.createMany({
+      data: [
+        {
+          enumMappingId: leadTrackingMethodEnum.id,
+          sourceValue: "unique_referral_code",
+          hubspotValue: "Unique Referral Code",
+          displayLabel: "Unique Referral Code",
+          sortOrder: 1,
+          isActive: true,
+        },
+        {
+          enumMappingId: leadTrackingMethodEnum.id,
+          sourceValue: "utm_parameters",
+          hubspotValue: "UTM Parameters",
+          displayLabel: "UTM Parameters",
+          sortOrder: 2,
+          isActive: true,
+        },
+        {
+          enumMappingId: leadTrackingMethodEnum.id,
+          sourceValue: "phone_tracking",
+          hubspotValue: "Phone Tracking",
+          displayLabel: "Phone Tracking",
+          sortOrder: 3,
+          isActive: true,
+        },
+        {
+          enumMappingId: leadTrackingMethodEnum.id,
+          sourceValue: "email_tracking",
+          hubspotValue: "Email Tracking",
+          displayLabel: "Email Tracking",
+          sortOrder: 4,
+          isActive: true,
+        },
+        {
+          enumMappingId: leadTrackingMethodEnum.id,
+          sourceValue: "manual_attribution",
+          hubspotValue: "Manual Attribution",
+          displayLabel: "Manual Attribution",
+          sortOrder: 5,
+          isActive: true,
+        },
+      ],
+      skipDuplicates: true,
+    });
+    successCount++;
+    console.log("Lead Tracking Method seeded (5 values)");
+
+    // ===== 17. CO-MARKETING APPROVAL =====
+    console.log("\nSeeding Co-Marketing Approval...");
+    const coMarketingApprovalEnum = await prisma.enumMapping.upsert({
+      where: {
+        enumName_version: {
+          enumName: "coMarketingApproval",
+          version: 1,
+        },
+      },
+      update: {
+        hubspotProperty: "co_marketing_approval",
+        hubspotObjectType: hubspotObjectType,
+        isActive: true,
+      },
+      create: {
+        enumName: "coMarketingApproval",
+        hubspotProperty: "co_marketing_approval",
+        hubspotObjectType: hubspotObjectType,
+        version: 1,
+        isActive: true,
+        description: "Co-marketing approval status",
+      },
+    });
+
+    await prisma.enumValue.createMany({
+      data: [
+        {
+          enumMappingId: coMarketingApprovalEnum.id,
+          sourceValue: "yes",
+          hubspotValue: "Yes",
+          displayLabel: "Yes",
+          sortOrder: 1,
+          isActive: true,
+        },
+        {
+          enumMappingId: coMarketingApprovalEnum.id,
+          sourceValue: "no",
+          hubspotValue: "No",
+          displayLabel: "No",
+          sortOrder: 2,
+          isActive: true,
+        },
+        {
+          enumMappingId: coMarketingApprovalEnum.id,
+          sourceValue: "case_by_case",
+          hubspotValue: "Case by Case",
+          displayLabel: "Case by Case",
+          sortOrder: 3,
+          isActive: true,
+        },
+      ],
+      skipDuplicates: true,
+    });
+    successCount++;
+    console.log("Co-Marketing Approval seeded (3 values)");
+
+    // ===== 18. CONTENT COLLABORATION =====
+    console.log("\nSeeding Content Collaboration...");
+    const contentCollaborationEnum = await prisma.enumMapping.upsert({
+      where: {
+        enumName_version: {
+          enumName: "contentCollaboration",
+          version: 1,
+        },
+      },
+      update: {
+        hubspotProperty: "content_collaboration",
+        hubspotObjectType: hubspotObjectType,
+        isActive: true,
+      },
+      create: {
+        enumName: "contentCollaboration",
+        hubspotProperty: "content_collaboration",
+        hubspotObjectType: hubspotObjectType,
+        version: 1,
+        isActive: true,
+        description: "Content collaboration status",
+      },
+    });
+
+    await prisma.enumValue.createMany({
+      data: [
+        {
+          enumMappingId: contentCollaborationEnum.id,
+          sourceValue: "yes",
+          hubspotValue: "Yes",
+          displayLabel: "Yes",
+          sortOrder: 1,
+          isActive: true,
+        },
+        {
+          enumMappingId: contentCollaborationEnum.id,
+          sourceValue: "no",
+          hubspotValue: "No",
+          displayLabel: "No",
+          sortOrder: 2,
+          isActive: true,
+        },
+        {
+          enumMappingId: contentCollaborationEnum.id,
+          sourceValue: "interested",
+          hubspotValue: "Interested",
+          displayLabel: "Interested",
+          sortOrder: 3,
+          isActive: true,
+        },
+      ],
+      skipDuplicates: true,
+    });
+    successCount++;
+    console.log("Content Collaboration seeded (3 values)");
+
+    // ===== 19. MARKETING MATERIALS PROVIDED =====
+    console.log("\nSeeding Marketing Materials Provided...");
+    const marketingMaterialsEnum = await prisma.enumMapping.upsert({
+      where: {
+        enumName_version: {
+          enumName: "marketingMaterialsProvided",
+          version: 1,
+        },
+      },
+      update: {
+        hubspotProperty: "marketing_materials_provided",
+        hubspotObjectType: hubspotObjectType,
+        isActive: true,
+      },
+      create: {
+        enumName: "marketingMaterialsProvided",
+        hubspotProperty: "marketing_materials_provided",
+        hubspotObjectType: hubspotObjectType,
+        version: 1,
+        isActive: true,
+        description: "Types of marketing materials provided",
+      },
+    });
+
+    await prisma.enumValue.createMany({
+      data: [
+        {
+          enumMappingId: marketingMaterialsEnum.id,
+          sourceValue: "brochures",
+          hubspotValue: "Brochures",
+          displayLabel: "Brochures",
+          sortOrder: 1,
+          isActive: true,
+        },
+        {
+          enumMappingId: marketingMaterialsEnum.id,
+          sourceValue: "digital_assets",
+          hubspotValue: "Digital Assets",
+          displayLabel: "Digital Assets",
+          sortOrder: 2,
+          isActive: true,
+        },
+        {
+          enumMappingId: marketingMaterialsEnum.id,
+          sourceValue: "presentation_templates",
+          hubspotValue: "Presentation Templates",
+          displayLabel: "Presentation Templates",
+          sortOrder: 3,
+          isActive: true,
+        },
+        {
+          enumMappingId: marketingMaterialsEnum.id,
+          sourceValue: "case_studies",
+          hubspotValue: "Case Studies",
+          displayLabel: "Case Studies",
+          sortOrder: 4,
+          isActive: true,
+        },
+        {
+          enumMappingId: marketingMaterialsEnum.id,
+          sourceValue: "success_stories",
+          hubspotValue: "Success Stories",
+          displayLabel: "Success Stories",
+          sortOrder: 5,
+          isActive: true,
+        },
+      ],
+      skipDuplicates: true,
+    });
+    successCount++;
+    console.log("Marketing Materials Provided seeded (5 values)");
+
+    // ===== 20. AGREEMENT TYPE =====
+    console.log("\nSeeding Agreement Type...");
+    const agreementTypeEnum = await prisma.enumMapping.upsert({
+      where: {
+        enumName_version: {
+          enumName: "agreementType",
+          version: 1,
+        },
+      },
+      update: {
+        hubspotProperty: "agreement_type",
+        hubspotObjectType: hubspotObjectType,
+        isActive: true,
+      },
+      create: {
+        enumName: "agreementType",
+        hubspotProperty: "agreement_type",
+        hubspotObjectType: hubspotObjectType,
+        version: 1,
+        isActive: true,
+        description: "Type of partnership agreement",
+      },
+    });
+
+    await prisma.enumValue.createMany({
+      data: [
+        {
+          enumMappingId: agreementTypeEnum.id,
+          sourceValue: "standard",
+          hubspotValue: "Standard",
+          displayLabel: "Standard",
+          sortOrder: 1,
+          isActive: true,
+        },
+        {
+          enumMappingId: agreementTypeEnum.id,
+          sourceValue: "custom",
+          hubspotValue: "Custom",
+          displayLabel: "Custom",
+          sortOrder: 2,
+          isActive: true,
+        },
+        {
+          enumMappingId: agreementTypeEnum.id,
+          sourceValue: "pilot",
+          hubspotValue: "Pilot",
+          displayLabel: "Pilot",
+          sortOrder: 3,
+          isActive: true,
+        },
+        {
+          enumMappingId: agreementTypeEnum.id,
+          sourceValue: "enterprise",
+          hubspotValue: "Enterprise",
+          displayLabel: "Enterprise",
+          sortOrder: 4,
+          isActive: true,
+        },
+      ],
+      skipDuplicates: true,
+    });
+    successCount++;
+    console.log("Agreement Type seeded (4 values)");
+
+    // ===== 21. PARTNERSHIP STATUS =====
+    console.log("\nSeeding Partnership Status...");
+    const partnershipStatusEnum = await prisma.enumMapping.upsert({
+      where: {
+        enumName_version: {
+          enumName: "partnershipStatus",
+          version: 1,
+        },
+      },
+      update: {
+        hubspotProperty: "partnership_status",
+        hubspotObjectType: hubspotObjectType,
+        isActive: true,
+      },
+      create: {
+        enumName: "partnershipStatus",
+        hubspotProperty: "partnership_status",
+        hubspotObjectType: hubspotObjectType,
+        version: 1,
+        isActive: true,
+        description: "Current status of partnership",
+      },
+    });
+
+    await prisma.enumValue.createMany({
+      data: [
+        {
+          enumMappingId: partnershipStatusEnum.id,
+          sourceValue: "active",
+          hubspotValue: "Active",
+          displayLabel: "Active",
+          sortOrder: 1,
+          isActive: true,
+        },
+        {
+          enumMappingId: partnershipStatusEnum.id,
+          sourceValue: "inactive",
+          hubspotValue: "Inactive",
+          displayLabel: "Inactive",
+          sortOrder: 2,
+          isActive: true,
+        },
+        {
+          enumMappingId: partnershipStatusEnum.id,
+          sourceValue: "pending",
+          hubspotValue: "Pending",
+          displayLabel: "Pending",
+          sortOrder: 3,
+          isActive: true,
+        },
+        {
+          enumMappingId: partnershipStatusEnum.id,
+          sourceValue: "suspended",
+          hubspotValue: "Suspended",
+          displayLabel: "Suspended",
+          sortOrder: 4,
+          isActive: true,
+        },
+        {
+          enumMappingId: partnershipStatusEnum.id,
+          sourceValue: "under_review",
+          hubspotValue: "Under Review",
+          displayLabel: "Under Review",
+          sortOrder: 5,
+          isActive: true,
+        },
+        {
+          enumMappingId: partnershipStatusEnum.id,
+          sourceValue: "terminated",
+          hubspotValue: "Terminated",
+          displayLabel: "Terminated",
+          sortOrder: 6,
+          isActive: true,
+        },
+        {
+          enumMappingId: partnershipStatusEnum.id,
+          sourceValue: "onboarding",
+          hubspotValue: "Onboarding",
+          displayLabel: "Onboarding",
+          sortOrder: 7,
+          isActive: true,
+        },
+      ],
+      skipDuplicates: true,
+    });
+    successCount++;
+    console.log("Partnership Status seeded (7 values)");
+
+    // ===== 22. BEST PERFORMING MONTH =====
+    console.log("\nSeeding Best Performing Month...");
+    const bestPerformingMonthEnum = await prisma.enumMapping.upsert({
+      where: {
+        enumName_version: {
+          enumName: "bestPerformingMonth",
+          version: 1,
+        },
+      },
+      update: {
+        hubspotProperty: "best_performing_month",
+        hubspotObjectType: hubspotObjectType,
+        isActive: true,
+      },
+      create: {
+        enumName: "bestPerformingMonth",
+        hubspotProperty: "best_performing_month",
+        hubspotObjectType: hubspotObjectType,
+        version: 1,
+        isActive: true,
+        description: "Best performing month for partner",
+      },
+    });
+
+    await prisma.enumValue.createMany({
+      data: [
+        {
+          enumMappingId: bestPerformingMonthEnum.id,
+          sourceValue: "january",
+          hubspotValue: "January",
+          displayLabel: "January",
+          sortOrder: 1,
+          isActive: true,
+        },
+        {
+          enumMappingId: bestPerformingMonthEnum.id,
+          sourceValue: "february",
+          hubspotValue: "February",
+          displayLabel: "February",
+          sortOrder: 2,
+          isActive: true,
+        },
+        {
+          enumMappingId: bestPerformingMonthEnum.id,
+          sourceValue: "march",
+          hubspotValue: "March",
+          displayLabel: "March",
+          sortOrder: 3,
+          isActive: true,
+        },
+        {
+          enumMappingId: bestPerformingMonthEnum.id,
+          sourceValue: "april",
+          hubspotValue: "April",
+          displayLabel: "April",
+          sortOrder: 4,
+          isActive: true,
+        },
+        {
+          enumMappingId: bestPerformingMonthEnum.id,
+          sourceValue: "may",
+          hubspotValue: "May",
+          displayLabel: "May",
+          sortOrder: 5,
+          isActive: true,
+        },
+        {
+          enumMappingId: bestPerformingMonthEnum.id,
+          sourceValue: "june",
+          hubspotValue: "June",
+          displayLabel: "June",
+          sortOrder: 6,
+          isActive: true,
+        },
+        {
+          enumMappingId: bestPerformingMonthEnum.id,
+          sourceValue: "july",
+          hubspotValue: "July",
+          displayLabel: "July",
+          sortOrder: 7,
+          isActive: true,
+        },
+        {
+          enumMappingId: bestPerformingMonthEnum.id,
+          sourceValue: "august",
+          hubspotValue: "August",
+          displayLabel: "August",
+          sortOrder: 8,
+          isActive: true,
+        },
+        {
+          enumMappingId: bestPerformingMonthEnum.id,
+          sourceValue: "september",
+          hubspotValue: "September",
+          displayLabel: "September",
+          sortOrder: 9,
+          isActive: true,
+        },
+        {
+          enumMappingId: bestPerformingMonthEnum.id,
+          sourceValue: "october",
+          hubspotValue: "October",
+          displayLabel: "October",
+          sortOrder: 10,
+          isActive: true,
+        },
+        {
+          enumMappingId: bestPerformingMonthEnum.id,
+          sourceValue: "november",
+          hubspotValue: "November",
+          displayLabel: "November",
+          sortOrder: 11,
+          isActive: true,
+        },
+        {
+          enumMappingId: bestPerformingMonthEnum.id,
+          sourceValue: "december",
+          hubspotValue: "December",
+          displayLabel: "December",
+          sortOrder: 12,
+          isActive: true,
+        },
+      ],
+      skipDuplicates: true,
+    });
+    successCount++;
+    console.log("Best Performing Month seeded (12 values)");
+
+    // ===== 23. COMMUNICATION FREQUENCY =====
+    console.log("\nSeeding Communication Frequency...");
+    const communicationFrequencyEnum = await prisma.enumMapping.upsert({
+      where: {
+        enumName_version: {
+          enumName: "communicationFrequency",
+          version: 1,
+        },
+      },
+      update: {
+        hubspotProperty: "communication_frequency",
+        hubspotObjectType: hubspotObjectType,
+        isActive: true,
+      },
+      create: {
+        enumName: "communicationFrequency",
+        hubspotProperty: "communication_frequency",
+        hubspotObjectType: hubspotObjectType,
+        version: 1,
+        isActive: true,
+        description: "Frequency of communication with partner",
+      },
+    });
+
+    await prisma.enumValue.createMany({
+      data: [
+        {
+          enumMappingId: communicationFrequencyEnum.id,
+          sourceValue: "daily",
+          hubspotValue: "Daily",
+          displayLabel: "Daily",
+          sortOrder: 1,
+          isActive: true,
+        },
+        {
+          enumMappingId: communicationFrequencyEnum.id,
+          sourceValue: "weekly",
+          hubspotValue: "Weekly",
+          displayLabel: "Weekly",
+          sortOrder: 2,
+          isActive: true,
+        },
+        {
+          enumMappingId: communicationFrequencyEnum.id,
+          sourceValue: "bi_weekly",
+          hubspotValue: "Bi-weekly",
+          displayLabel: "Bi-weekly",
+          sortOrder: 3,
+          isActive: true,
+        },
+        {
+          enumMappingId: communicationFrequencyEnum.id,
+          sourceValue: "monthly",
+          hubspotValue: "Monthly",
+          displayLabel: "Monthly",
+          sortOrder: 4,
+          isActive: true,
+        },
+        {
+          enumMappingId: communicationFrequencyEnum.id,
+          sourceValue: "quarterly",
+          hubspotValue: "Quarterly",
+          displayLabel: "Quarterly",
+          sortOrder: 5,
+          isActive: true,
+        },
+        {
+          enumMappingId: communicationFrequencyEnum.id,
+          sourceValue: "as_needed",
+          hubspotValue: "As Needed",
+          displayLabel: "As Needed",
+          sortOrder: 6,
+          isActive: true,
+        },
+      ],
+      skipDuplicates: true,
+    });
+    successCount++;
+    console.log("Communication Frequency seeded (6 values)");
+
+    // ===== 24. RELATIONSHIP STATUS =====
+    console.log("\nSeeding Relationship Status...");
+    const relationshipStatusEnum = await prisma.enumMapping.upsert({
+      where: {
+        enumName_version: {
+          enumName: "relationshipStatus",
+          version: 1,
+        },
+      },
+      update: {
+        hubspotProperty: "relationship_status",
+        hubspotObjectType: hubspotObjectType,
+        isActive: true,
+      },
+      create: {
+        enumName: "relationshipStatus",
+        hubspotProperty: "relationship_status",
+        hubspotObjectType: hubspotObjectType,
+        version: 1,
+        isActive: true,
+        description: "Status of partner relationship",
+      },
+    });
+
+    await prisma.enumValue.createMany({
+      data: [
+        {
+          enumMappingId: relationshipStatusEnum.id,
+          sourceValue: "new",
+          hubspotValue: "New",
+          displayLabel: "New",
+          sortOrder: 1,
+          isActive: true,
+        },
+        {
+          enumMappingId: relationshipStatusEnum.id,
+          sourceValue: "onboarding",
+          hubspotValue: "Onboarding",
+          displayLabel: "Onboarding",
+          sortOrder: 2,
+          isActive: true,
+        },
+        {
+          enumMappingId: relationshipStatusEnum.id,
+          sourceValue: "active",
+          hubspotValue: "Active",
+          displayLabel: "Active",
+          sortOrder: 3,
+          isActive: true,
+        },
+        {
+          enumMappingId: relationshipStatusEnum.id,
+          sourceValue: "high_performer",
+          hubspotValue: "High Performer",
+          displayLabel: "High Performer",
+          sortOrder: 4,
+          isActive: true,
+        },
+        {
+          enumMappingId: relationshipStatusEnum.id,
+          sourceValue: "underperforming",
+          hubspotValue: "Underperforming",
+          displayLabel: "Underperforming",
+          sortOrder: 5,
+          isActive: true,
+        },
+        {
+          enumMappingId: relationshipStatusEnum.id,
+          sourceValue: "at_risk",
+          hubspotValue: "At Risk",
+          displayLabel: "At Risk",
+          sortOrder: 6,
+          isActive: true,
+        },
+        {
+          enumMappingId: relationshipStatusEnum.id,
+          sourceValue: "champion",
+          hubspotValue: "Champion",
+          displayLabel: "Champion",
+          sortOrder: 7,
+          isActive: true,
+        },
+      ],
+      skipDuplicates: true,
+    });
+    successCount++;
+    console.log("Relationship Status seeded (7 values)");
+
+    // ===== 25. TRAINING COMPLETED =====
+    console.log("\nSeeding Training Completed...");
+    const trainingCompletedEnum = await prisma.enumMapping.upsert({
+      where: {
+        enumName_version: {
+          enumName: "trainingCompleted",
+          version: 1,
+        },
+      },
+      update: {
+        hubspotProperty: "training_completed",
+        hubspotObjectType: hubspotObjectType,
+        isActive: true,
+      },
+      create: {
+        enumName: "trainingCompleted",
+        hubspotProperty: "training_completed",
+        hubspotObjectType: hubspotObjectType,
+        version: 1,
+        isActive: true,
+        description: "Whether partner training is completed",
+      },
+    });
+
+    await prisma.enumValue.createMany({
+      data: [
+        {
+          enumMappingId: trainingCompletedEnum.id,
+          sourceValue: "yes",
+          hubspotValue: "Yes",
+          displayLabel: "Yes",
+          sortOrder: 1,
+          isActive: true,
+        },
+        {
+          enumMappingId: trainingCompletedEnum.id,
+          sourceValue: "no",
+          hubspotValue: "No",
+          displayLabel: "No",
+          sortOrder: 2,
+          isActive: true,
+        },
+      ],
+      skipDuplicates: true,
+    });
+    successCount++;
+    console.log("Training Completed seeded (2 values)");
+
+    // ===== 26. API ACCESS PROVIDED =====
+    console.log("\nSeeding API Access Provided...");
+    const apiAccessProvidedEnum = await prisma.enumMapping.upsert({
+      where: {
+        enumName_version: {
+          enumName: "apiAccessProvided",
+          version: 1,
+        },
+      },
+      update: {
+        hubspotProperty: "api_access_provided",
+        hubspotObjectType: hubspotObjectType,
+        isActive: true,
+      },
+      create: {
+        enumName: "apiAccessProvided",
+        hubspotProperty: "api_access_provided",
+        hubspotObjectType: hubspotObjectType,
+        version: 1,
+        isActive: true,
+        description: "Whether API access is provided",
+      },
+    });
+
+    await prisma.enumValue.createMany({
+      data: [
+        {
+          enumMappingId: apiAccessProvidedEnum.id,
+          sourceValue: "yes",
+          hubspotValue: "Yes",
+          displayLabel: "Yes",
+          sortOrder: 1,
+          isActive: true,
+        },
+        {
+          enumMappingId: apiAccessProvidedEnum.id,
+          sourceValue: "no",
+          hubspotValue: "No",
+          displayLabel: "No",
+          sortOrder: 2,
+          isActive: true,
+        },
+        {
+          enumMappingId: apiAccessProvidedEnum.id,
+          sourceValue: "not_required",
+          hubspotValue: "Not Required",
+          displayLabel: "Not Required",
+          sortOrder: 3,
+          isActive: true,
+        },
+      ],
+      skipDuplicates: true,
+    });
+    successCount++;
+    console.log("API Access Provided seeded (3 values)");
+
+    // ===== 27. DATA SOURCE =====
+    console.log("\nSeeding Data Source...");
+    const dataSourceEnum = await prisma.enumMapping.upsert({
+      where: {
+        enumName_version: {
+          enumName: "partnerDataSource",
+          version: 1,
+        },
+      },
+      update: {
+        hubspotProperty: "data_source",
+        hubspotObjectType: hubspotObjectType,
+        isActive: true,
+      },
+      create: {
+        enumName: "partnerDataSource",
+        hubspotProperty: "data_source",
+        hubspotObjectType: hubspotObjectType,
+        version: 1,
+        isActive: true,
+        description: "Source of partner data",
+      },
+    });
+
+    await prisma.enumValue.createMany({
+      data: [
+        {
+          enumMappingId: dataSourceEnum.id,
+          sourceValue: "manual_entry",
+          hubspotValue: "Manual Entry",
+          displayLabel: "Manual Entry",
+          sortOrder: 1,
+          isActive: true,
+        },
+        {
+          enumMappingId: dataSourceEnum.id,
+          sourceValue: "import",
+          hubspotValue: "Import",
+          displayLabel: "Import",
+          sortOrder: 2,
+          isActive: true,
+        },
+        {
+          enumMappingId: dataSourceEnum.id,
+          sourceValue: "partner_application",
+          hubspotValue: "Partner Application",
+          displayLabel: "Partner Application",
+          sortOrder: 3,
+          isActive: true,
+        },
+        {
+          enumMappingId: dataSourceEnum.id,
+          sourceValue: "referral",
+          hubspotValue: "Referral",
+          displayLabel: "Referral",
+          sortOrder: 4,
+          isActive: true,
+        },
+      ],
+      skipDuplicates: true,
+    });
+    successCount++;
+    console.log("Data Source seeded (4 values)");
+
+    // ===== 28. INTEGRATION STATUS =====
+    console.log("\nSeeding Integration Status...");
+    const integrationStatusEnum = await prisma.enumMapping.upsert({
+      where: {
+        enumName_version: {
+          enumName: "partnerIntegrationStatus",
+          version: 1,
+        },
+      },
+      update: {
+        hubspotProperty: "integration_status",
+        hubspotObjectType: hubspotObjectType,
+        isActive: true,
+      },
+      create: {
+        enumName: "partnerIntegrationStatus",
+        hubspotProperty: "integration_status",
+        hubspotObjectType: hubspotObjectType,
+        version: 1,
+        isActive: true,
+        description: "Status of partner integration",
+      },
+    });
+
+    await prisma.enumValue.createMany({
+      data: [
+        {
+          enumMappingId: integrationStatusEnum.id,
+          sourceValue: "not_required",
+          hubspotValue: "Not Required",
+          displayLabel: "Not Required",
+          sortOrder: 1,
+          isActive: true,
+        },
+        {
+          enumMappingId: integrationStatusEnum.id,
+          sourceValue: "pending",
+          hubspotValue: "Pending",
+          displayLabel: "Pending",
+          sortOrder: 2,
+          isActive: true,
+        },
+        {
+          enumMappingId: integrationStatusEnum.id,
+          sourceValue: "complete",
+          hubspotValue: "Complete",
+          displayLabel: "Complete",
+          sortOrder: 3,
+          isActive: true,
+        },
+        {
+          enumMappingId: integrationStatusEnum.id,
+          sourceValue: "issues",
+          hubspotValue: "Issues",
+          displayLabel: "Issues",
+          sortOrder: 4,
+          isActive: true,
+        },
+      ],
+      skipDuplicates: true,
+    });
+    successCount++;
+    console.log("Integration Status seeded (4 values)");
+
+    // ===== 29. PARTNER RECORD STATUS =====
+    console.log("\nSeeding Partner Record Status...");
+    const partnerRecordStatusEnum = await prisma.enumMapping.upsert({
+      where: {
+        enumName_version: {
+          enumName: "partnerRecordStatus",
+          version: 1,
+        },
+      },
+      update: {
+        hubspotProperty: "partner_record_status",
+        hubspotObjectType: hubspotObjectType,
+        isActive: true,
+      },
+      create: {
+        enumName: "partnerRecordStatus",
+        hubspotProperty: "partner_record_status",
+        hubspotObjectType: hubspotObjectType,
+        version: 1,
+        isActive: true,
+        description: "Status of partner record",
+      },
+    });
+
+    await prisma.enumValue.createMany({
+      data: [
+        {
+          enumMappingId: partnerRecordStatusEnum.id,
+          sourceValue: "active",
+          hubspotValue: "Active",
+          displayLabel: "Active",
+          sortOrder: 1,
+          isActive: true,
+        },
+        {
+          enumMappingId: partnerRecordStatusEnum.id,
+          sourceValue: "inactive",
+          hubspotValue: "Inactive",
+          displayLabel: "Inactive",
+          sortOrder: 2,
+          isActive: true,
+        },
+        {
+          enumMappingId: partnerRecordStatusEnum.id,
+          sourceValue: "suspended",
+          hubspotValue: "Suspended",
+          displayLabel: "Suspended",
+          sortOrder: 3,
+          isActive: true,
+        },
+        {
+          enumMappingId: partnerRecordStatusEnum.id,
+          sourceValue: "under_review",
+          hubspotValue: "Under Review",
+          displayLabel: "Under Review",
+          sortOrder: 4,
+          isActive: true,
+        },
+        {
+          enumMappingId: partnerRecordStatusEnum.id,
+          sourceValue: "archived",
+          hubspotValue: "Archived",
+          displayLabel: "Archived",
+          sortOrder: 5,
+          isActive: true,
+        },
+      ],
+      skipDuplicates: true,
+    });
+    successCount++;
+    console.log("Partner Record Status seeded (5 values)");
+
+    // ===== 30. PORTAL ACCESS PROVIDED =====
+    console.log("\nSeeding Portal Access Provided...");
+    const portalAccessProvidedEnum = await prisma.enumMapping.upsert({
+      where: {
+        enumName_version: {
+          enumName: "portalAccessProvided",
+          version: 1,
+        },
+      },
+      update: {
+        hubspotProperty: "portal_access_provided",
+        hubspotObjectType: hubspotObjectType,
+        isActive: true,
+      },
+      create: {
+        enumName: "portalAccessProvided",
+        hubspotProperty: "portal_access_provided",
+        hubspotObjectType: hubspotObjectType,
+        version: 1,
+        isActive: true,
+        description: "Whether portal access is provided",
+      },
+    });
+
+    await prisma.enumValue.createMany({
+      data: [
+        {
+          enumMappingId: portalAccessProvidedEnum.id,
+          sourceValue: "yes",
+          hubspotValue: "Yes",
+          displayLabel: "Yes",
+          sortOrder: 1,
+          isActive: true,
+        },
+        {
+          enumMappingId: portalAccessProvidedEnum.id,
+          sourceValue: "no",
+          hubspotValue: "No",
+          displayLabel: "No",
+          sortOrder: 2,
+          isActive: true,
+        },
+        {
+          enumMappingId: portalAccessProvidedEnum.id,
+          sourceValue: "pending",
+          hubspotValue: "Pending",
+          displayLabel: "Pending",
+          sortOrder: 3,
+          isActive: true,
+        },
+      ],
+      skipDuplicates: true,
+    });
+    successCount++;
+    console.log("Portal Access Provided seeded (3 values)");
+
+    console.log("\n" + "=".repeat(60));
+    console.log("PARTNER ENUM MAPPINGS SEEDING SUMMARY");
+    console.log("=".repeat(60));
+    console.log(`Successfully seeded: ${successCount}/30 enum mappings`);
+    console.log(`Errors: ${errorCount}`);
+    console.log("=".repeat(60));
+
+    console.log("\nENUM VALUES COUNT:");
+    console.log("   1. Business Type: 7 values");
+    console.log("   2. Partner Type: 11 values");
+    console.log("   3. Target Courses: 9 values");
+    console.log("   4. Target Destinations: 10 values");
+    console.log("   5. Commission Model: 5 values");
+    console.log("   6. Commission Type: 4 values");
+    console.log("   7. GST Applicable: 2 values");
+    console.log("   8. Payment Frequency: 4 values");
+    console.log("   9. Payment Method: 5 values");
+    console.log("   10. Payment Terms: 5 values");
+    console.log("   11. TDS Applicable: 2 values");
+    console.log("   12. Background Verification Status: 4 values");
+    console.log("   13. KYC Status: 4 values");
+    console.log("   14. Payment Status: 4 values");
+    console.log("   15. Lead Submission Method: 6 values");
+    console.log("   16. Lead Tracking Method: 5 values");
+    console.log("   17. Co-Marketing Approval: 3 values");
+    console.log("   18. Content Collaboration: 3 values");
+    console.log("   19. Marketing Materials Provided: 5 values");
+    console.log("   20. Agreement Type: 4 values");
+    console.log("   21. Partnership Status: 7 values");
+    console.log("   22. Best Performing Month: 12 values");
+    console.log("   23. Communication Frequency: 6 values");
+    console.log("   24. Relationship Status: 7 values");
+    console.log("   25. Training Completed: 2 values");
+    console.log("   26. API Access Provided: 3 values");
+    console.log("   27. Data Source: 4 values");
+    console.log("   28. Integration Status: 4 values");
+    console.log("   29. Partner Record Status: 5 values");
+    console.log("   30. Portal Access Provided: 3 values");
+    console.log("   " + "-".repeat(30));
+    console.log("   TOTAL: 156 partner enum values");
+  } catch (error) {
+    errorCount++;
+    console.error("Error during partner enum seeding:", error);
+    throw error;
+  }
+};
 
 const main = async () => {
   try {
@@ -2802,6 +5055,7 @@ const main = async () => {
     await seedCurrencies();
     await seedLenderEnumMappings();
     await seedCommissionEnumMappings();
+    await seedPartnerEnumMappings();
     console.log("✅ All seeding completed successfully!");
   } catch (error) {
     console.error("❌ Seeding failed:", error);
