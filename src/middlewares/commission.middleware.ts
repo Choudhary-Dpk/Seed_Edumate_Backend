@@ -14,8 +14,6 @@ export const checkDuplicateCommissionSettlementFields = async (
       settlement_reference_number,
       hs_object_id,
       partner_id,
-      settlement_month,
-      settlement_year,
     } = req.body;
 
     // Skip if no relevant fields provided

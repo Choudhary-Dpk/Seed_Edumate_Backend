@@ -2,7 +2,6 @@ import { Router } from "express";
 import {
   createLoanApplication,
   downloadTemplate,
-  uploadCSV,
   editLoanApplication,
   deleteLoanApplication,
   getLoanApplicationsList,
@@ -64,12 +63,12 @@ router.get(
   validateLoanApplicationById,
   getLoanApplicationDetails
 );
-router.post(
-  "/upload-csv",
-  validateToken(["Admin", "Manager", "User"]),
-  validateAndParseCSVFile("CSV"),
-  uploadCSV
-);
+// router.post(
+//   "/upload-csv",
+//   validateToken(["Admin", "Manager", "User"]),
+//   validateAndParseCSVFile("CSV"),
+//   uploadCSV
+// );
 router.get(
   "/download-template",
   validateToken(["Admin", "Manager", "User"]),

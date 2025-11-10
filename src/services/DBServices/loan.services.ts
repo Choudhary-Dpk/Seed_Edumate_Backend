@@ -80,40 +80,49 @@ export const categorizeLoanProductByTable = (
   const categorized: Record<string, Record<string, any>> = {};
 
   // Main Loan Product Fields
-  const mainLoanProductFields = [
-    "lender_id",
-    "lender_name",
-    "partner_name",
-    "product_description",
-    "product_display_name",
-    "product_category",
-    "product_status",
-    "product_type",
-    "last_updated_date",
-    "is_active",
-    "created_by",
-    "updated_by",
-    "hs_created_by_user_id",
-    "hs_createdate",
-    "hs_lastmodifieddate",
-    "hs_object_id",
-    "hs_updated_by_user_id",
-    "hubspot_owner_id",
-  ];
+const mainLoanProductFields = [
+  "lender_id",
+  "lender_name",
+  "partner_name",
+  "product_name",
+  "product_display_name",
+  "product_description",
+  "product_category",
+  "product_status",
+  "product_type",
+  "last_updated_date",
+  "created_by",
+  "updated_by",
 
-  // System Tracking Fields
-  const systemTrackingFields = [
-    "change_log",
-    "created_by",
-    "created_date",
-    "last_modified_by",
-    "last_modified_date",
-    "next_review_date",
-    "notes",
-    "product_record_status",
-    "review_frequency",
-    "version_number",
-  ];
+  "hs_created_by_user_id",
+  "hs_createdate",
+  "hs_lastmodifieddate",
+  "hs_merged_object_ids",
+  "hs_object_id",
+  "hs_object_source_detail_1",
+  "hs_object_source_detail_2",
+  "hs_object_source_detail_3",
+  "hs_object_source_label",
+  "hs_shared_team_ids",
+  "hs_shared_user_ids",
+  "hs_updated_by_user_id",
+  "hubspot_owner_assigneddate",
+  "hubspot_owner_id",
+  "hubspot_team_id",
+];
+
+// System Tracking Fields
+const systemTrackingFields = [
+  "change_log",
+  "created_date",
+  "last_modified_by",
+  "last_modified_date",
+  "next_review_date",
+  "notes",
+  "product_record_status",
+  "review_frequency",
+  "version_number",
+];
 
   // Competitive Analytics Fields
   const competitiveAnalyticsFields = ["market_positioning", "pricing_strategy"];

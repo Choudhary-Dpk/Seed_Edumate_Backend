@@ -1,4 +1,4 @@
-import prisma from "../../config/prisma"
+import prisma from "../../config/prisma";
 
 export const getLendersList = async () => {
   const lendersList = await prisma.hSLenders.findMany();
@@ -19,6 +19,8 @@ export const checkLenderFields = async (criteria: Record<string, any>) => {
 
   return await prisma.hSLenders.findFirst({
     where: {
+      is_active: true,
+      is_deleted: false,
       OR: orConditions,
     },
   });

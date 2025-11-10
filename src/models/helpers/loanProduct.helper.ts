@@ -20,7 +20,7 @@ export const createLoanProductSystemTracking = async (
 ) => {
   const systemTracking = await tx.hSLoanProductsSystemTracking.create({
     data: {
-      loan_product_id: productId,
+      product_id: productId,
       ...systemTrackingData,
     },
   });
@@ -35,7 +35,7 @@ export const createLoanProductCompetitiveAnalytics = async (
 ) => {
   const competitive = await tx.hSLoanProductsCompetitiveAnalytics.create({
     data: {
-      loan_product_id: productId,
+      product_id: productId,
       ...competitiveData,
     },
   });
@@ -50,7 +50,7 @@ export const createLoanProductEligibilityCriteria = async (
 ) => {
   const criteria = await tx.hSLoanProductsEligibilityCriteria.create({
     data: {
-      loan_product_id: productId,
+      product_id: productId,
       ...criteriaData,
     },
   });
@@ -65,7 +65,7 @@ export const createLoanProductCollateralSecurity = async (
 ) => {
   const collateral = await tx.hSLoanProductsCollateralAndSecurity.create({
     data: {
-      loan_product_id: productId,
+      product_id: productId,
       ...collateralData,
     },
   });
@@ -80,7 +80,7 @@ export const createLoanProductRepaymentTerms = async (
 ) => {
   const repayment = await tx.hSLoanProductsRepaymentTerms.create({
     data: {
-      loan_product_id: productId,
+      product_id: productId,
       ...repaymentData,
     },
   });
@@ -95,7 +95,7 @@ export const createLoanProductApplicationProcessing = async (
 ) => {
   const processing = await tx.hSLoanProductsApplicationAndProcessing.create({
     data: {
-      loan_product_id: productId,
+      product_id: productId,
       ...processingData,
     },
   });
@@ -110,7 +110,7 @@ export const createLoanProductGeographicCoverage = async (
 ) => {
   const geographic = await tx.hSLoanProductsGeographicCoverage.create({
     data: {
-      loan_product_id: productId,
+      product_id: productId,
       ...geographicData,
     },
   });
@@ -125,7 +125,7 @@ export const createLoanProductSpecialFeatures = async (
 ) => {
   const features = await tx.hSLoanProductsSpecialFeatures.create({
     data: {
-      loan_product_id: productId,
+      product_id: productId,
       ...featuresData,
     },
   });
@@ -140,7 +140,7 @@ export const createLoanProductPerformanceMetrics = async (
 ) => {
   const metrics = await tx.hSLoanProductsPerformanceMetrics.create({
     data: {
-      loan_product_id: productId,
+      product_id: productId,
       ...metricsData,
     },
   });
@@ -155,7 +155,7 @@ export const createLoanProductSystemIntegration = async (
 ) => {
   const integration = await tx.hSLoanProductsSystemIntegration.create({
     data: {
-      loan_product_id: productId,
+      product_id: productId,
       ...integrationData,
     },
   });
@@ -170,7 +170,7 @@ export const createLoanProductFinancialTerms = async (
 ) => {
   const financial = await tx.hSLoanProductsFinancialTerms.create({
     data: {
-      loan_product_id: productId,
+      product_id: productId,
       ...financialData,
     },
   });
@@ -207,7 +207,7 @@ export const updateLoanProductSystemTracking = async (
 
   const systemTracking = await tx.hSLoanProductsSystemTracking.update({
     where: {
-      loan_product_id: productId,
+      product_id: productId,
     },
     data: {
       ...systemTrackingData,
@@ -230,7 +230,7 @@ export const updateLoanProductCompetitiveAnalytics = async (
 
   const competitive = await tx.hSLoanProductsCompetitiveAnalytics.update({
     where: {
-      loan_product_id: productId,
+      product_id: productId,
     },
     data: {
       ...competitiveData,
@@ -252,7 +252,7 @@ export const updateLoanProductEligibilityCriteria = async (
 
   const criteria = await tx.hSLoanProductsEligibilityCriteria.update({
     where: {
-      loan_product_id: criteriaId,
+      product_id: criteriaId,
     },
     data: {
       ...criteriaData,
@@ -274,7 +274,7 @@ export const updateLoanProductCollateralSecurity = async (
 
   const collateral = await tx.hSLoanProductsCollateralAndSecurity.update({
     where: {
-      loan_product_id: productId,
+      product_id: productId,
     },
     data: {
       ...collateralData,
@@ -296,7 +296,7 @@ export const updateLoanProductRepaymentTerms = async (
 
   const repayment = await tx.hSLoanProductsRepaymentTerms.update({
     where: {
-      loan_product_id: productId,
+      product_id: productId,
     },
     data: {
       ...repaymentData,
@@ -318,7 +318,7 @@ export const updateLoanProductApplicationProcessing = async (
 
   const processing = await tx.hSLoanProductsApplicationAndProcessing.update({
     where: {
-      loan_product_id: productId,
+      product_id: productId,
     },
     data: {
       ...processingData,
@@ -340,7 +340,7 @@ export const updateLoanProductGeographicCoverage = async (
 
   const geographic = await tx.hSLoanProductsGeographicCoverage.update({
     where: {
-      loan_product_id: productId,
+      product_id: productId,
     },
     data: {
       ...geographicData,
@@ -362,7 +362,7 @@ export const updateLoanProductSpecialFeatures = async (
 
   const features = await tx.hSLoanProductsSpecialFeatures.update({
     where: {
-      loan_product_id: productId,
+      product_id: productId,
     },
     data: {
       ...featuresData,
@@ -384,7 +384,7 @@ export const updateLoanProductPerformanceMetrics = async (
 
   const metrics = await tx.hSLoanProductsPerformanceMetrics.update({
     where: {
-      loan_product_id: productId,
+      product_id: productId,
     },
     data: {
       ...metricsData,
@@ -406,7 +406,7 @@ export const updateLoanProductSystemIntegration = async (
 
   const integration = await tx.hSLoanProductsSystemIntegration.update({
     where: {
-      loan_product_id: productId,
+      product_id: productId,
     },
     data: {
       ...integrationData,
@@ -428,7 +428,7 @@ export const updateLoanProductFinancialTerms = async (
 
   const financial = await tx.hSLoanProductsFinancialTerms.update({
     where: {
-      loan_product_id: productId,
+      product_id: productId,
     },
     data: {
       ...financialData,
@@ -491,7 +491,7 @@ export const fetchLoanProductsList = async (
   offset: number,
   sortKey: string | null,
   sortDir: "asc" | "desc" | null,
-  search: string | null,
+  search: string | null
 ) => {
   const where: Prisma.HSLoanProductsWhereInput = {
     is_active: true,
@@ -579,6 +579,7 @@ export const checkLoanProductFields = async (
     where: {
       OR: conditions,
       is_deleted: false,
+      is_active: true,
     },
     select: {
       id: true,

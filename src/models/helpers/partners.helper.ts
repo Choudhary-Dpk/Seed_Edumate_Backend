@@ -160,7 +160,6 @@ export const createB2BBusinessCapabilities = async (
   partnerId: number,
   capabilitiesData: any
 ) => {
-
   const capabilities = await tx.hSB2BPartnersBusinessCapabilities.create({
     data: {
       partner_id: partnerId,
@@ -176,7 +175,6 @@ export const createB2BCommissionStructure = async (
   partnerId: number,
   commissionData: any
 ) => {
-
   const commission = await tx.hSB2BPartnersCommissionStructure.create({
     data: {
       partner_id: partnerId,
@@ -207,7 +205,6 @@ export const createB2BContactInfo = async (
   partnerId: number,
   contactData: any
 ) => {
-
   const contactInfo = await tx.hSB2BPartnersContactInfo.create({
     data: {
       partner_id: partnerId,
@@ -253,7 +250,6 @@ export const createB2BMarketingPromotion = async (
   partnerId: number,
   marketingData: any
 ) => {
-
   const marketing = await tx.hSB2BPartnersMarketingAndPromotion.create({
     data: {
       partner_id: partnerId,
@@ -299,7 +295,6 @@ export const createB2BRelationshipManagement = async (
   partnerId: number,
   relationshipData: any
 ) => {
-
   const relationship = await tx.hSB2BPartnersRelationshipManagement.create({
     data: {
       partner_id: partnerId,
@@ -608,7 +603,7 @@ export const getB2BPartner = async (partnerId: number) => {
       marketing_promo: true,
       partnership_details: true,
       performance_metrics: true,
-      relationship_managemenet: true,
+      relationship_management: true,
       system_tracking: true,
     },
   });
@@ -756,7 +751,8 @@ export const checkB2BPartnerFields = async (
   pan_number?: string,
   registration_number?: string,
   partner_name?: string,
-  partner_display_name?: string
+  partner_display_name?: string,
+  unique_referral_code?: string
 ) => {
   const conditions: any[] = [];
   if (gst_number) conditions.push({ gst_number });
@@ -764,6 +760,7 @@ export const checkB2BPartnerFields = async (
   if (registration_number) conditions.push({ registration_number });
   if (partner_name) conditions.push({ partner_name });
   if (partner_display_name) conditions.push({ partner_display_name });
+  if (unique_referral_code) conditions.push({ unique_referral_code });
 
   if (conditions.length === 0) {
     return null;
@@ -773,6 +770,7 @@ export const checkB2BPartnerFields = async (
     where: {
       OR: conditions,
       is_deleted: false,
+      is_active: false,
     },
     select: {
       id: true,
@@ -787,35 +785,128 @@ export const checkB2BPartnerFields = async (
   return result;
 };
 
+// export const getLeadsByDynamicFilters = async (
+//   filters: Record<string, any>
+// ) => {
+//   if (!Object.keys(filters).length) return [];
+//   const numericFields = ["id", "b2b_partner_id"];
+
+//   // Build partner filters
+//   const partnerWhere: Record<string, any> = { is_deleted: false };
+//   for (const key in filters) {
+//     const value = filters[key];
+//     if (numericFields.includes(key)) {
+//       partnerWhere[key] = Number(value);
+//     } else {
+//       partnerWhere[key] = { equals: value }; // use equals instead of contains inside relation
+//     }
+//   }
+
+//   const contacts = await prisma.hSEdumateContacts.findMany({
+//     where: {
+//       is_deleted: false,
+//       b2b_partner: {
+//         is: partnerWhere,
+//       },
+//     },
+//     include: {
+//       personal_information: true,
+//       academic_profile: true,
+//       application_journey: true,
+//       financial_Info: true,
+//       lead_attribution: true,
+//       loan_preference: true,
+//       system_tracking: true,
+//       b2b_partner: true,
+//     },
+//   });
+
+//   return contacts;
+// };
+
 export const getLeadsByDynamicFilters = async (
   filters: Record<string, any>
 ) => {
   if (!Object.keys(filters).length) return [];
-  const numericFields = [
+
+  // Fields on HSEdumateContacts table
+  const contactFields = ["b2b_partner_id", "seed_contact", "course_type"];
+
+  // Fields on HSB2BPartners main table
+  const partnerMainFields = [
     "id",
-    "b2b_partner_id",
-    "hs_created_by_user_id",
-    "hs_updated_by_user_id",
+    "business_address",
+    "business_type",
+    "city",
+    "country",
+    "gst_number",
+    "incorporation_date",
+    "pan_number",
+    "partner_display_name",
+    "partner_name",
+    "partner_type",
+    "pincode",
+    "registration_number",
+    "state",
+    "website_url",
   ];
 
-  // Build partner filters
-  const partnerWhere: Record<string, any> = { is_deleted: false };
+  // Fields on system_tracking table
+  const systemTrackingFields = [
+    "api_access_provided",
+    "data_source",
+    "integration_status",
+    "partner_record_status",
+    "portal_access_provided",
+  ];
+
+  const numericFields = ["id", "b2b_partner_id"];
+
+  // Separate where clauses
+  const contactWhere: Record<string, any> = { is_deleted: false };
+  const partnerMainWhere: Record<string, any> = { is_deleted: false };
+  const systemTrackingWhere: Record<string, any> = {};
+
   for (const key in filters) {
     const value = filters[key];
-    if (numericFields.includes(key)) {
-      partnerWhere[key] = Number(value);
-    } else {
-      partnerWhere[key] = { equals: value }; // use equals instead of contains inside relation
+    const processedValue = numericFields.includes(key) ? Number(value) : value;
+
+    if (contactFields.includes(key)) {
+      // Filter on contacts table
+      contactWhere[key] = processedValue;
+    } else if (partnerMainFields.includes(key)) {
+      // Filter on partner main table
+      partnerMainWhere[key] = { equals: processedValue };
+    } else if (systemTrackingFields.includes(key)) {
+      // Filter on partner system_tracking table
+      systemTrackingWhere[key] = { equals: processedValue };
     }
   }
 
+  // Build partner where clause
+  const partnerWhere: any = partnerMainWhere;
+
+  if (Object.keys(systemTrackingWhere).length > 0) {
+    partnerWhere.system_tracking = {
+      is: systemTrackingWhere,
+    };
+  }
+
+  // Final query
+  const finalWhere: any = contactWhere;
+
+  // Only add partner filter if there are partner conditions
+  if (Object.keys(partnerWhere).length > 1) {
+    // >1 because is_deleted is always there
+    finalWhere.b2b_partner = {
+      is: partnerWhere,
+    };
+  }
+
+  console.log("Final Where:", JSON.stringify(finalWhere, null, 2));
+
   const contacts = await prisma.hSEdumateContacts.findMany({
-    where: {
-      is_deleted: false,
-      b2b_partner: {
-        is: partnerWhere,
-      },
-    },
+    where: finalWhere,
     include: {
       personal_information: true,
       academic_profile: true,
@@ -824,7 +915,21 @@ export const getLeadsByDynamicFilters = async (
       lead_attribution: true,
       loan_preference: true,
       system_tracking: true,
-      b2b_partner: true,
+      b2b_partner: {
+        include: {
+          business_capabilities: true,
+          commission_structure: true,
+          compliance: true,
+          contact_info: true,
+          financial_tracking: true,
+          lead_attribution: true,
+          marketing_promo: true,
+          partnership_details: true,
+          performance_metrics: true,
+          relationship_management: true,
+          system_tracking: true,
+        },
+      },
     },
   });
 
