@@ -3817,59 +3817,59 @@ model SyncOutbox {
   @@map("sync_outbox")
 }
 
-// model LeadsView {
-//   // Primary Key
-//   contact_id                  Int       @id
+model LeadsView {
+  // Primary Key
+  contact_id                  Int       @id
   
-//   // IDs and References
-//   loan_application_id         Int?
-//   b2b_partner_id              String?   // Changed from Int? to String? to match the contacts table
+  // IDs and References
+  loan_application_id         Int?
+  b2b_partner_id              Int?
   
-//   // Personal Information
-//   first_name                  String?
-//   last_name                   String?
-//   email                       String?
-//   phone_number                String?
+  // Personal Information
+  first_name                  String?
+  last_name                   String?
+  email                       String?
+  phone_number                String?
   
-//   // Academic Profile
-//   admission_status            EdumateContactAdmissionStatus?  @default(dbgenerated()) 
-//   current_education_level     CurrentEducationLevel?          @default(dbgenerated()) 
-//   current_institution         String?
-//   current_course_major        String?
-//   preferred_study_destination PreferredStudyDestination?      @default(dbgenerated()) 
-//   target_universities         String?
+  // Academic Profile
+  admission_status            String?  @default(dbgenerated()) 
+  current_education_level     String?          @default(dbgenerated()) 
+  current_institution         String?
+  current_course_major        String?
+  preferred_study_destination String?      @default(dbgenerated()) 
+  target_universities         String?
   
-//   // Loan Application Basic Info
-//   application_date            DateTime?
-//   student_id                  String?
-//   student_name                String?
-//   student_email               String?
-//   student_phone               String?
-//   application_source          ApplicationSource?              @default(dbgenerated()) 
+  // Loan Application Basic Info
+  application_date            DateTime?
+  student_id                  String?
+  student_name                String?
+  student_email               String?
+  student_phone               String?
+  application_source          String?              @default(dbgenerated()) 
   
-//   // Academic Details
-//   visa_status                 VisaStatus?                     @default(dbgenerated()) 
+  // Academic Details
+  visa_status                 String?                     @default(dbgenerated()) 
   
-//   // Application Status
-//   status                      String?   // Mapped from las.application_status
+  // Application Status
+  status                      String?   // Mapped from las.application_status
   
-//   // System Tracking
-//   integration_status          IntegrationStatus?              @default(dbgenerated()) 
+  // System Tracking
+  integration_status          String?              @default(dbgenerated()) 
   
-//   // Commission Records
-//   commission_status           CommissionStatus?               @default(dbgenerated()) 
-//   commission_amount           Decimal?                        @db.Decimal(15, 2)
+  // Commission Records
+  commission_status           String?               @default(dbgenerated()) 
+  commission_amount           Decimal?                        @db.Decimal(15, 2)
   
-//   // Financial Requirements
-//   loan_amount_requested       Decimal?                        @db.Decimal(15, 2)
-//   loan_amount_approved        Decimal?                        @db.Decimal(15, 2)
-//   loan_amount_disbursed       Decimal?                        @db.Decimal(15, 2)
+  // Financial Requirements
+  loan_amount_requested       Decimal?                        @db.Decimal(15, 2)
+  loan_amount_approved        Decimal?                        @db.Decimal(15, 2)
+  loan_amount_disbursed       Decimal?                        @db.Decimal(15, 2)
   
-//   // Lender Information
-//   processing_fee              Decimal?                        @db.Decimal(15, 2)
+  // Lender Information
+  processing_fee              Decimal?                        @db.Decimal(15, 2)
 
-//   @@map("leads_view")
-// }
+  @@map("leads_view")
+}
 
 
 model EnumMapping {
