@@ -694,3 +694,9 @@ export const contactsLeadPaginationValidationRules = () => [
     .withMessage("SortDir should be one of asc, desc")
     .trim(),
 ];
+
+export const createUserValidator = [
+  body("name").notEmpty().withMessage("Name is required"),
+
+  body("email").isEmail().withMessage("Email must be valid"),
+];

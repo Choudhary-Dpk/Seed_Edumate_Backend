@@ -1,4 +1,3 @@
-// src/validators/loan.validator.ts
 import { z } from 'zod';
 
 export const loanEligibilitySchema = z.object({

@@ -14,7 +14,6 @@ import { validateLoanEligibility } from "../middlewares/validators/loan.validato
 import { convertCurrency, findLoanEligibility } from "../services/loan.service";
 import { sendResponse } from "../utils/api";
 import { generateRequestIdFromPayload } from "../utils/helper";
-import { logEmailHistory } from "../models/helpers/email.helper";
 import logger from "../utils/logger";
 import { mapAllLoanApplicationFields } from "../mappers/loanApplication/loanApplicationMapping";
 import { categorizeLoanApplicationByTable } from "../services/DBServices/loanApplication.service";

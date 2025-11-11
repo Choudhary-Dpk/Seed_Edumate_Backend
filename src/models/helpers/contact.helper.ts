@@ -10,7 +10,6 @@ import {
   targetDegreeLevelMap,
 } from "../../types/contact.types";
 import { HubspotResult } from "../../types";
-import { transformRow } from "../../utils/helper";
 import { getPartnerIdByUserId } from "./partners.helper";
 import logger from "../../utils/logger";
 
@@ -79,7 +78,6 @@ export const createEdumateSystemTracking = async (
 
 // Updated function to get contact by email
 export const getEdumateContactByEmail = async (email: string) => {
-
   const contact = await prisma.hSEdumateContacts.findFirst({
     include: {
       personal_information: {
@@ -731,7 +729,7 @@ export const updateEdumateContactsHubspotTracking = async (
           where: { id: contact.id },
           data: {
             hs_object_id: hs_object_id ?? hs.id,
-            hs_updated_by_user_id: userId,
+            hs_updated_by_user_id: userId?.toString(),
             hs_createdate: hs_createdate ? new Date(hs_createdate) : undefined,
             hs_lastmodifieddate: hs_lastmodifieddate
               ? new Date(hs_lastmodifieddate)

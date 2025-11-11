@@ -1,5 +1,4 @@
 import { hubspotRoutes } from "./routes/hubspot.routes";
-import { swaggerRouter } from "./config/swagger";
 import { checkPrismaConnection } from "./config/prisma";
 import { gupshupRoutes } from "./routes/gupshup.routes";
 import { loanRoutes } from "./routes/loan.routes";
@@ -41,9 +40,6 @@ app.use("/commission", commissionRoutes);
 app.use("/lenders", lenderRoutes);
 app.use("/admin", adminRoutes);
 
-// API Documentation - Make sure this comes before other routes
-app.use("/docs", swaggerRouter);
-
 // Root route
 app.get("/", (req, res) => {
   res.json({
@@ -70,6 +66,4 @@ app.listen(PORT, async () => {
   await checkPrismaConnection();
   // ✅ Start background workers
   await startWorkers();
-
-  // console.log(`API Documentation available at http://localhost:${PORT}/`);
 });

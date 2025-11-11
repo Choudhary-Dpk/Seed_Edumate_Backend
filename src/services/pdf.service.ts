@@ -1,4 +1,3 @@
-// src/services/pdf.service.ts
 import puppeteer from "puppeteer";
 import { CalculationResult } from "../types/loan-schedule.types";
 import { config } from "../config/config";
@@ -65,28 +64,6 @@ const generateHTMLTemplate = (
   `
     )
     .join("");
-
-  //   const documentId = `LRS${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
-  //   const referenceNumber = `REF${Math.random().toString(36).substr(2, 8).toUpperCase()}`;
-
-  // Header
-
-  //   <div class="header">
-  //         <span>Loan Repayment Schedule</span>
-  //         <span>Document ID: ${documentId}</span>
-  //       </div>
-
-  // With Document Type & Generated On
-
-  // <td>
-  //     <div class="doc-label">Reference Number</div>
-  //     <div class="doc-value">${referenceNumber}</div>
-  // </td>
-
-  // <td>
-  //     <div class="doc-label">Status</div>
-  //     <div class="doc-value" style="color: #059669;">● GENERATED</div>
-  // </td>
 
   return `
   <!DOCTYPE html>

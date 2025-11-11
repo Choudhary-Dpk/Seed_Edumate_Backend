@@ -1,5 +1,5 @@
 // src/services/gupshup.service.ts
-import * as hubspotClient from './hubspotClient';
+import * as hubspotClient from "./hubspotClient.service";
 import { logger } from "../utils/logger";
 import { createHubSpotError } from '../middlewares/errorHandler';
 

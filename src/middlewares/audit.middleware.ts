@@ -1,8 +1,3 @@
-// ==========================================
-// middlewares/audit.middleware.ts
-// UPDATED FOR PRISMA v5+ (using $extends instead of $use)
-// ==========================================
-
 import { Response, NextFunction } from "express";
 import { RequestWithPayload } from "../types/api.types";
 import { LoginPayload } from "../types/auth";

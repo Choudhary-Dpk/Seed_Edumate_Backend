@@ -16,7 +16,6 @@ import {
   downloadContactsTemplate,
   editContactsLead,
   getContactsLeadDetails,
-  getContactsLeadsList,
   uploadContactsCSV,
 } from "../../controllers/contact.controller";
 import { validateAndParseCSVFile } from "../../middlewares/loanApplication.middleware";

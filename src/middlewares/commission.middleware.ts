@@ -37,7 +37,6 @@ export const checkDuplicateCommissionSettlementFields = async (
     );
 
     if (existing) {
-      // Check which specific field is duplicate and return appropriate message
       if (
         lead_reference_id &&
         existing.lead_reference_id === lead_reference_id
@@ -76,7 +75,6 @@ export const checkDuplicateCommissionSettlementFields = async (
         );
       }
 
-      // Check for duplicate partner + student + period combination
       if (
         partner_id &&
         student_id &&
@@ -90,7 +88,6 @@ export const checkDuplicateCommissionSettlementFields = async (
         );
       }
 
-      // Fallback
       return sendResponse(res, 409, "Commission Settlement already exists");
     }
 

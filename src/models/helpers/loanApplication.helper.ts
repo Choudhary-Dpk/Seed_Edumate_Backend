@@ -1,7 +1,6 @@
 import { Prisma } from "@prisma/client";
 import prisma from "../../config/prisma";
 import {
-  ApplicationSourceSystemToEnum,
   ApplicationStatusToEnum,
   ApplicationStatusType,
   IntegrationStatusToEnum,
@@ -236,75 +235,6 @@ export const deleteLoan = async (leadId: number, userId: number) => {
     },
   });
 };
-
-// export const getLoanList = async (
-//   partnerId: number,
-//   limit: number,
-//   offset: number,
-//   sortKey: string | null,
-//   sortDir: "asc" | "desc" | null,
-//   search: string | null
-// ) => {
-//   const where: Prisma.HSLoanApplicationsWhereInput = search
-//     ? {
-//         OR: [
-//           { student_name: { contains: search, mode: "insensitive" } },
-//           { student_email: { contains: search, mode: "insensitive" } },
-//         ],
-//         is_deleted: false,
-//         // b2b_partner_id: partnerId,
-//       }
-//     : { is_deleted: false };
-
-//   let orderBy: any = { created_at: "desc" };
-//   if (sortKey) {
-//     switch (sortKey) {
-//       case "name":
-//         orderBy = { student_name: sortDir || "desc" };
-//         break;
-//       case "email":
-//         orderBy = { student_email: sortDir || "desc" };
-//         break;
-//       case "loanTenureYears":
-//         orderBy = {
-//           lender_information: { loan_tenure_years: sortDir || "desc" },
-//         };
-//         break;
-//       case "loanAmountRequested":
-//         orderBy = {
-//           financial_requirements: { loan_amount_requested: sortDir || "desc" },
-//         };
-//         break;
-//       case "loanAmountApproved":
-//         orderBy = {
-//           financial_requirements: { loan_amount_approved: sortDir || "desc" },
-//         };
-//         break;
-//       case "applicationStatus":
-//         orderBy = { application_status: { status: sortDir || "desc" } };
-//         break;
-//       default:
-//         orderBy = { created_at: "desc" };
-//     }
-//   }
-
-//   const [rows, count] = await Promise.all([
-//     prisma.hSLoanApplications.findMany({
-//       where,
-//       skip: offset,
-//       take: limit,
-//       orderBy,
-//       include: {
-//         financial_requirements: true,
-//         loan_application_status: true,
-//         lender_information: true,
-//       },
-//     }),
-//     prisma.hSLoanApplications.count({ where }),
-//   ]);
-
-//   return { rows, count };
-// };
 
 export const getLoanList = async (
   limit: number,

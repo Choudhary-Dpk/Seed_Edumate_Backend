@@ -1,4 +1,3 @@
-// src/controllers/hubspotController.ts
 import { NextFunction, Request, Response } from "express";
 import * as hubspotService from "../services/hubspot.service";
 import { ApiResponse } from "../types";
@@ -7,7 +6,10 @@ import logger from "../utils/logger";
 import { sendResponse } from "../utils/api";
 import { getPartners, getUserRoles } from "../models/helpers/partners.helper";
 import { getEdumateContactByEmail } from "../models/helpers/contact.helper";
-import { createContact, updateContact } from "../services/DBServices/edumateContacts.service";
+import {
+  createContact,
+  updateContact,
+} from "../services/DBServices/edumateContacts.service";
 import { handleLeadCreation } from "../services/DBServices/loan.services";
 
 // Edumate Contact Controllers
@@ -429,8 +431,6 @@ export const advancedSearchEdumateContacts = asyncHandler(
       throw createError("At least one search parameter is required", 400);
     }
 
-    // For now, we'll use the first filter as an example
-    // In a real implementation, you'd want to build a proper multi-filter search
     const firstFilter = filters[0];
     let contacts;
 

@@ -14,37 +14,6 @@ const POLL_INTERVAL = 60000; // 60 seconds
 const MAX_RETRIES = 5;
 
 /**
- * Start all background workers
- */
-// export async function startWorkers() {
-//   try {
-//     logger.info("🔧 Initializing background workers...");
-    
-//     // Start Contact sync worker
-//     startLoanHubSpotSyncWorker().catch((error) => {
-//       logger.error("Contact Sync Worker crashed:", error);
-//       process.exit(1);
-//     });
-
-//     logger.info("✅ All workers started successfully");
-//   } catch (error) {
-//     logger.error("Failed to start workers:", error);
-//     process.exit(1);
-//   }
-// }
-
-// // Graceful shutdown
-// process.on("SIGTERM", () => {
-//   logger.info("SIGTERM received, shutting down workers gracefully...");
-//   process.exit(0);
-// });
-
-// process.on("SIGINT", () => {
-//   logger.info("SIGINT received, shutting down workers gracefully...");
-//   process.exit(0);
-// });
-
-/**
  * Start Loan Application HubSpot Sync Worker
  */
 export async function startLoanHubSpotSyncWorker() {
