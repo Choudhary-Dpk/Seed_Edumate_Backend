@@ -556,7 +556,7 @@ model HSB2BPartnersCommissionStructure {
   beneficiary_name            String?
   bonus_structure             String?
   commission_model            String?
-  commission_rate             Decimal?  @db.Decimal(15, 2)
+  commission_rate             String?
   commission_type             String?
   fixed_commission_amount     Decimal?
   gst_applicable              String?
