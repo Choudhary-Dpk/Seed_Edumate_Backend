@@ -3088,8 +3088,6 @@ ALTER TABLE "public"."_HSCommissionSettlementsToHSLoanApplications" ADD CONSTRAI
 -- AddForeignKey
 ALTER TABLE "public"."_HSCommissionSettlementsToHSLoanApplications" ADD CONSTRAINT "_HSCommissionSettlementsToHSLoanApplications_B_fkey" FOREIGN KEY ("B") REFERENCES "public"."hs_loan_applications"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
-DROP VIEW IF EXISTS public.create_leads_view CASCADE;
-
 CREATE VIEW public.create_leads_view AS
 SELECT
   c.id AS contact_id,
@@ -3118,7 +3116,7 @@ SELECT
   lad.visa_status,
 
   -- Application Status
-  las.status,
+  las.application_status,
 
   -- System Tracking
   lst.integration_status,
@@ -3139,10 +3137,10 @@ FROM public.hs_edumate_contacts c
 LEFT JOIN public.hs_edumate_contacts_personal_information pi ON c.id = pi.contact_id
 LEFT JOIN public.hs_edumate_contacts_academic_profiles ap ON c.id = ap.contact_id
 LEFT JOIN public.hs_loan_applications la ON c.id = la.contact_id
-LEFT JOIN public.hs_loan_applications_academic_details lad ON la.id = lad.loan_application_id
-LEFT JOIN public.hs_loan_applications_status las ON la.id = las.loan_application_id
-LEFT JOIN public.hs_loan_applications_system_tracking lst ON la.id = lst.loan_application_id
-LEFT JOIN public.hs_loan_applications_commission_records lcr ON la.id = lcr.loan_application_id
-LEFT JOIN public.hs_loan_applications_financial_requirements lfr ON la.id = lfr.loan_application_id
-LEFT JOIN public.hs_loan_applications_lender_information lli ON la.id = lli.loan_application_id
+LEFT JOIN public.hs_loan_applications_academic_details lad ON la.id = lad.application_id
+LEFT JOIN public.hs_loan_applications_status las ON la.id = las.application_id
+LEFT JOIN public.hs_loan_applications_system_tracking lst ON la.id = lst.application_id
+LEFT JOIN public.hs_loan_applications_commission_records lcr ON la.id = lcr.application_id
+LEFT JOIN public.hs_loan_applications_financial_requirements lfr ON la.id = lfr.application_id
+LEFT JOIN public.hs_loan_applications_lender_information lli ON la.id = lli.application_id
 WHERE c.is_deleted = FALSE;

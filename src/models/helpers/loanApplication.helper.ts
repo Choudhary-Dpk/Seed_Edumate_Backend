@@ -430,8 +430,7 @@ export const getLeadViewList = async (
   // Add search filter
   if (search) {
     where.OR = [
-      { student_name: { contains: search, mode: "insensitive" } },
-      { student_email: { contains: search, mode: "insensitive" } },
+      { email: { contains: search, mode: "insensitive" } },
       { first_name: { contains: search, mode: "insensitive" } },
       { last_name: { contains: search, mode: "insensitive" } },
     ];
@@ -461,10 +460,10 @@ export const getLeadViewList = async (
         orderBy = { contact_id: sortDir || "desc" };
         break;
       case "name":
-        orderBy = { student_name: sortDir || "desc" };
+        orderBy = { first_name: sortDir || "desc" };
         break;
       case "email":
-        orderBy = { student_email: sortDir || "desc" };
+        orderBy = { email: sortDir || "desc" };
         break;
       case "status":
         orderBy = { status: sortDir || "desc" };

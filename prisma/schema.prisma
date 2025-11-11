@@ -1076,6 +1076,7 @@ model HSLoanApplications  {
   user_id Int?
   deleted_by_id Int?
   db_id String?
+  contact_id Int?
   
   // Basic Information
   application_date       DateTime?
@@ -1128,6 +1129,7 @@ model HSLoanApplications  {
   rejection_details       HSLoanApplicationsRejectionDetails?
   loan_application_status HSLoanApplicationsStatus?
   system_tracking         HSLoanApplicationsSystemTracking?
+  contact                 HSEdumateContacts? @relation("ContactLoanApplications",fields: [contact_id], references: [id])
 
   @@index([student_email])
   @@index([application_date])
@@ -1702,6 +1704,7 @@ model HSEdumateContacts  {
   eligibility_lead             MktEligibilityCheckerLeads?
   emi_lead                     MktEmiCalculatorLeads?
   b2b_partner                  HSB2BPartners?                        @relation("B2BPartnerContacts", fields: [b2b_partner_id], references: [id])
+  loan_applications            HSLoanApplications[]               @relation("ContactLoanApplications")
 
   @@index([hs_object_id])
   @@index([seed_contact])
@@ -3817,38 +3820,38 @@ model SyncOutbox {
   @@map("sync_outbox")
 }
 
-// model CreateLeadsView {
-//   contact_id                  Int @id
-//   loan_application_id         Int?                            
-//   b2b_partner_id              Int?
-//   first_name                  String?
-//   last_name                   String?
-//   email                       String?
-//   phone_number                String?
-//   admission_status            EdumateContactAdmissionStatus?  @default(dbgenerated()) 
-//   current_education_level     CurrentEducationLevel?  @default(dbgenerated()) 
-//   current_institution         String?
-//   current_course_major        String?
-//   preferred_study_destination PreferredStudyDestination?  @default(dbgenerated()) 
-//   target_universities         String?
-//   application_date            DateTime?
-//   student_id                  String?
-//   student_name                String?
-//   student_email               String?
-//   student_phone               String?
-//   application_source          ApplicationSource?  @default(dbgenerated()) 
-//   visa_status                 VisaStatus? @default(dbgenerated()) 
-//   status                      String?
-//   integration_status          IntegrationStatus?  @default(dbgenerated()) 
-//   commission_status           CommissionStatus? @default(dbgenerated()) 
-//   commission_amount           Decimal?                       @db.Decimal(12, 2)
-//   loan_amount_requested       Decimal?                       @db.Decimal(12, 2)
-//   loan_amount_approved        Decimal?                       @db.Decimal(12, 2)
-//   loan_amount_disbursed       Decimal?                       @db.Decimal(12, 2)
-//   processing_fee              Decimal?                       @db.Decimal(12, 2)
-//   @@map("create_leads_view")
+model CreateLeadsView {
+  contact_id                  Int @id
+  loan_application_id         Int?                            
+  b2b_partner_id              Int?
+  first_name                  String?
+  last_name                   String?
+  email                       String?
+  phone_number                String?
+  admission_status            String? 
+  current_education_level     String? 
+  current_institution         String?
+  current_course_major        String?
+  preferred_study_destination String? 
+  target_universities         String?
+  application_date            DateTime?
+  student_id                  String?
+  student_name                String?
+  student_email               String?
+  student_phone               String?
+  application_source          String? 
+  visa_status                 String? 
+  application_status                      String?
+  integration_status          String? 
+  commission_status           String? 
+  commission_amount           Decimal?                       @db.Decimal(12, 2)
+  loan_amount_requested       Decimal?                       @db.Decimal(12, 2)
+  loan_amount_approved        Decimal?                       @db.Decimal(12, 2)
+  loan_amount_disbursed       Decimal?                       @db.Decimal(12, 2)
+  processing_fee              Decimal?                       @db.Decimal(12, 2)
+  @@map("create_leads_view")
   
-// }
+}
 
 
 model EnumMapping {
