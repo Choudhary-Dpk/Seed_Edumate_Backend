@@ -1,6 +1,6 @@
 -- Create View (Updated based on new schema)
-DROP VIEW IF EXISTS public.create_leads_view CASCADE;
-CREATE VIEW public.create_leads_view AS
+DROP VIEW IF EXISTS public.leads_view CASCADE;
+CREATE VIEW public.leads_view AS
 SELECT
   -- Contact Information
   c.id AS contact_id,
@@ -33,7 +33,7 @@ SELECT
   lad.visa_status,
   
   -- Application Status (field name changed from 'status' to 'application_status')
-  las.application_status AS status,
+  las.application_status,
   
   -- System Tracking
   lst.integration_status,

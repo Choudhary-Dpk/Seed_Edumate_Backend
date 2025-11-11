@@ -1076,6 +1076,7 @@ model HSLoanApplications  {
   user_id Int?
   deleted_by_id Int?
   db_id String?
+  contact_id Int?
   
   // Basic Information
   application_date       DateTime?
@@ -1128,6 +1129,7 @@ model HSLoanApplications  {
   rejection_details       HSLoanApplicationsRejectionDetails?
   loan_application_status HSLoanApplicationsStatus?
   system_tracking         HSLoanApplicationsSystemTracking?
+  contact                 HSEdumateContacts? @relation("ContactLoanApplications",fields: [contact_id], references: [id])
 
   @@index([student_email])
   @@index([application_date])
@@ -1702,6 +1704,7 @@ model HSEdumateContacts  {
   eligibility_lead             MktEligibilityCheckerLeads?
   emi_lead                     MktEmiCalculatorLeads?
   b2b_partner                  HSB2BPartners?                        @relation("B2BPartnerContacts", fields: [b2b_partner_id], references: [id])
+  loan_applications            HSLoanApplications[]               @relation("ContactLoanApplications")
 
   @@index([hs_object_id])
   @@index([seed_contact])
@@ -3851,13 +3854,13 @@ model LeadsView {
   visa_status                 String?                     @default(dbgenerated()) 
   
   // Application Status
-  status                      String?   // Mapped from las.application_status
+  application_status                      String?
   
   // System Tracking
   integration_status          String?              @default(dbgenerated()) 
   
   // Commission Records
-  commission_status           String?               @default(dbgenerated()) 
+  commission_status           String? 
   commission_amount           Decimal?                        @db.Decimal(15, 2)
   
   // Financial Requirements
