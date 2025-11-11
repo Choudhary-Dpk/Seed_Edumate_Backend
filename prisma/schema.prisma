@@ -476,21 +476,21 @@ model HSB2BPartners {
   website_url            String?
 
   // HubSpot System Fields
-  hs_created_by_user_id       BigInt?
+  hs_created_by_user_id       String?
   hs_createdate               DateTime?
   hs_lastmodifieddate         DateTime?
   hs_merged_object_ids        String?
-  hs_object_id                BigInt? @unique
+  hs_object_id                String? @unique
   hs_object_source_detail_1   String?
   hs_object_source_detail_2   String?
   hs_object_source_detail_3   String?
   hs_object_source_label      String?
   hs_shared_team_ids          String?
   hs_shared_user_ids          String?
-  hs_updated_by_user_id       BigInt?
+  hs_updated_by_user_id       String?
   hubspot_owner_assigneddate  DateTime?
-  hubspot_owner_id            BigInt?
-  hubspot_team_id             BigInt?
+  hubspot_owner_id            String?
+  hubspot_team_id             String?
 
   // Audit Fields
   is_active  Boolean  @default(true)
@@ -1089,21 +1089,21 @@ model HSLoanApplications  {
   student_phone          String?
 
   // HubSpot System Fields
-  hs_created_by_user_id      BigInt?
+  hs_created_by_user_id      String?
   hs_createdate              DateTime?
   hs_lastmodifieddate        DateTime?
   hs_merged_object_ids       String?
-  hs_object_id               BigInt?   @unique
+  hs_object_id               String?   @unique
   hs_object_source_detail_1  String?
   hs_object_source_detail_2  String?
   hs_object_source_detail_3  String?
   hs_object_source_label     String?
-  hs_shared_team_ids         BigInt?
-  hs_shared_user_ids         BigInt?
-  hs_updated_by_user_id      BigInt?
+  hs_shared_team_ids         String?
+  hs_shared_user_ids         String?
+  hs_updated_by_user_id      String?
   hubspot_owner_assigneddate DateTime?
-  hubspot_owner_id           BigInt?
-  hubspot_team_id            BigInt?
+  hubspot_owner_id           String?
+  hubspot_team_id            String?
 
   // Audit Fields
   is_active  Boolean  @default(true)
@@ -1665,21 +1665,21 @@ model HSEdumateContacts  {
   co_applicant_1_mobile_number Int?
 
   // HubSpot System Fields
-  hs_created_by_user_id      BigInt?
+  hs_created_by_user_id      String?
   hs_createdate              DateTime?
   hs_lastmodifieddate        DateTime?
   hs_merged_object_ids       String?
-  hs_object_id               BigInt?   @unique
+  hs_object_id               String?   @unique
   hs_object_source_detail_1  String?
   hs_object_source_detail_2  String?
   hs_object_source_detail_3  String?
   hs_object_source_label     String?
-  hs_shared_team_ids         BigInt?
-  hs_shared_user_ids         BigInt?
-  hs_updated_by_user_id      BigInt?
+  hs_shared_team_ids         String?
+  hs_shared_user_ids         String?
+  hs_updated_by_user_id      String?
   hubspot_owner_assigneddate DateTime?
-  hubspot_owner_id           BigInt?
-  hubspot_team_id            BigInt?
+  hubspot_owner_id           String?
+  hubspot_team_id            String?
 
   // Audit Fields
   is_active  Boolean  @default(true)
@@ -2100,21 +2100,21 @@ model HSLenders  {
   website_url                String?
 
   // HubSpot System Fields
-  hs_created_by_user_id      BigInt?
+  hs_created_by_user_id      String?
   hs_createdate              DateTime?
   hs_lastmodifieddate        DateTime?
   hs_merged_object_ids       String?
-  hs_object_id               BigInt?   @unique
+  hs_object_id               String?   @unique
   hs_object_source_detail_1  String?
   hs_object_source_detail_2  String?
   hs_object_source_detail_3  String?
   hs_object_source_label     String?
-  hs_shared_team_ids         BigInt?
-  hs_shared_user_ids         BigInt?
-  hs_updated_by_user_id      BigInt?
+  hs_shared_team_ids         String?
+  hs_shared_user_ids         String?
+  hs_updated_by_user_id      String?
   hubspot_owner_assigneddate DateTime?
-  hubspot_owner_id           BigInt?
-  hubspot_team_id            BigInt?
+  hubspot_owner_id           String?
+  hubspot_team_id            String?
 
   // Audit Fields
   is_active  Boolean  @default(true)
@@ -2581,21 +2581,21 @@ model HSLoanProducts  {
   last_updated_date     DateTime?
 
   // HubSpot System Fields
-  hs_created_by_user_id      BigInt?
+  hs_created_by_user_id      String?
   hs_createdate              DateTime?
   hs_lastmodifieddate        DateTime?
   hs_merged_object_ids       String?
-  hs_object_id               BigInt?   @unique
+  hs_object_id               String?   @unique
   hs_object_source_detail_1  String?
   hs_object_source_detail_2  String?
   hs_object_source_detail_3  String?
   hs_object_source_label     String?
-  hs_shared_team_ids         BigInt?
-  hs_shared_user_ids         BigInt?
-  hs_updated_by_user_id      BigInt?
+  hs_shared_team_ids         String?
+  hs_shared_user_ids         String?
+  hs_updated_by_user_id      String?
   hubspot_owner_assigneddate DateTime?
-  hubspot_owner_id           BigInt?
-  hubspot_team_id            BigInt?
+  hubspot_owner_id           String?
+  hubspot_team_id            String?
 
   // Audit Fields
   is_active  Boolean  @default(true)
@@ -2886,12 +2886,12 @@ model HSLoanDocuments {
   updated_at            DateTime?                            @default(now()) @updatedAt @map("updated_at")
   created_by            String?                              @map("created_by")
   updated_by            String?                              @map("updated_by")
-  hs_created_by_user_id BigInt?                                 @map("hs_created_by_user_id")
+  hs_created_by_user_id String?                                 @map("hs_created_by_user_id")
   hs_createdate         DateTime?                            @map("hs_createdate")
   hs_lastmodifieddate   DateTime?                            @map("hs_lastmodifieddate")
   hs_object_id          String?                              @map("hs_object_id")
-  hs_updated_by_user_id BigInt?                                 @map("hs_updated_by_user_id")
-  hubspot_owner_id      BigInt?                              @map("hubspot_owner_id")
+  hs_updated_by_user_id String?                                 @map("hs_updated_by_user_id")
+  hubspot_owner_id      String?                              @map("hubspot_owner_id")
   alternative_docs      HSLoanDocumentsAlternativeDocuments?
   applicability_rules   HSLoanDocumentsApplicability?
   compliance_config     HSLoanDocumentsCompliance?
@@ -3391,21 +3391,21 @@ model HSCommissionSettlements  {
   verified_by                String?
 
   // HubSpot System Fields
-  hs_created_by_user_id      BigInt?
+  hs_created_by_user_id      String?
   hs_createdate              DateTime?
   hs_lastmodifieddate        DateTime?
   hs_merged_object_ids       String?
-  hs_object_id               BigInt?   @unique
+  hs_object_id               String?   @unique
   hs_object_source_detail_1  String?
   hs_object_source_detail_2  String?
   hs_object_source_detail_3  String?
   hs_object_source_label     String?
-  hs_shared_team_ids         BigInt?
-  hs_shared_user_ids         BigInt?
-  hs_updated_by_user_id      BigInt?
+  hs_shared_team_ids         String?
+  hs_shared_user_ids         String?
+  hs_updated_by_user_id      String?
   hubspot_owner_assigneddate DateTime?
-  hubspot_owner_id           BigInt?
-  hubspot_team_id            BigInt?
+  hubspot_owner_id           String?
+  hubspot_team_id            String?
 
   // Audit Fields
   is_active  Boolean  @default(true)
@@ -3817,59 +3817,59 @@ model SyncOutbox {
   @@map("sync_outbox")
 }
 
-model CreateLeadsView {
-  // Primary Key
-  contact_id                  Int       @id
+// model LeadsView {
+//   // Primary Key
+//   contact_id                  Int       @id
   
-  // IDs and References
-  loan_application_id         Int?
-  b2b_partner_id              String?   // Changed from Int? to String? to match the contacts table
+//   // IDs and References
+//   loan_application_id         Int?
+//   b2b_partner_id              String?   // Changed from Int? to String? to match the contacts table
   
-  // Personal Information
-  first_name                  String?
-  last_name                   String?
-  email                       String?
-  phone_number                String?
+//   // Personal Information
+//   first_name                  String?
+//   last_name                   String?
+//   email                       String?
+//   phone_number                String?
   
-  // Academic Profile
-  admission_status            EdumateContactAdmissionStatus?  @default(dbgenerated()) 
-  current_education_level     CurrentEducationLevel?          @default(dbgenerated()) 
-  current_institution         String?
-  current_course_major        String?
-  preferred_study_destination PreferredStudyDestination?      @default(dbgenerated()) 
-  target_universities         String?
+//   // Academic Profile
+//   admission_status            EdumateContactAdmissionStatus?  @default(dbgenerated()) 
+//   current_education_level     CurrentEducationLevel?          @default(dbgenerated()) 
+//   current_institution         String?
+//   current_course_major        String?
+//   preferred_study_destination PreferredStudyDestination?      @default(dbgenerated()) 
+//   target_universities         String?
   
-  // Loan Application Basic Info
-  application_date            DateTime?
-  student_id                  String?
-  student_name                String?
-  student_email               String?
-  student_phone               String?
-  application_source          ApplicationSource?              @default(dbgenerated()) 
+//   // Loan Application Basic Info
+//   application_date            DateTime?
+//   student_id                  String?
+//   student_name                String?
+//   student_email               String?
+//   student_phone               String?
+//   application_source          ApplicationSource?              @default(dbgenerated()) 
   
-  // Academic Details
-  visa_status                 VisaStatus?                     @default(dbgenerated()) 
+//   // Academic Details
+//   visa_status                 VisaStatus?                     @default(dbgenerated()) 
   
-  // Application Status
-  status                      String?   // Mapped from las.application_status
+//   // Application Status
+//   status                      String?   // Mapped from las.application_status
   
-  // System Tracking
-  integration_status          IntegrationStatus?              @default(dbgenerated()) 
+//   // System Tracking
+//   integration_status          IntegrationStatus?              @default(dbgenerated()) 
   
-  // Commission Records
-  commission_status           CommissionStatus?               @default(dbgenerated()) 
-  commission_amount           Decimal?                        @db.Decimal(15, 2)
+//   // Commission Records
+//   commission_status           CommissionStatus?               @default(dbgenerated()) 
+//   commission_amount           Decimal?                        @db.Decimal(15, 2)
   
-  // Financial Requirements
-  loan_amount_requested       Decimal?                        @db.Decimal(15, 2)
-  loan_amount_approved        Decimal?                        @db.Decimal(15, 2)
-  loan_amount_disbursed       Decimal?                        @db.Decimal(15, 2)
+//   // Financial Requirements
+//   loan_amount_requested       Decimal?                        @db.Decimal(15, 2)
+//   loan_amount_approved        Decimal?                        @db.Decimal(15, 2)
+//   loan_amount_disbursed       Decimal?                        @db.Decimal(15, 2)
   
-  // Lender Information
-  processing_fee              Decimal?                        @db.Decimal(15, 2)
+//   // Lender Information
+//   processing_fee              Decimal?                        @db.Decimal(15, 2)
 
-  @@map("create_leads_view")
-}
+//   @@map("leads_view")
+// }
 
 
 model EnumMapping {
