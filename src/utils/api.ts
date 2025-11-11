@@ -22,9 +22,21 @@ export const sendResponse = (
     response.success = false;
   }
 
-  response.data = data;
+  const safeData = JSON.parse(
+    JSON.stringify(data, (_, value) =>
+      typeof value === "bigint" ? value.toString() : value
+    )
+  );
+
+  const safeErrors = JSON.parse(
+    JSON.stringify(errors, (_, value) =>
+      typeof value === "bigint" ? value.toString() : value
+    )
+  );
+
+  response.data = safeData;
   response.message = message ?? "";
-  response.errors = errors;
+  response.errors = safeErrors;
 
   res.status(statusCode).json(response);
 };
