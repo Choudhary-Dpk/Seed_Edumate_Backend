@@ -33,7 +33,7 @@ SELECT
   lad.visa_status,
   
   -- Application Status (field name changed from 'status' to 'application_status')
-  las.application_status AS status,
+  las.application_status,
   
   -- System Tracking
   lst.integration_status,

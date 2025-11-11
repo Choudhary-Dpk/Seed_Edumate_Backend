@@ -483,13 +483,13 @@ export const getLeadViewList = async (
   }
 
   const [rows, count] = await Promise.all([
-    prisma.createLeadsView.findMany({
+    prisma.leadsView.findMany({
       where,
       skip: offset,
       take: limit,
       orderBy,
     }),
-    prisma.createLeadsView.count({
+    prisma.leadsView.count({
       where,
     }),
   ]);
