@@ -1,4 +1,3 @@
--- Create View (Updated based on new schema)
 DROP VIEW IF EXISTS public.leads_view CASCADE;
 CREATE VIEW public.leads_view AS
 SELECT

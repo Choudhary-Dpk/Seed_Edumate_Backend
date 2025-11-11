@@ -1,5 +1,4 @@
-// src/config/config.ts
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 import {
   HUBSPOT_B2B_PARTNERS_OBJECT_TYPE,
   HUBSPOT_LOAN_APPLICATIONS_OBJECT_TYPE,
@@ -67,7 +66,7 @@ export const config: AppConfig = {
 };
 
 // Validate required environment variables
-const requiredEnvVars: string[] = ['HUBSPOT_ACCESS_TOKEN'];
+const requiredEnvVars: string[] = ["HUBSPOT_ACCESS_TOKEN"];
 
 for (const envVar of requiredEnvVars) {
   if (!process.env[envVar]) {

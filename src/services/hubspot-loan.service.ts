@@ -8,7 +8,7 @@ import {
 } from "@hubspot/api-client/lib/codegen/crm/objects";
 import logger from "../utils/logger";
 import { config } from "../config/config";
-import { handleHubSpotError } from "./hubspotClient";
+import { handleHubSpotError } from "./hubspotClient.service";
 
 // Initialize HubSpot Client
 const hubspotClient = new Client({ accessToken: config.hubspot.accessToken });
@@ -219,51 +219,6 @@ export async function getLoanApplicationById(
     throw handleHubSpotError(error);
   }
 }
-
-/**
- * Search loan applications in HubSpot by property
- */
-// export async function searchLoanApplications(
-//   propertyName: string,
-//   propertyValue: string
-// ): Promise<HubSpotLoanApplication[]> {
-//   try {
-//     const response = await hubspotClient.crm.objects.searchApi.doSearch(
-//       LOAN_OBJECT_TYPE,
-//       {
-//         filterGroups: [
-//           {
-//             filters: [
-//               {
-//                 propertyName: propertyName,
-//                 operator: "EQ",
-//                 value: propertyValue,
-//               },
-//             ],
-//           },
-//         ],
-//         limit: 100,
-//       }
-//     );
-
-//     logger.info("✅ Searched loan applications in HubSpot", {
-//       count: response.results?.length || 0,
-//       propertyName,
-//       propertyValue,
-//     });
-
-//     return response.results.map((res) =>
-//       convertToHubSpotLoanObject<HubSpotLoanApplication>(res)
-//     );
-//   } catch (error) {
-//     logger.error("❌ Error searching loan applications in HubSpot", {
-//       error,
-//       propertyName,
-//       propertyValue,
-//     });
-//     throw handleHubSpotError(error);
-//   }
-// }
 
 /**
  * Get multiple loan applications by IDs (Batch API)

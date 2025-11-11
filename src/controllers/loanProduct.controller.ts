@@ -1,4 +1,4 @@
-import { NextFunction, Response, Request } from "express";
+import { NextFunction, Response } from "express";
 import prisma from "../config/prisma";
 import { mapAllLoanProductFields } from "../mappers/loanProducts/loanProductMapping";
 import { categorizeLoanProductByTable } from "../services/DBServices/loan.services";
@@ -33,7 +33,6 @@ import {
   deleteLoanProduct,
   getLoanProduct,
   fetchLoanProductsList,
-  getLoanProductsByLender,
 } from "../models/helpers/loanProduct.helper";
 
 export const createLoanProductController = async (

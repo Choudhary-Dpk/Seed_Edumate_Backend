@@ -1,5 +1,5 @@
 // src/services/hubspotService.ts
-import * as hubspotClient from './hubspotClient';
+import * as hubspotClient from "./hubspotClient.service";
 import { HubSpotMapper } from '../mappers/hubspotMapper';
 import { logger } from "../utils/logger";
 import {

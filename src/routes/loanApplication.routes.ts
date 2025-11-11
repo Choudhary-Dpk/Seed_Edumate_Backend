@@ -4,13 +4,11 @@ import {
   downloadTemplate,
   editLoanApplication,
   deleteLoanApplication,
-  getLoanApplicationsList,
   getLoanApplicationDetails,
   getLeadsViewList,
 } from "../controllers/loanApplication.controller";
 import { validateToken } from "../middlewares";
 import {
-  validateAndParseCSVFile,
   validateLoanApplicationPayload,
   validateLoanApplicationById,
 } from "../middlewares/loanApplication.middleware";
@@ -63,12 +61,6 @@ router.get(
   validateLoanApplicationById,
   getLoanApplicationDetails
 );
-// router.post(
-//   "/upload-csv",
-//   validateToken(["Admin", "Manager", "User"]),
-//   validateAndParseCSVFile("CSV"),
-//   uploadCSV
-// );
 router.get(
   "/download-template",
   validateToken(["Admin", "Manager", "User"]),

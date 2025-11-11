@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { changePasswordValidationRules, createUserValidationRules, forgotPasswordValidationRules, loginValidationRules, passwordValidationRules, validateReqParams } from "../middlewares/validators/validator";
 import {
-  getUserIpDetails,
   validateChangePassword,
   validateCreateUser,
   validateEmail,

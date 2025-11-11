@@ -18,12 +18,12 @@ export const checkPrismaConnection = async () => {
   } catch (error) {
     if (error instanceof Error) {
       console.error(
-        "⚠️ Prisma connection failed (but app will continue):",
+        "Prisma connection failed (but app will continue):",
         error.message
       );
     } else {
       console.error(
-        "⚠️ Prisma connection failed (but app will continue):",
+        "Prisma connection failed (but app will continue):",
         error
       );
     }

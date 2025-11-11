@@ -197,264 +197,6 @@ model B2BPartnersRolePermissions {
   @@map("b2b_partners_role_permissions")
 }
 
-// model HSB2BPartners {
-//   id                       Int                                      @id @default(autoincrement())
-//   deleted_by_id            Int?
-//   business_address         String?
-//   business_type            String?
-//   city                     String?
-//   country                  String?
-//   gst_number               String?
-//   incorporation_date       DateTime?
-//   pan_number               String?
-//   partner_display_name     String?
-//   partner_name             String
-//   partner_type             String?
-//   pincode                  String?
-//   registration_number      String
-//   state                    String?
-//   website_url              String?
-//   created_by               String?
-//   created_date             DateTime?
-//   data_source              String?
-//   integration_status       String?
-//   internal_tags            String?
-//   last_modified_by         String?
-//   last_modified_date       DateTime?
-//   notes                    String?
-//   partner_record_status    String?
-//   portal_access_provided   String?
-//   api_access_provided      String?
-//   hs_created_by_user_id    Int?                                     @map("hs_created_by_user_id")
-//   hs_createdate            DateTime?                                @map("hs_createdate")
-//   hs_lastmodifieddate      DateTime?                                @map("hs_lastmodifieddate")
-//   hs_object_id             String?                                  @map("hs_object_id")
-//   hs_updated_by_user_id    Int?                                     @map("hs_updated_by_user_id")
-//   hubspot_owner_id         String?                                  @map("hubspot_owner_id")
-//   created_at               DateTime                                 @default(now())
-//   updated_at               DateTime                                 @default(now())
-//   is_deleted               Boolean                                  @default(false)
-//   user                     B2BPartnersUsers[]
-//   deleted_by               B2BPartnersUsers?                        @relation("PartnerDeletedBy", fields: [deleted_by_id], references: [id])
-//   business_capabilities    HSB2BPartnersBusinessCapabilities?
-//   commission_structure     HSB2BPartnersCommissionStructure?
-//   compliance               HSB2BPartnersComplianceAndDocumentation?
-//   contact_info             HSB2BPartnersContactInfo?
-//   financial_tracking       HSB2BPartnersFinancialTracking?
-//   lead_attribution         HSB2BPartnersLeadAttribution?
-//   marketing_promo          HSB2BPartnersMarketingAndPromotion?
-//   partnership_details      HSB2BPartnersPartnershipDetails?
-//   performance_metrics      HSB2BPartnersPerformanceMetrics?
-//   relationship_managemenet HSB2BPartnersRelationshipManagement?
-//   system_tracking          HSB2BPartnersSystemTracking?
-//   b2b_partner_contacts     HSEdumateContacts[]                      @relation("B2BPartnerContacts")
-
-//   @@map("hs_b2b_partners")
-// }
-
-// model HSB2BPartnersBusinessCapabilities {
-//   id                       Int           @id @default(autoincrement())
-//   partner_id               Int           @unique
-//   experience_years         Float?
-//   student_capacity_monthly Float?
-//   student_capacity_yearly  Float?
-//   target_courses           String?
-//   target_desrinations      String?
-//   target_universities      String?
-//   team_size                Float?
-//   partner                  HSB2BPartners @relation(fields: [partner_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_b2b_partners_business_capabilities")
-// }
-
-// model HSB2BPartnersCommissionStructure {
-//   id                          Int           @id @default(autoincrement())
-//   partner_id                  Int           @unique
-//   bank_account_number         String?
-//   bank_branch                 String?
-//   bank_name                   String?
-//   beneficiary_name            String?
-//   bonus_structure             String?
-//   commission_model            String?
-//   commission_rate             Float?
-//   commission_type             String?
-//   fixed_commission_amount     Float?
-//   gst_applicable              String?
-//   ifsc_code                   String?
-//   invoice_requirements        String?
-//   payment_frequency           String?
-//   payment_method              String?
-//   payment_terms               String?
-//   tds_applicable              String?
-//   tds_rate                    Float?
-//   tiered_commission_structure String?
-//   partner                     HSB2BPartners @relation(fields: [partner_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_b2b_partners_commission_structure")
-// }
-
-// model HSB2BPartnersComplianceAndDocumentation {
-//   id                             Int           @id @default(autoincrement())
-//   partner_id                     Int           @unique
-//   agreement_signed_date          DateTime?
-//   background_verification_status String?
-//   kyc_completion_date            DateTime?
-//   kyc_status                     String?
-//   partner                        HSB2BPartners @relation(fields: [partner_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_b2b_partners_compliance_and_documentation")
-// }
-
-// model HSB2BPartnersContactInfo {
-//   id                          Int           @id @default(autoincrement())
-//   partner_id                  Int           @unique
-//   accounts_contact_email      String?
-//   accounts_contact_person     String?
-//   accounts_contact_phone      String?
-//   marketing_contact_email     String?
-//   marketing_contact_person    String?
-//   marketing_contact_phone     String?
-//   primary_contact_designation String?
-//   primary_contact_email       String?
-//   primary_contact_person      String?
-//   primary_contact_phone       String?
-//   secondary_contact_email     String?
-//   secondary_contact_person    String?
-//   secondary_contact_phone     String?
-//   partner                     HSB2BPartners @relation(fields: [partner_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_b2b_partners_contact_info")
-// }
-
-// model HSB2BPartnersFinancialTracking {
-//   id                         Int           @id @default(autoincrement())
-//   partner_id                 Int           @unique
-//   average_monthly_commission Float?
-//   current_month_commission   Float?
-//   last_payment_amount        Float?
-//   last_payment_date          DateTime?
-//   lifetime_value             String?
-//   next_payment_due_date      DateTime?
-//   outstanding_commission     Float?
-//   payment_status             String?
-//   total_commission_earned    Float?
-//   total_commission_paid      Float?
-//   ytd_commission_earned      Float?
-//   ytd_commission_paid        Float?
-//   partner                    HSB2BPartners @relation(fields: [partner_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_b2b_partners_financial_tracking")
-// }
-
-// model HSB2BPartnersLeadAttribution {
-//   id                     Int           @id @default(autoincrement())
-//   partner_id             Int           @unique
-//   lead_submission_method String?
-//   lead_tracking_method   String?
-//   tracking_link          String?
-//   unique_referral_code   String?
-//   utm_source_assigned    String?
-//   partner                HSB2BPartners @relation(fields: [partner_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_b2b_partners_lead_attribution")
-// }
-
-// model HSB2BPartnersMarketingAndPromotion {
-//   id                           Int           @id @default(autoincrement())
-//   partner_id                   Int           @unique
-//   brand_usage_guidelines       String?
-//   co_marketing_approval        String?
-//   content_collaboration        String?
-//   digital_presence_rating      Float?
-//   event_participation          String?
-//   marketing_materials_provided String?
-//   promotional_activities       String?
-//   social_media_followers       Float?
-//   partner                      HSB2BPartners @relation(fields: [partner_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_b2b_partners_marketing_and_promotion")
-// }
-
-// model HSB2BPartnersPartnershipDetails {
-//   id                     Int           @id @default(autoincrement())
-//   partner_id             Int           @unique
-//   agreement_type         String?
-//   partnership_end_date   DateTime?
-//   partnership_start_date DateTime?
-//   partnership_status     String?
-//   partner                HSB2BPartners @relation(fields: [partner_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_b2b_partners_partnership_details")
-// }
-
-// model HSB2BPartnersPerformanceMetrics {
-//   id                              Int           @id @default(autoincrement())
-//   partner_id                      Int           @unique
-//   application_conversion_rate     Float?
-//   applications_approved           Float?
-//   approval_conversion_rate        Float?
-//   average_lead_quality_score      Float?
-//   average_loan_amount             Float?
-//   best_performing_month           String?
-//   last_lead_date                  DateTime?
-//   lead_conversion_rate            Float?
-//   leads_converted_to_applications Float?
-//   loans_disbursed                 Float?
-//   partner_rating                  Float?
-//   qualified_leads_provided        Float?
-//   seasonal_performance_pattern    String?
-//   total_leads_provided            Float?
-//   total_loan_value_generated      Float?
-//   partner                         HSB2BPartners @relation(fields: [partner_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_b2b_partners_performance_metrics")
-// }
-
-// model HSB2BPartnersRelationshipManagement {
-//   id                         Int           @id @default(autoincrement())
-//   partner_id                 Int           @unique
-//   assigned_account_manager   String?
-//   communication_frequency    String?
-//   escalation_history         String?
-//   feedback_comments          String?
-//   joint_marketing_activities String?
-//   last_interaction_date      DateTime?
-//   relationship_status        String?
-//   satisfaction_score         Float?
-//   training_completed         String?
-//   partner                    HSB2BPartners @relation(fields: [partner_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_b2b_partners_relationship_mgmt")
-// }
-
-// model HSB2BPartnersSystemTracking {
-//   id                     Int                  @id @default(autoincrement())
-//   partner_id             Int                  @unique @map("partner_id")
-//   partner_name           String?              @map("partner_name")
-//   api_access_provided    ApiAccessStatus?      @default(dbgenerated()) @map("api_access_provided")
-//   created_by             String?              @map("created_by")
-//   created_date           DateTime?            @map("created_date")
-//   data_source            B2BDataSource?        @default(dbgenerated()) @map("data_source")
-//   integration_status     B2BIntegrationStatus? @default(dbgenerated()) @map("integration_status")
-//   internal_tags          String?              @map("internal_tags")
-//   last_modified_by       String?              @map("last_modified_by")
-//   last_modified_date     DateTime?            @map("last_modified_date")
-//   notes                  String?              @map("notes")
-//   partner_record_status  PartnerRecordStatus?  @default(dbgenerated()) @map("partner_record_status")
-//   portal_access_provided PortalAccessStatus?   @default(dbgenerated()) @map("portal_access_provided")
-//   created_at             DateTime?            @default(now()) @map("created_at")
-//   updated_at             DateTime?            @default(now()) @updatedAt @map("updated_at")
-//   partner                HSB2BPartners        @relation(fields: [partner_id], references: [id], onDelete: Cascade)
-
-//   @@index([partner_name])
-//   @@index([partner_record_status])
-//   @@index([integration_status])
-//   @@index([data_source])
-//   @@index([created_date])
-//   @@index([last_modified_date])
-//   @@map("hs_b2b_partners_system_tracking")
-// }
-
 model HSB2BPartners {
   id Int @id @default(autoincrement())
 
@@ -822,255 +564,6 @@ model B2BPartnersUsers {
   @@map("b2b_partners_users")
 }
 
-// model HSLoanApplications {
-//   id                      Int                                         @id @default(autoincrement())
-//   application_date        DateTime                                    @default(now())
-//   lead_reference_code     String?
-//   student_id              String?
-//   student_name            String?
-//   student_email           String?
-//   student_phone           String?
-//   application_source      ApplicationSource?  @default(dbgenerated()) 
-//   assigned_counselor_id   Int?
-//   b2b_partner_id          Int?
-//   is_deleted              Boolean?                                    @default(false)
-//   user_id                 Int?
-//   contact_id              Int?
-//   created_by_id           Int?
-//   last_modified_by_id     Int?
-//   deleted_by_id           Int?
-//   created_at              DateTime?                                   @default(now())
-//   updated_at              DateTime?                                   @default(now()) @updatedAt
-//   deleted_at              DateTime?
-//   hs_created_by_user_id   Int?                                        @map("hs_created_by_user_id")
-//   hs_createdate           DateTime?                                   @map("hs_createdate")
-//   hs_lastmodifieddate     DateTime?                                   @map("hs_lastmodifieddate")
-//   hs_object_id            String?                                     @map("hs_object_id")
-//   hs_updated_by_user_id   Int?                                        @map("hs_updated_by_user_id")
-//   hubspot_owner_id        String?                                     @map("hubspot_owner_id")
-//   assigned_counselor      B2BPartnersUsers?                           @relation("AssignedCounselor", fields: [assigned_counselor_id], references: [id])
-//   edumate_contact         HSEdumateContacts?                          @relation(fields: [contact_id], references: [id])
-//   created_by              B2BPartnersUsers?                           @relation("CreatedBy", fields: [created_by_id], references: [id])
-//   deleted_by              B2BPartnersUsers?                           @relation("DeletedBy", fields: [deleted_by_id], references: [id])
-//   last_modified_by        B2BPartnersUsers?                           @relation("LastModifiedBy", fields: [last_modified_by_id], references: [id])
-//   user                    AdminUsers?                           @relation("UserLoanApplications", fields: [user_id], references: [id])
-//   academic_details        HSLoanApplicationsAcademicDetails?
-//   additional_services     HSLoanApplicationsAdditionalServices?
-//   commission_records      HSLoanApplicationsCommissionRecords?
-//   communication_prefs     HSLoanApplicationsCommunicationPreferences?
-//   document_management     HSLoanApplicationsDocumentManagement?
-//   financial_requirements  HSLoanApplicationsFinancialRequirements?
-//   lender_information      HSLoanApplicationsLenderInformation?
-//   processing_timeline     HSLoanApplicationsProcessingTimeline?
-//   rejection_details       HSLoanApplicationsRejectionDetails?
-//   loan_application_status HSLoanApplicationsStatus?
-//   system_tracking         HSLoanApplicationsSystemTracking?
-//   commission_settlements  HSCommissionSettlements[]
-
-//   @@index([student_email])
-//   @@index([application_date])
-//   @@index([assigned_counselor_id])
-//   @@map("hs_loan_applications")
-// }
-
-// model HSLoanApplicationsAcademicDetails {
-//   id                        Int                @id @default(autoincrement())
-//   loan_application_id       Int                @unique
-//   target_course             String?
-//   target_university         String?
-//   target_university_country String?
-//   course_level              CourseLevel?  @default(dbgenerated()) 
-//   course_start_date         DateTime?
-//   course_end_date           DateTime?
-//   course_duration           Int?
-//   admission_status          AdmissionStatus?  @default(dbgenerated()) 
-//   visa_status               VisaStatus? @default(dbgenerated()) 
-//   i20_cas_received          I20CasStatus? @default(dbgenerated()) 
-//   created_at                DateTime?          @default(now())
-//   updated_at                DateTime?          @default(now()) @updatedAt
-//   loan_application          HSLoanApplications @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_loan_applications_academic_details")
-// }
-
-// model HSLoanApplicationsFinancialRequirements {
-//   id                     Int                @id @default(autoincrement())
-//   loan_application_id    Int                @unique
-//   loan_amount_requested  Decimal?           @db.Decimal(12, 2)
-//   loan_amount_approved   Decimal?           @db.Decimal(12, 2)
-//   loan_amount_disbursed  Decimal?           @db.Decimal(12, 2)
-//   tuition_fee            Decimal?           @db.Decimal(12, 2)
-//   living_expenses        Decimal?           @db.Decimal(12, 2)
-//   travel_expenses        Decimal?           @db.Decimal(12, 2)
-//   insurance_cost         Decimal?           @db.Decimal(12, 2)
-//   other_expenses         Decimal?           @db.Decimal(12, 2)
-//   total_funding_required Decimal?           @db.Decimal(12, 2)
-//   scholarship_amount     Decimal?           @db.Decimal(12, 2)
-//   self_funding_amount    Decimal?           @db.Decimal(12, 2)
-//   created_at             DateTime?          @default(now())
-//   updated_at             DateTime?          @default(now()) @updatedAt
-//   loan_application       HSLoanApplications @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_loan_applications_financial_requirements")
-// }
-
-// model HSLoanApplicationsStatus {
-//   id                  Int                    @id @default(autoincrement())
-//   loan_application_id Int                    @unique
-//   status              ApplicationStatusEnum?  @default(dbgenerated()) 
-//   priority_level      PriorityLevel?  @default(dbgenerated()) 
-//   application_notes   String?
-//   internal_notes      String?
-//   record_status       RecordStatus? @default(dbgenerated()) 
-//   created_at          DateTime?              @default(now())
-//   updated_at          DateTime?              @default(now()) @updatedAt
-//   loan_application    HSLoanApplications     @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_loan_applications_status")
-// }
-
-// model HSLoanApplicationsLenderInformation {
-//   id                       Int                @id @default(autoincrement())
-//   loan_application_id      Int                @unique
-//   primary_lender_id        String?
-//   primary_lender_name      String?
-//   loan_product_id          String?
-//   loan_product_name        String?
-//   loan_product_type        LoanProductType? @default(dbgenerated()) 
-//   interest_rate_offered    Decimal?           @db.Decimal(10, 2)
-//   interest_rate_type       InterestRateType?  @default(dbgenerated()) 
-//   loan_tenure_years        Int?
-//   moratorium_period_months Int?
-//   emi_amount               Decimal?           @db.Decimal(12, 2)
-//   processing_fee           Decimal?           @db.Decimal(12, 2)
-//   co_signer_required       Boolean?           @default(false)
-//   collateral_required      Boolean?           @default(false)
-//   collateral_type          String?
-//   collateral_value         Decimal?           @db.Decimal(12, 2)
-//   guarantor_details        String?
-//   created_at               DateTime?          @default(now())
-//   updated_at               DateTime?          @default(now()) @updatedAt
-//   loan_application         HSLoanApplications @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_loan_applications_lender_information")
-// }
-
-// model HSLoanApplicationsDocumentManagement {
-//   id                       Int                @id @default(autoincrement())
-//   loan_application_id      Int                @unique
-//   documents_required_list  String?
-//   documents_submitted_list String?
-//   documents_pending_list   String?
-//   created_at               DateTime?          @default(now())
-//   updated_at               DateTime?          @default(now()) @updatedAt
-//   loan_application         HSLoanApplications @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_loan_applications_document_management")
-// }
-
-// model HSLoanApplicationsProcessingTimeline {
-//   id                         Int                @id @default(autoincrement())
-//   loan_application_id        Int                @unique
-//   lender_submission_date     DateTime?
-//   lender_acknowledgment_date DateTime?
-//   approval_date              DateTime?
-//   sanction_letter_date       DateTime?
-//   disbursement_request_date  DateTime?
-//   disbursement_date          DateTime?
-//   total_processing_days      Int?
-//   sla_breach                 Boolean?           @default(false)
-//   delay_reason               DelayReason? @default(dbgenerated()) 
-//   created_at                 DateTime?          @default(now())
-//   updated_at                 DateTime?          @default(now()) @updatedAt
-//   loan_application           HSLoanApplications @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_loan_applications_processing_timeline")
-// }
-
-// model HSLoanApplicationsRejectionDetails {
-//   id                  Int                @id @default(autoincrement())
-//   loan_application_id Int                @unique
-//   rejection_date      DateTime?
-//   rejection_reason    RejectionReason?  @default(dbgenerated()) 
-//   rejection_details   String?
-//   appeal_submitted    Boolean?           @default(false)
-//   appeal_outcome      AppealOutcome?  @default(dbgenerated()) 
-//   resolution_provided String?
-//   created_at          DateTime?          @default(now())
-//   updated_at          DateTime?          @default(now()) @updatedAt
-//   loan_application    HSLoanApplications @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_loan_applications_rejection_details")
-// }
-
-// model HSLoanApplicationsCommunicationPreferences {
-//   id                           Int                   @id @default(autoincrement())
-//   loan_application_id          Int                   @unique
-//   communication_preference     CommunicationChannel?  @default(dbgenerated()) 
-//   follow_up_frequency          FollowUpFrequency? @default(dbgenerated()) 
-//   last_contact_date            DateTime?
-//   next_follow_up_date          DateTime?
-//   customer_satisfaction_rating Int?                  @db.SmallInt
-//   customer_feedback            String?
-//   complaint_raised             Boolean?              @default(false)
-//   complaint_details            String?
-//   complaint_resolution_date    DateTime?
-//   created_at                   DateTime?             @default(now())
-//   updated_at                   DateTime?             @default(now()) @updatedAt
-//   loan_application             HSLoanApplications    @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_loan_applications_communication_preferences")
-// }
-
-// model HSLoanApplicationsSystemTracking {
-//   id                        Int                      @id @default(autoincrement())
-//   loan_application_id       Int                      @unique
-//   application_source_system ApplicationSourceSystem?  @default(dbgenerated()) 
-//   integration_status        IntegrationStatus?  @default(dbgenerated()) 
-//   audit_trail               String?
-//   hs_object_id              String?
-//   hs_merged_object_ids      String?
-//   hs_object_source_label    String?
-//   application_record_status RecordStatus? @default(dbgenerated()) 
-//   external_reference_id     String?
-//   created_at                DateTime?                @default(now())
-//   created_by                String?
-//   last_modified_by          String?
-//   updated_at                DateTime?                @default(now()) @updatedAt
-//   loan_application          HSLoanApplications       @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_loan_applications_system_tracking")
-// }
-
-// model HSLoanApplicationsCommissionRecords {
-//   id                            Int                @id @default(autoincrement())
-//   loan_application_id           Int                @unique
-//   commission_amount             Decimal?           @db.Decimal(12, 2)
-//   commission_rate               Decimal?           @db.Decimal(10, 2)
-//   commission_calculation_base   CommissionBase? @default(dbgenerated()) 
-//   commission_status             CommissionStatus? @default(dbgenerated()) 
-//   commission_approval_date      DateTime?
-//   commission_payment_date       DateTime?
-//   partner_commission_applicable Boolean?           @default(false)
-//   settlement_id                 String?
-//   created_at                    DateTime?          @default(now())
-//   updated_at                    DateTime?          @default(now()) @updatedAt
-//   loan_application              HSLoanApplications @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_loan_applications_commission_records")
-// }
-
-// model HSLoanApplicationsAdditionalServices {
-//   id                        Int                @id @default(autoincrement())
-//   loan_application_id       Int                @unique
-//   additional_services_notes String?
-//   created_at                DateTime?          @default(now())
-//   updated_at                DateTime?          @default(now()) @updatedAt
-//   loan_application          HSLoanApplications @relation(fields: [loan_application_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_loan_applications_additional_services")
-// }
-
 model HSLoanApplications  {
   id Int @id @default(autoincrement())
   user_id Int?
@@ -1140,7 +633,6 @@ model HSLoanApplications  {
   @@map("hs_loan_applications")
 }
 
-// Academic Details
 model HSLoanApplicationsAcademicDetails  {
   id Int @id @default(autoincrement())
 
@@ -1164,7 +656,6 @@ model HSLoanApplicationsAcademicDetails  {
   @@map("hs_loan_applications_academic_details")
 }
 
-// Additional Services
 model HSLoanApplicationsAdditionalServices  {
   id Int @id @default(autoincrement())
 
@@ -1179,7 +670,6 @@ model HSLoanApplicationsAdditionalServices  {
   @@map("hs_loan_applications_additional_services")
 }
 
-// Application Status
 model HSLoanApplicationsStatus  {
   id Int @id @default(autoincrement())
 
@@ -1197,7 +687,6 @@ model HSLoanApplicationsStatus  {
   @@map("hs_loan_applications_status")
 }
 
-// Commission & Settlement
 model HSLoanApplicationsCommissionRecords  {
   id Int @id @default(autoincrement())
 
@@ -1219,7 +708,6 @@ model HSLoanApplicationsCommissionRecords  {
   @@map("hs_loan_applications_commission_records")
 }
 
-// Communication
 model HSLoanApplicationsCommunicationPreferences  {
   id Int @id @default(autoincrement())
 
@@ -1242,7 +730,6 @@ model HSLoanApplicationsCommunicationPreferences  {
   @@map("hs_loan_applications_communication_preferences")
 }
 
-// Document Management
 model HSLoanApplicationsDocumentManagement  {
   id Int @id @default(autoincrement())
 
@@ -1259,7 +746,6 @@ model HSLoanApplicationsDocumentManagement  {
   @@map("hs_loan_applications_document_management")
 }
 
-// Financial Requirements
 model HSLoanApplicationsFinancialRequirements  {
   id Int @id @default(autoincrement())
 
@@ -1284,7 +770,6 @@ model HSLoanApplicationsFinancialRequirements  {
   @@map("hs_loan_applications_financial_requirements")
 }
 
-// Lender Information
 model HSLoanApplicationsLenderInformation  {
   id Int @id @default(autoincrement())
 
@@ -1314,7 +799,6 @@ model HSLoanApplicationsLenderInformation  {
   @@map("hs_loan_applications_lender_information")
 }
 
-// Processing Timeline
 model HSLoanApplicationsProcessingTimeline  {
   id Int @id @default(autoincrement())
 
@@ -1337,7 +821,6 @@ model HSLoanApplicationsProcessingTimeline  {
   @@map("hs_loan_applications_processing_timeline")
 }
 
-// Rejection & Issues
 model HSLoanApplicationsRejectionDetails  {
   id Int @id @default(autoincrement())
 
@@ -1357,7 +840,6 @@ model HSLoanApplicationsRejectionDetails  {
   @@map("hs_loan_applications_rejection_details")
 }
 
-// System Tracking
 model HSLoanApplicationsSystemTracking  {
   id Int @id @default(autoincrement())
 
@@ -1440,218 +922,6 @@ model EmailHistory {
   @@map("email_history")
 }
 
-// model HSEdumateContactsApplicationJourney {
-//   id                                Int                       @id @default(autoincrement())
-//   contact_id                        Int                       @unique @map("contact_id")
-//   assigned_counselor                String?                   @map("assigned_counselor")
-//   counselor_notes                   String?                   @map("counselor_notes")
-//   current_status_disposition        CurrentStatusDisposition? @default(dbgenerated()) @map("current_status_disposition")
-//   current_status_disposition_reason StatusDispositionReason?  @default(dbgenerated()) @map("current_status_disposition_reason")
-//   priority_level                    PriorityLevel?            @default(dbgenerated()) @map("priority_level")
-//   first_contact_date                DateTime?                 @map("first_contact_date")
-//   last_contact_date                 DateTime?                 @map("last_contact_date")
-//   follow_up_date                    DateTime?                 @map("follow_up_date")
-//   next_follow_up_date               DateTime?                 @map("next_follow_up_date")
-//   created_at                        DateTime                  @default(now()) @map("created_at")
-//   updated_at                        DateTime                  @default(now()) @updatedAt @map("updated_at")
-//   contact                           HSEdumateContacts         @relation(fields: [contact_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_edumate_contacts_application_journey")
-// }
-
-// model HSEdumateContactsAcademicProfiles {
-//   id                          Int                            @id @default(autoincrement())
-//   contact_id                  Int                            @unique @map("contact_id")
-//   admission_status            EdumateContactAdmissionStatus? @default(dbgenerated()) @map("admission_status")
-//   current_education_level     CurrentEducationLevel?         @default(dbgenerated()) @map("current_education_level")
-//   current_institution         String?                        @map("current_institution")
-//   current_course_major        String?                        @map("current_course_major")
-//   current_cgpa_percentage     Float?                         @map("current_cgpa_percentage")
-//   current_graduation_year     Int?                           @map("current_graduation_year")
-//   course_duration_months      Int?                           @map("course_duration_months")
-//   cat_score                   Int?                           @map("cat_score")
-//   gre_score                   Int?                           @map("gre_score")
-//   gmat_score                  Int?                           @map("gmat_score")
-//   toefl_score                 Int?                           @map("toefl_score")
-//   ielts_score                 Float?                         @map("ielts_score")
-//   sat_score                   Int?                           @map("sat_score")
-//   duolingo_score              Int?                           @map("duolingo_score")
-//   nmat_score                  Int?                           @map("nmat_score")
-//   xat_score                   Int?                           @map("xat_score")
-//   other_test_scores           String?                        @map("other_test_scores")
-//   target_degree_level         TargetDegreeLevel?             @default(dbgenerated()) @map("target_degree_level")
-//   target_course_major         String?                        @map("target_course_major")
-//   preferred_study_destination PreferredStudyDestination?     @default(dbgenerated()) @map("preferred_study_destination")
-//   target_universities         String?                        @map("target_universities")
-//   intended_start_term         IntendedStartTerm?             @default(dbgenerated()) @map("intended_start_term")
-//   intended_start_date         DateTime?                      @map("intended_start_date")
-//   intake_month                String?                        @map("intake_month")
-//   intake_year                 String?                        @map("intake_year")
-//   created_at                  DateTime                       @default(now()) @map("created_at")
-//   updated_at                  DateTime                       @default(now()) @updatedAt @map("updated_at")
-//   contact                     HSEdumateContacts              @relation(fields: [contact_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_edumate_contacts_academic_profiles")
-// }
-
-// model HSEdumateContacts {
-//   id                           Int                                   @id @default(autoincrement())
-//   email                        String?                               @map("email")
-//   deleted_by_id                Int?
-//   b2b_partner_id               Int?
-//   hs_created_by_user_id        Int?                                  @map("hs_created_by_user_id")
-//   hs_createdate                DateTime?                             @map("hs_createdate")
-//   hs_lastmodifieddate          DateTime?                             @map("hs_lastmodifieddate")
-//   hs_object_id                 String?                               @map("hs_object_id")
-//   hs_updated_by_user_id        Int?                                  @map("hs_updated_by_user_id")
-//   hubspot_owner_id             String?                               @map("hubspot_owner_id")
-//   base_currency                String?                               @map("base_currency")
-//   study_destination_currency   String?                               @map("study_destination_currency")
-//   user_selected_currency       String?                               @map("user_selected_currency")
-//   course_type                  EdumateContactCourseType?             @default(dbgenerated()) @map("course_type")
-//   co_applicant_1_email         String?                               @map("co_applicant_1_email")
-//   co_applicant_1_mobile_number String?                               @map("co_applicant_1_mobile_number")
-//   created_at                   DateTime                              @default(now()) @map("created_at")
-//   updated_at                   DateTime                              @default(now()) @updatedAt @map("updated_at")
-//   is_deleted                   Boolean                               @default(false)
-//   b2b_partner                  HSB2BPartners?                        @relation("B2BPartnerContacts", fields: [b2b_partner_id], references: [id])
-//   deleted_by                   B2BPartnersUsers?                     @relation("ContactsDeletedBy", fields: [deleted_by_id], references: [id])
-//   academic_profile             HSEdumateContactsAcademicProfiles?
-//   application_journey          HSEdumateContactsApplicationJourney?
-//   financial_Info               HSEdumateContactsFinancialInfo?
-//   lead_attribution             HSEdumateContactsLeadAttribution?
-//   loan_preference              HSEdumateContactsLoanPreferences?
-//   personal_information         HSEdumateContactsPersonalInformation?
-//   system_tracking              HSEdumateContactsSystemTracking?
-//   eligibility_lead             MktEligibilityCheckerLeads?
-//   emi_lead                     MktEmiCalculatorLeads?
-
-//   @@map("hs_edumate_contacts")
-// }
-
-// model HSEdumateContactsSystemTracking {
-//   id                    Int                  @id @default(autoincrement())
-//   contact_id            Int                  @unique @map("contact_id")
-//   created_by            Int?                 @map("created_by")
-//   created_date          DateTime?            @map("created_date")
-//   last_modified_by      String?              @map("last_modified_by")
-//   last_modified_date    DateTime?            @map("last_modified_date")
-//   data_source           DataSource?          @default(dbgenerated()) @map("data_source")
-//   student_record_status StudentRecordStatus? @default(dbgenerated()) @map("student_record_status")
-//   tags                  String?              @map("tags")
-//   gdpr_consent          GDPRConsent?         @default(dbgenerated()) @map("gdpr_consent")
-//   marketing_consent     MarketingConsent?    @default(dbgenerated()) @map("marketing_consent")
-//   created_at            DateTime             @default(now()) @map("created_at")
-//   updated_at            DateTime             @default(now()) @updatedAt @map("updated_at")
-//   contact               HSEdumateContacts    @relation(fields: [contact_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_edumate_contacts_system_tracking")
-// }
-
-// model HSEdumateContactsFinancialInfo {
-//   id                          Int                           @id @default(autoincrement())
-//   contact_id                  Int                           @unique @map("contact_id")
-//   annual_family_income        Decimal?                      @map("annual_family_income") @db.Decimal(15, 2)
-//   currency                    FinancialCurrency?            @default(dbgenerated()) @map("currency")
-//   co_applicant_1_name         String?                       @map("co_applicant_1_name")
-//   co_applicant_1_income       Decimal?                      @map("co_applicant_1_income") @db.Decimal(15, 2)
-//   co_applicant_1_occupation   CoApplicantOccupation?        @default(dbgenerated()) @map("co_applicant_1_occupation")
-//   co_applicant_1_relationship CoApplicantRelationship?      @default(dbgenerated()) @map("co_applicant_1_relationship")
-//   co_applicant_2_name         String?                       @map("co_applicant_2_name")
-//   co_applicant_2_income       Decimal?                      @map("co_applicant_2_income") @db.Decimal(15, 2)
-//   co_applicant_2_occupation   CoApplicantOccupation?        @default(dbgenerated()) @map("co_applicant_2_occupation")
-//   co_applicant_2_relationship CoApplicantRelationship?      @default(dbgenerated()) @map("co_applicant_2_relationship")
-//   co_applicant_3_name         String?                       @map("co_applicant_3_name")
-//   co_applicant_3_income       Decimal?                      @map("co_applicant_3_income") @db.Decimal(15, 2)
-//   co_applicant_3_occupation   CoApplicantOccupation?        @default(dbgenerated()) @map("co_applicant_3_occupation")
-//   co_applicant_3_relationship CoApplicantRelationship?      @default(dbgenerated()) @map("co_applicant_3_relationship")
-//   collateral_available        CollateralAvailable?          @default(dbgenerated()) @map("collateral_available")
-//   collateral_type             EdumateContactCollateralType? @default(dbgenerated()) @map("collateral_type")
-//   collateral_value            Decimal?                      @map("collateral_value") @db.Decimal(15, 2)
-//   collateral_2_available      CollateralAvailable?          @default(dbgenerated()) @map("collateral_2_available")
-//   collateral_2_type           EdumateContactCollateralType? @default(dbgenerated()) @map("collateral_2_type")
-//   collateral_2_value          Decimal?                      @map("collateral_2_value") @db.Decimal(15, 2)
-//   living_expenses             Decimal?                      @map("living_expenses") @db.Decimal(15, 2)
-//   other_expenses              Decimal?                      @map("other_expenses") @db.Decimal(15, 2)
-//   total_course_cost           Decimal?                      @map("total_course_cost") @db.Decimal(15, 2)
-//   tuition_fee                 Decimal?                      @map("tuition_fee") @db.Decimal(15, 2)
-//   loan_amount_required        Decimal?                      @map("loan_amount_required") @db.Decimal(15, 2)
-//   scholarship_amount          Decimal?                      @map("scholarship_amount") @db.Decimal(15, 2)
-//   self_funding_amount         Decimal?                      @map("self_funding_amount") @db.Decimal(15, 2)
-//   created_at                  DateTime                      @default(now()) @map("created_at")
-//   updated_at                  DateTime                      @default(now()) @updatedAt @map("updated_at")
-//   contact                     HSEdumateContacts             @relation(fields: [contact_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_edumate_contacts_financial_info")
-// }
-
-// model HSEdumateContactsLeadAttribution {
-//   id                            Int                          @id @default(autoincrement())
-//   contact_id                    Int                          @unique @map("contact_id")
-//   lead_source                   LeadSource?                  @default(dbgenerated()) @map("lead_source")
-//   lead_source_detail            String?                      @map("lead_source_detail")
-//   lead_quality_score            Float?                       @map("lead_quality_score")
-//   lead_reference_code           String?                      @map("lead_reference_code")
-//   b2b_partner_id                String?                      @map("b2b_partner_id")
-//   b2b_partner_name              String?                      @map("b2b_partner_name")
-//   partner_commission_applicable PartnerCommissionApplicable? @default(dbgenerated()) @map("partner_commission_applicable")
-//   referral_person_name          String?                      @map("referral_person_name")
-//   referral_person_contact       String?                      @map("referral_person_contact")
-//   utm_source                    String?                      @map("utm_source")
-//   utm_medium                    String?                      @map("utm_medium")
-//   utm_campaign                  String?                      @map("utm_campaign")
-//   utm_term                      String?                      @map("utm_term")
-//   utm_content                   String?                      @map("utm_content")
-//   created_at                    DateTime                     @default(now()) @map("created_at")
-//   updated_at                    DateTime                     @default(now()) @updatedAt @map("updated_at")
-//   contact                       HSEdumateContacts            @relation(fields: [contact_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_edumate_contacts_lead_attribution")
-// }
-
-// model HSEdumateContactsLoanPreferences {
-//   id                        Int                      @id @default(autoincrement())
-//   contact_id                Int                      @unique @map("contact_id")
-//   loan_type_preference      LoanTypePreference?      @default(dbgenerated()) @map("loan_type_preference")
-//   preferred_lenders         PreferredLenders[]       @map("preferred_lenders")
-//   repayment_type_preference RepaymentTypePreference? @default(dbgenerated()) @map("repayment_type_preference")
-//   created_at                DateTime                 @default(now()) @map("created_at")
-//   updated_at                DateTime                 @default(now()) @updatedAt @map("updated_at")
-//   contact                   HSEdumateContacts        @relation(fields: [contact_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_edumate_contacts_loan_preferences")
-// }
-
-// model HSEdumateContactsPersonalInformation {
-//   id                        Int               @id @default(autoincrement())
-//   contact_id                Int               @unique @map("contact_id")
-//   first_name                String?           @map("first_name")
-//   last_name                 String?           @map("last_name")
-//   email                     String?           @map("email")
-//   phone_number              String?           @map("phone_number")
-//   date_of_birth             DateTime?         @map("date_of_birth")
-//   gender                    Gender?           @default(dbgenerated()) @map("gender")
-//   nationality               Nationality?      @default(dbgenerated()) @map("nationality")
-//   current_address           String?           @map("current_address")
-//   city_current_address      String?           @map("citycurrent_address")
-//   state_current_address     String?           @map("state_current_address")
-//   country_current_address   String?           @map("country_current_address")
-//   pincode_current_address   String?           @map("pincode_current_address")
-//   permanent_address         String?           @map("permanent_address")
-//   city_permanent_address    String?           @map("city_permanent_address")
-//   state_permanent_address   String?           @map("state_permanent_address")
-//   country_permanent_address String?           @map("country_permanent_address")
-//   pincode_permanent_address String?           @map("pincode_permanent_address")
-//   created_at                DateTime          @default(now()) @map("created_at")
-//   updated_at                DateTime          @default(now()) @updatedAt @map("updated_at")
-//   deleted_by_id             Int?
-//   is_deleted                Boolean           @default(false)
-//   contact                   HSEdumateContacts @relation(fields: [contact_id], references: [id], onDelete: Cascade)
-//   deleted_by                B2BPartnersUsers? @relation("ContactsDeletedBy", fields: [deleted_by_id], references: [id])
-
-//   @@map("hs_edumate_contacts_personal_information")
-// }
-
 model HSEdumateContacts  {
   id Int @id @default(autoincrement())
   b2b_partner_id Int?
@@ -1714,7 +984,6 @@ model HSEdumateContacts  {
   @@map("hs_edumate_contacts")
 }
 
-// Academic Information
 model HSEdumateContactsAcademicProfiles  {
   id Int @id @default(autoincrement())
 
@@ -1753,7 +1022,6 @@ model HSEdumateContactsAcademicProfiles  {
   @@map("hs_edumate_contacts_academic_profiles")
 }
 
-// Application Journey
 model HSEdumateContactsApplicationJourney  {
   id Int @id @default(autoincrement())
 
@@ -1776,7 +1044,6 @@ model HSEdumateContactsApplicationJourney  {
   @@map("hs_edumate_contacts_application_journey")
 }
 
-// Financial Information
 model HSEdumateContactsFinancialInfo  {
   id Int @id @default(autoincrement())
 
@@ -1817,7 +1084,6 @@ model HSEdumateContactsFinancialInfo  {
   @@map("hs_edumate_contacts_financial_info")
 }
 
-// Lead Attribution
 model HSEdumateContactsLeadAttribution  {
   id Int @id @default(autoincrement())
 
@@ -1845,7 +1111,6 @@ model HSEdumateContactsLeadAttribution  {
   @@map("hs_edumate_contacts_lead_attribution")
 }
 
-// Loan Preferences
 model HSEdumateContactsLoanPreferences  {
   id Int @id @default(autoincrement())
 
@@ -1862,7 +1127,6 @@ model HSEdumateContactsLoanPreferences  {
   @@map("hs_edumate_contacts_loan_preferences")
 }
 
-// Personal Information
 model HSEdumateContactsPersonalInformation  {
   id Int @id @default(autoincrement())
 
@@ -1894,7 +1158,6 @@ model HSEdumateContactsPersonalInformation  {
   @@map("hs_edumate_contacts_personal_information")
 }
 
-// System Tracking
 model HSEdumateContactsSystemTracking  {
   id Int @id @default(autoincrement())
   created_by Int?
@@ -1917,178 +1180,6 @@ model HSEdumateContactsSystemTracking  {
 
   @@map("hs_edumate_contacts_system_tracking")
 }
-
-
-
-// model HSLenders {
-//   id                     Int                           @id @default(autoincrement())
-//   external_id            String?                       @unique @map("external_id")
-//   lender_display_name    String?                        @map("lender_display_name")
-//   lender_name            String                        @map("lender_name")
-//   legal_name             String?                       @map("legal_name")
-//   short_code             String?                       @map("short_code")
-//   lender_logo_url        String?                       @map("lender_logo_url")
-//   website_url            String?                       @map("website_url")
-//   lender_category        LenderCategory?               @default(dbgenerated()) @map("lender_category")
-//   lender_type            LenderType?                   @default(dbgenerated()) @map("lender_type")
-//   is_active              Boolean?                      @default(true) @map("is_active")
-//   created_at             DateTime?                     @default(now()) @map("created_at")
-//   updated_at             DateTime?                     @default(now()) @updatedAt @map("updated_at")
-//   created_by             String?                       @map("created_by")
-//   updated_by             String?                       @map("updated_by")
-//   hs_created_by_user_id  Int?                          @map("hs_created_by_user_id")
-//   hs_createdate          DateTime?                     @map("hs_createdate")
-//   hs_lastmodifieddate    DateTime?                     @map("hs_lastmodifieddate")
-//   hs_object_id           String?                       @map("hs_object_id")
-//   hs_updated_by_user_id  Int?                          @map("hs_updated_by_user_id")
-//   hubspot_owner_id       String?                       @map("hubspot_owner_id")
-//   db_id String?
-//   hs_merged_object_ids String?
-//   hs_object_source_detail_1 String?
-//   hs_object_source_detail_2 String?
-//   hs_object_source_detail_3 String? 
-//   hs_object_source_label String? 
-//   hs_shared_team_ids String? 
-//   hs_shared_user_ids String? 
-//   hubspot_owner_assigneddate DateTime? 
-//   hubspot_team_id String?
-//   is_deleted             Boolean?                      @default(false)
-//   business_metrics       HSLendersBusinessMetrics?
-//   contact_info           HSLendersContactInfo?
-//   operational_details    HSLendersOperationalDetails?
-//   partnership            HSLendersPartnershipsDetails?
-//   lender_system_tracking HSLendersSystemTracking?
-//   loan_offerings         HSLendersLoanOfferings?
-//   loan_products          HSLoanProducts[]
-
-//   @@index([lender_category])
-//   @@index([lender_type])
-//   @@index([created_at])
-//   @@map("hs_lenders")
-// }
-
-// model HSLendersSystemTracking {
-//   id                     Int                 @default(autoincrement())
-//   lender_id              Int                 @unique
-//   data_source            LenderDataSource?  @default(dbgenerated()) 
-//   lender_record_status   LenderRecordStatus?  @default(dbgenerated()) 
-//   notes                  String?
-//   performance_rating     PerformanceRating? @default(dbgenerated()) 
-//   created_at             DateTime?            @default(now())
-//   updated_at             DateTime?            @default(now()) @updatedAt
-//   last_modified_by       String?
-//   last_modified_date     DateTime?
-//   lender_system_tracking HSLenders           @relation(fields: [lender_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_lenders_system_tracking")
-// }
-
-// model HSLendersContactInfo {
-//   id                                 Int       @id @default(autoincrement())
-//   lender_id                          Int       @unique @map("lender_id")
-//   primary_contact_email              String?   @map("primary_contact_email")
-//   primary_contact_phone              String?   @map("primary_contact_phone")
-//   primary_contact_designation        String?   @map("primary_contact_designation")
-//   primary_contact_person             String?   @map("primary_contact_person")
-//   relationship_manager_email         String?   @map("relationship_manager_email")
-//   relationship_manager_name          String?   @map("relationship_manager_name")
-//   relationship_manager_phone         String?   @map("relationship_manager_phone")
-//   escalation_hierarchy_1_designation String?   @map("escalation_hierarchy_1_designation")
-//   escalation_hierarchy_1_email       String?   @map("escalation_hierarchy_1_email")
-//   escalation_hierarchy_1_name        String?   @map("escalation_hierarchy_1_name")
-//   escalation_hierarchy_1_phone       String?   @map("escalation_hierarchy_1_phone")
-//   customer_service_email             String?   @map("customer_service_email")
-//   customer_service_number            String?   @map("customer_service_number")
-//   created_at                         DateTime?  @default(now()) @map("created_at")
-//   updated_at                         DateTime?  @default(now()) @updatedAt @map("updated_at")
-//   lender                             HSLenders @relation(fields: [lender_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_lenders_contact_info")
-// }
-
-// model HSLendersBusinessMetrics {
-//   id                           Int       @id @default(autoincrement())
-//   lender_id                    Int       @unique @map("lender_id")
-//   average_approval_rate        Int?      @map("average_approval_rate")
-//   monthly_application_volume   Int?      @map("monthly_application_volume")
-//   quarterly_application_volume Int?      @map("quarterly_application_volume")
-//   yearly_application_volume    Int?      @map("yearly_application_volume")
-//   average_processing_days      Int?      @map("average_processing_days")
-//   average_disbursement_days    Int?      @map("average_disbursement_days")
-//   created_at                   DateTime?  @default(now()) @map("created_at")
-//   updated_at                   DateTime?  @default(now()) @updatedAt @map("updated_at")
-//   lender                       HSLenders @relation(fields: [lender_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_lenders_business_metrics")
-// }
-
-// model HSLendersLoanOfferings {
-//   id                                Int                    @id @default(autoincrement())
-//   lender_id Int                    @unique @map("lender_id")
-//   co_signer_requirements            CoSignerRequirement?  @default(dbgenerated()) 
-//   collateral_requirements           LenderCollateralType? @default(dbgenerated()) 
-//   interest_rate_range_max_secured   Int?                   @map("interest_rate_range_max_secured")
-//   interest_rate_range_max_unsecured Int?                   @map("interest_rate_range_max_unsecured")
-//   interest_rate_range_min_secured   Int?                   @map("interest_rate_range_min_secured")
-//   interest_rate_range_min_unsecured Int?                   @map("interest_rate_range_min_unsecured")
-//   margin_money_requirement          Int?                   @map("margin_money_requirement")
-//   maximum_loan_amount_secured       Int?                   @map("maximum_loan_amount_secured")
-//   maximum_loan_amount_unsecured     Int?                   @map("maximum_loan_amount_unsecured")
-//   minimum_loan_amount_secured       Int?                   @map("minimum_loan_amount_secured")
-//   minimum_loan_amount_unsecured     Int?                   @map("minimum_loan_amount_unsecured")
-//   not_supported_universities        String?                @map("not_supported_universities")
-//   processing_fee_range              String?                @map("processing_fee_range")
-//   special_programs                  String?                @map("special_programs")
-//   supported_course_types            SupportedCourseTypes?
-//   supported_destinations            SupportedDestinations?
-//   created_at                        DateTime?               @default(now())
-//   updated_at                        DateTime?               @default(now()) @updatedAt
-
-//   lender                       HSLenders @relation(fields: [lender_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_lenders_loan_offerings")
-// }
-
-// model HSLendersOperationalDetails {
-//   id                         Int                    @id @default(autoincrement())
-//   lender_id                  Int                    @unique @map("lender_id")
-//   api_connectivity_status    APIConnectivityStatus?   @default(dbgenerated()) @map("api_connectivity_status")
-//   digital_integration_level  IntegrationLevel?        @default(dbgenerated()) @map("digital_integration_level")
-//   documentation_requirements Json?                  @map("documentation_requirements")
-//   holiday_processing         HolidayProcessing? @default(dbgenerated()) 
-//   late_payment_charges       String?                @map("late_payment_charges")
-//   prepayment_charges         String?                @map("prepayment_charges")
-//   repayment_options          RepaymentOptions?  @default(dbgenerated()) 
-//   turnaround_time_commitment Int?                   @map("turnaround_time_commitment")
-//   working_hours              String?                @map("working_hours")
-//   created_at                 DateTime?               @default(now()) @map("created_at")
-//   updated_at                 DateTime?               @default(now()) @updatedAt @map("updated_at")
-//   lender                     HSLenders              @relation(fields: [lender_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_lenders_operational_details")
-// }
-
-// model HSLendersPartnershipsDetails {
-//   id                     Int                @id @default(autoincrement())
-//   lender_id              Int                @unique @map("lender_id")
-//   partnership_type       String?            @map("partnership_type")
-//   agreement_start_date   DateTime?          @map("agreement_start_date")
-//   agreement_end_date     DateTime?          @map("agreement_end_date")
-//   auto_renewal           Boolean            @default(false) @map("auto_renewal")
-//   renewal_notice_days    Int?               @map("renewal_notice_days")
-//   commission_structure   String?            @map("commission_structure")
-//   commission_percentage  Decimal?           @map("commission_percentage") @db.Decimal(10, 2)
-//   partnership_end_date   DateTime?          @map("partnership_end_date")
-//   partnership_start_date DateTime?          @map("partnership_start_date")
-//   partnership_status     PartnershipStatus? @default(dbgenerated()) @map("partnership_status")
-//   payout_terms           PayoutTerms? @default(dbgenerated()) 
-//   revenue_share_model    String?            @map("revenue_share_model")
-//   created_at             DateTime?           @default(now()) @map("created_at")
-//   updated_at             DateTime?           @default(now()) @updatedAt @map("updated_at")
-//   lender                 HSLenders          @relation(fields: [lender_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_lenders_partnerships_details")
-// }
 
 model HSLenders  {
   id Int @id @default(autoincrement())
@@ -2145,7 +1236,6 @@ model HSLenders  {
   @@map("hs_lenders")
 }
 
-// Business Metrics
 model HSLendersBusinessMetrics  {
   id Int @id @default(autoincrement())
 
@@ -2165,7 +1255,6 @@ model HSLendersBusinessMetrics  {
   @@map("hs_lenders_business_metrics")
 }
 
-// Contact Information
 model HSLendersContactInfo  {
   id Int @id @default(autoincrement())
 
@@ -2192,7 +1281,6 @@ model HSLendersContactInfo  {
   @@map("hs_lenders_contact_info")
 }
 
-// Loan Offerings
 model HSLendersLoanOfferings  {
   id Int @id @default(autoincrement())
 
@@ -2222,7 +1310,6 @@ model HSLendersLoanOfferings  {
   @@map("hs_lenders_loan_offerings")
 }
 
-// Operational Details
 model HSLendersOperationalDetails  {
   id Int @id @default(autoincrement())
 
@@ -2245,7 +1332,6 @@ model HSLendersOperationalDetails  {
   @@map("hs_lenders_operational_details")
 }
 
-// Partnership Details
 model HSLendersPartnershipsDetails  {
   id Int @id @default(autoincrement())
 
@@ -2266,7 +1352,6 @@ model HSLendersPartnershipsDetails  {
   @@map("hs_lenders_partnerships_details")
 }
 
-// System Tracking
 model HSLendersSystemTracking  {
   id Int @id @default(autoincrement())
 
@@ -2288,285 +1373,6 @@ model HSLendersSystemTracking  {
   @@map("hs_lenders_system_tracking")
 }
 
-// model HSLoanProducts {
-//   id                                Int                                     @id @default(autoincrement())
-//   deleted_by_id                     Int?
-//   is_deleted                        Boolean?                                @default(false)
-//   lender_id                         Int                                     @map("lender_id")
-//   lender_name                       String?                                 @map("lender_name")
-//   partner_name                      String?                                 @map("partner_name")
-//   product_description               String?                                 @map("product_description")
-//   product_display_name              String?                                 @map("product_display_name")
-//   product_category                  ProductCategory?                        @default(dbgenerated()) @map("product_category")
-//   product_status                    ProductStatus?                          @default(dbgenerated()) @map("product_status")
-//   product_type                      ProductType?  @default(dbgenerated()) 
-//   last_updated_date                 DateTime?                               @map("last_updated_date")
-//   is_active                         Boolean?                                @default(true) @map("is_active")
-//   created_at                        DateTime?                               @default(now()) @map("created_at")
-//   updated_at                        DateTime?                               @default(now()) @updatedAt @map("updated_at")
-//   created_by                        String?                                 @map("created_by")
-//   updated_by                        String?                                 @map("updated_by")
-//   hs_created_by_user_id             Int?                                    @map("hs_created_by_user_id")
-//   hs_createdate                     DateTime?                               @map("hs_createdate")
-//   hs_lastmodifieddate               DateTime?                               @map("hs_lastmodifieddate")
-//   hs_object_id                      String?                                 @map("hs_object_id")
-//   hs_updated_by_user_id             Int?                                    @map("hs_updated_by_user_id")
-//   hubspot_owner_id                  String?                                 @map("hubspot_owner_id")
-//   deleted_by                        B2BPartnersUsers?                       @relation("LoanProuductsDeletedBy", fields: [deleted_by_id], references: [id])
-//   lender                            HSLenders?                               @relation(fields: [lender_id], references: [id], onDelete: Cascade)
-//   processing_details                HSLoanProductsApplicationAndProcessing?
-//   collateral_security               HSLoanProductsCollateralAndSecurity?
-//   loan_product_competitive_analysis HSLoanProductsCompetitiveAnalytics?
-//   eligibility_criteria              HSLoanProductsEligibilityCriteria[]
-//   financial_terms                   HSLoanProductsFinancialTerms?
-//   geographic_coverage               HSLoanProductsGeographicCoverage?
-//   performance_metrics               HSLoanProductsPerformanceMetrics?
-//   repayment_terms                   HSLoanProductsRepaymentTerms?
-//   special_features                  HSLoanProductsSpecialFeatures?
-//   system_integration                HSLoanProductsSystemIntegration?
-//   system_tracking                   HSLoanProductsSystemTracking?
-
-//   @@index([lender_id])
-//   @@index([is_active])
-//   @@index([product_type])
-//   @@index([product_category])
-//   @@index([product_status])
-//   @@index([created_at])
-//   @@map("hs_loan_products")
-// }
-
-// model HSLoanProductsSystemTracking {
-//   id                    Int                  @id @default(autoincrement())
-//   loan_product_id       Int                  @unique
-//   change_log            String?              @map("change_log")
-//   created_by            String?              @map("created_by")
-//   created_date          DateTime?            @map("created_date")
-//   last_modified_by      String?              @map("last_modified_by")
-//   last_modified_date    DateTime?            @map("last_modified_date")
-//   next_review_date      DateTime?            @map("next_review_date")
-//   notes                 String?              @map("notes")
-//   product_record_status ProductRecordStatus?  @default(dbgenerated()) 
-//   review_frequency      ReviewFrequency?  @default(dbgenerated()) 
-//   version_number        Int?                 @map("version_number")  
-//   created_at            DateTime?             @default(now())
-//   updated_at            DateTime?             @default(now()) @updatedAt
-//   product               HSLoanProducts?       @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_loan_products_system_tracking")
-// }
-
-// model HSLoanProductsCompetitiveAnalytics {
-//   id                                Int                           @id @default(autoincrement())
-//   loan_product_id                   Int                           @unique
-//   market_positioning                LoanProductMarketPositioning? @default(dbgenerated()) 
-//   pricing_strategy                  PricingStrategy?  @default(dbgenerated()) 
-//   created_at                        DateTime                      @default(now())
-//   updated_at                        DateTime                      @default(now()) @updatedAt
-//   loan_product_competitive_analysis HSLoanProducts?                @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_loan_products_competitive_analysis")
-// }
-
-// model HSLoanProductsEligibilityCriteria {
-//   id                              Int                      @id @default(autoincrement())
-//   loan_product_id                 Int                      @map("loan_product_id")
-//   criteria_type                   String?                  @map("criteria_type")
-//   criteria_name                   String?                  @map("criteria_name")
-//   criteria_description            String?                  @map("criteria_description")
-//   is_mandatory                    Boolean                  @default(true) @map("is_mandatory")
-//   validation_rule                 Json?                    @map("validation_rule")
-//   min_age                         Int?                     @map("min_age")
-//   max_age                         Int?                     @map("max_age")
-//   max_age_at_maturity             Int?                     @map("max_age_at_maturity")
-//   min_academic_percentage         Decimal?                 @map("min_academic_percentage") @db.Decimal(10, 2)
-//   entrance_exam_required          Boolean                  @default(false) @map("entrance_exam_required")
-//   entrance_exam_list              Json?                    @map("entrance_exam_list")
-//   minimum_percentage_required     Decimal?                 @map("minimum_percentage_required") @db.Decimal(10, 2)
-//   nationality_restrictions        NationalityRestrictions? @default(dbgenerated()) @map("nationality_restrictions")
-//   residency_requirements          ResidencyRequirements?   @default(dbgenerated()) @map("residency_requirements")
-//   target_segment                  TargetSegment?           @default(dbgenerated()) @map("target_segment")
-//   maximum_family_income           Decimal?                 @map("maximum_family_income") @db.Decimal(10, 2)
-//   minimum_family_income           Decimal?                 @map("minimum_family_income") @db.Decimal(10, 2)
-//   min_annual_income               Decimal?                 @map("min_annual_income") @db.Decimal(10, 2)
-//   min_co_applicant_income         Decimal?                 @map("min_co_applicant_income") @db.Decimal(10, 2)
-//   employment_criteria             String?                  @map("employment_criteria")
-//   co_applicant_income_criteria    String?                  @map("co_applicant_income_criteria")
-//   co_applicant_required           String?                  @map("co_applicant_required")
-//   co_applicant_relationship       Json?                    @map("co_applicant_relationship")
-//   guarantor_required              Boolean?                 @default(false) @map("guarantor_required")
-//   min_credit_score                Int?                     @map("min_credit_score")
-//   credit_history_required         Boolean?                 @default(false) @map("credit_history_required")
-//   indian_citizen_only             Boolean?                 @default(true) @map("indian_citizen_only")
-//   nri_eligible                    Boolean?                 @default(false) @map("nri_eligible")
-//   pio_oci_eligible                Boolean?                 @default(false) @map("pio_oci_eligible")
-//   work_experience_required        Boolean?                 @default(false) @map("work_experience_required")
-//   min_work_experience_months      Int?                     @map("min_work_experience_months")
-//   admission_confirmation_required Boolean?                 @default(true) @map("admission_confirmation_required")
-//   created_at                      DateTime?                 @default(now()) @map("created_at")
-//   updated_at                      DateTime?                 @default(now()) @updatedAt @map("updated_at")
-//   loan_product                    HSLoanProducts?           @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
-
-//   @@index([loan_product_id])
-//   @@map("hs_loan_products_eligibility_criteria")
-// }
-
-// model HSLoanProductsCollateralAndSecurity {
-//   id                             Int                          @id @default(autoincrement())
-//   loan_product_id                Int                          @unique
-//   collateral_margin              Int?                         @map("collateral_margin")
-//   collateral_required            CollateralRequirement?         @default(dbgenerated()) @map("collateral_required")
-//   collateral_threshold_amount    Decimal?                     @map("collateral_threshold_amount") @db.Decimal(10, 2)
-//   collateral_types_accepted      CollateralType?  @default(dbgenerated()) 
-//   guarantor_required_security    GurantorRequired?  @default(dbgenerated()) 
-//   insurance_coverage_percentage  Int?                         @map("insurance_coverage_percentage")
-//   insurance_required             InsuranceRequired? @default(dbgenerated()) 
-//   third_party_guarantee_required ThirdPartyGuaranteeRequired? @default(dbgenerated()) 
-//   created_at                     DateTime?                     @default(now()) @map("created_at")
-//   updated_at                     DateTime?                     @default(now()) @updatedAt @map("updated_at")
-//   product                        HSLoanProducts?               @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_loan_products_collateral_and_security")
-// }
-
-// model HSLoanProductsRepaymentTerms {
-//   id                        Int                 @id @default(autoincrement())
-//   loan_product_id           Int                 @unique
-//   moratorium_type           MoratoriumType?     @default(dbgenerated()) @map("moratorium_type")
-//   moratorium_period         Int?                @map("moratorium_period")
-//   repayment_frequency       RepaymentFrequency? @default(dbgenerated()) @map("repayment_frequency")
-//   repayment_period_maximum  Int?                @map("repayment_period_maximum")
-//   repayment_period_minimum  Int?                @map("repayment_period_minimum")
-//   prepayment_allowed        Boolean?            @default(true) @map("prepayment_allowed")
-//   prepayment_charges        Decimal?            @map("prepayment_charges") @db.Decimal(10, 2)
-//   prepayment_lock_in_period Int?                @map("prepayment_lock_in_period")
-//   foreclosure_allowed       Boolean?            @default(true) @map("foreclosure_allowed")
-//   foreclosure_charges       String?             @map("foreclosure_charges")
-//   late_payment_charges      String?             @map("late_payment_charges")
-//   bounce_charges            Decimal?            @map("bounce_charges") @db.Decimal(10, 2)
-//   part_payment_allowed      PartPaymentAllowed? @default(dbgenerated()) @map("part_payment_allowed")
-//   part_payment_minimum      Int?                @map("part_payment_minimum")
-//   created_at                DateTime            @default(now()) @map("created_at")
-//   updated_at                DateTime            @default(now()) @updatedAt @map("updated_at")
-//   product                   HSLoanProducts?      @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_loan_products_repayment_terms")
-// }
-
-// model HSLoanProductsApplicationAndProcessing {
-//   id                           Int                  @id @default(autoincrement())
-//   loan_product_id              Int                  @unique
-//   application_mode             ApplicationMode?     @default(dbgenerated()) @map("application_mode")
-//   disbursement_process         DisbursementProcess? @default(dbgenerated()) @map("disbursement_process")
-//   disbursement_timeline        String?              @map("disbursement_timeline")
-//   partial_disbursement_allowed Boolean?             @default(false) @map("partial_disbursement_allowed")
-//   disbursement_stages          Json?                @map("disbursement_stages")
-//   documentation_list           String?              @map("documentation_list")
-//   mandatory_documents          String?              @map("mandatory_documents")
-//   optional_documents           String?              @map("optional_documents")
-//   created_at                   DateTime             @default(now()) @map("created_at")
-//   updated_at                   DateTime             @default(now()) @updatedAt @map("updated_at")
-//   product                      HSLoanProducts?       @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_loan_products_application_and_processing")
-// }
-
-// model HSLoanProductsGeographicCoverage {
-//   id                         Int                     @id @default(autoincrement())
-//   loan_product_id            Int                     @unique
-//   course_restrictions        String?                 @map("course_restrictions")
-//   not_supported_universities String?                 @map("not_supported_universities")
-//   restricted_countries       String?                 @map("restricted_countries")
-//   course_duration_minimum    Int?                    @map("course_duration_minimum")
-//   course_duration_maximum    Int?                    @map("course_duration_maximum")
-//   supported_course_types     LoanProductCourseTypes? @default(dbgenerated()) @map("supported_course_types")
-//   created_at                 DateTime                @default(now()) @map("created_at")
-//   updated_at                 DateTime                @default(now()) @updatedAt @map("updated_at")
-//   product                    HSLoanProducts?          @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_loan_products_geographic_coverage")
-// }
-
-// model HSLoanProductsSpecialFeatures {
-//   id                          Int                       @id @default(autoincrement())
-//   loan_product_id             Int                       @unique
-//   digital_features            DigitalFeatures?          @default(dbgenerated()) @map("digital_features")
-//   customer_support_features   CustomerSupportFeatures?  @default(dbgenerated()) @map("customer_support_features")
-//   flexible_repayment_options  FlexibleRepaymentOptions? @default(dbgenerated()) @map("flexible_repayment_options")
-//   tax_benefits_available      String?                   @map("tax_benefits_available")
-//   forex_tax_benefits          String?                   @map("forex_tax_benefits")
-//   grace_period_benefits       String?                   @map("grace_period_benefits")
-//   insurance_coverage_included Boolean?                  @default(false) @map("insurance_coverage_included")
-//   loyalty_benefits            String?                   @map("loyalty_benefits")
-//   created_at                  DateTime                  @default(now()) @map("created_at")
-//   updated_at                  DateTime                  @default(now()) @updatedAt @map("updated_at")
-//   product                     HSLoanProducts?            @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_loan_products_special_features")
-// }
-
-// model HSLoanProductsPerformanceMetrics {
-//   id                           Int            @id @default(autoincrement())
-//   loan_product_id              Int            @unique
-//   application_volume_monthly   Int?           @map("application_volume_monthly")
-//   application_volume_quarterly Int?           @map("application_volume_quarterly")
-//   application_volume_yearly    Int?           @map("application_volume_yearly")
-//   approval_rate                Decimal?       @map("approval_rate") @db.Decimal(10, 2)
-//   average_loan_amount          Decimal?       @map("average_loan_amount") @db.Decimal(10, 2)
-//   average_processing_days      Int?           @map("average_processing_days")
-//   customer_satisfaction_rating Int?           @map("customer_satisfaction_rating")
-//   product_popularity_score     Int?           @map("product_popularity_score")
-//   created_at                   DateTime?      @default(now()) @map("created_at")
-//   updated_at                   DateTime?      @default(now()) @updatedAt @map("updated_at")
-//   product                      HSLoanProducts? @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_loan_products_performance_metrics")
-// }
-
-// model HSLoanProductsSystemIntegration {
-//   id                          Int                    @id @default(autoincrement())
-//   loan_product_id             Int                    @unique
-//   api_availability            ApiAvailability?       @default(dbgenerated()) @map("api_availability")
-//   technical_documentation_url String?                @map("technical_documentation_url")
-//   integration_complexity      IntegrationComplexity? @default(dbgenerated()) @map("integration_complexity")
-//   data_format                 DataFormat?            @default(dbgenerated()) @map("data_format")
-//   sandbox_environment         SandboxEnvironment?    @default(dbgenerated()) @map("sandbox_environment")
-//   webhook_support             WebHookSupport?        @map("webhook_support")
-//   created_at                  DateTime?              @default(now()) @map("created_at")
-//   updated_at                  DateTime?              @default(now()) @updatedAt @map("updated_at")
-//   product                     HSLoanProducts?         @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_loan_products_system_integration")
-// }
-
-// model HSLoanProductsFinancialTerms {
-//   id                            Int                @id @default(autoincrement())
-//   loan_product_id               Int                @unique
-//   interest_rate_type            InterestRateType?  @default(dbgenerated()) @map("interest_rate_type")
-//   interest_rate_range_min       Decimal?           @map("interest_rate_range_min") @db.Decimal(10, 2)
-//   interest_rate_range_max       Decimal?           @map("interest_rate_range_max") @db.Decimal(10, 2)
-//   legal_charges                 Decimal?           @map("legal_charges") @db.Decimal(10, 2)
-//   loan_to_value_ratio           Int?               @map("loan_to_value_ratio")
-//   rack_rate                     Decimal?           @map("rack_rate") @db.Decimal(10, 2)
-//   valuation_charges             Decimal?           @map("valuation_charges") @db.Decimal(10, 2)
-//   processing_fee_type           ProcessingFeeType? @default(dbgenerated()) @map("processing_fee_type")
-//   processing_fee_percentage     Decimal?           @map("processing_fee_percentage") @db.Decimal(10, 2)
-//   processing_fee_amount         Decimal?           @map("processing_fee_amount") @db.Decimal(10, 2)
-//   processing_fee_minimum        Decimal?           @map("processing_fee_minimum") @db.Decimal(10, 2)
-//   processing_fee_maximum        Decimal?           @map("processing_fee_maximum") @db.Decimal(10, 2)
-//   administrative_charges        Decimal?           @map("administrative_charges") @db.Decimal(10, 2)
-//   margin_money_percentage       Decimal?           @map("margin_money_percentage") @db.Decimal(10, 2)
-//   maximum_loan_amount_secured   Decimal?           @map("maximum_loan_amount_secured") @db.Decimal(10, 2)
-//   maximum_loan_amount_unsecured Decimal?           @map("maximum_loan_amount_unsecured") @db.Decimal(10, 2)
-//   minimum_loan_amount_secured   Decimal?           @map("minimum_loan_amount_secured") @db.Decimal(10, 2)
-//   minimum_loan_amount_unsecured Decimal?           @map("minimum_loan_amount_unsecured") @db.Decimal(10, 2)
-//   created_at                    DateTime?          @default(now()) @map("created_at")
-//   updated_at                    DateTime?          @default(now()) @updatedAt @map("updated_at")
-//   product                       HSLoanProducts?     @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_loan_products_financial_terms")
-// }
-
-// MAIN TABLE: Loan Products Information
 model HSLoanProducts  {
   id Int @id @default(autoincrement())
   // Basic Information
@@ -3068,312 +1874,6 @@ model HSLoanDocumentsCustomerExperience {
   @@map("hs_loan_documents_customer_experience")
 }
 
-// model HSCommissionSettlements {
-//   id                          Int                                           @id @default(autoincrement())
-//   loan_application_id         Int?
-//   db_id String?
-//   settlement_date DateTime?
-//   lead_reference_id           String?                                       @map("lead_reference_id")
-//   student_id                  String?                                       @map("student_id")
-//   deleted_by_id               Int?
-//   partner_id                  Int?                                          @map("partner_id")
-//   partner_name                String?                                       @map("partner_name")
-//   student_name                String?                                       @map("student_name")
-//   verified_by                 String?                                       @map("verified_by")
-//   settlement_period           SettlementPeriod?                             @default(dbgenerated()) @map("settlement_period")
-//   settlement_month            SettlementMonth?                              @default(dbgenerated()) @map("settlement_month")
-//   settlement_year             Int?                                          @map("settlement_year")
-//   settlement_reference_number String?                                       @map("settlement_reference_number")
-//   is_deleted                  Boolean?                                      @default(false)
-//   is_active                   Boolean?                                      @default(true) @map("is_active")
-//   created_at                  DateTime?                                     @default(now()) @map("created_at")
-//   updated_at                  DateTime?                                     @default(now()) @updatedAt @map("updated_at")
-//   created_by                  String?                                       @map("created_by")
-//   updated_by                  String?                                       @map("updated_by")
-//   hs_created_by_user_id       Int?                                          @map("hs_created_by_user_id")
-//   hs_createdate               DateTime?                                     @map("hs_createdate")
-//   hs_lastmodifieddate         DateTime?                                     @map("hs_lastmodifieddate")
-//   hs_object_id                String?                                       @map("hs_object_id")
-//   hs_updated_by_user_id       Int?                                          @map("hs_updated_by_user_id")
-//   hubspot_owner_id            String?                                       @map("hubspot_owner_id")
-//   hs_merged_object_ids String?
-//   hs_object_source_detail_1 String?
-//   hs_object_source_detail_2 String?
-//   hs_object_source_detail_3 String? 
-//   hs_object_source_label String? 
-//   hs_shared_team_ids String? 
-//   hs_shared_user_ids String? 
-//   hubspot_owner_assigneddate DateTime? 
-//   hubspot_team_id String?
-//   deleted_by                  B2BPartnersUsers?                             @relation("CommissionDeletedBy", fields: [deleted_by_id], references: [id])
-//   calculation_details         HSCommissionSettlementsCommissionCalculation?
-//   communication               HSCommissionSettlementsCommunication?
-//   documentaion                HSCommissionSettlementsDocumentation?
-//   hold_dispute                HSCommissionSettlementsHoldAndDisputes?
-//   loan_details                HSCommissionSettlementsLoanDetails?
-//   payment_details             HSCommissionSettlementsPaymentProcessing?
-//   performance_metrics         HSCommissionSettlementsPerformanceAnalytics?
-//   reconciliation              HSCommissionSettlementsReconciliations?
-//   status_history              HSCommissionSettlementsSettlementStatus?
-//   system_tracking             HSCommissionSettlementsSystemTracking?
-//   tax_deductions              HSCommissionSettlementsTaxAndDeductions?
-//   transaction                 HSCommissionSettlementsTransactionDetails?
-//   loan_application            HSLoanApplications[]
-
-//   @@index([partner_id])
-//   @@index([lead_reference_id])
-//   @@index([student_id])
-//   @@index([created_at])
-//   @@map("hs_commission_settlements")
-// }
-
-// model HSCommissionSettlementsSettlementStatus {
-//   id                  Int                     @id @default(autoincrement())
-//   settlement_id       Int                     @unique @map("settlement_id")
-//   calculated_by       String?                 @map("calculated_by")
-//   calculation_date    DateTime?
-//   settlement_status   SettlementStatus? @default(dbgenerated()) 
-//   verification_date   DateTime?
-//   verification_status VerificationStatus? @default(dbgenerated()) 
-//   created_at          DateTime                @default(now()) @map("created_at")
-//   updated_at          DateTime                @default(now()) @updatedAt @map("updated_at")
-//   settlement          HSCommissionSettlements @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
-
-//   @@index([settlement_id])
-//   @@index([created_at])
-//   @@map("hs_commission_settlements_settlement_status")
-// }
-
-// model HSCommissionSettlementsSystemTracking {
-//   id                         Int                     @id @default(autoincrement())
-//   settlement_id              Int                     @unique @map("settlement_id")
-//   audit_trail                String?                 @map("audit_trail")
-//   change_log                 String?                 @map("change_log")
-//   created_by                 String?                 @map("created_by")
-//   created_date               DateTime?               @default(now()) @map("created_date")
-//   data_source                CommissionDataSource?    @default(dbgenerated()) @map("data_source")
-//   integration_status         IntegrationStatus?       @default(dbgenerated()) @map("integration_status")
-//   internal_notes             String?                 @map("internal_notes")
-//   last_modified_by           String?                 @map("last_modified_by")
-//   last_modified_date         DateTime?               @updatedAt @map("last_modified_date")
-//   notes                      String?                 @map("notes")
-//   settlement_record_status   SettlementRecordStatus?  @default(dbgenerated()) @map("settlement_record_status")
-//   system_generated           SystemGenerated?         @default(dbgenerated()) @map("system_generated")
-//   version_number             String?                 @map("version_number")
-//   batch_payment_id           String?                 @map("batch_payment_id")
-//   disbursement_trigger       DisbursementTrigger?     @default(dbgenerated()) @map("disbursement_trigger")
-//   original_transaction_id    String?                 @map("original_transaction_id")
-//   related_settlement_id      String?                 @map("related_settlement_id")
-//   transaction_sub_type       String?                 @map("transaction_sub_type")
-//   transaction_type           TransactionTypes?        @default(dbgenerated()) @map("transaction_type")
-//   created_at                 DateTime                @default(now()) @map("created_at")
-//   updated_at                 DateTime                @default(now()) @updatedAt @map("updated_at")
-//   settlement_system_tracking HSCommissionSettlements @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_commission_settlements_system_tracking")
-// }
-
-// model HSCommissionSettlementsTransactionDetails {
-//   id                      Int                     @id @default(autoincrement())
-//   settlement_id           Int                     @unique @map("settlement_id")
-//   batch_payment_id        String?                 @map("batch_payment_id")
-//   disbursement_trigger    DisbursementTrigger?     @default(dbgenerated()) @map("disbursement_trigger")
-//   original_transaction_id String?                 @map("original_transaction_id")
-//   related_settlement_id   String?                 @map("related_settlement_id")
-//   transaction_sub_type    String?                 @map("transaction_sub_type")
-//   transaction_type        TransactionTypes?        @default(dbgenerated()) @map("transaction_type")
-//   created_at              DateTime                @default(now()) @map("created_at")
-//   updated_at              DateTime                @default(now()) @updatedAt @map("updated_at")
-//   transaction             HSCommissionSettlements @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_commission_settlements_transaction_details")
-// }
-
-// model HSCommissionSettlementsCommissionCalculation {
-//   id                      Int                     @id @default(autoincrement())
-//   settlement_id           Int                     @unique @map("settlement_id")
-//   commission_model        CommissionModel?        @default(dbgenerated()) @map("commission_model")
-//   commission_rate_applied Decimal?                @map("commission_rate_applied") @db.Decimal(10, 2)
-//   commission_tier_applied String?                 @map("commission_tier_applied")
-//   gross_commission_amount Decimal?                @map("gross_commission_amount") @db.Decimal(12, 2)
-//   bonus_amount            Decimal?                @map("bonus_amount") @db.Decimal(12, 2)
-//   bonus_rate_applied      Decimal?                @map("bonus_rate_applied") @db.Decimal(10, 2)
-//   incentive_amount        Decimal?                @map("incentive_amount") @db.Decimal(12, 2)
-//   adjustment_amount       Decimal?                @map("adjustment_amount") @db.Decimal(12, 2)
-//   adjustment_reason       String?                 @map("adjustment_reason")
-//   penalty_amount          Decimal?                @map("penalty_amount") @db.Decimal(12, 2)
-//   total_gross_amount      Decimal?                @map("total_gross_amount") @db.Decimal(12, 2)
-//   created_at              DateTime                @default(now()) @map("created_at")
-//   updated_at              DateTime                @default(now()) @updatedAt @map("updated_at")
-//   settlement              HSCommissionSettlements @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_commission_settlements_commission_calculations")
-// }
-
-// model HSCommissionSettlementsCommunication {
-//   id                        Int                      @id @default(autoincrement())
-//   settlement_id             Int                      @unique @map("settlement_id")
-//   acknowledgment_date       DateTime?                @map("acknowledgment_date")
-//   acknowledgment_received   AcknowledgmentStatus?    @default(dbgenerated()) @map("acknowledgment_received")
-//   communication_log         String?                  @map("communication_log")
-//   email_sent_count          Int?                     @map("email_sent_count")
-//   last_communication_date   DateTime?                @map("last_communication_date")
-//   notification_date         DateTime?                @map("notification_date")
-//   notification_method       NotificationMethod?      @default(dbgenerated()) @map("notification_method")
-//   partner_notification_sent PartnerNotificationSent? @default(dbgenerated()) @map("partner_notification_sent")
-//   sms_sent_count            Int?                     @map("sms_sent_count")
-//   created_at                DateTime                 @default(now()) @map("created_at")
-//   updated_at                DateTime                 @default(now()) @updatedAt @map("updated_at")
-//   settlement                HSCommissionSettlements  @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_commission_settlements_communication")
-// }
-
-// model HSCommissionSettlementsLoanDetails {
-//   id                          Int                     @id @default(autoincrement())
-//   settlement_id               Int                     @unique @map("settlement_id")
-//   course_name                 String?                 @map("course_name")
-//   lender_name                 String?                  @map("lender_name")
-//   loan_amount_disbursed       Decimal?                @map("loan_amount_disbursed") @db.Decimal(12, 2)
-//   loan_disbursement_date      DateTime?               @map("loan_disbursement_date")
-//   loan_product_name           String?                 @map("loan_product_name")
-//   student_destination_country String?                 @map("student_destination_country")
-//   university_name             String?                 @map("university_name")
-//   created_at                  DateTime                @default(now()) @map("created_at")
-//   updated_at                  DateTime                @default(now()) @updatedAt @map("updated_at")
-//   settlement                  HSCommissionSettlements @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
-
-//   @@index([settlement_id])
-//   @@index([loan_disbursement_date])
-//   @@map("hs_commission_settlements_loan_details")
-// }
-
-// model HSCommissionSettlementsPaymentProcessing {
-//   id                         Int                     @id @default(autoincrement())
-//   settlement_id              Int                     @unique @map("settlement_id")
-//   beneficiary_name           String?                 @map("beneficiary_name")
-//   beneficiary_account_number String?                 @map("beneficiary_account_number")
-//   beneficiary_bank_name      String?                 @map("beneficiary_bank_name")
-//   beneficiary_ifsc_code      String?                 @map("beneficiary_ifsc_code")
-//   last_retry_date            DateTime?               @map("last_retry_date")
-//   payment_completed_date     DateTime?               @map("payment_completed_date")
-//   payment_failure_reason     String?                 @map("payment_failure_reason")
-//   payment_initiation_date    DateTime?               @map("payment_initiation_date")
-//   payment_method             PaymentMethod?          @default(dbgenerated()) @map("payment_method")
-//   payment_reference_number   String?                 @map("payment_reference_number")
-//   payment_status             PaymentStatus?          @default(dbgenerated()) @map("payment_status")
-//   retry_attempt_count        Int?                    @map("retry_attempt_count")
-//   bank_transaction_id        String?                 @unique @map("bank_transaction_id")
-//   payment_gateway_reference  String?                 @map("payment_gateway_reference")
-//   created_at                 DateTime                @default(now()) @map("created_at")
-//   updated_at                 DateTime                @default(now()) @updatedAt @map("updated_at")
-//   settlement                 HSCommissionSettlements @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_commission_settlements_payment_processing")
-// }
-
-// model HSCommissionSettlementsTaxAndDeductions {
-//   id                           Int                     @id @default(autoincrement())
-//   settlement_id                Int                     @unique @map("settlement_id")
-//   gst_applicable               String?                 @map("gst_applicable")
-//   gst_rate_applied             Decimal?                @map("gst_rate_applied") @db.Decimal(10, 2)
-//   gst_amount                   Decimal?                @map("gst_amount") @db.Decimal(12, 2)
-//   net_payable_amount           Decimal?                @map("net_payable_amount") @db.Decimal(12, 2)
-//   service_tax_amount           Int?                    @map("service_tax_amount")
-//   other_deductions             Decimal?                @map("other_deductions") @db.Decimal(12, 2)
-//   other_deductions_description String?                 @map("other_deductions_description")
-//   tds_applicable               String?                 @map("tds_applicable")
-//   tds_rate_applied             Decimal?                @map("tds_rate_applied") @db.Decimal(10, 2)
-//   tds_amount                   Decimal?                @map("tds_amount") @db.Decimal(12, 2)
-//   tds_certificate_number       String?                 @map("tds_certificate_number")
-//   withholding_tax_applicable   Boolean?                @default(false) @map("withholding_tax_applicable")
-//   withholding_tax_rate         Decimal?                @map("withholding_tax_rate") @db.Decimal(10, 2)
-//   withholding_tax_amount       Decimal?                @map("withholding_tax_amount") @db.Decimal(12, 2)
-//   total_deductions             Decimal?                @map("total_deductions") @db.Decimal(12, 2)
-//   created_at                   DateTime                @default(now()) @map("created_at")
-//   updated_at                   DateTime                @default(now()) @updatedAt @map("updated_at")
-//   settlement                   HSCommissionSettlements @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_commission_settlements_tax_and_deductions")
-// }
-
-// model HSCommissionSettlementsDocumentation {
-//   id                       Int                     @id @default(autoincrement())
-//   settlement_id            Int                     @unique @map("settlement_id")
-//   agreement_reference      String?                 @map("agreement_reference")
-//   invoice_required         String?                 @map("invoice_required")
-//   invoice_number           String?                 @unique @map("invoice_number")
-//   invoice_date             DateTime?               @map("invoice_date")
-//   invoice_amount           Decimal?                @map("invoice_amount") @db.Decimal(12, 2)
-//   invoice_status           InvoiceStatus?          @default(dbgenerated()) @map("invoice_status")
-//   invoice_url              String?                 @map("invoice_url")
-//   payment_terms_applied    String?                 @map("payment_terms_applied")
-//   supporting_documents     String?                 @map("supporting_documents")
-//   tax_certificate_required TaxCertificateRequired? @default(dbgenerated()) @map("tax_certificate_required")
-//   tax_certificate_url      String?                 @map("tax_certificate_url")
-//   created_at               DateTime                @default(now()) @map("created_at")
-//   updated_at               DateTime                @default(now()) @updatedAt @map("updated_at")
-//   settlement               HSCommissionSettlements @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_commission_settlements_documentation")
-// }
-
-// model HSCommissionSettlementsHoldAndDisputes {
-//   id                       Int                     @id @default(autoincrement())
-//   settlement_id            Int                     @unique @map("settlement_id")
-//   dispute_date             DateTime?               @map("dispute_date")
-//   dispute_description      String?                 @map("dispute_description")
-//   dispute_raised           String?                 @map("dispute_raised")
-//   dispute_raised_by        String?                 @map("dispute_raised_by")
-//   dispute_resolution       String?                 @map("dispute_resolution")
-//   dispute_resolution_date  DateTime?               @map("dispute_resolution_date")
-//   dispute_resolved_by      String?                 @map("dispute_resolved_by")
-//   hold_date                DateTime?               @map("hold_date")
-//   hold_initiated_by        String?                 @map("hold_initiated_by")
-//   hold_reason              HoldReason?             @default(dbgenerated()) @map("hold_reason")
-//   hold_release_approved_by String?                 @map("hold_release_approved_by")
-//   hold_release_date        DateTime?               @map("hold_release_date")
-//   on_hold                  String?                 @map("on_hold")
-//   created_at               DateTime                @default(now()) @map("created_at")
-//   updated_at               DateTime                @default(now()) @updatedAt @map("updated_at")
-//   settlement               HSCommissionSettlements @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_commission_settlements_hold_and_disputes")
-// }
-
-// model HSCommissionSettlementsReconciliations {
-//   id                       Int                     @id @default(autoincrement())
-//   settlement_id            Int                     @unique @map("settlement_id")
-//   reconciliation_status    ReconciliationStatus?   @default(dbgenerated()) @map("reconciliation_status")
-//   reconciliation_date      DateTime?               @map("reconciliation_date")
-//   reconciled_by            String?                 @map("reconciled_by")
-//   reconciliation_notes     String?                 @map("reconciliation_notes")
-//   bank_statement_reference String?                 @map("bank_statement_reference")
-//   discrepancy_amount       Decimal?                @map("discrepancy_amount") @db.Decimal(12, 2)
-//   discrepancy_reason       String?                 @map("discrepancy_reason")
-//   created_at               DateTime                @default(now()) @map("created_at")
-//   updated_at               DateTime                @default(now()) @updatedAt @map("updated_at")
-//   settlement               HSCommissionSettlements @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_commission_settlements_reconciliations")
-// }
-
-// model HSCommissionSettlementsPerformanceAnalytics {
-//   id                          Int                     @id @default(autoincrement())
-//   settlement_id               Int                     @unique @map("settlement_id")
-//   sla_breach                  String?                 @map("sla_breach")
-//   sla_breach_reason           String?                 @map("sla_breach_reason")
-//   partner_satisfaction_rating Decimal?                @map("partner_satisfaction_rating") @db.Decimal(3, 2)
-//   payment_delay_days          Int?                    @map("payment_delay_days")
-//   processing_time_days        Int?                    @map("processing_time_days")
-//   created_at                  DateTime                @default(now()) @map("created_at")
-//   updated_at                  DateTime                @default(now()) @updatedAt @map("updated_at")
-//   settlement                  HSCommissionSettlements @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
-
-//   @@map("hs_commission_settlements_performance_analytics")
-// }
-
-
 model HSCommissionSettlements  {
   id Int @id @default(autoincrement())
 
@@ -3444,7 +1944,6 @@ model HSCommissionSettlements  {
   @@map("hs_commission_settlements")
 }
 
-// Commission Calculation
 model HSCommissionSettlementsCommissionCalculation  {
   id Int @id @default(autoincrement())
 
@@ -3469,7 +1968,6 @@ model HSCommissionSettlementsCommissionCalculation  {
   @@map("hs_commission_settlements_commission_calculations")
 }
 
-// Communication
 model HSCommissionSettlementsCommunication  {
   id Int @id @default(autoincrement())
 
@@ -3492,7 +1990,6 @@ model HSCommissionSettlementsCommunication  {
   @@map("hs_commission_settlements_communication")
 }
 
-// Deductions & Taxes
 model HSCommissionSettlementsTaxAndDeductions  {
   id Int @id @default(autoincrement())
 
@@ -3521,7 +2018,6 @@ model HSCommissionSettlementsTaxAndDeductions  {
   @@map("hs_commission_settlements_tax_and_deductions")
 }
 
-// Documentation
 model HSCommissionSettlementsDocumentation  {
   id Int @id @default(autoincrement())
 
@@ -3546,7 +2042,6 @@ model HSCommissionSettlementsDocumentation  {
   @@map("hs_commission_settlements_documentation")
 }
 
-// Hold & Dispute
 model HSCommissionSettlementsHoldAndDisputes  {
   id Int @id @default(autoincrement())
 
@@ -3573,7 +2068,6 @@ model HSCommissionSettlementsHoldAndDisputes  {
   @@map("hs_commission_settlements_hold_and_disputes")
 }
 
-// Loan Details
 model HSCommissionSettlementsLoanDetails  {
   id Int @id @default(autoincrement())
 
@@ -3594,7 +2088,6 @@ model HSCommissionSettlementsLoanDetails  {
   @@map("hs_commission_settlements_loan_details")
 }
 
-// Payment Processing
 model HSCommissionSettlementsPaymentProcessing  {
   id Int @id @default(autoincrement())
 
@@ -3622,7 +2115,6 @@ model HSCommissionSettlementsPaymentProcessing  {
   @@map("hs_commission_settlements_payment_processing")
 }
 
-// Performance Analytics
 model HSCommissionSettlementsPerformanceAnalytics  {
   id Int @id @default(autoincrement())
 
@@ -3641,7 +2133,6 @@ model HSCommissionSettlementsPerformanceAnalytics  {
   @@map("hs_commission_settlements_performance_analytics")
 }
 
-// Reconciliation
 model HSCommissionSettlementsReconciliations  {
   id Int @id @default(autoincrement())
 
@@ -3662,7 +2153,6 @@ model HSCommissionSettlementsReconciliations  {
   @@map("hs_commission_settlements_reconciliations")
 }
 
-// Settlement Status
 model HSCommissionSettlementsSettlementStatus  {
   id Int @id @default(autoincrement())
 
@@ -3681,7 +2171,6 @@ model HSCommissionSettlementsSettlementStatus  {
   @@map("hs_commission_settlements_settlement_status")
 }
 
-// System Tracking
 model HSCommissionSettlementsSystemTracking  {
   id Int @id @default(autoincrement())
 
@@ -3708,7 +2197,6 @@ model HSCommissionSettlementsSystemTracking  {
   @@map("hs_commission_settlements_system_tracking")
 }
 
-// Transaction Details
 model HSCommissionSettlementsTransactionDetails  {
   id Int @id @default(autoincrement())
 

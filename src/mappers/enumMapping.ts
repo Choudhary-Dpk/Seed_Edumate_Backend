@@ -1,5 +1,3 @@
-// src/services/enumMapping.service.ts
-
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -28,8 +26,8 @@ class EnumMappingService {
             isActive: true,
           },
           OR: [
-            { sourceValue: String(sourceValue) },      // Match source value
-            { hubspotValue: String(sourceValue) },     // Match HubSpot value
+            { sourceValue: String(sourceValue) }, // Match source value
+            { hubspotValue: String(sourceValue) }, // Match HubSpot value
           ],
           isActive: true,
         },
@@ -39,19 +37,14 @@ class EnumMappingService {
       });
 
       if (!enumValue) {
-        console.warn(
-          `⚠️ No mapping found for ${enumName}: "${sourceValue}"`
-        );
-        
+        console.warn(`No mapping found for ${enumName}: "${sourceValue}"`);
+
         return null;
       }
 
       return enumValue.hubspotValue;
     } catch (error) {
-      console.error(
-        `Error translating enum ${enumName}:${sourceValue}`,
-        error
-      );
+      console.error(`Error translating enum ${enumName}:${sourceValue}`, error);
       return null;
     }
   }
@@ -77,8 +70,8 @@ class EnumMappingService {
             isActive: true,
           },
           OR: [
-            { sourceValue: { in: values } },      // Match source values
-            { hubspotValue: { in: values } },     // Match HubSpot values
+            { sourceValue: { in: values } }, // Match source values
+            { hubspotValue: { in: values } }, // Match HubSpot values
           ],
           isActive: true,
         },
@@ -93,12 +86,12 @@ class EnumMappingService {
 
       // Create lookup map for BOTH sourceValue and hubspotValue
       const lookupMap = new Map<string, string>();
-      
+
       for (const ev of enumValues) {
         // Map sourceValue → hubspotValue (e.g., "private_bank" → "Private Bank")
         const sourceKey = `${ev.enumMapping.enumName}:${ev.sourceValue}`;
         lookupMap.set(sourceKey, ev.hubspotValue);
-        
+
         // Map hubspotValue → hubspotValue (e.g., "Private Bank" → "Private Bank")
         const hubspotKey = `${ev.enumMapping.enumName}:${ev.hubspotValue}`;
         lookupMap.set(hubspotKey, ev.hubspotValue);
@@ -106,7 +99,7 @@ class EnumMappingService {
 
       // Build result
       const result: Record<string, string | null> = {};
-      
+
       for (const translation of translations) {
         const key = `${translation.enumName}:${translation.sourceValue}`;
         const hubspotValue = lookupMap.get(key) || null;
@@ -115,7 +108,6 @@ class EnumMappingService {
           console.log(
             `No mapping found for ${translation.enumName}: "${translation.sourceValue}"`
           );
-          
         }
 
         result[key] = hubspotValue;
@@ -127,7 +119,6 @@ class EnumMappingService {
       return {};
     }
   }
-
 
   /**
    * Get all values for a specific enum (for dropdowns, etc.)

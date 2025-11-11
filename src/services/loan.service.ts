@@ -1,5 +1,3 @@
-// src/services/loan.service.ts
-import { Prisma } from "@prisma/client";
 import prisma from "../config/prisma";
 import { LoanEligibilityRequest } from "../middlewares/validators/loan.validator";
 import logger from "../utils/logger";
@@ -86,4 +84,3 @@ export const convertCurrency = async (
     return null;
   }
 };
-

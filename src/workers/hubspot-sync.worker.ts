@@ -11,31 +11,6 @@ const BATCH_SIZE = 95; // HubSpot batch limit
 const POLL_INTERVAL = 60000; // 5 seconds
 const MAX_RETRIES = 5;
 
-/**
- * Start all background workers
- */
-// export async function startWorkers() {
-//   try {
-//     logger.info("🔧 Initializing background workers...");
-//     // Start HubSpot sync worker
-//     startHubSpotSyncWorker().catch((error) => {
-//       logger.error("HubSpot Sync Worker crashed:", error);
-//       process.exit(1);
-//     });
-
-//     logger.info("✅ All workers started successfully");
-//   } catch (error) {
-//     logger.error("Failed to start workers:", error);
-//     process.exit(1);
-//   }
-// }
-
-// // Graceful shutdown
-// process.on("SIGTERM", () => {
-//   logger.info("SIGTERM received, shutting down workers gracefully...");
-//   process.exit(0);
-// });
-
 process.on("SIGINT", () => {
   logger.info("SIGINT received, shutting down workers gracefully...");
   process.exit(0);

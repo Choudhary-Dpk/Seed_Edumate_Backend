@@ -3,14 +3,10 @@ import moment from "moment";
 import { getEmailTemplate } from "../../models/helpers";
 import {
     revokePreviousAdminEmailTokens,
-  revokePreviousEmailTokens,
   saveAdminEmailToken,
-  saveEmailToken,
 } from "../../models/helpers/auth";
 import { logEmailHistory } from "../../models/helpers/email.helper";
 import {
-  createUsers,
-  assignRole,
   createAdmin,
   assignAdminRole,
 } from "../../models/helpers/user.helper";

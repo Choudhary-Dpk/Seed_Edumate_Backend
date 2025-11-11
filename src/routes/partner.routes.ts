@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getPartnersList } from "../controllers/hubspot.controller";
-import { validateApiKey, validateToken } from "../middlewares";
+import { validateApiKey } from "../middlewares";
 import {
   createB2bPartner,
   deletePartner,

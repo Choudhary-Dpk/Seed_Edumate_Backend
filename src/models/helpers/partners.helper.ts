@@ -1,10 +1,5 @@
 import { Prisma } from "@prisma/client";
 import prisma from "../../config/prisma";
-import {
-  apiAccessStatusMap,
-  portalAccessStatusMap,
-} from "../../types/partner.type";
-import { dataSourceMap } from "../../types/contact.types";
 
 export const getPartners = async () => {
   const partnersList = await prisma.hSB2BPartners.findMany({
@@ -784,45 +779,6 @@ export const checkB2BPartnerFields = async (
 
   return result;
 };
-
-// export const getLeadsByDynamicFilters = async (
-//   filters: Record<string, any>
-// ) => {
-//   if (!Object.keys(filters).length) return [];
-//   const numericFields = ["id", "b2b_partner_id"];
-
-//   // Build partner filters
-//   const partnerWhere: Record<string, any> = { is_deleted: false };
-//   for (const key in filters) {
-//     const value = filters[key];
-//     if (numericFields.includes(key)) {
-//       partnerWhere[key] = Number(value);
-//     } else {
-//       partnerWhere[key] = { equals: value }; // use equals instead of contains inside relation
-//     }
-//   }
-
-//   const contacts = await prisma.hSEdumateContacts.findMany({
-//     where: {
-//       is_deleted: false,
-//       b2b_partner: {
-//         is: partnerWhere,
-//       },
-//     },
-//     include: {
-//       personal_information: true,
-//       academic_profile: true,
-//       application_journey: true,
-//       financial_Info: true,
-//       lead_attribution: true,
-//       loan_preference: true,
-//       system_tracking: true,
-//       b2b_partner: true,
-//     },
-//   });
-
-//   return contacts;
-// };
 
 export const getLeadsByDynamicFilters = async (
   filters: Record<string, any>
