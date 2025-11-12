@@ -1882,7 +1882,7 @@ model HSCommissionSettlements  {
   db_id                      String?   @unique
   settlement_id              String?   @unique
   settlement_reference_number String?
-  application_id             String?
+  application_id             Int?
   lead_reference_id          String?
   partner_id                 String?
   partner_name               String?

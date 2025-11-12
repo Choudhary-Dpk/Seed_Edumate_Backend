@@ -7,7 +7,7 @@ export const mapAllCommissionSettlementFields = async (
 
   // Collect all enum translations needed
   const enumTranslations: Array<{ enumName: string; sourceValue: any }> = [];
-debugger
+
   // MAIN COMMISSION SETTLEMENT FIELDS
   if (input.lead_reference_id !== undefined)
     mapped.lead_reference_id =
