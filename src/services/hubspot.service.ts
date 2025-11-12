@@ -655,9 +655,9 @@ export const updateContactsLoanLead = async (
   }
 };
 
-export const createContactsLoanLeads = async (leads: ContactsLead[]) => {
+export const createContactsLoanLeads = async (leads: ContactsLead[], b2bPartnerHSId: string | null = null) => {
   try {
-    const response = await hubspotClient.createMultiContactsLead(leads);
+    const response = await hubspotClient.createMultiContactsLead(leads, b2bPartnerHSId);
 
     return response;
   } catch (error) {

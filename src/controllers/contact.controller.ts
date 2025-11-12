@@ -67,8 +67,7 @@ export const createContactsLead = async (
       const contact = await createEdumateContact(
         tx,
         categorized["mainContact"],
-        null, // ⬅️ HubSpot ID ab null hai
-        id,
+        // null, // ⬅️ HubSpot ID ab null hai
         partnerId!.b2b_id
       );
       logger.debug(`Contact created successfully with id: ${contact.id}`);
@@ -219,7 +218,7 @@ export const upsertContactsLead = async (
           const contact = await createEdumateContact(
             tx,
             categorized["mainContact"],
-            null // ⬅️ HubSpot ID ab null hai
+            // null // ⬅️ HubSpot ID ab null hai
           );
           logger.debug(`Contact created successfully with id: ${contact.id}`);
 
@@ -488,6 +487,7 @@ export const uploadContactsCSV = async (
   next: NextFunction
 ) => {
   try {
+
     const { id } = req.payload!;
     const fileData = req.fileData;
 

@@ -16,6 +16,8 @@ export const getPartnerById = async (partnerId: number) => {
   const partner = await prisma.hSB2BPartners.findFirst({
     select: {
       id: true,
+      hs_object_id: true,
+      partner_name: true,
     },
     where: {
       id: partnerId,

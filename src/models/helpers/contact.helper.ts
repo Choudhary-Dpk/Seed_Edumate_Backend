@@ -128,15 +128,15 @@ export const getEdumateContactByPhone = async (phone: string) => {
 export const createEdumateContact = async (
   tx: any,
   mainData?: any,
-  hubspotId?: number | null,
-  hsCreatedBy?: number,
+  // hubspotId?: number | null,
+  // hsCreatedBy?: number,
   partnerId?: number
 ) => {
   const contact = await tx.hSEdumateContacts.create({
     data: {
       ...mainData,
-      hs_object_id: hubspotId,
-      hs_created_by_user_id: hsCreatedBy,
+      // hs_object_id: hubspotId,
+      // hs_created_by_user_id: hsCreatedBy,
       b2b_partner_id: partnerId,
       created_at: new Date(),
     },
@@ -522,9 +522,11 @@ export async function createCSVContacts(
   batchId: string | null = null,
   batchPosition: number = 0
 ) {
+
   const partnerId = await getPartnerIdByUserId(userId);
 
   return await prisma.$transaction(async (tx) => {
+
     // ✅ Step 1: Bulk insert main contacts with EMAIL
     await tx.hSEdumateContacts.createMany({
       data: contacts.map((c) => ({
@@ -545,7 +547,7 @@ export async function createCSVContacts(
     }
 
     const insertedContacts =
-      await tx.hSEdumateContactsPersonalInformation.findMany({
+      await tx.hSEdumateContacts.findMany({
         where: {
           email: { in: emails },
         },
@@ -701,6 +703,8 @@ export async function createCSVContacts(
       count: insertedContactIds.length,
       insertedContactIds,
     };
+  },{
+    timeout: 120000,
   });
 }
 

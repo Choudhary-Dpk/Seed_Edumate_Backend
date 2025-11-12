@@ -7,7 +7,7 @@ export const mapAllCommissionSettlementFields = async (
 
   // Collect all enum translations needed
   const enumTranslations: Array<{ enumName: string; sourceValue: any }> = [];
-
+debugger
   // MAIN COMMISSION SETTLEMENT FIELDS
   if (input.lead_reference_id !== undefined)
     mapped.lead_reference_id =
@@ -40,9 +40,9 @@ export const mapAllCommissionSettlementFields = async (
         ? input.verified_by
         : null;
 
-  if (input.db_id !== undefined)
-    mapped.db_id =
-      input.db_id !== null && input.db_id !== "" ? input.db_id : null;
+  if (input.loan_application_db_id !== undefined)
+    mapped.application_id =
+      input.loan_application_db_id !== null && input.loan_application_db_id !== "" ? input.loan_application_db_id : null;
 
   if (input.lender_type !== undefined)
     mapped.lender_type =

@@ -11,6 +11,13 @@ interface ServerConfig {
   environment: string;
 }
 
+interface Associations {
+  [key: string]: {
+    associationCategory: string;
+    associationTypeId: number;
+  };
+}
+
 interface HubSpotConfig {
   accessToken: string;
   baseUrl: string;
@@ -19,6 +26,7 @@ interface HubSpotConfig {
     b2bPartners: string;
     loanApplication: string;
   };
+  associations?: Associations;
 }
 
 interface LoggingConfig {
@@ -51,6 +59,16 @@ export const config: AppConfig = {
         process.env.HUBSPOT_EDUMATE_CONTACT_OBJECT_TYPE || "2-169456956",
       b2bPartners: HUBSPOT_B2B_PARTNERS_OBJECT_TYPE || "2-46227624",
       loanApplication: HUBSPOT_LOAN_APPLICATIONS_OBJECT_TYPE || "2-46227735",
+    },
+    associations: {
+      edumateContactToB2BPartner: {
+        associationCategory: "USER_DEFINED",
+        associationTypeId: 466,
+      },
+      loanApplicationToB2BPartner: {
+        associationCategory: "USER_DEFINED",
+        associationTypeId: 457,
+      }
     },
   },
   logging: {

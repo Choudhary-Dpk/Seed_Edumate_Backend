@@ -5,6 +5,7 @@ export const categorizeCommissionSettlementByTable = (
 
   // Main Commission Settlement Fields
   const mainSettlementFields = [
+    "application_id",
     "lead_reference_id",
     "settlement_id",
     "student_id",

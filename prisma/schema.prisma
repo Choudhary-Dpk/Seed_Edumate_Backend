@@ -793,7 +793,7 @@ model HSLoanApplicationsLenderInformation  {
   primary_lender_name       String?
   processing_fee            Decimal?
 
-    created_at DateTime  @default(now())
+  created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
 
   @@map("hs_loan_applications_lender_information")
@@ -815,7 +815,7 @@ model HSLoanApplicationsProcessingTimeline  {
   sla_breach                 String?
   total_processing_days      Int?
 
-    created_at DateTime  @default(now())
+  created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
 
   @@map("hs_loan_applications_processing_timeline")
@@ -935,6 +935,7 @@ model HSEdumateContacts  {
   user_selected_currency     String?
   co_applicant_1_email       String?
   co_applicant_1_mobile_number Int?
+  email                      String?
 
   // HubSpot System Fields
   hs_created_by_user_id      String?

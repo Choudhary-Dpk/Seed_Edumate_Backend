@@ -20,6 +20,7 @@ import {
 
 // Initialize HubSpot client
 const hubspotClient = new Client({ accessToken: config.hubspot.accessToken });
+const B2B_PARTNER_LEAD_ASSOCIATION = config.hubspot.associations?.edumateContactToB2BPartner;
 const EDUMATE_CONTACT_OBJECT_TYPE = config.hubspot.customObjects.edumateContact;
 const EDUMATE_B2B_PARTNERS_OBJECT_TYPE =
   config.hubspot.customObjects.b2bPartners || "2-46227624";
@@ -841,12 +842,38 @@ export const deleteContactsLead = async (loanId: string): Promise<void> => {
   }
 };
 
-export const createMultiContactsLead = async (propertiesList: Record<string, any>[]) => {
+export const createMultiContactsLead = async (propertiesList: Record<string, any>[], b2bPartnerHSId: string | null = null) => {
   try {
+
+      const associations: Array<{
+      to: { id: string };
+      types: Array<{
+        associationCategory: any;
+        associationTypeId: number;
+      }>;
+    }> = [];
+
+    // Add B2B Partner association if available
+    if (b2bPartnerHSId) {
+      associations.push({
+        to: { id: b2bPartnerHSId },
+        types: [
+          {
+            associationCategory: B2B_PARTNER_LEAD_ASSOCIATION?.associationCategory || "USER_DEFINED",
+            associationTypeId: B2B_PARTNER_LEAD_ASSOCIATION?.associationTypeId || 466,
+          },
+        ],
+      });
+
+      logger.info("🔗 Adding B2B Partner association", {
+        b2bPartnerHSId,
+      });
+    }
+
     const batchInput: BatchInputSimplePublicObjectInputForCreate = {
       inputs: propertiesList.map((properties) => ({
         properties,
-        associations: [],
+        associations,
       })),
     };
 
