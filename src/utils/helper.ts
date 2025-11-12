@@ -318,13 +318,15 @@ export const validateContactRows = (
     let dateOfBirth: Date | undefined;
     if (dateOfBirthRaw) {
       const parsed = new Date(dateOfBirthRaw);
+
       if (isNaN(parsed.getTime())) {
         rowErrors.push("Invalid Date of Birth");
       } else {
-        dateOfBirth = parsed;
+        dateOfBirth = new Date(
+          Date.UTC(parsed.getFullYear(), parsed.getMonth(), parsed.getDate())
+        );
       }
     }
-
     // Collect errors or push valid row
     if (rowErrors.length > 0) {
       rowErrors.forEach((reason) => errors.push({ row: rowNo, reason }));
@@ -357,12 +359,8 @@ export const validateContactRows = (
 const normalizeEmail = (email: string | undefined | null) =>
   email?.trim().toLowerCase() ?? "";
 
-const normalizePhone = (phone: string | undefined | null) =>
-  phone?.replace(/\D/g, "") ?? "";
-
 export const deduplicateContactsInDb = async (rows: ContactsLead[]) => {
-  const key = (v: ContactsLead) =>
-    `${normalizeEmail(v.email)}|${normalizePhone(v.phone)}`;
+  const key = (v: ContactsLead) => `${normalizeEmail(v.email)}`;
   const existingKeys = new Set<string>();
 
   for (const batch of chunk(rows, 1000)) {
@@ -372,13 +370,12 @@ export const deduplicateContactsInDb = async (rows: ContactsLead[]) => {
     console.log("found", found);
 
     for (const f of found) {
-      existingKeys.add(
-        `${normalizeEmail(f.email)}|${normalizePhone(f.phone_number)}`
-      );
+      existingKeys.add(`${normalizeEmail(f.email)}`);
     }
   }
-
+  console.log("existingKeys", existingKeys);
   const unique = rows.filter((v) => !existingKeys.has(key(v)));
+  console.log("uniquey", unique);
   const duplicates = rows.length - unique.length;
 
   return { unique, duplicates };

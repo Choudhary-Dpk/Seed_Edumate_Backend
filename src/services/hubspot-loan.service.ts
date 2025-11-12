@@ -8,12 +8,13 @@ import {
 } from "@hubspot/api-client/lib/codegen/crm/objects";
 import logger from "../utils/logger";
 import { config } from "../config/config";
-import { handleHubSpotError } from "./hubspotClient";
+import { handleHubSpotError } from "./hubspotClient.service";
 
 // Initialize HubSpot Client
 const hubspotClient = new Client({ accessToken: config.hubspot.accessToken });
 // HubSpot Loan Application Object Type
 const LOAN_OBJECT_TYPE = config?.hubspot?.customObjects?.loanApplication; // Replace with your actual HubSpot custom object name
+const B2B_PARTNER_LOAN_APP_ASSOCIATION = config?.hubspot?.associations?.loanApplicationToB2BPartner; 
 
 /**
  * HubSpot Loan Application Interface
@@ -43,14 +44,41 @@ function convertToHubSpotLoanObject<T>(obj: any): T {
  * Create a single loan application in HubSpot
  */
 export async function createLoanApplication(
-  properties: Record<string, any>
+  properties: Record<string, any>,
+  b2bPartnerHSId: string | null = null
 ): Promise<HubSpotLoanApplication> {
   try {
+
+    const associations: Array<{
+      to: { id: string };
+      types: Array<{
+        associationCategory: any;
+        associationTypeId: number;
+      }>;
+    }> = [];
+
+    // Add B2B Partner association if available
+    if (b2bPartnerHSId) {
+      associations.push({
+        to: { id: b2bPartnerHSId },
+        types: [
+          {
+            associationCategory: B2B_PARTNER_LOAN_APP_ASSOCIATION?.associationCategory || "USER_DEFINED",
+            associationTypeId: B2B_PARTNER_LOAN_APP_ASSOCIATION?.associationTypeId || 457,
+          },
+        ],
+      });
+
+      logger.info("🔗 Adding B2B Partner association", {
+        b2bPartnerHSId,
+      });
+    }
+
     const response = await hubspotClient.crm.objects.basicApi.create(
       LOAN_OBJECT_TYPE,
       {
         properties,
-        associations: [],
+        associations,
       }
     );
 
@@ -219,51 +247,6 @@ export async function getLoanApplicationById(
     throw handleHubSpotError(error);
   }
 }
-
-/**
- * Search loan applications in HubSpot by property
- */
-// export async function searchLoanApplications(
-//   propertyName: string,
-//   propertyValue: string
-// ): Promise<HubSpotLoanApplication[]> {
-//   try {
-//     const response = await hubspotClient.crm.objects.searchApi.doSearch(
-//       LOAN_OBJECT_TYPE,
-//       {
-//         filterGroups: [
-//           {
-//             filters: [
-//               {
-//                 propertyName: propertyName,
-//                 operator: "EQ",
-//                 value: propertyValue,
-//               },
-//             ],
-//           },
-//         ],
-//         limit: 100,
-//       }
-//     );
-
-//     logger.info("✅ Searched loan applications in HubSpot", {
-//       count: response.results?.length || 0,
-//       propertyName,
-//       propertyValue,
-//     });
-
-//     return response.results.map((res) =>
-//       convertToHubSpotLoanObject<HubSpotLoanApplication>(res)
-//     );
-//   } catch (error) {
-//     logger.error("❌ Error searching loan applications in HubSpot", {
-//       error,
-//       propertyName,
-//       propertyValue,
-//     });
-//     throw handleHubSpotError(error);
-//   }
-// }
 
 /**
  * Get multiple loan applications by IDs (Batch API)

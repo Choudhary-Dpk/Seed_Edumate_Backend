@@ -2,16 +2,13 @@ import { Router } from "express";
 import {
   createLoanApplication,
   downloadTemplate,
-  uploadCSV,
   editLoanApplication,
   deleteLoanApplication,
-  getLoanApplicationsList,
   getLoanApplicationDetails,
   getLeadsViewList,
 } from "../controllers/loanApplication.controller";
 import { validateToken } from "../middlewares";
 import {
-  validateAndParseCSVFile,
   validateLoanApplicationPayload,
   validateLoanApplicationById,
 } from "../middlewares/loanApplication.middleware";
@@ -63,12 +60,6 @@ router.get(
   validateReqParams,
   validateLoanApplicationById,
   getLoanApplicationDetails
-);
-router.post(
-  "/upload-csv",
-  validateToken(["Admin", "Manager", "User"]),
-  validateAndParseCSVFile("CSV"),
-  uploadCSV
 );
 router.get(
   "/download-template",

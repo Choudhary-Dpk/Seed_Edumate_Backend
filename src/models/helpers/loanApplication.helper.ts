@@ -1,28 +1,27 @@
 import { Prisma } from "@prisma/client";
 import prisma from "../../config/prisma";
 import {
-  ApplicationSourceSystemToEnum,
   ApplicationStatusToEnum,
   ApplicationStatusType,
   IntegrationStatusToEnum,
   Row,
 } from "../../types/leads.types";
 import { HubspotResult } from "../../types";
-import { string } from "zod";
 
 export const createLoan = async (
   userId: number,
   email: string,
   name: string,
-  partnerId: number
+  partnerId: number,
+  hubspotId: string
 ) => {
   const loan = await prisma.hSLoanApplications.create({
     data: {
       user_id: userId,
       student_name: name,
       student_email: email,
-      created_by_id: userId,
       b2b_partner_id: partnerId,
+      hs_object_id: hubspotId,
       created_at: new Date(),
     },
   });
@@ -38,7 +37,7 @@ export const createFinancialRequirements = async (
   const financialRequirements =
     await prisma.hSLoanApplicationsFinancialRequirements.create({
       data: {
-        loan_application_id: loanId,
+        application_id: loanId,
         loan_amount_requested: loanAmountRequested,
         loan_amount_approved: loanAmountApproved,
         created_at: new Date(),
@@ -51,7 +50,7 @@ export const createFinancialRequirements = async (
 export const createLender = async (loanId: number, loanTenureYears: number) => {
   const lender = await prisma.hSLoanApplicationsLenderInformation.create({
     data: {
-      loan_application_id: loanId,
+      application_id: loanId,
       loan_tenure_years: loanTenureYears,
       created_at: new Date(),
     },
@@ -66,8 +65,8 @@ export const createApplicationStatus = async (
 ) => {
   const financialRequirements = await prisma.hSLoanApplicationsStatus.create({
     data: {
-      loan_application_id: loanId,
-      status: ApplicationStatusToEnum[applicationStatus],
+      application_id: loanId,
+      application_status: ApplicationStatusToEnum[applicationStatus],
       created_at: new Date(),
     },
   });
@@ -75,15 +74,11 @@ export const createApplicationStatus = async (
   return financialRequirements;
 };
 
-export const createSystemTracking = async (
-  loanId: number,
-  hubspotId: string
-) => {
+export const createSystemTracking = async (loanId: number) => {
   const financialRequirements =
     await prisma.hSLoanApplicationsSystemTracking.create({
       data: {
-        loan_application_id: loanId,
-        hs_object_id: hubspotId,
+        application_id: loanId,
         integration_status: IntegrationStatusToEnum["SYNCED"],
         created_at: new Date(),
       },
@@ -107,75 +102,6 @@ export const getLeadByEmail = async (email: string) => {
   });
 
   return lead;
-};
-
-export const createCSVLeads = async (rows: Row[], partnerId: number) => {
-  return await prisma.$transaction(async (tx) => {
-    // 1. Create loan applications
-    await tx.hSLoanApplications.createMany({
-      data: rows.map((row) => ({
-        student_name: row.name,
-        student_email: row.email,
-        user_id: row.userId,
-        b2b_partner_id: partnerId,
-        created_by_id: row.createdBy,
-      })),
-      skipDuplicates: true,
-    });
-
-    // Fetch inserted applications to get IDs
-    const insertedApps = await tx.hSLoanApplications.findMany({
-      where: {
-        student_email: { in: rows.map((r) => r.email) },
-        user_id: { in: rows.map((r) => r.userId) },
-      },
-    });
-
-    const appMap = new Map<string, number>();
-    for (const app of insertedApps) {
-      appMap.set(`${app.student_email}|${app.user_id}`, app.id);
-    }
-
-    await Promise.all([
-      tx.hSLoanApplicationsFinancialRequirements.createMany({
-        data: rows.map((row) => ({
-          loan_application_id: appMap.get(`${row.email}|${row.userId}`)!,
-          loan_amount_requested: Number(row.loanAmountRequested),
-          loan_amount_approved: row.loanAmountApproved
-            ? Number(row.loanAmountApproved)
-            : null,
-        })),
-      }),
-
-      tx.hSLoanApplicationsLenderInformation.createMany({
-        data: rows.map((row) => ({
-          loan_application_id: appMap.get(`${row.email}|${row.userId}`)!,
-          loan_tenure_years: row.loanTenureYears
-            ? Number(row.loanTenureYears)
-            : null,
-        })),
-      }),
-
-      tx.hSLoanApplicationsStatus.createMany({
-        data: rows.map((row) => ({
-          loan_application_id: appMap.get(`${row.email}|${row.userId}`)!,
-          status: ApplicationStatusToEnum[row.applicationStatus],
-        })),
-      }),
-
-      tx.hSLoanApplicationsSystemTracking.createMany({
-        data: rows.map((row) => ({
-          loan_application_id: appMap.get(`${row.email}|${row.userId}`)!,
-          application_source_system:
-            ApplicationSourceSystemToEnum["MANUAL_ENTRY"],
-          integration_status: IntegrationStatusToEnum["PENDING_SYNC"],
-          hs_object_id: null,
-        })),
-      }),
-    ]);
-
-    return insertedApps;
-  });
 };
 
 // Find existing leads for deduplication
@@ -232,7 +158,6 @@ export const updateLoan = async (
       user_id: userId,
       student_name: name,
       student_email: email,
-      created_by_id: userId,
       updated_at: new Date(),
     },
     where: {
@@ -254,13 +179,13 @@ export const updateFinancialRequirements = async (
   const financialRequirements =
     await prisma.hSLoanApplicationsFinancialRequirements.update({
       data: {
-        loan_application_id: loanId,
+        application_id: loanId,
         loan_amount_requested: loanAmountRequested,
         loan_amount_approved: loanAmountApproved,
         updated_at: new Date(),
       },
       where: {
-        loan_application_id: loanId,
+        application_id: loanId,
       },
     });
 
@@ -270,12 +195,12 @@ export const updateFinancialRequirements = async (
 export const updateLender = async (loanId: number, loanTenureYears: number) => {
   const lender = await prisma.hSLoanApplicationsLenderInformation.update({
     data: {
-      loan_application_id: loanId,
+      application_id: loanId,
       loan_tenure_years: loanTenureYears,
       updated_at: new Date(),
     },
     where: {
-      loan_application_id: loanId,
+      application_id: loanId,
     },
   });
 
@@ -288,12 +213,12 @@ export const updateApplicationStatus = async (
 ) => {
   const financialRequirements = await prisma.hSLoanApplicationsStatus.update({
     data: {
-      loan_application_id: loanId,
-      status: ApplicationStatusToEnum[applicationStatus],
+      application_id: loanId,
+      application_status: ApplicationStatusToEnum[applicationStatus],
       updated_at: new Date(),
     },
     where: {
-      loan_application_id: loanId,
+      application_id: loanId,
     },
   });
 
@@ -305,81 +230,11 @@ export const deleteLoan = async (leadId: number, userId: number) => {
     where: { id: leadId },
     data: {
       is_deleted: true,
-      deleted_at: new Date(),
+      deleted_on: new Date(),
       deleted_by_id: userId,
-      last_modified_by_id: userId,
     },
   });
 };
-
-// export const getLoanList = async (
-//   partnerId: number,
-//   limit: number,
-//   offset: number,
-//   sortKey: string | null,
-//   sortDir: "asc" | "desc" | null,
-//   search: string | null
-// ) => {
-//   const where: Prisma.HSLoanApplicationsWhereInput = search
-//     ? {
-//         OR: [
-//           { student_name: { contains: search, mode: "insensitive" } },
-//           { student_email: { contains: search, mode: "insensitive" } },
-//         ],
-//         is_deleted: false,
-//         // b2b_partner_id: partnerId,
-//       }
-//     : { is_deleted: false };
-
-//   let orderBy: any = { created_at: "desc" };
-//   if (sortKey) {
-//     switch (sortKey) {
-//       case "name":
-//         orderBy = { student_name: sortDir || "desc" };
-//         break;
-//       case "email":
-//         orderBy = { student_email: sortDir || "desc" };
-//         break;
-//       case "loanTenureYears":
-//         orderBy = {
-//           lender_information: { loan_tenure_years: sortDir || "desc" },
-//         };
-//         break;
-//       case "loanAmountRequested":
-//         orderBy = {
-//           financial_requirements: { loan_amount_requested: sortDir || "desc" },
-//         };
-//         break;
-//       case "loanAmountApproved":
-//         orderBy = {
-//           financial_requirements: { loan_amount_approved: sortDir || "desc" },
-//         };
-//         break;
-//       case "applicationStatus":
-//         orderBy = { application_status: { status: sortDir || "desc" } };
-//         break;
-//       default:
-//         orderBy = { created_at: "desc" };
-//     }
-//   }
-
-//   const [rows, count] = await Promise.all([
-//     prisma.hSLoanApplications.findMany({
-//       where,
-//       skip: offset,
-//       take: limit,
-//       orderBy,
-//       include: {
-//         financial_requirements: true,
-//         loan_application_status: true,
-//         lender_information: true,
-//       },
-//     }),
-//     prisma.hSLoanApplications.count({ where }),
-//   ]);
-
-//   return { rows, count };
-// };
 
 export const getLoanList = async (
   limit: number,
@@ -505,8 +360,7 @@ export const getLeadViewList = async (
   // Add search filter
   if (search) {
     where.OR = [
-      { student_name: { contains: search, mode: "insensitive" } },
-      { student_email: { contains: search, mode: "insensitive" } },
+      { email: { contains: search, mode: "insensitive" } },
       { first_name: { contains: search, mode: "insensitive" } },
       { last_name: { contains: search, mode: "insensitive" } },
     ];
@@ -536,10 +390,10 @@ export const getLeadViewList = async (
         orderBy = { contact_id: sortDir || "desc" };
         break;
       case "name":
-        orderBy = { student_name: sortDir || "desc" };
+        orderBy = { first_name: sortDir || "desc" };
         break;
       case "email":
-        orderBy = { student_email: sortDir || "desc" };
+        orderBy = { email: sortDir || "desc" };
         break;
       case "status":
         orderBy = { status: sortDir || "desc" };
@@ -559,13 +413,13 @@ export const getLeadViewList = async (
   }
 
   const [rows, count] = await Promise.all([
-    prisma.createLeadsView.findMany({
+    prisma.leadsView.findMany({
       where,
       skip: offset,
       take: limit,
       orderBy,
     }),
-    prisma.createLeadsView.count({
+    prisma.leadsView.count({
       where,
     }),
   ]);
@@ -603,14 +457,12 @@ export const updateSystemTracking = async (hubspotResults: HubspotResult[]) => {
 
       if (loanApp) {
         await tx.hSLoanApplicationsSystemTracking.upsert({
-          where: { loan_application_id: loanApp.id },
+          where: { application_id: loanApp.id },
           update: {
-            hs_object_id: hs_object_id ?? hs.id,
             integration_status: IntegrationStatusToEnum["SYNCED"],
           },
           create: {
-            loan_application_id: loanApp.id,
-            hs_object_id: hs_object_id ?? hs.id,
+            application_id: loanApp.id,
             integration_status: IntegrationStatusToEnum["SYNCED"],
           },
         });
@@ -622,8 +474,8 @@ export const updateSystemTracking = async (hubspotResults: HubspotResult[]) => {
 export const getHubspotByLeadId = async (leadId: number) => {
   return prisma.hSLoanApplications.findUnique({
     where: { id: leadId },
-    include: {
-      system_tracking: true,
+    select: {
+      hs_object_id: true,
     },
   });
 };
@@ -640,7 +492,7 @@ export const deleteLoanApplication = async (
     data: {
       is_deleted: true,
       deleted_by_id: userId,
-      deleted_at: new Date(),
+      deleted_on: new Date(),
       updated_at: new Date(),
     },
   });
@@ -680,7 +532,7 @@ export const createLoanApplicationProcessingTimeline = async (
 
   const timeline = await tx.hSLoanApplicationsProcessingTimeline.create({
     data: {
-      loan_application: {
+      application: {
         connect: { id: loanApplicationId },
       },
       ...timelineData,
@@ -701,7 +553,7 @@ export const createLoanApplicationAcademicDetails = async (
 
   const academic = await tx.hSLoanApplicationsAcademicDetails.create({
     data: {
-      loan_application: {
+      application: {
         connect: { id: loanApplicationId },
       },
       ...academicData,
@@ -722,7 +574,7 @@ export const createLoanApplicationFinancialRequirements = async (
 
   const financial = await tx.hSLoanApplicationsFinancialRequirements.create({
     data: {
-      loan_application: {
+      application: {
         connect: { id: loanApplicationId },
       },
       ...financialData,
@@ -743,7 +595,7 @@ export const createLoanApplicationStatus = async (
 
   const status = await tx.hSLoanApplicationsStatus.create({
     data: {
-      loan_application: {
+      application: {
         connect: { id: loanApplicationId },
       },
       ...statusData,
@@ -764,7 +616,7 @@ export const createLoanApplicationLenderInformation = async (
 
   const lender = await tx.hSLoanApplicationsLenderInformation.create({
     data: {
-      loan_application: {
+      application: {
         connect: { id: loanApplicationId },
       },
       ...lenderData,
@@ -785,7 +637,7 @@ export const createLoanApplicationDocumentManagement = async (
 
   const document = await tx.hSLoanApplicationsDocumentManagement.create({
     data: {
-      loan_application: {
+      application: {
         connect: { id: loanApplicationId },
       },
       ...documentData,
@@ -806,7 +658,7 @@ export const createLoanApplicationRejectionDetails = async (
 
   const rejection = await tx.hSLoanApplicationsRejectionDetails.create({
     data: {
-      loan_application: {
+      application: {
         connect: { id: loanApplicationId },
       },
       ...rejectionData,
@@ -827,7 +679,7 @@ export const createLoanApplicationCommunicationPreferences = async (
 
   const comm = await tx.hSLoanApplicationsCommunicationPreferences.create({
     data: {
-      loan_application: {
+      application: {
         connect: { id: loanApplicationId },
       },
       ...commData,
@@ -849,7 +701,7 @@ export const createLoanApplicationSystemTracking = async (
 
   const system = await tx.hSLoanApplicationsSystemTracking.create({
     data: {
-      loan_application: {
+      application: {
         connect: { id: loanApplicationId },
       },
       ...systemData,
@@ -870,7 +722,7 @@ export const createLoanApplicationCommissionRecord = async (
 
   const commission = await tx.hSLoanApplicationsCommissionRecords.create({
     data: {
-      loan_application: {
+      application: {
         connect: { id: loanApplicationId },
       },
       ...commissionData,
@@ -891,7 +743,7 @@ export const createLoanApplicationAdditionalService = async (
 
   const service = await tx.hSLoanApplicationsAdditionalServices.create({
     data: {
-      loan_application: {
+      application: {
         connect: { id: loanApplicationId },
       },
       ...serviceData,
@@ -930,7 +782,7 @@ export const updateLoanApplicationAcademicDetails = async (
 
   const academicDetails = await tx.hSLoanApplicationsAcademicDetails.update({
     where: {
-      loan_application_id: applicationId,
+      application_id: applicationId,
     },
     data: {
       ...academicData,
@@ -953,7 +805,7 @@ export const updateLoanApplicationFinancialRequirements = async (
   const financialRequirements =
     await tx.hSLoanApplicationsFinancialRequirements.update({
       where: {
-        loan_application_id: applicationId,
+        application_id: applicationId,
       },
       data: {
         ...financialData,
@@ -975,7 +827,7 @@ export const updateLoanApplicationStatus = async (
 
   const status = await tx.hSLoanApplicationsStatus.update({
     where: {
-      loan_application_id: applicationId,
+      application_id: applicationId,
     },
     data: {
       ...statusData,
@@ -997,7 +849,7 @@ export const updateLoanApplicationLenderInformation = async (
 
   const lenderInfo = await tx.hSLoanApplicationsLenderInformation.update({
     where: {
-      loan_application_id: applicationId,
+      application_id: applicationId,
     },
     data: {
       ...lenderData,
@@ -1019,7 +871,7 @@ export const updateLoanApplicationDocumentManagement = async (
 
   const documents = await tx.hSLoanApplicationsDocumentManagement.update({
     where: {
-      loan_application_id: applicationId,
+      application_id: applicationId,
     },
     data: {
       ...documentData,
@@ -1041,7 +893,7 @@ export const updateLoanApplicationProcessingTimeline = async (
 
   const timeline = await tx.hSLoanApplicationsProcessingTimeline.update({
     where: {
-      loan_application_id: applicationId,
+      application_id: applicationId,
     },
     data: {
       ...timelineData,
@@ -1063,7 +915,7 @@ export const updateLoanApplicationRejectionDetails = async (
 
   const rejection = await tx.hSLoanApplicationsRejectionDetails.update({
     where: {
-      loan_application_id: applicationId,
+      application_id: applicationId,
     },
     data: {
       ...rejectionData,
@@ -1086,7 +938,7 @@ export const updateLoanApplicationCommunicationPreferences = async (
   const communication =
     await tx.hSLoanApplicationsCommunicationPreferences.update({
       where: {
-        loan_application_id: applicationId,
+        application_id: applicationId,
       },
       data: {
         ...communicationData,
@@ -1109,7 +961,7 @@ export const updateLoanApplicationSystemTracking = async (
 
   const systemTracking = await tx.hSLoanApplicationsSystemTracking.update({
     where: {
-      loan_application_id: applicationId,
+      application_id: applicationId,
     },
     data: {
       ...systemTrackingData,
@@ -1132,7 +984,7 @@ export const updateLoanApplicationCommissionRecord = async (
 
   const commission = await tx.hSLoanApplicationsCommissionRecords.update({
     where: {
-      loan_application_id: applicationId,
+      application_id: applicationId,
     },
     data: {
       ...commissionData,
@@ -1154,7 +1006,7 @@ export const updateLoanApplicationAdditionalService = async (
 
   const service = await tx.hSLoanApplicationsAdditionalServices.update({
     where: {
-      loan_application_id: applicationId,
+      application_id: applicationId,
     },
     data: {
       ...serviceData,
@@ -1304,6 +1156,8 @@ export const checkLoanApplicationFields = async (
 
   const result = await prisma.hSLoanApplications.findFirst({
     where: {
+      is_active: true,
+      is_deleted: false,
       OR: conditions,
     },
     select: {

@@ -5,6 +5,7 @@ export const categorizeCommissionSettlementByTable = (
 
   // Main Commission Settlement Fields
   const mainSettlementFields = [
+    "application_id",
     "lead_reference_id",
     "settlement_id",
     "student_id",
@@ -40,7 +41,6 @@ export const categorizeCommissionSettlementByTable = (
   const systemTrackingFields = [
     "audit_trail",
     "change_log",
-    "created_by",
     "created_date",
     "data_source",
     "integration_status",
@@ -51,12 +51,6 @@ export const categorizeCommissionSettlementByTable = (
     "settlement_record_status",
     "system_generated",
     "version_number",
-    "batch_payment_id",
-    "disbursement_trigger",
-    "original_transaction_id",
-    "related_settlement_id",
-    "transaction_sub_type",
-    "transaction_type",
   ];
 
   // Transaction Details Fields

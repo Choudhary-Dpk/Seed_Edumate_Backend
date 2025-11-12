@@ -546,9 +546,9 @@ CREATE TABLE "public"."admin_tokens" (
 -- CreateTable
 CREATE TABLE "public"."loan_eligibility_matrix" (
     "id" SERIAL NOT NULL,
-    "country_of_study" VARCHAR(100),
+    "country_of_study" VARCHAR(255),
     "level_of_education" VARCHAR(50),
-    "course_type" VARCHAR(100),
+    "course_type" VARCHAR(255),
     "is_stem_designated" BOOLEAN,
     "analytical_exam_name" VARCHAR(50),
     "language_exam_name" VARCHAR(50),
@@ -599,10 +599,12 @@ CREATE TABLE "public"."b2b_partners_sessions" (
 -- CreateTable
 CREATE TABLE "public"."login_history" (
     "id" SERIAL NOT NULL,
-    "user_id" INTEGER NOT NULL,
+    "b2b_user_id" INTEGER,
+    "admin_user_id" INTEGER,
+    "user_type" TEXT,
     "ip_address" INET,
     "device_info" TEXT,
-    "status" "public"."LoginStatus" NOT NULL,
+    "status" "public"."LoginStatus",
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "login_history_pkey" PRIMARY KEY ("id")
@@ -629,11 +631,11 @@ CREATE TABLE "public"."b2b_partners_role_permissions" (
 -- CreateTable
 CREATE TABLE "public"."hs_b2b_partners" (
     "id" SERIAL NOT NULL,
-    "deleted_by_id" INTEGER,
     "business_address" TEXT,
     "business_type" TEXT,
     "city" TEXT,
     "country" TEXT,
+    "db_id" TEXT,
     "gst_number" TEXT,
     "incorporation_date" TIMESTAMP(3),
     "pan_number" TEXT,
@@ -644,26 +646,29 @@ CREATE TABLE "public"."hs_b2b_partners" (
     "registration_number" TEXT,
     "state" TEXT,
     "website_url" TEXT,
-    "created_by" TEXT,
-    "created_date" TIMESTAMP(3),
-    "data_source" TEXT,
-    "integration_status" TEXT,
-    "internal_tags" TEXT,
-    "last_modified_by" TEXT,
-    "last_modified_date" TIMESTAMP(3),
-    "notes" TEXT,
-    "partner_record_status" TEXT,
-    "portal_access_provided" TEXT,
-    "api_access_provided" TEXT,
     "hs_created_by_user_id" INTEGER,
     "hs_createdate" TIMESTAMP(3),
     "hs_lastmodifieddate" TIMESTAMP(3),
+    "hs_merged_object_ids" TEXT,
     "hs_object_id" TEXT,
+    "hs_object_source_detail_1" TEXT,
+    "hs_object_source_detail_2" TEXT,
+    "hs_object_source_detail_3" TEXT,
+    "hs_object_source_label" TEXT,
+    "hs_shared_team_ids" TEXT,
+    "hs_shared_user_ids" TEXT,
     "hs_updated_by_user_id" INTEGER,
+    "hubspot_owner_assigneddate" TIMESTAMP(3),
     "hubspot_owner_id" TEXT,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "hubspot_team_id" TEXT,
+    "is_active" BOOLEAN NOT NULL DEFAULT true,
     "is_deleted" BOOLEAN NOT NULL DEFAULT false,
+    "created_by" INTEGER,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_by" INTEGER,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "deleted_by" INTEGER,
+    "deleted_on" TIMESTAMP(3),
 
     CONSTRAINT "hs_b2b_partners_pkey" PRIMARY KEY ("id")
 );
@@ -672,13 +677,15 @@ CREATE TABLE "public"."hs_b2b_partners" (
 CREATE TABLE "public"."hs_b2b_partners_business_capabilities" (
     "id" SERIAL NOT NULL,
     "partner_id" INTEGER NOT NULL,
-    "experience_years" DOUBLE PRECISION,
-    "student_capacity_monthly" DOUBLE PRECISION,
-    "student_capacity_yearly" DOUBLE PRECISION,
+    "experience_years" INTEGER,
+    "student_capacity_monthly" INTEGER,
+    "student_capacity_yearly" INTEGER,
     "target_courses" TEXT,
-    "target_desrinations" TEXT,
+    "target_destinations" TEXT,
     "target_universities" TEXT,
-    "team_size" DOUBLE PRECISION,
+    "team_size" INTEGER,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "hs_b2b_partners_business_capabilities_pkey" PRIMARY KEY ("id")
 );
@@ -693,9 +700,9 @@ CREATE TABLE "public"."hs_b2b_partners_commission_structure" (
     "beneficiary_name" TEXT,
     "bonus_structure" TEXT,
     "commission_model" TEXT,
-    "commission_rate" DOUBLE PRECISION,
+    "commission_rate" DECIMAL(65,30),
     "commission_type" TEXT,
-    "fixed_commission_amount" DOUBLE PRECISION,
+    "fixed_commission_amount" DECIMAL(65,30),
     "gst_applicable" TEXT,
     "ifsc_code" TEXT,
     "invoice_requirements" TEXT,
@@ -703,8 +710,10 @@ CREATE TABLE "public"."hs_b2b_partners_commission_structure" (
     "payment_method" TEXT,
     "payment_terms" TEXT,
     "tds_applicable" TEXT,
-    "tds_rate" DOUBLE PRECISION,
+    "tds_rate" DECIMAL(65,30),
     "tiered_commission_structure" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "hs_b2b_partners_commission_structure_pkey" PRIMARY KEY ("id")
 );
@@ -717,6 +726,8 @@ CREATE TABLE "public"."hs_b2b_partners_compliance_and_documentation" (
     "background_verification_status" TEXT,
     "kyc_completion_date" TIMESTAMP(3),
     "kyc_status" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "hs_b2b_partners_compliance_and_documentation_pkey" PRIMARY KEY ("id")
 );
@@ -738,6 +749,8 @@ CREATE TABLE "public"."hs_b2b_partners_contact_info" (
     "secondary_contact_email" TEXT,
     "secondary_contact_person" TEXT,
     "secondary_contact_phone" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "hs_b2b_partners_contact_info_pkey" PRIMARY KEY ("id")
 );
@@ -746,18 +759,20 @@ CREATE TABLE "public"."hs_b2b_partners_contact_info" (
 CREATE TABLE "public"."hs_b2b_partners_financial_tracking" (
     "id" SERIAL NOT NULL,
     "partner_id" INTEGER NOT NULL,
-    "average_monthly_commission" DOUBLE PRECISION,
-    "current_month_commission" DOUBLE PRECISION,
-    "last_payment_amount" DOUBLE PRECISION,
+    "average_monthly_commission" DECIMAL(65,30),
+    "current_month_commission" DECIMAL(65,30),
+    "last_payment_amount" DECIMAL(65,30),
     "last_payment_date" TIMESTAMP(3),
     "lifetime_value" TEXT,
     "next_payment_due_date" TIMESTAMP(3),
-    "outstanding_commission" DOUBLE PRECISION,
+    "outstanding_commission" DECIMAL(65,30),
     "payment_status" TEXT,
-    "total_commission_earned" DOUBLE PRECISION,
-    "total_commission_paid" DOUBLE PRECISION,
-    "ytd_commission_earned" DOUBLE PRECISION,
-    "ytd_commission_paid" DOUBLE PRECISION,
+    "total_commission_earned" DECIMAL(65,30),
+    "total_commission_paid" DECIMAL(65,30),
+    "ytd_commission_earned" DECIMAL(65,30),
+    "ytd_commission_paid" DECIMAL(65,30),
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "hs_b2b_partners_financial_tracking_pkey" PRIMARY KEY ("id")
 );
@@ -771,6 +786,8 @@ CREATE TABLE "public"."hs_b2b_partners_lead_attribution" (
     "tracking_link" TEXT,
     "unique_referral_code" TEXT,
     "utm_source_assigned" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "hs_b2b_partners_lead_attribution_pkey" PRIMARY KEY ("id")
 );
@@ -782,11 +799,13 @@ CREATE TABLE "public"."hs_b2b_partners_marketing_and_promotion" (
     "brand_usage_guidelines" TEXT,
     "co_marketing_approval" TEXT,
     "content_collaboration" TEXT,
-    "digital_presence_rating" DOUBLE PRECISION,
+    "digital_presence_rating" DECIMAL(65,30),
     "event_participation" TEXT,
     "marketing_materials_provided" TEXT,
     "promotional_activities" TEXT,
-    "social_media_followers" DOUBLE PRECISION,
+    "social_media_followers" INTEGER,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "hs_b2b_partners_marketing_and_promotion_pkey" PRIMARY KEY ("id")
 );
@@ -799,6 +818,8 @@ CREATE TABLE "public"."hs_b2b_partners_partnership_details" (
     "partnership_end_date" TIMESTAMP(3),
     "partnership_start_date" TIMESTAMP(3),
     "partnership_status" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "hs_b2b_partners_partnership_details_pkey" PRIMARY KEY ("id")
 );
@@ -807,21 +828,23 @@ CREATE TABLE "public"."hs_b2b_partners_partnership_details" (
 CREATE TABLE "public"."hs_b2b_partners_performance_metrics" (
     "id" SERIAL NOT NULL,
     "partner_id" INTEGER NOT NULL,
-    "application_conversion_rate" DOUBLE PRECISION,
-    "applications_approved" DOUBLE PRECISION,
-    "approval_conversion_rate" DOUBLE PRECISION,
-    "average_lead_quality_score" DOUBLE PRECISION,
-    "average_loan_amount" DOUBLE PRECISION,
+    "application_conversion_rate" DECIMAL(65,30),
+    "applications_approved" INTEGER,
+    "approval_conversion_rate" DECIMAL(65,30),
+    "average_lead_quality_score" DECIMAL(65,30),
+    "average_loan_amount" DECIMAL(65,30),
     "best_performing_month" TEXT,
     "last_lead_date" TIMESTAMP(3),
-    "lead_conversion_rate" DOUBLE PRECISION,
-    "leads_converted_to_applications" DOUBLE PRECISION,
-    "loans_disbursed" DOUBLE PRECISION,
-    "partner_rating" DOUBLE PRECISION,
-    "qualified_leads_provided" DOUBLE PRECISION,
+    "lead_conversion_rate" DECIMAL(65,30),
+    "leads_converted_to_applications" INTEGER,
+    "loans_disbursed" INTEGER,
+    "partner_rating" DECIMAL(65,30),
+    "qualified_leads_provided" INTEGER,
     "seasonal_performance_pattern" TEXT,
-    "total_leads_provided" DOUBLE PRECISION,
-    "total_loan_value_generated" DOUBLE PRECISION,
+    "total_leads_provided" INTEGER,
+    "total_loan_value_generated" DECIMAL(65,30),
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "hs_b2b_partners_performance_metrics_pkey" PRIMARY KEY ("id")
 );
@@ -837,8 +860,10 @@ CREATE TABLE "public"."hs_b2b_partners_relationship_mgmt" (
     "joint_marketing_activities" TEXT,
     "last_interaction_date" TIMESTAMP(3),
     "relationship_status" TEXT,
-    "satisfaction_score" DOUBLE PRECISION,
+    "satisfaction_score" DECIMAL(65,30),
     "training_completed" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "hs_b2b_partners_relationship_mgmt_pkey" PRIMARY KEY ("id")
 );
@@ -847,20 +872,19 @@ CREATE TABLE "public"."hs_b2b_partners_relationship_mgmt" (
 CREATE TABLE "public"."hs_b2b_partners_system_tracking" (
     "id" SERIAL NOT NULL,
     "partner_id" INTEGER NOT NULL,
-    "partner_name" TEXT,
-    "api_access_provided" "public"."api_access_status" NOT NULL,
-    "created_by" TEXT,
+    "api_access_provided" TEXT,
+    "created_by_user" TEXT,
     "created_date" TIMESTAMP(3),
-    "data_source" "public"."b2b_data_source" NOT NULL,
-    "integration_status" "public"."b2b_integration_status" NOT NULL,
+    "data_source" TEXT,
+    "integration_status" TEXT,
     "internal_tags" TEXT,
-    "last_modified_by" TEXT,
+    "last_modified_by_user" TEXT,
     "last_modified_date" TIMESTAMP(3),
     "notes" TEXT,
-    "partner_record_status" "public"."b2b_partners_record_status" NOT NULL,
-    "portal_access_provided" "public"."b2b_portal_access_status" NOT NULL,
-    "created_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+    "partner_record_status" TEXT,
+    "portal_access_provided" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "hs_b2b_partners_system_tracking_pkey" PRIMARY KEY ("id")
 );
@@ -914,30 +938,41 @@ CREATE TABLE "public"."b2b_partners_users" (
 -- CreateTable
 CREATE TABLE "public"."hs_loan_applications" (
     "id" SERIAL NOT NULL,
-    "application_date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "user_id" INTEGER,
+    "deleted_by_id" INTEGER,
+    "db_id" TEXT,
+    "application_date" TIMESTAMP(3),
+    "application_source" TEXT,
+    "assigned_counselor" TEXT,
+    "b2b_partner_id" INTEGER,
     "lead_reference_code" TEXT,
     "student_id" TEXT,
     "student_name" TEXT,
     "student_email" TEXT,
     "student_phone" TEXT,
-    "application_source" "public"."ApplicationSource",
-    "assigned_counselor_id" INTEGER,
-    "b2b_partner_id" INTEGER,
-    "is_deleted" BOOLEAN DEFAULT false,
-    "user_id" INTEGER,
-    "contact_id" INTEGER,
-    "created_by_id" INTEGER,
-    "last_modified_by_id" INTEGER,
-    "deleted_by_id" INTEGER,
-    "created_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
-    "deleted_at" TIMESTAMP(3),
     "hs_created_by_user_id" INTEGER,
     "hs_createdate" TIMESTAMP(3),
     "hs_lastmodifieddate" TIMESTAMP(3),
+    "hs_merged_object_ids" TEXT,
     "hs_object_id" TEXT,
+    "hs_object_source_detail_1" TEXT,
+    "hs_object_source_detail_2" TEXT,
+    "hs_object_source_detail_3" TEXT,
+    "hs_object_source_label" TEXT,
+    "hs_shared_team_ids" TEXT,
+    "hs_shared_user_ids" TEXT,
     "hs_updated_by_user_id" INTEGER,
+    "hubspot_owner_assigneddate" TIMESTAMP(3),
     "hubspot_owner_id" TEXT,
+    "hubspot_team_id" TEXT,
+    "is_active" BOOLEAN NOT NULL DEFAULT true,
+    "is_deleted" BOOLEAN NOT NULL DEFAULT false,
+    "created_by" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_by" TEXT,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "deleted_by" TEXT,
+    "deleted_on" TIMESTAMP(3),
 
     CONSTRAINT "hs_loan_applications_pkey" PRIMARY KEY ("id")
 );
@@ -945,113 +980,160 @@ CREATE TABLE "public"."hs_loan_applications" (
 -- CreateTable
 CREATE TABLE "public"."hs_loan_applications_academic_details" (
     "id" SERIAL NOT NULL,
-    "loan_application_id" INTEGER NOT NULL,
+    "application_id" INTEGER NOT NULL,
+    "admission_status" TEXT,
+    "course_duration" INTEGER,
+    "course_end_date" TIMESTAMP(3),
+    "course_level" TEXT,
+    "course_start_date" TIMESTAMP(3),
+    "i20_cas_received" TEXT,
     "target_course" TEXT,
     "target_university" TEXT,
     "target_university_country" TEXT,
-    "course_level" "public"."CourseLevel",
-    "course_start_date" TIMESTAMP(3),
-    "course_end_date" TIMESTAMP(3),
-    "course_duration" INTEGER,
-    "admission_status" "public"."admission_status",
-    "visa_status" "public"."VisaStatus",
-    "i20_cas_received" "public"."I20CasStatus",
-    "created_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+    "visa_status" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "hs_loan_applications_academic_details_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "public"."hs_loan_applications_financial_requirements" (
+CREATE TABLE "public"."hs_loan_applications_additional_services" (
     "id" SERIAL NOT NULL,
-    "loan_application_id" INTEGER NOT NULL,
-    "loan_amount_requested" DECIMAL(12,2),
-    "loan_amount_approved" DECIMAL(12,2),
-    "loan_amount_disbursed" DECIMAL(12,2),
-    "tuition_fee" DECIMAL(12,2),
-    "living_expenses" DECIMAL(12,2),
-    "travel_expenses" DECIMAL(12,2),
-    "insurance_cost" DECIMAL(12,2),
-    "other_expenses" DECIMAL(12,2),
-    "total_funding_required" DECIMAL(12,2),
-    "scholarship_amount" DECIMAL(12,2),
-    "self_funding_amount" DECIMAL(12,2),
-    "created_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+    "application_id" INTEGER NOT NULL,
+    "additional_services_notes" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "hs_loan_applications_financial_requirements_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "hs_loan_applications_additional_services_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "public"."hs_loan_applications_status" (
     "id" SERIAL NOT NULL,
-    "loan_application_id" INTEGER NOT NULL,
-    "status" "public"."ApplicationStatusEnum",
-    "priority_level" "public"."PriorityLevel",
+    "application_id" INTEGER NOT NULL,
+    "application_status" TEXT,
     "application_notes" TEXT,
     "internal_notes" TEXT,
-    "record_status" "public"."RecordStatus",
-    "created_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+    "priority_level" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "hs_loan_applications_status_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "public"."hs_loan_applications_lender_information" (
+CREATE TABLE "public"."hs_loan_applications_commission_records" (
     "id" SERIAL NOT NULL,
-    "loan_application_id" INTEGER NOT NULL,
-    "primary_lender_id" TEXT,
-    "primary_lender_name" TEXT,
-    "loan_product_id" TEXT,
-    "loan_product_name" TEXT,
-    "loan_product_type" "public"."LoanProductType",
-    "interest_rate_offered" DECIMAL(10,2),
-    "interest_rate_type" "public"."InterestRateType",
-    "loan_tenure_years" INTEGER,
-    "moratorium_period_months" INTEGER,
-    "emi_amount" DECIMAL(12,2),
-    "processing_fee" DECIMAL(12,2),
-    "co_signer_required" BOOLEAN DEFAULT false,
-    "collateral_required" BOOLEAN DEFAULT false,
-    "collateral_type" TEXT,
-    "collateral_value" DECIMAL(12,2),
-    "guarantor_details" TEXT,
-    "created_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+    "application_id" INTEGER NOT NULL,
+    "commission_amount" DECIMAL(65,30),
+    "commission_approval_date" TIMESTAMP(3),
+    "commission_calculation_base" TEXT,
+    "commission_payment_date" TIMESTAMP(3),
+    "commission_rate" DECIMAL(65,30),
+    "commission_status" TEXT,
+    "partner_commission_applicable" TEXT,
+    "settlement_id" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "hs_loan_applications_lender_information_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "hs_loan_applications_commission_records_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."hs_loan_applications_communication_preferences" (
+    "id" SERIAL NOT NULL,
+    "application_id" INTEGER NOT NULL,
+    "communication_preference" TEXT,
+    "complaint_details" TEXT,
+    "complaint_raised" TEXT,
+    "complaint_resolution_date" TIMESTAMP(3),
+    "customer_feedback" TEXT,
+    "customer_satisfaction_rating" DECIMAL(65,30),
+    "follow_up_frequency" TEXT,
+    "last_contact_date" TIMESTAMP(3),
+    "next_follow_up_date" TIMESTAMP(3),
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "hs_loan_applications_communication_preferences_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "public"."hs_loan_applications_document_management" (
     "id" SERIAL NOT NULL,
-    "loan_application_id" INTEGER NOT NULL,
+    "application_id" INTEGER NOT NULL,
+    "documents_pending_list" TEXT,
     "documents_required_list" TEXT,
     "documents_submitted_list" TEXT,
-    "documents_pending_list" TEXT,
-    "created_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "hs_loan_applications_document_management_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
+CREATE TABLE "public"."hs_loan_applications_financial_requirements" (
+    "id" SERIAL NOT NULL,
+    "application_id" INTEGER NOT NULL,
+    "insurance_cost" DECIMAL(65,30),
+    "living_expenses" DECIMAL(65,30),
+    "loan_amount_approved" DECIMAL(65,30),
+    "loan_amount_disbursed" DECIMAL(65,30),
+    "loan_amount_requested" DECIMAL(65,30),
+    "other_expenses" DECIMAL(65,30),
+    "scholarship_amount" DECIMAL(65,30),
+    "self_funding_amount" DECIMAL(65,30),
+    "total_funding_required" DECIMAL(65,30),
+    "travel_expenses" DECIMAL(65,30),
+    "tuition_fee" DECIMAL(65,30),
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "hs_loan_applications_financial_requirements_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."hs_loan_applications_lender_information" (
+    "id" SERIAL NOT NULL,
+    "application_id" INTEGER NOT NULL,
+    "co_signer_required" TEXT,
+    "collateral_required" TEXT,
+    "collateral_type" TEXT,
+    "collateral_value" DECIMAL(65,30),
+    "emi_amount" DECIMAL(65,30),
+    "guarantor_details" TEXT,
+    "interest_rate_offered" DECIMAL(65,30),
+    "interest_rate_type" TEXT,
+    "loan_product_id" TEXT,
+    "loan_product_name" TEXT,
+    "loan_product_type" TEXT,
+    "loan_tenure_years" INTEGER,
+    "moratorium_period_months" INTEGER,
+    "primary_lender_id" TEXT,
+    "primary_lender_name" TEXT,
+    "processing_fee" DECIMAL(65,30),
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "hs_loan_applications_lender_information_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "public"."hs_loan_applications_processing_timeline" (
     "id" SERIAL NOT NULL,
-    "loan_application_id" INTEGER NOT NULL,
-    "lender_submission_date" TIMESTAMP(3),
-    "lender_acknowledgment_date" TIMESTAMP(3),
+    "application_id" INTEGER NOT NULL,
     "approval_date" TIMESTAMP(3),
-    "sanction_letter_date" TIMESTAMP(3),
-    "disbursement_request_date" TIMESTAMP(3),
+    "delay_reason" TEXT,
     "disbursement_date" TIMESTAMP(3),
+    "disbursement_request_date" TIMESTAMP(3),
+    "lender_acknowledgment_date" TIMESTAMP(3),
+    "lender_submission_date" TIMESTAMP(3),
+    "sanction_letter_date" TIMESTAMP(3),
+    "sla_breach" TEXT,
     "total_processing_days" INTEGER,
-    "sla_breach" BOOLEAN DEFAULT false,
-    "delay_reason" "public"."DelayReason",
-    "created_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "hs_loan_applications_processing_timeline_pkey" PRIMARY KEY ("id")
 );
@@ -1059,85 +1141,36 @@ CREATE TABLE "public"."hs_loan_applications_processing_timeline" (
 -- CreateTable
 CREATE TABLE "public"."hs_loan_applications_rejection_details" (
     "id" SERIAL NOT NULL,
-    "loan_application_id" INTEGER NOT NULL,
+    "application_id" INTEGER NOT NULL,
+    "appeal_outcome" TEXT,
+    "appeal_submitted" TEXT,
     "rejection_date" TIMESTAMP(3),
-    "rejection_reason" "public"."rejection_reason",
     "rejection_details" TEXT,
-    "appeal_submitted" BOOLEAN DEFAULT false,
-    "appeal_outcome" "public"."AppealOutcome",
+    "rejection_reason" TEXT,
     "resolution_provided" TEXT,
-    "created_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "hs_loan_applications_rejection_details_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "public"."hs_loan_applications_communication_preferences" (
-    "id" SERIAL NOT NULL,
-    "loan_application_id" INTEGER NOT NULL,
-    "communication_preference" "public"."CommunicationChannel",
-    "follow_up_frequency" "public"."FollowUpFrequency",
-    "last_contact_date" TIMESTAMP(3),
-    "next_follow_up_date" TIMESTAMP(3),
-    "customer_satisfaction_rating" SMALLINT,
-    "customer_feedback" TEXT,
-    "complaint_raised" BOOLEAN DEFAULT false,
-    "complaint_details" TEXT,
-    "complaint_resolution_date" TIMESTAMP(3),
-    "created_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "hs_loan_applications_communication_preferences_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "public"."hs_loan_applications_system_tracking" (
     "id" SERIAL NOT NULL,
-    "loan_application_id" INTEGER NOT NULL,
-    "application_source_system" "public"."ApplicationSourceSystem",
-    "integration_status" "public"."IntegrationStatus",
+    "application_id" INTEGER NOT NULL,
+    "application_record_status" TEXT,
+    "application_source_system" TEXT,
     "audit_trail" TEXT,
-    "hs_object_id" TEXT,
-    "hs_merged_object_ids" TEXT,
-    "hs_object_source_label" TEXT,
-    "application_record_status" "public"."RecordStatus",
+    "created_by_user" TEXT,
+    "created_date" TIMESTAMP(3),
     "external_reference_id" TEXT,
-    "created_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
-    "created_by" TEXT,
+    "integration_status" TEXT,
     "last_modified_by" TEXT,
-    "updated_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+    "last_modified_date" TIMESTAMP(3),
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "hs_loan_applications_system_tracking_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "public"."hs_loan_applications_commission_records" (
-    "id" SERIAL NOT NULL,
-    "loan_application_id" INTEGER NOT NULL,
-    "commission_amount" DECIMAL(12,2),
-    "commission_rate" DECIMAL(10,2),
-    "commission_calculation_base" "public"."CommissionBase",
-    "commission_status" "public"."CommissionStatus",
-    "commission_approval_date" TIMESTAMP(3),
-    "commission_payment_date" TIMESTAMP(3),
-    "partner_commission_applicable" BOOLEAN DEFAULT false,
-    "settlement_id" TEXT,
-    "created_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "hs_loan_applications_commission_records_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "public"."hs_loan_applications_additional_services" (
-    "id" SERIAL NOT NULL,
-    "loan_application_id" INTEGER NOT NULL,
-    "additional_services_notes" TEXT,
-    "created_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "hs_loan_applications_additional_services_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -1192,136 +1225,131 @@ CREATE TABLE "public"."email_history" (
 );
 
 -- CreateTable
-CREATE TABLE "public"."hs_edumate_contacts_application_journey" (
+CREATE TABLE "public"."hs_edumate_contacts" (
     "id" SERIAL NOT NULL,
-    "contact_id" INTEGER NOT NULL,
-    "assigned_counselor" TEXT,
-    "counselor_notes" TEXT,
-    "current_status_disposition" "public"."current_status_disposition",
-    "current_status_disposition_reason" "public"."status_disposition_reason",
-    "priority_level" "public"."PriorityLevel",
-    "first_contact_date" TIMESTAMP(3),
-    "last_contact_date" TIMESTAMP(3),
-    "follow_up_date" TIMESTAMP(3),
-    "next_follow_up_date" TIMESTAMP(3),
+    "b2b_partner_id" INTEGER,
+    "deleted_by_id" INTEGER,
+    "seed_contact" TEXT,
+    "course_type" TEXT,
+    "base_currency" TEXT,
+    "study_destination_currency" TEXT,
+    "user_selected_currency" TEXT,
+    "co_applicant_1_email" TEXT,
+    "co_applicant_1_mobile_number" INTEGER,
+    "hs_created_by_user_id" INTEGER,
+    "hs_createdate" TIMESTAMP(3),
+    "hs_lastmodifieddate" TIMESTAMP(3),
+    "hs_merged_object_ids" TEXT,
+    "hs_object_id" TEXT,
+    "hs_object_source_detail_1" TEXT,
+    "hs_object_source_detail_2" TEXT,
+    "hs_object_source_detail_3" TEXT,
+    "hs_object_source_label" TEXT,
+    "hs_shared_team_ids" TEXT,
+    "hs_shared_user_ids" TEXT,
+    "hs_updated_by_user_id" INTEGER,
+    "hubspot_owner_assigneddate" TIMESTAMP(3),
+    "hubspot_owner_id" TEXT,
+    "hubspot_team_id" TEXT,
+    "is_active" BOOLEAN NOT NULL DEFAULT true,
+    "is_deleted" BOOLEAN NOT NULL DEFAULT false,
+    "created_by" INTEGER,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_by" INTEGER,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "deleted_by" INTEGER,
+    "deleted_on" TIMESTAMP(3),
 
-    CONSTRAINT "hs_edumate_contacts_application_journey_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "hs_edumate_contacts_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "public"."hs_edumate_contacts_academic_profiles" (
     "id" SERIAL NOT NULL,
     "contact_id" INTEGER NOT NULL,
-    "admission_status" "public"."edumate_contact_admission_status",
-    "current_education_level" "public"."current_education_level",
+    "current_education_level" TEXT,
     "current_institution" TEXT,
     "current_course_major" TEXT,
-    "current_cgpa_percentage" DOUBLE PRECISION,
+    "current_cgpa_percentage" DECIMAL(65,30),
     "current_graduation_year" INTEGER,
-    "course_duration_months" INTEGER,
-    "cat_score" INTEGER,
-    "gre_score" INTEGER,
-    "gmat_score" INTEGER,
-    "toefl_score" INTEGER,
-    "ielts_score" DOUBLE PRECISION,
-    "sat_score" INTEGER,
-    "duolingo_score" INTEGER,
-    "nmat_score" INTEGER,
-    "xat_score" INTEGER,
-    "other_test_scores" TEXT,
-    "target_degree_level" "public"."target_degree_level",
+    "target_degree_level" TEXT,
     "target_course_major" TEXT,
-    "preferred_study_destination" "public"."preferred_study_destination",
     "target_universities" TEXT,
-    "intended_start_term" "public"."intended_start_term",
+    "preferred_study_destination" TEXT,
+    "intended_start_term" TEXT,
     "intended_start_date" TIMESTAMP(3),
     "intake_month" TEXT,
     "intake_year" TEXT,
+    "course_duration_months" INTEGER,
+    "admission_status" TEXT,
+    "gre_score" DECIMAL(65,30),
+    "gmat_score" DECIMAL(65,30),
+    "toefl_score" DECIMAL(65,30),
+    "ielts_score" DECIMAL(65,30),
+    "sat_score" DECIMAL(65,30),
+    "cat_score" DECIMAL(65,30),
+    "xat_score" DECIMAL(65,30),
+    "nmat_score" DECIMAL(65,30),
+    "duolingo_score" DECIMAL(65,30),
+    "other_test_scores" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "hs_edumate_contacts_academic_profiles_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "public"."hs_edumate_contacts" (
-    "id" SERIAL NOT NULL,
-    "email" TEXT,
-    "deleted_by_id" INTEGER,
-    "b2b_partner_id" INTEGER,
-    "hs_created_by_user_id" INTEGER,
-    "hs_createdate" TIMESTAMP(3),
-    "hs_lastmodifieddate" TIMESTAMP(3),
-    "hs_object_id" TEXT,
-    "hs_updated_by_user_id" INTEGER,
-    "hubspot_owner_id" TEXT,
-    "base_currency" TEXT,
-    "study_destination_currency" TEXT,
-    "user_selected_currency" TEXT,
-    "course_type" "public"."edumate_contact_course_type",
-    "co_applicant_1_email" TEXT,
-    "co_applicant_1_mobile_number" TEXT,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "is_deleted" BOOLEAN NOT NULL DEFAULT false,
-
-    CONSTRAINT "hs_edumate_contacts_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "public"."hs_edumate_contacts_system_tracking" (
+CREATE TABLE "public"."hs_edumate_contacts_application_journey" (
     "id" SERIAL NOT NULL,
     "contact_id" INTEGER NOT NULL,
-    "created_by" INTEGER,
-    "created_date" TIMESTAMP(3),
-    "last_modified_by" TEXT,
-    "last_modified_date" TIMESTAMP(3),
-    "data_source" "public"."data_source",
-    "student_record_status" "public"."student_record_status",
-    "tags" TEXT,
-    "gdpr_consent" "public"."gdpr_consent",
-    "marketing_consent" "public"."marketing_consent",
+    "assigned_counselor" TEXT,
+    "counselor_notes" TEXT,
+    "priority_level" TEXT,
+    "current_status_disposition" TEXT,
+    "current_status_disposition_reason" TEXT,
+    "first_contact_date" TIMESTAMP(3),
+    "last_contact_date" TIMESTAMP(3),
+    "next_follow_up_date" TIMESTAMP(3),
+    "follow_up_date" TIMESTAMP(3),
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "hs_edumate_contacts_system_tracking_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "hs_edumate_contacts_application_journey_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "public"."hs_edumate_contacts_financial_info" (
     "id" SERIAL NOT NULL,
     "contact_id" INTEGER NOT NULL,
-    "annual_family_income" DECIMAL(15,2),
-    "currency" "public"."financial_currency",
+    "annual_family_income" DECIMAL(65,30),
+    "currency" TEXT,
+    "total_course_cost" DECIMAL(65,30),
+    "tuition_fee" DECIMAL(65,30),
+    "living_expenses" DECIMAL(65,30),
+    "other_expenses" DECIMAL(65,30),
+    "loan_amount_required" DECIMAL(65,30),
+    "scholarship_amount" DECIMAL(65,30),
+    "self_funding_amount" DECIMAL(65,30),
+    "collateral_available" TEXT,
+    "collateral_type" TEXT,
+    "collateral_value" DECIMAL(65,30),
+    "collateral_2_available" TEXT,
+    "collateral_2_type" TEXT,
+    "collateral_2_value" DECIMAL(65,30),
     "co_applicant_1_name" TEXT,
-    "co_applicant_1_income" DECIMAL(15,2),
-    "co_applicant_1_occupation" "public"."co_applicant_occupation",
-    "co_applicant_1_relationship" "public"."co_applicant_relationship",
+    "co_applicant_1_relationship" TEXT,
+    "co_applicant_1_occupation" TEXT,
+    "co_applicant_1_income" DECIMAL(65,30),
     "co_applicant_2_name" TEXT,
-    "co_applicant_2_income" DECIMAL(15,2),
-    "co_applicant_2_occupation" "public"."co_applicant_occupation",
-    "co_applicant_2_relationship" "public"."co_applicant_relationship",
+    "co_applicant_2_relationship" TEXT,
+    "co_applicant_2_occupation" TEXT,
+    "co_applicant_2_income" DECIMAL(65,30),
     "co_applicant_3_name" TEXT,
-    "co_applicant_3_income" DECIMAL(15,2),
-    "co_applicant_3_occupation" "public"."co_applicant_occupation",
-    "co_applicant_3_relationship" "public"."co_applicant_relationship",
-    "collateral_available" "public"."collateral_available",
-    "collateral_type" "public"."edumate_contact_collateral_type",
-    "collateral_value" DECIMAL(15,2),
-    "collateral_2_available" "public"."collateral_available",
-    "collateral_2_type" "public"."edumate_contact_collateral_type",
-    "collateral_2_value" DECIMAL(15,2),
-    "living_expenses" DECIMAL(15,2),
-    "other_expenses" DECIMAL(15,2),
-    "total_course_cost" DECIMAL(15,2),
-    "tuition_fee" DECIMAL(15,2),
-    "loan_amount_required" DECIMAL(15,2),
-    "scholarship_amount" DECIMAL(15,2),
-    "self_funding_amount" DECIMAL(15,2),
+    "co_applicant_3_relationship" TEXT,
+    "co_applicant_3_occupation" TEXT,
+    "co_applicant_3_income" DECIMAL(65,30),
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "hs_edumate_contacts_financial_info_pkey" PRIMARY KEY ("id")
 );
@@ -1330,22 +1358,22 @@ CREATE TABLE "public"."hs_edumate_contacts_financial_info" (
 CREATE TABLE "public"."hs_edumate_contacts_lead_attribution" (
     "id" SERIAL NOT NULL,
     "contact_id" INTEGER NOT NULL,
-    "lead_source" "public"."lead_source",
-    "lead_source_detail" TEXT,
-    "lead_quality_score" DOUBLE PRECISION,
     "lead_reference_code" TEXT,
+    "lead_source" TEXT,
+    "lead_source_detail" TEXT,
+    "lead_quality_score" DECIMAL(65,30),
     "b2b_partner_id" TEXT,
     "b2b_partner_name" TEXT,
-    "partner_commission_applicable" "public"."partner_commission_applicable",
+    "partner_commission_applicable" TEXT,
     "referral_person_name" TEXT,
     "referral_person_contact" TEXT,
     "utm_source" TEXT,
     "utm_medium" TEXT,
     "utm_campaign" TEXT,
-    "utm_term" TEXT,
     "utm_content" TEXT,
+    "utm_term" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "hs_edumate_contacts_lead_attribution_pkey" PRIMARY KEY ("id")
 );
@@ -1354,11 +1382,11 @@ CREATE TABLE "public"."hs_edumate_contacts_lead_attribution" (
 CREATE TABLE "public"."hs_edumate_contacts_loan_preferences" (
     "id" SERIAL NOT NULL,
     "contact_id" INTEGER NOT NULL,
-    "loan_type_preference" "public"."loan_type_preference",
-    "preferred_lenders" "public"."preferred_lenders"[],
-    "repayment_type_preference" "public"."repayment_type_preference",
+    "loan_type_preference" TEXT,
+    "preferred_lenders" TEXT,
+    "repayment_type_preference" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "hs_edumate_contacts_loan_preferences_pkey" PRIMARY KEY ("id")
 );
@@ -1372,10 +1400,10 @@ CREATE TABLE "public"."hs_edumate_contacts_personal_information" (
     "email" TEXT,
     "phone_number" TEXT,
     "date_of_birth" TIMESTAMP(3),
-    "gender" "public"."gender",
-    "nationality" "public"."nationality",
+    "gender" TEXT,
+    "nationality" TEXT,
     "current_address" TEXT,
-    "citycurrent_address" TEXT,
+    "city_current_address" TEXT,
     "state_current_address" TEXT,
     "country_current_address" TEXT,
     "pincode_current_address" TEXT,
@@ -1384,116 +1412,131 @@ CREATE TABLE "public"."hs_edumate_contacts_personal_information" (
     "state_permanent_address" TEXT,
     "country_permanent_address" TEXT,
     "pincode_permanent_address" TEXT,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "deleted_by_id" INTEGER,
     "is_deleted" BOOLEAN NOT NULL DEFAULT false,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "hs_edumate_contacts_personal_information_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
+CREATE TABLE "public"."hs_edumate_contacts_system_tracking" (
+    "id" SERIAL NOT NULL,
+    "created_by" INTEGER,
+    "contact_id" INTEGER NOT NULL,
+    "student_record_status" TEXT,
+    "data_source" TEXT,
+    "gdpr_consent" TEXT,
+    "marketing_consent" TEXT,
+    "tags" TEXT,
+    "created_by_user" TEXT,
+    "created_date" TIMESTAMP(3),
+    "last_modified_by" TEXT,
+    "last_modified_date" TIMESTAMP(3),
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "hs_edumate_contacts_system_tracking_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "public"."hs_lenders" (
     "id" SERIAL NOT NULL,
-    "external_id" TEXT,
-    "lender_display_name" TEXT NOT NULL,
-    "lender_name" TEXT NOT NULL,
-    "legal_name" TEXT,
-    "short_code" TEXT,
+    "db_id" TEXT,
+    "lender_name" TEXT,
+    "lender_display_name" TEXT,
+    "lender_type" TEXT,
+    "lender_category" TEXT,
     "lender_logo_url" TEXT,
     "website_url" TEXT,
-    "lender_category" "public"."hs_lenders_category",
-    "lender_type" "public"."hs_lenders_type",
-    "is_active" BOOLEAN DEFAULT true,
-    "created_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
-    "created_by" TEXT,
-    "updated_by" TEXT,
     "hs_created_by_user_id" INTEGER,
     "hs_createdate" TIMESTAMP(3),
     "hs_lastmodifieddate" TIMESTAMP(3),
+    "hs_merged_object_ids" TEXT,
     "hs_object_id" TEXT,
+    "hs_object_source_detail_1" TEXT,
+    "hs_object_source_detail_2" TEXT,
+    "hs_object_source_detail_3" TEXT,
+    "hs_object_source_label" TEXT,
+    "hs_shared_team_ids" TEXT,
+    "hs_shared_user_ids" TEXT,
     "hs_updated_by_user_id" INTEGER,
+    "hubspot_owner_assigneddate" TIMESTAMP(3),
     "hubspot_owner_id" TEXT,
-    "is_deleted" BOOLEAN DEFAULT false,
+    "hubspot_team_id" TEXT,
+    "is_active" BOOLEAN NOT NULL DEFAULT true,
+    "is_deleted" BOOLEAN NOT NULL DEFAULT false,
+    "created_by" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_by" TEXT,
+    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deleted_by" TEXT,
+    "deleted_on" TIMESTAMP(3),
 
     CONSTRAINT "hs_lenders_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "public"."hs_lenders_system_tracking" (
-    "id" SERIAL NOT NULL,
-    "lender_id" INTEGER NOT NULL,
-    "data_source" "public"."hs_lenders_data_source",
-    "lender_record_status" "public"."hs_lenders_record_status",
-    "notes" TEXT,
-    "performance_rating" "public"."performance_rating",
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "last_modified_by" TEXT,
-    "last_modified_date" TIMESTAMP(3)
-);
-
--- CreateTable
-CREATE TABLE "public"."hs_lenders_contact_info" (
-    "id" SERIAL NOT NULL,
-    "lender_id" INTEGER NOT NULL,
-    "primary_contact_email" TEXT,
-    "primary_contact_phone" TEXT,
-    "primary_contact_designation" TEXT,
-    "primary_contact_person" TEXT,
-    "relationship_manager_email" TEXT,
-    "relationship_manager_name" TEXT,
-    "relationship_manager_phone" TEXT,
-    "escalation_hierarchy_1_designation" TEXT,
-    "escalation_hierarchy_1_email" TEXT,
-    "escalation_hierarchy_1_name" TEXT,
-    "escalation_hierarchy_1_phone" TEXT,
-    "customer_service_email" TEXT,
-    "customer_service_number" TEXT,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "hs_lenders_contact_info_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "public"."hs_lenders_business_metrics" (
     "id" SERIAL NOT NULL,
     "lender_id" INTEGER NOT NULL,
-    "average_approval_rate" INTEGER,
+    "average_approval_rate" DECIMAL(65,30),
+    "average_disbursement_days" INTEGER,
+    "average_processing_days" INTEGER,
     "monthly_application_volume" INTEGER,
     "quarterly_application_volume" INTEGER,
     "yearly_application_volume" INTEGER,
-    "average_processing_days" INTEGER,
-    "average_disbursement_days" INTEGER,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "hs_lenders_business_metrics_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
+CREATE TABLE "public"."hs_lenders_contact_info" (
+    "id" SERIAL NOT NULL,
+    "lender_id" INTEGER NOT NULL,
+    "primary_contact_person" TEXT,
+    "primary_contact_email" TEXT,
+    "primary_contact_phone" TEXT,
+    "primary_contact_designation" TEXT,
+    "relationship_manager_name" TEXT,
+    "relationship_manager_email" TEXT,
+    "relationship_manager_phone" TEXT,
+    "customer_service_email" TEXT,
+    "customer_service_number" TEXT,
+    "escalation_hierarchy_1_name" TEXT,
+    "escalation_hierarchy_1_email" TEXT,
+    "escalation_hierarchy_1_phone" TEXT,
+    "escalation_hierarchy_1_designation" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "hs_lenders_contact_info_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "public"."hs_lenders_loan_offerings" (
     "id" SERIAL NOT NULL,
-    "co_signer_requirements" "public"."co_signer_requirement",
-    "collateral_requirements" "public"."LenderCollateralType",
-    "interest_rate_range_max_secured" INTEGER,
-    "interest_rate_range_max_unsecured" INTEGER,
-    "interest_rate_range_min_secured" INTEGER,
-    "interest_rate_range_min_unsecured" INTEGER,
-    "margin_money_requirement" INTEGER,
-    "maximum_loan_amount_secured" INTEGER,
-    "maximum_loan_amount_unsecured" INTEGER,
-    "minimum_loan_amount_secured" INTEGER,
-    "minimum_loan_amount_unsecured" INTEGER,
-    "not_supported_universities" TEXT,
+    "lender_id" INTEGER NOT NULL,
+    "minimum_loan_amount_secured" DECIMAL(65,30),
+    "maximum_loan_amount_secured" DECIMAL(65,30),
+    "minimum_loan_amount_unsecured" DECIMAL(65,30),
+    "maximum_loan_amount_unsecured" DECIMAL(65,30),
+    "interest_rate_range_min_secured" DECIMAL(65,30),
+    "interest_rate_range_max_secured" DECIMAL(65,30),
+    "interest_rate_range_min_unsecured" DECIMAL(65,30),
+    "interest_rate_range_max_unsecured" DECIMAL(65,30),
+    "margin_money_requirement" DECIMAL(65,30),
     "processing_fee_range" TEXT,
+    "collateral_requirements" TEXT,
+    "co_signer_requirements" TEXT,
+    "supported_course_types" TEXT,
+    "supported_destinations" TEXT,
     "special_programs" TEXT,
-    "supported_course_types" "public"."SupportedCourseTypes",
-    "supported_destinations" "public"."SupportedDestinations",
+    "not_supported_universities" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "hs_lenders_loan_offerings_pkey" PRIMARY KEY ("id")
 );
@@ -1502,17 +1545,17 @@ CREATE TABLE "public"."hs_lenders_loan_offerings" (
 CREATE TABLE "public"."hs_lenders_operational_details" (
     "id" SERIAL NOT NULL,
     "lender_id" INTEGER NOT NULL,
-    "api_connectivity_status" "public"."api_connectivity_status",
-    "digital_integration_level" "public"."integration_level",
-    "documentation_requirements" JSONB,
-    "holiday_processing" "public"."HolidayProcessing",
-    "late_payment_charges" TEXT,
-    "prepayment_charges" TEXT,
-    "repayment_options" "public"."repayment_options",
     "turnaround_time_commitment" INTEGER,
     "working_hours" TEXT,
+    "documentation_requirements" TEXT,
+    "repayment_options" TEXT,
+    "prepayment_charges" TEXT,
+    "late_payment_charges" TEXT,
+    "digital_integration_level" TEXT,
+    "api_connectivity_status" TEXT,
+    "holiday_processing" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "hs_lenders_operational_details_pkey" PRIMARY KEY ("id")
 );
@@ -1521,81 +1564,121 @@ CREATE TABLE "public"."hs_lenders_operational_details" (
 CREATE TABLE "public"."hs_lenders_partnerships_details" (
     "id" SERIAL NOT NULL,
     "lender_id" INTEGER NOT NULL,
-    "partnership_type" TEXT,
-    "agreement_start_date" TIMESTAMP(3),
-    "agreement_end_date" TIMESTAMP(3),
-    "auto_renewal" BOOLEAN NOT NULL DEFAULT false,
-    "renewal_notice_days" INTEGER,
-    "commission_structure" TEXT,
-    "commission_percentage" DECIMAL(10,2),
-    "partnership_end_date" TIMESTAMP(3),
+    "partnership_status" TEXT,
     "partnership_start_date" TIMESTAMP(3),
-    "partnership_status" "public"."partnership_status",
-    "payout_terms" "public"."payout_terms",
+    "partnership_end_date" TIMESTAMP(3),
+    "commission_percentage" DECIMAL(65,30),
+    "commission_structure" TEXT,
     "revenue_share_model" TEXT,
+    "payout_terms" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "hs_lenders_partnerships_details_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
+CREATE TABLE "public"."hs_lenders_system_tracking" (
+    "id" SERIAL NOT NULL,
+    "lender_id" INTEGER NOT NULL,
+    "lender_record_status" TEXT,
+    "data_source" TEXT,
+    "performance_rating" TEXT,
+    "notes" TEXT,
+    "created_by_user" TEXT,
+    "created_date" TIMESTAMP(3),
+    "last_modified_by" TEXT,
+    "last_modified_date" TIMESTAMP(3),
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "hs_lenders_system_tracking_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "public"."hs_loan_products" (
     "id" SERIAL NOT NULL,
-    "deleted_by_id" INTEGER,
-    "is_deleted" BOOLEAN DEFAULT false,
-    "lender_id" INTEGER NOT NULL,
+    "db_id" TEXT,
+    "lender_id" INTEGER,
+    "lender_db_id" TEXT,
     "lender_name" TEXT,
     "partner_name" TEXT,
-    "product_description" TEXT,
+    "product_name" TEXT,
     "product_display_name" TEXT,
-    "product_category" "public"."loan_category",
-    "product_status" "public"."product_status",
-    "product_type" "public"."product_type",
+    "product_description" TEXT,
+    "product_type" TEXT,
+    "product_category" TEXT,
+    "product_status" TEXT,
     "last_updated_date" TIMESTAMP(3),
-    "is_active" BOOLEAN DEFAULT true,
-    "created_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
-    "created_by" TEXT,
-    "updated_by" TEXT,
     "hs_created_by_user_id" INTEGER,
     "hs_createdate" TIMESTAMP(3),
     "hs_lastmodifieddate" TIMESTAMP(3),
+    "hs_merged_object_ids" TEXT,
     "hs_object_id" TEXT,
+    "hs_object_source_detail_1" TEXT,
+    "hs_object_source_detail_2" TEXT,
+    "hs_object_source_detail_3" TEXT,
+    "hs_object_source_label" TEXT,
+    "hs_shared_team_ids" TEXT,
+    "hs_shared_user_ids" TEXT,
     "hs_updated_by_user_id" INTEGER,
+    "hubspot_owner_assigneddate" TIMESTAMP(3),
     "hubspot_owner_id" TEXT,
+    "hubspot_team_id" TEXT,
+    "is_active" BOOLEAN NOT NULL DEFAULT true,
+    "is_deleted" BOOLEAN NOT NULL DEFAULT false,
+    "created_by" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_by" TEXT,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "deleted_by" TEXT,
+    "deleted_on" TIMESTAMP(3),
 
     CONSTRAINT "hs_loan_products_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "public"."hs_loan_products_system_tracking" (
+CREATE TABLE "public"."hs_loan_products_application_and_processing" (
     "id" SERIAL NOT NULL,
-    "loan_product_id" INTEGER NOT NULL,
-    "change_log" TEXT,
-    "created_by" TEXT,
-    "created_date" TIMESTAMP(3),
-    "last_modified_by" TEXT,
-    "last_modified_date" TIMESTAMP(3),
-    "next_review_date" TIMESTAMP(3),
-    "notes" TEXT,
-    "product_record_status" "public"."product_record_status",
-    "review_frequency" "public"."review_frequency",
-    "version_number" INTEGER,
+    "product_id" INTEGER NOT NULL,
+    "application_mode" TEXT,
+    "disbursement_process" TEXT,
+    "disbursement_timeline" TEXT,
+    "documentation_list" TEXT,
+    "mandatory_documents" TEXT,
+    "optional_documents" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "hs_loan_products_system_tracking_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "hs_loan_products_application_and_processing_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."hs_loan_products_collateral_and_security" (
+    "id" SERIAL NOT NULL,
+    "product_id" INTEGER NOT NULL,
+    "collateral_margin" DECIMAL(65,30),
+    "collateral_required" TEXT,
+    "collateral_threshold_amount" DECIMAL(65,30),
+    "collateral_types_accepted" TEXT,
+    "guarantor_required" TEXT,
+    "insurance_coverage_percentage" DECIMAL(65,30),
+    "insurance_required" TEXT,
+    "third_party_guarantee_accepted" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "hs_loan_products_collateral_and_security_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "public"."hs_loan_products_competitive_analysis" (
     "id" SERIAL NOT NULL,
-    "loan_product_id" INTEGER NOT NULL,
-    "market_positioning" "public"."hs_loan_products_market_segment",
-    "pricing_strategy" "public"."pricing_strategy",
+    "product_id" INTEGER NOT NULL,
+    "market_positioning" TEXT,
+    "pricing_strategy" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "hs_loan_products_competitive_analysis_pkey" PRIMARY KEY ("id")
 );
@@ -1603,199 +1686,162 @@ CREATE TABLE "public"."hs_loan_products_competitive_analysis" (
 -- CreateTable
 CREATE TABLE "public"."hs_loan_products_eligibility_criteria" (
     "id" SERIAL NOT NULL,
-    "loan_product_id" INTEGER NOT NULL,
-    "criteria_type" TEXT,
-    "criteria_name" TEXT,
-    "criteria_description" TEXT,
-    "is_mandatory" BOOLEAN NOT NULL DEFAULT true,
-    "validation_rule" JSONB,
-    "min_age" INTEGER,
-    "max_age" INTEGER,
-    "max_age_at_maturity" INTEGER,
-    "min_academic_percentage" DECIMAL(10,2),
-    "entrance_exam_required" BOOLEAN NOT NULL DEFAULT false,
-    "entrance_exam_list" JSONB,
-    "minimum_percentage_required" DECIMAL(10,2),
-    "nationality_restrictions" "public"."nationality_restrictions",
-    "residency_requirements" "public"."residency_requirements",
-    "target_segment" "public"."target_segment",
-    "maximum_family_income" DECIMAL(10,2),
-    "minimum_family_income" DECIMAL(10,2),
-    "min_annual_income" DECIMAL(10,2),
-    "min_co_applicant_income" DECIMAL(10,2),
-    "employment_criteria" TEXT,
+    "product_id" INTEGER NOT NULL,
     "co_applicant_income_criteria" TEXT,
+    "co_applicant_relationship" TEXT,
     "co_applicant_required" TEXT,
-    "co_applicant_relationship" JSONB,
-    "guarantor_required" BOOLEAN DEFAULT false,
-    "min_credit_score" INTEGER,
-    "credit_history_required" BOOLEAN DEFAULT false,
-    "indian_citizen_only" BOOLEAN DEFAULT true,
-    "nri_eligible" BOOLEAN DEFAULT false,
-    "pio_oci_eligible" BOOLEAN DEFAULT false,
-    "work_experience_required" BOOLEAN DEFAULT false,
-    "min_work_experience_months" INTEGER,
-    "admission_confirmation_required" BOOLEAN DEFAULT true,
+    "employment_criteria" TEXT,
+    "entrance_exam_required" TEXT,
+    "maximum_age" INTEGER,
+    "maximum_family_income" DECIMAL(65,30),
+    "minimum_age" INTEGER,
+    "minimum_family_income" DECIMAL(65,30),
+    "minimum_percentage_required" DECIMAL(65,30),
+    "nationality_restrictions" TEXT,
+    "residency_requirements" TEXT,
+    "target_segment" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "hs_loan_products_eligibility_criteria_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "public"."hs_loan_products_collateral_and_security" (
+CREATE TABLE "public"."hs_loan_products_financial_terms" (
     "id" SERIAL NOT NULL,
-    "loan_product_id" INTEGER NOT NULL,
-    "collateral_margin" INTEGER,
-    "collateral_required" "public"."collateral_requirement",
-    "collateral_threshold_amount" DECIMAL(10,2),
-    "collateral_types_accepted" "public"."collateral_type",
-    "guarantor_required_security" "public"."guarantor_required",
-    "insurance_coverage_percentage" INTEGER,
-    "insurance_required" "public"."insurance_required",
-    "third_party_guarantee_required" "public"."third_party_guarantee_required",
+    "product_id" INTEGER NOT NULL,
+    "administrative_charges" DECIMAL(65,30),
+    "interest_rate_range_max" DECIMAL(65,30),
+    "interest_rate_range_min" DECIMAL(65,30),
+    "interest_rate_type" TEXT,
+    "legal_charges" DECIMAL(65,30),
+    "loan_to_value_ratio" DECIMAL(65,30),
+    "margin_money_percentage" DECIMAL(65,30),
+    "maximum_loan_amount_secured" DECIMAL(65,30),
+    "maximum_loan_amount_unsecured" DECIMAL(65,30),
+    "minimum_loan_amount_secured" DECIMAL(65,30),
+    "minimum_loan_amount_unsecured" DECIMAL(65,30),
+    "processing_fee_amount" DECIMAL(65,30),
+    "processing_fee_maximum" DECIMAL(65,30),
+    "processing_fee_minimum" DECIMAL(65,30),
+    "processing_fee_percentage" DECIMAL(65,30),
+    "processing_fee_type" TEXT,
+    "rack_rate" DECIMAL(65,30),
+    "valuation_charges" DECIMAL(65,30),
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "hs_loan_products_collateral_and_security_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "public"."hs_loan_products_repayment_terms" (
-    "id" SERIAL NOT NULL,
-    "loan_product_id" INTEGER NOT NULL,
-    "moratorium_type" "public"."moratorium_type",
-    "moratorium_period" INTEGER,
-    "repayment_frequency" "public"."repayment_frequency",
-    "repayment_period_maximum" INTEGER,
-    "repayment_period_minimum" INTEGER,
-    "prepayment_allowed" BOOLEAN DEFAULT true,
-    "prepayment_charges" DECIMAL(10,2),
-    "prepayment_lock_in_period" INTEGER,
-    "foreclosure_allowed" BOOLEAN DEFAULT true,
-    "foreclosure_charges" TEXT,
-    "late_payment_charges" TEXT,
-    "bounce_charges" DECIMAL(10,2),
-    "part_payment_allowed" "public"."part_payment_allowed",
-    "part_payment_minimum" INTEGER,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "hs_loan_products_repayment_terms_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "public"."hs_loan_products_application_and_processing" (
-    "id" SERIAL NOT NULL,
-    "loan_product_id" INTEGER NOT NULL,
-    "application_mode" "public"."application_mode",
-    "disbursement_process" "public"."disbursement_process",
-    "disbursement_timeline" TEXT,
-    "partial_disbursement_allowed" BOOLEAN DEFAULT false,
-    "disbursement_stages" JSONB,
-    "documentation_list" TEXT,
-    "mandatory_documents" TEXT,
-    "optional_documents" TEXT,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "hs_loan_products_application_and_processing_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "hs_loan_products_financial_terms_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "public"."hs_loan_products_geographic_coverage" (
     "id" SERIAL NOT NULL,
-    "loan_product_id" INTEGER NOT NULL,
+    "product_id" INTEGER NOT NULL,
+    "course_duration_maximum" INTEGER,
+    "course_duration_minimum" INTEGER,
     "course_restrictions" TEXT,
     "not_supported_universities" TEXT,
     "restricted_countries" TEXT,
-    "course_duration_minimum" INTEGER,
-    "course_duration_maximum" INTEGER,
-    "supported_course_types" "public"."hs_loan_products_course_types",
+    "supported_course_types" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "hs_loan_products_geographic_coverage_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "public"."hs_loan_products_special_features" (
-    "id" SERIAL NOT NULL,
-    "loan_product_id" INTEGER NOT NULL,
-    "digital_features" "public"."digital_features",
-    "customer_support_features" "public"."customer_support_features",
-    "flexible_repayment_options" "public"."flexible_repayment_options",
-    "tax_benefits_available" TEXT,
-    "forex_tax_benefits" TEXT,
-    "grace_period_benefits" TEXT,
-    "insurance_coverage_included" BOOLEAN DEFAULT false,
-    "loyalty_benefits" TEXT,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "hs_loan_products_special_features_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "public"."hs_loan_products_performance_metrics" (
     "id" SERIAL NOT NULL,
-    "loan_product_id" INTEGER NOT NULL,
+    "product_id" INTEGER NOT NULL,
     "application_volume_monthly" INTEGER,
     "application_volume_quarterly" INTEGER,
     "application_volume_yearly" INTEGER,
-    "approval_rate" DECIMAL(10,2),
-    "average_loan_amount" DECIMAL(10,2),
+    "approval_rate" DECIMAL(65,30),
+    "average_loan_amount" DECIMAL(65,30),
     "average_processing_days" INTEGER,
-    "customer_satisfaction_rating" INTEGER,
-    "product_popularity_score" INTEGER,
-    "created_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+    "customer_satisfaction_rating" DECIMAL(65,30),
+    "product_popularity_score" DECIMAL(65,30),
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "hs_loan_products_performance_metrics_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
+CREATE TABLE "public"."hs_loan_products_repayment_terms" (
+    "id" SERIAL NOT NULL,
+    "product_id" INTEGER NOT NULL,
+    "bounce_charges" DECIMAL(65,30),
+    "foreclosure_charges" TEXT,
+    "late_payment_charges" TEXT,
+    "moratorium_period" INTEGER,
+    "moratorium_type" TEXT,
+    "part_payment_allowed" TEXT,
+    "part_payment_minimum" DECIMAL(65,30),
+    "prepayment_allowed" TEXT,
+    "prepayment_charges" TEXT,
+    "prepayment_lock_in_period" INTEGER,
+    "repayment_frequency" TEXT,
+    "repayment_period_maximum" INTEGER,
+    "repayment_period_minimum" INTEGER,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "hs_loan_products_repayment_terms_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."hs_loan_products_special_features" (
+    "id" SERIAL NOT NULL,
+    "product_id" INTEGER NOT NULL,
+    "customer_support_features" TEXT,
+    "digital_features" TEXT,
+    "flexible_repayment_options" TEXT,
+    "forex_tax_benefits" TEXT,
+    "grace_period_benefits" TEXT,
+    "loyalty_benefits" TEXT,
+    "tax_benefits_available" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "hs_loan_products_special_features_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "public"."hs_loan_products_system_integration" (
     "id" SERIAL NOT NULL,
-    "loan_product_id" INTEGER NOT NULL,
-    "api_availability" "public"."api_availability",
+    "product_id" INTEGER NOT NULL,
+    "api_availability" TEXT,
+    "data_format" TEXT,
+    "integration_complexity" TEXT,
+    "sandbox_environment" TEXT,
     "technical_documentation_url" TEXT,
-    "integration_complexity" "public"."integration_complexity",
-    "data_format" "public"."data_format",
-    "sandbox_environment" "public"."sandbox_environment",
-    "webhook_support" "public"."webhook_support",
-    "created_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+    "webhook_support" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "hs_loan_products_system_integration_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "public"."hs_loan_products_financial_terms" (
+CREATE TABLE "public"."hs_loan_products_system_tracking" (
     "id" SERIAL NOT NULL,
-    "loan_product_id" INTEGER NOT NULL,
-    "interest_rate_type" "public"."InterestRateType",
-    "interest_rate_range_min" DECIMAL(10,2),
-    "interest_rate_range_max" DECIMAL(10,2),
-    "legal_charges" DECIMAL(10,2),
-    "loan_to_value_ratio" INTEGER,
-    "rack_rate" DECIMAL(10,2),
-    "valuation_charges" DECIMAL(10,2),
-    "processing_fee_type" "public"."processing_fee_type",
-    "processing_fee_percentage" DECIMAL(10,2),
-    "processing_fee_amount" DECIMAL(10,2),
-    "processing_fee_minimum" DECIMAL(10,2),
-    "processing_fee_maximum" DECIMAL(10,2),
-    "administrative_charges" DECIMAL(10,2),
-    "margin_money_percentage" DECIMAL(10,2),
-    "maximum_loan_amount_secured" DECIMAL(10,2),
-    "maximum_loan_amount_unsecured" DECIMAL(10,2),
-    "minimum_loan_amount_secured" DECIMAL(10,2),
-    "minimum_loan_amount_unsecured" DECIMAL(10,2),
-    "created_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+    "product_id" INTEGER NOT NULL,
+    "change_log" TEXT,
+    "created_by_user" TEXT,
+    "created_date" TIMESTAMP(3),
+    "last_modified_by" TEXT,
+    "last_modified_date" TIMESTAMP(3),
+    "next_review_date" TIMESTAMP(3),
+    "notes" TEXT,
+    "product_record_status" TEXT,
+    "review_frequency" TEXT,
+    "version_number" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "hs_loan_products_financial_terms_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "hs_loan_products_system_tracking_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -1984,111 +2030,64 @@ CREATE TABLE "public"."hs_loan_documents_customer_experience" (
 -- CreateTable
 CREATE TABLE "public"."hs_commission_settlements" (
     "id" SERIAL NOT NULL,
-    "loan_application_id" INTEGER,
-    "lead_reference_id" TEXT,
-    "student_id" TEXT,
-    "deleted_by_id" INTEGER,
-    "partner_id" INTEGER,
-    "partner_name" TEXT,
-    "student_name" TEXT,
-    "verified_by" TEXT,
-    "settlement_period" "public"."settlement_period",
-    "settlement_month" "public"."settlement_month",
-    "settlement_year" INTEGER,
+    "db_id" TEXT,
+    "settlement_id" TEXT,
     "settlement_reference_number" TEXT,
-    "is_deleted" BOOLEAN DEFAULT false,
-    "is_active" BOOLEAN DEFAULT true,
-    "created_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
-    "created_by" TEXT,
-    "updated_by" TEXT,
+    "application_id" TEXT,
+    "lead_reference_id" TEXT,
+    "partner_id" TEXT,
+    "partner_name" TEXT,
+    "student_id" TEXT,
+    "student_name" TEXT,
+    "settlement_date" TIMESTAMP(3),
+    "settlement_month" TEXT,
+    "settlement_period" TEXT,
+    "settlement_year" INTEGER,
+    "verified_by" TEXT,
     "hs_created_by_user_id" INTEGER,
     "hs_createdate" TIMESTAMP(3),
     "hs_lastmodifieddate" TIMESTAMP(3),
+    "hs_merged_object_ids" TEXT,
     "hs_object_id" TEXT,
+    "hs_object_source_detail_1" TEXT,
+    "hs_object_source_detail_2" TEXT,
+    "hs_object_source_detail_3" TEXT,
+    "hs_object_source_label" TEXT,
+    "hs_shared_team_ids" TEXT,
+    "hs_shared_user_ids" TEXT,
     "hs_updated_by_user_id" INTEGER,
+    "hubspot_owner_assigneddate" TIMESTAMP(3),
     "hubspot_owner_id" TEXT,
+    "hubspot_team_id" TEXT,
+    "is_active" BOOLEAN NOT NULL DEFAULT true,
+    "is_deleted" BOOLEAN NOT NULL DEFAULT false,
+    "created_by" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_by" TEXT,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "deleted_by" TEXT,
+    "deleted_on" TIMESTAMP(3),
 
     CONSTRAINT "hs_commission_settlements_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "public"."hs_commission_settlements_settlement_status" (
-    "id" SERIAL NOT NULL,
-    "settlement_id" INTEGER NOT NULL,
-    "calculated_by" TEXT,
-    "calculation_date" TIMESTAMP(3),
-    "settlement_status" "public"."settlement_status",
-    "verification_date" TIMESTAMP(3),
-    "verification_status" "public"."verification_status",
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "hs_commission_settlements_settlement_status_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "public"."hs_commission_settlements_system_tracking" (
-    "id" SERIAL NOT NULL,
-    "settlement_id" INTEGER NOT NULL,
-    "audit_trail" TEXT,
-    "change_log" TEXT,
-    "created_by" TEXT,
-    "created_date" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
-    "data_source" "public"."commission_data_source",
-    "integration_status" "public"."IntegrationStatus",
-    "internal_notes" TEXT,
-    "last_modified_by" TEXT,
-    "last_modified_date" TIMESTAMP(3),
-    "notes" TEXT,
-    "settlement_record_status" "public"."settlement_record_status",
-    "system_generated" "public"."system_generated",
-    "version_number" TEXT,
-    "batch_payment_id" TEXT,
-    "disbursement_trigger" "public"."disbursement_trigger",
-    "original_transaction_id" TEXT,
-    "related_settlement_id" TEXT,
-    "transaction_sub_type" TEXT,
-    "transaction_type" "public"."transaction_types",
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "hs_commission_settlements_system_tracking_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "public"."hs_commission_settlements_transaction_details" (
-    "id" SERIAL NOT NULL,
-    "settlement_id" INTEGER NOT NULL,
-    "batch_payment_id" TEXT,
-    "disbursement_trigger" "public"."disbursement_trigger",
-    "original_transaction_id" TEXT,
-    "related_settlement_id" TEXT,
-    "transaction_sub_type" TEXT,
-    "transaction_type" "public"."transaction_types",
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "hs_commission_settlements_transaction_details_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "public"."hs_commission_settlements_commission_calculations" (
     "id" SERIAL NOT NULL,
     "settlement_id" INTEGER NOT NULL,
-    "commission_model" "public"."commission_model",
-    "commission_rate_applied" DECIMAL(10,2),
+    "commission_model" TEXT,
+    "commission_rate_applied" DECIMAL(65,30),
     "commission_tier_applied" TEXT,
-    "gross_commission_amount" DECIMAL(12,2),
-    "bonus_amount" DECIMAL(12,2),
-    "bonus_rate_applied" DECIMAL(10,2),
-    "incentive_amount" DECIMAL(12,2),
-    "adjustment_amount" DECIMAL(12,2),
+    "gross_commission_amount" DECIMAL(65,30),
+    "bonus_amount" DECIMAL(65,30),
+    "bonus_rate_applied" DECIMAL(65,30),
+    "incentive_amount" DECIMAL(65,30),
+    "penalty_amount" DECIMAL(65,30),
+    "adjustment_amount" DECIMAL(65,30),
     "adjustment_reason" TEXT,
-    "penalty_amount" DECIMAL(12,2),
-    "total_gross_amount" DECIMAL(12,2),
+    "total_gross_amount" DECIMAL(65,30),
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "hs_commission_settlements_commission_calculations_pkey" PRIMARY KEY ("id")
 );
@@ -2097,83 +2096,42 @@ CREATE TABLE "public"."hs_commission_settlements_commission_calculations" (
 CREATE TABLE "public"."hs_commission_settlements_communication" (
     "id" SERIAL NOT NULL,
     "settlement_id" INTEGER NOT NULL,
+    "notification_date" TIMESTAMP(3),
+    "notification_method" TEXT,
+    "partner_notification_sent" TEXT,
+    "acknowledgment_received" TEXT,
     "acknowledgment_date" TIMESTAMP(3),
-    "acknowledgment_received" "public"."acknowledgment_status",
+    "last_communication_date" TIMESTAMP(3),
     "communication_log" TEXT,
     "email_sent_count" INTEGER,
-    "last_communication_date" TIMESTAMP(3),
-    "notification_date" TIMESTAMP(3),
-    "notification_method" "public"."notification_method",
-    "partner_notification_sent" "public"."partner_notification_sent",
     "sms_sent_count" INTEGER,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "hs_commission_settlements_communication_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "public"."hs_commission_settlements_loan_details" (
-    "id" SERIAL NOT NULL,
-    "settlement_id" INTEGER NOT NULL,
-    "course_name" TEXT,
-    "lender_name" TEXT NOT NULL,
-    "loan_amount_disbursed" DECIMAL(12,2),
-    "loan_disbursement_date" TIMESTAMP(3),
-    "loan_product_name" TEXT,
-    "student_destination_country" TEXT,
-    "university_name" TEXT,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "hs_commission_settlements_loan_details_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "public"."hs_commission_settlements_payment_processing" (
-    "id" SERIAL NOT NULL,
-    "settlement_id" INTEGER NOT NULL,
-    "beneficiary_name" TEXT,
-    "beneficiary_account_number" TEXT,
-    "beneficiary_bank_name" TEXT,
-    "beneficiary_ifsc_code" TEXT,
-    "last_retry_date" TIMESTAMP(3),
-    "payment_completed_date" TIMESTAMP(3),
-    "payment_failure_reason" TEXT,
-    "payment_initiation_date" TIMESTAMP(3),
-    "payment_method" "public"."payment_method",
-    "payment_reference_number" TEXT,
-    "payment_status" "public"."payment_status",
-    "retry_attempt_count" INTEGER,
-    "bank_transaction_id" TEXT,
-    "payment_gateway_reference" TEXT,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "hs_commission_settlements_payment_processing_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "public"."hs_commission_settlements_tax_and_deductions" (
     "id" SERIAL NOT NULL,
     "settlement_id" INTEGER NOT NULL,
-    "gst_applicable" BOOLEAN DEFAULT true,
-    "gst_rate_applied" DECIMAL(10,2),
-    "gst_amount" DECIMAL(12,2),
-    "net_payable_amount" DECIMAL(12,2),
-    "service_tax_amount" INTEGER,
-    "other_deductions" DECIMAL(12,2),
+    "gst_applicable" TEXT,
+    "gst_rate_applied" DECIMAL(65,30),
+    "gst_amount" DECIMAL(65,30),
+    "tds_applicable" TEXT,
+    "tds_rate_applied" DECIMAL(65,30),
+    "tds_amount" DECIMAL(65,30),
+    "tds_certificate_number" TEXT,
+    "service_tax_amount" DECIMAL(65,30),
+    "other_deductions" DECIMAL(65,30),
     "other_deductions_description" TEXT,
-    "tds_applicable" BOOLEAN DEFAULT true,
-    "tds_rate_applied" DECIMAL(10,2),
-    "tds_amount" DECIMAL(12,2),
-    "tds_certificate_number" INTEGER,
+    "total_deductions" DECIMAL(65,30),
+    "net_payable_amount" DECIMAL(65,30),
     "withholding_tax_applicable" BOOLEAN DEFAULT false,
-    "withholding_tax_rate" DECIMAL(10,2),
-    "withholding_tax_amount" DECIMAL(12,2),
-    "total_deductions" DECIMAL(12,2),
+    "withholding_tax_rate" DECIMAL(65,30),
+    "withholding_tax_amount" DECIMAL(65,30),
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "hs_commission_settlements_tax_and_deductions_pkey" PRIMARY KEY ("id")
 );
@@ -2182,19 +2140,19 @@ CREATE TABLE "public"."hs_commission_settlements_tax_and_deductions" (
 CREATE TABLE "public"."hs_commission_settlements_documentation" (
     "id" SERIAL NOT NULL,
     "settlement_id" INTEGER NOT NULL,
-    "agreement_reference" TEXT,
-    "invoice_required" BOOLEAN DEFAULT true,
+    "invoice_required" TEXT,
     "invoice_number" TEXT,
     "invoice_date" TIMESTAMP(3),
-    "invoice_amount" DECIMAL(12,2),
-    "invoice_status" "public"."invoice_status",
+    "invoice_amount" DECIMAL(65,30),
+    "invoice_status" TEXT,
     "invoice_url" TEXT,
+    "tax_certificate_required" TEXT,
+    "tax_certificate_url" TEXT,
+    "agreement_reference" TEXT,
     "payment_terms_applied" TEXT,
     "supporting_documents" TEXT,
-    "tax_certificate_required" "public"."tax_certificate_required",
-    "tax_certificate_url" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "hs_commission_settlements_documentation_pkey" PRIMARY KEY ("id")
 );
@@ -2203,55 +2161,150 @@ CREATE TABLE "public"."hs_commission_settlements_documentation" (
 CREATE TABLE "public"."hs_commission_settlements_hold_and_disputes" (
     "id" SERIAL NOT NULL,
     "settlement_id" INTEGER NOT NULL,
+    "on_hold" TEXT,
+    "hold_reason" TEXT,
+    "hold_date" TIMESTAMP(3),
+    "hold_initiated_by" TEXT,
+    "hold_release_date" TIMESTAMP(3),
+    "hold_release_approved_by" TEXT,
+    "dispute_raised" TEXT,
     "dispute_date" TIMESTAMP(3),
-    "dispute_description" TEXT,
-    "dispute_raised" BOOLEAN DEFAULT false,
     "dispute_raised_by" TEXT,
+    "dispute_description" TEXT,
     "dispute_resolution" TEXT,
     "dispute_resolution_date" TIMESTAMP(3),
     "dispute_resolved_by" TEXT,
-    "hold_date" TIMESTAMP(3),
-    "hold_initiated_by" TEXT,
-    "hold_reason" "public"."hold_reason",
-    "hold_release_approved_by" TEXT,
-    "hold_release_date" TIMESTAMP(3),
-    "on_hold" BOOLEAN DEFAULT false,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "hs_commission_settlements_hold_and_disputes_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "public"."hs_commission_settlements_reconciliations" (
+CREATE TABLE "public"."hs_commission_settlements_loan_details" (
     "id" SERIAL NOT NULL,
     "settlement_id" INTEGER NOT NULL,
-    "reconciliation_status" "public"."reconciliation_status",
-    "reconciliation_date" TIMESTAMP(3),
-    "reconciled_by" TEXT,
-    "reconciliation_notes" TEXT,
-    "bank_statement_reference" TEXT,
-    "discrepancy_amount" DECIMAL(12,2),
-    "discrepancy_reason" TEXT,
+    "lender_name" TEXT,
+    "loan_product_name" TEXT,
+    "loan_amount_disbursed" DECIMAL(65,30),
+    "loan_disbursement_date" TIMESTAMP(3),
+    "course_name" TEXT,
+    "university_name" TEXT,
+    "student_destination_country" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "hs_commission_settlements_reconciliations_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "hs_commission_settlements_loan_details_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."hs_commission_settlements_payment_processing" (
+    "id" SERIAL NOT NULL,
+    "settlement_id" INTEGER NOT NULL,
+    "payment_method" TEXT,
+    "payment_status" TEXT,
+    "payment_initiation_date" TIMESTAMP(3),
+    "payment_completion_date" TIMESTAMP(3),
+    "payment_reference_number" TEXT,
+    "payment_gateway_reference" TEXT,
+    "bank_transaction_id" TEXT,
+    "beneficiary_name" TEXT,
+    "beneficiary_account_number" TEXT,
+    "beneficiary_bank_name" TEXT,
+    "beneficiary_ifsc_code" TEXT,
+    "payment_failure_reason" TEXT,
+    "retry_attempt_count" INTEGER,
+    "last_retry_date" TIMESTAMP(3),
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "hs_commission_settlements_payment_processing_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "public"."hs_commission_settlements_performance_analytics" (
     "id" SERIAL NOT NULL,
     "settlement_id" INTEGER NOT NULL,
-    "sla_breach" BOOLEAN DEFAULT false,
-    "sla_breach_reason" TEXT,
-    "partner_satisfaction_rating" DECIMAL(3,2),
-    "payment_delay_days" INTEGER,
     "processing_time_days" INTEGER,
+    "payment_delay_days" INTEGER,
+    "sla_breach" TEXT,
+    "sla_breach_reason" TEXT,
+    "partner_satisfaction_rating" DECIMAL(65,30),
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "hs_commission_settlements_performance_analytics_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."hs_commission_settlements_reconciliations" (
+    "id" SERIAL NOT NULL,
+    "settlement_id" INTEGER NOT NULL,
+    "reconciliation_status" TEXT,
+    "reconciliation_date" TIMESTAMP(3),
+    "reconciled_by" TEXT,
+    "bank_statement_reference" TEXT,
+    "discrepancy_amount" DECIMAL(65,30),
+    "discrepancy_reason" TEXT,
+    "reconciliation_notes" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "hs_commission_settlements_reconciliations_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."hs_commission_settlements_settlement_status" (
+    "id" SERIAL NOT NULL,
+    "settlement_id" INTEGER NOT NULL,
+    "settlement_status" TEXT,
+    "calculation_date" TIMESTAMP(3),
+    "calculated_by" TEXT,
+    "verification_status" TEXT,
+    "verification_date" TIMESTAMP(3),
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "hs_commission_settlements_settlement_status_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."hs_commission_settlements_system_tracking" (
+    "id" SERIAL NOT NULL,
+    "settlement_id" INTEGER NOT NULL,
+    "settlement_record_status" TEXT,
+    "data_source" TEXT,
+    "integration_status" TEXT,
+    "system_generated" TEXT,
+    "created_by_user" TEXT,
+    "created_date" TIMESTAMP(3),
+    "last_modified_by" TEXT,
+    "last_modified_date" TIMESTAMP(3),
+    "version_number" TEXT,
+    "audit_trail" TEXT,
+    "change_log" TEXT,
+    "notes" TEXT,
+    "internal_notes" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "hs_commission_settlements_system_tracking_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."hs_commission_settlements_transaction_details" (
+    "id" SERIAL NOT NULL,
+    "settlement_id" INTEGER NOT NULL,
+    "transaction_type" TEXT,
+    "transaction_sub_type" TEXT,
+    "disbursement_trigger" TEXT,
+    "batch_payment_id" TEXT,
+    "original_transaction_id" TEXT,
+    "related_settlement_id" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "hs_commission_settlements_transaction_details_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -2280,7 +2333,7 @@ CREATE TABLE "public"."currency_configs" (
     "code" VARCHAR(3) NOT NULL,
     "iso_code" VARCHAR(3) NOT NULL,
     "symbol" VARCHAR(10) NOT NULL,
-    "name" VARCHAR(100) NOT NULL,
+    "name" VARCHAR(255) NOT NULL,
     "countries" JSONB NOT NULL,
     "position" VARCHAR(10) NOT NULL,
     "thousands_separator" VARCHAR(1) NOT NULL DEFAULT ',',
@@ -2340,11 +2393,58 @@ CREATE TABLE "public"."sync_outbox" (
 );
 
 -- CreateTable
-CREATE TABLE "public"."_HSCommissionSettlementsToHSLoanApplications" (
-    "A" INTEGER NOT NULL,
-    "B" INTEGER NOT NULL,
+CREATE TABLE "public"."enum_mappings" (
+    "id" TEXT NOT NULL,
+    "enumName" TEXT NOT NULL,
+    "hubspotProperty" TEXT NOT NULL,
+    "hubspotObjectType" TEXT NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "description" TEXT,
+    "lastSyncedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "_HSCommissionSettlementsToHSLoanApplications_AB_pkey" PRIMARY KEY ("A","B")
+    CONSTRAINT "enum_mappings_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."enum_values" (
+    "id" TEXT NOT NULL,
+    "enumMappingId" TEXT NOT NULL,
+    "sourceValue" TEXT NOT NULL,
+    "hubspotValue" TEXT NOT NULL,
+    "displayLabel" TEXT NOT NULL,
+    "description" TEXT,
+    "sortOrder" INTEGER NOT NULL DEFAULT 0,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "enum_values_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."field_mappings" (
+    "id" TEXT NOT NULL,
+    "sourceSystem" TEXT NOT NULL,
+    "sourceEntity" TEXT,
+    "sourceField" TEXT NOT NULL,
+    "targetSystem" TEXT NOT NULL,
+    "targetEntity" TEXT NOT NULL,
+    "targetField" TEXT NOT NULL,
+    "dataType" TEXT NOT NULL,
+    "isRequired" BOOLEAN NOT NULL DEFAULT false,
+    "defaultValue" TEXT,
+    "transformFunction" TEXT,
+    "requiresEnumMap" BOOLEAN NOT NULL DEFAULT false,
+    "enumMapId" TEXT,
+    "version" INTEGER NOT NULL DEFAULT 1,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "field_mappings_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -2411,6 +2511,27 @@ CREATE UNIQUE INDEX "b2b_partners_user_roles_user_id_role_id_key" ON "public"."b
 CREATE UNIQUE INDEX "b2b_partners_role_permissions_role_id_permission_id_key" ON "public"."b2b_partners_role_permissions"("role_id", "permission_id");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "hs_b2b_partners_db_id_key" ON "public"."hs_b2b_partners"("db_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "hs_b2b_partners_hs_object_id_key" ON "public"."hs_b2b_partners"("hs_object_id");
+
+-- CreateIndex
+CREATE INDEX "hs_b2b_partners_partner_name_idx" ON "public"."hs_b2b_partners"("partner_name");
+
+-- CreateIndex
+CREATE INDEX "hs_b2b_partners_partner_type_idx" ON "public"."hs_b2b_partners"("partner_type");
+
+-- CreateIndex
+CREATE INDEX "hs_b2b_partners_business_type_idx" ON "public"."hs_b2b_partners"("business_type");
+
+-- CreateIndex
+CREATE INDEX "hs_b2b_partners_is_deleted_idx" ON "public"."hs_b2b_partners"("is_deleted");
+
+-- CreateIndex
+CREATE INDEX "hs_b2b_partners_created_at_idx" ON "public"."hs_b2b_partners"("created_at");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "hs_b2b_partners_business_capabilities_partner_id_key" ON "public"."hs_b2b_partners_business_capabilities"("partner_id");
 
 -- CreateIndex
@@ -2429,6 +2550,9 @@ CREATE UNIQUE INDEX "hs_b2b_partners_financial_tracking_partner_id_key" ON "publ
 CREATE UNIQUE INDEX "hs_b2b_partners_lead_attribution_partner_id_key" ON "public"."hs_b2b_partners_lead_attribution"("partner_id");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "hs_b2b_partners_lead_attribution_unique_referral_code_key" ON "public"."hs_b2b_partners_lead_attribution"("unique_referral_code");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "hs_b2b_partners_marketing_and_promotion_partner_id_key" ON "public"."hs_b2b_partners_marketing_and_promotion"("partner_id");
 
 -- CreateIndex
@@ -2442,9 +2566,6 @@ CREATE UNIQUE INDEX "hs_b2b_partners_relationship_mgmt_partner_id_key" ON "publi
 
 -- CreateIndex
 CREATE UNIQUE INDEX "hs_b2b_partners_system_tracking_partner_id_key" ON "public"."hs_b2b_partners_system_tracking"("partner_id");
-
--- CreateIndex
-CREATE INDEX "hs_b2b_partners_system_tracking_partner_name_idx" ON "public"."hs_b2b_partners_system_tracking"("partner_name");
 
 -- CreateIndex
 CREATE INDEX "hs_b2b_partners_system_tracking_partner_record_status_idx" ON "public"."hs_b2b_partners_system_tracking"("partner_record_status");
@@ -2468,46 +2589,58 @@ CREATE UNIQUE INDEX "currency_conversion_from_currency_to_currency_key" ON "publ
 CREATE UNIQUE INDEX "b2b_partners_users_email_key" ON "public"."b2b_partners_users"("email");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "hs_loan_applications_hs_object_id_key" ON "public"."hs_loan_applications"("hs_object_id");
+
+-- CreateIndex
 CREATE INDEX "hs_loan_applications_student_email_idx" ON "public"."hs_loan_applications"("student_email");
 
 -- CreateIndex
 CREATE INDEX "hs_loan_applications_application_date_idx" ON "public"."hs_loan_applications"("application_date");
 
 -- CreateIndex
-CREATE INDEX "hs_loan_applications_assigned_counselor_id_idx" ON "public"."hs_loan_applications"("assigned_counselor_id");
+CREATE INDEX "hs_loan_applications_student_id_idx" ON "public"."hs_loan_applications"("student_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "hs_loan_applications_academic_details_loan_application_id_key" ON "public"."hs_loan_applications_academic_details"("loan_application_id");
+CREATE INDEX "hs_loan_applications_b2b_partner_id_idx" ON "public"."hs_loan_applications"("b2b_partner_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "hs_loan_applications_financial_requirements_loan_applicatio_key" ON "public"."hs_loan_applications_financial_requirements"("loan_application_id");
+CREATE INDEX "hs_loan_applications_is_deleted_idx" ON "public"."hs_loan_applications"("is_deleted");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "hs_loan_applications_status_loan_application_id_key" ON "public"."hs_loan_applications_status"("loan_application_id");
+CREATE INDEX "hs_loan_applications_created_at_idx" ON "public"."hs_loan_applications"("created_at");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "hs_loan_applications_lender_information_loan_application_id_key" ON "public"."hs_loan_applications_lender_information"("loan_application_id");
+CREATE UNIQUE INDEX "hs_loan_applications_academic_details_application_id_key" ON "public"."hs_loan_applications_academic_details"("application_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "hs_loan_applications_document_management_loan_application_i_key" ON "public"."hs_loan_applications_document_management"("loan_application_id");
+CREATE UNIQUE INDEX "hs_loan_applications_additional_services_application_id_key" ON "public"."hs_loan_applications_additional_services"("application_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "hs_loan_applications_processing_timeline_loan_application_i_key" ON "public"."hs_loan_applications_processing_timeline"("loan_application_id");
+CREATE UNIQUE INDEX "hs_loan_applications_status_application_id_key" ON "public"."hs_loan_applications_status"("application_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "hs_loan_applications_rejection_details_loan_application_id_key" ON "public"."hs_loan_applications_rejection_details"("loan_application_id");
+CREATE UNIQUE INDEX "hs_loan_applications_commission_records_application_id_key" ON "public"."hs_loan_applications_commission_records"("application_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "hs_loan_applications_communication_preferences_loan_applica_key" ON "public"."hs_loan_applications_communication_preferences"("loan_application_id");
+CREATE UNIQUE INDEX "hs_loan_applications_communication_preferences_application__key" ON "public"."hs_loan_applications_communication_preferences"("application_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "hs_loan_applications_system_tracking_loan_application_id_key" ON "public"."hs_loan_applications_system_tracking"("loan_application_id");
+CREATE UNIQUE INDEX "hs_loan_applications_document_management_application_id_key" ON "public"."hs_loan_applications_document_management"("application_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "hs_loan_applications_commission_records_loan_application_id_key" ON "public"."hs_loan_applications_commission_records"("loan_application_id");
+CREATE UNIQUE INDEX "hs_loan_applications_financial_requirements_application_id_key" ON "public"."hs_loan_applications_financial_requirements"("application_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "hs_loan_applications_additional_services_loan_application_i_key" ON "public"."hs_loan_applications_additional_services"("loan_application_id");
+CREATE UNIQUE INDEX "hs_loan_applications_lender_information_application_id_key" ON "public"."hs_loan_applications_lender_information"("application_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "hs_loan_applications_processing_timeline_application_id_key" ON "public"."hs_loan_applications_processing_timeline"("application_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "hs_loan_applications_rejection_details_application_id_key" ON "public"."hs_loan_applications_rejection_details"("application_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "hs_loan_applications_system_tracking_application_id_key" ON "public"."hs_loan_applications_system_tracking"("application_id");
 
 -- CreateIndex
 CREATE INDEX "file_uploads_entity_type_id_idx" ON "public"."file_uploads"("entity_type_id");
@@ -2537,13 +2670,25 @@ CREATE INDEX "email_history_email_type_id_idx" ON "public"."email_history"("emai
 CREATE INDEX "email_history_sent_at_idx" ON "public"."email_history"("sent_at");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "hs_edumate_contacts_application_journey_contact_id_key" ON "public"."hs_edumate_contacts_application_journey"("contact_id");
+CREATE UNIQUE INDEX "hs_edumate_contacts_hs_object_id_key" ON "public"."hs_edumate_contacts"("hs_object_id");
+
+-- CreateIndex
+CREATE INDEX "hs_edumate_contacts_hs_object_id_idx" ON "public"."hs_edumate_contacts"("hs_object_id");
+
+-- CreateIndex
+CREATE INDEX "hs_edumate_contacts_seed_contact_idx" ON "public"."hs_edumate_contacts"("seed_contact");
+
+-- CreateIndex
+CREATE INDEX "hs_edumate_contacts_is_deleted_idx" ON "public"."hs_edumate_contacts"("is_deleted");
+
+-- CreateIndex
+CREATE INDEX "hs_edumate_contacts_created_at_idx" ON "public"."hs_edumate_contacts"("created_at");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "hs_edumate_contacts_academic_profiles_contact_id_key" ON "public"."hs_edumate_contacts_academic_profiles"("contact_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "hs_edumate_contacts_system_tracking_contact_id_key" ON "public"."hs_edumate_contacts_system_tracking"("contact_id");
+CREATE UNIQUE INDEX "hs_edumate_contacts_application_journey_contact_id_key" ON "public"."hs_edumate_contacts_application_journey"("contact_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "hs_edumate_contacts_financial_info_contact_id_key" ON "public"."hs_edumate_contacts_financial_info"("contact_id");
@@ -2558,25 +2703,34 @@ CREATE UNIQUE INDEX "hs_edumate_contacts_loan_preferences_contact_id_key" ON "pu
 CREATE UNIQUE INDEX "hs_edumate_contacts_personal_information_contact_id_key" ON "public"."hs_edumate_contacts_personal_information"("contact_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "hs_lenders_external_id_key" ON "public"."hs_lenders"("external_id");
+CREATE UNIQUE INDEX "hs_edumate_contacts_system_tracking_contact_id_key" ON "public"."hs_edumate_contacts_system_tracking"("contact_id");
 
 -- CreateIndex
-CREATE INDEX "hs_lenders_lender_category_idx" ON "public"."hs_lenders"("lender_category");
+CREATE UNIQUE INDEX "hs_lenders_db_id_key" ON "public"."hs_lenders"("db_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "hs_lenders_hs_object_id_key" ON "public"."hs_lenders"("hs_object_id");
+
+-- CreateIndex
+CREATE INDEX "hs_lenders_lender_name_idx" ON "public"."hs_lenders"("lender_name");
 
 -- CreateIndex
 CREATE INDEX "hs_lenders_lender_type_idx" ON "public"."hs_lenders"("lender_type");
 
 -- CreateIndex
+CREATE INDEX "hs_lenders_is_deleted_idx" ON "public"."hs_lenders"("is_deleted");
+
+-- CreateIndex
 CREATE INDEX "hs_lenders_created_at_idx" ON "public"."hs_lenders"("created_at");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "hs_lenders_system_tracking_lender_id_key" ON "public"."hs_lenders_system_tracking"("lender_id");
+CREATE UNIQUE INDEX "hs_lenders_business_metrics_lender_id_key" ON "public"."hs_lenders_business_metrics"("lender_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "hs_lenders_contact_info_lender_id_key" ON "public"."hs_lenders_contact_info"("lender_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "hs_lenders_business_metrics_lender_id_key" ON "public"."hs_lenders_business_metrics"("lender_id");
+CREATE UNIQUE INDEX "hs_lenders_loan_offerings_lender_id_key" ON "public"."hs_lenders_loan_offerings"("lender_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "hs_lenders_operational_details_lender_id_key" ON "public"."hs_lenders_operational_details"("lender_id");
@@ -2585,55 +2739,61 @@ CREATE UNIQUE INDEX "hs_lenders_operational_details_lender_id_key" ON "public"."
 CREATE UNIQUE INDEX "hs_lenders_partnerships_details_lender_id_key" ON "public"."hs_lenders_partnerships_details"("lender_id");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "hs_lenders_system_tracking_lender_id_key" ON "public"."hs_lenders_system_tracking"("lender_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "hs_loan_products_db_id_key" ON "public"."hs_loan_products"("db_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "hs_loan_products_hs_object_id_key" ON "public"."hs_loan_products"("hs_object_id");
+
+-- CreateIndex
+CREATE INDEX "hs_loan_products_product_name_idx" ON "public"."hs_loan_products"("product_name");
+
+-- CreateIndex
 CREATE INDEX "hs_loan_products_lender_id_idx" ON "public"."hs_loan_products"("lender_id");
-
--- CreateIndex
-CREATE INDEX "hs_loan_products_is_active_idx" ON "public"."hs_loan_products"("is_active");
-
--- CreateIndex
-CREATE INDEX "hs_loan_products_product_type_idx" ON "public"."hs_loan_products"("product_type");
-
--- CreateIndex
-CREATE INDEX "hs_loan_products_product_category_idx" ON "public"."hs_loan_products"("product_category");
 
 -- CreateIndex
 CREATE INDEX "hs_loan_products_product_status_idx" ON "public"."hs_loan_products"("product_status");
 
 -- CreateIndex
+CREATE INDEX "hs_loan_products_is_deleted_idx" ON "public"."hs_loan_products"("is_deleted");
+
+-- CreateIndex
 CREATE INDEX "hs_loan_products_created_at_idx" ON "public"."hs_loan_products"("created_at");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "hs_loan_products_system_tracking_loan_product_id_key" ON "public"."hs_loan_products_system_tracking"("loan_product_id");
+CREATE UNIQUE INDEX "hs_loan_products_application_and_processing_product_id_key" ON "public"."hs_loan_products_application_and_processing"("product_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "hs_loan_products_competitive_analysis_loan_product_id_key" ON "public"."hs_loan_products_competitive_analysis"("loan_product_id");
+CREATE UNIQUE INDEX "hs_loan_products_collateral_and_security_product_id_key" ON "public"."hs_loan_products_collateral_and_security"("product_id");
 
 -- CreateIndex
-CREATE INDEX "hs_loan_products_eligibility_criteria_loan_product_id_idx" ON "public"."hs_loan_products_eligibility_criteria"("loan_product_id");
+CREATE UNIQUE INDEX "hs_loan_products_competitive_analysis_product_id_key" ON "public"."hs_loan_products_competitive_analysis"("product_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "hs_loan_products_collateral_and_security_loan_product_id_key" ON "public"."hs_loan_products_collateral_and_security"("loan_product_id");
+CREATE UNIQUE INDEX "hs_loan_products_eligibility_criteria_product_id_key" ON "public"."hs_loan_products_eligibility_criteria"("product_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "hs_loan_products_repayment_terms_loan_product_id_key" ON "public"."hs_loan_products_repayment_terms"("loan_product_id");
+CREATE UNIQUE INDEX "hs_loan_products_financial_terms_product_id_key" ON "public"."hs_loan_products_financial_terms"("product_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "hs_loan_products_application_and_processing_loan_product_id_key" ON "public"."hs_loan_products_application_and_processing"("loan_product_id");
+CREATE UNIQUE INDEX "hs_loan_products_geographic_coverage_product_id_key" ON "public"."hs_loan_products_geographic_coverage"("product_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "hs_loan_products_geographic_coverage_loan_product_id_key" ON "public"."hs_loan_products_geographic_coverage"("loan_product_id");
+CREATE UNIQUE INDEX "hs_loan_products_performance_metrics_product_id_key" ON "public"."hs_loan_products_performance_metrics"("product_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "hs_loan_products_special_features_loan_product_id_key" ON "public"."hs_loan_products_special_features"("loan_product_id");
+CREATE UNIQUE INDEX "hs_loan_products_repayment_terms_product_id_key" ON "public"."hs_loan_products_repayment_terms"("product_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "hs_loan_products_performance_metrics_loan_product_id_key" ON "public"."hs_loan_products_performance_metrics"("loan_product_id");
+CREATE UNIQUE INDEX "hs_loan_products_special_features_product_id_key" ON "public"."hs_loan_products_special_features"("product_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "hs_loan_products_system_integration_loan_product_id_key" ON "public"."hs_loan_products_system_integration"("loan_product_id");
+CREATE UNIQUE INDEX "hs_loan_products_system_integration_product_id_key" ON "public"."hs_loan_products_system_integration"("product_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "hs_loan_products_financial_terms_loan_product_id_key" ON "public"."hs_loan_products_financial_terms"("loan_product_id");
+CREATE UNIQUE INDEX "hs_loan_products_system_tracking_product_id_key" ON "public"."hs_loan_products_system_tracking"("product_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "hs_loan_documents_document_id_key" ON "public"."hs_loan_documents"("document_id");
@@ -2678,31 +2838,31 @@ CREATE UNIQUE INDEX "hs_loan_documents_performance_metrics_document_master_id_ke
 CREATE UNIQUE INDEX "hs_loan_documents_customer_experience_document_master_id_key" ON "public"."hs_loan_documents_customer_experience"("document_master_id");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "hs_commission_settlements_db_id_key" ON "public"."hs_commission_settlements"("db_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "hs_commission_settlements_settlement_id_key" ON "public"."hs_commission_settlements"("settlement_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "hs_commission_settlements_hs_object_id_key" ON "public"."hs_commission_settlements"("hs_object_id");
+
+-- CreateIndex
+CREATE INDEX "hs_commission_settlements_settlement_id_idx" ON "public"."hs_commission_settlements"("settlement_id");
+
+-- CreateIndex
 CREATE INDEX "hs_commission_settlements_partner_id_idx" ON "public"."hs_commission_settlements"("partner_id");
 
 -- CreateIndex
-CREATE INDEX "hs_commission_settlements_lead_reference_id_idx" ON "public"."hs_commission_settlements"("lead_reference_id");
+CREATE INDEX "hs_commission_settlements_application_id_idx" ON "public"."hs_commission_settlements"("application_id");
 
 -- CreateIndex
-CREATE INDEX "hs_commission_settlements_student_id_idx" ON "public"."hs_commission_settlements"("student_id");
+CREATE INDEX "hs_commission_settlements_settlement_date_idx" ON "public"."hs_commission_settlements"("settlement_date");
+
+-- CreateIndex
+CREATE INDEX "hs_commission_settlements_is_deleted_idx" ON "public"."hs_commission_settlements"("is_deleted");
 
 -- CreateIndex
 CREATE INDEX "hs_commission_settlements_created_at_idx" ON "public"."hs_commission_settlements"("created_at");
-
--- CreateIndex
-CREATE UNIQUE INDEX "hs_commission_settlements_settlement_status_settlement_id_key" ON "public"."hs_commission_settlements_settlement_status"("settlement_id");
-
--- CreateIndex
-CREATE INDEX "hs_commission_settlements_settlement_status_settlement_id_idx" ON "public"."hs_commission_settlements_settlement_status"("settlement_id");
-
--- CreateIndex
-CREATE INDEX "hs_commission_settlements_settlement_status_created_at_idx" ON "public"."hs_commission_settlements_settlement_status"("created_at");
-
--- CreateIndex
-CREATE UNIQUE INDEX "hs_commission_settlements_system_tracking_settlement_id_key" ON "public"."hs_commission_settlements_system_tracking"("settlement_id");
-
--- CreateIndex
-CREATE UNIQUE INDEX "hs_commission_settlements_transaction_details_settlement_id_key" ON "public"."hs_commission_settlements_transaction_details"("settlement_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "hs_commission_settlements_commission_calculations_settlemen_key" ON "public"."hs_commission_settlements_commission_calculations"("settlement_id");
@@ -2711,37 +2871,34 @@ CREATE UNIQUE INDEX "hs_commission_settlements_commission_calculations_settlemen
 CREATE UNIQUE INDEX "hs_commission_settlements_communication_settlement_id_key" ON "public"."hs_commission_settlements_communication"("settlement_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "hs_commission_settlements_loan_details_settlement_id_key" ON "public"."hs_commission_settlements_loan_details"("settlement_id");
-
--- CreateIndex
-CREATE INDEX "hs_commission_settlements_loan_details_settlement_id_idx" ON "public"."hs_commission_settlements_loan_details"("settlement_id");
-
--- CreateIndex
-CREATE INDEX "hs_commission_settlements_loan_details_loan_disbursement_da_idx" ON "public"."hs_commission_settlements_loan_details"("loan_disbursement_date");
-
--- CreateIndex
-CREATE UNIQUE INDEX "hs_commission_settlements_payment_processing_settlement_id_key" ON "public"."hs_commission_settlements_payment_processing"("settlement_id");
-
--- CreateIndex
-CREATE UNIQUE INDEX "hs_commission_settlements_payment_processing_bank_transacti_key" ON "public"."hs_commission_settlements_payment_processing"("bank_transaction_id");
-
--- CreateIndex
 CREATE UNIQUE INDEX "hs_commission_settlements_tax_and_deductions_settlement_id_key" ON "public"."hs_commission_settlements_tax_and_deductions"("settlement_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "hs_commission_settlements_documentation_settlement_id_key" ON "public"."hs_commission_settlements_documentation"("settlement_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "hs_commission_settlements_documentation_invoice_number_key" ON "public"."hs_commission_settlements_documentation"("invoice_number");
+CREATE UNIQUE INDEX "hs_commission_settlements_hold_and_disputes_settlement_id_key" ON "public"."hs_commission_settlements_hold_and_disputes"("settlement_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "hs_commission_settlements_hold_and_disputes_settlement_id_key" ON "public"."hs_commission_settlements_hold_and_disputes"("settlement_id");
+CREATE UNIQUE INDEX "hs_commission_settlements_loan_details_settlement_id_key" ON "public"."hs_commission_settlements_loan_details"("settlement_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "hs_commission_settlements_payment_processing_settlement_id_key" ON "public"."hs_commission_settlements_payment_processing"("settlement_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "hs_commission_settlements_performance_analytics_settlement__key" ON "public"."hs_commission_settlements_performance_analytics"("settlement_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "hs_commission_settlements_reconciliations_settlement_id_key" ON "public"."hs_commission_settlements_reconciliations"("settlement_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "hs_commission_settlements_performance_analytics_settlement__key" ON "public"."hs_commission_settlements_performance_analytics"("settlement_id");
+CREATE UNIQUE INDEX "hs_commission_settlements_settlement_status_settlement_id_key" ON "public"."hs_commission_settlements_settlement_status"("settlement_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "hs_commission_settlements_system_tracking_settlement_id_key" ON "public"."hs_commission_settlements_system_tracking"("settlement_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "hs_commission_settlements_transaction_details_settlement_id_key" ON "public"."hs_commission_settlements_transaction_details"("settlement_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "mkt_eligibility_checker_leads_contact_id_key" ON "public"."mkt_eligibility_checker_leads"("contact_id");
@@ -2783,7 +2940,31 @@ CREATE INDEX "sync_outbox_entity_type_entity_id_idx" ON "public"."sync_outbox"("
 CREATE INDEX "sync_outbox_priority_status_created_at_idx" ON "public"."sync_outbox"("priority", "status", "created_at");
 
 -- CreateIndex
-CREATE INDEX "_HSCommissionSettlementsToHSLoanApplications_B_index" ON "public"."_HSCommissionSettlementsToHSLoanApplications"("B");
+CREATE INDEX "enum_mappings_hubspotProperty_isActive_idx" ON "public"."enum_mappings"("hubspotProperty", "isActive");
+
+-- CreateIndex
+CREATE INDEX "enum_mappings_enumName_isActive_idx" ON "public"."enum_mappings"("enumName", "isActive");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "enum_mappings_enumName_version_key" ON "public"."enum_mappings"("enumName", "version");
+
+-- CreateIndex
+CREATE INDEX "enum_values_enumMappingId_isActive_idx" ON "public"."enum_values"("enumMappingId", "isActive");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "enum_values_enumMappingId_sourceValue_key" ON "public"."enum_values"("enumMappingId", "sourceValue");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "enum_values_enumMappingId_hubspotValue_key" ON "public"."enum_values"("enumMappingId", "hubspotValue");
+
+-- CreateIndex
+CREATE INDEX "field_mappings_targetSystem_targetEntity_isActive_idx" ON "public"."field_mappings"("targetSystem", "targetEntity", "isActive");
+
+-- CreateIndex
+CREATE INDEX "field_mappings_sourceSystem_sourceEntity_isActive_idx" ON "public"."field_mappings"("sourceSystem", "sourceEntity", "isActive");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "field_mappings_sourceSystem_sourceEntity_sourceField_target_key" ON "public"."field_mappings"("sourceSystem", "sourceEntity", "sourceField", "targetSystem", "version");
 
 -- AddForeignKey
 ALTER TABLE "public"."admin_user_roles" ADD CONSTRAINT "admin_user_roles_role_id_fkey" FOREIGN KEY ("role_id") REFERENCES "public"."admin_roles"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -2813,7 +2994,10 @@ ALTER TABLE "public"."b2b_partners_user_roles" ADD CONSTRAINT "b2b_partners_user
 ALTER TABLE "public"."b2b_partners_sessions" ADD CONSTRAINT "b2b_partners_sessions_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."b2b_partners_users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."login_history" ADD CONSTRAINT "login_history_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."b2b_partners_users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."login_history" ADD CONSTRAINT "login_history_b2b_user_id_fkey" FOREIGN KEY ("b2b_user_id") REFERENCES "public"."b2b_partners_users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."login_history" ADD CONSTRAINT "login_history_admin_user_id_fkey" FOREIGN KEY ("admin_user_id") REFERENCES "public"."admin_users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."b2b_partners_role_permissions" ADD CONSTRAINT "b2b_partners_role_permissions_permission_id_fkey" FOREIGN KEY ("permission_id") REFERENCES "public"."b2b_partners_permissions"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -2822,7 +3006,7 @@ ALTER TABLE "public"."b2b_partners_role_permissions" ADD CONSTRAINT "b2b_partner
 ALTER TABLE "public"."b2b_partners_role_permissions" ADD CONSTRAINT "b2b_partners_role_permissions_role_id_fkey" FOREIGN KEY ("role_id") REFERENCES "public"."b2b_partners_roles"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."hs_b2b_partners" ADD CONSTRAINT "hs_b2b_partners_deleted_by_id_fkey" FOREIGN KEY ("deleted_by_id") REFERENCES "public"."b2b_partners_users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "public"."hs_b2b_partners" ADD CONSTRAINT "hs_b2b_partners_deleted_by_fkey" FOREIGN KEY ("deleted_by") REFERENCES "public"."b2b_partners_users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."hs_b2b_partners_business_capabilities" ADD CONSTRAINT "hs_b2b_partners_business_capabilities_partner_id_fkey" FOREIGN KEY ("partner_id") REFERENCES "public"."hs_b2b_partners"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -2864,55 +3048,40 @@ ALTER TABLE "public"."b2b_partners_tokens" ADD CONSTRAINT "b2b_partners_tokens_u
 ALTER TABLE "public"."b2b_partners_users" ADD CONSTRAINT "b2b_partners_users_b2b_id_fkey" FOREIGN KEY ("b2b_id") REFERENCES "public"."hs_b2b_partners"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."hs_loan_applications" ADD CONSTRAINT "hs_loan_applications_assigned_counselor_id_fkey" FOREIGN KEY ("assigned_counselor_id") REFERENCES "public"."b2b_partners_users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "public"."hs_loan_applications" ADD CONSTRAINT "hs_loan_applications_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."admin_users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."hs_loan_applications" ADD CONSTRAINT "hs_loan_applications_contact_id_fkey" FOREIGN KEY ("contact_id") REFERENCES "public"."hs_edumate_contacts"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "public"."hs_loan_applications_academic_details" ADD CONSTRAINT "hs_loan_applications_academic_details_application_id_fkey" FOREIGN KEY ("application_id") REFERENCES "public"."hs_loan_applications"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."hs_loan_applications" ADD CONSTRAINT "hs_loan_applications_created_by_id_fkey" FOREIGN KEY ("created_by_id") REFERENCES "public"."b2b_partners_users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "public"."hs_loan_applications_additional_services" ADD CONSTRAINT "hs_loan_applications_additional_services_application_id_fkey" FOREIGN KEY ("application_id") REFERENCES "public"."hs_loan_applications"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."hs_loan_applications" ADD CONSTRAINT "hs_loan_applications_deleted_by_id_fkey" FOREIGN KEY ("deleted_by_id") REFERENCES "public"."b2b_partners_users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "public"."hs_loan_applications_status" ADD CONSTRAINT "hs_loan_applications_status_application_id_fkey" FOREIGN KEY ("application_id") REFERENCES "public"."hs_loan_applications"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."hs_loan_applications" ADD CONSTRAINT "hs_loan_applications_last_modified_by_id_fkey" FOREIGN KEY ("last_modified_by_id") REFERENCES "public"."b2b_partners_users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "public"."hs_loan_applications_commission_records" ADD CONSTRAINT "hs_loan_applications_commission_records_application_id_fkey" FOREIGN KEY ("application_id") REFERENCES "public"."hs_loan_applications"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."hs_loan_applications" ADD CONSTRAINT "hs_loan_applications_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."b2b_partners_users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "public"."hs_loan_applications_communication_preferences" ADD CONSTRAINT "hs_loan_applications_communication_preferences_application_fkey" FOREIGN KEY ("application_id") REFERENCES "public"."hs_loan_applications"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."hs_loan_applications_academic_details" ADD CONSTRAINT "hs_loan_applications_academic_details_loan_application_id_fkey" FOREIGN KEY ("loan_application_id") REFERENCES "public"."hs_loan_applications"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."hs_loan_applications_document_management" ADD CONSTRAINT "hs_loan_applications_document_management_application_id_fkey" FOREIGN KEY ("application_id") REFERENCES "public"."hs_loan_applications"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."hs_loan_applications_financial_requirements" ADD CONSTRAINT "hs_loan_applications_financial_requirements_loan_applicati_fkey" FOREIGN KEY ("loan_application_id") REFERENCES "public"."hs_loan_applications"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."hs_loan_applications_financial_requirements" ADD CONSTRAINT "hs_loan_applications_financial_requirements_application_id_fkey" FOREIGN KEY ("application_id") REFERENCES "public"."hs_loan_applications"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."hs_loan_applications_status" ADD CONSTRAINT "hs_loan_applications_status_loan_application_id_fkey" FOREIGN KEY ("loan_application_id") REFERENCES "public"."hs_loan_applications"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."hs_loan_applications_lender_information" ADD CONSTRAINT "hs_loan_applications_lender_information_application_id_fkey" FOREIGN KEY ("application_id") REFERENCES "public"."hs_loan_applications"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."hs_loan_applications_lender_information" ADD CONSTRAINT "hs_loan_applications_lender_information_loan_application_i_fkey" FOREIGN KEY ("loan_application_id") REFERENCES "public"."hs_loan_applications"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."hs_loan_applications_processing_timeline" ADD CONSTRAINT "hs_loan_applications_processing_timeline_application_id_fkey" FOREIGN KEY ("application_id") REFERENCES "public"."hs_loan_applications"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."hs_loan_applications_document_management" ADD CONSTRAINT "hs_loan_applications_document_management_loan_application__fkey" FOREIGN KEY ("loan_application_id") REFERENCES "public"."hs_loan_applications"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."hs_loan_applications_rejection_details" ADD CONSTRAINT "hs_loan_applications_rejection_details_application_id_fkey" FOREIGN KEY ("application_id") REFERENCES "public"."hs_loan_applications"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."hs_loan_applications_processing_timeline" ADD CONSTRAINT "hs_loan_applications_processing_timeline_loan_application__fkey" FOREIGN KEY ("loan_application_id") REFERENCES "public"."hs_loan_applications"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "public"."hs_loan_applications_rejection_details" ADD CONSTRAINT "hs_loan_applications_rejection_details_loan_application_id_fkey" FOREIGN KEY ("loan_application_id") REFERENCES "public"."hs_loan_applications"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "public"."hs_loan_applications_communication_preferences" ADD CONSTRAINT "hs_loan_applications_communication_preferences_loan_applic_fkey" FOREIGN KEY ("loan_application_id") REFERENCES "public"."hs_loan_applications"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "public"."hs_loan_applications_system_tracking" ADD CONSTRAINT "hs_loan_applications_system_tracking_loan_application_id_fkey" FOREIGN KEY ("loan_application_id") REFERENCES "public"."hs_loan_applications"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "public"."hs_loan_applications_commission_records" ADD CONSTRAINT "hs_loan_applications_commission_records_loan_application_i_fkey" FOREIGN KEY ("loan_application_id") REFERENCES "public"."hs_loan_applications"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "public"."hs_loan_applications_additional_services" ADD CONSTRAINT "hs_loan_applications_additional_services_loan_application__fkey" FOREIGN KEY ("loan_application_id") REFERENCES "public"."hs_loan_applications"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."hs_loan_applications_system_tracking" ADD CONSTRAINT "hs_loan_applications_system_tracking_application_id_fkey" FOREIGN KEY ("application_id") REFERENCES "public"."hs_loan_applications"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."file_uploads" ADD CONSTRAINT "file_uploads_entity_type_id_fkey" FOREIGN KEY ("entity_type_id") REFERENCES "public"."file_entities"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -2927,19 +3096,13 @@ ALTER TABLE "public"."email_history" ADD CONSTRAINT "email_history_email_type_id
 ALTER TABLE "public"."email_history" ADD CONSTRAINT "email_history_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."b2b_partners_users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."hs_edumate_contacts_application_journey" ADD CONSTRAINT "hs_edumate_contacts_application_journey_contact_id_fkey" FOREIGN KEY ("contact_id") REFERENCES "public"."hs_edumate_contacts"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."hs_edumate_contacts" ADD CONSTRAINT "hs_edumate_contacts_b2b_partner_id_fkey" FOREIGN KEY ("b2b_partner_id") REFERENCES "public"."hs_b2b_partners"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."hs_edumate_contacts_academic_profiles" ADD CONSTRAINT "hs_edumate_contacts_academic_profiles_contact_id_fkey" FOREIGN KEY ("contact_id") REFERENCES "public"."hs_edumate_contacts"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."hs_edumate_contacts" ADD CONSTRAINT "hs_edumate_contacts_b2b_partner_id_fkey" FOREIGN KEY ("b2b_partner_id") REFERENCES "public"."hs_b2b_partners"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "public"."hs_edumate_contacts" ADD CONSTRAINT "hs_edumate_contacts_deleted_by_id_fkey" FOREIGN KEY ("deleted_by_id") REFERENCES "public"."b2b_partners_users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "public"."hs_edumate_contacts_system_tracking" ADD CONSTRAINT "hs_edumate_contacts_system_tracking_contact_id_fkey" FOREIGN KEY ("contact_id") REFERENCES "public"."hs_edumate_contacts"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."hs_edumate_contacts_application_journey" ADD CONSTRAINT "hs_edumate_contacts_application_journey_contact_id_fkey" FOREIGN KEY ("contact_id") REFERENCES "public"."hs_edumate_contacts"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."hs_edumate_contacts_financial_info" ADD CONSTRAINT "hs_edumate_contacts_financial_info_contact_id_fkey" FOREIGN KEY ("contact_id") REFERENCES "public"."hs_edumate_contacts"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -2954,16 +3117,16 @@ ALTER TABLE "public"."hs_edumate_contacts_loan_preferences" ADD CONSTRAINT "hs_e
 ALTER TABLE "public"."hs_edumate_contacts_personal_information" ADD CONSTRAINT "hs_edumate_contacts_personal_information_contact_id_fkey" FOREIGN KEY ("contact_id") REFERENCES "public"."hs_edumate_contacts"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."hs_edumate_contacts_personal_information" ADD CONSTRAINT "hs_edumate_contacts_personal_information_deleted_by_id_fkey" FOREIGN KEY ("deleted_by_id") REFERENCES "public"."b2b_partners_users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "public"."hs_edumate_contacts_system_tracking" ADD CONSTRAINT "hs_edumate_contacts_system_tracking_contact_id_fkey" FOREIGN KEY ("contact_id") REFERENCES "public"."hs_edumate_contacts"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."hs_lenders_system_tracking" ADD CONSTRAINT "hs_lenders_system_tracking_lender_id_fkey" FOREIGN KEY ("lender_id") REFERENCES "public"."hs_lenders"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."hs_lenders_business_metrics" ADD CONSTRAINT "hs_lenders_business_metrics_lender_id_fkey" FOREIGN KEY ("lender_id") REFERENCES "public"."hs_lenders"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."hs_lenders_contact_info" ADD CONSTRAINT "hs_lenders_contact_info_lender_id_fkey" FOREIGN KEY ("lender_id") REFERENCES "public"."hs_lenders"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."hs_lenders_business_metrics" ADD CONSTRAINT "hs_lenders_business_metrics_lender_id_fkey" FOREIGN KEY ("lender_id") REFERENCES "public"."hs_lenders"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."hs_lenders_loan_offerings" ADD CONSTRAINT "hs_lenders_loan_offerings_lender_id_fkey" FOREIGN KEY ("lender_id") REFERENCES "public"."hs_lenders"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."hs_lenders_operational_details" ADD CONSTRAINT "hs_lenders_operational_details_lender_id_fkey" FOREIGN KEY ("lender_id") REFERENCES "public"."hs_lenders"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -2972,43 +3135,43 @@ ALTER TABLE "public"."hs_lenders_operational_details" ADD CONSTRAINT "hs_lenders
 ALTER TABLE "public"."hs_lenders_partnerships_details" ADD CONSTRAINT "hs_lenders_partnerships_details_lender_id_fkey" FOREIGN KEY ("lender_id") REFERENCES "public"."hs_lenders"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."hs_loan_products" ADD CONSTRAINT "hs_loan_products_deleted_by_id_fkey" FOREIGN KEY ("deleted_by_id") REFERENCES "public"."b2b_partners_users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "public"."hs_lenders_system_tracking" ADD CONSTRAINT "hs_lenders_system_tracking_lender_id_fkey" FOREIGN KEY ("lender_id") REFERENCES "public"."hs_lenders"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."hs_loan_products" ADD CONSTRAINT "hs_loan_products_lender_id_fkey" FOREIGN KEY ("lender_id") REFERENCES "public"."hs_lenders"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."hs_loan_products_system_tracking" ADD CONSTRAINT "hs_loan_products_system_tracking_loan_product_id_fkey" FOREIGN KEY ("loan_product_id") REFERENCES "public"."hs_loan_products"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."hs_loan_products_application_and_processing" ADD CONSTRAINT "hs_loan_products_application_and_processing_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."hs_loan_products"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."hs_loan_products_competitive_analysis" ADD CONSTRAINT "hs_loan_products_competitive_analysis_loan_product_id_fkey" FOREIGN KEY ("loan_product_id") REFERENCES "public"."hs_loan_products"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."hs_loan_products_collateral_and_security" ADD CONSTRAINT "hs_loan_products_collateral_and_security_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."hs_loan_products"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."hs_loan_products_eligibility_criteria" ADD CONSTRAINT "hs_loan_products_eligibility_criteria_loan_product_id_fkey" FOREIGN KEY ("loan_product_id") REFERENCES "public"."hs_loan_products"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."hs_loan_products_competitive_analysis" ADD CONSTRAINT "hs_loan_products_competitive_analysis_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."hs_loan_products"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."hs_loan_products_collateral_and_security" ADD CONSTRAINT "hs_loan_products_collateral_and_security_loan_product_id_fkey" FOREIGN KEY ("loan_product_id") REFERENCES "public"."hs_loan_products"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."hs_loan_products_eligibility_criteria" ADD CONSTRAINT "hs_loan_products_eligibility_criteria_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."hs_loan_products"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."hs_loan_products_repayment_terms" ADD CONSTRAINT "hs_loan_products_repayment_terms_loan_product_id_fkey" FOREIGN KEY ("loan_product_id") REFERENCES "public"."hs_loan_products"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."hs_loan_products_financial_terms" ADD CONSTRAINT "hs_loan_products_financial_terms_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."hs_loan_products"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."hs_loan_products_application_and_processing" ADD CONSTRAINT "hs_loan_products_application_and_processing_loan_product_i_fkey" FOREIGN KEY ("loan_product_id") REFERENCES "public"."hs_loan_products"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."hs_loan_products_geographic_coverage" ADD CONSTRAINT "hs_loan_products_geographic_coverage_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."hs_loan_products"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."hs_loan_products_geographic_coverage" ADD CONSTRAINT "hs_loan_products_geographic_coverage_loan_product_id_fkey" FOREIGN KEY ("loan_product_id") REFERENCES "public"."hs_loan_products"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."hs_loan_products_performance_metrics" ADD CONSTRAINT "hs_loan_products_performance_metrics_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."hs_loan_products"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."hs_loan_products_special_features" ADD CONSTRAINT "hs_loan_products_special_features_loan_product_id_fkey" FOREIGN KEY ("loan_product_id") REFERENCES "public"."hs_loan_products"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."hs_loan_products_repayment_terms" ADD CONSTRAINT "hs_loan_products_repayment_terms_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."hs_loan_products"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."hs_loan_products_performance_metrics" ADD CONSTRAINT "hs_loan_products_performance_metrics_loan_product_id_fkey" FOREIGN KEY ("loan_product_id") REFERENCES "public"."hs_loan_products"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."hs_loan_products_special_features" ADD CONSTRAINT "hs_loan_products_special_features_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."hs_loan_products"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."hs_loan_products_system_integration" ADD CONSTRAINT "hs_loan_products_system_integration_loan_product_id_fkey" FOREIGN KEY ("loan_product_id") REFERENCES "public"."hs_loan_products"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."hs_loan_products_system_integration" ADD CONSTRAINT "hs_loan_products_system_integration_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."hs_loan_products"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."hs_loan_products_financial_terms" ADD CONSTRAINT "hs_loan_products_financial_terms_loan_product_id_fkey" FOREIGN KEY ("loan_product_id") REFERENCES "public"."hs_loan_products"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."hs_loan_products_system_tracking" ADD CONSTRAINT "hs_loan_products_system_tracking_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."hs_loan_products"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."hs_loan_documents_system_tracking" ADD CONSTRAINT "hs_loan_documents_system_tracking_document_master_id_fkey" FOREIGN KEY ("document_master_id") REFERENCES "public"."hs_loan_documents"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -3038,28 +3201,10 @@ ALTER TABLE "public"."hs_loan_documents_performance_metrics" ADD CONSTRAINT "hs_
 ALTER TABLE "public"."hs_loan_documents_customer_experience" ADD CONSTRAINT "hs_loan_documents_customer_experience_document_master_id_fkey" FOREIGN KEY ("document_master_id") REFERENCES "public"."hs_loan_documents"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."hs_commission_settlements" ADD CONSTRAINT "hs_commission_settlements_deleted_by_id_fkey" FOREIGN KEY ("deleted_by_id") REFERENCES "public"."b2b_partners_users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "public"."hs_commission_settlements_settlement_status" ADD CONSTRAINT "hs_commission_settlements_settlement_status_settlement_id_fkey" FOREIGN KEY ("settlement_id") REFERENCES "public"."hs_commission_settlements"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "public"."hs_commission_settlements_system_tracking" ADD CONSTRAINT "hs_commission_settlements_system_tracking_settlement_id_fkey" FOREIGN KEY ("settlement_id") REFERENCES "public"."hs_commission_settlements"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "public"."hs_commission_settlements_transaction_details" ADD CONSTRAINT "hs_commission_settlements_transaction_details_settlement_i_fkey" FOREIGN KEY ("settlement_id") REFERENCES "public"."hs_commission_settlements"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "public"."hs_commission_settlements_commission_calculations" ADD CONSTRAINT "hs_commission_settlements_commission_calculations_settleme_fkey" FOREIGN KEY ("settlement_id") REFERENCES "public"."hs_commission_settlements"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."hs_commission_settlements_communication" ADD CONSTRAINT "hs_commission_settlements_communication_settlement_id_fkey" FOREIGN KEY ("settlement_id") REFERENCES "public"."hs_commission_settlements"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "public"."hs_commission_settlements_loan_details" ADD CONSTRAINT "hs_commission_settlements_loan_details_settlement_id_fkey" FOREIGN KEY ("settlement_id") REFERENCES "public"."hs_commission_settlements"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "public"."hs_commission_settlements_payment_processing" ADD CONSTRAINT "hs_commission_settlements_payment_processing_settlement_id_fkey" FOREIGN KEY ("settlement_id") REFERENCES "public"."hs_commission_settlements"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."hs_commission_settlements_tax_and_deductions" ADD CONSTRAINT "hs_commission_settlements_tax_and_deductions_settlement_id_fkey" FOREIGN KEY ("settlement_id") REFERENCES "public"."hs_commission_settlements"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -3071,10 +3216,25 @@ ALTER TABLE "public"."hs_commission_settlements_documentation" ADD CONSTRAINT "h
 ALTER TABLE "public"."hs_commission_settlements_hold_and_disputes" ADD CONSTRAINT "hs_commission_settlements_hold_and_disputes_settlement_id_fkey" FOREIGN KEY ("settlement_id") REFERENCES "public"."hs_commission_settlements"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."hs_commission_settlements_reconciliations" ADD CONSTRAINT "hs_commission_settlements_reconciliations_settlement_id_fkey" FOREIGN KEY ("settlement_id") REFERENCES "public"."hs_commission_settlements"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."hs_commission_settlements_loan_details" ADD CONSTRAINT "hs_commission_settlements_loan_details_settlement_id_fkey" FOREIGN KEY ("settlement_id") REFERENCES "public"."hs_commission_settlements"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."hs_commission_settlements_payment_processing" ADD CONSTRAINT "hs_commission_settlements_payment_processing_settlement_id_fkey" FOREIGN KEY ("settlement_id") REFERENCES "public"."hs_commission_settlements"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."hs_commission_settlements_performance_analytics" ADD CONSTRAINT "hs_commission_settlements_performance_analytics_settlement_fkey" FOREIGN KEY ("settlement_id") REFERENCES "public"."hs_commission_settlements"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."hs_commission_settlements_reconciliations" ADD CONSTRAINT "hs_commission_settlements_reconciliations_settlement_id_fkey" FOREIGN KEY ("settlement_id") REFERENCES "public"."hs_commission_settlements"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."hs_commission_settlements_settlement_status" ADD CONSTRAINT "hs_commission_settlements_settlement_status_settlement_id_fkey" FOREIGN KEY ("settlement_id") REFERENCES "public"."hs_commission_settlements"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."hs_commission_settlements_system_tracking" ADD CONSTRAINT "hs_commission_settlements_system_tracking_settlement_id_fkey" FOREIGN KEY ("settlement_id") REFERENCES "public"."hs_commission_settlements"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."hs_commission_settlements_transaction_details" ADD CONSTRAINT "hs_commission_settlements_transaction_details_settlement_i_fkey" FOREIGN KEY ("settlement_id") REFERENCES "public"."hs_commission_settlements"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."mkt_eligibility_checker_leads" ADD CONSTRAINT "mkt_eligibility_checker_leads_contact_id_fkey" FOREIGN KEY ("contact_id") REFERENCES "public"."hs_edumate_contacts"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -3083,64 +3243,7 @@ ALTER TABLE "public"."mkt_eligibility_checker_leads" ADD CONSTRAINT "mkt_eligibi
 ALTER TABLE "public"."mkt_emi_calculator_leads" ADD CONSTRAINT "mkt_emi_calculator_leads_contact_id_fkey" FOREIGN KEY ("contact_id") REFERENCES "public"."hs_edumate_contacts"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."_HSCommissionSettlementsToHSLoanApplications" ADD CONSTRAINT "_HSCommissionSettlementsToHSLoanApplications_A_fkey" FOREIGN KEY ("A") REFERENCES "public"."hs_commission_settlements"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."enum_values" ADD CONSTRAINT "enum_values_enumMappingId_fkey" FOREIGN KEY ("enumMappingId") REFERENCES "public"."enum_mappings"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."_HSCommissionSettlementsToHSLoanApplications" ADD CONSTRAINT "_HSCommissionSettlementsToHSLoanApplications_B_fkey" FOREIGN KEY ("B") REFERENCES "public"."hs_loan_applications"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
-CREATE VIEW public.create_leads_view AS
-SELECT
-  c.id AS contact_id,
-  c.b2b_partner_id,
-  pi.first_name,
-  pi.last_name,
-  pi.email,
-  pi.phone_number,
-  ap.admission_status,
-  ap.current_education_level,
-  ap.current_institution,
-  ap.current_course_major,
-  ap.preferred_study_destination,
-  ap.target_universities,
-
-  -- Loan Application
-  la.id AS loan_application_id,
-  la.application_date,
-  la.student_id,
-  la.student_name,
-  la.student_email,
-  la.student_phone,
-  la.application_source,
-
-  -- Academic Details
-  lad.visa_status,
-
-  -- Application Status
-  las.application_status,
-
-  -- System Tracking
-  lst.integration_status,
-
-  -- Commission Records
-  lcr.commission_status,
-  lcr.commission_amount,
-
-  -- Financial Requirements
-  lfr.loan_amount_requested,
-  lfr.loan_amount_approved,
-  lfr.loan_amount_disbursed,
-
-  -- Lender Information
-  lli.processing_fee
-
-FROM public.hs_edumate_contacts c
-LEFT JOIN public.hs_edumate_contacts_personal_information pi ON c.id = pi.contact_id
-LEFT JOIN public.hs_edumate_contacts_academic_profiles ap ON c.id = ap.contact_id
-LEFT JOIN public.hs_loan_applications la ON c.id = la.contact_id
-LEFT JOIN public.hs_loan_applications_academic_details lad ON la.id = lad.application_id
-LEFT JOIN public.hs_loan_applications_status las ON la.id = las.application_id
-LEFT JOIN public.hs_loan_applications_system_tracking lst ON la.id = lst.application_id
-LEFT JOIN public.hs_loan_applications_commission_records lcr ON la.id = lcr.application_id
-LEFT JOIN public.hs_loan_applications_financial_requirements lfr ON la.id = lfr.application_id
-LEFT JOIN public.hs_loan_applications_lender_information lli ON la.id = lli.application_id
-WHERE c.is_deleted = FALSE;
+ALTER TABLE "public"."field_mappings" ADD CONSTRAINT "field_mappings_enumMapId_fkey" FOREIGN KEY ("enumMapId") REFERENCES "public"."enum_mappings"("id") ON DELETE SET NULL ON UPDATE CASCADE;

@@ -1,32 +1,14 @@
-import {
-  settlementPeriodMap,
-  settlementMonthMap,
-  settlementStatusMap,
-  verificationStatusMap,
-  commissionDataSourceMap,
-  integrationStatusMap,
-  settlementRecordStatusMap,
-  systemGeneratedMap,
-  disbursementTriggerMap,
-  transactionTypesMap,
-  commissionModelMap,
-  acknowledgmentStatusMap,
-  notificationMethodMap,
-  partnerNotificationSentMap,
-  paymentMethodMap,
-  paymentStatusMap,
-  invoiceStatusMap,
-  taxCertificateRequiredMap,
-  holdReasonMap,
-  reconciliationStatusMap,
-} from "../../types/commission.types";
+import { enumMappingService } from "../enumMapping";
 
 export const mapAllCommissionSettlementFields = async (
   input: Record<string, any>
 ): Promise<Record<string, any>> => {
   const mapped: Record<string, any> = {};
 
-  // ===== MAIN COMMISSION SETTLEMENT FIELDS =====
+  // Collect all enum translations needed
+  const enumTranslations: Array<{ enumName: string; sourceValue: any }> = [];
+
+  // MAIN COMMISSION SETTLEMENT FIELDS
   if (input.lead_reference_id !== undefined)
     mapped.lead_reference_id =
       input.lead_reference_id !== null && input.lead_reference_id !== ""
@@ -40,7 +22,7 @@ export const mapAllCommissionSettlementFields = async (
   if (input.partner_id !== undefined)
     mapped.partner_id =
       input.partner_id !== null && input.partner_id !== ""
-        ? input.partner_id
+        ? String(input.partner_id)
         : null;
   if (input.partner_name !== undefined)
     mapped.partner_name =
@@ -57,16 +39,123 @@ export const mapAllCommissionSettlementFields = async (
       input.verified_by !== null && input.verified_by !== ""
         ? input.verified_by
         : null;
-  if (input.settlement_period !== undefined)
-    mapped.settlement_period =
-      input.settlement_period !== null && input.settlement_period !== ""
-        ? settlementPeriodMap[input.settlement_period] || null
+
+  if (input.loan_application_db_id !== undefined)
+    mapped.application_id =
+      input.loan_application_db_id !== null && input.loan_application_db_id !== "" ? input.loan_application_db_id : null;
+
+  if (input.lender_type !== undefined)
+    mapped.lender_type =
+      input.lender_type !== null && input.lender_type !== ""
+        ? input.lender_type
         : null;
-  if (input.settlement_month !== undefined)
-    mapped.settlement_month =
-      input.settlement_month !== null && input.settlement_month !== ""
-        ? settlementMonthMap[input.settlement_month] || null
+
+  if (input.lender_category !== undefined)
+    mapped.lender_category =
+      input.lender_category !== null && input.lender_category !== ""
+        ? input.lender_category
         : null;
+
+  if (input.hs_merged_object_ids !== undefined)
+    mapped.hs_merged_object_ids =
+      input.hs_merged_object_ids !== null && input.hs_merged_object_ids !== ""
+        ? input.hs_merged_object_ids
+        : null;
+
+  if (input.hs_object_source_detail_1 !== undefined)
+    mapped.hs_object_source_detail_1 =
+      input.hs_object_source_detail_1 !== null &&
+      input.hs_object_source_detail_1 !== ""
+        ? input.hs_object_source_detail_1
+        : null;
+
+  if (input.hs_object_source_detail_2 !== undefined)
+    mapped.hs_object_source_detail_2 =
+      input.hs_object_source_detail_2 !== null &&
+      input.hs_object_source_detail_2 !== ""
+        ? input.hs_object_source_detail_2
+        : null;
+
+  if (input.hs_object_source_detail_3 !== undefined)
+    mapped.hs_object_source_detail_3 =
+      input.hs_object_source_detail_3 !== null &&
+      input.hs_object_source_detail_3 !== ""
+        ? input.hs_object_source_detail_3
+        : null;
+
+  if (input.hs_object_source_label !== undefined)
+    mapped.hs_object_source_label =
+      input.hs_object_source_label !== null &&
+      input.hs_object_source_label !== ""
+        ? input.hs_object_source_label
+        : null;
+
+  if (input.hs_shared_team_ids !== undefined)
+    mapped.hs_shared_team_ids =
+      input.hs_shared_team_ids !== null && input.hs_shared_team_ids !== ""
+        ? input.hs_shared_team_ids
+        : null;
+
+  if (input.hs_shared_user_ids !== undefined)
+    mapped.hs_shared_user_ids =
+      input.hs_shared_user_ids !== null && input.hs_shared_user_ids !== ""
+        ? input.hs_shared_user_ids
+        : null;
+
+  if (input.hubspot_owner_assigneddate !== undefined)
+    mapped.hubspot_owner_assigneddate =
+      input.hubspot_owner_assigneddate !== null &&
+      input.hubspot_owner_assigneddate !== ""
+        ? input.hubspot_owner_assigneddate
+        : null;
+
+  if (input.hubspot_team_id !== undefined)
+    mapped.hubspot_team_id =
+      input.hubspot_team_id !== null && input.hubspot_team_id !== ""
+        ? input.hubspot_team_id
+        : null;
+
+  if (input.is_deleted !== undefined)
+    mapped.is_deleted =
+      input.is_deleted !== null && input.is_deleted !== ""
+        ? input.is_deleted
+        : null;
+
+  if (input.deleted_by !== undefined)
+    mapped.deleted_by =
+      input.deleted_by !== null && input.deleted_by !== ""
+        ? input.deleted_by
+        : null;
+
+  if (input.deleted_on !== undefined)
+    mapped.deleted_on =
+      input.deleted_on !== null && input.deleted_on !== ""
+        ? input.deleted_on
+        : null;
+
+  // Enum fields for batch translation
+  if (
+    input.settlement_period !== undefined &&
+    input.settlement_period !== null &&
+    input.settlement_period !== ""
+  ) {
+    enumTranslations.push({
+      enumName: "settlementPeriod",
+      sourceValue: input.settlement_period,
+    });
+  }
+
+  if (
+    input.settlement_month !== undefined &&
+    input.settlement_month !== null &&
+    input.settlement_month !== ""
+  ) {
+    enumTranslations.push({
+      enumName: "settlementMonth",
+      sourceValue: input.settlement_month,
+    });
+  }
+
   if (input.settlement_year !== undefined)
     mapped.settlement_year =
       input.settlement_year !== null && input.settlement_year !== ""
@@ -124,7 +213,7 @@ export const mapAllCommissionSettlementFields = async (
         ? input.hubspot_owner_id
         : null;
 
-  // ===== SETTLEMENT STATUS FIELDS =====
+  // SETTLEMENT STATUS FIELDS
   if (input.calculated_by !== undefined)
     mapped.calculated_by =
       input.calculated_by !== null && input.calculated_by !== ""
@@ -135,23 +224,36 @@ export const mapAllCommissionSettlementFields = async (
       input.calculation_date !== null && input.calculation_date !== ""
         ? input.calculation_date
         : null;
-  if (input.settlement_status !== undefined)
-    mapped.settlement_status =
-      input.settlement_status !== null && input.settlement_status !== ""
-        ? settlementStatusMap[input.settlement_status] || null
-        : null;
+
+  if (
+    input.settlement_status !== undefined &&
+    input.settlement_status !== null &&
+    input.settlement_status !== ""
+  ) {
+    enumTranslations.push({
+      enumName: "settlementStatus",
+      sourceValue: input.settlement_status,
+    });
+  }
+
   if (input.verification_date !== undefined)
     mapped.verification_date =
       input.verification_date !== null && input.verification_date !== ""
         ? input.verification_date
         : null;
-  if (input.verification_status !== undefined)
-    mapped.verification_status =
-      input.verification_status !== null && input.verification_status !== ""
-        ? verificationStatusMap[input.verification_status] || null
-        : null;
 
-  // ===== SYSTEM TRACKING FIELDS =====
+  if (
+    input.verification_status !== undefined &&
+    input.verification_status !== null &&
+    input.verification_status !== ""
+  ) {
+    enumTranslations.push({
+      enumName: "verificationStatus",
+      sourceValue: input.verification_status,
+    });
+  }
+
+  // SYSTEM TRACKING FIELDS
   if (input.audit_trail !== undefined)
     mapped.audit_trail =
       input.audit_trail !== null && input.audit_trail !== ""
@@ -167,16 +269,29 @@ export const mapAllCommissionSettlementFields = async (
       input.created_date !== null && input.created_date !== ""
         ? input.created_date
         : null;
-  if (input.data_source !== undefined)
-    mapped.data_source =
-      input.data_source !== null && input.data_source !== ""
-        ? commissionDataSourceMap[input.data_source] || null
-        : null;
-  if (input.integration_status !== undefined)
-    mapped.integration_status =
-      input.integration_status !== null && input.integration_status !== ""
-        ? integrationStatusMap[input.integration_status] || null
-        : null;
+
+  if (
+    input.data_source !== undefined &&
+    input.data_source !== null &&
+    input.data_source !== ""
+  ) {
+    enumTranslations.push({
+      enumName: "commissionDataSource",
+      sourceValue: input.data_source,
+    });
+  }
+
+  if (
+    input.integration_status !== undefined &&
+    input.integration_status !== null &&
+    input.integration_status !== ""
+  ) {
+    enumTranslations.push({
+      enumName: "integrationStatus",
+      sourceValue: input.integration_status,
+    });
+  }
+
   if (input.internal_notes !== undefined)
     mapped.internal_notes =
       input.internal_notes !== null && input.internal_notes !== ""
@@ -195,32 +310,53 @@ export const mapAllCommissionSettlementFields = async (
   if (input.notes !== undefined)
     mapped.notes =
       input.notes !== null && input.notes !== "" ? input.notes : null;
-  if (input.settlement_record_status !== undefined)
-    mapped.settlement_record_status =
-      input.settlement_record_status !== null &&
-      input.settlement_record_status !== ""
-        ? settlementRecordStatusMap[input.settlement_record_status] || null
-        : null;
-  if (input.system_generated !== undefined)
-    mapped.system_generated =
-      input.system_generated !== null && input.system_generated !== ""
-        ? systemGeneratedMap[input.system_generated] || null
-        : null;
+
+  if (
+    input.settlement_record_status !== undefined &&
+    input.settlement_record_status !== null &&
+    input.settlement_record_status !== ""
+  ) {
+    enumTranslations.push({
+      enumName: "settlementRecordStatus",
+      sourceValue: input.settlement_record_status,
+    });
+  }
+
+  if (
+    input.system_generated !== undefined &&
+    input.system_generated !== null &&
+    input.system_generated !== ""
+  ) {
+    enumTranslations.push({
+      enumName: "systemGenerated",
+      sourceValue: input.system_generated,
+    });
+  }
+
   if (input.version_number !== undefined)
     mapped.version_number =
       input.version_number !== null && input.version_number !== ""
         ? input.version_number
         : null;
+
+  // TRANSACTION DETAILS FIELDS
   if (input.batch_payment_id !== undefined)
     mapped.batch_payment_id =
       input.batch_payment_id !== null && input.batch_payment_id !== ""
         ? input.batch_payment_id
         : null;
-  if (input.disbursement_trigger !== undefined)
-    mapped.disbursement_trigger =
-      input.disbursement_trigger !== null && input.disbursement_trigger !== ""
-        ? disbursementTriggerMap[input.disbursement_trigger] || null
-        : null;
+
+  if (
+    input.disbursement_trigger !== undefined &&
+    input.disbursement_trigger !== null &&
+    input.disbursement_trigger !== ""
+  ) {
+    enumTranslations.push({
+      enumName: "disbursementTrigger",
+      sourceValue: input.disbursement_trigger,
+    });
+  }
+
   if (input.original_transaction_id !== undefined)
     mapped.original_transaction_id =
       input.original_transaction_id !== null &&
@@ -237,18 +373,30 @@ export const mapAllCommissionSettlementFields = async (
       input.transaction_sub_type !== null && input.transaction_sub_type !== ""
         ? input.transaction_sub_type
         : null;
-  if (input.transaction_type !== undefined)
-    mapped.transaction_type =
-      input.transaction_type !== null && input.transaction_type !== ""
-        ? transactionTypesMap[input.transaction_type] || null
-        : null;
 
-  // ===== COMMISSION CALCULATION FIELDS =====
-  if (input.commission_model !== undefined)
-    mapped.commission_model =
-      input.commission_model !== null && input.commission_model !== ""
-        ? commissionModelMap[input.commission_model] || null
-        : null;
+  if (
+    input.transaction_type !== undefined &&
+    input.transaction_type !== null &&
+    input.transaction_type !== ""
+  ) {
+    enumTranslations.push({
+      enumName: "transactionTypes",
+      sourceValue: input.transaction_type,
+    });
+  }
+
+  // COMMISSION CALCULATION FIELDS
+  if (
+    input.commission_model !== undefined &&
+    input.commission_model !== null &&
+    input.commission_model !== ""
+  ) {
+    enumTranslations.push({
+      enumName: "commissionModel",
+      sourceValue: input.commission_model,
+    });
+  }
+
   if (input.commission_rate_applied !== undefined)
     mapped.commission_rate_applied =
       input.commission_rate_applied !== null &&
@@ -303,18 +451,24 @@ export const mapAllCommissionSettlementFields = async (
         ? input.total_gross_amount
         : null;
 
-  // ===== COMMUNICATION FIELDS =====
+  // COMMUNICATION FIELDS
   if (input.acknowledgment_date !== undefined)
     mapped.acknowledgment_date =
       input.acknowledgment_date !== null && input.acknowledgment_date !== ""
         ? input.acknowledgment_date
         : null;
-  if (input.acknowledgment_received !== undefined)
-    mapped.acknowledgment_received =
-      input.acknowledgment_received !== null &&
-      input.acknowledgment_received !== ""
-        ? acknowledgmentStatusMap[input.acknowledgment_received] || null
-        : null;
+
+  if (
+    input.acknowledgment_received !== undefined &&
+    input.acknowledgment_received !== null &&
+    input.acknowledgment_received !== ""
+  ) {
+    enumTranslations.push({
+      enumName: "acknowledgmentStatus",
+      sourceValue: input.acknowledgment_received,
+    });
+  }
+
   if (input.communication_log !== undefined)
     mapped.communication_log =
       input.communication_log !== null && input.communication_log !== ""
@@ -336,24 +490,36 @@ export const mapAllCommissionSettlementFields = async (
       input.notification_date !== null && input.notification_date !== ""
         ? input.notification_date
         : null;
-  if (input.notification_method !== undefined)
-    mapped.notification_method =
-      input.notification_method !== null && input.notification_method !== ""
-        ? notificationMethodMap[input.notification_method] || null
-        : null;
-  if (input.partner_notification_sent !== undefined)
-    mapped.partner_notification_sent =
-      input.partner_notification_sent !== null &&
-      input.partner_notification_sent !== ""
-        ? partnerNotificationSentMap[input.partner_notification_sent] || null
-        : null;
+
+  if (
+    input.notification_method !== undefined &&
+    input.notification_method !== null &&
+    input.notification_method !== ""
+  ) {
+    enumTranslations.push({
+      enumName: "notificationMethod",
+      sourceValue: input.notification_method,
+    });
+  }
+
+  if (
+    input.partner_notification_sent !== undefined &&
+    input.partner_notification_sent !== null &&
+    input.partner_notification_sent !== ""
+  ) {
+    enumTranslations.push({
+      enumName: "partnerNotificationSent",
+      sourceValue: input.partner_notification_sent,
+    });
+  }
+
   if (input.sms_sent_count !== undefined)
     mapped.sms_sent_count =
       input.sms_sent_count !== null && input.sms_sent_count !== ""
         ? input.sms_sent_count
         : null;
 
-  // ===== LOAN DETAILS FIELDS =====
+  // LOAN DETAILS FIELDS
   if (input.course_name !== undefined)
     mapped.course_name =
       input.course_name !== null && input.course_name !== ""
@@ -392,7 +558,7 @@ export const mapAllCommissionSettlementFields = async (
         ? input.university_name
         : null;
 
-  // ===== PAYMENT PROCESSING FIELDS =====
+  // PAYMENT PROCESSING FIELDS
   if (input.beneficiary_name !== undefined)
     mapped.beneficiary_name =
       input.beneficiary_name !== null && input.beneficiary_name !== ""
@@ -437,22 +603,36 @@ export const mapAllCommissionSettlementFields = async (
       input.payment_initiation_date !== ""
         ? input.payment_initiation_date
         : null;
-  if (input.payment_method !== undefined)
-    mapped.payment_method =
-      input.payment_method !== null && input.payment_method !== ""
-        ? paymentMethodMap[input.payment_method] || null
-        : null;
+
+  if (
+    input.payment_method !== undefined &&
+    input.payment_method !== null &&
+    input.payment_method !== ""
+  ) {
+    enumTranslations.push({
+      enumName: "paymentMethod",
+      sourceValue: input.payment_method,
+    });
+  }
+
   if (input.payment_reference_number !== undefined)
     mapped.payment_reference_number =
       input.payment_reference_number !== null &&
       input.payment_reference_number !== ""
         ? input.payment_reference_number
         : null;
-  if (input.payment_status !== undefined)
-    mapped.payment_status =
-      input.payment_status !== null && input.payment_status !== ""
-        ? paymentStatusMap[input.payment_status] || null
-        : null;
+
+  if (
+    input.payment_status !== undefined &&
+    input.payment_status !== null &&
+    input.payment_status !== ""
+  ) {
+    enumTranslations.push({
+      enumName: "paymentStatus",
+      sourceValue: input.payment_status,
+    });
+  }
+
   if (input.retry_attempt_count !== undefined)
     mapped.retry_attempt_count =
       input.retry_attempt_count !== null && input.retry_attempt_count !== ""
@@ -470,7 +650,7 @@ export const mapAllCommissionSettlementFields = async (
         ? input.payment_gateway_reference
         : null;
 
-  // ===== TAX AND DEDUCTIONS FIELDS =====
+  // TAX AND DEDUCTIONS FIELDS
   if (input.gst_applicable !== undefined)
     mapped.gst_applicable =
       input.gst_applicable !== null && input.gst_applicable !== ""
@@ -551,7 +731,7 @@ export const mapAllCommissionSettlementFields = async (
         ? input.total_deductions
         : null;
 
-  // ===== DOCUMENTATION FIELDS =====
+  // DOCUMENTATION FIELDS
   if (input.agreement_reference !== undefined)
     mapped.agreement_reference =
       input.agreement_reference !== null && input.agreement_reference !== ""
@@ -577,11 +757,18 @@ export const mapAllCommissionSettlementFields = async (
       input.invoice_amount !== null && input.invoice_amount !== ""
         ? input.invoice_amount
         : null;
-  if (input.invoice_status !== undefined)
-    mapped.invoice_status =
-      input.invoice_status !== null && input.invoice_status !== ""
-        ? invoiceStatusMap[input.invoice_status] || null
-        : null;
+
+  if (
+    input.invoice_status !== undefined &&
+    input.invoice_status !== null &&
+    input.invoice_status !== ""
+  ) {
+    enumTranslations.push({
+      enumName: "invoiceStatus",
+      sourceValue: input.invoice_status,
+    });
+  }
+
   if (input.invoice_url !== undefined)
     mapped.invoice_url =
       input.invoice_url !== null && input.invoice_url !== ""
@@ -597,19 +784,25 @@ export const mapAllCommissionSettlementFields = async (
       input.supporting_documents !== null && input.supporting_documents !== ""
         ? input.supporting_documents
         : null;
-  if (input.tax_certificate_required !== undefined)
-    mapped.tax_certificate_required =
-      input.tax_certificate_required !== null &&
-      input.tax_certificate_required !== ""
-        ? taxCertificateRequiredMap[input.tax_certificate_required] || null
-        : null;
+
+  if (
+    input.tax_certificate_required !== undefined &&
+    input.tax_certificate_required !== null &&
+    input.tax_certificate_required !== ""
+  ) {
+    enumTranslations.push({
+      enumName: "taxCertificateRequired",
+      sourceValue: input.tax_certificate_required,
+    });
+  }
+
   if (input.tax_certificate_url !== undefined)
     mapped.tax_certificate_url =
       input.tax_certificate_url !== null && input.tax_certificate_url !== ""
         ? input.tax_certificate_url
         : null;
 
-  // ===== HOLD AND DISPUTES FIELDS =====
+  // HOLD AND DISPUTES FIELDS
   if (input.dispute_date !== undefined)
     mapped.dispute_date =
       input.dispute_date !== null && input.dispute_date !== ""
@@ -656,11 +849,18 @@ export const mapAllCommissionSettlementFields = async (
       input.hold_initiated_by !== null && input.hold_initiated_by !== ""
         ? input.hold_initiated_by
         : null;
-  if (input.hold_reason !== undefined)
-    mapped.hold_reason =
-      input.hold_reason !== null && input.hold_reason !== ""
-        ? holdReasonMap[input.hold_reason] || null
-        : null;
+
+  if (
+    input.hold_reason !== undefined &&
+    input.hold_reason !== null &&
+    input.hold_reason !== ""
+  ) {
+    enumTranslations.push({
+      enumName: "holdReason",
+      sourceValue: input.hold_reason,
+    });
+  }
+
   if (input.hold_release_approved_by !== undefined)
     mapped.hold_release_approved_by =
       input.hold_release_approved_by !== null &&
@@ -676,12 +876,18 @@ export const mapAllCommissionSettlementFields = async (
     mapped.on_hold =
       input.on_hold !== null && input.on_hold !== "" ? input.on_hold : null;
 
-  // ===== RECONCILIATION FIELDS =====
-  if (input.reconciliation_status !== undefined)
-    mapped.reconciliation_status =
-      input.reconciliation_status !== null && input.reconciliation_status !== ""
-        ? reconciliationStatusMap[input.reconciliation_status] || null
-        : null;
+  // RECONCILIATION FIELDS
+  if (
+    input.reconciliation_status !== undefined &&
+    input.reconciliation_status !== null &&
+    input.reconciliation_status !== ""
+  ) {
+    enumTranslations.push({
+      enumName: "reconciliationStatus",
+      sourceValue: input.reconciliation_status,
+    });
+  }
+
   if (input.reconciliation_date !== undefined)
     mapped.reconciliation_date =
       input.reconciliation_date !== null && input.reconciliation_date !== ""
@@ -714,12 +920,17 @@ export const mapAllCommissionSettlementFields = async (
         ? input.discrepancy_reason
         : null;
 
-  // ===== PERFORMANCE ANALYTICS FIELDS =====
-  if (input.sla_breach !== undefined)
-    mapped.sla_breach =
-      input.sla_breach !== null && input.sla_breach !== ""
-        ? input.sla_breach
-        : null;
+  // PERFORMANCE ANALYTICS FIELDS
+  if (
+    input.sla_breach !== undefined &&
+    input.sla_breach !== null &&
+    input.sla_breach !== ""
+  ) {
+    enumTranslations.push({
+      enumName: "slaBreach",
+      sourceValue: input.sla_breach,
+    });
+  }
   if (input.sla_breach_reason !== undefined)
     mapped.sla_breach_reason =
       input.sla_breach_reason !== null && input.sla_breach_reason !== ""
@@ -741,6 +952,63 @@ export const mapAllCommissionSettlementFields = async (
       input.processing_time_days !== null && input.processing_time_days !== ""
         ? input.processing_time_days
         : null;
+
+  // Batch translate all enum values in one go
+  if (enumTranslations.length > 0) {
+    const translatedEnums = await enumMappingService.translateBatch(
+      enumTranslations
+    );
+
+    // Map translated values back
+    enumTranslations.forEach((translation) => {
+      const key = `${translation.enumName}:${translation.sourceValue}`;
+      const hubspotValue = translatedEnums[key];
+
+      // Map back to field names
+      if (translation.enumName === "settlementPeriod")
+        mapped.settlement_period = hubspotValue;
+      else if (translation.enumName === "settlementMonth")
+        mapped.settlement_month = hubspotValue;
+      else if (translation.enumName === "settlementStatus")
+        mapped.settlement_status = hubspotValue;
+      else if (translation.enumName === "verificationStatus")
+        mapped.verification_status = hubspotValue;
+      else if (translation.enumName === "commissionDataSource")
+        mapped.data_source = hubspotValue;
+      else if (translation.enumName === "integrationStatus")
+        mapped.integration_status = hubspotValue;
+      else if (translation.enumName === "settlementRecordStatus")
+        mapped.settlement_record_status = hubspotValue;
+      else if (translation.enumName === "systemGenerated")
+        mapped.system_generated = hubspotValue;
+      else if (translation.enumName === "disbursementTrigger")
+        mapped.disbursement_trigger = hubspotValue;
+      else if (translation.enumName === "transactionTypes")
+        mapped.transaction_type = hubspotValue;
+      else if (translation.enumName === "commissionModel")
+        mapped.commission_model = hubspotValue;
+      else if (translation.enumName === "acknowledgmentStatus")
+        mapped.acknowledgment_received = hubspotValue;
+      else if (translation.enumName === "notificationMethod")
+        mapped.notification_method = hubspotValue;
+      else if (translation.enumName === "partnerNotificationSent")
+        mapped.partner_notification_sent = hubspotValue;
+      else if (translation.enumName === "paymentMethod")
+        mapped.payment_method = hubspotValue;
+      else if (translation.enumName === "paymentStatus")
+        mapped.payment_status = hubspotValue;
+      else if (translation.enumName === "invoiceStatus")
+        mapped.invoice_status = hubspotValue;
+      else if (translation.enumName === "taxCertificateRequired")
+        mapped.tax_certificate_required = hubspotValue;
+      else if (translation.enumName === "holdReason")
+        mapped.hold_reason = hubspotValue;
+      else if (translation.enumName === "reconciliationStatus")
+        mapped.reconciliation_status = hubspotValue;
+      else if (translation.enumName === "slaBreach")
+        mapped.sla_breach = hubspotValue;
+    });
+  }
 
   return mapped;
 };

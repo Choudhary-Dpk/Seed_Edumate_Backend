@@ -79,32 +79,52 @@ export const categorizeLoanProductByTable = (
 ) => {
   const categorized: Record<string, Record<string, any>> = {};
 
-  // Main Loan Product Fields
+  // Main Loan Product Fields (HSLoanProducts)
   const mainLoanProductFields = [
+    // Basic Information
+    "db_id",
     "lender_id",
+    "lender_db_id",
     "lender_name",
     "partner_name",
-    "product_description",
+    "product_name",
     "product_display_name",
+    "product_description",
+    "product_type",
     "product_category",
     "product_status",
-    "product_type",
     "last_updated_date",
-    "is_active",
-    "created_by",
-    "updated_by",
+    // HubSpot System Fields
     "hs_created_by_user_id",
     "hs_createdate",
     "hs_lastmodifieddate",
+    "hs_merged_object_ids",
     "hs_object_id",
+    "hs_object_source_detail_1",
+    "hs_object_source_detail_2",
+    "hs_object_source_detail_3",
+    "hs_object_source_label",
+    "hs_shared_team_ids",
+    "hs_shared_user_ids",
     "hs_updated_by_user_id",
+    "hubspot_owner_assigneddate",
     "hubspot_owner_id",
+    "hubspot_team_id",
+    // Audit Fields
+    "is_active",
+    "is_deleted",
+    "created_by",
+    "created_at",
+    "updated_by",
+    "updated_at",
+    "deleted_by",
+    "deleted_on",
   ];
 
-  // System Tracking Fields
+  // System Tracking Fields (HSLoanProductsSystemTracking)
   const systemTrackingFields = [
     "change_log",
-    "created_by",
+    "created_by_user",
     "created_date",
     "last_modified_by",
     "last_modified_date",
@@ -115,46 +135,30 @@ export const categorizeLoanProductByTable = (
     "version_number",
   ];
 
-  // Competitive Analytics Fields
-  const competitiveAnalyticsFields = ["market_positioning", "pricing_strategy"];
+  // Competitive Analytics Fields (HSLoanProductsCompetitiveAnalytics)
+  const competitiveAnalyticsFields = [
+    "market_positioning", 
+    "pricing_strategy"
+  ];
 
-  // Eligibility Criteria Fields
+  // Eligibility Criteria Fields (HSLoanProductsEligibilityCriteria)
   const eligibilityCriteriaFields = [
-    "criteria_type",
-    "criteria_name",
-    "criteria_description",
-    "is_mandatory",
-    "validation_rule",
-    "min_age",
-    "max_age",
-    "max_age_at_maturity",
-    "min_academic_percentage",
+    "co_applicant_income_criteria",
+    "co_applicant_relationship",
+    "co_applicant_required",
+    "employment_criteria",
     "entrance_exam_required",
-    "entrance_exam_list",
+    "maximum_age",
+    "maximum_family_income",
+    "minimum_age",
+    "minimum_family_income",
     "minimum_percentage_required",
     "nationality_restrictions",
     "residency_requirements",
     "target_segment",
-    "maximum_family_income",
-    "minimum_family_income",
-    "min_annual_income",
-    "min_co_applicant_income",
-    "employment_criteria",
-    "co_applicant_income_criteria",
-    "co_applicant_required",
-    "co_applicant_relationship",
-    "guarantor_required",
-    "min_credit_score",
-    "credit_history_required",
-    "indian_citizen_only",
-    "nri_eligible",
-    "pio_oci_eligible",
-    "work_experience_required",
-    "min_work_experience_months",
-    "admission_confirmation_required",
   ];
 
-  // Collateral and Security Fields
+  // Collateral and Security Fields (HSLoanProductsCollateralAndSecurity)
   const collateralSecurityFields = [
     "collateral_margin",
     "collateral_required",
@@ -163,62 +167,58 @@ export const categorizeLoanProductByTable = (
     "guarantor_required",
     "insurance_coverage_percentage",
     "insurance_required",
-    "third_party_guarantee_required",
+    "third_party_guarantee_accepted",
   ];
 
-  // Repayment Terms Fields
+  // Repayment Terms Fields (HSLoanProductsRepaymentTerms)
   const repaymentTermsFields = [
-    "moratorium_type",
+    "bounce_charges",
+    "foreclosure_charges",
+    "late_payment_charges",
     "moratorium_period",
-    "repayment_frequency",
-    "repayment_period_maximum",
-    "repayment_period_minimum",
+    "moratorium_type",
+    "part_payment_allowed",
+    "part_payment_minimum",
     "prepayment_allowed",
     "prepayment_charges",
     "prepayment_lock_in_period",
-    "foreclosure_allowed",
-    "foreclosure_charges",
-    "late_payment_charges",
-    "bounce_charges",
-    "part_payment_allowed",
-    "part_payment_minimum",
+    "repayment_frequency",
+    "repayment_period_maximum",
+    "repayment_period_minimum",
   ];
 
-  // Application and Processing Fields
+  // Application and Processing Fields (HSLoanProductsApplicationAndProcessing)
   const applicationProcessingFields = [
     "application_mode",
     "disbursement_process",
     "disbursement_timeline",
-    "partial_disbursement_allowed",
-    "disbursement_stages",
     "documentation_list",
     "mandatory_documents",
     "optional_documents",
   ];
 
-  // Geographic Coverage Fields
+  // Geographic Coverage Fields (HSLoanProductsGeographicCoverage)
   const geographicCoverageFields = [
+    "course_duration_maximum",
+    "course_duration_minimum",
     "course_restrictions",
     "not_supported_universities",
     "restricted_countries",
-    "course_duration_minimum",
-    "course_duration_maximum",
     "supported_course_types",
   ];
 
-  // Special Features Fields
+  // Special Features Fields (HSLoanProductsSpecialFeatures)
   const specialFeaturesFields = [
-    "digital_features",
     "customer_support_features",
+    "digital_features",
     "flexible_repayment_options",
-    "tax_benefits_available",
     "forex_tax_benefits",
     "grace_period_benefits",
-    "insurance_coverage_included",
     "loyalty_benefits",
+    "tax_benefits_available",
   ];
 
-  // Performance Metrics Fields
+  // Performance Metrics Fields (HSLoanProductsPerformanceMetrics)
   const performanceMetricsFields = [
     "application_volume_monthly",
     "application_volume_quarterly",
@@ -230,39 +230,39 @@ export const categorizeLoanProductByTable = (
     "product_popularity_score",
   ];
 
-  // System Integration Fields
+  // System Integration Fields (HSLoanProductsSystemIntegration)
   const systemIntegrationFields = [
     "api_availability",
-    "technical_documentation_url",
-    "integration_complexity",
     "data_format",
+    "integration_complexity",
     "sandbox_environment",
+    "technical_documentation_url",
     "webhook_support",
   ];
 
-  // Financial Terms Fields
+  // Financial Terms Fields (HSLoanProductsFinancialTerms)
   const financialTermsFields = [
-    "interest_rate_type",
-    "interest_rate_range_min",
+    "administrative_charges",
     "interest_rate_range_max",
+    "interest_rate_range_min",
+    "interest_rate_type",
     "legal_charges",
     "loan_to_value_ratio",
-    "rack_rate",
-    "valuation_charges",
-    "processing_fee_type",
-    "processing_fee_percentage",
-    "processing_fee_amount",
-    "processing_fee_minimum",
-    "processing_fee_maximum",
-    "administrative_charges",
     "margin_money_percentage",
     "maximum_loan_amount_secured",
     "maximum_loan_amount_unsecured",
     "minimum_loan_amount_secured",
     "minimum_loan_amount_unsecured",
+    "processing_fee_amount",
+    "processing_fee_maximum",
+    "processing_fee_minimum",
+    "processing_fee_percentage",
+    "processing_fee_type",
+    "rack_rate",
+    "valuation_charges",
   ];
 
-  // Categorize main loan product
+  // Categorize main product
   const mainLoanProduct: Record<string, any> = {};
   for (const field of mainLoanProductFields) {
     if (field in mappedFields) {
@@ -306,7 +306,7 @@ export const categorizeLoanProductByTable = (
     categorized.eligibilityCriteria = eligibilityCriteria;
   }
 
-  // Categorize collateral and security
+  // Categorize collateral security
   const collateralSecurity: Record<string, any> = {};
   for (const field of collateralSecurityFields) {
     if (field in mappedFields) {
@@ -328,7 +328,7 @@ export const categorizeLoanProductByTable = (
     categorized.repaymentTerms = repaymentTerms;
   }
 
-  // Categorize application and processing
+  // Categorize application processing
   const applicationProcessing: Record<string, any> = {};
   for (const field of applicationProcessingFields) {
     if (field in mappedFields) {

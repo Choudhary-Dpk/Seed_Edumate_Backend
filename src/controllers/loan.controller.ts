@@ -14,7 +14,6 @@ import { validateLoanEligibility } from "../middlewares/validators/loan.validato
 import { convertCurrency, findLoanEligibility } from "../services/loan.service";
 import { sendResponse } from "../utils/api";
 import { generateRequestIdFromPayload } from "../utils/helper";
-import { logEmailHistory } from "../models/helpers/email.helper";
 import logger from "../utils/logger";
 import { mapAllLoanApplicationFields } from "../mappers/loanApplication/loanApplicationMapping";
 import { categorizeLoanApplicationByTable } from "../services/DBServices/loanApplication.service";
@@ -383,198 +382,201 @@ export const createLoanApplicationsController = async (
 
     let data: any = {};
 
-    const result = await prisma.$transaction(async (tx: any) => {
-      logger.debug(`Creating loan application for userId: ${userId}`);
-      const application = await createLoanApplication(
-        tx,
-        categorized["mainLoanApplication"],
-        userId!
-      );
-      logger.debug(
-        `Loan application created successfully with id: ${application.id}`
-      );
+    const result = await prisma.$transaction(
+      async (tx: any) => {
+        logger.debug(`Creating loan application for userId: ${userId}`);
+        const application = await createLoanApplication(
+          tx,
+          categorized["mainLoanApplication"],
+          userId!,
+        );
+        logger.debug(
+          `Loan application created successfully with id: ${application.id}`
+        );
 
-      logger.debug(
-        `Creating academic details for application: ${application.id}`
-      );
-      const academicDetails = await createLoanApplicationAcademicDetails(
-        tx,
-        application.id,
-        categorized["academicDetails"]
-      );
-      logger.debug(
-        `Academic details created successfully for application: ${application.id}`
-      );
-
-      logger.debug(
-        `Creating financial requirements for application: ${application.id}`
-      );
-      const financialRequirements =
-        await createLoanApplicationFinancialRequirements(
+        logger.debug(
+          `Creating academic details for application: ${application.id}`
+        );
+        const academicDetails = await createLoanApplicationAcademicDetails(
           tx,
           application.id,
-          categorized["financialRequirements"]
+          categorized["academicDetails"]
         );
-      logger.debug(
-        `Financial requirements created successfully for application: ${application.id}`
-      );
+        logger.debug(
+          `Academic details created successfully for application: ${application.id}`
+        );
 
-      logger.debug(
-        `Creating application status for application: ${application.id}`
-      );
-      const applicationStatus = await createLoanApplicationStatus(
-        tx,
-        application.id,
-        categorized["applicationStatus"]
-      );
-      logger.debug(
-        `Application status created successfully for application: ${application.id}`
-      );
+        logger.debug(
+          `Creating financial requirements for application: ${application.id}`
+        );
+        const financialRequirements =
+          await createLoanApplicationFinancialRequirements(
+            tx,
+            application.id,
+            categorized["financialRequirements"]
+          );
+        logger.debug(
+          `Financial requirements created successfully for application: ${application.id}`
+        );
 
-      logger.debug(
-        `Creating lender information for application: ${application.id}`
-      );
-      const lenderInformation = await createLoanApplicationLenderInformation(
-        tx,
-        application.id,
-        categorized["lenderInformation"]
-      );
-      logger.debug(
-        `Lender information created successfully for application: ${application.id}`
-      );
-
-      logger.debug(
-        `Creating document management for application: ${application.id}`
-      );
-      const documentManagement = await createLoanApplicationDocumentManagement(
-        tx,
-        application.id,
-        categorized["documentManagement"]
-      );
-      logger.debug(
-        `Document management created successfully for application: ${application.id}`
-      );
-
-      logger.debug(
-        `Creating processing timeline for application: ${application.id}`
-      );
-      const processingTimeline = await createLoanApplicationProcessingTimeline(
-        tx,
-        application.id,
-        categorized["processingTimeline"]
-      );
-      logger.debug(
-        `Processing timeline created successfully for application: ${application.id}`
-      );
-
-      logger.debug(
-        `Creating rejection details for application: ${application.id}`
-      );
-      const rejectionDetails = await createLoanApplicationRejectionDetails(
-        tx,
-        application.id,
-        categorized["rejectionDetails"]
-      );
-      logger.debug(
-        `Rejection details created successfully for application: ${application.id}`
-      );
-
-      logger.debug(
-        `Creating communication preferences for application: ${application.id}`
-      );
-      const communicationPreferences =
-        await createLoanApplicationCommunicationPreferences(
+        logger.debug(
+          `Creating application status for application: ${application.id}`
+        );
+        const applicationStatus = await createLoanApplicationStatus(
           tx,
           application.id,
-          categorized["communicationPreferences"]
+          categorized["applicationStatus"]
         );
-      logger.debug(
-        `Communication preferences created successfully for application: ${application.id}`
-      );
+        logger.debug(
+          `Application status created successfully for application: ${application.id}`
+        );
 
-      logger.debug(
-        `Creating system tracking for application: ${application.id}`
-      );
-      const systemTracking = await createLoanApplicationSystemTracking(
-        tx,
-        application.id,
-        categorized["systemTracking"],
-        userId!
-      );
-      logger.debug(
-        `System tracking created successfully for application: ${application.id}`
-      );
+        logger.debug(
+          `Creating lender information for application: ${application.id}`
+        );
+        const lenderInformation = await createLoanApplicationLenderInformation(
+          tx,
+          application.id,
+          categorized["lenderInformation"]
+        );
+        logger.debug(
+          `Lender information created successfully for application: ${application.id}`
+        );
 
-      logger.debug(
-        `Creating commission record for application: ${application.id}`
-      );
-      const commissionRecord = await createLoanApplicationCommissionRecord(
-        tx,
-        application.id,
-        categorized["commissionRecords"]
-      );
-      logger.debug(
-        `Commission record created successfully for application: ${application.id}`
-      );
+        logger.debug(
+          `Creating document management for application: ${application.id}`
+        );
+        const documentManagement =
+          await createLoanApplicationDocumentManagement(
+            tx,
+            application.id,
+            categorized["documentManagement"]
+          );
+        logger.debug(
+          `Document management created successfully for application: ${application.id}`
+        );
 
-      logger.debug(
-        `Creating additional service for application: ${application.id}`
-      );
-      const additionalService = await createLoanApplicationAdditionalService(
-        tx,
-        application.id,
-        categorized["additionalServices"]
-      );
-      logger.debug(
-        `Additional service created successfully for application: ${application.id}`
-      );
+        logger.debug(
+          `Creating processing timeline for application: ${application.id}`
+        );
+        const processingTimeline =
+          await createLoanApplicationProcessingTimeline(
+            tx,
+            application.id,
+            categorized["processingTimeline"]
+          );
+        logger.debug(
+          `Processing timeline created successfully for application: ${application.id}`
+        );
 
-      data = {
-        application: {
-          ...application,
-        },
-        academicDetails: {
-          ...academicDetails,
-        },
-        financialRequirements: {
-          ...financialRequirements,
-        },
-        applicationStatus: {
-          ...applicationStatus,
-        },
-        lenderInformation: {
-          ...lenderInformation,
-        },
-        documentManagement: {
-          ...documentManagement,
-        },
-        processingTimeline: {
-          ...processingTimeline,
-        },
-        rejectionDetails: {
-          ...rejectionDetails,
-        },
-        communicationPreferences: {
-          ...communicationPreferences,
-        },
-        systemTracking: {
-          ...systemTracking,
-        },
-        commissionRecord: {
-          ...commissionRecord,
-        },
-        additionalService: {
-          ...additionalService,
-        },
-      };
+        logger.debug(
+          `Creating rejection details for application: ${application.id}`
+        );
+        const rejectionDetails = await createLoanApplicationRejectionDetails(
+          tx,
+          application.id,
+          categorized["rejectionDetails"]
+        );
+        logger.debug(
+          `Rejection details created successfully for application: ${application.id}`
+        );
 
-      return application;
-    },
-  
-  {
-  timeout: 180000 
-}
-);
+        logger.debug(
+          `Creating communication preferences for application: ${application.id}`
+        );
+        const communicationPreferences =
+          await createLoanApplicationCommunicationPreferences(
+            tx,
+            application.id,
+            categorized["communicationPreferences"]
+          );
+        logger.debug(
+          `Communication preferences created successfully for application: ${application.id}`
+        );
+
+        logger.debug(
+          `Creating system tracking for application: ${application.id}`
+        );
+        const systemTracking = await createLoanApplicationSystemTracking(
+          tx,
+          application.id,
+          categorized["systemTracking"],
+          userId!
+        );
+        logger.debug(
+          `System tracking created successfully for application: ${application.id}`
+        );
+
+        logger.debug(
+          `Creating commission record for application: ${application.id}`
+        );
+        const commissionRecord = await createLoanApplicationCommissionRecord(
+          tx,
+          application.id,
+          categorized["commissionRecords"]
+        );
+        logger.debug(
+          `Commission record created successfully for application: ${application.id}`
+        );
+
+        logger.debug(
+          `Creating additional service for application: ${application.id}`
+        );
+        const additionalService = await createLoanApplicationAdditionalService(
+          tx,
+          application.id,
+          categorized["additionalServices"]
+        );
+        logger.debug(
+          `Additional service created successfully for application: ${application.id}`
+        );
+
+        data = {
+          application: {
+            ...application,
+          },
+          academicDetails: {
+            ...academicDetails,
+          },
+          financialRequirements: {
+            ...financialRequirements,
+          },
+          applicationStatus: {
+            ...applicationStatus,
+          },
+          lenderInformation: {
+            ...lenderInformation,
+          },
+          documentManagement: {
+            ...documentManagement,
+          },
+          processingTimeline: {
+            ...processingTimeline,
+          },
+          rejectionDetails: {
+            ...rejectionDetails,
+          },
+          communicationPreferences: {
+            ...communicationPreferences,
+          },
+          systemTracking: {
+            ...systemTracking,
+          },
+          commissionRecord: {
+            ...commissionRecord,
+          },
+          additionalService: {
+            ...additionalService,
+          },
+        };
+
+        return application;
+      },
+
+      {
+        timeout: 180000,
+      }
+    );
 
     logger.debug(
       `Loan application creation transaction completed successfully`,

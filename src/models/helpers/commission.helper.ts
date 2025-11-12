@@ -44,8 +44,7 @@ export const updateCommissionSettlementStatus = async (
 export const updateCommissionSettlementSystemTracking = async (
   tx: any,
   settlementId: number,
-  systemTrackingData: any,
-  userId: number
+  systemTrackingData: any
 ) => {
   if (!systemTrackingData || Object.keys(systemTrackingData).length === 0) {
     return null;
@@ -57,7 +56,6 @@ export const updateCommissionSettlementSystemTracking = async (
     },
     data: {
       ...systemTrackingData,
-      last_modified_by: userId.toString(),
       last_modified_date: new Date(),
       updated_at: new Date(),
     },
@@ -423,9 +421,7 @@ export const checkCommissionSettlementFields = async (
   student_id?: string,
   settlement_reference_number?: string,
   hs_object_id?: string,
-  partner_id?: number,
-  settlement_month?: string,
-  settlement_year?: number
+  partner_id?: number
 ) => {
   const conditions: any[] = [];
 
@@ -435,14 +431,9 @@ export const checkCommissionSettlementFields = async (
     conditions.push({ settlement_reference_number });
   if (hs_object_id) conditions.push({ hs_object_id });
 
-  if (partner_id && student_id && settlement_month && settlement_year) {
+  if (partner_id && student_id) {
     conditions.push({
-      AND: [
-        { partner_id },
-        { student_id },
-        { settlement_month },
-        { settlement_year },
-      ],
+      AND: [{ partner_id }, { student_id }],
     });
   }
 
@@ -454,6 +445,7 @@ export const checkCommissionSettlementFields = async (
     where: {
       OR: conditions,
       is_deleted: false,
+      is_active: true,
     },
     select: {
       id: true,
@@ -464,8 +456,6 @@ export const checkCommissionSettlementFields = async (
       partner_id: true,
       partner_name: true,
       student_name: true,
-      settlement_month: true,
-      settlement_year: true,
     },
   });
 

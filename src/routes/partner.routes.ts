@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getPartnersList } from "../controllers/hubspot.controller";
-import { validateToken } from "../middlewares";
+import { validateApiKey } from "../middlewares";
 import {
   createB2bPartner,
   deletePartner,
@@ -20,36 +20,32 @@ const router = Router();
 router.get("/list", getPartnersList);
 router.post(
   "/",
-  validateToken(["Admin", "Manager", "User"]),
+  validateApiKey,
   checkDuplicateB2BPartnerFields,
   createB2bPartner
 );
 router.put(
   "/:id",
-  validateToken(["Admin", "Manager", "User"]),
+  validateApiKey,
   validateId(),
   validateReqParams,
   updateB2bPartner
 );
 router.delete(
   "/:id",
-  validateToken(["Admin", "Manager", "User"]),
+  validateApiKey,
   validateId(),
   validateReqParams,
   deletePartner
 );
 router.get(
   "/details/:id",
-  validateToken(["Admin", "Manager", "User"]),
+  validateApiKey,
   validateId(),
   validateReqParams,
   getB2bPartnerDetails
 );
-router.get(
-  "/pagination",
-  validateToken(["Admin", "Manager", "User"]),
-  getB2bPartnersList
-);
+router.get("/pagination", validateApiKey, getB2bPartnersList);
 router.get("/filter", getLeadsByPartnerFieldsController);
 
 export { router as partnerRoutes };

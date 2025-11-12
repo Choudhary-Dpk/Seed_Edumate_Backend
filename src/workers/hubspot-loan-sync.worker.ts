@@ -14,37 +14,6 @@ const POLL_INTERVAL = 60000; // 60 seconds
 const MAX_RETRIES = 5;
 
 /**
- * Start all background workers
- */
-// export async function startWorkers() {
-//   try {
-//     logger.info("🔧 Initializing background workers...");
-    
-//     // Start Contact sync worker
-//     startLoanHubSpotSyncWorker().catch((error) => {
-//       logger.error("Contact Sync Worker crashed:", error);
-//       process.exit(1);
-//     });
-
-//     logger.info("✅ All workers started successfully");
-//   } catch (error) {
-//     logger.error("Failed to start workers:", error);
-//     process.exit(1);
-//   }
-// }
-
-// // Graceful shutdown
-// process.on("SIGTERM", () => {
-//   logger.info("SIGTERM received, shutting down workers gracefully...");
-//   process.exit(0);
-// });
-
-// process.on("SIGINT", () => {
-//   logger.info("SIGINT received, shutting down workers gracefully...");
-//   process.exit(0);
-// });
-
-/**
  * Start Loan Application HubSpot Sync Worker
  */
 export async function startLoanHubSpotSyncWorker() {
@@ -184,11 +153,33 @@ async function handleLoanCreate(payload: any, loanId: number): Promise<string | 
     throw new Error(`Loan application ${loanId} not found`);
   }
 
+      // Fetch B2B Partner's hs_object_id if b2b_partner_id exists
+    let b2bPartnerHsObjectId: string | null = null;
+    
+    if (loanApplication.b2b_partner_id) {
+      const b2bPartner = await prisma.hSB2BPartners.findUnique({
+        where: { id: loanApplication.b2b_partner_id },
+        select: { hs_object_id: true }
+      });
+  
+      if (b2bPartner?.hs_object_id) {
+        b2bPartnerHsObjectId = b2bPartner.hs_object_id;
+        logger.info("✅ Found B2B Partner for association", {
+          b2bPartnerId: loanApplication.b2b_partner_id,
+          hsObjectId: b2bPartnerHsObjectId
+        });
+      } else {
+        logger.warn("⚠️ B2B Partner found but no hs_object_id", {
+          b2bPartnerId: loanApplication.b2b_partner_id
+        });
+      }
+    }
+
   // Transform to HubSpot format
   const hubspotPayload = transformLoanToHubSpotFormat(loanApplication);
 
   // Create in HubSpot
-  const result = await createLoanApplication(hubspotPayload);
+  const result = await createLoanApplication(hubspotPayload, b2bPartnerHsObjectId);
 
   return result.id;
 }
@@ -277,7 +268,7 @@ function transformLoanToHubSpotFormat(loanApp: any): any {
     // ========================================
     // MAIN LOAN APPLICATION FIELDS
     // ========================================
-    
+    db_id: loanApp.id,
     application_date: loanApp.application_date 
       ? new Date(loanApp.application_date).toISOString().split('T')[0] 
       : null,

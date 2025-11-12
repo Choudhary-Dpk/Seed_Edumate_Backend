@@ -1,711 +1,1211 @@
-import {
-  ApiAccessStatus,
-  B2BDataSource,
-  B2BIntegrationStatus,
-  PartnerRecordStatus,
-  PortalAccessStatus,
-} from "@prisma/client";
-import {
-  apiAccessStatusMap,
-  b2bDataSourceMap,
-  b2bIntegrationStatusMap,
-  partnerRecordStatusMap,
-  portalAccessStatusMap,
-} from "../../types/partner.type";
-
-// Field Mappings - SEPARATED (no duplicates)
-export const B2B_FIELD_MAPPINGS = {
-  // Main B2B Partners Table (removed system tracking duplicates)
-  mainPartner: [
-    "business_address",
-    "business_type",
-    "city",
-    "country",
-    "gst_number",
-    "incorporation_date",
-    "pan_number",
-    "partner_display_name",
-    "partner_name",
-    "partner_type",
-    "pincode",
-    "registration_number",
-    "state",
-    "website_url",
-    "hs_created_by_user_id",
-    "hs_createdate",
-    "hs_lastmodifieddate",
-    "hs_object_id",
-    "hs_updated_by_user_id",
-    "hubspot_owner_id",
-  ],
-
-  // Business Capabilities
-  businessCapabilities: [
-    "experience_years",
-    "student_capacity_monthly",
-    "student_capacity_yearly",
-    "target_courses",
-    "target_desrinations",
-    "target_universities",
-    "team_size",
-  ],
-
-  // Commission Structure
-  commissionStructure: [
-    "bank_account_number",
-    "bank_branch",
-    "bank_name",
-    "beneficiary_name",
-    "bonus_structure",
-    "commission_model",
-    "commission_rate",
-    "commission_type",
-    "fixed_commission_amount",
-    "gst_applicable",
-    "ifsc_code",
-    "invoice_requirements",
-    "payment_frequency",
-    "payment_method",
-    "payment_terms",
-    "tds_applicable",
-    "tds_rate",
-    "tiered_commission_structure",
-  ],
-
-  // Compliance & Documentation
-  complianceDocumentation: [
-    "agreement_signed_date",
-    "background_verification_status",
-    "kyc_completion_date",
-    "kyc_status",
-  ],
-
-  // Contact Information
-  contactInfo: [
-    "accounts_contact_email",
-    "accounts_contact_person",
-    "accounts_contact_phone",
-    "marketing_contact_email",
-    "marketing_contact_person",
-    "marketing_contact_phone",
-    "primary_contact_designation",
-    "primary_contact_email",
-    "primary_contact_person",
-    "primary_contact_phone",
-    "secondary_contact_email",
-    "secondary_contact_person",
-    "secondary_contact_phone",
-  ],
-
-  // Financial Tracking
-  financialTracking: [
-    "average_monthly_commission",
-    "current_month_commission",
-    "last_payment_amount",
-    "last_payment_date",
-    "lifetime_value",
-    "next_payment_due_date",
-    "outstanding_commission",
-    "payment_status",
-    "total_commission_earned",
-    "total_commission_paid",
-    "ytd_commission_earned",
-    "ytd_commission_paid",
-  ],
-
-  // Lead Attribution
-  leadAttribution: [
-    "lead_submission_method",
-    "lead_tracking_method",
-    "tracking_link",
-    "unique_referral_code",
-    "utm_source_assigned",
-  ],
-
-  // Marketing & Promotion
-  marketingPromotion: [
-    "brand_usage_guidelines",
-    "co_marketing_approval",
-    "content_collaboration",
-    "digital_presence_rating",
-    "event_participation",
-    "marketing_materials_provided",
-    "promotional_activities",
-    "social_media_followers",
-  ],
-
-  // Partnership Details
-  partnershipDetails: [
-    "agreement_type",
-    "partnership_end_date",
-    "partnership_start_date",
-    "partnership_status",
-  ],
-
-  // Performance Metrics
-  performanceMetrics: [
-    "application_conversion_rate",
-    "applications_approved",
-    "approval_conversion_rate",
-    "average_lead_quality_score",
-    "average_loan_amount",
-    "best_performing_month",
-    "last_lead_date",
-    "lead_conversion_rate",
-    "leads_converted_to_applications",
-    "loans_disbursed",
-    "partner_rating",
-    "qualified_leads_provided",
-    "seasonal_performance_pattern",
-    "total_leads_provided",
-    "total_loan_value_generated",
-  ],
-
-  // Relationship Management
-  relationshipManagement: [
-    "assigned_account_manager",
-    "communication_frequency",
-    "escalation_history",
-    "feedback_comments",
-    "joint_marketing_activities",
-    "last_interaction_date",
-    "relationship_status",
-    "satisfaction_score",
-    "training_completed",
-  ],
-
-  // System Tracking (only these fields, no duplicates with main)
-  systemTracking: [
-    "partner_name",
-    "api_access_provided",
-    "created_by",
-    "created_date",
-    "data_source",
-    "integration_status",
-    "internal_tags",
-    "last_modified_by",
-    "last_modified_date",
-    "notes",
-    "partner_record_status",
-    "portal_access_provided",
-  ],
-};
-
-// ==================== MAPPING FUNCTIONS ====================
-
-export const mapMainPartner = (data: Record<string, any>) => {
-  return {
-    business_address: data.business_address,
-    business_type: data.business_type,
-    city: data.city,
-    country: data.country,
-    gst_number: data.gst_number,
-    incorporation_date: data.incorporation_date,
-    pan_number: data.pan_number,
-    partner_display_name: data.partner_display_name,
-    partner_name: data.partner_name,
-    partner_type: data.partner_type,
-    pincode: data.pincode,
-    registration_number: data.registration_number,
-    state: data.state,
-    website_url: data.website_url,
-    hs_created_by_user_id: data.hs_created_by_user_id,
-    hs_createdate: data.hs_createdate,
-    hs_lastmodifieddate: data.hs_lastmodifieddate,
-    hs_object_id: data.hs_object_id,
-    hs_updated_by_user_id: data.hs_updated_by_user_id,
-    hubspot_owner_id: data.hubspot_owner_id,
-  };
-};
-
-export const mapBusinessCapabilities = (data: Record<string, any>) => {
-  return {
-    experience_years: data.experience_years,
-    student_capacity_monthly: data.student_capacity_monthly,
-    student_capacity_yearly: data.student_capacity_yearly,
-    target_courses: data.target_courses,
-    target_desrinations: data.target_desrinations,
-    target_universities: data.target_universities,
-    team_size: data.team_size,
-  };
-};
-
-export const mapCommissionStructure = (data: Record<string, any>) => {
-  return {
-    bank_account_number: data.bank_account_number,
-    bank_branch: data.bank_branch,
-    bank_name: data.bank_name,
-    beneficiary_name: data.beneficiary_name,
-    bonus_structure: data.bonus_structure,
-    commission_model: data.commission_model,
-    commission_rate: data.commission_rate,
-    commission_type: data.commission_type,
-    fixed_commission_amount: data.fixed_commission_amount,
-    gst_applicable: data.gst_applicable,
-    ifsc_code: data.ifsc_code,
-    invoice_requirements: data.invoice_requirements,
-    payment_frequency: data.payment_frequency,
-    payment_method: data.payment_method,
-    payment_terms: data.payment_terms,
-    tds_applicable: data.tds_applicable,
-    tds_rate: data.tds_rate,
-    tiered_commission_structure: data.tiered_commission_structure,
-  };
-};
-
-export const mapComplianceDocumentation = (data: Record<string, any>) => {
-  return {
-    agreement_signed_date: data.agreement_signed_date,
-    background_verification_status: data.background_verification_status,
-    kyc_completion_date: data.kyc_completion_date,
-    kyc_status: data.kyc_status,
-  };
-};
-
-export const mapContactInfo = (data: Record<string, any>) => {
-  return {
-    accounts_contact_email: data.accounts_contact_email,
-    accounts_contact_person: data.accounts_contact_person,
-    accounts_contact_phone: data.accounts_contact_phone,
-    marketing_contact_email: data.marketing_contact_email,
-    marketing_contact_person: data.marketing_contact_person,
-    marketing_contact_phone: data.marketing_contact_phone,
-    primary_contact_designation: data.primary_contact_designation,
-    primary_contact_email: data.primary_contact_email,
-    primary_contact_person: data.primary_contact_person,
-    primary_contact_phone: data.primary_contact_phone,
-    secondary_contact_email: data.secondary_contact_email,
-    secondary_contact_person: data.secondary_contact_person,
-    secondary_contact_phone: data.secondary_contact_phone,
-  };
-};
-
-export const mapFinancialTracking = (data: Record<string, any>) => {
-  return {
-    average_monthly_commission: data.average_monthly_commission,
-    current_month_commission: data.current_month_commission,
-    last_payment_amount: data.last_payment_amount,
-    last_payment_date: data.last_payment_date,
-    lifetime_value: data.lifetime_value,
-    next_payment_due_date: data.next_payment_due_date,
-    outstanding_commission: data.outstanding_commission,
-    payment_status: data.payment_status,
-    total_commission_earned: data.total_commission_earned,
-    total_commission_paid: data.total_commission_paid,
-    ytd_commission_earned: data.ytd_commission_earned,
-    ytd_commission_paid: data.ytd_commission_paid,
-  };
-};
-
-export const mapLeadAttribution = (data: Record<string, any>) => {
-  return {
-    lead_submission_method: data.lead_submission_method,
-    lead_tracking_method: data.lead_tracking_method,
-    tracking_link: data.tracking_link,
-    unique_referral_code: data.unique_referral_code,
-    utm_source_assigned: data.utm_source_assigned,
-  };
-};
-
-export const mapMarketingPromotion = (data: Record<string, any>) => {
-  return {
-    brand_usage_guidelines: data.brand_usage_guidelines,
-    co_marketing_approval: data.co_marketing_approval,
-    content_collaboration: data.content_collaboration,
-    digital_presence_rating: data.digital_presence_rating,
-    event_participation: data.event_participation,
-    marketing_materials_provided: data.marketing_materials_provided,
-    promotional_activities: data.promotional_activities,
-    social_media_followers: data.social_media_followers,
-  };
-};
-
-export const mapPartnershipDetails = (data: Record<string, any>) => {
-  return {
-    agreement_type: data.agreement_type,
-    partnership_end_date: data.partnership_end_date,
-    partnership_start_date: data.partnership_start_date,
-    partnership_status: data.partnership_status,
-  };
-};
-
-export const mapPerformanceMetrics = (data: Record<string, any>) => {
-  return {
-    application_conversion_rate: data.application_conversion_rate,
-    applications_approved: data.applications_approved,
-    approval_conversion_rate: data.approval_conversion_rate,
-    average_lead_quality_score: data.average_lead_quality_score,
-    average_loan_amount: data.average_loan_amount,
-    best_performing_month: data.best_performing_month,
-    last_lead_date: data.last_lead_date,
-    lead_conversion_rate: data.lead_conversion_rate,
-    leads_converted_to_applications: data.leads_converted_to_applications,
-    loans_disbursed: data.loans_disbursed,
-    partner_rating: data.partner_rating,
-    qualified_leads_provided: data.qualified_leads_provided,
-    seasonal_performance_pattern: data.seasonal_performance_pattern,
-    total_leads_provided: data.total_leads_provided,
-    total_loan_value_generated: data.total_loan_value_generated,
-  };
-};
-
-export const mapRelationshipManagement = (data: Record<string, any>) => {
-  return {
-    assigned_account_manager: data.assigned_account_manager,
-    communication_frequency: data.communication_frequency,
-    escalation_history: data.escalation_history,
-    feedback_comments: data.feedback_comments,
-    joint_marketing_activities: data.joint_marketing_activities,
-    last_interaction_date: data.last_interaction_date,
-    relationship_status: data.relationship_status,
-    satisfaction_score: data.satisfaction_score,
-    training_completed: data.training_completed,
-  };
-};
-
-// System Tracking with proper enum handling
-export const mapSystemTracking = (data: Record<string, any>) => {
-  return {
-    partner_name: data.partner_name,
-    api_access_provided: apiAccessStatusMap[
-      data.api_access_provided
-    ] as ApiAccessStatus,
-    created_by: data.created_by,
-    created_date: data.created_date,
-    data_source: b2bDataSourceMap[data.data_source] as B2BDataSource,
-    integration_status: b2bIntegrationStatusMap[
-      data.integration_status
-    ] as B2BIntegrationStatus,
-    internal_tags: data.internal_tags,
-    last_modified_by: data.last_modified_by,
-    last_modified_date: data.last_modified_date,
-    notes: data.notes,
-    partner_record_status: partnerRecordStatusMap[
-      data.partner_record_status
-    ] as PartnerRecordStatus,
-    portal_access_provided: portalAccessStatusMap[
-      data.portal_access_provided
-    ] as PortalAccessStatus,
-  };
-};
-
-// ==================== COMPREHENSIVE MAPPING FUNCTION ====================
+import { enumMappingService } from "../enumMapping";
 
 export const mapAllB2BPartnerFields = async (
   input: Record<string, any>
 ): Promise<Record<string, any>> => {
   const mapped: Record<string, any> = {};
 
-  // ===== MAIN PARTNER FIELDS (no system tracking duplicates) =====
+  // ===== MAIN PARTNER FIELDS =====
   if (input.business_address !== undefined)
-    mapped.business_address = input.business_address || null;
+    mapped.business_address =
+      input.business_address !== null && input.business_address !== ""
+        ? input.business_address
+        : null;
+
   if (input.business_type !== undefined)
-    mapped.business_type = input.business_type || null;
-  if (input.city !== undefined) mapped.city = input.city || null;
-  if (input.country !== undefined) mapped.country = input.country || null;
+    mapped.business_type =
+      input.business_type !== null && input.business_type !== ""
+        ? input.business_type
+        : null;
+
+  if (input.city !== undefined)
+    mapped.city = input.city !== null && input.city !== "" ? input.city : null;
+
+  if (input.country !== undefined)
+    mapped.country =
+      input.country !== null && input.country !== "" ? input.country : null;
+
   if (input.gst_number !== undefined)
-    mapped.gst_number = input.gst_number || null;
+    mapped.gst_number =
+      input.gst_number !== null && input.gst_number !== ""
+        ? input.gst_number
+        : null;
+
   if (input.incorporation_date !== undefined)
-    mapped.incorporation_date = input.incorporation_date || null;
+    mapped.incorporation_date =
+      input.incorporation_date !== null && input.incorporation_date !== ""
+        ? input.incorporation_date
+        : null;
+
   if (input.pan_number !== undefined)
-    mapped.pan_number = input.pan_number || null;
+    mapped.pan_number =
+      input.pan_number !== null && input.pan_number !== ""
+        ? input.pan_number
+        : null;
+
   if (input.partner_display_name !== undefined)
-    mapped.partner_display_name = input.partner_display_name || null;
+    mapped.partner_display_name =
+      input.partner_display_name !== null && input.partner_display_name !== ""
+        ? input.partner_display_name
+        : null;
+
   if (input.partner_name !== undefined)
-    mapped.partner_name = input.partner_name || null;
+    mapped.partner_name =
+      input.partner_name !== null && input.partner_name !== ""
+        ? input.partner_name
+        : null;
+
   if (input.partner_type !== undefined)
-    mapped.partner_type = input.partner_type || null;
-  if (input.pincode !== undefined) mapped.pincode = input.pincode || null;
+    mapped.partner_type =
+      input.partner_type !== null && input.partner_type !== ""
+        ? input.partner_type
+        : null;
+
+  if (input.pincode !== undefined)
+    mapped.pincode =
+      input.pincode !== null && input.pincode !== "" ? input.pincode : null;
+
   if (input.registration_number !== undefined)
-    mapped.registration_number = input.registration_number || null;
-  if (input.state !== undefined) mapped.state = input.state || null;
+    mapped.registration_number =
+      input.registration_number !== null && input.registration_number !== ""
+        ? input.registration_number
+        : null;
+
+  if (input.state !== undefined)
+    mapped.state =
+      input.state !== null && input.state !== "" ? input.state : null;
+
   if (input.website_url !== undefined)
-    mapped.website_url = input.website_url || null;
+    mapped.website_url =
+      input.website_url !== null && input.website_url !== ""
+        ? input.website_url
+        : null;
+
   if (input.hs_created_by_user_id !== undefined)
-    mapped.hs_created_by_user_id = input.hs_created_by_user_id || null;
+    mapped.hs_created_by_user_id =
+      input.hs_created_by_user_id !== null && input.hs_created_by_user_id !== ""
+        ? input.hs_created_by_user_id
+        : null;
+
   if (input.hs_createdate !== undefined)
-    mapped.hs_createdate = input.hs_createdate || null;
+    mapped.hs_createdate =
+      input.hs_createdate !== null && input.hs_createdate !== ""
+        ? input.hs_createdate
+        : null;
+
   if (input.hs_lastmodifieddate !== undefined)
-    mapped.hs_lastmodifieddate = input.hs_lastmodifieddate || null;
+    mapped.hs_lastmodifieddate =
+      input.hs_lastmodifieddate !== null && input.hs_lastmodifieddate !== ""
+        ? input.hs_lastmodifieddate
+        : null;
+
   if (input.hs_object_id !== undefined)
-    mapped.hs_object_id = input.hs_object_id || null;
+    mapped.hs_object_id =
+      input.hs_object_id !== null && input.hs_object_id !== ""
+        ? input.hs_object_id
+        : null;
+
   if (input.hs_updated_by_user_id !== undefined)
-    mapped.hs_updated_by_user_id = input.hs_updated_by_user_id || null;
+    mapped.hs_updated_by_user_id =
+      input.hs_updated_by_user_id !== null && input.hs_updated_by_user_id !== ""
+        ? input.hs_updated_by_user_id
+        : null;
+
   if (input.hubspot_owner_id !== undefined)
-    mapped.hubspot_owner_id = input.hubspot_owner_id || null;
+    mapped.hubspot_owner_id =
+      input.hubspot_owner_id !== null && input.hubspot_owner_id !== ""
+        ? input.hubspot_owner_id
+        : null;
 
   // ===== BUSINESS CAPABILITIES FIELDS =====
   if (input.experience_years !== undefined)
-    mapped.experience_years = input.experience_years || null;
+    mapped.experience_years =
+      input.experience_years !== null && input.experience_years !== ""
+        ? input.experience_years
+        : null;
+
   if (input.student_capacity_monthly !== undefined)
-    mapped.student_capacity_monthly = input.student_capacity_monthly || null;
+    mapped.student_capacity_monthly =
+      input.student_capacity_monthly !== null &&
+      input.student_capacity_monthly !== ""
+        ? input.student_capacity_monthly
+        : null;
+
   if (input.student_capacity_yearly !== undefined)
-    mapped.student_capacity_yearly = input.student_capacity_yearly || null;
+    mapped.student_capacity_yearly =
+      input.student_capacity_yearly !== null &&
+      input.student_capacity_yearly !== ""
+        ? input.student_capacity_yearly
+        : null;
+
   if (input.target_courses !== undefined)
-    mapped.target_courses = input.target_courses || null;
-  if (input.target_desrinations !== undefined)
-    mapped.target_desrinations = input.target_desrinations || null;
+    mapped.target_courses =
+      input.target_courses !== null && input.target_courses !== ""
+        ? input.target_courses
+        : null;
+
+  if (input.target_destinations !== undefined)
+    mapped.target_destinations =
+      input.target_destinations !== null && input.target_destinations !== ""
+        ? input.target_destinations
+        : null;
+
   if (input.target_universities !== undefined)
-    mapped.target_universities = input.target_universities || null;
-  if (input.team_size !== undefined) mapped.team_size = input.team_size || null;
+    mapped.target_universities =
+      input.target_universities !== null && input.target_universities !== ""
+        ? input.target_universities
+        : null;
+
+  if (input.team_size !== undefined)
+    mapped.team_size =
+      input.team_size !== null && input.team_size !== ""
+        ? input.team_size
+        : null;
 
   // ===== COMMISSION STRUCTURE FIELDS =====
   if (input.bank_account_number !== undefined)
-    mapped.bank_account_number = input.bank_account_number || null;
+    mapped.bank_account_number =
+      input.bank_account_number !== null && input.bank_account_number !== ""
+        ? input.bank_account_number
+        : null;
+
   if (input.bank_branch !== undefined)
-    mapped.bank_branch = input.bank_branch || null;
-  if (input.bank_name !== undefined) mapped.bank_name = input.bank_name || null;
+    mapped.bank_branch =
+      input.bank_branch !== null && input.bank_branch !== ""
+        ? input.bank_branch
+        : null;
+
+  if (input.bank_name !== undefined)
+    mapped.bank_name =
+      input.bank_name !== null && input.bank_name !== ""
+        ? input.bank_name
+        : null;
+
   if (input.beneficiary_name !== undefined)
-    mapped.beneficiary_name = input.beneficiary_name || null;
+    mapped.beneficiary_name =
+      input.beneficiary_name !== null && input.beneficiary_name !== ""
+        ? input.beneficiary_name
+        : null;
+
   if (input.bonus_structure !== undefined)
-    mapped.bonus_structure = input.bonus_structure || null;
+    mapped.bonus_structure =
+      input.bonus_structure !== null && input.bonus_structure !== ""
+        ? input.bonus_structure
+        : null;
+
   if (input.commission_model !== undefined)
-    mapped.commission_model = input.commission_model || null;
+    mapped.commission_model =
+      input.commission_model !== null && input.commission_model !== ""
+        ? input.commission_model
+        : null;
+
   if (input.commission_rate !== undefined)
-    mapped.commission_rate = input.commission_rate || null;
+    mapped.commission_rate =
+      input.commission_rate !== null && input.commission_rate !== ""
+        ? input.commission_rate
+        : null;
+
   if (input.commission_type !== undefined)
-    mapped.commission_type = input.commission_type || null;
+    mapped.commission_type =
+      input.commission_type !== null && input.commission_type !== ""
+        ? input.commission_type
+        : null;
+
   if (input.fixed_commission_amount !== undefined)
-    mapped.fixed_commission_amount = input.fixed_commission_amount || null;
+    mapped.fixed_commission_amount =
+      input.fixed_commission_amount !== null &&
+      input.fixed_commission_amount !== ""
+        ? input.fixed_commission_amount
+        : null;
+
   if (input.gst_applicable !== undefined)
-    mapped.gst_applicable = input.gst_applicable || null;
-  if (input.ifsc_code !== undefined) mapped.ifsc_code = input.ifsc_code || null;
+    mapped.gst_applicable =
+      input.gst_applicable !== null && input.gst_applicable !== ""
+        ? input.gst_applicable
+        : null;
+
+  if (input.ifsc_code !== undefined)
+    mapped.ifsc_code =
+      input.ifsc_code !== null && input.ifsc_code !== ""
+        ? input.ifsc_code
+        : null;
+
   if (input.invoice_requirements !== undefined)
-    mapped.invoice_requirements = input.invoice_requirements || null;
+    mapped.invoice_requirements =
+      input.invoice_requirements !== null && input.invoice_requirements !== ""
+        ? input.invoice_requirements
+        : null;
+
   if (input.payment_frequency !== undefined)
-    mapped.payment_frequency = input.payment_frequency || null;
+    mapped.payment_frequency =
+      input.payment_frequency !== null && input.payment_frequency !== ""
+        ? input.payment_frequency
+        : null;
+
   if (input.payment_method !== undefined)
-    mapped.payment_method = input.payment_method || null;
+    mapped.payment_method =
+      input.payment_method !== null && input.payment_method !== ""
+        ? input.payment_method
+        : null;
+
   if (input.payment_terms !== undefined)
-    mapped.payment_terms = input.payment_terms || null;
+    mapped.payment_terms =
+      input.payment_terms !== null && input.payment_terms !== ""
+        ? input.payment_terms
+        : null;
+
   if (input.tds_applicable !== undefined)
-    mapped.tds_applicable = input.tds_applicable || null;
-  if (input.tds_rate !== undefined) mapped.tds_rate = input.tds_rate || null;
+    mapped.tds_applicable =
+      input.tds_applicable !== null && input.tds_applicable !== ""
+        ? input.tds_applicable
+        : null;
+
+  if (input.tds_rate !== undefined)
+    mapped.tds_rate =
+      input.tds_rate !== null && input.tds_rate !== "" ? input.tds_rate : null;
+
   if (input.tiered_commission_structure !== undefined)
     mapped.tiered_commission_structure =
-      input.tiered_commission_structure || null;
+      input.tiered_commission_structure !== null &&
+      input.tiered_commission_structure !== ""
+        ? input.tiered_commission_structure
+        : null;
 
   // ===== COMPLIANCE & DOCUMENTATION FIELDS =====
   if (input.agreement_signed_date !== undefined)
-    mapped.agreement_signed_date = input.agreement_signed_date || null;
+    mapped.agreement_signed_date =
+      input.agreement_signed_date !== null && input.agreement_signed_date !== ""
+        ? input.agreement_signed_date
+        : null;
+
   if (input.background_verification_status !== undefined)
     mapped.background_verification_status =
-      input.background_verification_status || null;
+      input.background_verification_status !== null &&
+      input.background_verification_status !== ""
+        ? input.background_verification_status
+        : null;
+
   if (input.kyc_completion_date !== undefined)
-    mapped.kyc_completion_date = input.kyc_completion_date || null;
+    mapped.kyc_completion_date =
+      input.kyc_completion_date !== null && input.kyc_completion_date !== ""
+        ? input.kyc_completion_date
+        : null;
+
   if (input.kyc_status !== undefined)
-    mapped.kyc_status = input.kyc_status || null;
+    mapped.kyc_status =
+      input.kyc_status !== null && input.kyc_status !== ""
+        ? input.kyc_status
+        : null;
 
   // ===== CONTACT INFORMATION FIELDS =====
   if (input.accounts_contact_email !== undefined)
-    mapped.accounts_contact_email = input.accounts_contact_email || null;
+    mapped.accounts_contact_email =
+      input.accounts_contact_email !== null &&
+      input.accounts_contact_email !== ""
+        ? input.accounts_contact_email
+        : null;
+
   if (input.accounts_contact_person !== undefined)
-    mapped.accounts_contact_person = input.accounts_contact_person || null;
+    mapped.accounts_contact_person =
+      input.accounts_contact_person !== null &&
+      input.accounts_contact_person !== ""
+        ? input.accounts_contact_person
+        : null;
+
   if (input.accounts_contact_phone !== undefined)
-    mapped.accounts_contact_phone = input.accounts_contact_phone || null;
+    mapped.accounts_contact_phone =
+      input.accounts_contact_phone !== null &&
+      input.accounts_contact_phone !== ""
+        ? input.accounts_contact_phone
+        : null;
+
   if (input.marketing_contact_email !== undefined)
-    mapped.marketing_contact_email = input.marketing_contact_email || null;
+    mapped.marketing_contact_email =
+      input.marketing_contact_email !== null &&
+      input.marketing_contact_email !== ""
+        ? input.marketing_contact_email
+        : null;
+
   if (input.marketing_contact_person !== undefined)
-    mapped.marketing_contact_person = input.marketing_contact_person || null;
+    mapped.marketing_contact_person =
+      input.marketing_contact_person !== null &&
+      input.marketing_contact_person !== ""
+        ? input.marketing_contact_person
+        : null;
+
   if (input.marketing_contact_phone !== undefined)
-    mapped.marketing_contact_phone = input.marketing_contact_phone || null;
+    mapped.marketing_contact_phone =
+      input.marketing_contact_phone !== null &&
+      input.marketing_contact_phone !== ""
+        ? input.marketing_contact_phone
+        : null;
+
   if (input.primary_contact_designation !== undefined)
     mapped.primary_contact_designation =
-      input.primary_contact_designation || null;
+      input.primary_contact_designation !== null &&
+      input.primary_contact_designation !== ""
+        ? input.primary_contact_designation
+        : null;
+
   if (input.primary_contact_email !== undefined)
-    mapped.primary_contact_email = input.primary_contact_email || null;
+    mapped.primary_contact_email =
+      input.primary_contact_email !== null && input.primary_contact_email !== ""
+        ? input.primary_contact_email
+        : null;
+
   if (input.primary_contact_person !== undefined)
-    mapped.primary_contact_person = input.primary_contact_person || null;
+    mapped.primary_contact_person =
+      input.primary_contact_person !== null &&
+      input.primary_contact_person !== ""
+        ? input.primary_contact_person
+        : null;
+
   if (input.primary_contact_phone !== undefined)
-    mapped.primary_contact_phone = input.primary_contact_phone || null;
+    mapped.primary_contact_phone =
+      input.primary_contact_phone !== null && input.primary_contact_phone !== ""
+        ? input.primary_contact_phone
+        : null;
+
   if (input.secondary_contact_email !== undefined)
-    mapped.secondary_contact_email = input.secondary_contact_email || null;
+    mapped.secondary_contact_email =
+      input.secondary_contact_email !== null &&
+      input.secondary_contact_email !== ""
+        ? input.secondary_contact_email
+        : null;
+
   if (input.secondary_contact_person !== undefined)
-    mapped.secondary_contact_person = input.secondary_contact_person || null;
+    mapped.secondary_contact_person =
+      input.secondary_contact_person !== null &&
+      input.secondary_contact_person !== ""
+        ? input.secondary_contact_person
+        : null;
+
   if (input.secondary_contact_phone !== undefined)
-    mapped.secondary_contact_phone = input.secondary_contact_phone || null;
+    mapped.secondary_contact_phone =
+      input.secondary_contact_phone !== null &&
+      input.secondary_contact_phone !== ""
+        ? input.secondary_contact_phone
+        : null;
 
   // ===== FINANCIAL TRACKING FIELDS =====
   if (input.average_monthly_commission !== undefined)
     mapped.average_monthly_commission =
-      input.average_monthly_commission || null;
+      input.average_monthly_commission !== null &&
+      input.average_monthly_commission !== ""
+        ? input.average_monthly_commission
+        : null;
+
   if (input.current_month_commission !== undefined)
-    mapped.current_month_commission = input.current_month_commission || null;
+    mapped.current_month_commission =
+      input.current_month_commission !== null &&
+      input.current_month_commission !== ""
+        ? input.current_month_commission
+        : null;
+
   if (input.last_payment_amount !== undefined)
-    mapped.last_payment_amount = input.last_payment_amount || null;
+    mapped.last_payment_amount =
+      input.last_payment_amount !== null && input.last_payment_amount !== ""
+        ? input.last_payment_amount
+        : null;
+
   if (input.last_payment_date !== undefined)
-    mapped.last_payment_date = input.last_payment_date || null;
+    mapped.last_payment_date =
+      input.last_payment_date !== null && input.last_payment_date !== ""
+        ? input.last_payment_date
+        : null;
+
   if (input.lifetime_value !== undefined)
-    mapped.lifetime_value = input.lifetime_value || null;
+    mapped.lifetime_value =
+      input.lifetime_value !== null && input.lifetime_value !== ""
+        ? input.lifetime_value
+        : null;
+
   if (input.next_payment_due_date !== undefined)
-    mapped.next_payment_due_date = input.next_payment_due_date || null;
+    mapped.next_payment_due_date =
+      input.next_payment_due_date !== null && input.next_payment_due_date !== ""
+        ? input.next_payment_due_date
+        : null;
+
   if (input.outstanding_commission !== undefined)
-    mapped.outstanding_commission = input.outstanding_commission || null;
+    mapped.outstanding_commission =
+      input.outstanding_commission !== null &&
+      input.outstanding_commission !== ""
+        ? input.outstanding_commission
+        : null;
+
   if (input.payment_status !== undefined)
-    mapped.payment_status = input.payment_status || null;
+    mapped.payment_status =
+      input.payment_status !== null && input.payment_status !== ""
+        ? input.payment_status
+        : null;
+
   if (input.total_commission_earned !== undefined)
-    mapped.total_commission_earned = input.total_commission_earned || null;
+    mapped.total_commission_earned =
+      input.total_commission_earned !== null &&
+      input.total_commission_earned !== ""
+        ? input.total_commission_earned
+        : null;
+
   if (input.total_commission_paid !== undefined)
-    mapped.total_commission_paid = input.total_commission_paid || null;
+    mapped.total_commission_paid =
+      input.total_commission_paid !== null && input.total_commission_paid !== ""
+        ? input.total_commission_paid
+        : null;
+
   if (input.ytd_commission_earned !== undefined)
-    mapped.ytd_commission_earned = input.ytd_commission_earned || null;
+    mapped.ytd_commission_earned =
+      input.ytd_commission_earned !== null && input.ytd_commission_earned !== ""
+        ? input.ytd_commission_earned
+        : null;
+
   if (input.ytd_commission_paid !== undefined)
-    mapped.ytd_commission_paid = input.ytd_commission_paid || null;
+    mapped.ytd_commission_paid =
+      input.ytd_commission_paid !== null && input.ytd_commission_paid !== ""
+        ? input.ytd_commission_paid
+        : null;
 
   // ===== LEAD ATTRIBUTION FIELDS =====
   if (input.lead_submission_method !== undefined)
-    mapped.lead_submission_method = input.lead_submission_method || null;
+    mapped.lead_submission_method =
+      input.lead_submission_method !== null &&
+      input.lead_submission_method !== ""
+        ? input.lead_submission_method
+        : null;
+
   if (input.lead_tracking_method !== undefined)
-    mapped.lead_tracking_method = input.lead_tracking_method || null;
+    mapped.lead_tracking_method =
+      input.lead_tracking_method !== null && input.lead_tracking_method !== ""
+        ? input.lead_tracking_method
+        : null;
+
   if (input.tracking_link !== undefined)
-    mapped.tracking_link = input.tracking_link || null;
+    mapped.tracking_link =
+      input.tracking_link !== null && input.tracking_link !== ""
+        ? input.tracking_link
+        : null;
+
   if (input.unique_referral_code !== undefined)
-    mapped.unique_referral_code = input.unique_referral_code || null;
+    mapped.unique_referral_code =
+      input.unique_referral_code !== null && input.unique_referral_code !== ""
+        ? input.unique_referral_code
+        : null;
+
   if (input.utm_source_assigned !== undefined)
-    mapped.utm_source_assigned = input.utm_source_assigned || null;
+    mapped.utm_source_assigned =
+      input.utm_source_assigned !== null && input.utm_source_assigned !== ""
+        ? input.utm_source_assigned
+        : null;
 
   // ===== MARKETING & PROMOTION FIELDS =====
   if (input.brand_usage_guidelines !== undefined)
-    mapped.brand_usage_guidelines = input.brand_usage_guidelines || null;
+    mapped.brand_usage_guidelines =
+      input.brand_usage_guidelines !== null &&
+      input.brand_usage_guidelines !== ""
+        ? input.brand_usage_guidelines
+        : null;
+
   if (input.co_marketing_approval !== undefined)
-    mapped.co_marketing_approval = input.co_marketing_approval || null;
+    mapped.co_marketing_approval =
+      input.co_marketing_approval !== null && input.co_marketing_approval !== ""
+        ? input.co_marketing_approval
+        : null;
+
   if (input.content_collaboration !== undefined)
-    mapped.content_collaboration = input.content_collaboration || null;
+    mapped.content_collaboration =
+      input.content_collaboration !== null && input.content_collaboration !== ""
+        ? input.content_collaboration
+        : null;
+
   if (input.digital_presence_rating !== undefined)
-    mapped.digital_presence_rating = input.digital_presence_rating || null;
+    mapped.digital_presence_rating =
+      input.digital_presence_rating !== null &&
+      input.digital_presence_rating !== ""
+        ? input.digital_presence_rating
+        : null;
+
   if (input.event_participation !== undefined)
-    mapped.event_participation = input.event_participation || null;
+    mapped.event_participation =
+      input.event_participation !== null && input.event_participation !== ""
+        ? input.event_participation
+        : null;
+
   if (input.marketing_materials_provided !== undefined)
     mapped.marketing_materials_provided =
-      input.marketing_materials_provided || null;
+      input.marketing_materials_provided !== null &&
+      input.marketing_materials_provided !== ""
+        ? input.marketing_materials_provided
+        : null;
+
   if (input.promotional_activities !== undefined)
-    mapped.promotional_activities = input.promotional_activities || null;
+    mapped.promotional_activities =
+      input.promotional_activities !== null &&
+      input.promotional_activities !== ""
+        ? input.promotional_activities
+        : null;
+
   if (input.social_media_followers !== undefined)
-    mapped.social_media_followers = input.social_media_followers || null;
+    mapped.social_media_followers =
+      input.social_media_followers !== null &&
+      input.social_media_followers !== ""
+        ? input.social_media_followers
+        : null;
 
   // ===== PARTNERSHIP DETAILS FIELDS =====
   if (input.agreement_type !== undefined)
-    mapped.agreement_type = input.agreement_type || null;
+    mapped.agreement_type =
+      input.agreement_type !== null && input.agreement_type !== ""
+        ? input.agreement_type
+        : null;
+
   if (input.partnership_end_date !== undefined)
-    mapped.partnership_end_date = input.partnership_end_date || null;
+    mapped.partnership_end_date =
+      input.partnership_end_date !== null && input.partnership_end_date !== ""
+        ? input.partnership_end_date
+        : null;
+
   if (input.partnership_start_date !== undefined)
-    mapped.partnership_start_date = input.partnership_start_date || null;
+    mapped.partnership_start_date =
+      input.partnership_start_date !== null &&
+      input.partnership_start_date !== ""
+        ? input.partnership_start_date
+        : null;
+
   if (input.partnership_status !== undefined)
-    mapped.partnership_status = input.partnership_status || null;
+    mapped.partnership_status =
+      input.partnership_status !== null && input.partnership_status !== ""
+        ? input.partnership_status
+        : null;
 
   // ===== PERFORMANCE METRICS FIELDS =====
   if (input.application_conversion_rate !== undefined)
     mapped.application_conversion_rate =
-      input.application_conversion_rate || null;
+      input.application_conversion_rate !== null &&
+      input.application_conversion_rate !== ""
+        ? input.application_conversion_rate
+        : null;
+
   if (input.applications_approved !== undefined)
-    mapped.applications_approved = input.applications_approved || null;
+    mapped.applications_approved =
+      input.applications_approved !== null && input.applications_approved !== ""
+        ? input.applications_approved
+        : null;
+
   if (input.approval_conversion_rate !== undefined)
-    mapped.approval_conversion_rate = input.approval_conversion_rate || null;
+    mapped.approval_conversion_rate =
+      input.approval_conversion_rate !== null &&
+      input.approval_conversion_rate !== ""
+        ? input.approval_conversion_rate
+        : null;
+
   if (input.average_lead_quality_score !== undefined)
     mapped.average_lead_quality_score =
-      input.average_lead_quality_score || null;
+      input.average_lead_quality_score !== null &&
+      input.average_lead_quality_score !== ""
+        ? input.average_lead_quality_score
+        : null;
+
   if (input.average_loan_amount !== undefined)
-    mapped.average_loan_amount = input.average_loan_amount || null;
+    mapped.average_loan_amount =
+      input.average_loan_amount !== null && input.average_loan_amount !== ""
+        ? input.average_loan_amount
+        : null;
+
   if (input.best_performing_month !== undefined)
-    mapped.best_performing_month = input.best_performing_month || null;
+    mapped.best_performing_month =
+      input.best_performing_month !== null && input.best_performing_month !== ""
+        ? input.best_performing_month
+        : null;
+
   if (input.last_lead_date !== undefined)
-    mapped.last_lead_date = input.last_lead_date || null;
+    mapped.last_lead_date =
+      input.last_lead_date !== null && input.last_lead_date !== ""
+        ? input.last_lead_date
+        : null;
+
   if (input.lead_conversion_rate !== undefined)
-    mapped.lead_conversion_rate = input.lead_conversion_rate || null;
+    mapped.lead_conversion_rate =
+      input.lead_conversion_rate !== null && input.lead_conversion_rate !== ""
+        ? input.lead_conversion_rate
+        : null;
+
   if (input.leads_converted_to_applications !== undefined)
     mapped.leads_converted_to_applications =
-      input.leads_converted_to_applications || null;
+      input.leads_converted_to_applications !== null &&
+      input.leads_converted_to_applications !== ""
+        ? input.leads_converted_to_applications
+        : null;
+
   if (input.loans_disbursed !== undefined)
-    mapped.loans_disbursed = input.loans_disbursed || null;
+    mapped.loans_disbursed =
+      input.loans_disbursed !== null && input.loans_disbursed !== ""
+        ? input.loans_disbursed
+        : null;
+
   if (input.partner_rating !== undefined)
-    mapped.partner_rating = input.partner_rating || null;
+    mapped.partner_rating =
+      input.partner_rating !== null && input.partner_rating !== ""
+        ? input.partner_rating
+        : null;
+
   if (input.qualified_leads_provided !== undefined)
-    mapped.qualified_leads_provided = input.qualified_leads_provided || null;
+    mapped.qualified_leads_provided =
+      input.qualified_leads_provided !== null &&
+      input.qualified_leads_provided !== ""
+        ? input.qualified_leads_provided
+        : null;
+
   if (input.seasonal_performance_pattern !== undefined)
     mapped.seasonal_performance_pattern =
-      input.seasonal_performance_pattern || null;
+      input.seasonal_performance_pattern !== null &&
+      input.seasonal_performance_pattern !== ""
+        ? input.seasonal_performance_pattern
+        : null;
+
   if (input.total_leads_provided !== undefined)
-    mapped.total_leads_provided = input.total_leads_provided || null;
+    mapped.total_leads_provided =
+      input.total_leads_provided !== null && input.total_leads_provided !== ""
+        ? input.total_leads_provided
+        : null;
+
   if (input.total_loan_value_generated !== undefined)
     mapped.total_loan_value_generated =
-      input.total_loan_value_generated || null;
+      input.total_loan_value_generated !== null &&
+      input.total_loan_value_generated !== ""
+        ? input.total_loan_value_generated
+        : null;
 
   // ===== RELATIONSHIP MANAGEMENT FIELDS =====
   if (input.assigned_account_manager !== undefined)
-    mapped.assigned_account_manager = input.assigned_account_manager || null;
+    mapped.assigned_account_manager =
+      input.assigned_account_manager !== null &&
+      input.assigned_account_manager !== ""
+        ? input.assigned_account_manager
+        : null;
+
   if (input.communication_frequency !== undefined)
-    mapped.communication_frequency = input.communication_frequency || null;
+    mapped.communication_frequency =
+      input.communication_frequency !== null &&
+      input.communication_frequency !== ""
+        ? input.communication_frequency
+        : null;
+
   if (input.escalation_history !== undefined)
-    mapped.escalation_history = input.escalation_history || null;
+    mapped.escalation_history =
+      input.escalation_history !== null && input.escalation_history !== ""
+        ? input.escalation_history
+        : null;
+
   if (input.feedback_comments !== undefined)
-    mapped.feedback_comments = input.feedback_comments || null;
+    mapped.feedback_comments =
+      input.feedback_comments !== null && input.feedback_comments !== ""
+        ? input.feedback_comments
+        : null;
+
   if (input.joint_marketing_activities !== undefined)
     mapped.joint_marketing_activities =
-      input.joint_marketing_activities || null;
-  if (input.last_interaction_date !== undefined)
-    mapped.last_interaction_date = input.last_interaction_date || null;
-  if (input.relationship_status !== undefined)
-    mapped.relationship_status = input.relationship_status || null;
-  if (input.satisfaction_score !== undefined)
-    mapped.satisfaction_score = input.satisfaction_score || null;
-  if (input.training_completed !== undefined)
-    mapped.training_completed = input.training_completed || null;
+      input.joint_marketing_activities !== null &&
+      input.joint_marketing_activities !== ""
+        ? input.joint_marketing_activities
+        : null;
 
-  // ===== SYSTEM TRACKING FIELDS (separate from main partner) =====
-  if (input.partner_name !== undefined)
-    mapped.partner_name = input.partner_name || null;
+  if (input.last_interaction_date !== undefined)
+    mapped.last_interaction_date =
+      input.last_interaction_date !== null && input.last_interaction_date !== ""
+        ? input.last_interaction_date
+        : null;
+
+  if (input.relationship_status !== undefined)
+    mapped.relationship_status =
+      input.relationship_status !== null && input.relationship_status !== ""
+        ? input.relationship_status
+        : null;
+
+  if (input.satisfaction_score !== undefined)
+    mapped.satisfaction_score =
+      input.satisfaction_score !== null && input.satisfaction_score !== ""
+        ? input.satisfaction_score
+        : null;
+
+  if (input.training_completed !== undefined)
+    mapped.training_completed =
+      input.training_completed !== null && input.training_completed !== ""
+        ? input.training_completed
+        : null;
+
+  // ===== SYSTEM TRACKING FIELDS =====
   if (input.api_access_provided !== undefined)
-    mapped.api_access_provided = input.api_access_provided
-      ? apiAccessStatusMap[
-          input.api_access_provided ? input.api_access_provided : "No"
-        ]
-      : null;
+    mapped.api_access_provided =
+      input.api_access_provided !== null && input.api_access_provided !== ""
+        ? input.api_access_provided
+        : null;
+
   if (input.created_by !== undefined)
-    mapped.created_by = input.created_by || null;
+    mapped.created_by =
+      input.created_by !== null && input.created_by !== ""
+        ? input.created_by
+        : null;
+
   if (input.created_date !== undefined)
-    mapped.created_date = input.created_date || null;
+    mapped.created_date =
+      input.created_date !== null && input.created_date !== ""
+        ? input.created_date
+        : null;
+
   if (input.data_source !== undefined)
-    mapped.data_source = input.data_source
-      ? b2bDataSourceMap[input.data_source]
-      : null;
+    mapped.data_source =
+      input.data_source !== null && input.data_source !== ""
+        ? input.data_source
+        : null;
+
   if (input.integration_status !== undefined)
-    mapped.integration_status = input.integration_status
-      ? b2bIntegrationStatusMap[input.integration_status]
-      : null;
+    mapped.integration_status =
+      input.integration_status !== null && input.integration_status !== ""
+        ? input.integration_status
+        : null;
+
   if (input.internal_tags !== undefined)
-    mapped.internal_tags = input.internal_tags || null;
+    mapped.internal_tags =
+      input.internal_tags !== null && input.internal_tags !== ""
+        ? input.internal_tags
+        : null;
+
   if (input.last_modified_by !== undefined)
-    mapped.last_modified_by = input.last_modified_by || null;
+    mapped.last_modified_by =
+      input.last_modified_by !== null && input.last_modified_by !== ""
+        ? input.last_modified_by
+        : null;
+
   if (input.last_modified_date !== undefined)
-    mapped.last_modified_date = input.last_modified_date || null;
-  if (input.notes !== undefined) mapped.notes = input.notes || null;
+    mapped.last_modified_date =
+      input.last_modified_date !== null && input.last_modified_date !== ""
+        ? input.last_modified_date
+        : null;
+
+  if (input.notes !== undefined)
+    mapped.notes =
+      input.notes !== null && input.notes !== "" ? input.notes : null;
+
   if (input.partner_record_status !== undefined)
-    mapped.partner_record_status = input.partner_record_status
-      ? partnerRecordStatusMap[input.partner_record_status]
-      : null;
+    mapped.partner_record_status =
+      input.partner_record_status !== null && input.partner_record_status !== ""
+        ? input.partner_record_status
+        : null;
+
   if (input.portal_access_provided !== undefined)
-    mapped.portal_access_provided = input.portal_access_provided
-      ? portalAccessStatusMap[
-          input.portal_access_provided ? input.portal_access_provided : "No"
-        ]
-      : null;
+    mapped.portal_access_provided =
+      input.portal_access_provided !== null &&
+      input.portal_access_provided !== ""
+        ? input.portal_access_provided
+        : null;
+
+  // ===== COLLECT ENUM TRANSLATIONS =====
+  const enumTranslations = [];
+
+  // 1. Business Type
+  if (
+    input.business_type !== undefined &&
+    input.business_type !== null &&
+    input.business_type !== ""
+  ) {
+    enumTranslations.push({
+      field: "business_type",
+      enumName: "businessType",
+      sourceValue: input.business_type,
+    });
+  }
+
+  // 2. Partner Type
+  if (
+    input.partner_type !== undefined &&
+    input.partner_type !== null &&
+    input.partner_type !== ""
+  ) {
+    enumTranslations.push({
+      field: "partner_type",
+      enumName: "partnerType",
+      sourceValue: input.partner_type,
+    });
+  }
+
+  // 3. Target Courses
+  if (
+    input.target_courses !== undefined &&
+    input.target_courses !== null &&
+    input.target_courses !== ""
+  ) {
+    enumTranslations.push({
+      field: "target_courses",
+      enumName: "targetCourses",
+      sourceValue: input.target_courses,
+    });
+  }
+
+  // 4. Target Destinations
+  if (
+    input.target_desrinations !== undefined &&
+    input.target_desrinations !== null &&
+    input.target_desrinations !== ""
+  ) {
+    enumTranslations.push({
+      field: "target_desrinations",
+      enumName: "targetDestinations",
+      sourceValue: input.target_desrinations,
+    });
+  }
+
+  // 5. Commission Model
+  if (
+    input.commission_model !== undefined &&
+    input.commission_model !== null &&
+    input.commission_model !== ""
+  ) {
+    enumTranslations.push({
+      field: "commission_model",
+      enumName: "partnerCommissionModel",
+      sourceValue: input.commission_model,
+    });
+  }
+
+  // 6. Commission Type
+  if (
+    input.commission_type !== undefined &&
+    input.commission_type !== null &&
+    input.commission_type !== ""
+  ) {
+    enumTranslations.push({
+      field: "commission_type",
+      enumName: "partnerCommissionType",
+      sourceValue: input.commission_type,
+    });
+  }
+
+  // 7. GST Applicable
+  if (
+    input.gst_applicable !== undefined &&
+    input.gst_applicable !== null &&
+    input.gst_applicable !== ""
+  ) {
+    enumTranslations.push({
+      field: "gst_applicable",
+      enumName: "gstApplicable",
+      sourceValue: input.gst_applicable,
+    });
+  }
+
+  // 8. Payment Frequency
+  if (
+    input.payment_frequency !== undefined &&
+    input.payment_frequency !== null &&
+    input.payment_frequency !== ""
+  ) {
+    enumTranslations.push({
+      field: "payment_frequency",
+      enumName: "partnerPaymentFrequency",
+      sourceValue: input.payment_frequency,
+    });
+  }
+
+  // 9. Payment Method
+  if (
+    input.payment_method !== undefined &&
+    input.payment_method !== null &&
+    input.payment_method !== ""
+  ) {
+    enumTranslations.push({
+      field: "payment_method",
+      enumName: "partnerPaymentMethod",
+      sourceValue: input.payment_method,
+    });
+  }
+
+  // 10. Payment Terms
+  if (
+    input.payment_terms !== undefined &&
+    input.payment_terms !== null &&
+    input.payment_terms !== ""
+  ) {
+    enumTranslations.push({
+      field: "payment_terms",
+      enumName: "paymentTerms",
+      sourceValue: input.payment_terms,
+    });
+  }
+
+  // 11. TDS Applicable
+  if (
+    input.tds_applicable !== undefined &&
+    input.tds_applicable !== null &&
+    input.tds_applicable !== ""
+  ) {
+    enumTranslations.push({
+      field: "tds_applicable",
+      enumName: "tdsApplicable",
+      sourceValue: input.tds_applicable,
+    });
+  }
+
+  // 12. Background Verification Status
+  if (
+    input.background_verification_status !== undefined &&
+    input.background_verification_status !== null &&
+    input.background_verification_status !== ""
+  ) {
+    enumTranslations.push({
+      field: "background_verification_status",
+      enumName: "backgroundVerificationStatus",
+      sourceValue: input.background_verification_status,
+    });
+  }
+
+  // 13. KYC Status
+  if (
+    input.kyc_status !== undefined &&
+    input.kyc_status !== null &&
+    input.kyc_status !== ""
+  ) {
+    enumTranslations.push({
+      field: "kyc_status",
+      enumName: "kycStatus",
+      sourceValue: input.kyc_status,
+    });
+  }
+
+  // 14. Payment Status
+  if (
+    input.payment_status !== undefined &&
+    input.payment_status !== null &&
+    input.payment_status !== ""
+  ) {
+    enumTranslations.push({
+      field: "payment_status",
+      enumName: "partnerPaymentStatus",
+      sourceValue: input.payment_status,
+    });
+  }
+
+  // 15. Lead Submission Method
+  if (
+    input.lead_submission_method !== undefined &&
+    input.lead_submission_method !== null &&
+    input.lead_submission_method !== ""
+  ) {
+    enumTranslations.push({
+      field: "lead_submission_method",
+      enumName: "leadSubmissionMethod",
+      sourceValue: input.lead_submission_method,
+    });
+  }
+
+  // 16. Lead Tracking Method
+  if (
+    input.lead_tracking_method !== undefined &&
+    input.lead_tracking_method !== null &&
+    input.lead_tracking_method !== ""
+  ) {
+    enumTranslations.push({
+      field: "lead_tracking_method",
+      enumName: "leadTrackingMethod",
+      sourceValue: input.lead_tracking_method,
+    });
+  }
+
+  // 17. Co-Marketing Approval
+  if (
+    input.co_marketing_approval !== undefined &&
+    input.co_marketing_approval !== null &&
+    input.co_marketing_approval !== ""
+  ) {
+    enumTranslations.push({
+      field: "co_marketing_approval",
+      enumName: "coMarketingApproval",
+      sourceValue: input.co_marketing_approval,
+    });
+  }
+
+  // 18. Content Collaboration
+  if (
+    input.content_collaboration !== undefined &&
+    input.content_collaboration !== null &&
+    input.content_collaboration !== ""
+  ) {
+    enumTranslations.push({
+      field: "content_collaboration",
+      enumName: "contentCollaboration",
+      sourceValue: input.content_collaboration,
+    });
+  }
+
+  // 19. Marketing Materials Provided
+  if (
+    input.marketing_materials_provided !== undefined &&
+    input.marketing_materials_provided !== null &&
+    input.marketing_materials_provided !== ""
+  ) {
+    enumTranslations.push({
+      field: "marketing_materials_provided",
+      enumName: "marketingMaterialsProvided",
+      sourceValue: input.marketing_materials_provided,
+    });
+  }
+
+  // 20. Agreement Type
+  if (
+    input.agreement_type !== undefined &&
+    input.agreement_type !== null &&
+    input.agreement_type !== ""
+  ) {
+    enumTranslations.push({
+      field: "agreement_type",
+      enumName: "agreementType",
+      sourceValue: input.agreement_type,
+    });
+  }
+
+  // 21. Partnership Status
+  if (
+    input.partnership_status !== undefined &&
+    input.partnership_status !== null &&
+    input.partnership_status !== ""
+  ) {
+    enumTranslations.push({
+      field: "partnership_status",
+      enumName: "partnershipStatus",
+      sourceValue: input.partnership_status,
+    });
+  }
+
+  // 22. Best Performing Month
+  if (
+    input.best_performing_month !== undefined &&
+    input.best_performing_month !== null &&
+    input.best_performing_month !== ""
+  ) {
+    enumTranslations.push({
+      field: "best_performing_month",
+      enumName: "bestPerformingMonth",
+      sourceValue: input.best_performing_month,
+    });
+  }
+
+  // 23. Communication Frequency
+  if (
+    input.communication_frequency !== undefined &&
+    input.communication_frequency !== null &&
+    input.communication_frequency !== ""
+  ) {
+    enumTranslations.push({
+      field: "communication_frequency",
+      enumName: "communicationFrequency",
+      sourceValue: input.communication_frequency,
+    });
+  }
+
+  // 24. Relationship Status
+  if (
+    input.relationship_status !== undefined &&
+    input.relationship_status !== null &&
+    input.relationship_status !== ""
+  ) {
+    enumTranslations.push({
+      field: "relationship_status",
+      enumName: "relationshipStatus",
+      sourceValue: input.relationship_status,
+    });
+  }
+
+  // 25. Training Completed
+  if (
+    input.training_completed !== undefined &&
+    input.training_completed !== null &&
+    input.training_completed !== ""
+  ) {
+    enumTranslations.push({
+      field: "training_completed",
+      enumName: "trainingCompleted",
+      sourceValue: input.training_completed,
+    });
+  }
+
+  // 26. API Access Provided
+  if (
+    input.api_access_provided !== undefined &&
+    input.api_access_provided !== null &&
+    input.api_access_provided !== ""
+  ) {
+    enumTranslations.push({
+      field: "api_access_provided",
+      enumName: "apiAccessProvided",
+      sourceValue: input.api_access_provided,
+    });
+  }
+
+  // 27. Data Source
+  if (
+    input.data_source !== undefined &&
+    input.data_source !== null &&
+    input.data_source !== ""
+  ) {
+    enumTranslations.push({
+      field: "data_source",
+      enumName: "partnerDataSource",
+      sourceValue: input.data_source,
+    });
+  }
+
+  // 28. Integration Status
+  if (
+    input.integration_status !== undefined &&
+    input.integration_status !== null &&
+    input.integration_status !== ""
+  ) {
+    enumTranslations.push({
+      field: "integration_status",
+      enumName: "partnerIntegrationStatus",
+      sourceValue: input.integration_status,
+    });
+  }
+
+  // 29. Partner Record Status
+  if (
+    input.partner_record_status !== undefined &&
+    input.partner_record_status !== null &&
+    input.partner_record_status !== ""
+  ) {
+    enumTranslations.push({
+      field: "partner_record_status",
+      enumName: "partnerRecordStatus",
+      sourceValue: input.partner_record_status,
+    });
+  }
+
+  // 30. Portal Access Provided
+  if (
+    input.portal_access_provided !== undefined &&
+    input.portal_access_provided !== null &&
+    input.portal_access_provided !== ""
+  ) {
+    enumTranslations.push({
+      field: "portal_access_provided",
+      enumName: "portalAccessProvided",
+      sourceValue: input.portal_access_provided,
+    });
+  }
+
+  // ===== TRANSLATE ALL ENUMS IN ONE BATCH DATABASE QUERY =====
+  if (enumTranslations.length > 0) {
+    const translated = await enumMappingService.translateBatch(
+      enumTranslations.map((t) => ({
+        enumName: t.enumName,
+        sourceValue: t.sourceValue,
+      }))
+    );
+
+    // Map translated values back to fields
+    for (const translation of enumTranslations) {
+      const key = `${translation.enumName}:${translation.sourceValue}`;
+      mapped[translation.field] = translated[key];
+    }
+  }
 
   return mapped;
-};
-
-// Helper function to extract fields by category
-export const extractFieldsByCategory = (
-  data: Record<string, any>,
-  category: keyof typeof B2B_FIELD_MAPPINGS
-): Record<string, any> => {
-  const fields = B2B_FIELD_MAPPINGS[category];
-  const extracted: Record<string, any> = {};
-
-  fields.forEach((field) => {
-    if (data[field] !== undefined) {
-      extracted[field] = data[field];
-    }
-  });
-
-  return extracted;
 };

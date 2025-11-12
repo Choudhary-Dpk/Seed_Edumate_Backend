@@ -1,5 +1,3 @@
-// src/services/schedule.service.ts
-
 import { 
   CalculationResult, 
   MonthlyPayment, 

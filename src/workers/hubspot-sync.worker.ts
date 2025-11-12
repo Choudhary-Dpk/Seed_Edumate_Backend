@@ -6,35 +6,11 @@ import {
   deleteHubspotByContactsLeadId,
 } from "../services/hubspot.service";
 import { mapEnumValue } from "../constants/enumMappingDbToHs";
+import { getPartnerById } from "../models/helpers/partners.helper";
 
 const BATCH_SIZE = 95; // HubSpot batch limit
 const POLL_INTERVAL = 60000; // 5 seconds
 const MAX_RETRIES = 5;
-
-/**
- * Start all background workers
- */
-// export async function startWorkers() {
-//   try {
-//     logger.info("🔧 Initializing background workers...");
-//     // Start HubSpot sync worker
-//     startHubSpotSyncWorker().catch((error) => {
-//       logger.error("HubSpot Sync Worker crashed:", error);
-//       process.exit(1);
-//     });
-
-//     logger.info("✅ All workers started successfully");
-//   } catch (error) {
-//     logger.error("Failed to start workers:", error);
-//     process.exit(1);
-//   }
-// }
-
-// // Graceful shutdown
-// process.on("SIGTERM", () => {
-//   logger.info("SIGTERM received, shutting down workers gracefully...");
-//   process.exit(0);
-// });
 
 process.on("SIGINT", () => {
   logger.info("SIGINT received, shutting down workers gracefully...");
@@ -198,13 +174,33 @@ async function processBatchEntries(entries: any[]) {
       },
     });
 
+        // Fetch B2B Partner's hs_object_id if b2b_partner_id exists
+  let b2bPartnerHsObjectId: string | null = null;
+  
+  if (completeContactsData[0].b2b_partner_id) {
+    const b2b_partner_id = completeContactsData[0].b2b_partner_id;
+    const b2bPartner = await getPartnerById(b2b_partner_id);
+
+    if (b2bPartner?.hs_object_id) {
+      b2bPartnerHsObjectId = b2bPartner.hs_object_id;
+      logger.info("✅ Found B2B Partner for association", {
+        b2bPartnerId: b2b_partner_id,
+        hsObjectId: b2bPartnerHsObjectId
+      });
+    } else {
+      logger.warn("⚠️ B2B Partner found but no hs_object_id", {
+        b2bPartnerId: b2b_partner_id
+      });
+    }
+  }
+
     // Transform all to HubSpot format
     const hubspotPayloads = completeContactsData.map(contact => 
       transformToHubSpotFormat(contact)
     );
 
     // Batch create in HubSpot
-    const hubspotResults = await createContactsLoanLeads(hubspotPayloads);
+    const hubspotResults = await createContactsLoanLeads(hubspotPayloads, b2bPartnerHsObjectId);
 
     if (!hubspotResults || hubspotResults.length === 0) {
       throw new Error("HubSpot batch create returned empty results");
@@ -262,11 +258,31 @@ async function handleCreate(payload: any, entityId: number): Promise<string> {
   if (!completeContactData) {
     throw new Error(`Contact not found: ${entityId}`);
   }
+
+    // Fetch B2B Partner's hs_object_id if b2b_partner_id exists
+  let b2bPartnerHsObjectId: string | null = null;
+  
+  if (completeContactData.b2b_partner_id) {
+
+    const b2bPartner = await getPartnerById(completeContactData.b2b_partner_id);
+
+    if (b2bPartner?.hs_object_id) {
+      b2bPartnerHsObjectId = b2bPartner.hs_object_id;
+      logger.info("✅ Found B2B Partner for association", {
+        b2bPartnerId: completeContactData.b2b_partner_id,
+        hsObjectId: b2bPartnerHsObjectId
+      });
+    } else {
+      logger.warn("⚠️ B2B Partner found but no hs_object_id", {
+        b2bPartnerId: completeContactData.b2b_partner_id
+      });
+    }
+  }
   
   // Transform to HubSpot format with ALL fields
   const hubspotPayload = transformToHubSpotFormat(completeContactData);
   
-  const hubspotResults = await createContactsLoanLeads([hubspotPayload]);
+  const hubspotResults = await createContactsLoanLeads([hubspotPayload], b2bPartnerHsObjectId);
   
   if (!hubspotResults || hubspotResults.length === 0) {
     throw new Error("HubSpot create returned empty result");

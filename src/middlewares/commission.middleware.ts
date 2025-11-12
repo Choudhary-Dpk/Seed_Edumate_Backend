@@ -14,8 +14,6 @@ export const checkDuplicateCommissionSettlementFields = async (
       settlement_reference_number,
       hs_object_id,
       partner_id,
-      settlement_month,
-      settlement_year,
     } = req.body;
 
     // Skip if no relevant fields provided
@@ -36,12 +34,9 @@ export const checkDuplicateCommissionSettlementFields = async (
       settlement_reference_number,
       hs_object_id,
       partner_id,
-      settlement_month,
-      settlement_year
     );
 
     if (existing) {
-      // Check which specific field is duplicate and return appropriate message
       if (
         lead_reference_id &&
         existing.lead_reference_id === lead_reference_id
@@ -80,16 +75,11 @@ export const checkDuplicateCommissionSettlementFields = async (
         );
       }
 
-      // Check for duplicate partner + student + period combination
       if (
         partner_id &&
         student_id &&
-        settlement_month &&
-        settlement_year &&
         existing.partner_id === partner_id &&
-        existing.student_id === student_id &&
-        existing.settlement_month === settlement_month &&
-        existing.settlement_year === settlement_year
+        existing.student_id === student_id
       ) {
         return sendResponse(
           res,
@@ -98,7 +88,6 @@ export const checkDuplicateCommissionSettlementFields = async (
         );
       }
 
-      // Fallback
       return sendResponse(res, 409, "Commission Settlement already exists");
     }
 
@@ -107,11 +96,6 @@ export const checkDuplicateCommissionSettlementFields = async (
     console.error(
       "Error in duplicate commission settlement field check middleware:",
       error
-    );
-    return sendResponse(
-      res,
-      500,
-      "Internal server error during duplicate validation"
     );
   }
 };

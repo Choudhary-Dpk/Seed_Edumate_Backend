@@ -4,156 +4,342 @@ export const categorizeLoanApplicationByTable = (
   const categorized: Record<string, Record<string, any>> = {};
 
   // Main Loan Application Fields
+  // const mainLoanApplicationFields = [
+  //   // Application Info
+  //   "application_date",
+  //   "lead_reference_code",
+  //   "student_id",
+  //   "student_name",
+  //   "student_email",
+  //   "student_phone",
+  //   "application_source",
+
+  //   // Assignment / Ownership
+  //   "assigned_counselor_id",
+  //   "b2b_partner_id",
+  //   "user_id",
+  //   "contact_id",
+
+  //   // System Audit
+  //   "created_by_id",
+  //   "last_modified_by_id",
+
+  //   // HubSpot System Fields
+  //   "hs_created_by_user_id",
+  //   "hs_createdate",
+  //   "hs_lastmodifieddate",
+  //   "hs_merged_object_ids",
+  //   "hs_object_id",
+  //   "hs_object_source_detail_1",
+  //   "hs_object_source_detail_2",
+  //   "hs_object_source_detail_3",
+  //   "hs_object_source_label",
+  //   "hs_shared_team_ids",
+  //   "hs_shared_user_ids",
+  //   "hs_updated_by_user_id",
+  //   "hubspot_owner_assigneddate",
+  //   "hubspot_owner_id",
+  //   "hubspot_team_id",
+  // ];
+
+  // // Academic Details Fields
+  // const academicDetailsFields = [
+  //   "target_course",
+  //   "target_university",
+  //   "target_university_country",
+  //   "course_level",
+  //   "course_start_date",
+  //   "course_end_date",
+  //   "course_duration",
+  //   "admission_status",
+  //   "visa_status",
+  //   "i20_cas_received",
+  // ];
+
+  // // Financial Requirements Fields
+  // const financialRequirementsFields = [
+  //   "loan_amount_requested",
+  //   "loan_amount_approved",
+  //   "loan_amount_disbursed",
+  //   "tuition_fee",
+  //   "living_expenses",
+  //   "travel_expenses",
+  //   "insurance_cost",
+  //   "other_expenses",
+  //   "total_funding_required",
+  //   "scholarship_amount",
+  //   "self_funding_amount",
+  // ];
+
+  // // Application Status Fields
+  // const applicationStatusFields = [
+  //   "application_status",
+  //   "priority_level",
+  //   "application_notes",
+  //   "internal_notes",
+  //   "record_status",
+  // ];
+
+  // // Lender Information Fields
+  // const lenderInformationFields = [
+  //   "primary_lender_id",
+  //   "primary_lender_name",
+  //   "loan_product_id",
+  //   "loan_product_name",
+  //   "loan_product_type",
+  //   "interest_rate_offered",
+  //   "interest_rate_type",
+  //   "loan_tenure_years",
+  //   "moratorium_period_months",
+  //   "emi_amount",
+  //   "processing_fee",
+  //   "co_signer_required",
+  //   "collateral_required",
+  //   "collateral_type",
+  //   "collateral_value",
+  //   "guarantor_details",
+  // ];
+
+  // // Document Management Fields
+  // const documentManagementFields = [
+  //   "documents_required_list",
+  //   "documents_submitted_list",
+  //   "documents_pending_list",
+  // ];
+
+  // // Processing Timeline Fields
+  // const processingTimelineFields = [
+  //   "lender_submission_date",
+  //   "lender_acknowledgment_date",
+  //   "approval_date",
+  //   "sanction_letter_date",
+  //   "disbursement_request_date",
+  //   "disbursement_date",
+  //   "total_processing_days",
+  //   "sla_breach",
+  //   "delay_reason",
+  // ];
+
+  // // Rejection Details Fields
+  // const rejectionDetailsFields = [
+  //   "rejection_date",
+  //   "rejection_reason",
+  //   "rejection_details",
+  //   "appeal_submitted",
+  //   "appeal_outcome",
+  //   "resolution_provided",
+  // ];
+
+  // // Communication Preferences Fields
+  // const communicationPreferencesFields = [
+  //   "communication_preference",
+  //   "follow_up_frequency",
+  //   "last_contact_date",
+  //   "next_follow_up_date",
+  //   "customer_satisfaction_rating",
+  //   "customer_feedback",
+  //   "complaint_raised",
+  //   "complaint_details",
+  //   "complaint_resolution_date",
+  // ];
+
+  // // System Tracking Fields
+  // const systemTrackingFields = [
+  //   "application_source_system",
+  //   "integration_status",
+  //   "audit_trail",
+  //   "hs_object_id",
+  //   "hs_merged_object_ids",
+  //   "hs_object_source_label",
+  //   "application_record_status",
+  //   "external_reference_id",
+  //   "created_by",
+  //   "last_modified_by",
+  // ];
+
+  // // Commission Records Fields
+  // const commissionRecordsFields = [
+  //   "commission_amount",
+  //   "commission_rate",
+  //   "commission_calculation_base",
+  //   "commission_status",
+  //   "commission_approval_date",
+  //   "commission_payment_date",
+  //   "partner_commission_applicable",
+  //   "settlement_id",
+  // ];
+
+  // // Additional Services Fields
+  // const additionalServicesFields = ["additional_services_notes"];
+
+  // ==================== MAIN TABLE: hs_loan_applications ====================
   const mainLoanApplicationFields = [
+    // Basic Information
     "application_date",
+    "application_source",
+    "assigned_counselor",
+    "b2b_partner_id",
     "lead_reference_code",
     "student_id",
     "student_name",
     "student_email",
     "student_phone",
-    "application_source",
-    "assigned_counselor_id",
-    "b2b_partner_id",
     "user_id",
     "contact_id",
-    "created_by_id",
-    "last_modified_by_id",
+
+    // HubSpot System Fields
     "hs_created_by_user_id",
     "hs_createdate",
     "hs_lastmodifieddate",
+    "hs_merged_object_ids",
     "hs_object_id",
+    "hs_object_source_detail_1",
+    "hs_object_source_detail_2",
+    "hs_object_source_detail_3",
+    "hs_object_source_label",
+    "hs_shared_team_ids",
+    "hs_shared_user_ids",
     "hs_updated_by_user_id",
+    "hubspot_owner_assigneddate",
     "hubspot_owner_id",
+    "hubspot_team_id",
+
+    // Audit Fields
+    "is_active",
+    "is_deleted",
+    "created_by",
+    "updated_by",
+    "deleted_by",
+    "deleted_by_id",
+    "deleted_on",
   ];
 
-  // Academic Details Fields
+  // ==================== ACADEMIC DETAILS ====================
   const academicDetailsFields = [
+    "admission_status",
+    "course_duration",
+    "course_end_date",
+    "course_level",
+    "course_start_date",
+    "i20_cas_received",
     "target_course",
     "target_university",
     "target_university_country",
-    "course_level",
-    "course_start_date",
-    "course_end_date",
-    "course_duration",
-    "admission_status",
     "visa_status",
-    "i20_cas_received",
   ];
 
-  // Financial Requirements Fields
+  // ==================== FINANCIAL REQUIREMENTS ====================
   const financialRequirementsFields = [
-    "loan_amount_requested",
+    "insurance_cost",
+    "living_expenses",
     "loan_amount_approved",
     "loan_amount_disbursed",
-    "tuition_fee",
-    "living_expenses",
-    "travel_expenses",
-    "insurance_cost",
+    "loan_amount_requested",
     "other_expenses",
-    "total_funding_required",
     "scholarship_amount",
     "self_funding_amount",
+    "total_funding_required",
+    "travel_expenses",
+    "tuition_fee",
   ];
 
-  // Application Status Fields
+  // ==================== APPLICATION STATUS ====================
   const applicationStatusFields = [
-    "status",
-    "priority_level",
+    "application_status",
     "application_notes",
     "internal_notes",
-    "record_status",
+    "priority_level",
   ];
 
-  // Lender Information Fields
+  // ==================== LENDER INFORMATION ====================
   const lenderInformationFields = [
-    "primary_lender_id",
-    "primary_lender_name",
-    "loan_product_id",
-    "loan_product_name",
-    "loan_product_type",
-    "interest_rate_offered",
-    "interest_rate_type",
-    "loan_tenure_years",
-    "moratorium_period_months",
-    "emi_amount",
-    "processing_fee",
     "co_signer_required",
     "collateral_required",
     "collateral_type",
     "collateral_value",
+    "emi_amount",
     "guarantor_details",
+    "interest_rate_offered",
+    "interest_rate_type",
+    "loan_product_id",
+    "loan_product_name",
+    "loan_product_type",
+    "loan_tenure_years",
+    "moratorium_period_months",
+    "primary_lender_id",
+    "primary_lender_name",
+    "processing_fee",
   ];
 
-  // Document Management Fields
+  // ==================== DOCUMENT MANAGEMENT ====================
   const documentManagementFields = [
+    "documents_pending_list",
     "documents_required_list",
     "documents_submitted_list",
-    "documents_pending_list",
   ];
 
-  // Processing Timeline Fields
+  // ==================== PROCESSING TIMELINE ====================
   const processingTimelineFields = [
-    "lender_submission_date",
-    "lender_acknowledgment_date",
     "approval_date",
-    "sanction_letter_date",
-    "disbursement_request_date",
-    "disbursement_date",
-    "total_processing_days",
-    "sla_breach",
     "delay_reason",
+    "disbursement_date",
+    "disbursement_request_date",
+    "lender_acknowledgment_date",
+    "lender_submission_date",
+    "sanction_letter_date",
+    "sla_breach",
+    "total_processing_days",
   ];
 
-  // Rejection Details Fields
+  // ==================== REJECTION DETAILS ====================
   const rejectionDetailsFields = [
-    "rejection_date",
-    "rejection_reason",
-    "rejection_details",
-    "appeal_submitted",
     "appeal_outcome",
+    "appeal_submitted",
+    "rejection_date",
+    "rejection_details",
+    "rejection_reason",
     "resolution_provided",
   ];
 
-  // Communication Preferences Fields
+  // ==================== COMMUNICATION PREFERENCES ====================
   const communicationPreferencesFields = [
     "communication_preference",
+    "complaint_details",
+    "complaint_raised",
+    "complaint_resolution_date",
+    "customer_feedback",
+    "customer_satisfaction_rating",
     "follow_up_frequency",
     "last_contact_date",
     "next_follow_up_date",
-    "customer_satisfaction_rating",
-    "customer_feedback",
-    "complaint_raised",
-    "complaint_details",
-    "complaint_resolution_date",
   ];
 
-  // System Tracking Fields
+  // ==================== SYSTEM TRACKING ====================
   const systemTrackingFields = [
-    "application_source_system",
-    "integration_status",
-    "audit_trail",
-    "hs_object_id",
-    "hs_merged_object_ids",
-    "hs_object_source_label",
     "application_record_status",
+    "application_source_system",
+    "audit_trail",
+    "created_by_user",
+    "created_date",
     "external_reference_id",
-    "created_by",
+    "integration_status",
     "last_modified_by",
+    "last_modified_date",
   ];
 
-  // Commission Records Fields
+  // ==================== COMMISSION RECORDS ====================
   const commissionRecordsFields = [
     "commission_amount",
-    "commission_rate",
-    "commission_calculation_base",
-    "commission_status",
     "commission_approval_date",
+    "commission_calculation_base",
     "commission_payment_date",
+    "commission_rate",
+    "commission_status",
     "partner_commission_applicable",
     "settlement_id",
   ];
 
-  // Additional Services Fields
+  // ==================== ADDITIONAL SERVICES ====================
   const additionalServicesFields = ["additional_services_notes"];
 
   // Categorize main loan application

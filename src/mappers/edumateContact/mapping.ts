@@ -1,30 +1,6 @@
 import { convertCurrency } from "../../services/loan.service";
-import {
-  admissionStatusMap,
-  coApplicantOccupationMap,
-  coApplicantRelationshipMap,
-  collateralAvailableMap,
-  collateralTypeMap,
-  ContactsLead,
-  courseTypeMap,
-  currentEducationLevelMap,
-  currentStatusDispositionMap,
-  dataSourceMap,
-  financialCurrencyMap,
-  gdprConsentMap,
-  genderMap,
-  intendedStartTermMap,
-  leadSourceMap,
-  LoanTypePreferenceMap,
-  marketingConsentMap,
-  partnerCommissionApplicableMap,
-  preferredStudyDestinationMap,
-  priorityLevelMap,
-  repaymentTypePreferenceMap,
-  statusDispositionReasonMap,
-  studentRecordStatusMap,
-  targetDegreeLevelMap,
-} from "../../types/contact.types";
+import { ContactsLead } from "../../types/contact.types";
+import { enumMappingService } from "../enumMapping";
 
 // Helper function to normalize date strings
 const parseDate = (
@@ -205,7 +181,7 @@ export const mapSystemTracking = (data: Record<string, any>) => {
 export const mapAllFields = async (
   input: ContactsLead
 ): Promise<Partial<ContactsLead>> => {
-  const mapped: Partial<ContactsLead> = {};
+  const mapped: Record<string, any> = {};
 
   // Currency conversions
   const loanAmount =
@@ -300,11 +276,6 @@ export const mapAllFields = async (
       input.userSelectedCurrency ?? input.user_selected_currency ?? null;
   }
 
-  if (input.courseType !== undefined || input.course_type !== undefined) {
-    const type = input.courseType ?? input.course_type;
-    mapped.course_type = type ? courseTypeMap[type] : null;
-  }
-
   if (
     input.coApplicant1Email !== undefined ||
     input.co_applicant_1_email !== undefined
@@ -340,17 +311,18 @@ export const mapAllFields = async (
     mapped.email = input.email ?? null;
   }
 
-  if (input.phoneNumber !== undefined || input.phone_number !== undefined) {
-    mapped.phone_number = input.phoneNumber ?? input.phone_number ?? null;
+  if (
+    input.phoneNumber !== undefined ||
+    input.phone !== undefined ||
+    input.phone_number !== undefined
+  ) {
+    mapped.phone_number =
+      input.phoneNumber ?? input.phone ?? input.phone_number ?? null;
   }
 
   if (input.dateOfBirth !== undefined || input.date_of_birth !== undefined) {
     const dob = input.dateOfBirth ?? input.date_of_birth;
     mapped.date_of_birth = dob;
-  }
-
-  if (input.gender !== undefined) {
-    mapped.gender = input.gender ? genderMap[input.gender] : null;
   }
 
   if (input.nationality !== undefined) {
@@ -439,24 +411,6 @@ export const mapAllFields = async (
 
   // ===== ACADEMIC PROFILE FIELDS =====
   if (
-    input.admissionStatus !== undefined ||
-    input.admission_status !== undefined
-  ) {
-    const status = input.admissionStatus ?? input.admission_status;
-    mapped.admission_status = status ? admissionStatusMap[status] : null;
-  }
-
-  if (
-    input.levelOfEducation !== undefined ||
-    input.current_education_level !== undefined
-  ) {
-    const level = input.levelOfEducation ?? input.current_education_level;
-    mapped.current_education_level = level
-      ? currentEducationLevelMap[level]
-      : null;
-  }
-
-  if (
     input.currentInstitution !== undefined ||
     input.current_institution !== undefined
   ) {
@@ -536,14 +490,6 @@ export const mapAllFields = async (
   }
 
   if (
-    input.targetDegreeLevel !== undefined ||
-    input.target_degree_level !== undefined
-  ) {
-    const degree = input.targetDegreeLevel ?? input.target_degree_level;
-    mapped.target_degree_level = degree ? targetDegreeLevelMap[degree] : null;
-  }
-
-  if (
     input.targetCourseMajor !== undefined ||
     input.target_course_major !== undefined
   ) {
@@ -552,35 +498,11 @@ export const mapAllFields = async (
   }
 
   if (
-    input.studyDestination !== undefined ||
-    input.countryOfStudy !== undefined ||
-    input.preferred_study_destination !== undefined
-  ) {
-    const destination =
-      input.countryOfStudy?.trim() ||
-      input.studyDestination?.trim() ||
-      input.preferred_study_destination?.trim() ||
-      null;
-
-    mapped.preferred_study_destination = destination
-      ? preferredStudyDestinationMap[destination] ?? null
-      : null;
-  }
-
-  if (
     input.targetUniversities !== undefined ||
     input.target_universities !== undefined
   ) {
     mapped.target_universities =
       input.targetUniversities ?? input.target_universities ?? null;
-  }
-
-  if (
-    input.intendedStartTerm !== undefined ||
-    input.intended_start_term !== undefined
-  ) {
-    const term = input.intendedStartTerm ?? input.intended_start_term;
-    mapped.intended_start_term = term ? intendedStartTermMap[term] : null;
   }
 
   if (
@@ -614,34 +536,6 @@ export const mapAllFields = async (
   ) {
     mapped.counselor_notes =
       input.counselorNotes ?? input.counselor_notes ?? null;
-  }
-
-  if (
-    input.currentStatusDisposition !== undefined ||
-    input.current_status_disposition !== undefined
-  ) {
-    const disp =
-      input.currentStatusDisposition ?? input.current_status_disposition;
-    mapped.current_status_disposition = disp
-      ? currentStatusDispositionMap[disp]
-      : null;
-  }
-
-  if (
-    input.currentStatusDispositionReason !== undefined ||
-    input.current_status_disposition_reason !== undefined
-  ) {
-    const reason =
-      input.currentStatusDispositionReason ??
-      input.current_status_disposition_reason;
-    mapped.current_status_disposition_reason = reason
-      ? statusDispositionReasonMap[reason]
-      : null;
-  }
-
-  if (input.priorityLevel !== undefined || input.priority_level !== undefined) {
-    const priority = input.priorityLevel ?? input.priority_level;
-    mapped.priority_level = priority ? priorityLevelMap[priority] : null;
   }
 
   if (
@@ -682,12 +576,6 @@ export const mapAllFields = async (
       input.annualFamilyIncome ?? input.annual_family_income ?? null;
   }
 
-  if (input.currency !== undefined) {
-    mapped.currency = input.currency
-      ? financialCurrencyMap[input.currency]
-      : null;
-  }
-
   if (
     input.coApplicant1Name !== undefined ||
     input.co_applicant_1_name !== undefined
@@ -696,43 +584,14 @@ export const mapAllFields = async (
       input.coApplicant1Name ?? input.co_applicant_1_name ?? null;
   }
 
-  // if (
-  //   input.coApplicantAnnualIncome !== undefined ||
-  //   input.co_applicant_1_income !== undefined
-  // ) {
-  //   mapped.co_applicant_1_income =
-  //     coApplicantAnnualIncome ?? input.co_applicant_1_income ?? null;
-  // }
-
   if (
     input.coApplicantAnnualIncome !== undefined ||
     input.co_applicant_1_income !== undefined
   ) {
     const income =
       coApplicantAnnualIncome ?? input.co_applicant_1_income ?? null;
-
     mapped.co_applicant_1_income =
       income === "" || income === undefined ? null : income;
-  }
-
-  if (
-    input.coApplicantIncomeType !== undefined ||
-    input.co_applicant_1_occupation !== undefined
-  ) {
-    const occ = input.coApplicantIncomeType ?? input.co_applicant_1_occupation;
-    mapped.co_applicant_1_occupation = occ
-      ? coApplicantOccupationMap[occ]
-      : null;
-  }
-
-  if (
-    input.coApplicant !== undefined ||
-    input.co_applicant_1_relationship !== undefined
-  ) {
-    const rel = input.coApplicant ?? input.co_applicant_1_relationship;
-    mapped.co_applicant_1_relationship = rel
-      ? coApplicantRelationshipMap[rel]
-      : null;
   }
 
   if (
@@ -752,27 +611,6 @@ export const mapAllFields = async (
   }
 
   if (
-    input.coApplicant2Occupation !== undefined ||
-    input.co_applicant_2_occupation !== undefined
-  ) {
-    const occ = input.coApplicant2Occupation ?? input.co_applicant_2_occupation;
-    mapped.co_applicant_2_occupation = occ
-      ? coApplicantOccupationMap[occ]
-      : null;
-  }
-
-  if (
-    input.coApplicant2Relationship !== undefined ||
-    input.co_applicant_2_relationship !== undefined
-  ) {
-    const rel =
-      input.coApplicant2Relationship ?? input.co_applicant_2_relationship;
-    mapped.co_applicant_2_relationship = rel
-      ? coApplicantRelationshipMap[rel]
-      : null;
-  }
-
-  if (
     input.coApplicant3Name !== undefined ||
     input.co_applicant_3_name !== undefined
   ) {
@@ -789,64 +627,11 @@ export const mapAllFields = async (
   }
 
   if (
-    input.coApplicant3Occupation !== undefined ||
-    input.co_applicant_3_occupation !== undefined
-  ) {
-    const occ = input.coApplicant3Occupation ?? input.co_applicant_3_occupation;
-    mapped.co_applicant_3_occupation = occ
-      ? coApplicantOccupationMap[occ]
-      : null;
-  }
-
-  if (
-    input.coApplicant3Relationship !== undefined ||
-    input.co_applicant_3_relationship !== undefined
-  ) {
-    const rel =
-      input.coApplicant3Relationship ?? input.co_applicant_3_relationship;
-    mapped.co_applicant_3_relationship = rel
-      ? coApplicantRelationshipMap[rel]
-      : null;
-  }
-
-  if (
-    input.collateralAvailable !== undefined ||
-    input.collateral_available !== undefined
-  ) {
-    const val = input.collateralAvailable ?? input.collateral_available;
-    mapped.collateral_available = val ? collateralAvailableMap[val] : null;
-  }
-
-  if (
-    input.collateralType !== undefined ||
-    input.collateral_type !== undefined
-  ) {
-    const type = input.collateralType ?? input.collateral_type;
-    mapped.collateral_type = type ? collateralTypeMap[type] : null;
-  }
-
-  if (
     input.collateralValue !== undefined ||
     input.collateral_value !== undefined
   ) {
     mapped.collateral_value =
       input.collateralValue ?? input.collateral_value ?? null;
-  }
-
-  if (
-    input.collateral2Available !== undefined ||
-    input.collateral_2_available !== undefined
-  ) {
-    const val = input.collateral2Available ?? input.collateral_2_available;
-    mapped.collateral_2_available = val ? collateralAvailableMap[val] : null;
-  }
-
-  if (
-    input.collateral2Type !== undefined ||
-    input.collateral_2_type !== undefined
-  ) {
-    const type = input.collateral2Type ?? input.collateral_2_type;
-    mapped.collateral_2_type = type ? collateralTypeMap[type] : null;
   }
 
   if (
@@ -906,11 +691,6 @@ export const mapAllFields = async (
   }
 
   // ===== LEAD ATTRIBUTION FIELDS =====
-  if (input.leadSource !== undefined || input.lead_source !== undefined) {
-    const src = input.leadSource ?? input.lead_source;
-    mapped.lead_source = src ? leadSourceMap[src] : null;
-  }
-
   if (
     input.leadSourceDetail !== undefined ||
     input.lead_source_detail !== undefined
@@ -941,17 +721,6 @@ export const mapAllFields = async (
   ) {
     mapped.b2b_partner_name =
       input.b2bPartnerName ?? input.b2b_partner_name ?? null;
-  }
-
-  if (
-    input.partnerCommissionApplicable !== undefined ||
-    input.partner_commission_applicable !== undefined
-  ) {
-    const val =
-      input.partnerCommissionApplicable ?? input.partner_commission_applicable;
-    mapped.partner_commission_applicable = val
-      ? partnerCommissionApplicableMap[val]
-      : null;
   }
 
   if (
@@ -992,30 +761,11 @@ export const mapAllFields = async (
 
   // ===== LOAN PREFERENCES FIELDS =====
   if (
-    input.loanPreference !== undefined ||
-    input.loan_type_preference !== undefined
-  ) {
-    const pref = input.loanPreference ?? input.loan_type_preference;
-    mapped.loan_type_preference = pref ? LoanTypePreferenceMap[pref] : null;
-  }
-
-  if (
     input.preferredLenders !== undefined ||
     input.preferred_lenders !== undefined
   ) {
     mapped.preferred_lenders =
       input.preferredLenders ?? input.preferred_lenders ?? null;
-  }
-
-  if (
-    input.repaymentTypePreference !== undefined ||
-    input.repayment_type_preference !== undefined
-  ) {
-    const rep =
-      input.repaymentTypePreference ?? input.repayment_type_preference;
-    mapped.repayment_type_preference = rep
-      ? repaymentTypePreferenceMap[rep]
-      : null;
   }
 
   // ===== SYSTEM TRACKING FIELDS =====
@@ -1044,36 +794,467 @@ export const mapAllFields = async (
     mapped.last_modified_date = parseDate(modified); // full ISO-8601
   }
 
-  if (input.dataSource !== undefined || input.data_source !== undefined) {
-    const ds = input.dataSource ?? input.data_source;
-    mapped.data_source = ds ? dataSourceMap[ds] : null;
+  if (input.tags !== undefined) {
+    mapped.tags = input.tags ?? null;
   }
 
+  // ===== ENUM TRANSLATIONS COLLECTION =====
+  const enumTranslations = [];
+
+  // 1. Admission Status
+  if (
+    input.admissionStatus !== undefined ||
+    input.admission_status !== undefined
+  ) {
+    const status = input.admissionStatus ?? input.admission_status;
+    if (status !== null && status !== "" && status !== undefined) {
+      enumTranslations.push({
+        field: "admission_status",
+        enumName: "admissionStatus",
+        sourceValue: status,
+      });
+    }
+  }
+
+  // 2. Current Education Level
+  if (
+    input.levelOfEducation !== undefined ||
+    input.educationLevel !== undefined ||
+    input.current_education_level !== undefined
+  ) {
+    const level =
+      input.levelOfEducation ??
+      input.educationLevel ??
+      input.current_education_level;
+    if (level !== null && level !== "" && level !== undefined) {
+      enumTranslations.push({
+        field: "current_education_level",
+        enumName: "currentEducationLevel",
+        sourceValue: level,
+      });
+    }
+  }
+
+  // 3. Intended Start Term
+  if (
+    input.intendedStartTerm !== undefined ||
+    input.intended_start_term !== undefined
+  ) {
+    const term = input.intendedStartTerm ?? input.intended_start_term;
+    if (term !== null && term !== "" && term !== undefined) {
+      enumTranslations.push({
+        field: "intended_start_term",
+        enumName: "intendedStartTerm",
+        sourceValue: term,
+      });
+    }
+  }
+
+  // 4. Preferred Study Destination
+  if (
+    input.studyDestination !== undefined ||
+    input.countryOfStudy !== undefined ||
+    input.preferred_study_destination !== undefined
+  ) {
+    const destination =
+      input.countryOfStudy?.trim() ||
+      input.studyDestination?.trim() ||
+      input.preferred_study_destination?.trim() ||
+      null;
+    if (
+      destination !== null &&
+      destination !== "" &&
+      destination !== undefined
+    ) {
+      enumTranslations.push({
+        field: "preferred_study_destination",
+        enumName: "preferredStudyDestination",
+        sourceValue: destination,
+      });
+    }
+  }
+
+  // 5. Target Degree Level
+  if (
+    input.targetDegreeLevel !== undefined ||
+    input.target_degree_level !== undefined
+  ) {
+    const degree = input.targetDegreeLevel ?? input.target_degree_level;
+    if (degree !== null && degree !== "" && degree !== undefined) {
+      enumTranslations.push({
+        field: "target_degree_level",
+        enumName: "targetDegreeLevel",
+        sourceValue: degree,
+      });
+    }
+  }
+
+  // 6. Current Status Disposition
+  if (
+    input.currentStatusDisposition !== undefined ||
+    input.current_status_disposition !== undefined
+  ) {
+    const disp =
+      input.currentStatusDisposition ?? input.current_status_disposition;
+    if (disp !== null && disp !== "" && disp !== undefined) {
+      enumTranslations.push({
+        field: "current_status_disposition",
+        enumName: "currentStatusDisposition",
+        sourceValue: disp,
+      });
+    }
+  }
+
+  // 7. Current Status Disposition Reason
+  if (
+    input.currentStatusDispositionReason !== undefined ||
+    input.current_status_disposition_reason !== undefined
+  ) {
+    const reason =
+      input.currentStatusDispositionReason ??
+      input.current_status_disposition_reason;
+    if (reason !== null && reason !== "" && reason !== undefined) {
+      enumTranslations.push({
+        field: "current_status_disposition_reason",
+        enumName: "currentStatusDispositionReason",
+        sourceValue: reason,
+      });
+    }
+  }
+
+  // 8. Priority Level
+  if (input.priorityLevel !== undefined || input.priority_level !== undefined) {
+    const priority = input.priorityLevel ?? input.priority_level;
+    if (priority !== null && priority !== "" && priority !== undefined) {
+      enumTranslations.push({
+        field: "priority_level",
+        enumName: "priorityLevel",
+        sourceValue: priority,
+      });
+    }
+  }
+
+  // 9. Course Type
+  if (input.courseType !== undefined || input.course_type !== undefined) {
+    const type = input.courseType ?? input.course_type;
+    if (type !== null && type !== "" && type !== undefined) {
+      enumTranslations.push({
+        field: "course_type",
+        enumName: "courseType",
+        sourceValue: type,
+      });
+    }
+  }
+
+  // 10. Gender
+  if (input.gender !== undefined) {
+    if (
+      input.gender !== null &&
+      input.gender !== "" &&
+      input.gender !== undefined
+    ) {
+      enumTranslations.push({
+        field: "gender",
+        enumName: "gender",
+        sourceValue: input.gender,
+      });
+    }
+  }
+
+  // 11. Currency
+  if (input.currency !== undefined) {
+    if (
+      input.currency !== null &&
+      input.currency !== "" &&
+      input.currency !== undefined
+    ) {
+      enumTranslations.push({
+        field: "currency",
+        enumName: "currency",
+        sourceValue: input.currency,
+      });
+    }
+  }
+
+  // 12. Co-applicant 1 Occupation
+  if (
+    input.coApplicantIncomeType !== undefined ||
+    input.co_applicant_1_occupation !== undefined
+  ) {
+    const occ = input.coApplicantIncomeType ?? input.co_applicant_1_occupation;
+    if (occ !== null && occ !== "" && occ !== undefined) {
+      enumTranslations.push({
+        field: "co_applicant_1_occupation",
+        enumName: "coApplicant1Occupation",
+        sourceValue: occ,
+      });
+    }
+  }
+
+  // 13. Co-applicant 1 Relationship
+  if (
+    input.coApplicant !== undefined ||
+    input.co_applicant_1_relationship !== undefined
+  ) {
+    const rel = input.coApplicant ?? input.co_applicant_1_relationship;
+    if (rel !== null && rel !== "" && rel !== undefined) {
+      enumTranslations.push({
+        field: "co_applicant_1_relationship",
+        enumName: "coApplicant1Relationship",
+        sourceValue: rel,
+      });
+    }
+  }
+
+  // 14. Co-applicant 2 Occupation
+  if (
+    input.coApplicant2Occupation !== undefined ||
+    input.co_applicant_2_occupation !== undefined
+  ) {
+    const occ = input.coApplicant2Occupation ?? input.co_applicant_2_occupation;
+    if (occ !== null && occ !== "" && occ !== undefined) {
+      enumTranslations.push({
+        field: "co_applicant_2_occupation",
+        enumName: "coApplicant2Occupation",
+        sourceValue: occ,
+      });
+    }
+  }
+
+  // 15. Co-applicant 2 Relationship
+  if (
+    input.coApplicant2Relationship !== undefined ||
+    input.co_applicant_2_relationship !== undefined
+  ) {
+    const rel =
+      input.coApplicant2Relationship ?? input.co_applicant_2_relationship;
+    if (rel !== null && rel !== "" && rel !== undefined) {
+      enumTranslations.push({
+        field: "co_applicant_2_relationship",
+        enumName: "coApplicant2Relationship",
+        sourceValue: rel,
+      });
+    }
+  }
+
+  // 16. Co-applicant 3 Occupation
+  if (
+    input.coApplicant3Occupation !== undefined ||
+    input.co_applicant_3_occupation !== undefined
+  ) {
+    const occ = input.coApplicant3Occupation ?? input.co_applicant_3_occupation;
+    if (occ !== null && occ !== "" && occ !== undefined) {
+      enumTranslations.push({
+        field: "co_applicant_3_occupation",
+        enumName: "coApplicant3Occupation",
+        sourceValue: occ,
+      });
+    }
+  }
+
+  // 17. Co-applicant 3 Relationship
+  if (
+    input.coApplicant3Relationship !== undefined ||
+    input.co_applicant_3_relationship !== undefined
+  ) {
+    const rel =
+      input.coApplicant3Relationship ?? input.co_applicant_3_relationship;
+    if (rel !== null && rel !== "" && rel !== undefined) {
+      enumTranslations.push({
+        field: "co_applicant_3_relationship",
+        enumName: "coApplicant3Relationship",
+        sourceValue: rel,
+      });
+    }
+  }
+
+  // 18. Collateral Available
+  if (
+    input.collateralAvailable !== undefined ||
+    input.collateral_available !== undefined
+  ) {
+    const val = input.collateralAvailable ?? input.collateral_available;
+    if (val !== null && val !== "" && val !== undefined) {
+      enumTranslations.push({
+        field: "collateral_available",
+        enumName: "collateralAvailable",
+        sourceValue: val,
+      });
+    }
+  }
+
+  // 19. Collateral Type
+  if (
+    input.collateralType !== undefined ||
+    input.collateral_type !== undefined
+  ) {
+    const type = input.collateralType ?? input.collateral_type;
+    if (type !== null && type !== "" && type !== undefined) {
+      enumTranslations.push({
+        field: "collateral_type",
+        enumName: "collateralType",
+        sourceValue: type,
+      });
+    }
+  }
+
+  // 20. Collateral 2 Available
+  if (
+    input.collateral2Available !== undefined ||
+    input.collateral_2_available !== undefined
+  ) {
+    const val = input.collateral2Available ?? input.collateral_2_available;
+    if (val !== null && val !== "" && val !== undefined) {
+      enumTranslations.push({
+        field: "collateral_2_available",
+        enumName: "collateral2Available",
+        sourceValue: val,
+      });
+    }
+  }
+
+  // 21. Collateral 2 Type
+  if (
+    input.collateral2Type !== undefined ||
+    input.collateral_2_type !== undefined
+  ) {
+    const type = input.collateral2Type ?? input.collateral_2_type;
+    if (type !== null && type !== "" && type !== undefined) {
+      enumTranslations.push({
+        field: "collateral_2_type",
+        enumName: "collateral2Type",
+        sourceValue: type,
+      });
+    }
+  }
+
+  // 22. Lead Source
+  if (input.leadSource !== undefined || input.lead_source !== undefined) {
+    const src = input.leadSource ?? input.lead_source;
+    if (src !== null && src !== "" && src !== undefined) {
+      enumTranslations.push({
+        field: "lead_source",
+        enumName: "leadSource",
+        sourceValue: src,
+      });
+    }
+  }
+
+  // 23. Partner Commission Applicable
+  if (
+    input.partnerCommissionApplicable !== undefined ||
+    input.partner_commission_applicable !== undefined
+  ) {
+    const val =
+      input.partnerCommissionApplicable ?? input.partner_commission_applicable;
+    if (val !== null && val !== "" && val !== undefined) {
+      enumTranslations.push({
+        field: "partner_commission_applicable",
+        enumName: "partnerCommissionApplicable",
+        sourceValue: val,
+      });
+    }
+  }
+
+  // 24. Loan Type Preference
+  if (
+    input.loanPreference !== undefined ||
+    input.loan_type_preference !== undefined
+  ) {
+    const pref = input.loanPreference ?? input.loan_type_preference;
+    if (pref !== null && pref !== "" && pref !== undefined) {
+      enumTranslations.push({
+        field: "loan_type_preference",
+        enumName: "loanTypePreference",
+        sourceValue: pref,
+      });
+    }
+  }
+
+  // 25. Repayment Type Preference
+  if (
+    input.repaymentTypePreference !== undefined ||
+    input.repayment_type_preference !== undefined
+  ) {
+    const rep =
+      input.repaymentTypePreference ?? input.repayment_type_preference;
+    if (rep !== null && rep !== "" && rep !== undefined) {
+      enumTranslations.push({
+        field: "repayment_type_preference",
+        enumName: "repaymentTypePreference",
+        sourceValue: rep,
+      });
+    }
+  }
+
+  // 26. Data Source
+  if (input.dataSource !== undefined || input.data_source !== undefined) {
+    const ds = input.dataSource ?? input.data_source;
+    if (ds !== null && ds !== "" && ds !== undefined) {
+      enumTranslations.push({
+        field: "data_source",
+        enumName: "dataSource",
+        sourceValue: ds,
+      });
+    }
+  }
+
+  // 27. Student Record Status
   if (
     input.studentRecordStatus !== undefined ||
     input.student_record_status !== undefined
   ) {
     const status = input.studentRecordStatus ?? input.student_record_status;
-    mapped.student_record_status = status
-      ? studentRecordStatusMap[status]
-      : null;
+    if (status !== null && status !== "" && status !== undefined) {
+      enumTranslations.push({
+        field: "student_record_status",
+        enumName: "studentRecordStatus",
+        sourceValue: status,
+      });
+    }
   }
 
-  if (input.tags !== undefined) {
-    mapped.tags = input.tags ?? null;
-  }
-
+  // 28. GDPR Consent
   if (input.gdprConsent !== undefined || input.gdpr_consent !== undefined) {
     const val = input.gdprConsent ?? input.gdpr_consent;
-    mapped.gdpr_consent = val ? gdprConsentMap[val] : null;
+    if (val !== null && val !== "" && val !== undefined) {
+      enumTranslations.push({
+        field: "gdpr_consent",
+        enumName: "gdprConsent",
+        sourceValue: val,
+      });
+    }
   }
 
+  // 29. Marketing Consent
   if (
     input.marketingConsent !== undefined ||
     input.marketing_consent !== undefined
   ) {
     const val = input.marketingConsent ?? input.marketing_consent;
-    mapped.marketing_consent = val ? marketingConsentMap[val] : null;
+    if (val !== null && val !== "" && val !== undefined) {
+      enumTranslations.push({
+        field: "marketing_consent",
+        enumName: "marketingConsent",
+        sourceValue: val,
+      });
+    }
+  }
+
+  // ===== TRANSLATE ALL ENUMS IN ONE BATCH DATABASE QUERY =====
+  if (enumTranslations.length > 0) {
+    const translated = await enumMappingService.translateBatch(
+      enumTranslations.map((t) => ({
+        enumName: t.enumName,
+        sourceValue: t.sourceValue,
+      }))
+    );
+
+    // Map translated values back to fields
+    for (const translation of enumTranslations) {
+      const key = `${translation.enumName}:${translation.sourceValue}`;
+      mapped[translation.field] = translated[key];
+    }
   }
 
   return mapped;

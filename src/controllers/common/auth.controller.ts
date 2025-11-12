@@ -29,10 +29,7 @@ import { emailQueue } from "../../utils/queue";
 import moment from "moment";
 import { FRONTEND_URL } from "../../setup/secrets";
 import { logEmailHistory } from "../../models/helpers/email.helper";
-import {
-  getUserRole,
-  getUserRoleById,
-} from "../../models/helpers/partners.helper";
+import { getUserRole } from "../../models/helpers/partners.helper";
 
 export const login = async (
   req: RequestWithPayload<LoginPayload>,
@@ -69,6 +66,7 @@ export const login = async (
     logger.debug(`Updating login history for userId: ${id}`);
     await updateUserLastLoggedIn(
       id,
+      "partner",
       ipDetails,
       "success",
       deviceDetails?.device

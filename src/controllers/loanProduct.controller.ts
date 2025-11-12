@@ -1,4 +1,4 @@
-import { NextFunction, Response, Request } from "express";
+import { NextFunction, Response } from "express";
 import prisma from "../config/prisma";
 import { mapAllLoanProductFields } from "../mappers/loanProducts/loanProductMapping";
 import { categorizeLoanProductByTable } from "../services/DBServices/loan.services";
@@ -33,7 +33,6 @@ import {
   deleteLoanProduct,
   getLoanProduct,
   fetchLoanProductsList,
-  getLoanProductsByLender,
 } from "../models/helpers/loanProduct.helper";
 
 export const createLoanProductController = async (
@@ -42,7 +41,9 @@ export const createLoanProductController = async (
   next: NextFunction
 ) => {
   try {
-    const userId = req.payload!.id;
+    if (!req.body.product_display_name) {
+      return sendResponse(res, 400, "Product Name is required");
+    }
 
     logger.debug(`Mapping loan product fields`);
     const mappedFields = await mapAllLoanProductFields(req.body);
@@ -55,7 +56,7 @@ export const createLoanProductController = async (
     let data: any = {};
 
     const result = await prisma.$transaction(async (tx: any) => {
-      logger.debug(`Creating loan product for userId: ${userId}`);
+      logger.debug(`Creating loan product`);
       const product = await createLoanProduct(
         tx,
         categorized["mainLoanProduct"]
@@ -66,8 +67,7 @@ export const createLoanProductController = async (
       const systemTracking = await createLoanProductSystemTracking(
         tx,
         product.id,
-        categorized["systemTracking"],
-        userId
+        categorized["systemTracking"]
       );
       logger.debug(
         `System tracking created successfully for product: ${product.id}`
@@ -212,8 +212,11 @@ export const updateLoanProductController = async (
   next: NextFunction
 ) => {
   try {
-    const userId = req.payload!.id;
     const productId = parseInt(req.params.id);
+
+    if (!req.body.product_display_name) {
+      return sendResponse(res, 400, "Product Name is required");
+    }
 
     logger.debug(`Mapping loan product fields for update`);
     const mappedFields = await mapAllLoanProductFields(req.body);
@@ -234,8 +237,7 @@ export const updateLoanProductController = async (
       await updateLoanProductSystemTracking(
         tx,
         productId,
-        categorized["systemTracking"],
-        userId
+        categorized["systemTracking"]
       );
 
       logger.debug(`Updating competitive analytics for product: ${productId}`);

@@ -1,18 +1,12 @@
-import { Prisma, PrismaClient } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import prisma from "../../config/prisma";
 
 // Main HSLenders helper
-export const createHSLender = async (
-  tx: any,
-  mainData: any,
-  userId: number
-) => {
+export const createHSLender = async (tx: any, mainData: any) => {
   const lender = await tx.hSLenders.create({
     data: {
       ...mainData,
-      created_by: userId?.toString(),
       created_at: new Date(),
-      updated_at: new Date(),
     },
   });
 
@@ -25,10 +19,6 @@ export const createHSLendersContactInfo = async (
   lenderId: number,
   contactData: any
 ) => {
-  if (!contactData || Object.keys(contactData).length === 0) {
-    return null;
-  }
-
   const contactInfo = await tx.hSLendersContactInfo.create({
     data: {
       lender: {
@@ -36,7 +26,6 @@ export const createHSLendersContactInfo = async (
       },
       ...contactData,
       created_at: new Date(),
-      updated_at: new Date(),
     },
   });
 
@@ -49,10 +38,6 @@ export const createHSLendersBusinessMetrics = async (
   lenderId: number,
   metricsData: any
 ) => {
-  if (!metricsData || Object.keys(metricsData).length === 0) {
-    return null;
-  }
-
   const businessMetrics = await tx.hSLendersBusinessMetrics.create({
     data: {
       lender: {
@@ -60,7 +45,6 @@ export const createHSLendersBusinessMetrics = async (
       },
       ...metricsData,
       created_at: new Date(),
-      updated_at: new Date(),
     },
   });
 
@@ -73,15 +57,13 @@ export const createHSLendersLoanOfferings = async (
   lenderId: number,
   offeringsData: any
 ) => {
-  if (!offeringsData || Object.keys(offeringsData).length === 0) {
-    return null;
-  }
-
   const loanOfferings = await tx.hSLendersLoanOfferings.create({
     data: {
       ...offeringsData,
+      lender: {
+        connect: { id: lenderId },
+      },
       created_at: new Date(),
-      updated_at: new Date(),
     },
   });
 
@@ -94,10 +76,6 @@ export const createHSLendersOperationalDetails = async (
   lenderId: number,
   operationalData: any
 ) => {
-  if (!operationalData || Object.keys(operationalData).length === 0) {
-    return null;
-  }
-
   const operationalDetails = await tx.hSLendersOperationalDetails.create({
     data: {
       lender: {
@@ -105,7 +83,6 @@ export const createHSLendersOperationalDetails = async (
       },
       ...operationalData,
       created_at: new Date(),
-      updated_at: new Date(),
     },
   });
 
@@ -118,10 +95,6 @@ export const createHSLendersPartnershipsDetails = async (
   lenderId: number,
   partnershipData: any
 ) => {
-  if (!partnershipData || Object.keys(partnershipData).length === 0) {
-    return null;
-  }
-
   const partnershipDetails = await tx.hSLendersPartnershipsDetails.create({
     data: {
       lender: {
@@ -129,7 +102,6 @@ export const createHSLendersPartnershipsDetails = async (
       },
       ...partnershipData,
       created_at: new Date(),
-      updated_at: new Date(),
     },
   });
 
@@ -140,24 +112,15 @@ export const createHSLendersPartnershipsDetails = async (
 export const createHSLendersSystemTracking = async (
   tx: any,
   lenderId: number,
-  trackingData: any,
-  userId: number
+  trackingData: any
 ) => {
-  if (!trackingData || Object.keys(trackingData).length === 0) {
-    // Create default system tracking even if no data provided
-    trackingData = {};
-  }
-
   const systemTracking = await tx.hSLendersSystemTracking.create({
     data: {
-      lender_system_tracking: {
+      lender: {
         connect: { id: lenderId },
       },
       ...trackingData,
-      last_modified_by: userId?.toString(),
-      last_modified_date: new Date(),
       created_at: new Date(),
-      updated_at: new Date(),
     },
   });
 
@@ -169,14 +132,12 @@ export const createHSLendersSystemTracking = async (
 export const updateHSLender = async (
   tx: any,
   lenderId: number,
-  updateData: any,
-  userId: number
+  updateData: any
 ) => {
   const lender = await tx.hSLenders.update({
     where: { id: lenderId },
     data: {
       ...updateData,
-      updated_by: userId?.toString(),
       updated_at: new Date(),
     },
   });
@@ -291,27 +252,20 @@ export const updateHSLendersPartnershipsDetails = async (
 export const updateHSLendersSystemTracking = async (
   tx: any,
   lenderId: number,
-  trackingData: any,
-  userId: number
+  trackingData: any
 ) => {
   const existingTracking = await tx.hSLendersSystemTracking.findUnique({
     where: { lender_id: lenderId },
   });
 
   if (!existingTracking) {
-    return await createHSLendersSystemTracking(
-      tx,
-      lenderId,
-      trackingData,
-      userId
-    );
+    return await createHSLendersSystemTracking(tx, lenderId, trackingData);
   }
 
   const systemTracking = await tx.hSLendersSystemTracking.update({
     where: { lender_id: lenderId },
     data: {
       ...trackingData,
-      last_modified_by: userId?.toString(),
       last_modified_date: new Date(),
       updated_at: new Date(),
     },
@@ -320,17 +274,12 @@ export const updateHSLendersSystemTracking = async (
   return systemTracking;
 };
 
-export const softDeleteHSLender = async (
-  tx: any,
-  lenderId: number,
-  userId: number
-) => {
+export const softDeleteHSLender = async (tx: any, lenderId: number) => {
   const lender = await tx.hSLenders.update({
     where: { id: lenderId },
     data: {
       is_active: false,
       is_deleted: true,
-      updated_by: userId?.toString(),
       updated_at: new Date(),
     },
   });
@@ -443,19 +392,14 @@ export const fetchLendersList = async (
   offset: number,
   sortKey: string | null,
   sortDir: "asc" | "desc" | null,
-  search: string | null,
-  userId?: number
+  search: string | null
 ) => {
   const where: Prisma.HSLendersWhereInput = {
     is_active: true,
-    ...(userId && { created_by: userId.toString() }),
     OR: search
       ? [
           { lender_display_name: { contains: search, mode: "insensitive" } },
           { lender_name: { contains: search, mode: "insensitive" } },
-          { legal_name: { contains: search, mode: "insensitive" } },
-          { short_code: { contains: search, mode: "insensitive" } },
-          { external_id: { contains: search, mode: "insensitive" } },
           { website_url: { contains: search, mode: "insensitive" } },
           { hs_object_id: { contains: search, mode: "insensitive" } },
           {

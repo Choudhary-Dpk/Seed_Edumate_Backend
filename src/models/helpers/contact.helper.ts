@@ -10,7 +10,6 @@ import {
   targetDegreeLevelMap,
 } from "../../types/contact.types";
 import { HubspotResult } from "../../types";
-import { transformRow } from "../../utils/helper";
 import { getPartnerIdByUserId } from "./partners.helper";
 import logger from "../../utils/logger";
 
@@ -79,7 +78,6 @@ export const createEdumateSystemTracking = async (
 
 // Updated function to get contact by email
 export const getEdumateContactByEmail = async (email: string) => {
-
   const contact = await prisma.hSEdumateContacts.findFirst({
     include: {
       personal_information: {
@@ -130,15 +128,15 @@ export const getEdumateContactByPhone = async (phone: string) => {
 export const createEdumateContact = async (
   tx: any,
   mainData?: any,
-  hubspotId?: number | null,
-  hsCreatedBy?: number,
+  // hubspotId?: number | null,
+  // hsCreatedBy?: number,
   partnerId?: number
 ) => {
   const contact = await tx.hSEdumateContacts.create({
     data: {
       ...mainData,
-      hs_object_id: hubspotId,
-      hs_created_by_user_id: hsCreatedBy,
+      // hs_object_id: hubspotId,
+      // hs_created_by_user_id: hsCreatedBy,
       b2b_partner_id: partnerId,
       created_at: new Date(),
     },
@@ -189,7 +187,6 @@ export const deleteContactsLoan = async (leadId: number, userId: number) => {
       data: {
         is_deleted: true,
         updated_at: new Date(),
-        deleted_by_id: userId,
       },
     });
   });
@@ -390,7 +387,7 @@ export const fetchContactsLeadList = async (
   // Apply admission status filter
   if (filters.status) {
     where.academic_profile = {
-      admission_status: filters.status as any
+      admission_status: filters.status as any,
     };
   }
 
@@ -449,7 +446,6 @@ export const fetchContactsLeadList = async (
 
   return { rows, count };
 };
-
 
 export const findContacts = async (batch: any[]) => {
   const contacts = await prisma.hSEdumateContactsPersonalInformation.findMany({
@@ -526,13 +522,14 @@ export async function createCSVContacts(
   batchId: string | null = null,
   batchPosition: number = 0
 ) {
+
   const partnerId = await getPartnerIdByUserId(userId);
-  
+
   return await prisma.$transaction(async (tx) => {
-    
+
     // ✅ Step 1: Bulk insert main contacts with EMAIL
     await tx.hSEdumateContacts.createMany({
-      data: contacts.map(c => ({
+      data: contacts.map((c) => ({
         ...c["mainContact"],
         email: c["personalInformation"]?.email, // ✅ Set email on main table
         b2b_partner_id: partnerId!.b2b_id,
@@ -542,33 +539,32 @@ export async function createCSVContacts(
 
     // ✅ Step 2: Fetch inserted contacts by EMAIL (super reliable!)
     const emails = contacts
-      .map(c => c["personalInformation"]?.email)
+      .map((c) => c["personalInformation"]?.email)
       .filter((email): email is string => !!email && email.trim() !== "");
-    
+
     if (emails.length === 0) {
       throw new Error("No valid emails found in contacts");
     }
 
-    const insertedContacts = await tx.hSEdumateContacts.findMany({
-      where: {
-        email: { in: emails }
-      },
-      select: { 
-        id: true,
-        email: true
-      },
-    });
+    const insertedContacts =
+      await tx.hSEdumateContacts.findMany({
+        where: {
+          email: { in: emails },
+        },
+        select: {
+          id: true,
+          email: true,
+        },
+      });
 
     // ✅ Step 3: Create email-to-ID mapping
-    const emailToIdMap = new Map(
-      insertedContacts.map(c => [c.email, c.id])
-    );
+    const emailToIdMap = new Map(insertedContacts.map((c) => [c.email, c.id]));
 
     logger.debug(`Mapped ${emailToIdMap.size} contacts by email`);
 
     // ✅ Step 4: Build data arrays with proper contact_id mapping
     const personalInfoData = contacts
-      .map(c => {
+      .map((c) => {
         const email = c["personalInformation"]?.email;
         const contactId = email ? emailToIdMap.get(email) : null;
         if (!contactId) return null;
@@ -580,7 +576,7 @@ export async function createCSVContacts(
       .filter((item): item is NonNullable<typeof item> => item !== null);
 
     const academicProfileData = contacts
-      .map(c => {
+      .map((c) => {
         const email = c["personalInformation"]?.email;
         const contactId = email ? emailToIdMap.get(email) : null;
         if (!contactId) return null;
@@ -592,7 +588,7 @@ export async function createCSVContacts(
       .filter((item): item is NonNullable<typeof item> => item !== null);
 
     const leadAttributionData = contacts
-      .map(c => {
+      .map((c) => {
         const email = c["personalInformation"]?.email;
         const contactId = email ? emailToIdMap.get(email) : null;
         if (!contactId) return null;
@@ -604,7 +600,7 @@ export async function createCSVContacts(
       .filter((item): item is NonNullable<typeof item> => item !== null);
 
     const financialInfoData = contacts
-      .map(c => {
+      .map((c) => {
         const email = c["personalInformation"]?.email;
         const contactId = email ? emailToIdMap.get(email) : null;
         if (!contactId || !c["financialInfo"]) return null;
@@ -616,7 +612,7 @@ export async function createCSVContacts(
       .filter((item): item is NonNullable<typeof item> => item !== null);
 
     const loanPreferenceData = contacts
-      .map(c => {
+      .map((c) => {
         const email = c["personalInformation"]?.email;
         const contactId = email ? emailToIdMap.get(email) : null;
         if (!contactId || !c["loanPreference"]) return null;
@@ -628,7 +624,7 @@ export async function createCSVContacts(
       .filter((item): item is NonNullable<typeof item> => item !== null);
 
     const applicationJourneyData = contacts
-      .map(c => {
+      .map((c) => {
         const email = c["personalInformation"]?.email;
         const contactId = email ? emailToIdMap.get(email) : null;
         if (!contactId || !c["applicationJourney"]) return null;
@@ -640,7 +636,7 @@ export async function createCSVContacts(
       .filter((item): item is NonNullable<typeof item> => item !== null);
 
     const systemTrackingData = contacts
-      .map(c => {
+      .map((c) => {
         const email = c["personalInformation"]?.email;
         const contactId = email ? emailToIdMap.get(email) : null;
         if (!contactId || !c["systemTracking"]) return null;
@@ -703,10 +699,12 @@ export async function createCSVContacts(
 
     const insertedContactIds = Array.from(emailToIdMap.values());
 
-    return { 
+    return {
       count: insertedContactIds.length,
-      insertedContactIds
+      insertedContactIds,
     };
+  },{
+    timeout: 120000,
   });
 }
 
@@ -735,7 +733,7 @@ export const updateEdumateContactsHubspotTracking = async (
           where: { id: contact.id },
           data: {
             hs_object_id: hs_object_id ?? hs.id,
-            hs_updated_by_user_id: userId,
+            hs_updated_by_user_id: userId?.toString(),
             hs_createdate: hs_createdate ? new Date(hs_createdate) : undefined,
             hs_lastmodifieddate: hs_lastmodifieddate
               ? new Date(hs_lastmodifieddate)

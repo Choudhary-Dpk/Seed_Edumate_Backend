@@ -4,7 +4,6 @@ import { RequestWithPayload } from "../types/api.types";
 import { LoginPayload } from "../types/auth";
 import {
   createApplicationStatus,
-  createCSVLeads,
   createFinancialRequirements,
   createLender,
   createLoan,
@@ -18,26 +17,14 @@ import {
   updateFinancialRequirements,
   updateLender,
   updateLoan,
-  updateSystemTracking,
 } from "../models/helpers/loanApplication.helper";
 import { sendResponse } from "../utils/api";
-import {
-  deduplicateInDb,
-  deduplicateInFile,
-  validateRows,
-} from "../utils/helper";
 import {
   createLoanLeads,
   deleteHubspotByLeadId,
   upateLoanLead,
 } from "../services/hubspot.service";
-import { FileData } from "../types/leads.types";
 import { resolveLeadsCsvPath } from "../utils/leads";
-import {
-  addFileType,
-  addFileRecord,
-  updateFileRecord,
-} from "../models/helpers";
 import { getPartnerIdByUserId } from "../models/helpers/partners.helper";
 
 export const createLoanApplication = async (
@@ -74,7 +61,13 @@ export const createLoanApplication = async (
     logger.debug(`Partner id fetched successfully`);
 
     logger.debug(`Creating loan application for userId: ${id}`);
-    const loan = await createLoan(id, email, name, partnerId!.b2b_id);
+    const loan = await createLoan(
+      id,
+      email,
+      name,
+      partnerId!.b2b_id,
+      lead[0]?.id
+    );
     logger.debug(
       `Loan application created successfully in hubspot for userId: ${id} with loan ${loan.id}`
     );
@@ -102,7 +95,7 @@ export const createLoanApplication = async (
     );
 
     logger.debug(`Creating system tracking for useId: ${id}`);
-    await createSystemTracking(loan.id, lead[0]?.id);
+    await createSystemTracking(loan.id);
     logger.debug(`System tracked successfully`);
 
     sendResponse(res, 200, "Lead created successfully");
@@ -122,117 +115,6 @@ export const downloadTemplate = (
     // Download as leads_template.csv
     res.download(filePath, "leads_template.csv", (err) => {
       if (err) return next(err);
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-/**
- * Upload & process a CSV file of loan applications.
- * Handles validation, deduplication (within file + DB),
- * and insertion into DB with safe error reporting.
- */
-export const uploadCSV = async (
-  req: RequestWithPayload<LoginPayload, FileData>,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { id } = req.payload!;
-    const fileData = req.fileData;
-
-    if (!fileData) {
-      return sendResponse(res, 400, "Invalid or missing file data");
-    }
-
-    logger.debug(`Fetching partner id from request`);
-    const partnerId = await getPartnerIdByUserId(id);
-    logger.debug(`Partner id fetched successfully`);
-
-    const {
-      file_data: rows,
-      total_records,
-      filename,
-      mime_type,
-      entity_type,
-    } = fileData;
-
-    // 1. Store metadata into FileUpload table
-    logger.debug(`Entering File type in database`);
-    const fileEntity = await addFileType(entity_type);
-    logger.debug(`File type added successfully`);
-
-    // Now create file upload
-    logger.debug(`Entering file records history`);
-    const fileUpload = await addFileRecord(
-      filename,
-      mime_type,
-      rows,
-      total_records,
-      id,
-      fileEntity.id!
-    );
-    logger.debug(`File records history added successfully`);
-
-    // 2. Validate + Normalize rows
-    const { validRows, errors } = validateRows(rows, id);
-    if (validRows.length === 0) {
-      return sendResponse(res, 400, "No valid rows found in CSV", { errors });
-    }
-
-    // 3. Deduplicate inside file
-    const { unique: uniqueInFile, duplicates: duplicatesInFile } =
-      deduplicateInFile(validRows);
-
-    // 4. Deduplicate against DB
-    const { unique: toInsert, duplicates: duplicatesInDb } =
-      await deduplicateInDb(uniqueInFile);
-
-    // 5. Handle no new records
-    if (toInsert.length === 0) {
-      logger.debug(`Updating fileUpload records`);
-      await updateFileRecord(fileUpload.id, 0, validRows.length);
-      logger.debug(`File upload records updated successfully`);
-
-      return sendResponse(res, 200, "No new records to insert", {
-        totalRows: rows.length,
-        validRows: validRows.length,
-        inserted: 0,
-        skippedInvalid: errors.length,
-        skippedDuplicatesInFile: duplicatesInFile,
-        skippedDuplicatesInDb: duplicatesInDb,
-        errors,
-      });
-    }
-
-    // 6. Insert into DB (safely with skipDuplicates)
-    logger.debug(`Creating csv leads in database`);
-    const result = await createCSVLeads(toInsert, partnerId!.b2b_id);
-    logger.debug(`Leads created successfully in database`);
-
-    // 7. Insert into HubSpot (batch)
-    logger.debug(`Creating ${toInsert.length} HubSpot loan applications`);
-    const hubspotResults = await createLoanLeads(toInsert);
-    console.log("hubspot", hubspotResults);
-    logger.debug(`HubSpot loan applications created`);
-
-    // 8. Inserting hubsport Id
-    await updateSystemTracking(hubspotResults);
-
-    // 9. Update FileUpload stats
-    logger.debug(`Updating fileUpload records`);
-    await updateFileRecord(fileUpload.id, result.length, errors.length);
-    logger.debug(`File upload records updated successfully`);
-
-    return sendResponse(res, 201, "CSV processed successfully", {
-      totalRows: rows.length,
-      validRows: validRows.length,
-      inserted: result.length,
-      skippedInvalid: errors.length,
-      skippedDuplicatesInFile: duplicatesInFile,
-      skippedDuplicatesInDb: duplicatesInDb,
-      errors,
     });
   } catch (error) {
     next(error);
@@ -261,7 +143,7 @@ export const editLoanApplication = async (
     logger.debug(`Hubspot details fetched successfully`);
 
     logger.debug(`Updating hubspot loan application`);
-    await upateLoanLead(Number(lead?.system_tracking?.hs_object_id), {
+    await upateLoanLead(Number(lead?.hs_object_id), {
       email,
       name,
       applicationStatus,
@@ -319,9 +201,9 @@ export const deleteLoanApplication = async (
     logger.debug(`Hubspot details fetched successfully`);
 
     logger.debug(
-      `Deleting hubspot loan application for id: ${lead?.system_tracking?.hs_object_id}`
+      `Deleting hubspot loan application for id: ${lead?.hs_object_id}`
     );
-    await deleteHubspotByLeadId(lead?.system_tracking?.hs_object_id!);
+    await deleteHubspotByLeadId(lead?.hs_object_id!);
     logger.debug(`Hubspot loan application deleted successfully`);
 
     logger.debug(`Deleting loan application for userId: ${id}`);
@@ -333,47 +215,6 @@ export const deleteLoanApplication = async (
     next(error);
   }
 };
-
-// export const getLoanApplicationsList = async (
-//   req: RequestWithPayload<LoginPayload>,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   try {
-//     const { id } = req.payload!;
-//     const size = Number(req.query.size) || 10;
-//     const page = Number(req.query.page) || 1;
-//     const search = (req.query.search as string) || null;
-//     const sortKey = (req.query.sortKey as string) || null;
-//     const sortDir = (req.query.sortDir as "asc" | "desc") || null;
-
-//     const offset = size * (page - 1);
-
-//     logger.debug(`Fetching partner id from request`);
-//     const partnerId = await getPartnerIdByUserId(id);
-//     logger.debug(`Partner id fetched successfully`);
-
-//     logger.debug(`Fetching leads list with pagination and filters`);
-//     const list = await getLoanList(
-//       partnerId!.b2b_id,
-//       size,
-//       offset,
-//       sortKey,
-//       sortDir,
-//       search
-//     );
-//     logger.debug(`Leads list fetched successfully`);
-
-//     sendResponse(res, 200, "Leads list fetched successfully", {
-//       total: list.count,
-//       page,
-//       size,
-//       data: list.rows,
-//     });
-//   } catch (error) {
-//     next(error);
-//   }
-// };
 
 export const getLoanApplicationsList = async (
   req: RequestWithPayload<LoginPayload>,

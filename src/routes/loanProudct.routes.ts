@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { validateToken } from "../middlewares";
+import { validateApiKey, validateToken } from "../middlewares";
 import {
   createLoanProductController,
   deleteLoanProductController,
@@ -12,29 +12,13 @@ const router = Router();
 
 router.post(
   "/",
-  validateToken(["Admin", "Manager", "User"]),
+  validateApiKey,
   checkDuplicateLoanProductFields,
   createLoanProductController
 );
-router.put(
-  "/:id",
-  validateToken(["Admin", "Manager", "User"]),
-  updateLoanProductController
-);
-router.delete(
-  "/:id",
-  validateToken(["Admin", "Manager", "User"]),
-  deleteLoanProductController
-);
-router.get(
-  "/details/:id",
-  validateToken(["Admin", "Manager", "User"]),
-  getLoanProductDetails
-);
-router.get(
-  "/pagination",
-  validateToken(["Admin", "Manager", "User"]),
-  getLoanProductsListController
-);
+router.put("/:id", validateApiKey, updateLoanProductController);
+router.delete("/:id", validateApiKey, deleteLoanProductController);
+router.get("/details/:id", validateApiKey, getLoanProductDetails);
+router.get("/pagination", validateApiKey, getLoanProductsListController);
 
 export { router as loanProuductRoutes };

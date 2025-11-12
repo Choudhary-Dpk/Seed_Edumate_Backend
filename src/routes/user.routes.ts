@@ -5,10 +5,10 @@ import {
   getIpInfo,
   getProfile,
 } from "../controllers/user.controller";
-import { createUserValidator } from "../validators/user.validator";
 import authRoutes from "./auth.routes";
 import { getRoles } from "../controllers/hubspot.controller";
 import { validateToken } from "../middlewares";
+import { createUserValidator } from "../middlewares/validators/validator";
 
 const router = Router();
 

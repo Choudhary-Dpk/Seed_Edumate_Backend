@@ -25,7 +25,6 @@ import {
   ProtectedPayload,
   ResetPasswordPayload,
 } from "../types/auth";
-import * as hubspotService from "../services/hubspot.service";
 import {
   getPartnerById,
   getUserRoleById,

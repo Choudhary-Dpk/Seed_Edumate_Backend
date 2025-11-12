@@ -16,24 +16,38 @@ export const categorizeByTable = (mappedFields: Record<string, any>) => {
   const categorized: CategorizedContactData = {};
 
   // Main Contact Fields
-  const mainContactFields = [
-    "email",
-    "deleted_by_id",
-    "b2b_partner_id",
-    "hs_created_by_user_id",
-    "hs_createdate",
-    "hs_lastmodifieddate",
-    "hs_object_id",
-    "hs_updated_by_user_id",
-    "hubspot_owner_id",
-    "base_currency",
-    "study_destination_currency",
-    "user_selected_currency",
-    "course_type",
-    "co_applicant_1_email",
-    "co_applicant_1_mobile_number",
-    "is_deleted",
-  ];
+const mainContactFields = [
+  "deleted_by_id",
+  "b2b_partner_id",
+
+  // HubSpot System Fields
+  "hs_created_by_user_id",
+  "hs_createdate",
+  "hs_lastmodifieddate",
+  "hs_merged_object_ids",
+  "hs_object_id",
+  "hs_object_source_detail_1",
+  "hs_object_source_detail_2",
+  "hs_object_source_detail_3",
+  "hs_object_source_label",
+  "hs_shared_team_ids",
+  "hs_shared_user_ids",
+  "hs_updated_by_user_id",
+
+  "hubspot_owner_assigneddate",
+  "hubspot_owner_id",
+  "hubspot_team_id",
+
+  // Business Fields
+  "base_currency",
+  "study_destination_currency",
+  "user_selected_currency",
+  "course_type",
+  "co_applicant_1_email",
+  "co_applicant_1_mobile_number",
+  "is_deleted",
+];
+
 
   // Personal Information Fields
   const personalInfoFields = [

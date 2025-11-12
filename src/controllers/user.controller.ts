@@ -30,10 +30,6 @@ export const getIpInfo = async (req: Request, res: Response) => {
       req.socket?.remoteAddress || // fallback (usually local IP)
       "";
 
-    // if (!ip) {
-    //   return res.status(400).json({ message: 'Missing IP address in query params' });
-    // }
-
     const data = await fetchIpDetails(ip);
     return res.status(200).json(data);
   } catch (err) {
