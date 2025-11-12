@@ -510,7 +510,7 @@ export const mapAllFields = async (
     input.intended_start_date !== undefined
   ) {
     const startDate = input.intendedStartDate ?? input.intended_start_date;
-    mapped.intended_start_date = parseDate(startDate, true); // date only
+    (mapped.intended_start_date = startDate), true; // date only
   }
 
   if (input.intakeMonth !== undefined || input.intake_month !== undefined) {
