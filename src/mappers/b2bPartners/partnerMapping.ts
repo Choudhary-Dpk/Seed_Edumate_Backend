@@ -842,14 +842,14 @@ export const mapAllB2BPartnerFields = async (
 
   // 4. Target Destinations
   if (
-    input.target_desrinations !== undefined &&
-    input.target_desrinations !== null &&
-    input.target_desrinations !== ""
+    input.target_destinations !== undefined &&
+    input.target_destinations !== null &&
+    input.target_destinations !== ""
   ) {
     enumTranslations.push({
-      field: "target_desrinations",
+      field: "target_destinations",
       enumName: "targetDestinations",
-      sourceValue: input.target_desrinations,
+      sourceValue: input.target_destinations,
     });
   }
 

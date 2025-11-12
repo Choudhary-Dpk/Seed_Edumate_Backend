@@ -510,7 +510,7 @@ export const mapAllFields = async (
     input.intended_start_date !== undefined
   ) {
     const startDate = input.intendedStartDate ?? input.intended_start_date;
-    mapped.intended_start_date = parseDate(startDate, true); // date only
+    (mapped.intended_start_date = startDate), true; // date only
   }
 
   if (input.intakeMonth !== undefined || input.intake_month !== undefined) {
@@ -543,7 +543,7 @@ export const mapAllFields = async (
     input.first_contact_date !== undefined
   ) {
     const firstContact = input.firstContactDate ?? input.first_contact_date;
-    mapped.first_contact_date = parseDate(firstContact, true);
+    mapped.first_contact_date = parseDate(firstContact, false);
   }
 
   if (
@@ -551,12 +551,12 @@ export const mapAllFields = async (
     input.last_contact_date !== undefined
   ) {
     const lastContact = input.lastContactDate ?? input.last_contact_date;
-    mapped.last_contact_date = parseDate(lastContact, true);
+    mapped.last_contact_date = parseDate(lastContact, false);
   }
 
   if (input.followUpDate !== undefined || input.follow_up_date !== undefined) {
     const followUp = input.followUpDate ?? input.follow_up_date;
-    mapped.follow_up_date = parseDate(followUp, true);
+    mapped.follow_up_date = parseDate(followUp, false);
   }
 
   if (
@@ -564,7 +564,7 @@ export const mapAllFields = async (
     input.next_follow_up_date !== undefined
   ) {
     const nextFollowUp = input.nextFollowUpDate ?? input.next_follow_up_date;
-    mapped.next_follow_up_date = parseDate(nextFollowUp, true);
+    mapped.next_follow_up_date = parseDate(nextFollowUp, false);
   }
 
   // ===== FINANCIAL INFO FIELDS =====

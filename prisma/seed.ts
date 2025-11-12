@@ -266,7 +266,7 @@ const seedLenderEnumMappings = async () => {
       data: [
         {
           enumMappingId: lenderCategoryEnum.id,
-          sourceValue: "domestic",
+          sourceValue: "Domestic",
           hubspotValue: "Domestic",
           displayLabel: "Domestic",
           sortOrder: 1,
@@ -274,7 +274,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: lenderCategoryEnum.id,
-          sourceValue: "international",
+          sourceValue: "International",
           hubspotValue: "International",
           displayLabel: "International",
           sortOrder: 2,
@@ -282,7 +282,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: lenderCategoryEnum.id,
-          sourceValue: "both",
+          sourceValue: "Both",
           hubspotValue: "Both",
           displayLabel: "Both (Domestic & International)",
           sortOrder: 3,
@@ -321,7 +321,7 @@ const seedLenderEnumMappings = async () => {
       data: [
         {
           enumMappingId: lenderTypeEnum.id,
-          sourceValue: "public_bank",
+          sourceValue: "Public Bank",
           hubspotValue: "Public Bank",
           displayLabel: "Public Bank",
           sortOrder: 1,
@@ -329,7 +329,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: lenderTypeEnum.id,
-          sourceValue: "private_bank",
+          sourceValue: "Private Bank",
           hubspotValue: "Private Bank",
           displayLabel: "Private Bank",
           sortOrder: 2,
@@ -337,7 +337,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: lenderTypeEnum.id,
-          sourceValue: "nbfc",
+          sourceValue: "NBFC",
           hubspotValue: "NBFC",
           displayLabel: "NBFC (Non-Banking Financial Company)",
           sortOrder: 3,
@@ -345,7 +345,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: lenderTypeEnum.id,
-          sourceValue: "credit_union",
+          sourceValue: "Credit Union",
           hubspotValue: "Credit Union",
           displayLabel: "Credit Union",
           sortOrder: 4,
@@ -353,7 +353,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: lenderTypeEnum.id,
-          sourceValue: "international_lender",
+          sourceValue: "International Lender",
           hubspotValue: "International Lender",
           displayLabel: "International Lender",
           sortOrder: 5,
@@ -361,7 +361,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: lenderTypeEnum.id,
-          sourceValue: "fintech",
+          sourceValue: "Fintech",
           hubspotValue: "Fintech",
           displayLabel: "Fintech",
           sortOrder: 6,
@@ -400,7 +400,7 @@ const seedLenderEnumMappings = async () => {
       data: [
         {
           enumMappingId: coSignerEnum.id,
-          sourceValue: "always_required",
+          sourceValue: "Always Required",
           hubspotValue: "Always Required",
           displayLabel: "Always Required",
           sortOrder: 1,
@@ -408,7 +408,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: coSignerEnum.id,
-          sourceValue: "sometimes_required",
+          sourceValue: "Sometimes Required",
           hubspotValue: "Sometimes Required",
           displayLabel: "Sometimes Required",
           sortOrder: 2,
@@ -416,7 +416,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: coSignerEnum.id,
-          sourceValue: "not_required",
+          sourceValue: "Not Required",
           hubspotValue: "Not Required",
           displayLabel: "Not Required",
           sortOrder: 3,
@@ -455,7 +455,7 @@ const seedLenderEnumMappings = async () => {
       data: [
         {
           enumMappingId: collateralEnum.id,
-          sourceValue: "property",
+          sourceValue: "Property",
           hubspotValue: "Property",
           displayLabel: "Property",
           sortOrder: 1,
@@ -463,7 +463,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: collateralEnum.id,
-          sourceValue: "fixed_deposits",
+          sourceValue: "Fixed Deposits",
           hubspotValue: "Fixed Deposits",
           displayLabel: "Fixed Deposits",
           sortOrder: 2,
@@ -471,7 +471,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: collateralEnum.id,
-          sourceValue: "lic_policies",
+          sourceValue: "LIC Policies",
           hubspotValue: "LIC Policies",
           displayLabel: "LIC Policies",
           sortOrder: 3,
@@ -479,7 +479,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: collateralEnum.id,
-          sourceValue: "securities",
+          sourceValue: "Securities",
           hubspotValue: "Securities",
           displayLabel: "Securities",
           sortOrder: 4,
@@ -487,7 +487,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: collateralEnum.id,
-          sourceValue: "guarantor_only",
+          sourceValue: "Guarantor Only",
           hubspotValue: "Guarantor Only",
           displayLabel: "Guarantor Only",
           sortOrder: 5,
@@ -495,7 +495,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: collateralEnum.id,
-          sourceValue: "no_collateral",
+          sourceValue: "No Collateral",
           hubspotValue: "No Collateral",
           displayLabel: "No Collateral",
           sortOrder: 6,
@@ -503,7 +503,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: collateralEnum.id,
-          sourceValue: "na_plot",
+          sourceValue: "NA Plot",
           hubspotValue: "NA Plot",
           displayLabel: "NA Plot",
           sortOrder: 7,
@@ -542,7 +542,7 @@ const seedLenderEnumMappings = async () => {
       data: [
         {
           enumMappingId: courseTypesEnum.id,
-          sourceValue: "undergraduate",
+          sourceValue: "Undergraduate",
           hubspotValue: "Undergraduate",
           displayLabel: "Undergraduate",
           sortOrder: 1,
@@ -550,7 +550,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: courseTypesEnum.id,
-          sourceValue: "graduate",
+          sourceValue: "Graduate",
           hubspotValue: "Graduate",
           displayLabel: "Graduate",
           sortOrder: 2,
@@ -558,7 +558,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: courseTypesEnum.id,
-          sourceValue: "phd",
+          sourceValue: "PhD",
           hubspotValue: "PhD",
           displayLabel: "PhD",
           sortOrder: 3,
@@ -566,7 +566,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: courseTypesEnum.id,
-          sourceValue: "diploma",
+          sourceValue: "Diploma",
           hubspotValue: "Diploma",
           displayLabel: "Diploma",
           sortOrder: 4,
@@ -574,7 +574,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: courseTypesEnum.id,
-          sourceValue: "certificate",
+          sourceValue: "Certificate",
           hubspotValue: "Certificate",
           displayLabel: "Certificate",
           sortOrder: 5,
@@ -582,7 +582,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: courseTypesEnum.id,
-          sourceValue: "professional",
+          sourceValue: "Professional",
           hubspotValue: "Professional",
           displayLabel: "Professional",
           sortOrder: 6,
@@ -590,7 +590,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: courseTypesEnum.id,
-          sourceValue: "technical",
+          sourceValue: "Technical",
           hubspotValue: "Technical",
           displayLabel: "Technical",
           sortOrder: 7,
@@ -602,7 +602,6 @@ const seedLenderEnumMappings = async () => {
     successCount++;
     console.log("Supported Course Types seeded (7 values)");
 
-    // ===== 6. SUPPORTED DESTINATIONS =====
     console.log("\n Seeding Supported Destinations...");
     const destinationsEnum = await prisma.enumMapping.upsert({
       where: {
@@ -630,7 +629,7 @@ const seedLenderEnumMappings = async () => {
       data: [
         {
           enumMappingId: destinationsEnum.id,
-          sourceValue: "us",
+          sourceValue: "US",
           hubspotValue: "US",
           displayLabel: "United States",
           sortOrder: 1,
@@ -638,7 +637,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: destinationsEnum.id,
-          sourceValue: "uk",
+          sourceValue: "UK",
           hubspotValue: "UK",
           displayLabel: "United Kingdom",
           sortOrder: 2,
@@ -646,7 +645,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: destinationsEnum.id,
-          sourceValue: "canada",
+          sourceValue: "Canada",
           hubspotValue: "Canada",
           displayLabel: "Canada",
           sortOrder: 3,
@@ -654,7 +653,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: destinationsEnum.id,
-          sourceValue: "australia",
+          sourceValue: "Australia",
           hubspotValue: "Australia",
           displayLabel: "Australia",
           sortOrder: 4,
@@ -662,7 +661,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: destinationsEnum.id,
-          sourceValue: "germany",
+          sourceValue: "Germany",
           hubspotValue: "Germany",
           displayLabel: "Germany",
           sortOrder: 5,
@@ -670,7 +669,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: destinationsEnum.id,
-          sourceValue: "france",
+          sourceValue: "France",
           hubspotValue: "France",
           displayLabel: "France",
           sortOrder: 6,
@@ -678,7 +677,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: destinationsEnum.id,
-          sourceValue: "singapore",
+          sourceValue: "Singapore",
           hubspotValue: "Singapore",
           displayLabel: "Singapore",
           sortOrder: 7,
@@ -686,7 +685,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: destinationsEnum.id,
-          sourceValue: "italy",
+          sourceValue: "Italy",
           hubspotValue: "Italy",
           displayLabel: "Italy",
           sortOrder: 8,
@@ -694,7 +693,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: destinationsEnum.id,
-          sourceValue: "uae",
+          sourceValue: "UAE",
           hubspotValue: "UAE",
           displayLabel: "United Arab Emirates",
           sortOrder: 9,
@@ -702,7 +701,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: destinationsEnum.id,
-          sourceValue: "other",
+          sourceValue: "Other",
           hubspotValue: "Other",
           displayLabel: "Other",
           sortOrder: 10,
@@ -714,7 +713,6 @@ const seedLenderEnumMappings = async () => {
     successCount++;
     console.log("Supported Destinations seeded (10 values)");
 
-    // ===== 7. API CONNECTIVITY STATUS =====
     console.log("\n📦 Seeding API Connectivity Status...");
     const apiStatusEnum = await prisma.enumMapping.upsert({
       where: {
@@ -742,7 +740,7 @@ const seedLenderEnumMappings = async () => {
       data: [
         {
           enumMappingId: apiStatusEnum.id,
-          sourceValue: "not_connected",
+          sourceValue: "Not Connected",
           hubspotValue: "Not Connected",
           displayLabel: "Not Connected",
           sortOrder: 1,
@@ -750,7 +748,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: apiStatusEnum.id,
-          sourceValue: "in_progress",
+          sourceValue: "In Progress",
           hubspotValue: "In Progress",
           displayLabel: "In Progress",
           sortOrder: 2,
@@ -758,7 +756,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: apiStatusEnum.id,
-          sourceValue: "connected",
+          sourceValue: "Connected",
           hubspotValue: "Connected",
           displayLabel: "Connected",
           sortOrder: 3,
@@ -766,7 +764,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: apiStatusEnum.id,
-          sourceValue: "issues",
+          sourceValue: "Issues",
           hubspotValue: "Issues",
           displayLabel: "Issues",
           sortOrder: 4,
@@ -805,7 +803,7 @@ const seedLenderEnumMappings = async () => {
       data: [
         {
           enumMappingId: integrationLevelEnum.id,
-          sourceValue: "basic",
+          sourceValue: "Basic",
           hubspotValue: "Basic",
           displayLabel: "Basic",
           sortOrder: 1,
@@ -813,7 +811,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: integrationLevelEnum.id,
-          sourceValue: "intermediate",
+          sourceValue: "Intermediate",
           hubspotValue: "Intermediate",
           displayLabel: "Intermediate",
           sortOrder: 2,
@@ -821,7 +819,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: integrationLevelEnum.id,
-          sourceValue: "advanced",
+          sourceValue: "Advanced",
           hubspotValue: "Advanced",
           displayLabel: "Advanced",
           sortOrder: 3,
@@ -829,7 +827,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: integrationLevelEnum.id,
-          sourceValue: "full_api",
+          sourceValue: "Full API",
           hubspotValue: "Full API",
           displayLabel: "Full API",
           sortOrder: 4,
@@ -868,7 +866,7 @@ const seedLenderEnumMappings = async () => {
       data: [
         {
           enumMappingId: holidayProcessingEnum.id,
-          sourceValue: "yes",
+          sourceValue: "Yes",
           hubspotValue: "Yes",
           displayLabel: "Yes",
           sortOrder: 1,
@@ -876,7 +874,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: holidayProcessingEnum.id,
-          sourceValue: "no",
+          sourceValue: "No",
           hubspotValue: "No",
           displayLabel: "No",
           sortOrder: 2,
@@ -884,7 +882,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: holidayProcessingEnum.id,
-          sourceValue: "limited",
+          sourceValue: "Limited",
           hubspotValue: "Limited",
           displayLabel: "Limited",
           sortOrder: 3,
@@ -896,7 +894,6 @@ const seedLenderEnumMappings = async () => {
     successCount++;
     console.log("\n Holiday Processing seeded (3 values)");
 
-    // ===== 10. REPAYMENT OPTIONS =====
     console.log("\n Seeding Repayment Options...");
     const repaymentOptionsEnum = await prisma.enumMapping.upsert({
       where: {
@@ -924,7 +921,7 @@ const seedLenderEnumMappings = async () => {
       data: [
         {
           enumMappingId: repaymentOptionsEnum.id,
-          sourceValue: "emi",
+          sourceValue: "EMI",
           hubspotValue: "EMI",
           displayLabel: "EMI (Equated Monthly Installment)",
           sortOrder: 1,
@@ -932,7 +929,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: repaymentOptionsEnum.id,
-          sourceValue: "simple_int",
+          sourceValue: "Simple Int",
           hubspotValue: "Simple Int",
           displayLabel: "Simple Interest",
           sortOrder: 2,
@@ -940,7 +937,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: repaymentOptionsEnum.id,
-          sourceValue: "partial_int",
+          sourceValue: "Partial Int",
           hubspotValue: "Partial Int",
           displayLabel: "Partial Interest",
           sortOrder: 3,
@@ -948,7 +945,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: repaymentOptionsEnum.id,
-          sourceValue: "complete_morat",
+          sourceValue: "Complete Morat",
           hubspotValue: "Complete Morat",
           displayLabel: "Complete Moratorium",
           sortOrder: 4,
@@ -960,7 +957,6 @@ const seedLenderEnumMappings = async () => {
     successCount++;
     console.log("Repayment Options seeded (4 values)");
 
-    // ===== 11. PARTNERSHIP STATUS =====
     console.log("\n Seeding Partnership Status...");
     const partnershipStatusEnum = await prisma.enumMapping.upsert({
       where: {
@@ -988,7 +984,7 @@ const seedLenderEnumMappings = async () => {
       data: [
         {
           enumMappingId: partnershipStatusEnum.id,
-          sourceValue: "active",
+          sourceValue: "Active",
           hubspotValue: "Active",
           displayLabel: "Active",
           sortOrder: 1,
@@ -996,7 +992,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: partnershipStatusEnum.id,
-          sourceValue: "inactive",
+          sourceValue: "Inactive",
           hubspotValue: "Inactive",
           displayLabel: "Inactive",
           sortOrder: 2,
@@ -1004,7 +1000,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: partnershipStatusEnum.id,
-          sourceValue: "pending",
+          sourceValue: "Pending",
           hubspotValue: "Pending",
           displayLabel: "Pending",
           sortOrder: 3,
@@ -1012,7 +1008,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: partnershipStatusEnum.id,
-          sourceValue: "suspended",
+          sourceValue: "Suspended",
           hubspotValue: "Suspended",
           displayLabel: "Suspended",
           sortOrder: 4,
@@ -1020,7 +1016,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: partnershipStatusEnum.id,
-          sourceValue: "under_review",
+          sourceValue: "Under Review",
           hubspotValue: "Under Review",
           displayLabel: "Under Review",
           sortOrder: 5,
@@ -1028,7 +1024,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: partnershipStatusEnum.id,
-          sourceValue: "terminated",
+          sourceValue: "Terminated",
           hubspotValue: "Terminated",
           displayLabel: "Terminated",
           sortOrder: 6,
@@ -1067,7 +1063,7 @@ const seedLenderEnumMappings = async () => {
       data: [
         {
           enumMappingId: payoutTermsEnum.id,
-          sourceValue: "net_30",
+          sourceValue: "Net 30",
           hubspotValue: "Net 30",
           displayLabel: "Net 30 Days",
           sortOrder: 1,
@@ -1075,7 +1071,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: payoutTermsEnum.id,
-          sourceValue: "net_45",
+          sourceValue: "Net 45",
           hubspotValue: "Net 45",
           displayLabel: "Net 45 Days",
           sortOrder: 2,
@@ -1083,7 +1079,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: payoutTermsEnum.id,
-          sourceValue: "net_60",
+          sourceValue: "Net 60",
           hubspotValue: "Net 60",
           displayLabel: "Net 60 Days",
           sortOrder: 3,
@@ -1091,7 +1087,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: payoutTermsEnum.id,
-          sourceValue: "custom",
+          sourceValue: "Custom",
           hubspotValue: "Custom",
           displayLabel: "Custom Terms",
           sortOrder: 4,
@@ -1130,7 +1126,7 @@ const seedLenderEnumMappings = async () => {
       data: [
         {
           enumMappingId: dataSourceEnum.id,
-          sourceValue: "manual_entry",
+          sourceValue: "Manual Entry",
           hubspotValue: "Manual Entry",
           displayLabel: "Manual Entry",
           sortOrder: 1,
@@ -1138,7 +1134,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: dataSourceEnum.id,
-          sourceValue: "import",
+          sourceValue: "Import",
           hubspotValue: "Import",
           displayLabel: "Import",
           sortOrder: 2,
@@ -1146,7 +1142,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: dataSourceEnum.id,
-          sourceValue: "api_integration",
+          sourceValue: "API Integration",
           hubspotValue: "API Integration",
           displayLabel: "API Integration",
           sortOrder: 3,
@@ -1185,7 +1181,7 @@ const seedLenderEnumMappings = async () => {
       data: [
         {
           enumMappingId: recordStatusEnum.id,
-          sourceValue: "active",
+          sourceValue: "Active",
           hubspotValue: "Active",
           displayLabel: "Active",
           sortOrder: 1,
@@ -1193,7 +1189,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: recordStatusEnum.id,
-          sourceValue: "inactive",
+          sourceValue: "Inactive",
           hubspotValue: "Inactive",
           displayLabel: "Inactive",
           sortOrder: 2,
@@ -1201,7 +1197,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: recordStatusEnum.id,
-          sourceValue: "under_review",
+          sourceValue: "Under Review",
           hubspotValue: "Under Review",
           displayLabel: "Under Review",
           sortOrder: 3,
@@ -1209,7 +1205,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: recordStatusEnum.id,
-          sourceValue: "suspended",
+          sourceValue: "Suspended",
           hubspotValue: "Suspended",
           displayLabel: "Suspended",
           sortOrder: 4,
@@ -1248,7 +1244,7 @@ const seedLenderEnumMappings = async () => {
       data: [
         {
           enumMappingId: performanceRatingEnum.id,
-          sourceValue: "excellent",
+          sourceValue: "Excellent",
           hubspotValue: "Excellent",
           displayLabel: "Excellent",
           sortOrder: 1,
@@ -1256,7 +1252,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: performanceRatingEnum.id,
-          sourceValue: "good",
+          sourceValue: "Good",
           hubspotValue: "Good",
           displayLabel: "Good",
           sortOrder: 2,
@@ -1264,7 +1260,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: performanceRatingEnum.id,
-          sourceValue: "average",
+          sourceValue: "Average",
           hubspotValue: "Average",
           displayLabel: "Average",
           sortOrder: 3,
@@ -1272,7 +1268,7 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: performanceRatingEnum.id,
-          sourceValue: "poor",
+          sourceValue: "Poor",
           hubspotValue: "Poor",
           displayLabel: "Poor",
           sortOrder: 4,
@@ -1350,7 +1346,7 @@ const seedCommissionEnumMappings = async () => {
       data: [
         {
           enumMappingId: settlementPeriodEnum.id,
-          sourceValue: "monthly",
+          sourceValue: "Monthly",
           hubspotValue: "Monthly",
           displayLabel: "Monthly",
           sortOrder: 1,
@@ -1358,7 +1354,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: settlementPeriodEnum.id,
-          sourceValue: "quarterly",
+          sourceValue: "Quarterly",
           hubspotValue: "Quarterly",
           displayLabel: "Quarterly",
           sortOrder: 2,
@@ -1366,7 +1362,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: settlementPeriodEnum.id,
-          sourceValue: "bi_annual",
+          sourceValue: "Bi-Annual",
           hubspotValue: "Bi-Annual",
           displayLabel: "Bi-Annual",
           sortOrder: 3,
@@ -1374,7 +1370,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: settlementPeriodEnum.id,
-          sourceValue: "annual",
+          sourceValue: "Annual",
           hubspotValue: "Annual",
           displayLabel: "Annual",
           sortOrder: 4,
@@ -1413,7 +1409,7 @@ const seedCommissionEnumMappings = async () => {
       data: [
         {
           enumMappingId: settlementMonthEnum.id,
-          sourceValue: "january",
+          sourceValue: "January",
           hubspotValue: "January",
           displayLabel: "January",
           sortOrder: 1,
@@ -1421,7 +1417,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: settlementMonthEnum.id,
-          sourceValue: "february",
+          sourceValue: "February",
           hubspotValue: "February",
           displayLabel: "February",
           sortOrder: 2,
@@ -1429,7 +1425,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: settlementMonthEnum.id,
-          sourceValue: "march",
+          sourceValue: "March",
           hubspotValue: "March",
           displayLabel: "March",
           sortOrder: 3,
@@ -1437,7 +1433,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: settlementMonthEnum.id,
-          sourceValue: "april",
+          sourceValue: "April",
           hubspotValue: "April",
           displayLabel: "April",
           sortOrder: 4,
@@ -1445,7 +1441,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: settlementMonthEnum.id,
-          sourceValue: "may",
+          sourceValue: "May",
           hubspotValue: "May",
           displayLabel: "May",
           sortOrder: 5,
@@ -1453,7 +1449,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: settlementMonthEnum.id,
-          sourceValue: "june",
+          sourceValue: "June",
           hubspotValue: "June",
           displayLabel: "June",
           sortOrder: 6,
@@ -1461,7 +1457,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: settlementMonthEnum.id,
-          sourceValue: "july",
+          sourceValue: "July",
           hubspotValue: "July",
           displayLabel: "July",
           sortOrder: 7,
@@ -1469,7 +1465,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: settlementMonthEnum.id,
-          sourceValue: "august",
+          sourceValue: "August",
           hubspotValue: "August",
           displayLabel: "August",
           sortOrder: 8,
@@ -1477,7 +1473,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: settlementMonthEnum.id,
-          sourceValue: "september",
+          sourceValue: "September",
           hubspotValue: "September",
           displayLabel: "September",
           sortOrder: 9,
@@ -1485,7 +1481,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: settlementMonthEnum.id,
-          sourceValue: "october",
+          sourceValue: "October",
           hubspotValue: "October",
           displayLabel: "October",
           sortOrder: 10,
@@ -1493,7 +1489,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: settlementMonthEnum.id,
-          sourceValue: "november",
+          sourceValue: "November",
           hubspotValue: "November",
           displayLabel: "November",
           sortOrder: 11,
@@ -1501,7 +1497,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: settlementMonthEnum.id,
-          sourceValue: "december",
+          sourceValue: "December",
           hubspotValue: "December",
           displayLabel: "December",
           sortOrder: 12,
@@ -1540,7 +1536,7 @@ const seedCommissionEnumMappings = async () => {
       data: [
         {
           enumMappingId: settlementStatusEnum.id,
-          sourceValue: "pending",
+          sourceValue: "Pending",
           hubspotValue: "Pending",
           displayLabel: "Pending",
           sortOrder: 1,
@@ -1548,7 +1544,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: settlementStatusEnum.id,
-          sourceValue: "calculated",
+          sourceValue: "Calculated",
           hubspotValue: "Calculated",
           displayLabel: "Calculated",
           sortOrder: 2,
@@ -1556,7 +1552,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: settlementStatusEnum.id,
-          sourceValue: "approved",
+          sourceValue: "Approved",
           hubspotValue: "Approved",
           displayLabel: "Approved",
           sortOrder: 3,
@@ -1564,7 +1560,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: settlementStatusEnum.id,
-          sourceValue: "rejected",
+          sourceValue: "Rejected",
           hubspotValue: "Rejected",
           displayLabel: "Rejected",
           sortOrder: 4,
@@ -1572,7 +1568,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: settlementStatusEnum.id,
-          sourceValue: "paid",
+          sourceValue: "Paid",
           hubspotValue: "Paid",
           displayLabel: "Paid",
           sortOrder: 5,
@@ -1580,7 +1576,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: settlementStatusEnum.id,
-          sourceValue: "cancelled",
+          sourceValue: "Cancelled",
           hubspotValue: "Cancelled",
           displayLabel: "Cancelled",
           sortOrder: 6,
@@ -1619,7 +1615,7 @@ const seedCommissionEnumMappings = async () => {
       data: [
         {
           enumMappingId: verificationStatusEnum.id,
-          sourceValue: "not_verified",
+          sourceValue: "Not Verified",
           hubspotValue: "Not Verified",
           displayLabel: "Not Verified",
           sortOrder: 1,
@@ -1627,7 +1623,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: verificationStatusEnum.id,
-          sourceValue: "pending_verification",
+          sourceValue: "Pending Verification",
           hubspotValue: "Pending Verification",
           displayLabel: "Pending Verification",
           sortOrder: 2,
@@ -1635,7 +1631,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: verificationStatusEnum.id,
-          sourceValue: "verified",
+          sourceValue: "Verified",
           hubspotValue: "Verified",
           displayLabel: "Verified",
           sortOrder: 3,
@@ -1643,7 +1639,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: verificationStatusEnum.id,
-          sourceValue: "disputed",
+          sourceValue: "Disputed",
           hubspotValue: "Disputed",
           displayLabel: "Disputed",
           sortOrder: 4,
@@ -1682,7 +1678,7 @@ const seedCommissionEnumMappings = async () => {
       data: [
         {
           enumMappingId: dataSourceEnum.id,
-          sourceValue: "manual_entry",
+          sourceValue: "Manual Entry",
           hubspotValue: "Manual Entry",
           displayLabel: "Manual Entry",
           sortOrder: 1,
@@ -1690,7 +1686,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: dataSourceEnum.id,
-          sourceValue: "import",
+          sourceValue: "Import",
           hubspotValue: "Import",
           displayLabel: "Import",
           sortOrder: 2,
@@ -1698,7 +1694,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: dataSourceEnum.id,
-          sourceValue: "api_integration",
+          sourceValue: "API Integration",
           hubspotValue: "API Integration",
           displayLabel: "API Integration",
           sortOrder: 3,
@@ -1706,7 +1702,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: dataSourceEnum.id,
-          sourceValue: "system_generated",
+          sourceValue: "System Generated",
           hubspotValue: "System Generated",
           displayLabel: "System Generated",
           sortOrder: 4,
@@ -1745,7 +1741,7 @@ const seedCommissionEnumMappings = async () => {
       data: [
         {
           enumMappingId: integrationStatusEnum.id,
-          sourceValue: "not_synced",
+          sourceValue: "Not Synced",
           hubspotValue: "Not Synced",
           displayLabel: "Not Synced",
           sortOrder: 1,
@@ -1753,7 +1749,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: integrationStatusEnum.id,
-          sourceValue: "syncing",
+          sourceValue: "Syncing",
           hubspotValue: "Syncing",
           displayLabel: "Syncing",
           sortOrder: 2,
@@ -1761,7 +1757,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: integrationStatusEnum.id,
-          sourceValue: "synced",
+          sourceValue: "Synced",
           hubspotValue: "Synced",
           displayLabel: "Synced",
           sortOrder: 3,
@@ -1769,7 +1765,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: integrationStatusEnum.id,
-          sourceValue: "sync_failed",
+          sourceValue: "Sync Failed",
           hubspotValue: "Sync Failed",
           displayLabel: "Sync Failed",
           sortOrder: 4,
@@ -1808,7 +1804,7 @@ const seedCommissionEnumMappings = async () => {
       data: [
         {
           enumMappingId: settlementRecordStatusEnum.id,
-          sourceValue: "active",
+          sourceValue: "Active",
           hubspotValue: "Active",
           displayLabel: "Active",
           sortOrder: 1,
@@ -1816,7 +1812,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: settlementRecordStatusEnum.id,
-          sourceValue: "inactive",
+          sourceValue: "Inactive",
           hubspotValue: "Inactive",
           displayLabel: "Inactive",
           sortOrder: 2,
@@ -1824,7 +1820,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: settlementRecordStatusEnum.id,
-          sourceValue: "archived",
+          sourceValue: "Archived",
           hubspotValue: "Archived",
           displayLabel: "Archived",
           sortOrder: 3,
@@ -1863,7 +1859,7 @@ const seedCommissionEnumMappings = async () => {
       data: [
         {
           enumMappingId: systemGeneratedEnum.id,
-          sourceValue: "yes",
+          sourceValue: "Yes",
           hubspotValue: "Yes",
           displayLabel: "Yes",
           sortOrder: 1,
@@ -1871,7 +1867,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: systemGeneratedEnum.id,
-          sourceValue: "no",
+          sourceValue: "No",
           hubspotValue: "No",
           displayLabel: "No",
           sortOrder: 2,
@@ -1910,7 +1906,7 @@ const seedCommissionEnumMappings = async () => {
       data: [
         {
           enumMappingId: disbursementTriggerEnum.id,
-          sourceValue: "loan_disbursement",
+          sourceValue: "Loan Disbursement",
           hubspotValue: "Loan Disbursement",
           displayLabel: "Loan Disbursement",
           sortOrder: 1,
@@ -1918,7 +1914,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: disbursementTriggerEnum.id,
-          sourceValue: "milestone_completion",
+          sourceValue: "Milestone Completion",
           hubspotValue: "Milestone Completion",
           displayLabel: "Milestone Completion",
           sortOrder: 2,
@@ -1926,7 +1922,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: disbursementTriggerEnum.id,
-          sourceValue: "manual_trigger",
+          sourceValue: "Manual Trigger",
           hubspotValue: "Manual Trigger",
           displayLabel: "Manual Trigger",
           sortOrder: 3,
@@ -1934,7 +1930,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: disbursementTriggerEnum.id,
-          sourceValue: "scheduled",
+          sourceValue: "Scheduled",
           hubspotValue: "Scheduled",
           displayLabel: "Scheduled",
           sortOrder: 4,
@@ -1973,7 +1969,7 @@ const seedCommissionEnumMappings = async () => {
       data: [
         {
           enumMappingId: transactionTypesEnum.id,
-          sourceValue: "commission",
+          sourceValue: "Commission",
           hubspotValue: "Commission",
           displayLabel: "Commission",
           sortOrder: 1,
@@ -1981,7 +1977,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: transactionTypesEnum.id,
-          sourceValue: "bonus",
+          sourceValue: "Bonus",
           hubspotValue: "Bonus",
           displayLabel: "Bonus",
           sortOrder: 2,
@@ -1989,7 +1985,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: transactionTypesEnum.id,
-          sourceValue: "incentive",
+          sourceValue: "Incentive",
           hubspotValue: "Incentive",
           displayLabel: "Incentive",
           sortOrder: 3,
@@ -1997,7 +1993,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: transactionTypesEnum.id,
-          sourceValue: "adjustment",
+          sourceValue: "Adjustment",
           hubspotValue: "Adjustment",
           displayLabel: "Adjustment",
           sortOrder: 4,
@@ -2005,7 +2001,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: transactionTypesEnum.id,
-          sourceValue: "reversal",
+          sourceValue: "Reversal",
           hubspotValue: "Reversal",
           displayLabel: "Reversal",
           sortOrder: 5,
@@ -2044,7 +2040,7 @@ const seedCommissionEnumMappings = async () => {
       data: [
         {
           enumMappingId: commissionModelEnum.id,
-          sourceValue: "flat",
+          sourceValue: "Flat",
           hubspotValue: "Flat",
           displayLabel: "Flat Amount",
           sortOrder: 1,
@@ -2052,7 +2048,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: commissionModelEnum.id,
-          sourceValue: "percentage",
+          sourceValue: "Percentage",
           hubspotValue: "Percentage",
           displayLabel: "Percentage",
           sortOrder: 2,
@@ -2060,7 +2056,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: commissionModelEnum.id,
-          sourceValue: "tiered",
+          sourceValue: "Tiered",
           hubspotValue: "Tiered",
           displayLabel: "Tiered",
           sortOrder: 3,
@@ -2068,7 +2064,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: commissionModelEnum.id,
-          sourceValue: "hybrid",
+          sourceValue: "Hybrid",
           hubspotValue: "Hybrid",
           displayLabel: "Hybrid",
           sortOrder: 4,
@@ -2107,7 +2103,7 @@ const seedCommissionEnumMappings = async () => {
       data: [
         {
           enumMappingId: acknowledgmentStatusEnum.id,
-          sourceValue: "yes",
+          sourceValue: "Yes",
           hubspotValue: "Yes",
           displayLabel: "Yes",
           sortOrder: 1,
@@ -2115,7 +2111,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: acknowledgmentStatusEnum.id,
-          sourceValue: "no",
+          sourceValue: "No",
           hubspotValue: "No",
           displayLabel: "No",
           sortOrder: 2,
@@ -2123,7 +2119,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: acknowledgmentStatusEnum.id,
-          sourceValue: "pending",
+          sourceValue: "Pending",
           hubspotValue: "Pending",
           displayLabel: "Pending",
           sortOrder: 3,
@@ -2162,7 +2158,7 @@ const seedCommissionEnumMappings = async () => {
       data: [
         {
           enumMappingId: notificationMethodEnum.id,
-          sourceValue: "email",
+          sourceValue: "Email",
           hubspotValue: "Email",
           displayLabel: "Email",
           sortOrder: 1,
@@ -2170,7 +2166,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: notificationMethodEnum.id,
-          sourceValue: "sms",
+          sourceValue: "SMS",
           hubspotValue: "SMS",
           displayLabel: "SMS",
           sortOrder: 2,
@@ -2178,7 +2174,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: notificationMethodEnum.id,
-          sourceValue: "whatsapp",
+          sourceValue: "WhatsApp",
           hubspotValue: "WhatsApp",
           displayLabel: "WhatsApp",
           sortOrder: 3,
@@ -2186,7 +2182,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: notificationMethodEnum.id,
-          sourceValue: "portal",
+          sourceValue: "Portal",
           hubspotValue: "Portal",
           displayLabel: "Portal Notification",
           sortOrder: 4,
@@ -2194,7 +2190,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: notificationMethodEnum.id,
-          sourceValue: "phone",
+          sourceValue: "Phone",
           hubspotValue: "Phone",
           displayLabel: "Phone Call",
           sortOrder: 5,
@@ -2233,7 +2229,7 @@ const seedCommissionEnumMappings = async () => {
       data: [
         {
           enumMappingId: partnerNotificationSentEnum.id,
-          sourceValue: "yes",
+          sourceValue: "Yes",
           hubspotValue: "Yes",
           displayLabel: "Yes",
           sortOrder: 1,
@@ -2241,7 +2237,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: partnerNotificationSentEnum.id,
-          sourceValue: "no",
+          sourceValue: "No",
           hubspotValue: "No",
           displayLabel: "No",
           sortOrder: 2,
@@ -2249,7 +2245,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: partnerNotificationSentEnum.id,
-          sourceValue: "failed",
+          sourceValue: "Failed",
           hubspotValue: "Failed",
           displayLabel: "Failed",
           sortOrder: 3,
@@ -2288,7 +2284,7 @@ const seedCommissionEnumMappings = async () => {
       data: [
         {
           enumMappingId: paymentMethodEnum.id,
-          sourceValue: "bank_transfer",
+          sourceValue: "Bank Transfer",
           hubspotValue: "Bank Transfer",
           displayLabel: "Bank Transfer",
           sortOrder: 1,
@@ -2296,7 +2292,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: paymentMethodEnum.id,
-          sourceValue: "upi",
+          sourceValue: "UPI",
           hubspotValue: "UPI",
           displayLabel: "UPI",
           sortOrder: 2,
@@ -2304,7 +2300,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: paymentMethodEnum.id,
-          sourceValue: "check",
+          sourceValue: "Check",
           hubspotValue: "Check",
           displayLabel: "Check",
           sortOrder: 3,
@@ -2312,7 +2308,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: paymentMethodEnum.id,
-          sourceValue: "wire_transfer",
+          sourceValue: "Wire Transfer",
           hubspotValue: "Wire Transfer",
           displayLabel: "Wire Transfer",
           sortOrder: 4,
@@ -2320,7 +2316,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: paymentMethodEnum.id,
-          sourceValue: "cash",
+          sourceValue: "Cash",
           hubspotValue: "Cash",
           displayLabel: "Cash",
           sortOrder: 5,
@@ -2359,7 +2355,7 @@ const seedCommissionEnumMappings = async () => {
       data: [
         {
           enumMappingId: paymentStatusEnum.id,
-          sourceValue: "pending",
+          sourceValue: "Pending",
           hubspotValue: "Pending",
           displayLabel: "Pending",
           sortOrder: 1,
@@ -2367,7 +2363,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: paymentStatusEnum.id,
-          sourceValue: "processing",
+          sourceValue: "Processing",
           hubspotValue: "Processing",
           displayLabel: "Processing",
           sortOrder: 2,
@@ -2375,7 +2371,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: paymentStatusEnum.id,
-          sourceValue: "completed",
+          sourceValue: "Completed",
           hubspotValue: "Completed",
           displayLabel: "Completed",
           sortOrder: 3,
@@ -2383,7 +2379,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: paymentStatusEnum.id,
-          sourceValue: "failed",
+          sourceValue: "Failed",
           hubspotValue: "Failed",
           displayLabel: "Failed",
           sortOrder: 4,
@@ -2391,7 +2387,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: paymentStatusEnum.id,
-          sourceValue: "on_hold",
+          sourceValue: "On Hold",
           hubspotValue: "On Hold",
           displayLabel: "On Hold",
           sortOrder: 5,
@@ -2399,7 +2395,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: paymentStatusEnum.id,
-          sourceValue: "refunded",
+          sourceValue: "Refunded",
           hubspotValue: "Refunded",
           displayLabel: "Refunded",
           sortOrder: 6,
@@ -2438,7 +2434,7 @@ const seedCommissionEnumMappings = async () => {
       data: [
         {
           enumMappingId: invoiceStatusEnum.id,
-          sourceValue: "draft",
+          sourceValue: "Draft",
           hubspotValue: "Draft",
           displayLabel: "Draft",
           sortOrder: 1,
@@ -2446,7 +2442,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: invoiceStatusEnum.id,
-          sourceValue: "sent",
+          sourceValue: "Sent",
           hubspotValue: "Sent",
           displayLabel: "Sent",
           sortOrder: 2,
@@ -2454,7 +2450,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: invoiceStatusEnum.id,
-          sourceValue: "paid",
+          sourceValue: "Paid",
           hubspotValue: "Paid",
           displayLabel: "Paid",
           sortOrder: 3,
@@ -2462,7 +2458,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: invoiceStatusEnum.id,
-          sourceValue: "overdue",
+          sourceValue: "Overdue",
           hubspotValue: "Overdue",
           displayLabel: "Overdue",
           sortOrder: 4,
@@ -2470,7 +2466,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: invoiceStatusEnum.id,
-          sourceValue: "cancelled",
+          sourceValue: "Cancelled",
           hubspotValue: "Cancelled",
           displayLabel: "Cancelled",
           sortOrder: 5,
@@ -2509,7 +2505,7 @@ const seedCommissionEnumMappings = async () => {
       data: [
         {
           enumMappingId: slaBreachEnum.id,
-          sourceValue: "yes",
+          sourceValue: "Yes",
           hubspotValue: "Yes",
           displayLabel: "Yes",
           sortOrder: 1,
@@ -2517,7 +2513,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: slaBreachEnum.id,
-          sourceValue: "no",
+          sourceValue: "No",
           hubspotValue: "No",
           displayLabel: "No",
           sortOrder: 2,
@@ -2556,7 +2552,7 @@ const seedCommissionEnumMappings = async () => {
       data: [
         {
           enumMappingId: taxCertificateRequiredEnum.id,
-          sourceValue: "yes",
+          sourceValue: "Yes",
           hubspotValue: "Yes",
           displayLabel: "Yes",
           sortOrder: 1,
@@ -2564,7 +2560,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: taxCertificateRequiredEnum.id,
-          sourceValue: "no",
+          sourceValue: "No",
           hubspotValue: "No",
           displayLabel: "No",
           sortOrder: 2,
@@ -2572,7 +2568,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: taxCertificateRequiredEnum.id,
-          sourceValue: "pending",
+          sourceValue: "Pending",
           hubspotValue: "Pending",
           displayLabel: "Pending",
           sortOrder: 3,
@@ -2611,7 +2607,7 @@ const seedCommissionEnumMappings = async () => {
       data: [
         {
           enumMappingId: holdReasonEnum.id,
-          sourceValue: "documentation_pending",
+          sourceValue: "Documentation Pending",
           hubspotValue: "Documentation Pending",
           displayLabel: "Documentation Pending",
           sortOrder: 1,
@@ -2619,7 +2615,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: holdReasonEnum.id,
-          sourceValue: "verification_pending",
+          sourceValue: "Verification Pending",
           hubspotValue: "Verification Pending",
           displayLabel: "Verification Pending",
           sortOrder: 2,
@@ -2627,7 +2623,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: holdReasonEnum.id,
-          sourceValue: "dispute_raised",
+          sourceValue: "Dispute Raised",
           hubspotValue: "Dispute Raised",
           displayLabel: "Dispute Raised",
           sortOrder: 3,
@@ -2635,7 +2631,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: holdReasonEnum.id,
-          sourceValue: "compliance_review",
+          sourceValue: "Compliance Review",
           hubspotValue: "Compliance Review",
           displayLabel: "Compliance Review",
           sortOrder: 4,
@@ -2643,7 +2639,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: holdReasonEnum.id,
-          sourceValue: "payment_issues",
+          sourceValue: "Payment Issues",
           hubspotValue: "Payment Issues",
           displayLabel: "Payment Issues",
           sortOrder: 5,
@@ -2651,7 +2647,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: holdReasonEnum.id,
-          sourceValue: "other",
+          sourceValue: "Other",
           hubspotValue: "Other",
           displayLabel: "Other",
           sortOrder: 6,
@@ -2690,7 +2686,7 @@ const seedCommissionEnumMappings = async () => {
       data: [
         {
           enumMappingId: reconciliationStatusEnum.id,
-          sourceValue: "pending",
+          sourceValue: "Pending",
           hubspotValue: "Pending",
           displayLabel: "Pending",
           sortOrder: 1,
@@ -2698,7 +2694,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: reconciliationStatusEnum.id,
-          sourceValue: "in_progress",
+          sourceValue: "In Progress",
           hubspotValue: "In Progress",
           displayLabel: "In Progress",
           sortOrder: 2,
@@ -2706,7 +2702,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: reconciliationStatusEnum.id,
-          sourceValue: "reconciled",
+          sourceValue: "Reconciled",
           hubspotValue: "Reconciled",
           displayLabel: "Reconciled",
           sortOrder: 3,
@@ -2714,7 +2710,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: reconciliationStatusEnum.id,
-          sourceValue: "discrepancy_found",
+          sourceValue: "Discrepancy Found",
           hubspotValue: "Discrepancy Found",
           displayLabel: "Discrepancy Found",
           sortOrder: 4,
@@ -2722,7 +2718,7 @@ const seedCommissionEnumMappings = async () => {
         },
         {
           enumMappingId: reconciliationStatusEnum.id,
-          sourceValue: "failed",
+          sourceValue: "Failed",
           hubspotValue: "Failed",
           displayLabel: "Failed",
           sortOrder: 5,
@@ -2737,7 +2733,7 @@ const seedCommissionEnumMappings = async () => {
     console.log("\n" + "=".repeat(60));
     console.log("COMMISSION ENUM MAPPINGS SEEDING SUMMARY");
     console.log("=".repeat(60));
-    console.log(`Successfully seeded: ${successCount}/20 enum mappings`);
+    console.log(`Successfully seeded: ${successCount}/21 enum mappings`);
     console.log(`Errors: ${errorCount}`);
     console.log("=".repeat(60));
 
@@ -2759,10 +2755,10 @@ const seedCommissionEnumMappings = async () => {
     console.log("   15. Payment Method: 5 values");
     console.log("   16. Payment Status: 6 values");
     console.log("   17. Invoice Status: 5 values");
-    console.log("   18. Tax Certificate Required: 3 values");
-    console.log("   19. Hold Reason: 6 values");
-    console.log("   20. Reconciliation Status: 5 values");
-    console.log("   21. SLA Breach: 2 values");
+    console.log("   18. SLA Breach: 2 values");
+    console.log("   19. Tax Certificate Required: 3 values");
+    console.log("   20. Hold Reason: 6 values");
+    console.log("   21. Reconciliation Status: 5 values");
     console.log("   " + "-".repeat(30));
     console.log("   TOTAL: 95 commission enum values");
   } catch (error) {
@@ -2807,7 +2803,7 @@ const seedPartnerEnumMappings = async () => {
       data: [
         {
           enumMappingId: businessTypeEnum.id,
-          sourceValue: "individual",
+          sourceValue: "Individual",
           hubspotValue: "Individual",
           displayLabel: "Individual",
           sortOrder: 1,
@@ -2815,7 +2811,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: businessTypeEnum.id,
-          sourceValue: "partnership",
+          sourceValue: "Partnership",
           hubspotValue: "Partnership",
           displayLabel: "Partnership",
           sortOrder: 2,
@@ -2823,7 +2819,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: businessTypeEnum.id,
-          sourceValue: "private_limited",
+          sourceValue: "Private Limited",
           hubspotValue: "Private Limited",
           displayLabel: "Private Limited",
           sortOrder: 3,
@@ -2831,7 +2827,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: businessTypeEnum.id,
-          sourceValue: "public_limited",
+          sourceValue: "Public Limited",
           hubspotValue: "Public Limited",
           displayLabel: "Public Limited",
           sortOrder: 4,
@@ -2839,7 +2835,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: businessTypeEnum.id,
-          sourceValue: "llp",
+          sourceValue: "LLP",
           hubspotValue: "LLP",
           displayLabel: "LLP",
           sortOrder: 5,
@@ -2847,7 +2843,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: businessTypeEnum.id,
-          sourceValue: "ngo",
+          sourceValue: "NGO",
           hubspotValue: "NGO",
           displayLabel: "NGO",
           sortOrder: 6,
@@ -2855,7 +2851,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: businessTypeEnum.id,
-          sourceValue: "educational_trust",
+          sourceValue: "Educational Trust",
           hubspotValue: "Educational Trust",
           displayLabel: "Educational Trust",
           sortOrder: 7,
@@ -2894,7 +2890,7 @@ const seedPartnerEnumMappings = async () => {
       data: [
         {
           enumMappingId: partnerTypeEnum.id,
-          sourceValue: "test_prep_center",
+          sourceValue: "Test Prep Center",
           hubspotValue: "Test Prep Center",
           displayLabel: "Test Prep Center",
           sortOrder: 1,
@@ -2902,7 +2898,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: partnerTypeEnum.id,
-          sourceValue: "study_abroad_consultant",
+          sourceValue: "Study Abroad Consultant",
           hubspotValue: "Study Abroad Consultant",
           displayLabel: "Study Abroad Consultant",
           sortOrder: 2,
@@ -2910,7 +2906,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: partnerTypeEnum.id,
-          sourceValue: "educational_institution",
+          sourceValue: "Educational Institution",
           hubspotValue: "Educational Institution",
           displayLabel: "Educational Institution",
           sortOrder: 3,
@@ -2918,7 +2914,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: partnerTypeEnum.id,
-          sourceValue: "online_platform",
+          sourceValue: "Online Platform",
           hubspotValue: "Online Platform",
           displayLabel: "Online Platform",
           sortOrder: 4,
@@ -2926,7 +2922,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: partnerTypeEnum.id,
-          sourceValue: "coaching_institute",
+          sourceValue: "Coaching Institute",
           hubspotValue: "Coaching Institute",
           displayLabel: "Coaching Institute",
           sortOrder: 5,
@@ -2934,7 +2930,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: partnerTypeEnum.id,
-          sourceValue: "career_counselor",
+          sourceValue: "Career Counselor",
           hubspotValue: "Career Counselor",
           displayLabel: "Career Counselor",
           sortOrder: 6,
@@ -2942,7 +2938,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: partnerTypeEnum.id,
-          sourceValue: "immigration_consultant",
+          sourceValue: "Immigration Consultant",
           hubspotValue: "Immigration Consultant",
           displayLabel: "Immigration Consultant",
           sortOrder: 7,
@@ -2950,7 +2946,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: partnerTypeEnum.id,
-          sourceValue: "university_representative",
+          sourceValue: "University Representative",
           hubspotValue: "University Representative",
           displayLabel: "University Representative",
           sortOrder: 8,
@@ -2958,7 +2954,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: partnerTypeEnum.id,
-          sourceValue: "dsa",
+          sourceValue: "DSA",
           hubspotValue: "DSA",
           displayLabel: "DSA",
           sortOrder: 9,
@@ -2966,7 +2962,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: partnerTypeEnum.id,
-          sourceValue: "forex_service_provider",
+          sourceValue: "Forex Service Provider",
           hubspotValue: "Forex Service Provider",
           displayLabel: "Forex Service Provider",
           sortOrder: 10,
@@ -2974,7 +2970,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: partnerTypeEnum.id,
-          sourceValue: "other",
+          sourceValue: "Other",
           hubspotValue: "Other",
           displayLabel: "Other",
           sortOrder: 11,
@@ -3013,7 +3009,7 @@ const seedPartnerEnumMappings = async () => {
       data: [
         {
           enumMappingId: targetCoursesEnum.id,
-          sourceValue: "engineering",
+          sourceValue: "Engineering",
           hubspotValue: "Engineering",
           displayLabel: "Engineering",
           sortOrder: 1,
@@ -3021,7 +3017,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: targetCoursesEnum.id,
-          sourceValue: "mba",
+          sourceValue: "MBA",
           hubspotValue: "MBA",
           displayLabel: "MBA",
           sortOrder: 2,
@@ -3029,7 +3025,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: targetCoursesEnum.id,
-          sourceValue: "ms",
+          sourceValue: "MS",
           hubspotValue: "MS",
           displayLabel: "MS",
           sortOrder: 3,
@@ -3037,7 +3033,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: targetCoursesEnum.id,
-          sourceValue: "medicine",
+          sourceValue: "Medicine",
           hubspotValue: "Medicine",
           displayLabel: "Medicine",
           sortOrder: 4,
@@ -3045,7 +3041,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: targetCoursesEnum.id,
-          sourceValue: "law",
+          sourceValue: "Law",
           hubspotValue: "Law",
           displayLabel: "Law",
           sortOrder: 5,
@@ -3053,7 +3049,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: targetCoursesEnum.id,
-          sourceValue: "arts",
+          sourceValue: "Arts",
           hubspotValue: "Arts",
           displayLabel: "Arts",
           sortOrder: 6,
@@ -3061,7 +3057,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: targetCoursesEnum.id,
-          sourceValue: "science",
+          sourceValue: "Science",
           hubspotValue: "Science",
           displayLabel: "Science",
           sortOrder: 7,
@@ -3069,7 +3065,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: targetCoursesEnum.id,
-          sourceValue: "management",
+          sourceValue: "Management",
           hubspotValue: "Management",
           displayLabel: "Management",
           sortOrder: 8,
@@ -3077,7 +3073,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: targetCoursesEnum.id,
-          sourceValue: "other",
+          sourceValue: "Other",
           hubspotValue: "Other",
           displayLabel: "Other",
           sortOrder: 9,
@@ -3116,7 +3112,7 @@ const seedPartnerEnumMappings = async () => {
       data: [
         {
           enumMappingId: targetDestinationsEnum.id,
-          sourceValue: "us",
+          sourceValue: "US",
           hubspotValue: "US",
           displayLabel: "United States",
           sortOrder: 1,
@@ -3124,7 +3120,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: targetDestinationsEnum.id,
-          sourceValue: "uk",
+          sourceValue: "UK",
           hubspotValue: "UK",
           displayLabel: "United Kingdom",
           sortOrder: 2,
@@ -3132,7 +3128,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: targetDestinationsEnum.id,
-          sourceValue: "canada",
+          sourceValue: "Canada",
           hubspotValue: "Canada",
           displayLabel: "Canada",
           sortOrder: 3,
@@ -3140,7 +3136,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: targetDestinationsEnum.id,
-          sourceValue: "australia",
+          sourceValue: "Australia",
           hubspotValue: "Australia",
           displayLabel: "Australia",
           sortOrder: 4,
@@ -3148,7 +3144,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: targetDestinationsEnum.id,
-          sourceValue: "germany",
+          sourceValue: "Germany",
           hubspotValue: "Germany",
           displayLabel: "Germany",
           sortOrder: 5,
@@ -3156,7 +3152,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: targetDestinationsEnum.id,
-          sourceValue: "france",
+          sourceValue: "France",
           hubspotValue: "France",
           displayLabel: "France",
           sortOrder: 6,
@@ -3164,7 +3160,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: targetDestinationsEnum.id,
-          sourceValue: "singapore",
+          sourceValue: "Singapore",
           hubspotValue: "Singapore",
           displayLabel: "Singapore",
           sortOrder: 7,
@@ -3172,7 +3168,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: targetDestinationsEnum.id,
-          sourceValue: "italy",
+          sourceValue: "Italy",
           hubspotValue: "Italy",
           displayLabel: "Italy",
           sortOrder: 8,
@@ -3180,7 +3176,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: targetDestinationsEnum.id,
-          sourceValue: "uae",
+          sourceValue: "UAE",
           hubspotValue: "UAE",
           displayLabel: "UAE",
           sortOrder: 9,
@@ -3188,7 +3184,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: targetDestinationsEnum.id,
-          sourceValue: "other",
+          sourceValue: "Other",
           hubspotValue: "Other",
           displayLabel: "Other",
           sortOrder: 10,
@@ -3227,7 +3223,7 @@ const seedPartnerEnumMappings = async () => {
       data: [
         {
           enumMappingId: commissionModelEnum.id,
-          sourceValue: "fixed_amount",
+          sourceValue: "Fixed Amount",
           hubspotValue: "Fixed Amount",
           displayLabel: "Fixed Amount",
           sortOrder: 1,
@@ -3235,7 +3231,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: commissionModelEnum.id,
-          sourceValue: "percentage",
+          sourceValue: "Percentage",
           hubspotValue: "Percentage",
           displayLabel: "Percentage",
           sortOrder: 2,
@@ -3243,7 +3239,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: commissionModelEnum.id,
-          sourceValue: "tiered",
+          sourceValue: "Tiered",
           hubspotValue: "Tiered",
           displayLabel: "Tiered",
           sortOrder: 3,
@@ -3251,7 +3247,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: commissionModelEnum.id,
-          sourceValue: "hybrid",
+          sourceValue: "Hybrid",
           hubspotValue: "Hybrid",
           displayLabel: "Hybrid",
           sortOrder: 4,
@@ -3259,7 +3255,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: commissionModelEnum.id,
-          sourceValue: "performance_based",
+          sourceValue: "Performance Based",
           hubspotValue: "Performance Based",
           displayLabel: "Performance Based",
           sortOrder: 5,
@@ -3298,7 +3294,7 @@ const seedPartnerEnumMappings = async () => {
       data: [
         {
           enumMappingId: commissionTypeEnum.id,
-          sourceValue: "per_lead",
+          sourceValue: "Per Lead",
           hubspotValue: "Per Lead",
           displayLabel: "Per Lead",
           sortOrder: 1,
@@ -3306,7 +3302,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: commissionTypeEnum.id,
-          sourceValue: "per_application",
+          sourceValue: "Per Application",
           hubspotValue: "Per Application",
           displayLabel: "Per Application",
           sortOrder: 2,
@@ -3314,7 +3310,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: commissionTypeEnum.id,
-          sourceValue: "per_approval",
+          sourceValue: "Per Approval",
           hubspotValue: "Per Approval",
           displayLabel: "Per Approval",
           sortOrder: 3,
@@ -3322,7 +3318,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: commissionTypeEnum.id,
-          sourceValue: "per_disbursement",
+          sourceValue: "Per Disbursement",
           hubspotValue: "Per Disbursement",
           displayLabel: "Per Disbursement",
           sortOrder: 4,
@@ -3361,7 +3357,7 @@ const seedPartnerEnumMappings = async () => {
       data: [
         {
           enumMappingId: gstApplicableEnum.id,
-          sourceValue: "yes",
+          sourceValue: "Yes",
           hubspotValue: "Yes",
           displayLabel: "Yes",
           sortOrder: 1,
@@ -3369,7 +3365,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: gstApplicableEnum.id,
-          sourceValue: "no",
+          sourceValue: "No",
           hubspotValue: "No",
           displayLabel: "No",
           sortOrder: 2,
@@ -3408,7 +3404,7 @@ const seedPartnerEnumMappings = async () => {
       data: [
         {
           enumMappingId: paymentFrequencyEnum.id,
-          sourceValue: "monthly",
+          sourceValue: "Monthly",
           hubspotValue: "Monthly",
           displayLabel: "Monthly",
           sortOrder: 1,
@@ -3416,7 +3412,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: paymentFrequencyEnum.id,
-          sourceValue: "quarterly",
+          sourceValue: "Quarterly",
           hubspotValue: "Quarterly",
           displayLabel: "Quarterly",
           sortOrder: 2,
@@ -3424,7 +3420,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: paymentFrequencyEnum.id,
-          sourceValue: "on_achievement",
+          sourceValue: "On Achievement",
           hubspotValue: "On Achievement",
           displayLabel: "On Achievement",
           sortOrder: 3,
@@ -3432,7 +3428,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: paymentFrequencyEnum.id,
-          sourceValue: "custom",
+          sourceValue: "Custom",
           hubspotValue: "Custom",
           displayLabel: "Custom",
           sortOrder: 4,
@@ -3471,7 +3467,7 @@ const seedPartnerEnumMappings = async () => {
       data: [
         {
           enumMappingId: paymentMethodEnum.id,
-          sourceValue: "bank_transfer",
+          sourceValue: "Bank Transfer",
           hubspotValue: "Bank Transfer",
           displayLabel: "Bank Transfer",
           sortOrder: 1,
@@ -3479,7 +3475,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: paymentMethodEnum.id,
-          sourceValue: "cheque",
+          sourceValue: "Cheque",
           hubspotValue: "Cheque",
           displayLabel: "Cheque",
           sortOrder: 2,
@@ -3487,7 +3483,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: paymentMethodEnum.id,
-          sourceValue: "upi",
+          sourceValue: "UPI",
           hubspotValue: "UPI",
           displayLabel: "UPI",
           sortOrder: 3,
@@ -3495,7 +3491,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: paymentMethodEnum.id,
-          sourceValue: "digital_wallet",
+          sourceValue: "Digital Wallet",
           hubspotValue: "Digital Wallet",
           displayLabel: "Digital Wallet",
           sortOrder: 4,
@@ -3503,7 +3499,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: paymentMethodEnum.id,
-          sourceValue: "cash",
+          sourceValue: "Cash",
           hubspotValue: "Cash",
           displayLabel: "Cash",
           sortOrder: 5,
@@ -3542,7 +3538,7 @@ const seedPartnerEnumMappings = async () => {
       data: [
         {
           enumMappingId: paymentTermsEnum.id,
-          sourceValue: "net_30",
+          sourceValue: "Net 30",
           hubspotValue: "Net 30",
           displayLabel: "Net 30",
           sortOrder: 1,
@@ -3550,7 +3546,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: paymentTermsEnum.id,
-          sourceValue: "net_45",
+          sourceValue: "Net 45",
           hubspotValue: "Net 45",
           displayLabel: "Net 45",
           sortOrder: 2,
@@ -3558,7 +3554,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: paymentTermsEnum.id,
-          sourceValue: "net_60",
+          sourceValue: "Net 60",
           hubspotValue: "Net 60",
           displayLabel: "Net 60",
           sortOrder: 3,
@@ -3566,7 +3562,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: paymentTermsEnum.id,
-          sourceValue: "immediate",
+          sourceValue: "Immediate",
           hubspotValue: "Immediate",
           displayLabel: "Immediate",
           sortOrder: 4,
@@ -3574,7 +3570,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: paymentTermsEnum.id,
-          sourceValue: "custom",
+          sourceValue: "Custom",
           hubspotValue: "Custom",
           displayLabel: "Custom",
           sortOrder: 5,
@@ -3613,7 +3609,7 @@ const seedPartnerEnumMappings = async () => {
       data: [
         {
           enumMappingId: tdsApplicableEnum.id,
-          sourceValue: "yes",
+          sourceValue: "Yes",
           hubspotValue: "Yes",
           displayLabel: "Yes",
           sortOrder: 1,
@@ -3621,7 +3617,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: tdsApplicableEnum.id,
-          sourceValue: "no",
+          sourceValue: "No",
           hubspotValue: "No",
           displayLabel: "No",
           sortOrder: 2,
@@ -3660,7 +3656,7 @@ const seedPartnerEnumMappings = async () => {
       data: [
         {
           enumMappingId: bgVerificationStatusEnum.id,
-          sourceValue: "pending",
+          sourceValue: "Pending",
           hubspotValue: "Pending",
           displayLabel: "Pending",
           sortOrder: 1,
@@ -3668,7 +3664,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: bgVerificationStatusEnum.id,
-          sourceValue: "complete",
+          sourceValue: "Complete",
           hubspotValue: "Complete",
           displayLabel: "Complete",
           sortOrder: 2,
@@ -3676,7 +3672,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: bgVerificationStatusEnum.id,
-          sourceValue: "failed",
+          sourceValue: "Failed",
           hubspotValue: "Failed",
           displayLabel: "Failed",
           sortOrder: 3,
@@ -3684,7 +3680,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: bgVerificationStatusEnum.id,
-          sourceValue: "not_required",
+          sourceValue: "Not Required",
           hubspotValue: "Not Required",
           displayLabel: "Not Required",
           sortOrder: 4,
@@ -3723,7 +3719,7 @@ const seedPartnerEnumMappings = async () => {
       data: [
         {
           enumMappingId: kycStatusEnum.id,
-          sourceValue: "pending",
+          sourceValue: "Pending",
           hubspotValue: "Pending",
           displayLabel: "Pending",
           sortOrder: 1,
@@ -3731,7 +3727,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: kycStatusEnum.id,
-          sourceValue: "complete",
+          sourceValue: "Complete",
           hubspotValue: "Complete",
           displayLabel: "Complete",
           sortOrder: 2,
@@ -3739,7 +3735,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: kycStatusEnum.id,
-          sourceValue: "expired",
+          sourceValue: "Expired",
           hubspotValue: "Expired",
           displayLabel: "Expired",
           sortOrder: 3,
@@ -3747,7 +3743,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: kycStatusEnum.id,
-          sourceValue: "under_review",
+          sourceValue: "Under Review",
           hubspotValue: "Under Review",
           displayLabel: "Under Review",
           sortOrder: 4,
@@ -3786,7 +3782,7 @@ const seedPartnerEnumMappings = async () => {
       data: [
         {
           enumMappingId: paymentStatusEnum.id,
-          sourceValue: "up_to_date",
+          sourceValue: "Up to Date",
           hubspotValue: "Up to Date",
           displayLabel: "Up to Date",
           sortOrder: 1,
@@ -3794,7 +3790,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: paymentStatusEnum.id,
-          sourceValue: "pending",
+          sourceValue: "Pending",
           hubspotValue: "Pending",
           displayLabel: "Pending",
           sortOrder: 2,
@@ -3802,7 +3798,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: paymentStatusEnum.id,
-          sourceValue: "overdue",
+          sourceValue: "Overdue",
           hubspotValue: "Overdue",
           displayLabel: "Overdue",
           sortOrder: 3,
@@ -3810,7 +3806,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: paymentStatusEnum.id,
-          sourceValue: "on_hold",
+          sourceValue: "On Hold",
           hubspotValue: "On Hold",
           displayLabel: "On Hold",
           sortOrder: 4,
@@ -3849,7 +3845,7 @@ const seedPartnerEnumMappings = async () => {
       data: [
         {
           enumMappingId: leadSubmissionMethodEnum.id,
-          sourceValue: "online_form",
+          sourceValue: "Online Form",
           hubspotValue: "Online Form",
           displayLabel: "Online Form",
           sortOrder: 1,
@@ -3857,7 +3853,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: leadSubmissionMethodEnum.id,
-          sourceValue: "email",
+          sourceValue: "Email",
           hubspotValue: "Email",
           displayLabel: "Email",
           sortOrder: 2,
@@ -3865,7 +3861,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: leadSubmissionMethodEnum.id,
-          sourceValue: "phone",
+          sourceValue: "Phone",
           hubspotValue: "Phone",
           displayLabel: "Phone",
           sortOrder: 3,
@@ -3873,7 +3869,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: leadSubmissionMethodEnum.id,
-          sourceValue: "whatsapp",
+          sourceValue: "WhatsApp",
           hubspotValue: "WhatsApp",
           displayLabel: "WhatsApp",
           sortOrder: 4,
@@ -3881,7 +3877,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: leadSubmissionMethodEnum.id,
-          sourceValue: "portal",
+          sourceValue: "Portal",
           hubspotValue: "Portal",
           displayLabel: "Portal",
           sortOrder: 5,
@@ -3889,7 +3885,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: leadSubmissionMethodEnum.id,
-          sourceValue: "api",
+          sourceValue: "API",
           hubspotValue: "API",
           displayLabel: "API",
           sortOrder: 6,
@@ -3928,7 +3924,7 @@ const seedPartnerEnumMappings = async () => {
       data: [
         {
           enumMappingId: leadTrackingMethodEnum.id,
-          sourceValue: "unique_referral_code",
+          sourceValue: "Unique Referral Code",
           hubspotValue: "Unique Referral Code",
           displayLabel: "Unique Referral Code",
           sortOrder: 1,
@@ -3936,7 +3932,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: leadTrackingMethodEnum.id,
-          sourceValue: "utm_parameters",
+          sourceValue: "UTM Parameters",
           hubspotValue: "UTM Parameters",
           displayLabel: "UTM Parameters",
           sortOrder: 2,
@@ -3944,7 +3940,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: leadTrackingMethodEnum.id,
-          sourceValue: "phone_tracking",
+          sourceValue: "Phone Tracking",
           hubspotValue: "Phone Tracking",
           displayLabel: "Phone Tracking",
           sortOrder: 3,
@@ -3952,7 +3948,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: leadTrackingMethodEnum.id,
-          sourceValue: "email_tracking",
+          sourceValue: "Email Tracking",
           hubspotValue: "Email Tracking",
           displayLabel: "Email Tracking",
           sortOrder: 4,
@@ -3960,7 +3956,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: leadTrackingMethodEnum.id,
-          sourceValue: "manual_attribution",
+          sourceValue: "Manual Attribution",
           hubspotValue: "Manual Attribution",
           displayLabel: "Manual Attribution",
           sortOrder: 5,
@@ -3999,7 +3995,7 @@ const seedPartnerEnumMappings = async () => {
       data: [
         {
           enumMappingId: coMarketingApprovalEnum.id,
-          sourceValue: "yes",
+          sourceValue: "Yes",
           hubspotValue: "Yes",
           displayLabel: "Yes",
           sortOrder: 1,
@@ -4007,7 +4003,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: coMarketingApprovalEnum.id,
-          sourceValue: "no",
+          sourceValue: "No",
           hubspotValue: "No",
           displayLabel: "No",
           sortOrder: 2,
@@ -4015,7 +4011,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: coMarketingApprovalEnum.id,
-          sourceValue: "case_by_case",
+          sourceValue: "Case by Case",
           hubspotValue: "Case by Case",
           displayLabel: "Case by Case",
           sortOrder: 3,
@@ -4054,7 +4050,7 @@ const seedPartnerEnumMappings = async () => {
       data: [
         {
           enumMappingId: contentCollaborationEnum.id,
-          sourceValue: "yes",
+          sourceValue: "Yes",
           hubspotValue: "Yes",
           displayLabel: "Yes",
           sortOrder: 1,
@@ -4062,7 +4058,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: contentCollaborationEnum.id,
-          sourceValue: "no",
+          sourceValue: "No",
           hubspotValue: "No",
           displayLabel: "No",
           sortOrder: 2,
@@ -4070,7 +4066,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: contentCollaborationEnum.id,
-          sourceValue: "interested",
+          sourceValue: "Interested",
           hubspotValue: "Interested",
           displayLabel: "Interested",
           sortOrder: 3,
@@ -4109,7 +4105,7 @@ const seedPartnerEnumMappings = async () => {
       data: [
         {
           enumMappingId: marketingMaterialsEnum.id,
-          sourceValue: "brochures",
+          sourceValue: "Brochures",
           hubspotValue: "Brochures",
           displayLabel: "Brochures",
           sortOrder: 1,
@@ -4117,7 +4113,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: marketingMaterialsEnum.id,
-          sourceValue: "digital_assets",
+          sourceValue: "Digital Assets",
           hubspotValue: "Digital Assets",
           displayLabel: "Digital Assets",
           sortOrder: 2,
@@ -4125,7 +4121,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: marketingMaterialsEnum.id,
-          sourceValue: "presentation_templates",
+          sourceValue: "Presentation Templates",
           hubspotValue: "Presentation Templates",
           displayLabel: "Presentation Templates",
           sortOrder: 3,
@@ -4133,7 +4129,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: marketingMaterialsEnum.id,
-          sourceValue: "case_studies",
+          sourceValue: "Case Studies",
           hubspotValue: "Case Studies",
           displayLabel: "Case Studies",
           sortOrder: 4,
@@ -4141,7 +4137,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: marketingMaterialsEnum.id,
-          sourceValue: "success_stories",
+          sourceValue: "Success Stories",
           hubspotValue: "Success Stories",
           displayLabel: "Success Stories",
           sortOrder: 5,
@@ -4180,7 +4176,7 @@ const seedPartnerEnumMappings = async () => {
       data: [
         {
           enumMappingId: agreementTypeEnum.id,
-          sourceValue: "standard",
+          sourceValue: "Standard",
           hubspotValue: "Standard",
           displayLabel: "Standard",
           sortOrder: 1,
@@ -4188,7 +4184,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: agreementTypeEnum.id,
-          sourceValue: "custom",
+          sourceValue: "Custom",
           hubspotValue: "Custom",
           displayLabel: "Custom",
           sortOrder: 2,
@@ -4196,7 +4192,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: agreementTypeEnum.id,
-          sourceValue: "pilot",
+          sourceValue: "Pilot",
           hubspotValue: "Pilot",
           displayLabel: "Pilot",
           sortOrder: 3,
@@ -4204,7 +4200,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: agreementTypeEnum.id,
-          sourceValue: "enterprise",
+          sourceValue: "Enterprise",
           hubspotValue: "Enterprise",
           displayLabel: "Enterprise",
           sortOrder: 4,
@@ -4243,7 +4239,7 @@ const seedPartnerEnumMappings = async () => {
       data: [
         {
           enumMappingId: partnershipStatusEnum.id,
-          sourceValue: "active",
+          sourceValue: "Active",
           hubspotValue: "Active",
           displayLabel: "Active",
           sortOrder: 1,
@@ -4251,7 +4247,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: partnershipStatusEnum.id,
-          sourceValue: "inactive",
+          sourceValue: "Inactive",
           hubspotValue: "Inactive",
           displayLabel: "Inactive",
           sortOrder: 2,
@@ -4259,7 +4255,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: partnershipStatusEnum.id,
-          sourceValue: "pending",
+          sourceValue: "Pending",
           hubspotValue: "Pending",
           displayLabel: "Pending",
           sortOrder: 3,
@@ -4267,7 +4263,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: partnershipStatusEnum.id,
-          sourceValue: "suspended",
+          sourceValue: "Suspended",
           hubspotValue: "Suspended",
           displayLabel: "Suspended",
           sortOrder: 4,
@@ -4275,7 +4271,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: partnershipStatusEnum.id,
-          sourceValue: "under_review",
+          sourceValue: "Under Review",
           hubspotValue: "Under Review",
           displayLabel: "Under Review",
           sortOrder: 5,
@@ -4283,7 +4279,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: partnershipStatusEnum.id,
-          sourceValue: "terminated",
+          sourceValue: "Terminated",
           hubspotValue: "Terminated",
           displayLabel: "Terminated",
           sortOrder: 6,
@@ -4291,7 +4287,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: partnershipStatusEnum.id,
-          sourceValue: "onboarding",
+          sourceValue: "Onboarding",
           hubspotValue: "Onboarding",
           displayLabel: "Onboarding",
           sortOrder: 7,
@@ -4330,7 +4326,7 @@ const seedPartnerEnumMappings = async () => {
       data: [
         {
           enumMappingId: bestPerformingMonthEnum.id,
-          sourceValue: "january",
+          sourceValue: "January",
           hubspotValue: "January",
           displayLabel: "January",
           sortOrder: 1,
@@ -4338,7 +4334,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: bestPerformingMonthEnum.id,
-          sourceValue: "february",
+          sourceValue: "February",
           hubspotValue: "February",
           displayLabel: "February",
           sortOrder: 2,
@@ -4346,7 +4342,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: bestPerformingMonthEnum.id,
-          sourceValue: "march",
+          sourceValue: "March",
           hubspotValue: "March",
           displayLabel: "March",
           sortOrder: 3,
@@ -4354,7 +4350,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: bestPerformingMonthEnum.id,
-          sourceValue: "april",
+          sourceValue: "April",
           hubspotValue: "April",
           displayLabel: "April",
           sortOrder: 4,
@@ -4362,7 +4358,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: bestPerformingMonthEnum.id,
-          sourceValue: "may",
+          sourceValue: "May",
           hubspotValue: "May",
           displayLabel: "May",
           sortOrder: 5,
@@ -4370,7 +4366,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: bestPerformingMonthEnum.id,
-          sourceValue: "june",
+          sourceValue: "June",
           hubspotValue: "June",
           displayLabel: "June",
           sortOrder: 6,
@@ -4378,7 +4374,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: bestPerformingMonthEnum.id,
-          sourceValue: "july",
+          sourceValue: "July",
           hubspotValue: "July",
           displayLabel: "July",
           sortOrder: 7,
@@ -4386,7 +4382,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: bestPerformingMonthEnum.id,
-          sourceValue: "august",
+          sourceValue: "August",
           hubspotValue: "August",
           displayLabel: "August",
           sortOrder: 8,
@@ -4394,7 +4390,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: bestPerformingMonthEnum.id,
-          sourceValue: "september",
+          sourceValue: "September",
           hubspotValue: "September",
           displayLabel: "September",
           sortOrder: 9,
@@ -4402,7 +4398,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: bestPerformingMonthEnum.id,
-          sourceValue: "october",
+          sourceValue: "October",
           hubspotValue: "October",
           displayLabel: "October",
           sortOrder: 10,
@@ -4410,7 +4406,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: bestPerformingMonthEnum.id,
-          sourceValue: "november",
+          sourceValue: "November",
           hubspotValue: "November",
           displayLabel: "November",
           sortOrder: 11,
@@ -4418,7 +4414,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: bestPerformingMonthEnum.id,
-          sourceValue: "december",
+          sourceValue: "December",
           hubspotValue: "December",
           displayLabel: "December",
           sortOrder: 12,
@@ -4457,7 +4453,7 @@ const seedPartnerEnumMappings = async () => {
       data: [
         {
           enumMappingId: communicationFrequencyEnum.id,
-          sourceValue: "daily",
+          sourceValue: "Daily",
           hubspotValue: "Daily",
           displayLabel: "Daily",
           sortOrder: 1,
@@ -4465,7 +4461,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: communicationFrequencyEnum.id,
-          sourceValue: "weekly",
+          sourceValue: "Weekly",
           hubspotValue: "Weekly",
           displayLabel: "Weekly",
           sortOrder: 2,
@@ -4473,7 +4469,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: communicationFrequencyEnum.id,
-          sourceValue: "bi_weekly",
+          sourceValue: "Bi-weekly",
           hubspotValue: "Bi-weekly",
           displayLabel: "Bi-weekly",
           sortOrder: 3,
@@ -4481,7 +4477,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: communicationFrequencyEnum.id,
-          sourceValue: "monthly",
+          sourceValue: "Monthly",
           hubspotValue: "Monthly",
           displayLabel: "Monthly",
           sortOrder: 4,
@@ -4489,7 +4485,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: communicationFrequencyEnum.id,
-          sourceValue: "quarterly",
+          sourceValue: "Quarterly",
           hubspotValue: "Quarterly",
           displayLabel: "Quarterly",
           sortOrder: 5,
@@ -4497,7 +4493,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: communicationFrequencyEnum.id,
-          sourceValue: "as_needed",
+          sourceValue: "As Needed",
           hubspotValue: "As Needed",
           displayLabel: "As Needed",
           sortOrder: 6,
@@ -4536,7 +4532,7 @@ const seedPartnerEnumMappings = async () => {
       data: [
         {
           enumMappingId: relationshipStatusEnum.id,
-          sourceValue: "new",
+          sourceValue: "New",
           hubspotValue: "New",
           displayLabel: "New",
           sortOrder: 1,
@@ -4544,7 +4540,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: relationshipStatusEnum.id,
-          sourceValue: "onboarding",
+          sourceValue: "Onboarding",
           hubspotValue: "Onboarding",
           displayLabel: "Onboarding",
           sortOrder: 2,
@@ -4552,7 +4548,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: relationshipStatusEnum.id,
-          sourceValue: "active",
+          sourceValue: "Active",
           hubspotValue: "Active",
           displayLabel: "Active",
           sortOrder: 3,
@@ -4560,7 +4556,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: relationshipStatusEnum.id,
-          sourceValue: "high_performer",
+          sourceValue: "High Performer",
           hubspotValue: "High Performer",
           displayLabel: "High Performer",
           sortOrder: 4,
@@ -4568,7 +4564,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: relationshipStatusEnum.id,
-          sourceValue: "underperforming",
+          sourceValue: "Underperforming",
           hubspotValue: "Underperforming",
           displayLabel: "Underperforming",
           sortOrder: 5,
@@ -4576,7 +4572,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: relationshipStatusEnum.id,
-          sourceValue: "at_risk",
+          sourceValue: "At Risk",
           hubspotValue: "At Risk",
           displayLabel: "At Risk",
           sortOrder: 6,
@@ -4584,7 +4580,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: relationshipStatusEnum.id,
-          sourceValue: "champion",
+          sourceValue: "Champion",
           hubspotValue: "Champion",
           displayLabel: "Champion",
           sortOrder: 7,
@@ -4623,7 +4619,7 @@ const seedPartnerEnumMappings = async () => {
       data: [
         {
           enumMappingId: trainingCompletedEnum.id,
-          sourceValue: "yes",
+          sourceValue: "Yes",
           hubspotValue: "Yes",
           displayLabel: "Yes",
           sortOrder: 1,
@@ -4631,7 +4627,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: trainingCompletedEnum.id,
-          sourceValue: "no",
+          sourceValue: "No",
           hubspotValue: "No",
           displayLabel: "No",
           sortOrder: 2,
@@ -4670,7 +4666,7 @@ const seedPartnerEnumMappings = async () => {
       data: [
         {
           enumMappingId: apiAccessProvidedEnum.id,
-          sourceValue: "yes",
+          sourceValue: "Yes",
           hubspotValue: "Yes",
           displayLabel: "Yes",
           sortOrder: 1,
@@ -4678,7 +4674,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: apiAccessProvidedEnum.id,
-          sourceValue: "no",
+          sourceValue: "No",
           hubspotValue: "No",
           displayLabel: "No",
           sortOrder: 2,
@@ -4686,7 +4682,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: apiAccessProvidedEnum.id,
-          sourceValue: "not_required",
+          sourceValue: "Not Required",
           hubspotValue: "Not Required",
           displayLabel: "Not Required",
           sortOrder: 3,
@@ -4725,7 +4721,7 @@ const seedPartnerEnumMappings = async () => {
       data: [
         {
           enumMappingId: dataSourceEnum.id,
-          sourceValue: "manual_entry",
+          sourceValue: "Manual Entry",
           hubspotValue: "Manual Entry",
           displayLabel: "Manual Entry",
           sortOrder: 1,
@@ -4733,7 +4729,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: dataSourceEnum.id,
-          sourceValue: "import",
+          sourceValue: "Import",
           hubspotValue: "Import",
           displayLabel: "Import",
           sortOrder: 2,
@@ -4741,7 +4737,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: dataSourceEnum.id,
-          sourceValue: "partner_application",
+          sourceValue: "Partner Application",
           hubspotValue: "Partner Application",
           displayLabel: "Partner Application",
           sortOrder: 3,
@@ -4749,7 +4745,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: dataSourceEnum.id,
-          sourceValue: "referral",
+          sourceValue: "Referral",
           hubspotValue: "Referral",
           displayLabel: "Referral",
           sortOrder: 4,
@@ -4788,7 +4784,7 @@ const seedPartnerEnumMappings = async () => {
       data: [
         {
           enumMappingId: integrationStatusEnum.id,
-          sourceValue: "not_required",
+          sourceValue: "Not Required",
           hubspotValue: "Not Required",
           displayLabel: "Not Required",
           sortOrder: 1,
@@ -4796,7 +4792,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: integrationStatusEnum.id,
-          sourceValue: "pending",
+          sourceValue: "Pending",
           hubspotValue: "Pending",
           displayLabel: "Pending",
           sortOrder: 2,
@@ -4804,7 +4800,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: integrationStatusEnum.id,
-          sourceValue: "complete",
+          sourceValue: "Complete",
           hubspotValue: "Complete",
           displayLabel: "Complete",
           sortOrder: 3,
@@ -4812,7 +4808,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: integrationStatusEnum.id,
-          sourceValue: "issues",
+          sourceValue: "Issues",
           hubspotValue: "Issues",
           displayLabel: "Issues",
           sortOrder: 4,
@@ -4851,7 +4847,7 @@ const seedPartnerEnumMappings = async () => {
       data: [
         {
           enumMappingId: partnerRecordStatusEnum.id,
-          sourceValue: "active",
+          sourceValue: "Active",
           hubspotValue: "Active",
           displayLabel: "Active",
           sortOrder: 1,
@@ -4859,7 +4855,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: partnerRecordStatusEnum.id,
-          sourceValue: "inactive",
+          sourceValue: "Inactive",
           hubspotValue: "Inactive",
           displayLabel: "Inactive",
           sortOrder: 2,
@@ -4867,7 +4863,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: partnerRecordStatusEnum.id,
-          sourceValue: "suspended",
+          sourceValue: "Suspended",
           hubspotValue: "Suspended",
           displayLabel: "Suspended",
           sortOrder: 3,
@@ -4875,7 +4871,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: partnerRecordStatusEnum.id,
-          sourceValue: "under_review",
+          sourceValue: "Under Review",
           hubspotValue: "Under Review",
           displayLabel: "Under Review",
           sortOrder: 4,
@@ -4883,7 +4879,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: partnerRecordStatusEnum.id,
-          sourceValue: "archived",
+          sourceValue: "Archived",
           hubspotValue: "Archived",
           displayLabel: "Archived",
           sortOrder: 5,
@@ -4922,7 +4918,7 @@ const seedPartnerEnumMappings = async () => {
       data: [
         {
           enumMappingId: portalAccessProvidedEnum.id,
-          sourceValue: "yes",
+          sourceValue: "Yes",
           hubspotValue: "Yes",
           displayLabel: "Yes",
           sortOrder: 1,
@@ -4930,7 +4926,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: portalAccessProvidedEnum.id,
-          sourceValue: "no",
+          sourceValue: "No",
           hubspotValue: "No",
           displayLabel: "No",
           sortOrder: 2,
@@ -4938,7 +4934,7 @@ const seedPartnerEnumMappings = async () => {
         },
         {
           enumMappingId: portalAccessProvidedEnum.id,
-          sourceValue: "pending",
+          sourceValue: "Pending",
           hubspotValue: "Pending",
           displayLabel: "Pending",
           sortOrder: 3,
@@ -5002,7 +4998,7 @@ const seedEdumateContactEnumMappings = async () => {
   let successCount = 0;
   let errorCount = 0;
 
-  const hubspotObjectType = "0-1"; // Standard HubSpot Contact object type
+  const hubspotObjectType = "2-46187688";
 
   try {
     // ==================== ACADEMIC INFORMATION GROUP ====================
@@ -5035,7 +5031,7 @@ const seedEdumateContactEnumMappings = async () => {
       data: [
         {
           enumMappingId: admissionStatusEnum.id,
-          sourceValue: "not_applied",
+          sourceValue: "Not Applied",
           hubspotValue: "Not Applied",
           displayLabel: "Not Applied",
           sortOrder: 1,
@@ -5043,7 +5039,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: admissionStatusEnum.id,
-          sourceValue: "applied",
+          sourceValue: "Applied",
           hubspotValue: "Applied",
           displayLabel: "Applied",
           sortOrder: 2,
@@ -5051,7 +5047,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: admissionStatusEnum.id,
-          sourceValue: "interview_scheduled",
+          sourceValue: "Interview Scheduled",
           hubspotValue: "Interview Scheduled",
           displayLabel: "Interview Scheduled",
           sortOrder: 3,
@@ -5059,7 +5055,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: admissionStatusEnum.id,
-          sourceValue: "waitlisted",
+          sourceValue: "Waitlisted",
           hubspotValue: "Waitlisted",
           displayLabel: "Waitlisted",
           sortOrder: 4,
@@ -5067,7 +5063,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: admissionStatusEnum.id,
-          sourceValue: "admitted",
+          sourceValue: "Admitted",
           hubspotValue: "Admitted",
           displayLabel: "Admitted",
           sortOrder: 5,
@@ -5075,7 +5071,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: admissionStatusEnum.id,
-          sourceValue: "rejected",
+          sourceValue: "Rejected",
           hubspotValue: "Rejected",
           displayLabel: "Rejected",
           sortOrder: 6,
@@ -5115,7 +5111,7 @@ const seedEdumateContactEnumMappings = async () => {
       data: [
         {
           enumMappingId: currentEducationLevelEnum.id,
-          sourceValue: "high_school",
+          sourceValue: "High School",
           hubspotValue: "High School",
           displayLabel: "High School",
           sortOrder: 1,
@@ -5123,7 +5119,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: currentEducationLevelEnum.id,
-          sourceValue: "bachelors",
+          sourceValue: "Bachelors",
           hubspotValue: "Bachelors",
           displayLabel: "Bachelors",
           sortOrder: 2,
@@ -5131,7 +5127,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: currentEducationLevelEnum.id,
-          sourceValue: "masters",
+          sourceValue: "Masters",
           hubspotValue: "Masters",
           displayLabel: "Masters",
           sortOrder: 3,
@@ -5139,7 +5135,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: currentEducationLevelEnum.id,
-          sourceValue: "phd",
+          sourceValue: "PhD",
           hubspotValue: "PhD",
           displayLabel: "PhD",
           sortOrder: 4,
@@ -5147,7 +5143,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: currentEducationLevelEnum.id,
-          sourceValue: "diploma",
+          sourceValue: "Diploma",
           hubspotValue: "Diploma",
           displayLabel: "Diploma",
           sortOrder: 5,
@@ -5155,7 +5151,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: currentEducationLevelEnum.id,
-          sourceValue: "other",
+          sourceValue: "Other",
           hubspotValue: "Other",
           displayLabel: "Other",
           sortOrder: 6,
@@ -5195,7 +5191,7 @@ const seedEdumateContactEnumMappings = async () => {
       data: [
         {
           enumMappingId: intendedStartTermEnum.id,
-          sourceValue: "fall",
+          sourceValue: "Fall",
           hubspotValue: "Fall",
           displayLabel: "Fall",
           sortOrder: 1,
@@ -5203,7 +5199,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: intendedStartTermEnum.id,
-          sourceValue: "spring",
+          sourceValue: "Spring",
           hubspotValue: "Spring",
           displayLabel: "Spring",
           sortOrder: 2,
@@ -5211,7 +5207,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: intendedStartTermEnum.id,
-          sourceValue: "summer",
+          sourceValue: "Summer",
           hubspotValue: "Summer",
           displayLabel: "Summer",
           sortOrder: 3,
@@ -5219,7 +5215,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: intendedStartTermEnum.id,
-          sourceValue: "winter",
+          sourceValue: "Winter",
           hubspotValue: "Winter",
           displayLabel: "Winter",
           sortOrder: 4,
@@ -5259,7 +5255,7 @@ const seedEdumateContactEnumMappings = async () => {
       data: [
         {
           enumMappingId: preferredStudyDestinationEnum.id,
-          sourceValue: "us",
+          sourceValue: "US",
           hubspotValue: "US",
           displayLabel: "United States",
           sortOrder: 1,
@@ -5267,7 +5263,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: preferredStudyDestinationEnum.id,
-          sourceValue: "uk",
+          sourceValue: "UK",
           hubspotValue: "UK",
           displayLabel: "United Kingdom",
           sortOrder: 2,
@@ -5275,7 +5271,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: preferredStudyDestinationEnum.id,
-          sourceValue: "canada",
+          sourceValue: "Canada",
           hubspotValue: "Canada",
           displayLabel: "Canada",
           sortOrder: 3,
@@ -5283,7 +5279,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: preferredStudyDestinationEnum.id,
-          sourceValue: "australia",
+          sourceValue: "Australia",
           hubspotValue: "Australia",
           displayLabel: "Australia",
           sortOrder: 4,
@@ -5291,7 +5287,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: preferredStudyDestinationEnum.id,
-          sourceValue: "germany",
+          sourceValue: "Germany",
           hubspotValue: "Germany",
           displayLabel: "Germany",
           sortOrder: 5,
@@ -5299,7 +5295,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: preferredStudyDestinationEnum.id,
-          sourceValue: "france",
+          sourceValue: "France",
           hubspotValue: "France",
           displayLabel: "France",
           sortOrder: 6,
@@ -5307,7 +5303,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: preferredStudyDestinationEnum.id,
-          sourceValue: "singapore",
+          sourceValue: "Singapore",
           hubspotValue: "Singapore",
           displayLabel: "Singapore",
           sortOrder: 7,
@@ -5315,7 +5311,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: preferredStudyDestinationEnum.id,
-          sourceValue: "italy",
+          sourceValue: "Italy",
           hubspotValue: "Italy",
           displayLabel: "Italy",
           sortOrder: 8,
@@ -5323,7 +5319,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: preferredStudyDestinationEnum.id,
-          sourceValue: "uae",
+          sourceValue: "UAE",
           hubspotValue: "UAE",
           displayLabel: "United Arab Emirates",
           sortOrder: 9,
@@ -5331,7 +5327,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: preferredStudyDestinationEnum.id,
-          sourceValue: "japan",
+          sourceValue: "Japan",
           hubspotValue: "Japan",
           displayLabel: "Japan",
           sortOrder: 10,
@@ -5339,7 +5335,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: preferredStudyDestinationEnum.id,
-          sourceValue: "china",
+          sourceValue: "China",
           hubspotValue: "China",
           displayLabel: "China",
           sortOrder: 11,
@@ -5347,7 +5343,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: preferredStudyDestinationEnum.id,
-          sourceValue: "india",
+          sourceValue: "India",
           hubspotValue: "India",
           displayLabel: "India",
           sortOrder: 12,
@@ -5355,7 +5351,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: preferredStudyDestinationEnum.id,
-          sourceValue: "new_zealand",
+          sourceValue: "New Zealand",
           hubspotValue: "New Zealand",
           displayLabel: "New Zealand",
           sortOrder: 13,
@@ -5363,7 +5359,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: preferredStudyDestinationEnum.id,
-          sourceValue: "ireland",
+          sourceValue: "Ireland",
           hubspotValue: "Ireland",
           displayLabel: "Ireland",
           sortOrder: 14,
@@ -5371,7 +5367,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: preferredStudyDestinationEnum.id,
-          sourceValue: "other",
+          sourceValue: "Other",
           hubspotValue: "Other",
           displayLabel: "Other",
           sortOrder: 15,
@@ -5411,7 +5407,7 @@ const seedEdumateContactEnumMappings = async () => {
       data: [
         {
           enumMappingId: targetDegreeLevelEnum.id,
-          sourceValue: "bachelors",
+          sourceValue: "Bachelors",
           hubspotValue: "Bachelors",
           displayLabel: "Bachelors",
           sortOrder: 1,
@@ -5419,7 +5415,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: targetDegreeLevelEnum.id,
-          sourceValue: "masters",
+          sourceValue: "Masters",
           hubspotValue: "Masters",
           displayLabel: "Masters",
           sortOrder: 2,
@@ -5427,7 +5423,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: targetDegreeLevelEnum.id,
-          sourceValue: "phd",
+          sourceValue: "PhD",
           hubspotValue: "PhD",
           displayLabel: "PhD",
           sortOrder: 3,
@@ -5435,7 +5431,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: targetDegreeLevelEnum.id,
-          sourceValue: "diploma",
+          sourceValue: "Diploma",
           hubspotValue: "Diploma",
           displayLabel: "Diploma",
           sortOrder: 4,
@@ -5443,7 +5439,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: targetDegreeLevelEnum.id,
-          sourceValue: "certificate",
+          sourceValue: "Certificate",
           hubspotValue: "Certificate",
           displayLabel: "Certificate",
           sortOrder: 5,
@@ -5451,7 +5447,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: targetDegreeLevelEnum.id,
-          sourceValue: "professional_course",
+          sourceValue: "Professional Course",
           hubspotValue: "Professional Course",
           displayLabel: "Professional Course",
           sortOrder: 6,
@@ -5493,7 +5489,7 @@ const seedEdumateContactEnumMappings = async () => {
       data: [
         {
           enumMappingId: currentStatusDispositionEnum.id,
-          sourceValue: "not_interested",
+          sourceValue: "Not Interested",
           hubspotValue: "Not Interested",
           displayLabel: "Not Interested",
           sortOrder: 1,
@@ -5501,7 +5497,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: currentStatusDispositionEnum.id,
-          sourceValue: "wrong_number",
+          sourceValue: "Wrong Number",
           hubspotValue: "Wrong Number",
           displayLabel: "Wrong Number",
           sortOrder: 2,
@@ -5509,7 +5505,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: currentStatusDispositionEnum.id,
-          sourceValue: "call_not_answered",
+          sourceValue: "Call not Answered",
           hubspotValue: "Call not Answered",
           displayLabel: "Call not Answered",
           sortOrder: 3,
@@ -5517,7 +5513,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: currentStatusDispositionEnum.id,
-          sourceValue: "follow_up",
+          sourceValue: "Follow Up",
           hubspotValue: "Follow Up",
           displayLabel: "Follow Up",
           sortOrder: 4,
@@ -5525,7 +5521,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: currentStatusDispositionEnum.id,
-          sourceValue: "int_for_next_year",
+          sourceValue: "Int for Next Year",
           hubspotValue: "Int for Next Year",
           displayLabel: "Interested for Next Year",
           sortOrder: 5,
@@ -5533,7 +5529,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: currentStatusDispositionEnum.id,
-          sourceValue: "partial_documents_received",
+          sourceValue: "Partial Documents Received",
           hubspotValue: "Partial Documents Received",
           displayLabel: "Partial Documents Received",
           sortOrder: 6,
@@ -5573,7 +5569,7 @@ const seedEdumateContactEnumMappings = async () => {
       data: [
         {
           enumMappingId: dispositionReasonEnum.id,
-          sourceValue: "already_applied",
+          sourceValue: "Already Applied",
           hubspotValue: "Already Applied",
           displayLabel: "Already Applied",
           sortOrder: 1,
@@ -5581,7 +5577,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: dispositionReasonEnum.id,
-          sourceValue: "not_looking_at_loan",
+          sourceValue: "Not Looking at Loan",
           hubspotValue: "Not Looking at Loan",
           displayLabel: "Not Looking at Loan",
           sortOrder: 2,
@@ -5589,7 +5585,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: dispositionReasonEnum.id,
-          sourceValue: "self_funding",
+          sourceValue: "Self Funding",
           hubspotValue: "Self Funding",
           displayLabel: "Self Funding",
           sortOrder: 3,
@@ -5597,7 +5593,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: dispositionReasonEnum.id,
-          sourceValue: "others",
+          sourceValue: "Others",
           hubspotValue: "Others",
           displayLabel: "Others",
           sortOrder: 4,
@@ -5637,7 +5633,7 @@ const seedEdumateContactEnumMappings = async () => {
       data: [
         {
           enumMappingId: priorityLevelEnum.id,
-          sourceValue: "high",
+          sourceValue: "High",
           hubspotValue: "High",
           displayLabel: "High",
           sortOrder: 1,
@@ -5645,7 +5641,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: priorityLevelEnum.id,
-          sourceValue: "medium",
+          sourceValue: "Medium",
           hubspotValue: "Medium",
           displayLabel: "Medium",
           sortOrder: 2,
@@ -5653,7 +5649,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: priorityLevelEnum.id,
-          sourceValue: "low",
+          sourceValue: "Low",
           hubspotValue: "Low",
           displayLabel: "Low",
           sortOrder: 3,
@@ -5695,7 +5691,7 @@ const seedEdumateContactEnumMappings = async () => {
       data: [
         {
           enumMappingId: courseTypeEnum.id,
-          sourceValue: "stem",
+          sourceValue: "STEM",
           hubspotValue: "STEM",
           displayLabel: "STEM",
           sortOrder: 1,
@@ -5703,7 +5699,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: courseTypeEnum.id,
-          sourceValue: "business",
+          sourceValue: "Business",
           hubspotValue: "Business",
           displayLabel: "Business",
           sortOrder: 2,
@@ -5711,7 +5707,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: courseTypeEnum.id,
-          sourceValue: "others",
+          sourceValue: "Others",
           hubspotValue: "Others",
           displayLabel: "Others",
           sortOrder: 3,
@@ -5753,7 +5749,7 @@ const seedEdumateContactEnumMappings = async () => {
       data: [
         {
           enumMappingId: coApplicant1OccupationEnum.id,
-          sourceValue: "salaried",
+          sourceValue: "Salaried",
           hubspotValue: "Salaried",
           displayLabel: "Salaried",
           sortOrder: 1,
@@ -5761,7 +5757,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicant1OccupationEnum.id,
-          sourceValue: "self_employed",
+          sourceValue: "Self Employed",
           hubspotValue: "Self Employed",
           displayLabel: "Self Employed",
           sortOrder: 2,
@@ -5769,7 +5765,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicant1OccupationEnum.id,
-          sourceValue: "retired",
+          sourceValue: "Retired",
           hubspotValue: "Retired",
           displayLabel: "Retired",
           sortOrder: 3,
@@ -5777,7 +5773,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicant1OccupationEnum.id,
-          sourceValue: "others",
+          sourceValue: "Others",
           hubspotValue: "Others",
           displayLabel: "Others",
           sortOrder: 4,
@@ -5817,7 +5813,7 @@ const seedEdumateContactEnumMappings = async () => {
       data: [
         {
           enumMappingId: coApplicant1RelationshipEnum.id,
-          sourceValue: "father",
+          sourceValue: "Father",
           hubspotValue: "Father",
           displayLabel: "Father",
           sortOrder: 1,
@@ -5825,7 +5821,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicant1RelationshipEnum.id,
-          sourceValue: "mother",
+          sourceValue: "Mother",
           hubspotValue: "Mother",
           displayLabel: "Mother",
           sortOrder: 2,
@@ -5833,7 +5829,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicant1RelationshipEnum.id,
-          sourceValue: "spouse",
+          sourceValue: "Spouse",
           hubspotValue: "Spouse",
           displayLabel: "Spouse",
           sortOrder: 3,
@@ -5841,7 +5837,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicant1RelationshipEnum.id,
-          sourceValue: "sibling",
+          sourceValue: "Sibling",
           hubspotValue: "Sibling",
           displayLabel: "Sibling",
           sortOrder: 4,
@@ -5849,7 +5845,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicant1RelationshipEnum.id,
-          sourceValue: "uncle",
+          sourceValue: "Uncle",
           hubspotValue: "Uncle",
           displayLabel: "Uncle",
           sortOrder: 5,
@@ -5857,7 +5853,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicant1RelationshipEnum.id,
-          sourceValue: "aunt",
+          sourceValue: "Aunt",
           hubspotValue: "Aunt",
           displayLabel: "Aunt",
           sortOrder: 6,
@@ -5865,7 +5861,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicant1RelationshipEnum.id,
-          sourceValue: "grand_father",
+          sourceValue: "Grand Father",
           hubspotValue: "Grand Father",
           displayLabel: "Grand Father",
           sortOrder: 7,
@@ -5873,7 +5869,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicant1RelationshipEnum.id,
-          sourceValue: "grand_mother",
+          sourceValue: "Grand Mother",
           hubspotValue: "Grand Mother",
           displayLabel: "Grand Mother",
           sortOrder: 8,
@@ -5881,7 +5877,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicant1RelationshipEnum.id,
-          sourceValue: "others",
+          sourceValue: "Others",
           hubspotValue: "Others",
           displayLabel: "Others",
           sortOrder: 9,
@@ -5921,7 +5917,7 @@ const seedEdumateContactEnumMappings = async () => {
       data: [
         {
           enumMappingId: coApplicant2OccupationEnum.id,
-          sourceValue: "salaried",
+          sourceValue: "Salaried",
           hubspotValue: "Salaried",
           displayLabel: "Salaried",
           sortOrder: 1,
@@ -5929,7 +5925,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicant2OccupationEnum.id,
-          sourceValue: "self_employed",
+          sourceValue: "Self Employed",
           hubspotValue: "Self Employed",
           displayLabel: "Self Employed",
           sortOrder: 2,
@@ -5937,7 +5933,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicant2OccupationEnum.id,
-          sourceValue: "retired",
+          sourceValue: "Retired",
           hubspotValue: "Retired",
           displayLabel: "Retired",
           sortOrder: 3,
@@ -5945,7 +5941,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicant2OccupationEnum.id,
-          sourceValue: "others",
+          sourceValue: "Others",
           hubspotValue: "Others",
           displayLabel: "Others",
           sortOrder: 4,
@@ -5985,7 +5981,7 @@ const seedEdumateContactEnumMappings = async () => {
       data: [
         {
           enumMappingId: coApplicant2RelationshipEnum.id,
-          sourceValue: "father",
+          sourceValue: "Father",
           hubspotValue: "Father",
           displayLabel: "Father",
           sortOrder: 1,
@@ -5993,7 +5989,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicant2RelationshipEnum.id,
-          sourceValue: "mother",
+          sourceValue: "Mother",
           hubspotValue: "Mother",
           displayLabel: "Mother",
           sortOrder: 2,
@@ -6001,7 +5997,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicant2RelationshipEnum.id,
-          sourceValue: "spouse",
+          sourceValue: "Spouse",
           hubspotValue: "Spouse",
           displayLabel: "Spouse",
           sortOrder: 3,
@@ -6009,7 +6005,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicant2RelationshipEnum.id,
-          sourceValue: "sibling",
+          sourceValue: "Sibling",
           hubspotValue: "Sibling",
           displayLabel: "Sibling",
           sortOrder: 4,
@@ -6017,7 +6013,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicant2RelationshipEnum.id,
-          sourceValue: "uncle",
+          sourceValue: "Uncle",
           hubspotValue: "Uncle",
           displayLabel: "Uncle",
           sortOrder: 5,
@@ -6025,7 +6021,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicant2RelationshipEnum.id,
-          sourceValue: "aunt",
+          sourceValue: "Aunt",
           hubspotValue: "Aunt",
           displayLabel: "Aunt",
           sortOrder: 6,
@@ -6033,7 +6029,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicant2RelationshipEnum.id,
-          sourceValue: "grand_father",
+          sourceValue: "Grand Father",
           hubspotValue: "Grand Father",
           displayLabel: "Grand Father",
           sortOrder: 7,
@@ -6041,7 +6037,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicant2RelationshipEnum.id,
-          sourceValue: "grand_mother",
+          sourceValue: "Grand Mother",
           hubspotValue: "Grand Mother",
           displayLabel: "Grand Mother",
           sortOrder: 8,
@@ -6049,7 +6045,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicant2RelationshipEnum.id,
-          sourceValue: "others",
+          sourceValue: "Others",
           hubspotValue: "Others",
           displayLabel: "Others",
           sortOrder: 9,
@@ -6089,7 +6085,7 @@ const seedEdumateContactEnumMappings = async () => {
       data: [
         {
           enumMappingId: coApplicant3OccupationEnum.id,
-          sourceValue: "salaried",
+          sourceValue: "Salaried",
           hubspotValue: "Salaried",
           displayLabel: "Salaried",
           sortOrder: 1,
@@ -6097,7 +6093,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicant3OccupationEnum.id,
-          sourceValue: "self_employed",
+          sourceValue: "Self Employed",
           hubspotValue: "Self Employed",
           displayLabel: "Self Employed",
           sortOrder: 2,
@@ -6105,7 +6101,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicant3OccupationEnum.id,
-          sourceValue: "retired",
+          sourceValue: "Retired",
           hubspotValue: "Retired",
           displayLabel: "Retired",
           sortOrder: 3,
@@ -6113,7 +6109,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicant3OccupationEnum.id,
-          sourceValue: "others",
+          sourceValue: "Others",
           hubspotValue: "Others",
           displayLabel: "Others",
           sortOrder: 4,
@@ -6153,7 +6149,7 @@ const seedEdumateContactEnumMappings = async () => {
       data: [
         {
           enumMappingId: coApplicant3RelationshipEnum.id,
-          sourceValue: "father",
+          sourceValue: "Father",
           hubspotValue: "Father",
           displayLabel: "Father",
           sortOrder: 1,
@@ -6161,7 +6157,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicant3RelationshipEnum.id,
-          sourceValue: "mother",
+          sourceValue: "Mother",
           hubspotValue: "Mother",
           displayLabel: "Mother",
           sortOrder: 2,
@@ -6169,7 +6165,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicant3RelationshipEnum.id,
-          sourceValue: "spouse",
+          sourceValue: "Spouse",
           hubspotValue: "Spouse",
           displayLabel: "Spouse",
           sortOrder: 3,
@@ -6177,7 +6173,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicant3RelationshipEnum.id,
-          sourceValue: "sibling",
+          sourceValue: "Sibling",
           hubspotValue: "Sibling",
           displayLabel: "Sibling",
           sortOrder: 4,
@@ -6185,7 +6181,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicant3RelationshipEnum.id,
-          sourceValue: "uncle",
+          sourceValue: "Uncle",
           hubspotValue: "Uncle",
           displayLabel: "Uncle",
           sortOrder: 5,
@@ -6193,7 +6189,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicant3RelationshipEnum.id,
-          sourceValue: "aunt",
+          sourceValue: "Aunt",
           hubspotValue: "Aunt",
           displayLabel: "Aunt",
           sortOrder: 6,
@@ -6201,7 +6197,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicant3RelationshipEnum.id,
-          sourceValue: "grand_father",
+          sourceValue: "Grand Father",
           hubspotValue: "Grand Father",
           displayLabel: "Grand Father",
           sortOrder: 7,
@@ -6209,7 +6205,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicant3RelationshipEnum.id,
-          sourceValue: "grand_mother",
+          sourceValue: "Grand Mother",
           hubspotValue: "Grand Mother",
           displayLabel: "Grand Mother",
           sortOrder: 8,
@@ -6217,7 +6213,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicant3RelationshipEnum.id,
-          sourceValue: "others",
+          sourceValue: "Others",
           hubspotValue: "Others",
           displayLabel: "Others",
           sortOrder: 9,
@@ -6257,7 +6253,7 @@ const seedEdumateContactEnumMappings = async () => {
       data: [
         {
           enumMappingId: collateral2AvailableEnum.id,
-          sourceValue: "yes",
+          sourceValue: "Yes",
           hubspotValue: "Yes",
           displayLabel: "Yes",
           sortOrder: 1,
@@ -6265,7 +6261,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: collateral2AvailableEnum.id,
-          sourceValue: "no",
+          sourceValue: "No",
           hubspotValue: "No",
           displayLabel: "No",
           sortOrder: 2,
@@ -6305,7 +6301,7 @@ const seedEdumateContactEnumMappings = async () => {
       data: [
         {
           enumMappingId: collateral2TypeEnum.id,
-          sourceValue: "property",
+          sourceValue: "Property",
           hubspotValue: "Property",
           displayLabel: "Property",
           sortOrder: 1,
@@ -6313,7 +6309,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: collateral2TypeEnum.id,
-          sourceValue: "fd",
+          sourceValue: "FD",
           hubspotValue: "FD",
           displayLabel: "Fixed Deposit",
           sortOrder: 2,
@@ -6321,7 +6317,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: collateral2TypeEnum.id,
-          sourceValue: "na_plot",
+          sourceValue: "NA Plot",
           hubspotValue: "NA Plot",
           displayLabel: "NA Plot",
           sortOrder: 3,
@@ -6329,7 +6325,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: collateral2TypeEnum.id,
-          sourceValue: "other",
+          sourceValue: "Other",
           hubspotValue: "Other",
           displayLabel: "Other",
           sortOrder: 4,
@@ -6369,7 +6365,7 @@ const seedEdumateContactEnumMappings = async () => {
       data: [
         {
           enumMappingId: collateralAvailableEnum.id,
-          sourceValue: "yes",
+          sourceValue: "Yes",
           hubspotValue: "Yes",
           displayLabel: "Yes",
           sortOrder: 1,
@@ -6377,7 +6373,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: collateralAvailableEnum.id,
-          sourceValue: "no",
+          sourceValue: "No",
           hubspotValue: "No",
           displayLabel: "No",
           sortOrder: 2,
@@ -6417,7 +6413,7 @@ const seedEdumateContactEnumMappings = async () => {
       data: [
         {
           enumMappingId: collateralTypeEnum.id,
-          sourceValue: "property",
+          sourceValue: "Property",
           hubspotValue: "Property",
           displayLabel: "Property",
           sortOrder: 1,
@@ -6425,7 +6421,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: collateralTypeEnum.id,
-          sourceValue: "fd",
+          sourceValue: "FD",
           hubspotValue: "FD",
           displayLabel: "Fixed Deposit",
           sortOrder: 2,
@@ -6433,7 +6429,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: collateralTypeEnum.id,
-          sourceValue: "na_plot",
+          sourceValue: "NA Plot",
           hubspotValue: "NA Plot",
           displayLabel: "NA Plot",
           sortOrder: 3,
@@ -6441,7 +6437,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: collateralTypeEnum.id,
-          sourceValue: "other",
+          sourceValue: "Other",
           hubspotValue: "Other",
           displayLabel: "Other",
           sortOrder: 4,
@@ -6481,7 +6477,7 @@ const seedEdumateContactEnumMappings = async () => {
       data: [
         {
           enumMappingId: currencyEnum.id,
-          sourceValue: "inr",
+          sourceValue: "INR",
           hubspotValue: "INR",
           displayLabel: "INR (Indian Rupee)",
           sortOrder: 1,
@@ -6489,7 +6485,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: currencyEnum.id,
-          sourceValue: "usd",
+          sourceValue: "USD",
           hubspotValue: "USD",
           displayLabel: "USD (US Dollar)",
           sortOrder: 2,
@@ -6497,7 +6493,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: currencyEnum.id,
-          sourceValue: "eur",
+          sourceValue: "EUR",
           hubspotValue: "EUR",
           displayLabel: "EUR (Euro)",
           sortOrder: 3,
@@ -6505,7 +6501,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: currencyEnum.id,
-          sourceValue: "gbp",
+          sourceValue: "GBP",
           hubspotValue: "GBP",
           displayLabel: "GBP (British Pound)",
           sortOrder: 4,
@@ -6513,7 +6509,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: currencyEnum.id,
-          sourceValue: "cad",
+          sourceValue: "CAD",
           hubspotValue: "CAD",
           displayLabel: "CAD (Canadian Dollar)",
           sortOrder: 5,
@@ -6521,7 +6517,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: currencyEnum.id,
-          sourceValue: "aud",
+          sourceValue: "AUD",
           hubspotValue: "AUD",
           displayLabel: "AUD (Australian Dollar)",
           sortOrder: 6,
@@ -6529,7 +6525,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: currencyEnum.id,
-          sourceValue: "other",
+          sourceValue: "Other",
           hubspotValue: "Other",
           displayLabel: "Other",
           sortOrder: 7,
@@ -6571,7 +6567,7 @@ const seedEdumateContactEnumMappings = async () => {
       data: [
         {
           enumMappingId: leadSourceEnum.id,
-          sourceValue: "organic_search",
+          sourceValue: "Organic Search",
           hubspotValue: "Organic Search",
           displayLabel: "Organic Search",
           sortOrder: 1,
@@ -6579,7 +6575,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: leadSourceEnum.id,
-          sourceValue: "social_media",
+          sourceValue: "Social Media",
           hubspotValue: "Social Media",
           displayLabel: "Social Media",
           sortOrder: 2,
@@ -6587,7 +6583,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: leadSourceEnum.id,
-          sourceValue: "b2b_partner",
+          sourceValue: "B2B Partner",
           hubspotValue: "B2B Partner",
           displayLabel: "B2B Partner",
           sortOrder: 3,
@@ -6595,7 +6591,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: leadSourceEnum.id,
-          sourceValue: "referral",
+          sourceValue: "Referral",
           hubspotValue: "Referral",
           displayLabel: "Referral",
           sortOrder: 4,
@@ -6603,7 +6599,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: leadSourceEnum.id,
-          sourceValue: "advertisement",
+          sourceValue: "Advertisement",
           hubspotValue: "Advertisement",
           displayLabel: "Advertisement",
           sortOrder: 5,
@@ -6611,7 +6607,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: leadSourceEnum.id,
-          sourceValue: "website",
+          sourceValue: "Website",
           hubspotValue: "Website",
           displayLabel: "Website",
           sortOrder: 6,
@@ -6619,7 +6615,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: leadSourceEnum.id,
-          sourceValue: "walk_in",
+          sourceValue: "Walk-in",
           hubspotValue: "Walk-in",
           displayLabel: "Walk-in",
           sortOrder: 7,
@@ -6627,7 +6623,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: leadSourceEnum.id,
-          sourceValue: "other",
+          sourceValue: "Other",
           hubspotValue: "Other",
           displayLabel: "Other",
           sortOrder: 8,
@@ -6667,7 +6663,7 @@ const seedEdumateContactEnumMappings = async () => {
       data: [
         {
           enumMappingId: partnerCommissionEnum.id,
-          sourceValue: "yes",
+          sourceValue: "Yes",
           hubspotValue: "Yes",
           displayLabel: "Yes",
           sortOrder: 1,
@@ -6675,7 +6671,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: partnerCommissionEnum.id,
-          sourceValue: "no",
+          sourceValue: "No",
           hubspotValue: "No",
           displayLabel: "No",
           sortOrder: 2,
@@ -6717,7 +6713,7 @@ const seedEdumateContactEnumMappings = async () => {
       data: [
         {
           enumMappingId: loanTypePreferenceEnum.id,
-          sourceValue: "secured",
+          sourceValue: "Secured",
           hubspotValue: "Secured",
           displayLabel: "Secured",
           sortOrder: 1,
@@ -6725,7 +6721,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: loanTypePreferenceEnum.id,
-          sourceValue: "unsecured",
+          sourceValue: "Unsecured",
           hubspotValue: "Unsecured",
           displayLabel: "Unsecured",
           sortOrder: 2,
@@ -6733,7 +6729,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: loanTypePreferenceEnum.id,
-          sourceValue: "government_scheme",
+          sourceValue: "Government Scheme",
           hubspotValue: "Government Scheme",
           displayLabel: "Government Scheme",
           sortOrder: 3,
@@ -6741,7 +6737,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: loanTypePreferenceEnum.id,
-          sourceValue: "no_preference",
+          sourceValue: "No Preference",
           hubspotValue: "No Preference",
           displayLabel: "No Preference",
           sortOrder: 4,
@@ -6781,7 +6777,7 @@ const seedEdumateContactEnumMappings = async () => {
       data: [
         {
           enumMappingId: repaymentTypePreferenceEnum.id,
-          sourceValue: "emi",
+          sourceValue: "EMI",
           hubspotValue: "EMI",
           displayLabel: "EMI (Equated Monthly Installment)",
           sortOrder: 1,
@@ -6789,7 +6785,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: repaymentTypePreferenceEnum.id,
-          sourceValue: "simple_int",
+          sourceValue: "Simple Int",
           hubspotValue: "Simple Int",
           displayLabel: "Simple Interest",
           sortOrder: 2,
@@ -6797,7 +6793,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: repaymentTypePreferenceEnum.id,
-          sourceValue: "partial_int",
+          sourceValue: "Partial Int",
           hubspotValue: "Partial Int",
           displayLabel: "Partial Interest",
           sortOrder: 3,
@@ -6805,7 +6801,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: repaymentTypePreferenceEnum.id,
-          sourceValue: "complete_morat",
+          sourceValue: "Complete Morat",
           hubspotValue: "Complete Morat",
           displayLabel: "Complete Moratorium",
           sortOrder: 4,
@@ -6847,7 +6843,7 @@ const seedEdumateContactEnumMappings = async () => {
       data: [
         {
           enumMappingId: genderEnum.id,
-          sourceValue: "male",
+          sourceValue: "Male",
           hubspotValue: "Male",
           displayLabel: "Male",
           sortOrder: 1,
@@ -6855,7 +6851,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: genderEnum.id,
-          sourceValue: "female",
+          sourceValue: "Female",
           hubspotValue: "Female",
           displayLabel: "Female",
           sortOrder: 2,
@@ -6863,7 +6859,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: genderEnum.id,
-          sourceValue: "other",
+          sourceValue: "Other",
           hubspotValue: "Other",
           displayLabel: "Other",
           sortOrder: 3,
@@ -6871,7 +6867,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: genderEnum.id,
-          sourceValue: "prefer_not_to_say",
+          sourceValue: "Prefer not to say",
           hubspotValue: "Prefer not to say",
           displayLabel: "Prefer not to say",
           sortOrder: 4,
@@ -6907,13 +6903,11 @@ const seedEdumateContactEnumMappings = async () => {
       },
     });
 
-    // Note: There are 254 nationalities - creating a subset of most common ones
-    // You can expand this list as needed
     await prisma.enumValue.createMany({
       data: [
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "afghanistan",
+          sourceValue: "Afghanistan",
           hubspotValue: "Afghanistan",
           displayLabel: "Afghanistan",
           sortOrder: 1,
@@ -6921,7 +6915,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "albania",
+          sourceValue: "Albania",
           hubspotValue: "Albania",
           displayLabel: "Albania",
           sortOrder: 2,
@@ -6929,7 +6923,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "algeria",
+          sourceValue: "Algeria",
           hubspotValue: "Algeria",
           displayLabel: "Algeria",
           sortOrder: 3,
@@ -6937,7 +6931,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "argentina",
+          sourceValue: "Argentina",
           hubspotValue: "Argentina",
           displayLabel: "Argentina",
           sortOrder: 4,
@@ -6945,7 +6939,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "australia",
+          sourceValue: "Australia",
           hubspotValue: "Australia",
           displayLabel: "Australia",
           sortOrder: 5,
@@ -6953,7 +6947,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "austria",
+          sourceValue: "Austria",
           hubspotValue: "Austria",
           displayLabel: "Austria",
           sortOrder: 6,
@@ -6961,7 +6955,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "bangladesh",
+          sourceValue: "Bangladesh",
           hubspotValue: "Bangladesh",
           displayLabel: "Bangladesh",
           sortOrder: 7,
@@ -6969,7 +6963,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "belgium",
+          sourceValue: "Belgium",
           hubspotValue: "Belgium",
           displayLabel: "Belgium",
           sortOrder: 8,
@@ -6977,7 +6971,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "brazil",
+          sourceValue: "Brazil",
           hubspotValue: "Brazil",
           displayLabel: "Brazil",
           sortOrder: 9,
@@ -6985,7 +6979,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "canada",
+          sourceValue: "Canada",
           hubspotValue: "Canada",
           displayLabel: "Canada",
           sortOrder: 10,
@@ -6993,7 +6987,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "china",
+          sourceValue: "China",
           hubspotValue: "China",
           displayLabel: "China",
           sortOrder: 11,
@@ -7001,7 +6995,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "colombia",
+          sourceValue: "Colombia",
           hubspotValue: "Colombia",
           displayLabel: "Colombia",
           sortOrder: 12,
@@ -7009,7 +7003,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "denmark",
+          sourceValue: "Denmark",
           hubspotValue: "Denmark",
           displayLabel: "Denmark",
           sortOrder: 13,
@@ -7017,7 +7011,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "egypt",
+          sourceValue: "Egypt",
           hubspotValue: "Egypt",
           displayLabel: "Egypt",
           sortOrder: 14,
@@ -7025,7 +7019,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "finland",
+          sourceValue: "Finland",
           hubspotValue: "Finland",
           displayLabel: "Finland",
           sortOrder: 15,
@@ -7033,7 +7027,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "france",
+          sourceValue: "France",
           hubspotValue: "France",
           displayLabel: "France",
           sortOrder: 16,
@@ -7041,7 +7035,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "germany",
+          sourceValue: "Germany",
           hubspotValue: "Germany",
           displayLabel: "Germany",
           sortOrder: 17,
@@ -7049,7 +7043,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "greece",
+          sourceValue: "Greece",
           hubspotValue: "Greece",
           displayLabel: "Greece",
           sortOrder: 18,
@@ -7057,7 +7051,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "hong_kong",
+          sourceValue: "Hong Kong",
           hubspotValue: "Hong Kong",
           displayLabel: "Hong Kong",
           sortOrder: 19,
@@ -7065,7 +7059,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "india",
+          sourceValue: "India",
           hubspotValue: "India",
           displayLabel: "India",
           sortOrder: 20,
@@ -7073,7 +7067,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "indonesia",
+          sourceValue: "Indonesia",
           hubspotValue: "Indonesia",
           displayLabel: "Indonesia",
           sortOrder: 21,
@@ -7081,7 +7075,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "iran",
+          sourceValue: "Iran",
           hubspotValue: "Iran",
           displayLabel: "Iran",
           sortOrder: 22,
@@ -7089,7 +7083,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "iraq",
+          sourceValue: "Iraq",
           hubspotValue: "Iraq",
           displayLabel: "Iraq",
           sortOrder: 23,
@@ -7097,7 +7091,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "ireland",
+          sourceValue: "Ireland",
           hubspotValue: "Ireland",
           displayLabel: "Ireland",
           sortOrder: 24,
@@ -7105,7 +7099,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "israel",
+          sourceValue: "Israel",
           hubspotValue: "Israel",
           displayLabel: "Israel",
           sortOrder: 25,
@@ -7113,7 +7107,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "italy",
+          sourceValue: "Italy",
           hubspotValue: "Italy",
           displayLabel: "Italy",
           sortOrder: 26,
@@ -7121,7 +7115,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "japan",
+          sourceValue: "Japan",
           hubspotValue: "Japan",
           displayLabel: "Japan",
           sortOrder: 27,
@@ -7129,7 +7123,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "jordan",
+          sourceValue: "Jordan",
           hubspotValue: "Jordan",
           displayLabel: "Jordan",
           sortOrder: 28,
@@ -7137,7 +7131,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "kenya",
+          sourceValue: "Kenya",
           hubspotValue: "Kenya",
           displayLabel: "Kenya",
           sortOrder: 29,
@@ -7145,7 +7139,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "south_korea",
+          sourceValue: "South Korea",
           hubspotValue: "South Korea",
           displayLabel: "South Korea",
           sortOrder: 30,
@@ -7153,7 +7147,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "malaysia",
+          sourceValue: "Malaysia",
           hubspotValue: "Malaysia",
           displayLabel: "Malaysia",
           sortOrder: 31,
@@ -7161,7 +7155,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "mexico",
+          sourceValue: "Mexico",
           hubspotValue: "Mexico",
           displayLabel: "Mexico",
           sortOrder: 32,
@@ -7169,7 +7163,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "netherlands",
+          sourceValue: "Netherlands",
           hubspotValue: "Netherlands",
           displayLabel: "Netherlands",
           sortOrder: 33,
@@ -7177,7 +7171,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "new_zealand",
+          sourceValue: "New Zealand",
           hubspotValue: "New Zealand",
           displayLabel: "New Zealand",
           sortOrder: 34,
@@ -7185,7 +7179,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "nigeria",
+          sourceValue: "Nigeria",
           hubspotValue: "Nigeria",
           displayLabel: "Nigeria",
           sortOrder: 35,
@@ -7193,7 +7187,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "norway",
+          sourceValue: "Norway",
           hubspotValue: "Norway",
           displayLabel: "Norway",
           sortOrder: 36,
@@ -7201,7 +7195,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "pakistan",
+          sourceValue: "Pakistan",
           hubspotValue: "Pakistan",
           displayLabel: "Pakistan",
           sortOrder: 37,
@@ -7209,7 +7203,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "philippines",
+          sourceValue: "Philippines",
           hubspotValue: "Philippines",
           displayLabel: "Philippines",
           sortOrder: 38,
@@ -7217,7 +7211,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "poland",
+          sourceValue: "Poland",
           hubspotValue: "Poland",
           displayLabel: "Poland",
           sortOrder: 39,
@@ -7225,7 +7219,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "portugal",
+          sourceValue: "Portugal",
           hubspotValue: "Portugal",
           displayLabel: "Portugal",
           sortOrder: 40,
@@ -7233,7 +7227,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "russia",
+          sourceValue: "Russia",
           hubspotValue: "Russia",
           displayLabel: "Russia",
           sortOrder: 41,
@@ -7241,7 +7235,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "saudi_arabia",
+          sourceValue: "Saudi Arabia",
           hubspotValue: "Saudi Arabia",
           displayLabel: "Saudi Arabia",
           sortOrder: 42,
@@ -7249,7 +7243,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "singapore",
+          sourceValue: "Singapore",
           hubspotValue: "Singapore",
           displayLabel: "Singapore",
           sortOrder: 43,
@@ -7257,7 +7251,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "south_africa",
+          sourceValue: "South Africa",
           hubspotValue: "South Africa",
           displayLabel: "South Africa",
           sortOrder: 44,
@@ -7265,7 +7259,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "spain",
+          sourceValue: "Spain",
           hubspotValue: "Spain",
           displayLabel: "Spain",
           sortOrder: 45,
@@ -7273,7 +7267,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "sri_lanka",
+          sourceValue: "Sri Lanka",
           hubspotValue: "Sri Lanka",
           displayLabel: "Sri Lanka",
           sortOrder: 46,
@@ -7281,7 +7275,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "sweden",
+          sourceValue: "Sweden",
           hubspotValue: "Sweden",
           displayLabel: "Sweden",
           sortOrder: 47,
@@ -7289,7 +7283,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "switzerland",
+          sourceValue: "Switzerland",
           hubspotValue: "Switzerland",
           displayLabel: "Switzerland",
           sortOrder: 48,
@@ -7297,7 +7291,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "thailand",
+          sourceValue: "Thailand",
           hubspotValue: "Thailand",
           displayLabel: "Thailand",
           sortOrder: 49,
@@ -7305,7 +7299,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "turkey",
+          sourceValue: "Türkiye",
           hubspotValue: "Türkiye",
           displayLabel: "Türkiye",
           sortOrder: 50,
@@ -7313,7 +7307,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "uae",
+          sourceValue: "United Arab Emirates",
           hubspotValue: "United Arab Emirates",
           displayLabel: "United Arab Emirates",
           sortOrder: 51,
@@ -7321,7 +7315,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "uk",
+          sourceValue: "United Kingdom",
           hubspotValue: "United Kingdom",
           displayLabel: "United Kingdom",
           sortOrder: 52,
@@ -7329,7 +7323,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "us",
+          sourceValue: "United States",
           hubspotValue: "United States",
           displayLabel: "United States",
           sortOrder: 53,
@@ -7337,7 +7331,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "vietnam",
+          sourceValue: "Vietnam",
           hubspotValue: "Vietnam",
           displayLabel: "Vietnam",
           sortOrder: 54,
@@ -7345,7 +7339,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityEnum.id,
-          sourceValue: "other",
+          sourceValue: "Other",
           hubspotValue: "Other",
           displayLabel: "Other",
           sortOrder: 255,
@@ -7387,7 +7381,7 @@ const seedEdumateContactEnumMappings = async () => {
       data: [
         {
           enumMappingId: dataSourceEnum.id,
-          sourceValue: "manual_entry",
+          sourceValue: "Manual Entry",
           hubspotValue: "Manual Entry",
           displayLabel: "Manual Entry",
           sortOrder: 1,
@@ -7395,7 +7389,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: dataSourceEnum.id,
-          sourceValue: "import",
+          sourceValue: "Import",
           hubspotValue: "Import",
           displayLabel: "Import",
           sortOrder: 2,
@@ -7403,7 +7397,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: dataSourceEnum.id,
-          sourceValue: "api",
+          sourceValue: "API",
           hubspotValue: "API",
           displayLabel: "API",
           sortOrder: 3,
@@ -7411,7 +7405,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: dataSourceEnum.id,
-          sourceValue: "website_form",
+          sourceValue: "Website Form",
           hubspotValue: "Website Form",
           displayLabel: "Website Form",
           sortOrder: 4,
@@ -7419,7 +7413,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: dataSourceEnum.id,
-          sourceValue: "partner_integration",
+          sourceValue: "Partner Integration",
           hubspotValue: "Partner Integration",
           displayLabel: "Partner Integration",
           sortOrder: 5,
@@ -7459,7 +7453,7 @@ const seedEdumateContactEnumMappings = async () => {
       data: [
         {
           enumMappingId: gdprConsentEnum.id,
-          sourceValue: "yes",
+          sourceValue: "Yes",
           hubspotValue: "Yes",
           displayLabel: "Yes",
           sortOrder: 1,
@@ -7467,7 +7461,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: gdprConsentEnum.id,
-          sourceValue: "no",
+          sourceValue: "No",
           hubspotValue: "No",
           displayLabel: "No",
           sortOrder: 2,
@@ -7475,7 +7469,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: gdprConsentEnum.id,
-          sourceValue: "pending",
+          sourceValue: "Pending",
           hubspotValue: "Pending",
           displayLabel: "Pending",
           sortOrder: 3,
@@ -7515,7 +7509,7 @@ const seedEdumateContactEnumMappings = async () => {
       data: [
         {
           enumMappingId: marketingConsentEnum.id,
-          sourceValue: "yes",
+          sourceValue: "Yes",
           hubspotValue: "Yes",
           displayLabel: "Yes",
           sortOrder: 1,
@@ -7523,7 +7517,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: marketingConsentEnum.id,
-          sourceValue: "no",
+          sourceValue: "No",
           hubspotValue: "No",
           displayLabel: "No",
           sortOrder: 2,
@@ -7562,7 +7556,7 @@ const seedEdumateContactEnumMappings = async () => {
       data: [
         {
           enumMappingId: studentRecordStatusEnum.id,
-          sourceValue: "active",
+          sourceValue: "Active",
           hubspotValue: "Active",
           displayLabel: "Active",
           sortOrder: 1,
@@ -7570,7 +7564,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: studentRecordStatusEnum.id,
-          sourceValue: "inactive",
+          sourceValue: "Inactive",
           hubspotValue: "Inactive",
           displayLabel: "Inactive",
           sortOrder: 2,
@@ -7578,7 +7572,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: studentRecordStatusEnum.id,
-          sourceValue: "duplicate",
+          sourceValue: "Duplicate",
           hubspotValue: "Duplicate",
           displayLabel: "Duplicate",
           sortOrder: 3,
@@ -7586,7 +7580,7 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: studentRecordStatusEnum.id,
-          sourceValue: "merged",
+          sourceValue: "Merged",
           hubspotValue: "Merged",
           displayLabel: "Merged",
           sortOrder: 4,
@@ -7697,7 +7691,7 @@ const seedLoanApplicationEnumMappings = async () => {
       data: [
         {
           enumMappingId: admissionStatusEnum.id,
-          sourceValue: "not_applied",
+          sourceValue: "Not Applied",
           hubspotValue: "Not Applied",
           displayLabel: "Not Applied",
           sortOrder: 1,
@@ -7705,7 +7699,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: admissionStatusEnum.id,
-          sourceValue: "applied",
+          sourceValue: "Applied",
           hubspotValue: "Applied",
           displayLabel: "Applied",
           sortOrder: 2,
@@ -7713,7 +7707,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: admissionStatusEnum.id,
-          sourceValue: "admitted",
+          sourceValue: "Admitted",
           hubspotValue: "Admitted",
           displayLabel: "Admitted",
           sortOrder: 3,
@@ -7721,7 +7715,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: admissionStatusEnum.id,
-          sourceValue: "waitlisted",
+          sourceValue: "Waitlisted",
           hubspotValue: "Waitlisted",
           displayLabel: "Waitlisted",
           sortOrder: 4,
@@ -7729,7 +7723,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: admissionStatusEnum.id,
-          sourceValue: "rejected",
+          sourceValue: "Rejected",
           hubspotValue: "Rejected",
           displayLabel: "Rejected",
           sortOrder: 5,
@@ -7737,7 +7731,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: admissionStatusEnum.id,
-          sourceValue: "deferred",
+          sourceValue: "Deferred",
           hubspotValue: "Deferred",
           displayLabel: "Deferred",
           sortOrder: 6,
@@ -7745,7 +7739,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: admissionStatusEnum.id,
-          sourceValue: "interview_scheduled",
+          sourceValue: "Interview Scheduled",
           hubspotValue: "Interview Scheduled",
           displayLabel: "Interview Scheduled",
           sortOrder: 7,
@@ -7785,7 +7779,7 @@ const seedLoanApplicationEnumMappings = async () => {
       data: [
         {
           enumMappingId: courseLevelEnum.id,
-          sourceValue: "bachelors",
+          sourceValue: "Bachelors",
           hubspotValue: "Bachelors",
           displayLabel: "Bachelors",
           sortOrder: 1,
@@ -7793,15 +7787,15 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: courseLevelEnum.id,
-          sourceValue: "masters",
+          sourceValue: "Masters",
           hubspotValue: "Masters",
-          displayLabel: "Master's",
+          displayLabel: "Masters",
           sortOrder: 2,
           isActive: true,
         },
         {
           enumMappingId: courseLevelEnum.id,
-          sourceValue: "phd",
+          sourceValue: "PhD",
           hubspotValue: "PhD",
           displayLabel: "PhD",
           sortOrder: 3,
@@ -7809,7 +7803,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: courseLevelEnum.id,
-          sourceValue: "diploma",
+          sourceValue: "Diploma",
           hubspotValue: "Diploma",
           displayLabel: "Diploma",
           sortOrder: 4,
@@ -7817,7 +7811,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: courseLevelEnum.id,
-          sourceValue: "certificate",
+          sourceValue: "Certificate",
           hubspotValue: "Certificate",
           displayLabel: "Certificate",
           sortOrder: 5,
@@ -7825,7 +7819,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: courseLevelEnum.id,
-          sourceValue: "professional",
+          sourceValue: "Professional",
           hubspotValue: "Professional",
           displayLabel: "Professional",
           sortOrder: 6,
@@ -7865,7 +7859,7 @@ const seedLoanApplicationEnumMappings = async () => {
       data: [
         {
           enumMappingId: i20CasReceivedEnum.id,
-          sourceValue: "yes",
+          sourceValue: "Yes",
           hubspotValue: "Yes",
           displayLabel: "Yes",
           sortOrder: 1,
@@ -7873,7 +7867,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: i20CasReceivedEnum.id,
-          sourceValue: "no",
+          sourceValue: "No",
           hubspotValue: "No",
           displayLabel: "No",
           sortOrder: 2,
@@ -7881,7 +7875,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: i20CasReceivedEnum.id,
-          sourceValue: "not_applicable",
+          sourceValue: "Not Applicable",
           hubspotValue: "Not Applicable",
           displayLabel: "Not Applicable",
           sortOrder: 3,
@@ -7889,7 +7883,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: i20CasReceivedEnum.id,
-          sourceValue: "pending",
+          sourceValue: "Pending",
           hubspotValue: "Pending",
           displayLabel: "Pending",
           sortOrder: 4,
@@ -7929,7 +7923,7 @@ const seedLoanApplicationEnumMappings = async () => {
       data: [
         {
           enumMappingId: visaStatusEnum.id,
-          sourceValue: "not_applied",
+          sourceValue: "Not Applied",
           hubspotValue: "Not Applied",
           displayLabel: "Not Applied",
           sortOrder: 1,
@@ -7937,7 +7931,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: visaStatusEnum.id,
-          sourceValue: "applied",
+          sourceValue: "Applied",
           hubspotValue: "Applied",
           displayLabel: "Applied",
           sortOrder: 2,
@@ -7945,7 +7939,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: visaStatusEnum.id,
-          sourceValue: "approved",
+          sourceValue: "Approved",
           hubspotValue: "Approved",
           displayLabel: "Approved",
           sortOrder: 3,
@@ -7953,7 +7947,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: visaStatusEnum.id,
-          sourceValue: "rejected",
+          sourceValue: "Rejected",
           hubspotValue: "Rejected",
           displayLabel: "Rejected",
           sortOrder: 4,
@@ -7961,7 +7955,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: visaStatusEnum.id,
-          sourceValue: "pending",
+          sourceValue: "Pending",
           hubspotValue: "Pending",
           displayLabel: "Pending",
           sortOrder: 5,
@@ -8003,7 +7997,7 @@ const seedLoanApplicationEnumMappings = async () => {
       data: [
         {
           enumMappingId: applicationStatusEnum.id,
-          sourceValue: "pre_approved",
+          sourceValue: "Pre-Approved",
           hubspotValue: "Pre-Approved",
           displayLabel: "Pre-Approved",
           sortOrder: 1,
@@ -8011,7 +8005,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: applicationStatusEnum.id,
-          sourceValue: "approved",
+          sourceValue: "Approved",
           hubspotValue: "Approved",
           displayLabel: "Approved",
           sortOrder: 2,
@@ -8019,7 +8013,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: applicationStatusEnum.id,
-          sourceValue: "sanction_letter_issued",
+          sourceValue: "Sanction Letter Issued",
           hubspotValue: "Sanction Letter Issued",
           displayLabel: "Sanction Letter Issued",
           sortOrder: 3,
@@ -8027,7 +8021,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: applicationStatusEnum.id,
-          sourceValue: "disbursement_pending",
+          sourceValue: "Disbursement Pending",
           hubspotValue: "Disbursement Pending",
           displayLabel: "Disbursement Pending",
           sortOrder: 4,
@@ -8035,7 +8029,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: applicationStatusEnum.id,
-          sourceValue: "disbursed",
+          sourceValue: "Disbursed",
           hubspotValue: "Disbursed",
           displayLabel: "Disbursed",
           sortOrder: 5,
@@ -8043,7 +8037,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: applicationStatusEnum.id,
-          sourceValue: "rejected",
+          sourceValue: "Rejected",
           hubspotValue: "Rejected",
           displayLabel: "Rejected",
           sortOrder: 6,
@@ -8051,7 +8045,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: applicationStatusEnum.id,
-          sourceValue: "on_hold",
+          sourceValue: "On Hold",
           hubspotValue: "On Hold",
           displayLabel: "On Hold",
           sortOrder: 7,
@@ -8059,7 +8053,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: applicationStatusEnum.id,
-          sourceValue: "withdrawn",
+          sourceValue: "Withdrawn",
           hubspotValue: "Withdrawn",
           displayLabel: "Withdrawn",
           sortOrder: 8,
@@ -8067,7 +8061,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: applicationStatusEnum.id,
-          sourceValue: "cancelled",
+          sourceValue: "Cancelled",
           hubspotValue: "Cancelled",
           displayLabel: "Cancelled",
           sortOrder: 9,
@@ -8107,7 +8101,7 @@ const seedLoanApplicationEnumMappings = async () => {
       data: [
         {
           enumMappingId: priorityLevelEnum.id,
-          sourceValue: "high",
+          sourceValue: "High",
           hubspotValue: "High",
           displayLabel: "High",
           sortOrder: 1,
@@ -8115,7 +8109,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: priorityLevelEnum.id,
-          sourceValue: "medium",
+          sourceValue: "Medium",
           hubspotValue: "Medium",
           displayLabel: "Medium",
           sortOrder: 2,
@@ -8123,7 +8117,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: priorityLevelEnum.id,
-          sourceValue: "low",
+          sourceValue: "Low",
           hubspotValue: "Low",
           displayLabel: "Low",
           sortOrder: 3,
@@ -8131,7 +8125,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: priorityLevelEnum.id,
-          sourceValue: "urgent",
+          sourceValue: "Urgent",
           hubspotValue: "Urgent",
           displayLabel: "Urgent",
           sortOrder: 4,
@@ -8173,7 +8167,7 @@ const seedLoanApplicationEnumMappings = async () => {
       data: [
         {
           enumMappingId: commissionCalculationBaseEnum.id,
-          sourceValue: "loan_amount",
+          sourceValue: "Loan Amount",
           hubspotValue: "Loan Amount",
           displayLabel: "Loan Amount",
           sortOrder: 1,
@@ -8181,7 +8175,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: commissionCalculationBaseEnum.id,
-          sourceValue: "fixed_amount",
+          sourceValue: "Fixed Amount",
           hubspotValue: "Fixed Amount",
           displayLabel: "Fixed Amount",
           sortOrder: 2,
@@ -8189,7 +8183,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: commissionCalculationBaseEnum.id,
-          sourceValue: "tiered",
+          sourceValue: "Tiered",
           hubspotValue: "Tiered",
           displayLabel: "Tiered",
           sortOrder: 3,
@@ -8229,7 +8223,7 @@ const seedLoanApplicationEnumMappings = async () => {
       data: [
         {
           enumMappingId: commissionStatusEnum.id,
-          sourceValue: "not_applicable",
+          sourceValue: "Not Applicable",
           hubspotValue: "Not Applicable",
           displayLabel: "Not Applicable",
           sortOrder: 1,
@@ -8237,7 +8231,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: commissionStatusEnum.id,
-          sourceValue: "pending_calculation",
+          sourceValue: "Pending Calculation",
           hubspotValue: "Pending Calculation",
           displayLabel: "Pending Calculation",
           sortOrder: 2,
@@ -8245,7 +8239,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: commissionStatusEnum.id,
-          sourceValue: "calculated",
+          sourceValue: "Calculated",
           hubspotValue: "Calculated",
           displayLabel: "Calculated",
           sortOrder: 3,
@@ -8253,7 +8247,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: commissionStatusEnum.id,
-          sourceValue: "approved_for_payment",
+          sourceValue: "Approved for Payment",
           hubspotValue: "Approved for Payment",
           displayLabel: "Approved for Payment",
           sortOrder: 4,
@@ -8261,7 +8255,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: commissionStatusEnum.id,
-          sourceValue: "paid",
+          sourceValue: "Paid",
           hubspotValue: "Paid",
           displayLabel: "Paid",
           sortOrder: 5,
@@ -8269,7 +8263,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: commissionStatusEnum.id,
-          sourceValue: "on_hold",
+          sourceValue: "On Hold",
           hubspotValue: "On Hold",
           displayLabel: "On Hold",
           sortOrder: 6,
@@ -8309,7 +8303,7 @@ const seedLoanApplicationEnumMappings = async () => {
       data: [
         {
           enumMappingId: partnerCommissionApplicableEnum.id,
-          sourceValue: "yes",
+          sourceValue: "Yes",
           hubspotValue: "Yes",
           displayLabel: "Yes",
           sortOrder: 1,
@@ -8317,7 +8311,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: partnerCommissionApplicableEnum.id,
-          sourceValue: "no",
+          sourceValue: "No",
           hubspotValue: "No",
           displayLabel: "No",
           sortOrder: 2,
@@ -8359,7 +8353,7 @@ const seedLoanApplicationEnumMappings = async () => {
       data: [
         {
           enumMappingId: communicationPreferenceEnum.id,
-          sourceValue: "phone",
+          sourceValue: "Phone",
           hubspotValue: "Phone",
           displayLabel: "Phone",
           sortOrder: 1,
@@ -8367,7 +8361,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: communicationPreferenceEnum.id,
-          sourceValue: "email",
+          sourceValue: "Email",
           hubspotValue: "Email",
           displayLabel: "Email",
           sortOrder: 2,
@@ -8375,7 +8369,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: communicationPreferenceEnum.id,
-          sourceValue: "whatsapp",
+          sourceValue: "WhatsApp",
           hubspotValue: "WhatsApp",
           displayLabel: "WhatsApp",
           sortOrder: 3,
@@ -8383,7 +8377,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: communicationPreferenceEnum.id,
-          sourceValue: "sms",
+          sourceValue: "SMS",
           hubspotValue: "SMS",
           displayLabel: "SMS",
           sortOrder: 4,
@@ -8391,7 +8385,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: communicationPreferenceEnum.id,
-          sourceValue: "video_call",
+          sourceValue: "Video Call",
           hubspotValue: "Video Call",
           displayLabel: "Video Call",
           sortOrder: 5,
@@ -8431,7 +8425,7 @@ const seedLoanApplicationEnumMappings = async () => {
       data: [
         {
           enumMappingId: complaintRaisedEnum.id,
-          sourceValue: "yes",
+          sourceValue: "Yes",
           hubspotValue: "Yes",
           displayLabel: "Yes",
           sortOrder: 1,
@@ -8439,7 +8433,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: complaintRaisedEnum.id,
-          sourceValue: "no",
+          sourceValue: "No",
           hubspotValue: "No",
           displayLabel: "No",
           sortOrder: 2,
@@ -8479,7 +8473,7 @@ const seedLoanApplicationEnumMappings = async () => {
       data: [
         {
           enumMappingId: followUpFrequencyEnum.id,
-          sourceValue: "daily",
+          sourceValue: "Daily",
           hubspotValue: "Daily",
           displayLabel: "Daily",
           sortOrder: 1,
@@ -8487,7 +8481,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: followUpFrequencyEnum.id,
-          sourceValue: "weekly",
+          sourceValue: "Weekly",
           hubspotValue: "Weekly",
           displayLabel: "Weekly",
           sortOrder: 2,
@@ -8495,7 +8489,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: followUpFrequencyEnum.id,
-          sourceValue: "bi_weekly",
+          sourceValue: "Bi-weekly",
           hubspotValue: "Bi-weekly",
           displayLabel: "Bi-weekly",
           sortOrder: 3,
@@ -8503,7 +8497,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: followUpFrequencyEnum.id,
-          sourceValue: "monthly",
+          sourceValue: "Monthly",
           hubspotValue: "Monthly",
           displayLabel: "Monthly",
           sortOrder: 4,
@@ -8511,7 +8505,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: followUpFrequencyEnum.id,
-          sourceValue: "as_needed",
+          sourceValue: "As Needed",
           hubspotValue: "As Needed",
           displayLabel: "As Needed",
           sortOrder: 5,
@@ -8553,7 +8547,7 @@ const seedLoanApplicationEnumMappings = async () => {
       data: [
         {
           enumMappingId: coSignerRequiredEnum.id,
-          sourceValue: "yes",
+          sourceValue: "Yes",
           hubspotValue: "Yes",
           displayLabel: "Yes",
           sortOrder: 1,
@@ -8561,7 +8555,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: coSignerRequiredEnum.id,
-          sourceValue: "no",
+          sourceValue: "No",
           hubspotValue: "No",
           displayLabel: "No",
           sortOrder: 2,
@@ -8601,7 +8595,7 @@ const seedLoanApplicationEnumMappings = async () => {
       data: [
         {
           enumMappingId: collateralRequiredEnum.id,
-          sourceValue: "yes",
+          sourceValue: "Yes",
           hubspotValue: "Yes",
           displayLabel: "Yes",
           sortOrder: 1,
@@ -8609,7 +8603,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: collateralRequiredEnum.id,
-          sourceValue: "no",
+          sourceValue: "No",
           hubspotValue: "No",
           displayLabel: "No",
           sortOrder: 2,
@@ -8649,7 +8643,7 @@ const seedLoanApplicationEnumMappings = async () => {
       data: [
         {
           enumMappingId: interestRateTypeEnum.id,
-          sourceValue: "fixed",
+          sourceValue: "Fixed",
           hubspotValue: "Fixed",
           displayLabel: "Fixed",
           sortOrder: 1,
@@ -8657,7 +8651,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: interestRateTypeEnum.id,
-          sourceValue: "floating",
+          sourceValue: "Floating",
           hubspotValue: "Floating",
           displayLabel: "Floating",
           sortOrder: 2,
@@ -8665,7 +8659,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: interestRateTypeEnum.id,
-          sourceValue: "hybrid",
+          sourceValue: "Hybrid",
           hubspotValue: "Hybrid",
           displayLabel: "Hybrid",
           sortOrder: 3,
@@ -8705,7 +8699,7 @@ const seedLoanApplicationEnumMappings = async () => {
       data: [
         {
           enumMappingId: loanProductTypeEnum.id,
-          sourceValue: "secured",
+          sourceValue: "Secured",
           hubspotValue: "Secured",
           displayLabel: "Secured",
           sortOrder: 1,
@@ -8713,7 +8707,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: loanProductTypeEnum.id,
-          sourceValue: "unsecured",
+          sourceValue: "Unsecured",
           hubspotValue: "Unsecured",
           displayLabel: "Unsecured",
           sortOrder: 2,
@@ -8721,7 +8715,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: loanProductTypeEnum.id,
-          sourceValue: "government_scheme",
+          sourceValue: "Government Scheme",
           hubspotValue: "Government Scheme",
           displayLabel: "Government Scheme",
           sortOrder: 3,
@@ -8763,7 +8757,7 @@ const seedLoanApplicationEnumMappings = async () => {
       data: [
         {
           enumMappingId: applicationSourceEnum.id,
-          sourceValue: "direct",
+          sourceValue: "Direct",
           hubspotValue: "Direct",
           displayLabel: "Direct",
           sortOrder: 1,
@@ -8771,7 +8765,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: applicationSourceEnum.id,
-          sourceValue: "b2b_partner",
+          sourceValue: "B2B Partner",
           hubspotValue: "B2B Partner",
           displayLabel: "B2B Partner",
           sortOrder: 2,
@@ -8779,7 +8773,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: applicationSourceEnum.id,
-          sourceValue: "website",
+          sourceValue: "Website",
           hubspotValue: "Website",
           displayLabel: "Website",
           sortOrder: 3,
@@ -8787,7 +8781,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: applicationSourceEnum.id,
-          sourceValue: "referral",
+          sourceValue: "Referral",
           hubspotValue: "Referral",
           displayLabel: "Referral",
           sortOrder: 4,
@@ -8795,7 +8789,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: applicationSourceEnum.id,
-          sourceValue: "advertisement",
+          sourceValue: "Advertisement",
           hubspotValue: "Advertisement",
           displayLabel: "Advertisement",
           sortOrder: 5,
@@ -8837,7 +8831,7 @@ const seedLoanApplicationEnumMappings = async () => {
       data: [
         {
           enumMappingId: delayReasonEnum.id,
-          sourceValue: "incomplete_documents",
+          sourceValue: "Incomplete Documents",
           hubspotValue: "Incomplete Documents",
           displayLabel: "Incomplete Documents",
           sortOrder: 1,
@@ -8845,7 +8839,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: delayReasonEnum.id,
-          sourceValue: "customer_not_responding",
+          sourceValue: "Customer not responding",
           hubspotValue: "Customer not responding",
           displayLabel: "Customer not responding",
           sortOrder: 2,
@@ -8853,7 +8847,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: delayReasonEnum.id,
-          sourceValue: "etc",
+          sourceValue: "etc.",
           hubspotValue: "etc.",
           displayLabel: "Other",
           sortOrder: 3,
@@ -8893,7 +8887,7 @@ const seedLoanApplicationEnumMappings = async () => {
       data: [
         {
           enumMappingId: slaBreachEnum.id,
-          sourceValue: "yes",
+          sourceValue: "Yes",
           hubspotValue: "Yes",
           displayLabel: "Yes",
           sortOrder: 1,
@@ -8901,7 +8895,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: slaBreachEnum.id,
-          sourceValue: "no",
+          sourceValue: "No",
           hubspotValue: "No",
           displayLabel: "No",
           sortOrder: 2,
@@ -8943,7 +8937,7 @@ const seedLoanApplicationEnumMappings = async () => {
       data: [
         {
           enumMappingId: appealOutcomeEnum.id,
-          sourceValue: "pending",
+          sourceValue: "Pending",
           hubspotValue: "Pending",
           displayLabel: "Pending",
           sortOrder: 1,
@@ -8951,7 +8945,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: appealOutcomeEnum.id,
-          sourceValue: "approved",
+          sourceValue: "Approved",
           hubspotValue: "Approved",
           displayLabel: "Approved",
           sortOrder: 2,
@@ -8959,7 +8953,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: appealOutcomeEnum.id,
-          sourceValue: "rejected",
+          sourceValue: "Rejected",
           hubspotValue: "Rejected",
           displayLabel: "Rejected",
           sortOrder: 3,
@@ -8967,7 +8961,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: appealOutcomeEnum.id,
-          sourceValue: "not_applicable",
+          sourceValue: "Not Applicable",
           hubspotValue: "Not Applicable",
           displayLabel: "Not Applicable",
           sortOrder: 4,
@@ -9007,7 +9001,7 @@ const seedLoanApplicationEnumMappings = async () => {
       data: [
         {
           enumMappingId: appealSubmittedEnum.id,
-          sourceValue: "yes",
+          sourceValue: "Yes",
           hubspotValue: "Yes",
           displayLabel: "Yes",
           sortOrder: 1,
@@ -9015,7 +9009,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: appealSubmittedEnum.id,
-          sourceValue: "no",
+          sourceValue: "No",
           hubspotValue: "No",
           displayLabel: "No",
           sortOrder: 2,
@@ -9023,7 +9017,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: appealSubmittedEnum.id,
-          sourceValue: "not_applicable",
+          sourceValue: "Not Applicable",
           hubspotValue: "Not Applicable",
           displayLabel: "Not Applicable",
           sortOrder: 3,
@@ -9063,7 +9057,7 @@ const seedLoanApplicationEnumMappings = async () => {
       data: [
         {
           enumMappingId: rejectionReasonEnum.id,
-          sourceValue: "insufficient_income",
+          sourceValue: "Insufficient Income",
           hubspotValue: "Insufficient Income",
           displayLabel: "Insufficient Income",
           sortOrder: 1,
@@ -9071,7 +9065,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: rejectionReasonEnum.id,
-          sourceValue: "poor_credit_score",
+          sourceValue: "Poor Credit Score",
           hubspotValue: "Poor Credit Score",
           displayLabel: "Poor Credit Score",
           sortOrder: 2,
@@ -9079,7 +9073,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: rejectionReasonEnum.id,
-          sourceValue: "incomplete_documents",
+          sourceValue: "Incomplete Documents",
           hubspotValue: "Incomplete Documents",
           displayLabel: "Incomplete Documents",
           sortOrder: 3,
@@ -9087,7 +9081,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: rejectionReasonEnum.id,
-          sourceValue: "course_not_approved",
+          sourceValue: "Course Not Approved",
           hubspotValue: "Course Not Approved",
           displayLabel: "Course Not Approved",
           sortOrder: 4,
@@ -9095,7 +9089,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: rejectionReasonEnum.id,
-          sourceValue: "university_not_approved",
+          sourceValue: "University Not Approved",
           hubspotValue: "University Not Approved",
           displayLabel: "University Not Approved",
           sortOrder: 5,
@@ -9103,7 +9097,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: rejectionReasonEnum.id,
-          sourceValue: "high_risk_profile",
+          sourceValue: "High Risk Profile",
           hubspotValue: "High Risk Profile",
           displayLabel: "High Risk Profile",
           sortOrder: 6,
@@ -9111,7 +9105,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: rejectionReasonEnum.id,
-          sourceValue: "policy_changes",
+          sourceValue: "Policy Changes",
           hubspotValue: "Policy Changes",
           displayLabel: "Policy Changes",
           sortOrder: 7,
@@ -9119,7 +9113,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: rejectionReasonEnum.id,
-          sourceValue: "other",
+          sourceValue: "Other",
           hubspotValue: "Other",
           displayLabel: "Other",
           sortOrder: 8,
@@ -9161,7 +9155,7 @@ const seedLoanApplicationEnumMappings = async () => {
       data: [
         {
           enumMappingId: applicationRecordStatusEnum.id,
-          sourceValue: "active",
+          sourceValue: "Active",
           hubspotValue: "Active",
           displayLabel: "Active",
           sortOrder: 1,
@@ -9169,15 +9163,15 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: applicationRecordStatusEnum.id,
-          sourceValue: "completed",
-          hubspotValue: "Completed,",
+          sourceValue: "Completed",
+          hubspotValue: "Completed",
           displayLabel: "Completed",
           sortOrder: 2,
           isActive: true,
         },
         {
           enumMappingId: applicationRecordStatusEnum.id,
-          sourceValue: "cancelled",
+          sourceValue: "Cancelled",
           hubspotValue: "Cancelled",
           displayLabel: "Cancelled",
           sortOrder: 3,
@@ -9185,7 +9179,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: applicationRecordStatusEnum.id,
-          sourceValue: "archived",
+          sourceValue: "Archived",
           hubspotValue: "Archived",
           displayLabel: "Archived",
           sortOrder: 4,
@@ -9225,7 +9219,7 @@ const seedLoanApplicationEnumMappings = async () => {
       data: [
         {
           enumMappingId: applicationSourceSystemEnum.id,
-          sourceValue: "manual_entry",
+          sourceValue: "Manual Entry",
           hubspotValue: "Manual Entry",
           displayLabel: "Manual Entry",
           sortOrder: 1,
@@ -9233,7 +9227,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: applicationSourceSystemEnum.id,
-          sourceValue: "website_form",
+          sourceValue: "Website Form",
           hubspotValue: "Website Form",
           displayLabel: "Website Form",
           sortOrder: 2,
@@ -9241,7 +9235,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: applicationSourceSystemEnum.id,
-          sourceValue: "partner_portal",
+          sourceValue: "Partner Portal",
           hubspotValue: "Partner Portal",
           displayLabel: "Partner Portal",
           sortOrder: 3,
@@ -9249,7 +9243,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: applicationSourceSystemEnum.id,
-          sourceValue: "import",
+          sourceValue: "Import",
           hubspotValue: "Import",
           displayLabel: "Import",
           sortOrder: 4,
@@ -9257,7 +9251,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: applicationSourceSystemEnum.id,
-          sourceValue: "api",
+          sourceValue: "API",
           hubspotValue: "API",
           displayLabel: "API",
           sortOrder: 5,
@@ -9297,7 +9291,7 @@ const seedLoanApplicationEnumMappings = async () => {
       data: [
         {
           enumMappingId: integrationStatusEnum.id,
-          sourceValue: "synced",
+          sourceValue: "Synced",
           hubspotValue: "Synced",
           displayLabel: "Synced",
           sortOrder: 1,
@@ -9305,7 +9299,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: integrationStatusEnum.id,
-          sourceValue: "pending_sync",
+          sourceValue: "Pending Sync",
           hubspotValue: "Pending Sync",
           displayLabel: "Pending Sync",
           sortOrder: 2,
@@ -9313,7 +9307,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: integrationStatusEnum.id,
-          sourceValue: "sync_failed",
+          sourceValue: "Sync Failed",
           hubspotValue: "Sync Failed",
           displayLabel: "Sync Failed",
           sortOrder: 3,
@@ -9321,7 +9315,7 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: integrationStatusEnum.id,
-          sourceValue: "not_required",
+          sourceValue: "Not Required",
           hubspotValue: "Not Required",
           displayLabel: "Not Required",
           sortOrder: 4,
@@ -9430,7 +9424,7 @@ const seedLoanProductEnumMappings = async () => {
       data: [
         {
           enumMappingId: productTypeEnum.id,
-          sourceValue: "secured_education_loan",
+          sourceValue: "Secured Education Loan",
           hubspotValue: "Secured Education Loan",
           displayLabel: "Secured Education Loan",
           sortOrder: 1,
@@ -9438,7 +9432,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: productTypeEnum.id,
-          sourceValue: "unsecured_education_loan",
+          sourceValue: "Unsecured Education Loan",
           hubspotValue: "Unsecured Education Loan",
           displayLabel: "Unsecured Education Loan",
           sortOrder: 2,
@@ -9446,7 +9440,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: productTypeEnum.id,
-          sourceValue: "government_scheme",
+          sourceValue: "Government Scheme",
           hubspotValue: "Government Scheme",
           displayLabel: "Government Scheme",
           sortOrder: 3,
@@ -9454,7 +9448,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: productTypeEnum.id,
-          sourceValue: "scholar_loan",
+          sourceValue: "Scholar Loan",
           hubspotValue: "Scholar Loan",
           displayLabel: "Scholar Loan",
           sortOrder: 4,
@@ -9462,7 +9456,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: productTypeEnum.id,
-          sourceValue: "express_loan",
+          sourceValue: "Express Loan",
           hubspotValue: "Express Loan",
           displayLabel: "Express Loan",
           sortOrder: 5,
@@ -9470,7 +9464,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: productTypeEnum.id,
-          sourceValue: "premium_loan",
+          sourceValue: "Premium Loan",
           hubspotValue: "Premium Loan",
           displayLabel: "Premium Loan",
           sortOrder: 6,
@@ -9510,7 +9504,7 @@ const seedLoanProductEnumMappings = async () => {
       data: [
         {
           enumMappingId: productCategoryEnum.id,
-          sourceValue: "domestic_education",
+          sourceValue: "Domestic Education",
           hubspotValue: "Domestic Education",
           displayLabel: "Domestic Education",
           sortOrder: 1,
@@ -9518,7 +9512,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: productCategoryEnum.id,
-          sourceValue: "international_education",
+          sourceValue: "International Education",
           hubspotValue: "International Education",
           displayLabel: "International Education",
           sortOrder: 2,
@@ -9526,7 +9520,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: productCategoryEnum.id,
-          sourceValue: "skill_development",
+          sourceValue: "Skill Development",
           hubspotValue: "Skill Development",
           displayLabel: "Skill Development",
           sortOrder: 3,
@@ -9534,7 +9528,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: productCategoryEnum.id,
-          sourceValue: "professional_courses",
+          sourceValue: "Professional Courses",
           hubspotValue: "Professional Courses",
           displayLabel: "Professional Courses",
           sortOrder: 4,
@@ -9574,7 +9568,7 @@ const seedLoanProductEnumMappings = async () => {
       data: [
         {
           enumMappingId: productStatusEnum.id,
-          sourceValue: "active",
+          sourceValue: "Active",
           hubspotValue: "Active",
           displayLabel: "Active",
           sortOrder: 1,
@@ -9582,7 +9576,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: productStatusEnum.id,
-          sourceValue: "inactive",
+          sourceValue: "Inactive",
           hubspotValue: "Inactive",
           displayLabel: "Inactive",
           sortOrder: 2,
@@ -9590,7 +9584,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: productStatusEnum.id,
-          sourceValue: "discontinued",
+          sourceValue: "Discontinued",
           hubspotValue: "Discontinued",
           displayLabel: "Discontinued",
           sortOrder: 3,
@@ -9598,7 +9592,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: productStatusEnum.id,
-          sourceValue: "coming_soon",
+          sourceValue: "Coming Soon",
           hubspotValue: "Coming Soon",
           displayLabel: "Coming Soon",
           sortOrder: 4,
@@ -9606,7 +9600,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: productStatusEnum.id,
-          sourceValue: "under_review",
+          sourceValue: "Under Review",
           hubspotValue: "Under Review",
           displayLabel: "Under Review",
           sortOrder: 5,
@@ -9648,7 +9642,7 @@ const seedLoanProductEnumMappings = async () => {
       data: [
         {
           enumMappingId: applicationModeEnum.id,
-          sourceValue: "online",
+          sourceValue: "Online",
           hubspotValue: "Online",
           displayLabel: "Online",
           sortOrder: 1,
@@ -9656,7 +9650,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: applicationModeEnum.id,
-          sourceValue: "offline",
+          sourceValue: "Offline",
           hubspotValue: "Offline",
           displayLabel: "Offline",
           sortOrder: 2,
@@ -9664,7 +9658,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: applicationModeEnum.id,
-          sourceValue: "hybrid",
+          sourceValue: "Hybrid",
           hubspotValue: "Hybrid",
           displayLabel: "Hybrid",
           sortOrder: 3,
@@ -9672,7 +9666,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: applicationModeEnum.id,
-          sourceValue: "mobile_app",
+          sourceValue: "Mobile App",
           hubspotValue: "Mobile App",
           displayLabel: "Mobile App",
           sortOrder: 4,
@@ -9680,7 +9674,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: applicationModeEnum.id,
-          sourceValue: "portal",
+          sourceValue: "Portal",
           hubspotValue: "Portal",
           displayLabel: "Portal",
           sortOrder: 5,
@@ -9720,7 +9714,7 @@ const seedLoanProductEnumMappings = async () => {
       data: [
         {
           enumMappingId: disbursementProcessEnum.id,
-          sourceValue: "direct_to_university",
+          sourceValue: "Direct to University",
           hubspotValue: "Direct to University",
           displayLabel: "Direct to University",
           sortOrder: 1,
@@ -9728,7 +9722,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: disbursementProcessEnum.id,
-          sourceValue: "direct_to_student",
+          sourceValue: "Direct to Student",
           hubspotValue: "Direct to Student",
           displayLabel: "Direct to Student",
           sortOrder: 2,
@@ -9736,7 +9730,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: disbursementProcessEnum.id,
-          sourceValue: "installment_based",
+          sourceValue: "Installment Based",
           hubspotValue: "Installment Based",
           displayLabel: "Installment Based",
           sortOrder: 3,
@@ -9744,7 +9738,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: disbursementProcessEnum.id,
-          sourceValue: "full_amount",
+          sourceValue: "Full Amount",
           hubspotValue: "Full Amount",
           displayLabel: "Full Amount",
           sortOrder: 4,
@@ -9752,7 +9746,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: disbursementProcessEnum.id,
-          sourceValue: "partial_disbursement",
+          sourceValue: "Partial Disbursement",
           hubspotValue: "Partial Disbursement",
           displayLabel: "Partial Disbursement",
           sortOrder: 5,
@@ -9794,7 +9788,7 @@ const seedLoanProductEnumMappings = async () => {
       data: [
         {
           enumMappingId: collateralRequiredEnum.id,
-          sourceValue: "yes_always",
+          sourceValue: "Yes - Always",
           hubspotValue: "Yes - Always",
           displayLabel: "Yes - Always",
           sortOrder: 1,
@@ -9802,7 +9796,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: collateralRequiredEnum.id,
-          sourceValue: "yes_above_threshold",
+          sourceValue: "Yes - Above Threshold",
           hubspotValue: "Yes - Above Threshold",
           displayLabel: "Yes - Above Threshold",
           sortOrder: 2,
@@ -9810,7 +9804,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: collateralRequiredEnum.id,
-          sourceValue: "no",
+          sourceValue: "No",
           hubspotValue: "No",
           displayLabel: "No",
           sortOrder: 3,
@@ -9818,7 +9812,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: collateralRequiredEnum.id,
-          sourceValue: "optional",
+          sourceValue: "Optional",
           hubspotValue: "Optional",
           displayLabel: "Optional",
           sortOrder: 4,
@@ -9858,7 +9852,7 @@ const seedLoanProductEnumMappings = async () => {
       data: [
         {
           enumMappingId: collateralTypesEnum.id,
-          sourceValue: "residential_property",
+          sourceValue: "Residential Property",
           hubspotValue: "Residential Property",
           displayLabel: "Residential Property",
           sortOrder: 1,
@@ -9866,7 +9860,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: collateralTypesEnum.id,
-          sourceValue: "commercial_property",
+          sourceValue: "Commercial Property",
           hubspotValue: "Commercial Property",
           displayLabel: "Commercial Property",
           sortOrder: 2,
@@ -9874,7 +9868,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: collateralTypesEnum.id,
-          sourceValue: "non_agricultural_land",
+          sourceValue: "Non Agricultural Land",
           hubspotValue: "Non Agricultural Land",
           displayLabel: "Non Agricultural Land",
           sortOrder: 3,
@@ -9882,7 +9876,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: collateralTypesEnum.id,
-          sourceValue: "fixed_deposits",
+          sourceValue: "Fixed Deposits",
           hubspotValue: "Fixed Deposits",
           displayLabel: "Fixed Deposits",
           sortOrder: 4,
@@ -9922,7 +9916,7 @@ const seedLoanProductEnumMappings = async () => {
       data: [
         {
           enumMappingId: guarantorRequiredEnum.id,
-          sourceValue: "always",
+          sourceValue: "Always",
           hubspotValue: "Always",
           displayLabel: "Always",
           sortOrder: 1,
@@ -9930,7 +9924,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: guarantorRequiredEnum.id,
-          sourceValue: "above_threshold",
+          sourceValue: "Above Threshold",
           hubspotValue: "Above Threshold",
           displayLabel: "Above Threshold",
           sortOrder: 2,
@@ -9938,7 +9932,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: guarantorRequiredEnum.id,
-          sourceValue: "not_required",
+          sourceValue: "Not Required",
           hubspotValue: "Not Required",
           displayLabel: "Not Required",
           sortOrder: 3,
@@ -9946,7 +9940,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: guarantorRequiredEnum.id,
-          sourceValue: "optional",
+          sourceValue: "Optional",
           hubspotValue: "Optional",
           displayLabel: "Optional",
           sortOrder: 4,
@@ -9986,7 +9980,7 @@ const seedLoanProductEnumMappings = async () => {
       data: [
         {
           enumMappingId: insuranceRequiredEnum.id,
-          sourceValue: "life_insurance",
+          sourceValue: "Life Insurance",
           hubspotValue: "Life Insurance",
           displayLabel: "Life Insurance",
           sortOrder: 1,
@@ -9994,7 +9988,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: insuranceRequiredEnum.id,
-          sourceValue: "property_insurance",
+          sourceValue: "Property Insurance",
           hubspotValue: "Property Insurance",
           displayLabel: "Property Insurance",
           sortOrder: 2,
@@ -10002,7 +9996,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: insuranceRequiredEnum.id,
-          sourceValue: "both",
+          sourceValue: "Both",
           hubspotValue: "Both",
           displayLabel: "Both",
           sortOrder: 3,
@@ -10010,7 +10004,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: insuranceRequiredEnum.id,
-          sourceValue: "not_required",
+          sourceValue: "Not Required",
           hubspotValue: "Not Required",
           displayLabel: "Not Required",
           sortOrder: 4,
@@ -10050,7 +10044,7 @@ const seedLoanProductEnumMappings = async () => {
       data: [
         {
           enumMappingId: thirdPartyGuaranteeEnum.id,
-          sourceValue: "yes",
+          sourceValue: "Yes",
           hubspotValue: "Yes",
           displayLabel: "Yes",
           sortOrder: 1,
@@ -10058,7 +10052,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: thirdPartyGuaranteeEnum.id,
-          sourceValue: "no",
+          sourceValue: "No",
           hubspotValue: "No",
           displayLabel: "No",
           sortOrder: 2,
@@ -10066,7 +10060,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: thirdPartyGuaranteeEnum.id,
-          sourceValue: "case_by_case",
+          sourceValue: "Case by Case",
           hubspotValue: "Case by Case",
           displayLabel: "Case by Case",
           sortOrder: 3,
@@ -10108,7 +10102,7 @@ const seedLoanProductEnumMappings = async () => {
       data: [
         {
           enumMappingId: marketPositioningEnum.id,
-          sourceValue: "premium",
+          sourceValue: "Premium",
           hubspotValue: "Premium",
           displayLabel: "Premium",
           sortOrder: 1,
@@ -10116,7 +10110,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: marketPositioningEnum.id,
-          sourceValue: "mid_market",
+          sourceValue: "Mid-Market",
           hubspotValue: "Mid-Market",
           displayLabel: "Mid-Market",
           sortOrder: 2,
@@ -10124,7 +10118,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: marketPositioningEnum.id,
-          sourceValue: "budget",
+          sourceValue: "Budget",
           hubspotValue: "Budget",
           displayLabel: "Budget",
           sortOrder: 3,
@@ -10132,7 +10126,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: marketPositioningEnum.id,
-          sourceValue: "niche",
+          sourceValue: "Niche",
           hubspotValue: "Niche",
           displayLabel: "Niche",
           sortOrder: 4,
@@ -10140,7 +10134,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: marketPositioningEnum.id,
-          sourceValue: "mass_market",
+          sourceValue: "Mass Market",
           hubspotValue: "Mass Market",
           displayLabel: "Mass Market",
           sortOrder: 5,
@@ -10180,7 +10174,7 @@ const seedLoanProductEnumMappings = async () => {
       data: [
         {
           enumMappingId: pricingStrategyEnum.id,
-          sourceValue: "competitive",
+          sourceValue: "Competitive",
           hubspotValue: "Competitive",
           displayLabel: "Competitive",
           sortOrder: 1,
@@ -10188,7 +10182,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: pricingStrategyEnum.id,
-          sourceValue: "premium",
+          sourceValue: "Premium",
           hubspotValue: "Premium",
           displayLabel: "Premium",
           sortOrder: 2,
@@ -10196,7 +10190,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: pricingStrategyEnum.id,
-          sourceValue: "penetration",
+          sourceValue: "Penetration",
           hubspotValue: "Penetration",
           displayLabel: "Penetration",
           sortOrder: 3,
@@ -10204,7 +10198,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: pricingStrategyEnum.id,
-          sourceValue: "value_based",
+          sourceValue: "Value Based",
           hubspotValue: "Value Based",
           displayLabel: "Value Based",
           sortOrder: 4,
@@ -10246,7 +10240,7 @@ const seedLoanProductEnumMappings = async () => {
       data: [
         {
           enumMappingId: coApplicantRelationshipEnum.id,
-          sourceValue: "parent",
+          sourceValue: "Parent",
           hubspotValue: "Parent",
           displayLabel: "Parent",
           sortOrder: 1,
@@ -10254,7 +10248,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicantRelationshipEnum.id,
-          sourceValue: "spouse",
+          sourceValue: "Spouse",
           hubspotValue: "Spouse",
           displayLabel: "Spouse",
           sortOrder: 2,
@@ -10262,7 +10256,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicantRelationshipEnum.id,
-          sourceValue: "guardian",
+          sourceValue: "Guardian",
           hubspotValue: "Guardian",
           displayLabel: "Guardian",
           sortOrder: 3,
@@ -10270,7 +10264,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicantRelationshipEnum.id,
-          sourceValue: "sibling",
+          sourceValue: "Sibling",
           hubspotValue: "Sibling",
           displayLabel: "Sibling",
           sortOrder: 4,
@@ -10278,7 +10272,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicantRelationshipEnum.id,
-          sourceValue: "in_laws",
+          sourceValue: "In-laws",
           hubspotValue: "In-laws",
           displayLabel: "In-laws",
           sortOrder: 5,
@@ -10286,7 +10280,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicantRelationshipEnum.id,
-          sourceValue: "any_blood_relative",
+          sourceValue: "Any Blood Relative",
           hubspotValue: "Any Blood Relative",
           displayLabel: "Any Blood Relative",
           sortOrder: 6,
@@ -10326,7 +10320,7 @@ const seedLoanProductEnumMappings = async () => {
       data: [
         {
           enumMappingId: coApplicantRequiredEnum.id,
-          sourceValue: "always",
+          sourceValue: "Always",
           hubspotValue: "Always",
           displayLabel: "Always",
           sortOrder: 1,
@@ -10334,7 +10328,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicantRequiredEnum.id,
-          sourceValue: "sometimes",
+          sourceValue: "Sometimes",
           hubspotValue: "Sometimes",
           displayLabel: "Sometimes",
           sortOrder: 2,
@@ -10342,7 +10336,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: coApplicantRequiredEnum.id,
-          sourceValue: "not_required",
+          sourceValue: "Not Required",
           hubspotValue: "Not Required",
           displayLabel: "Not Required",
           sortOrder: 3,
@@ -10382,7 +10376,7 @@ const seedLoanProductEnumMappings = async () => {
       data: [
         {
           enumMappingId: entranceExamRequiredEnum.id,
-          sourceValue: "gre",
+          sourceValue: "GRE",
           hubspotValue: "GRE",
           displayLabel: "GRE",
           sortOrder: 1,
@@ -10390,7 +10384,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: entranceExamRequiredEnum.id,
-          sourceValue: "gmat",
+          sourceValue: "GMAT",
           hubspotValue: "GMAT",
           displayLabel: "GMAT",
           sortOrder: 2,
@@ -10398,7 +10392,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: entranceExamRequiredEnum.id,
-          sourceValue: "ielts",
+          sourceValue: "IELTS",
           hubspotValue: "IELTS",
           displayLabel: "IELTS",
           sortOrder: 3,
@@ -10406,7 +10400,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: entranceExamRequiredEnum.id,
-          sourceValue: "toefl",
+          sourceValue: "TOEFL",
           hubspotValue: "TOEFL",
           displayLabel: "TOEFL",
           sortOrder: 4,
@@ -10414,7 +10408,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: entranceExamRequiredEnum.id,
-          sourceValue: "sat",
+          sourceValue: "SAT",
           hubspotValue: "SAT",
           displayLabel: "SAT",
           sortOrder: 5,
@@ -10422,7 +10416,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: entranceExamRequiredEnum.id,
-          sourceValue: "neet",
+          sourceValue: "NEET",
           hubspotValue: "NEET",
           displayLabel: "NEET",
           sortOrder: 6,
@@ -10430,7 +10424,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: entranceExamRequiredEnum.id,
-          sourceValue: "jee",
+          sourceValue: "JEE",
           hubspotValue: "JEE",
           displayLabel: "JEE",
           sortOrder: 7,
@@ -10438,7 +10432,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: entranceExamRequiredEnum.id,
-          sourceValue: "cat",
+          sourceValue: "CAT",
           hubspotValue: "CAT",
           displayLabel: "CAT",
           sortOrder: 8,
@@ -10446,7 +10440,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: entranceExamRequiredEnum.id,
-          sourceValue: "not_required",
+          sourceValue: "Not Required",
           hubspotValue: "Not Required",
           displayLabel: "Not Required",
           sortOrder: 9,
@@ -10486,7 +10480,7 @@ const seedLoanProductEnumMappings = async () => {
       data: [
         {
           enumMappingId: nationalityRestrictionsEnum.id,
-          sourceValue: "indian",
+          sourceValue: "Indian",
           hubspotValue: "Indian",
           displayLabel: "Indian",
           sortOrder: 1,
@@ -10494,7 +10488,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: nationalityRestrictionsEnum.id,
-          sourceValue: "others",
+          sourceValue: "Others",
           hubspotValue: "Others",
           displayLabel: "Others",
           sortOrder: 2,
@@ -10534,7 +10528,7 @@ const seedLoanProductEnumMappings = async () => {
       data: [
         {
           enumMappingId: residencyRequirementsEnum.id,
-          sourceValue: "resident",
+          sourceValue: "Resident",
           hubspotValue: "Resident",
           displayLabel: "Resident",
           sortOrder: 1,
@@ -10542,7 +10536,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: residencyRequirementsEnum.id,
-          sourceValue: "non_resident",
+          sourceValue: "Non-Resident",
           hubspotValue: "Non-Resident",
           displayLabel: "Non-Resident",
           sortOrder: 2,
@@ -10582,7 +10576,7 @@ const seedLoanProductEnumMappings = async () => {
       data: [
         {
           enumMappingId: targetSegmentEnum.id,
-          sourceValue: "undergraduate",
+          sourceValue: "Undergraduate",
           hubspotValue: "Undergraduate",
           displayLabel: "Undergraduate",
           sortOrder: 1,
@@ -10590,7 +10584,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: targetSegmentEnum.id,
-          sourceValue: "graduate",
+          sourceValue: "Graduate",
           hubspotValue: "Graduate",
           displayLabel: "Graduate",
           sortOrder: 2,
@@ -10598,7 +10592,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: targetSegmentEnum.id,
-          sourceValue: "phd",
+          sourceValue: "PhD",
           hubspotValue: "PhD",
           displayLabel: "PhD",
           sortOrder: 3,
@@ -10606,7 +10600,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: targetSegmentEnum.id,
-          sourceValue: "diploma",
+          sourceValue: "Diploma",
           hubspotValue: "Diploma",
           displayLabel: "Diploma",
           sortOrder: 4,
@@ -10614,7 +10608,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: targetSegmentEnum.id,
-          sourceValue: "certificate",
+          sourceValue: "Certificate",
           hubspotValue: "Certificate",
           displayLabel: "Certificate",
           sortOrder: 5,
@@ -10622,7 +10616,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: targetSegmentEnum.id,
-          sourceValue: "professional",
+          sourceValue: "Professional",
           hubspotValue: "Professional",
           displayLabel: "Professional",
           sortOrder: 6,
@@ -10630,7 +10624,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: targetSegmentEnum.id,
-          sourceValue: "technical",
+          sourceValue: "Technical",
           hubspotValue: "Technical",
           displayLabel: "Technical",
           sortOrder: 7,
@@ -10638,7 +10632,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: targetSegmentEnum.id,
-          sourceValue: "medical",
+          sourceValue: "Medical",
           hubspotValue: "Medical",
           displayLabel: "Medical",
           sortOrder: 8,
@@ -10646,7 +10640,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: targetSegmentEnum.id,
-          sourceValue: "management",
+          sourceValue: "Management",
           hubspotValue: "Management",
           displayLabel: "Management",
           sortOrder: 9,
@@ -10688,7 +10682,7 @@ const seedLoanProductEnumMappings = async () => {
       data: [
         {
           enumMappingId: loanProductInterestRateTypeEnum.id,
-          sourceValue: "fixed",
+          sourceValue: "Fixed",
           hubspotValue: "Fixed",
           displayLabel: "Fixed",
           sortOrder: 1,
@@ -10696,7 +10690,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: loanProductInterestRateTypeEnum.id,
-          sourceValue: "floating",
+          sourceValue: "Floating",
           hubspotValue: "Floating",
           displayLabel: "Floating",
           sortOrder: 2,
@@ -10704,7 +10698,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: loanProductInterestRateTypeEnum.id,
-          sourceValue: "hybrid",
+          sourceValue: "Hybrid",
           hubspotValue: "Hybrid",
           displayLabel: "Hybrid",
           sortOrder: 3,
@@ -10712,7 +10706,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: loanProductInterestRateTypeEnum.id,
-          sourceValue: "choice_based",
+          sourceValue: "Choice Based",
           hubspotValue: "Choice Based",
           displayLabel: "Choice Based",
           sortOrder: 4,
@@ -10752,7 +10746,7 @@ const seedLoanProductEnumMappings = async () => {
       data: [
         {
           enumMappingId: processingFeeTypeEnum.id,
-          sourceValue: "percentage",
+          sourceValue: "Percentage",
           hubspotValue: "Percentage",
           displayLabel: "Percentage",
           sortOrder: 1,
@@ -10760,7 +10754,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: processingFeeTypeEnum.id,
-          sourceValue: "fixed_amount",
+          sourceValue: "Fixed Amount",
           hubspotValue: "Fixed Amount",
           displayLabel: "Fixed Amount",
           sortOrder: 2,
@@ -10768,7 +10762,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: processingFeeTypeEnum.id,
-          sourceValue: "nil",
+          sourceValue: "Nil",
           hubspotValue: "Nil",
           displayLabel: "Nil",
           sortOrder: 3,
@@ -10812,7 +10806,7 @@ const seedLoanProductEnumMappings = async () => {
       data: [
         {
           enumMappingId: loanProductSupportedCourseTypesEnum.id,
-          sourceValue: "full_time",
+          sourceValue: "Full Time",
           hubspotValue: "Full Time",
           displayLabel: "Full Time",
           sortOrder: 1,
@@ -10820,7 +10814,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: loanProductSupportedCourseTypesEnum.id,
-          sourceValue: "part_time",
+          sourceValue: "Part Time",
           hubspotValue: "Part Time",
           displayLabel: "Part Time",
           sortOrder: 2,
@@ -10828,7 +10822,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: loanProductSupportedCourseTypesEnum.id,
-          sourceValue: "distance_learning",
+          sourceValue: "Distance Learning",
           hubspotValue: "Distance Learning",
           displayLabel: "Distance Learning",
           sortOrder: 3,
@@ -10836,7 +10830,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: loanProductSupportedCourseTypesEnum.id,
-          sourceValue: "online",
+          sourceValue: "Online",
           hubspotValue: "Online",
           displayLabel: "Online",
           sortOrder: 4,
@@ -10844,7 +10838,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: loanProductSupportedCourseTypesEnum.id,
-          sourceValue: "executive",
+          sourceValue: "Executive",
           hubspotValue: "Executive",
           displayLabel: "Executive",
           sortOrder: 5,
@@ -10852,7 +10846,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: loanProductSupportedCourseTypesEnum.id,
-          sourceValue: "regular",
+          sourceValue: "Regular",
           hubspotValue: "Regular",
           displayLabel: "Regular",
           sortOrder: 6,
@@ -10860,7 +10854,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: loanProductSupportedCourseTypesEnum.id,
-          sourceValue: "accelerated",
+          sourceValue: "Accelerated",
           hubspotValue: "Accelerated",
           displayLabel: "Accelerated",
           sortOrder: 7,
@@ -10902,7 +10896,7 @@ const seedLoanProductEnumMappings = async () => {
       data: [
         {
           enumMappingId: moratoriumTypeEnum.id,
-          sourceValue: "complete",
+          sourceValue: "Complete",
           hubspotValue: "Complete",
           displayLabel: "Complete",
           sortOrder: 1,
@@ -10910,7 +10904,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: moratoriumTypeEnum.id,
-          sourceValue: "interest_only",
+          sourceValue: "Interest Only",
           hubspotValue: "Interest Only",
           displayLabel: "Interest Only",
           sortOrder: 2,
@@ -10918,7 +10912,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: moratoriumTypeEnum.id,
-          sourceValue: "partial_emi",
+          sourceValue: "Partial EMI",
           hubspotValue: "Partial EMI",
           displayLabel: "Partial EMI",
           sortOrder: 3,
@@ -10926,7 +10920,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: moratoriumTypeEnum.id,
-          sourceValue: "no_moratorium",
+          sourceValue: "No Moratorium",
           hubspotValue: "No Moratorium",
           displayLabel: "No Moratorium",
           sortOrder: 4,
@@ -10966,7 +10960,7 @@ const seedLoanProductEnumMappings = async () => {
       data: [
         {
           enumMappingId: partPaymentAllowedEnum.id,
-          sourceValue: "yes",
+          sourceValue: "Yes",
           hubspotValue: "Yes",
           displayLabel: "Yes",
           sortOrder: 1,
@@ -10974,7 +10968,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: partPaymentAllowedEnum.id,
-          sourceValue: "no",
+          sourceValue: "No",
           hubspotValue: "No",
           displayLabel: "No",
           sortOrder: 2,
@@ -10982,7 +10976,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: partPaymentAllowedEnum.id,
-          sourceValue: "minimum_amount",
+          sourceValue: "Minimum Amount",
           hubspotValue: "Minimum Amount",
           displayLabel: "Minimum Amount",
           sortOrder: 3,
@@ -11022,7 +11016,7 @@ const seedLoanProductEnumMappings = async () => {
       data: [
         {
           enumMappingId: prepaymentAllowedEnum.id,
-          sourceValue: "yes",
+          sourceValue: "Yes",
           hubspotValue: "Yes",
           displayLabel: "Yes",
           sortOrder: 1,
@@ -11030,7 +11024,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: prepaymentAllowedEnum.id,
-          sourceValue: "no",
+          sourceValue: "No",
           hubspotValue: "No",
           displayLabel: "No",
           sortOrder: 2,
@@ -11038,7 +11032,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: prepaymentAllowedEnum.id,
-          sourceValue: "after_lock_in_period",
+          sourceValue: "After Lock-in Period",
           hubspotValue: "After Lock-in Period",
           displayLabel: "After Lock-in Period",
           sortOrder: 3,
@@ -11078,7 +11072,7 @@ const seedLoanProductEnumMappings = async () => {
       data: [
         {
           enumMappingId: repaymentFrequencyEnum.id,
-          sourceValue: "monthly",
+          sourceValue: "Monthly",
           hubspotValue: "Monthly",
           displayLabel: "Monthly",
           sortOrder: 1,
@@ -11086,7 +11080,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: repaymentFrequencyEnum.id,
-          sourceValue: "quarterly",
+          sourceValue: "Quarterly",
           hubspotValue: "Quarterly",
           displayLabel: "Quarterly",
           sortOrder: 2,
@@ -11094,7 +11088,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: repaymentFrequencyEnum.id,
-          sourceValue: "half_yearly",
+          sourceValue: "Half-yearly",
           hubspotValue: "Half-yearly",
           displayLabel: "Half-yearly",
           sortOrder: 3,
@@ -11102,7 +11096,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: repaymentFrequencyEnum.id,
-          sourceValue: "annually",
+          sourceValue: "Annually",
           hubspotValue: "Annually",
           displayLabel: "Annually",
           sortOrder: 4,
@@ -11110,7 +11104,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: repaymentFrequencyEnum.id,
-          sourceValue: "flexible",
+          sourceValue: "Flexible",
           hubspotValue: "Flexible",
           displayLabel: "Flexible",
           sortOrder: 5,
@@ -11152,7 +11146,7 @@ const seedLoanProductEnumMappings = async () => {
       data: [
         {
           enumMappingId: customerSupportFeaturesEnum.id,
-          sourceValue: "24x7_support",
+          sourceValue: "24x7 Support",
           hubspotValue: "24x7 Support",
           displayLabel: "24x7 Support",
           sortOrder: 1,
@@ -11160,7 +11154,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: customerSupportFeaturesEnum.id,
-          sourceValue: "dedicated_rm",
+          sourceValue: "Dedicated RM",
           hubspotValue: "Dedicated RM",
           displayLabel: "Dedicated RM",
           sortOrder: 2,
@@ -11168,7 +11162,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: customerSupportFeaturesEnum.id,
-          sourceValue: "online_chat",
+          sourceValue: "Online Chat",
           hubspotValue: "Online Chat",
           displayLabel: "Online Chat",
           sortOrder: 3,
@@ -11176,7 +11170,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: customerSupportFeaturesEnum.id,
-          sourceValue: "video_kyc",
+          sourceValue: "Video KYC",
           hubspotValue: "Video KYC",
           displayLabel: "Video KYC",
           sortOrder: 4,
@@ -11184,7 +11178,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: customerSupportFeaturesEnum.id,
-          sourceValue: "door_step_service",
+          sourceValue: "Door Step Service",
           hubspotValue: "Door Step Service",
           displayLabel: "Door Step Service",
           sortOrder: 5,
@@ -11224,7 +11218,7 @@ const seedLoanProductEnumMappings = async () => {
       data: [
         {
           enumMappingId: digitalFeaturesEnum.id,
-          sourceValue: "online_application",
+          sourceValue: "Online Application",
           hubspotValue: "Online Application",
           displayLabel: "Online Application",
           sortOrder: 1,
@@ -11232,7 +11226,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: digitalFeaturesEnum.id,
-          sourceValue: "digital_documentation",
+          sourceValue: "Digital Documentation",
           hubspotValue: "Digital Documentation",
           displayLabel: "Digital Documentation",
           sortOrder: 2,
@@ -11240,7 +11234,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: digitalFeaturesEnum.id,
-          sourceValue: "e_statements",
+          sourceValue: "E-Statements",
           hubspotValue: "E-Statements",
           displayLabel: "E-Statements",
           sortOrder: 3,
@@ -11248,7 +11242,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: digitalFeaturesEnum.id,
-          sourceValue: "mobile_app",
+          sourceValue: "Mobile App",
           hubspotValue: "Mobile App",
           displayLabel: "Mobile App",
           sortOrder: 4,
@@ -11256,7 +11250,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: digitalFeaturesEnum.id,
-          sourceValue: "sms_alerts",
+          sourceValue: "SMS Alerts",
           hubspotValue: "SMS Alerts",
           displayLabel: "SMS Alerts",
           sortOrder: 5,
@@ -11264,7 +11258,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: digitalFeaturesEnum.id,
-          sourceValue: "email_notifications",
+          sourceValue: "Email Notifications",
           hubspotValue: "Email Notifications",
           displayLabel: "Email Notifications",
           sortOrder: 6,
@@ -11304,7 +11298,7 @@ const seedLoanProductEnumMappings = async () => {
       data: [
         {
           enumMappingId: flexibleRepaymentOptionsEnum.id,
-          sourceValue: "step_up_emi",
+          sourceValue: "Step Up EMI",
           hubspotValue: "Step Up EMI",
           displayLabel: "Step Up EMI",
           sortOrder: 1,
@@ -11312,7 +11306,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: flexibleRepaymentOptionsEnum.id,
-          sourceValue: "step_down_emi",
+          sourceValue: "Step Down EMI",
           hubspotValue: "Step Down EMI",
           displayLabel: "Step Down EMI",
           sortOrder: 2,
@@ -11320,7 +11314,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: flexibleRepaymentOptionsEnum.id,
-          sourceValue: "bullet_payment",
+          sourceValue: "Bullet Payment",
           hubspotValue: "Bullet Payment",
           displayLabel: "Bullet Payment",
           sortOrder: 3,
@@ -11328,7 +11322,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: flexibleRepaymentOptionsEnum.id,
-          sourceValue: "flexible_emi",
+          sourceValue: "Flexible EMI",
           hubspotValue: "Flexible EMI",
           displayLabel: "Flexible EMI",
           sortOrder: 4,
@@ -11336,7 +11330,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: flexibleRepaymentOptionsEnum.id,
-          sourceValue: "holiday_options",
+          sourceValue: "Holiday Options",
           hubspotValue: "Holiday Options",
           displayLabel: "Holiday Options",
           sortOrder: 5,
@@ -11376,7 +11370,7 @@ const seedLoanProductEnumMappings = async () => {
       data: [
         {
           enumMappingId: taxBenefitsAvailableEnum.id,
-          sourceValue: "yes_section_80e",
+          sourceValue: "Yes - Section 80E",
           hubspotValue: "Yes - Section 80E",
           displayLabel: "Yes - Section 80E",
           sortOrder: 1,
@@ -11384,7 +11378,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: taxBenefitsAvailableEnum.id,
-          sourceValue: "yes_other",
+          sourceValue: "Yes - Other",
           hubspotValue: "Yes - Other",
           displayLabel: "Yes - Other",
           sortOrder: 2,
@@ -11392,7 +11386,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: taxBenefitsAvailableEnum.id,
-          sourceValue: "no",
+          sourceValue: "No",
           hubspotValue: "No",
           displayLabel: "No",
           sortOrder: 3,
@@ -11434,7 +11428,7 @@ const seedLoanProductEnumMappings = async () => {
       data: [
         {
           enumMappingId: apiAvailabilityEnum.id,
-          sourceValue: "yes",
+          sourceValue: "Yes",
           hubspotValue: "Yes",
           displayLabel: "Yes",
           sortOrder: 1,
@@ -11442,7 +11436,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: apiAvailabilityEnum.id,
-          sourceValue: "no",
+          sourceValue: "No",
           hubspotValue: "No",
           displayLabel: "No",
           sortOrder: 2,
@@ -11450,7 +11444,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: apiAvailabilityEnum.id,
-          sourceValue: "under_development",
+          sourceValue: "Under Development",
           hubspotValue: "Under Development",
           displayLabel: "Under Development",
           sortOrder: 3,
@@ -11458,7 +11452,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: apiAvailabilityEnum.id,
-          sourceValue: "planned",
+          sourceValue: "Planned",
           hubspotValue: "Planned",
           displayLabel: "Planned",
           sortOrder: 4,
@@ -11498,7 +11492,7 @@ const seedLoanProductEnumMappings = async () => {
       data: [
         {
           enumMappingId: dataFormatEnum.id,
-          sourceValue: "json",
+          sourceValue: "JSON",
           hubspotValue: "JSON",
           displayLabel: "JSON",
           sortOrder: 1,
@@ -11506,7 +11500,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: dataFormatEnum.id,
-          sourceValue: "xml",
+          sourceValue: "XML",
           hubspotValue: "XML",
           displayLabel: "XML",
           sortOrder: 2,
@@ -11514,7 +11508,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: dataFormatEnum.id,
-          sourceValue: "csv",
+          sourceValue: "CSV",
           hubspotValue: "CSV",
           displayLabel: "CSV",
           sortOrder: 3,
@@ -11522,7 +11516,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: dataFormatEnum.id,
-          sourceValue: "api",
+          sourceValue: "API",
           hubspotValue: "API",
           displayLabel: "API",
           sortOrder: 4,
@@ -11530,7 +11524,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: dataFormatEnum.id,
-          sourceValue: "manual",
+          sourceValue: "Manual",
           hubspotValue: "Manual",
           displayLabel: "Manual",
           sortOrder: 5,
@@ -11570,7 +11564,7 @@ const seedLoanProductEnumMappings = async () => {
       data: [
         {
           enumMappingId: integrationComplexityEnum.id,
-          sourceValue: "simple",
+          sourceValue: "Simple",
           hubspotValue: "Simple",
           displayLabel: "Simple",
           sortOrder: 1,
@@ -11578,7 +11572,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: integrationComplexityEnum.id,
-          sourceValue: "medium",
+          sourceValue: "Medium",
           hubspotValue: "Medium",
           displayLabel: "Medium",
           sortOrder: 2,
@@ -11586,7 +11580,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: integrationComplexityEnum.id,
-          sourceValue: "complex",
+          sourceValue: "Complex",
           hubspotValue: "Complex",
           displayLabel: "Complex",
           sortOrder: 3,
@@ -11594,7 +11588,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: integrationComplexityEnum.id,
-          sourceValue: "custom_required",
+          sourceValue: "Custom Required",
           hubspotValue: "Custom Required",
           displayLabel: "Custom Required",
           sortOrder: 4,
@@ -11634,7 +11628,7 @@ const seedLoanProductEnumMappings = async () => {
       data: [
         {
           enumMappingId: sandboxEnvironmentEnum.id,
-          sourceValue: "available",
+          sourceValue: "Available",
           hubspotValue: "Available",
           displayLabel: "Available",
           sortOrder: 1,
@@ -11642,7 +11636,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: sandboxEnvironmentEnum.id,
-          sourceValue: "not_available",
+          sourceValue: "Not Available",
           hubspotValue: "Not Available",
           displayLabel: "Not Available",
           sortOrder: 2,
@@ -11650,7 +11644,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: sandboxEnvironmentEnum.id,
-          sourceValue: "on_request",
+          sourceValue: "On Request",
           hubspotValue: "On Request",
           displayLabel: "On Request",
           sortOrder: 3,
@@ -11690,7 +11684,7 @@ const seedLoanProductEnumMappings = async () => {
       data: [
         {
           enumMappingId: webhookSupportEnum.id,
-          sourceValue: "yes",
+          sourceValue: "Yes",
           hubspotValue: "Yes",
           displayLabel: "Yes",
           sortOrder: 1,
@@ -11698,7 +11692,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: webhookSupportEnum.id,
-          sourceValue: "no",
+          sourceValue: "No",
           hubspotValue: "No",
           displayLabel: "No",
           sortOrder: 2,
@@ -11706,7 +11700,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: webhookSupportEnum.id,
-          sourceValue: "limited",
+          sourceValue: "Limited",
           hubspotValue: "Limited",
           displayLabel: "Limited",
           sortOrder: 3,
@@ -11748,7 +11742,7 @@ const seedLoanProductEnumMappings = async () => {
       data: [
         {
           enumMappingId: productRecordStatusEnum.id,
-          sourceValue: "active",
+          sourceValue: "Active",
           hubspotValue: "Active",
           displayLabel: "Active",
           sortOrder: 1,
@@ -11756,7 +11750,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: productRecordStatusEnum.id,
-          sourceValue: "inactive",
+          sourceValue: "Inactive",
           hubspotValue: "Inactive",
           displayLabel: "Inactive",
           sortOrder: 2,
@@ -11764,7 +11758,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: productRecordStatusEnum.id,
-          sourceValue: "under_review",
+          sourceValue: "Under Review",
           hubspotValue: "Under Review",
           displayLabel: "Under Review",
           sortOrder: 3,
@@ -11772,7 +11766,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: productRecordStatusEnum.id,
-          sourceValue: "discontinued",
+          sourceValue: "Discontinued",
           hubspotValue: "Discontinued",
           displayLabel: "Discontinued",
           sortOrder: 4,
@@ -11812,7 +11806,7 @@ const seedLoanProductEnumMappings = async () => {
       data: [
         {
           enumMappingId: reviewFrequencyEnum.id,
-          sourceValue: "monthly",
+          sourceValue: "Monthly",
           hubspotValue: "Monthly",
           displayLabel: "Monthly",
           sortOrder: 1,
@@ -11820,7 +11814,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: reviewFrequencyEnum.id,
-          sourceValue: "quarterly",
+          sourceValue: "Quarterly",
           hubspotValue: "Quarterly",
           displayLabel: "Quarterly",
           sortOrder: 2,
@@ -11828,7 +11822,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: reviewFrequencyEnum.id,
-          sourceValue: "half_yearly",
+          sourceValue: "Half-yearly",
           hubspotValue: "Half-yearly",
           displayLabel: "Half-yearly",
           sortOrder: 3,
@@ -11836,7 +11830,7 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: reviewFrequencyEnum.id,
-          sourceValue: "yearly",
+          sourceValue: "Yearly",
           hubspotValue: "Yearly",
           displayLabel: "Yearly",
           sortOrder: 4,

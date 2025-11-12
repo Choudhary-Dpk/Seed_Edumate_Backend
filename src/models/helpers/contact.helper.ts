@@ -61,6 +61,54 @@ export const createEdumateLeadAttribution = async (
   return leadAttribution;
 };
 
+export const createApplicationJourney = async (
+  tx: any,
+  contactId: number,
+  journeyData: any
+) => {
+  const journeyDetails = await tx.hSEdumateContactsApplicationJourney.create({
+    data: {
+      contact_id: contactId,
+      created_at: new Date(),
+      ...journeyData,
+    },
+  });
+
+  return journeyDetails;
+};
+
+export const createFinancialInfo = async (
+  tx: any,
+  contactId: number,
+  journeyData: any
+) => {
+  const financialInfo = await tx.hSEdumateContactsFinancialInfo.create({
+    data: {
+      contact_id: contactId,
+      created_at: new Date(),
+      ...journeyData,
+    },
+  });
+
+  return financialInfo;
+};
+
+export const createLoanPreferences = async (
+  tx: any,
+  contactId: number,
+  loanPreference: any
+) => {
+  const loanPreferenceData = await tx.hSEdumateContactsLoanPreferences.create({
+    data: {
+      contact_id: contactId,
+      created_at: new Date(),
+      ...loanPreference,
+    },
+  });
+
+  return loanPreferenceData;
+};
+
 export const createEdumateSystemTracking = async (
   tx: any,
   contactId: number,
