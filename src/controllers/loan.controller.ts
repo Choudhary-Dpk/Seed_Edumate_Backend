@@ -618,7 +618,7 @@ export const updateLoanApplicationController = async (
   next: NextFunction
 ) => {
   try {
-    const userId = req.payload!.id;
+    // const userId = req.payload!.id;
     const applicationId = parseInt(req.params.id);
 
     logger.debug(`Mapping loan application fields for update`);
@@ -720,7 +720,7 @@ export const updateLoanApplicationController = async (
         tx,
         applicationId,
         categorized["systemTracking"],
-        userId
+        // userId
       );
 
       logger.debug(

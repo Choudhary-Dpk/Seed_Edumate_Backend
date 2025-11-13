@@ -526,9 +526,9 @@ export const createLoanApplicationProcessingTimeline = async (
   loanApplicationId: number,
   timelineData: any
 ) => {
-  if (!timelineData || Object.keys(timelineData).length === 0) {
-    return null;
-  }
+  // if (!timelineData || Object.keys(timelineData).length === 0) {
+  //   return null;
+  // }
 
   const timeline = await tx.hSLoanApplicationsProcessingTimeline.create({
     data: {
@@ -913,7 +913,7 @@ export const updateLoanApplicationSystemTracking = async (
   tx: any,
   applicationId: number,
   systemTrackingData: any,
-  userId: number
+  // userId: number
 ) => {
   if (!systemTrackingData || Object.keys(systemTrackingData).length === 0) {
     return null;
@@ -925,7 +925,7 @@ export const updateLoanApplicationSystemTracking = async (
     },
     data: {
       ...systemTrackingData,
-      last_modified_by: userId.toString(),
+      // last_modified_by: userId.toString(),
       updated_at: new Date(),
     },
   });

@@ -206,6 +206,7 @@ model HSB2BPartners {
   city                   String?
   country                String?
   gst_number             String?
+  gst_rate               Int?
   incorporation_date     DateTime?
   pan_number             String?
   partner_display_name   String?
@@ -697,16 +698,22 @@ model HSLoanApplicationsCommissionRecords  {
   application_id Int     @unique
   application    HSLoanApplications @relation(fields: [application_id], references: [id], onDelete: Cascade)
 
-  commission_amount              Decimal?
+  commission_amount              Decimal? @db.Decimal(16, 4)
   commission_approval_date       DateTime?
   commission_calculation_base    String?
   commission_payment_date        DateTime?
-  commission_rate                Decimal?
+  commission_model                String?
+  tds_applicable                String?
+  gst_applicable                String?
+  gst_rate                Decimal? @db.Decimal(16, 4)
+  tds_rate                Decimal? @db.Decimal(16, 4)
+  commission_rate                String?
+  commission_type                String?
   commission_status              String?
   partner_commission_applicable  String?
   settlement_id                  String?
 
-    created_at DateTime  @default(now())
+  created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
 
   @@map("hs_loan_applications_commission_records")
@@ -2314,59 +2321,59 @@ model SyncOutbox {
   @@map("sync_outbox")
 }
 
-// model LeadsView {
-//   // Primary Key
-//   contact_id                  Int       @id
+model LeadsView {
+  // Primary Key
+  contact_id                  Int       @id
   
-//   // IDs and References
-//   loan_application_id         Int?
-//   b2b_partner_id              Int?
+  // IDs and References
+  loan_application_id         Int?
+  b2b_partner_id              Int?
   
-//   // Personal Information
-//   first_name                  String?
-//   last_name                   String?
-//   email                       String?
-//   phone_number                String?
+  // Personal Information
+  first_name                  String?
+  last_name                   String?
+  email                       String?
+  phone_number                String?
   
-//   // Academic Profile
-//   admission_status            String?  @default(dbgenerated()) 
-//   current_education_level     String?          @default(dbgenerated()) 
-//   current_institution         String?
-//   current_course_major        String?
-//   preferred_study_destination String?      @default(dbgenerated()) 
-//   target_universities         String?
+  // Academic Profile
+  admission_status            String?  @default(dbgenerated()) 
+  current_education_level     String?          @default(dbgenerated()) 
+  current_institution         String?
+  current_course_major        String?
+  preferred_study_destination String?      @default(dbgenerated()) 
+  target_universities         String?
   
-//   // Loan Application Basic Info
-//   application_date            DateTime?
-//   student_id                  String?
-//   student_name                String?
-//   student_email               String?
-//   student_phone               String?
-//   application_source          String?              @default(dbgenerated()) 
+  // Loan Application Basic Info
+  application_date            DateTime?
+  student_id                  String?
+  student_name                String?
+  student_email               String?
+  student_phone               String?
+  application_source          String?              @default(dbgenerated()) 
   
-//   // Academic Details
-//   visa_status                 String?                     @default(dbgenerated()) 
+  // Academic Details
+  visa_status                 String?                     @default(dbgenerated()) 
   
-//   // Application Status
-//   application_status                      String?
+  // Application Status
+  application_status                      String?
   
-//   // System Tracking
-//   integration_status          String?              @default(dbgenerated()) 
+  // System Tracking
+  integration_status          String?              @default(dbgenerated()) 
   
-//   // Commission Records
-//   commission_status           String? 
-//   commission_amount           Decimal?                        @db.Decimal(15, 2)
+  // Commission Records
+  commission_status           String? 
+  commission_amount           Decimal?                        @db.Decimal(15, 2)
   
-//   // Financial Requirements
-//   loan_amount_requested       Decimal?                        @db.Decimal(15, 2)
-//   loan_amount_approved        Decimal?                        @db.Decimal(15, 2)
-//   loan_amount_disbursed       Decimal?                        @db.Decimal(15, 2)
+  // Financial Requirements
+  loan_amount_requested       Decimal?                        @db.Decimal(15, 2)
+  loan_amount_approved        Decimal?                        @db.Decimal(15, 2)
+  loan_amount_disbursed       Decimal?                        @db.Decimal(15, 2)
   
-//   // Lender Information
-//   processing_fee              Decimal?                        @db.Decimal(15, 2)
+  // Lender Information
+  processing_fee              Decimal?                        @db.Decimal(15, 2)
 
-//   @@map("leads_view")
-// }
+  @@map("leads_view")
+}
 
 
 model EnumMapping {
