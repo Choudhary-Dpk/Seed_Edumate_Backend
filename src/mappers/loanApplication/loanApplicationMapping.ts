@@ -21,6 +21,26 @@ export const mapAllLoanApplicationFields = async (
 
   // ===== MAIN LOAN APPLICATION FIELDS (Non-Enum) =====
 
+  if (input.assigned_counselor !== undefined)
+    mapped.assigned_counselor =
+      input.assigned_counselor !== null && input.assigned_counselor !== ""
+        ? input.assigned_counselor
+        : null;
+
+  // MISSING: lender_id
+  if (input.lender_id !== undefined)
+    mapped.lender_id =
+      input.lender_id !== null && input.lender_id !== ""
+        ? input.lender_id
+        : null;
+
+  // MISSING: product_id
+  if (input.product_id !== undefined)
+    mapped.product_id =
+      input.product_id !== null && input.product_id !== ""
+        ? input.product_id
+        : null;
+
   if (input.application_date !== undefined)
     mapped.application_date =
       input.application_date !== null && input.application_date !== ""
@@ -97,10 +117,6 @@ export const mapAllLoanApplicationFields = async (
         ? input.deleted_by_id
         : null;
 
-  if (input.db_id !== undefined)
-    mapped.db_id =
-      input.db_id !== null && input.db_id !== "" ? input.db_id : null;
-
   if (input.last_modified_by_id !== undefined)
     mapped.last_modified_by_id =
       input.last_modified_by_id !== null && input.last_modified_by_id !== ""
@@ -132,6 +148,52 @@ export const mapAllLoanApplicationFields = async (
         ? input.hs_object_id
         : null;
 
+  if (input.hs_object_source_detail_1 !== undefined)
+    mapped.hs_object_source_detail_1 =
+      input.hs_object_source_detail_1 !== null &&
+      input.hs_object_source_detail_1 !== ""
+        ? input.hs_object_source_detail_1
+        : null;
+
+  if (input.hs_object_source_detail_2 !== undefined)
+    mapped.hs_object_source_detail_2 =
+      input.hs_object_source_detail_2 !== null &&
+      input.hs_object_source_detail_2 !== ""
+        ? input.hs_object_source_detail_2
+        : null;
+
+  if (input.hs_object_source_detail_3 !== undefined)
+    mapped.hs_object_source_detail_3 =
+      input.hs_object_source_detail_3 !== null &&
+      input.hs_object_source_detail_3 !== ""
+        ? input.hs_object_source_detail_3
+        : null;
+
+  if (input.hs_shared_team_ids !== undefined)
+    mapped.hs_shared_team_ids =
+      input.hs_shared_team_ids !== null && input.hs_shared_team_ids !== ""
+        ? input.hs_shared_team_ids
+        : null;
+
+  if (input.hs_shared_user_ids !== undefined)
+    mapped.hs_shared_user_ids =
+      input.hs_shared_user_ids !== null && input.hs_shared_user_ids !== ""
+        ? input.hs_shared_user_ids
+        : null;
+
+  if (input.hubspot_owner_assigneddate !== undefined)
+    mapped.hubspot_owner_assigneddate =
+      input.hubspot_owner_assigneddate !== null &&
+      input.hubspot_owner_assigneddate !== ""
+        ? parseDate(input.hubspot_owner_assigneddate)
+        : null;
+
+  if (input.hubspot_team_id !== undefined)
+    mapped.hubspot_team_id =
+      input.hubspot_team_id !== null && input.hubspot_team_id !== ""
+        ? input.hubspot_team_id
+        : null;
+
   if (input.hs_updated_by_user_id !== undefined)
     mapped.hs_updated_by_user_id =
       input.hs_updated_by_user_id !== null && input.hs_updated_by_user_id !== ""
@@ -155,6 +217,42 @@ export const mapAllLoanApplicationFields = async (
       input.hs_object_source_label !== null &&
       input.hs_object_source_label !== ""
         ? input.hs_object_source_label
+        : null;
+
+  if (input.is_active !== undefined)
+    mapped.is_active =
+      input.is_active !== null && input.is_active !== ""
+        ? input.is_active
+        : null;
+
+  if (input.is_deleted !== undefined)
+    mapped.is_deleted =
+      input.is_deleted !== null && input.is_deleted !== ""
+        ? input.is_deleted
+        : null;
+
+  if (input.commission_type !== undefined)
+    mapped.commission_type =
+      input.commission_type !== null && input.commission_type !== ""
+        ? input.commission_type
+        : null;
+
+  if (input.updated_by !== undefined)
+    mapped.updated_by =
+      input.updated_by !== null && input.updated_by !== ""
+        ? input.updated_by
+        : null;
+
+  if (input.deleted_by !== undefined)
+    mapped.deleted_by =
+      input.deleted_by !== null && input.deleted_by !== ""
+        ? input.deleted_by
+        : null;
+
+  if (input.deleted_on !== undefined)
+    mapped.deleted_on =
+      input.deleted_on !== null && input.deleted_on !== ""
+        ? parseDate(input.deleted_on)
         : null;
 
   // ===== ACADEMIC DETAILS FIELDS (Non-Enum) =====
@@ -544,15 +642,11 @@ export const mapAllLoanApplicationFields = async (
 
   if (input.gst_rate !== undefined)
     mapped.gst_rate =
-      input.gst_rate !== null && input.gst_rate !== ""
-        ? input.gst_rate
-        : null;
+      input.gst_rate !== null && input.gst_rate !== "" ? input.gst_rate : null;
 
   if (input.tds_rate !== undefined)
     mapped.tds_rate =
-      input.tds_rate !== null && input.tds_rate !== ""
-        ? input.tds_rate
-        : null;
+      input.tds_rate !== null && input.tds_rate !== "" ? input.tds_rate : null;
 
   if (input.commission_rate !== undefined)
     mapped.commission_rate =
@@ -664,7 +758,7 @@ export const mapAllLoanApplicationFields = async (
     input.application_status !== ""
   ) {
     enumTranslations.push({
-      field: "status",
+      field: "application_status",
       enumName: "applicationStatus",
       sourceValue: input.application_status,
     });
@@ -683,16 +777,16 @@ export const mapAllLoanApplicationFields = async (
     });
   }
 
-  // 8. Record Status (Application Status) - mapped from record_status
+  // 8. Record Status (Application Status) - mapped from application_record_status
   if (
-    input.record_status !== undefined &&
-    input.record_status !== null &&
-    input.record_status !== ""
+    input.application_record_status !== undefined &&
+    input.application_record_status !== null &&
+    input.application_record_status !== ""
   ) {
     enumTranslations.push({
-      field: "record_status",
+      field: "application_record_status",
       enumName: "applicationRecordStatus",
-      sourceValue: input.record_status,
+      sourceValue: input.application_record_status,
     });
   }
 

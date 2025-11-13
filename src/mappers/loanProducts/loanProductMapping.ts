@@ -610,41 +610,6 @@ export const mapAllLoanProductFields = async (
   }
 
   // === ELIGIBILITY CRITERIA FIELDS ===
-  if (input.criteria_type !== undefined) {
-    mapped.criteria_type =
-      input.criteria_type !== null && input.criteria_type !== ""
-        ? input.criteria_type
-        : null;
-  }
-
-  if (input.criteria_name !== undefined) {
-    mapped.criteria_name =
-      input.criteria_name !== null && input.criteria_name !== ""
-        ? input.criteria_name
-        : null;
-  }
-
-  if (input.criteria_description !== undefined) {
-    mapped.criteria_description =
-      input.criteria_description !== null && input.criteria_description !== ""
-        ? input.criteria_description
-        : null;
-  }
-
-  if (input.is_mandatory !== undefined) {
-    mapped.is_mandatory =
-      input.is_mandatory !== null && input.is_mandatory !== ""
-        ? input.is_mandatory
-        : null;
-  }
-
-  if (input.validation_rule !== undefined) {
-    mapped.validation_rule =
-      input.validation_rule !== null && input.validation_rule !== ""
-        ? input.validation_rule
-        : null;
-  }
-
   if (input.minimum_age !== undefined) {
     mapped.minimum_age =
       input.minimum_age !== null && input.minimum_age !== ""
@@ -656,28 +621,6 @@ export const mapAllLoanProductFields = async (
     mapped.maximum_age =
       input.maximum_age !== null && input.maximum_age !== ""
         ? input.maximum_age
-        : null;
-  }
-
-  if (input.max_age_at_maturity !== undefined) {
-    mapped.max_age_at_maturity =
-      input.max_age_at_maturity !== null && input.max_age_at_maturity !== ""
-        ? input.max_age_at_maturity
-        : null;
-  }
-
-  if (input.min_academic_percentage !== undefined) {
-    mapped.min_academic_percentage =
-      input.min_academic_percentage !== null &&
-      input.min_academic_percentage !== ""
-        ? input.min_academic_percentage
-        : null;
-  }
-
-  if (input.entrance_exam_list !== undefined) {
-    mapped.entrance_exam_list =
-      input.entrance_exam_list !== null && input.entrance_exam_list !== ""
-        ? input.entrance_exam_list
         : null;
   }
 
@@ -703,21 +646,6 @@ export const mapAllLoanProductFields = async (
         : null;
   }
 
-  if (input.min_annual_income !== undefined) {
-    mapped.min_annual_income =
-      input.min_annual_income !== null && input.min_annual_income !== ""
-        ? input.min_annual_income
-        : null;
-  }
-
-  if (input.min_co_applicant_income !== undefined) {
-    mapped.min_co_applicant_income =
-      input.min_co_applicant_income !== null &&
-      input.min_co_applicant_income !== ""
-        ? input.min_co_applicant_income
-        : null;
-  }
-
   if (input.employment_criteria !== undefined) {
     mapped.employment_criteria =
       input.employment_criteria !== null && input.employment_criteria !== ""
@@ -730,66 +658,6 @@ export const mapAllLoanProductFields = async (
       input.co_applicant_income_criteria !== null &&
       input.co_applicant_income_criteria !== ""
         ? input.co_applicant_income_criteria
-        : null;
-  }
-
-  if (input.min_credit_score !== undefined) {
-    mapped.min_credit_score =
-      input.min_credit_score !== null && input.min_credit_score !== ""
-        ? input.min_credit_score
-        : null;
-  }
-
-  if (input.credit_history_required !== undefined) {
-    mapped.credit_history_required =
-      input.credit_history_required !== null &&
-      input.credit_history_required !== ""
-        ? input.credit_history_required
-        : null;
-  }
-
-  if (input.indian_citizen_only !== undefined) {
-    mapped.indian_citizen_only =
-      input.indian_citizen_only !== null && input.indian_citizen_only !== ""
-        ? input.indian_citizen_only
-        : null;
-  }
-
-  if (input.nri_eligible !== undefined) {
-    mapped.nri_eligible =
-      input.nri_eligible !== null && input.nri_eligible !== ""
-        ? input.nri_eligible
-        : null;
-  }
-
-  if (input.pio_oci_eligible !== undefined) {
-    mapped.pio_oci_eligible =
-      input.pio_oci_eligible !== null && input.pio_oci_eligible !== ""
-        ? input.pio_oci_eligible
-        : null;
-  }
-
-  if (input.work_experience_required !== undefined) {
-    mapped.work_experience_required =
-      input.work_experience_required !== null &&
-      input.work_experience_required !== ""
-        ? input.work_experience_required
-        : null;
-  }
-
-  if (input.min_work_experience_months !== undefined) {
-    mapped.min_work_experience_months =
-      input.min_work_experience_months !== null &&
-      input.min_work_experience_months !== ""
-        ? input.min_work_experience_months
-        : null;
-  }
-
-  if (input.admission_confirmation_required !== undefined) {
-    mapped.admission_confirmation_required =
-      input.admission_confirmation_required !== null &&
-      input.admission_confirmation_required !== ""
-        ? input.admission_confirmation_required
         : null;
   }
 
@@ -896,21 +764,6 @@ export const mapAllLoanProductFields = async (
     mapped.disbursement_timeline =
       input.disbursement_timeline !== null && input.disbursement_timeline !== ""
         ? input.disbursement_timeline
-        : null;
-  }
-
-  if (input.partial_disbursement_allowed !== undefined) {
-    mapped.partial_disbursement_allowed =
-      input.partial_disbursement_allowed !== null &&
-      input.partial_disbursement_allowed !== ""
-        ? input.partial_disbursement_allowed
-        : null;
-  }
-
-  if (input.disbursement_stages !== undefined) {
-    mapped.disbursement_stages =
-      input.disbursement_stages !== null && input.disbursement_stages !== ""
-        ? input.disbursement_stages
         : null;
   }
 
