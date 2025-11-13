@@ -524,6 +524,7 @@ export const createContactsLeadValidationRules = () => [
       "China",
       "Japan",
       "India",
+      "Ireland",
       "New Zealand",
       "Other"
     ])
