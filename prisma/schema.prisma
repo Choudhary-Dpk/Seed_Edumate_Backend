@@ -961,11 +961,11 @@ model HSEdumateContacts  {
   // Audit Fields
   is_active  Boolean  @default(true)
   is_deleted Boolean   @default(false)
-  created_by Int?
+  created_by String?
   created_at DateTime  @default(now())
-  updated_by Int?
+  updated_by String?
   updated_at DateTime  @updatedAt
-  deleted_by Int?
+  deleted_by String?
   deleted_on DateTime?
 
   // Relationships
@@ -1165,7 +1165,7 @@ model HSEdumateContactsPersonalInformation  {
 
 model HSEdumateContactsSystemTracking  {
   id Int @id @default(autoincrement())
-  created_by Int?
+  created_by String?
 
   contact_id Int     @unique
   contact    HSEdumateContacts @relation(fields: [contact_id], references: [id], onDelete: Cascade)

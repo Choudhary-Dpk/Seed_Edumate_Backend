@@ -22,6 +22,11 @@ import {
   getEdumateContactByEmail,
   createApplicationJourney,
   createFinancialInfo,
+  createLoanPreferences,
+  updateEdumateContactApplicationJourney,
+  updateEdumateContactLoanPreference,
+  updateEdumateContactFinancialInfo,
+  updateEdumateContactSystemTracking,
 } from "../models/helpers/contact.helper";
 import { resolveLeadsCsvPath } from "../utils/leads";
 import { FileData } from "../types/leads.types";
@@ -119,13 +124,17 @@ export const createContactsLead = async (
       );
 
       logger.debug(`Creating lead financial info for contact: ${contact.id}`);
-      await createFinancialInfo(tx, contact.id, categorized["loanPreferences"]);
+      await createFinancialInfo(tx, contact.id, categorized["financialInfo"]);
       logger.debug(
         `Lead financial info created successfully for contact: ${contact.id}`
       );
 
       logger.debug(`Creating lead loan preference for contact: ${contact.id}`);
-      await createFinancialInfo(tx, contact.id, categorized["loanPreferences"]);
+      await createLoanPreferences(
+        tx,
+        contact.id,
+        categorized["loanPreferences"]
+      );
       logger.debug(
         `Lead loan preference created successfully for contact: ${contact.id}`
       );
@@ -420,6 +429,48 @@ export const editContactsLead = async (
           `Lead attribution updated successfully for contact: ${contact.id}`
         );
       }
+
+      logger.debug(
+        `Updating lead application journey for contact: ${contact.id}`
+      );
+      await updateEdumateContactApplicationJourney(
+        tx,
+        contact.id,
+        categorized["applicationJourney"]
+      );
+      logger.debug(
+        `Lead journey updated successfully for contact: ${contact.id}`
+      );
+
+      logger.debug(`Updating lead financial info for contact: ${contact.id}`);
+      await updateEdumateContactFinancialInfo(
+        tx,
+        contact.id,
+        categorized["financialInfo"]
+      );
+      logger.debug(
+        `Lead financial info updated successfully for contact: ${contact.id}`
+      );
+
+      logger.debug(`Updating lead loan preference for contact: ${contact.id}`);
+      await updateEdumateContactLoanPreference(
+        tx,
+        contact.id,
+        categorized["loanPreferences"]
+      );
+      logger.debug(
+        `Lead loan preference updated successfully for contact: ${contact.id}`
+      );
+
+      logger.debug(`Updating system tracking for contact: ${contact.id}`);
+      await updateEdumateContactSystemTracking(
+        tx,
+        contact.id,
+        categorized["systemTracking"]
+      );
+      logger.debug(
+        `System tracking updated successfully for contact: ${contact.id}`
+      );
 
       return contact;
     });
