@@ -124,12 +124,6 @@ export const createContactsLead = async (
         `Lead financial info created successfully for contact: ${contact.id}`
       );
 
-      logger.debug(`Creating lead loan preference for contact: ${contact.id}`);
-      await createFinancialInfo(tx, contact.id, categorized["loanPreferences"]);
-      logger.debug(
-        `Lead loan preference created successfully for contact: ${contact.id}`
-      );
-
       logger.debug(`Creating system tracking for contact: ${contact.id}`);
       await createEdumateSystemTracking(tx, contact.id, id);
       logger.debug(
