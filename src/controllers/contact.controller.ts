@@ -20,6 +20,8 @@ import {
   fetchContactsLeadList,
   createCSVContacts,
   getEdumateContactByEmail,
+  createApplicationJourney,
+  createFinancialInfo,
 } from "../models/helpers/contact.helper";
 import { resolveLeadsCsvPath } from "../utils/leads";
 import { FileData } from "../types/leads.types";
@@ -103,6 +105,30 @@ export const createContactsLead = async (
           `Lead attribution created successfully for contact: ${contact.id}`
         );
       }
+
+      logger.debug(
+        `Creating lead application journey for contact: ${contact.id}`
+      );
+      await createApplicationJourney(
+        tx,
+        contact.id,
+        categorized["applicationJourney"]
+      );
+      logger.debug(
+        `Lead journey created successfully for contact: ${contact.id}`
+      );
+
+      logger.debug(`Creating lead financial info for contact: ${contact.id}`);
+      await createFinancialInfo(tx, contact.id, categorized["loanPreferences"]);
+      logger.debug(
+        `Lead financial info created successfully for contact: ${contact.id}`
+      );
+
+      logger.debug(`Creating lead loan preference for contact: ${contact.id}`);
+      await createFinancialInfo(tx, contact.id, categorized["loanPreferences"]);
+      logger.debug(
+        `Lead loan preference created successfully for contact: ${contact.id}`
+      );
 
       logger.debug(`Creating system tracking for contact: ${contact.id}`);
       await createEdumateSystemTracking(tx, contact.id, id);
@@ -217,7 +243,7 @@ export const upsertContactsLead = async (
           // logger.debug(`Creating edumate contact for userId: ${id}`);
           const contact = await createEdumateContact(
             tx,
-            categorized["mainContact"],
+            categorized["mainContact"]
             // null // ⬅️ HubSpot ID ab null hai
           );
           logger.debug(`Contact created successfully with id: ${contact.id}`);
@@ -487,7 +513,6 @@ export const uploadContactsCSV = async (
   next: NextFunction
 ) => {
   try {
-
     const { id } = req.payload!;
     const fileData = req.fileData;
 

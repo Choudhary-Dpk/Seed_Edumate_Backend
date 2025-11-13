@@ -24,7 +24,7 @@ export const mapAllLoanApplicationFields = async (
   if (input.application_date !== undefined)
     mapped.application_date =
       input.application_date !== null && input.application_date !== ""
-        ? parseDate(input.application_date, true)
+        ? parseDate(input.application_date, false)
         : null;
 
   if (input.lead_reference_code !== undefined)
@@ -181,13 +181,13 @@ export const mapAllLoanApplicationFields = async (
   if (input.course_start_date !== undefined)
     mapped.course_start_date =
       input.course_start_date !== null && input.course_start_date !== ""
-        ? parseDate(input.course_start_date, true)
+        ? parseDate(input.course_start_date, false)
         : null;
 
   if (input.course_end_date !== undefined)
     mapped.course_end_date =
       input.course_end_date !== null && input.course_end_date !== ""
-        ? parseDate(input.course_end_date, true)
+        ? parseDate(input.course_end_date, false)
         : null;
 
   if (input.course_duration !== undefined)
@@ -383,39 +383,39 @@ export const mapAllLoanApplicationFields = async (
     mapped.lender_submission_date =
       input.lender_submission_date !== null &&
       input.lender_submission_date !== ""
-        ? parseDate(input.lender_submission_date, true)
+        ? parseDate(input.lender_submission_date, false)
         : null;
 
   if (input.lender_acknowledgment_date !== undefined)
     mapped.lender_acknowledgment_date =
       input.lender_acknowledgment_date !== null &&
       input.lender_acknowledgment_date !== ""
-        ? parseDate(input.lender_acknowledgment_date, true)
+        ? parseDate(input.lender_acknowledgment_date, false)
         : null;
 
   if (input.approval_date !== undefined)
     mapped.approval_date =
       input.approval_date !== null && input.approval_date !== ""
-        ? parseDate(input.approval_date, true)
+        ? parseDate(input.approval_date, false)
         : null;
 
   if (input.sanction_letter_date !== undefined)
     mapped.sanction_letter_date =
       input.sanction_letter_date !== null && input.sanction_letter_date !== ""
-        ? parseDate(input.sanction_letter_date, true)
+        ? parseDate(input.sanction_letter_date, false)
         : null;
 
   if (input.disbursement_request_date !== undefined)
     mapped.disbursement_request_date =
       input.disbursement_request_date !== null &&
       input.disbursement_request_date !== ""
-        ? parseDate(input.disbursement_request_date, true)
+        ? parseDate(input.disbursement_request_date, false)
         : null;
 
   if (input.disbursement_date !== undefined)
     mapped.disbursement_date =
       input.disbursement_date !== null && input.disbursement_date !== ""
-        ? parseDate(input.disbursement_date, true)
+        ? parseDate(input.disbursement_date, false)
         : null;
 
   if (input.total_processing_days !== undefined)
@@ -429,7 +429,7 @@ export const mapAllLoanApplicationFields = async (
   if (input.rejection_date !== undefined)
     mapped.rejection_date =
       input.rejection_date !== null && input.rejection_date !== ""
-        ? parseDate(input.rejection_date, true)
+        ? parseDate(input.rejection_date, false)
         : null;
 
   if (input.rejection_details !== undefined)
@@ -449,13 +449,13 @@ export const mapAllLoanApplicationFields = async (
   if (input.last_contact_date !== undefined)
     mapped.last_contact_date =
       input.last_contact_date !== null && input.last_contact_date !== ""
-        ? parseDate(input.last_contact_date, true)
+        ? parseDate(input.last_contact_date, false)
         : null;
 
   if (input.next_follow_up_date !== undefined)
     mapped.next_follow_up_date =
       input.next_follow_up_date !== null && input.next_follow_up_date !== ""
-        ? parseDate(input.next_follow_up_date, true)
+        ? parseDate(input.next_follow_up_date, false)
         : null;
 
   if (input.customer_satisfaction_rating !== undefined)
@@ -481,7 +481,7 @@ export const mapAllLoanApplicationFields = async (
     mapped.complaint_resolution_date =
       input.complaint_resolution_date !== null &&
       input.complaint_resolution_date !== ""
-        ? parseDate(input.complaint_resolution_date, true)
+        ? parseDate(input.complaint_resolution_date, false)
         : null;
 
   // ===== SYSTEM TRACKING FIELDS (Non-Enum) =====
@@ -518,6 +518,42 @@ export const mapAllLoanApplicationFields = async (
         ? input.commission_amount
         : null;
 
+  if (input.commission_model !== undefined)
+    mapped.commission_model =
+      input.commission_model !== null && input.commission_model !== ""
+        ? input.commission_model
+        : null;
+
+  if (input.commission_rate !== undefined)
+    mapped.commission_rate =
+      input.commission_rate !== null && input.commission_rate !== ""
+        ? input.commission_rate
+        : null;
+
+  if (input.tds_applicable !== undefined)
+    mapped.tds_applicable =
+      input.tds_applicable !== null && input.tds_applicable !== ""
+        ? input.tds_applicable
+        : null;
+
+  if (input.gst_applicable !== undefined)
+    mapped.gst_applicable =
+      input.gst_applicable !== null && input.gst_applicable !== ""
+        ? input.gst_applicable
+        : null;
+
+  if (input.gst_rate !== undefined)
+    mapped.gst_rate =
+      input.gst_rate !== null && input.gst_rate !== ""
+        ? input.gst_rate
+        : null;
+
+  if (input.tds_rate !== undefined)
+    mapped.tds_rate =
+      input.tds_rate !== null && input.tds_rate !== ""
+        ? input.tds_rate
+        : null;
+
   if (input.commission_rate !== undefined)
     mapped.commission_rate =
       input.commission_rate !== null && input.commission_rate !== ""
@@ -528,14 +564,14 @@ export const mapAllLoanApplicationFields = async (
     mapped.commission_approval_date =
       input.commission_approval_date !== null &&
       input.commission_approval_date !== ""
-        ? parseDate(input.commission_approval_date, true)
+        ? parseDate(input.commission_approval_date, false)
         : null;
 
   if (input.commission_payment_date !== undefined)
     mapped.commission_payment_date =
       input.commission_payment_date !== null &&
       input.commission_payment_date !== ""
-        ? parseDate(input.commission_payment_date, true)
+        ? parseDate(input.commission_payment_date, false)
         : null;
 
   if (input.settlement_id !== undefined)
@@ -623,14 +659,14 @@ export const mapAllLoanApplicationFields = async (
 
   // 6. Application Status (status field - Application Status)
   if (
-    input.status !== undefined &&
-    input.status !== null &&
-    input.status !== ""
+    input.application_status !== undefined &&
+    input.application_status !== null &&
+    input.application_status !== ""
   ) {
     enumTranslations.push({
       field: "status",
       enumName: "applicationStatus",
-      sourceValue: input.status,
+      sourceValue: input.application_status,
     });
   }
 

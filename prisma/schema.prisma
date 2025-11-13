@@ -205,8 +205,8 @@ model HSB2BPartners {
   business_type          String?
   city                   String?
   country                String?
-  db_id                  String? @unique
   gst_number             String?
+  gst_rate               Int?
   incorporation_date     DateTime?
   pan_number             String?
   partner_display_name   String?
@@ -259,6 +259,7 @@ model HSB2BPartners {
   relationship_management  HSB2BPartnersRelationshipManagement?
   system_tracking          HSB2BPartnersSystemTracking?
   b2b_partner_contacts     HSEdumateContacts[]                      @relation("B2BPartnerContacts")
+  commission_settlements   HSCommissionSettlements[]
 
   @@index([partner_name])
   @@index([partner_type])
@@ -568,8 +569,9 @@ model HSLoanApplications  {
   id Int @id @default(autoincrement())
   user_id Int?
   deleted_by_id Int?
-  db_id String?
   contact_id Int?
+  lender_id  Int?
+  product_id Int?
   
   // Basic Information
   application_date       DateTime?
@@ -623,6 +625,9 @@ model HSLoanApplications  {
   loan_application_status HSLoanApplicationsStatus?
   system_tracking         HSLoanApplicationsSystemTracking?
   contact                 HSEdumateContacts? @relation("ContactLoanApplications",fields: [contact_id], references: [id])
+  lender  HSLenders? @relation(fields: [lender_id], references: [id])
+  loan_product   HSLoanProducts? @relation(fields: [product_id], references: [id])
+  commission_settlement   HSCommissionSettlements[]
 
   @@index([student_email])
   @@index([application_date])
@@ -693,16 +698,22 @@ model HSLoanApplicationsCommissionRecords  {
   application_id Int     @unique
   application    HSLoanApplications @relation(fields: [application_id], references: [id], onDelete: Cascade)
 
-  commission_amount              Decimal?
+  commission_amount              Decimal? @db.Decimal(16, 4)
   commission_approval_date       DateTime?
   commission_calculation_base    String?
   commission_payment_date        DateTime?
-  commission_rate                Decimal?
+  commission_model                String?
+  tds_applicable                String?
+  gst_applicable                String?
+  gst_rate                Decimal? @db.Decimal(16, 4)
+  tds_rate                Decimal? @db.Decimal(16, 4)
+  commission_rate                String?
+  commission_type                String?
   commission_status              String?
   partner_commission_applicable  String?
   settlement_id                  String?
 
-    created_at DateTime  @default(now())
+  created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
 
   @@map("hs_loan_applications_commission_records")
@@ -934,7 +945,7 @@ model HSEdumateContacts  {
   study_destination_currency String?
   user_selected_currency     String?
   co_applicant_1_email       String?
-  co_applicant_1_mobile_number Int?
+  co_applicant_1_mobile_number String?
   email                      String?
 
   // HubSpot System Fields
@@ -1186,7 +1197,6 @@ model HSLenders  {
   id Int @id @default(autoincrement())
 
   // Basic Information
-  db_id                      String?   @unique
   lender_name                String?
   lender_display_name        String?
   lender_type                String?
@@ -1229,6 +1239,7 @@ model HSLenders  {
   lender_system_tracking HSLendersSystemTracking?
   loan_offerings         HSLendersLoanOfferings?
   loan_products          HSLoanProducts[]
+  loan_application       HSLoanApplications[]
 
   @@index([lender_name])
   @@index([lender_type])
@@ -1377,9 +1388,7 @@ model HSLendersSystemTracking  {
 model HSLoanProducts  {
   id Int @id @default(autoincrement())
   // Basic Information
-  db_id                 String?   @unique
   lender_id             Int?
-  lender_db_id          String?
   lender_name           String?
   partner_name          String?
   product_name          String?
@@ -1430,6 +1439,7 @@ model HSLoanProducts  {
   special_features                  HSLoanProductsSpecialFeatures?
   system_integration                HSLoanProductsSystemIntegration?
   system_tracking                   HSLoanProductsSystemTracking?
+  loan_application                  HSLoanApplications[]
 
   @@index([product_name])
   @@index([lender_id])
@@ -1877,12 +1887,12 @@ model HSLoanDocumentsCustomerExperience {
 
 model HSCommissionSettlements  {
   id Int @id @default(autoincrement())
+  application_id             Int?
+  b2b_partner_id             Int?
 
   // Basic Information
-  db_id                      String?   @unique
   settlement_id              String?   @unique
   settlement_reference_number String?
-  application_id             Int?
   lead_reference_id          String?
   partner_id                 String?
   partner_name               String?
@@ -1934,6 +1944,8 @@ model HSCommissionSettlements  {
   system_tracking             HSCommissionSettlementsSystemTracking?
   tax_deductions              HSCommissionSettlementsTaxAndDeductions?
   transaction                 HSCommissionSettlementsTransactionDetails?
+  loan_application            HSLoanApplications? @relation(fields: [application_id], references: [id])
+  b2b_partner                 HSB2BPartners? @relation(fields: [b2b_partner_id], references: [id])
 
   @@index([settlement_id])
   @@index([partner_id])
