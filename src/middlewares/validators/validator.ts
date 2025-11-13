@@ -525,6 +525,7 @@ export const createContactsLeadValidationRules = () => [
       "Japan",
       "India",
       "New Zealand",
+      "Other"
     ])
     .withMessage("Invalid preferred study destination"),
 
