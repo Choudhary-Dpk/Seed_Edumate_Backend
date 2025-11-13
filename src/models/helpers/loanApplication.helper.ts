@@ -526,9 +526,9 @@ export const createLoanApplicationProcessingTimeline = async (
   loanApplicationId: number,
   timelineData: any
 ) => {
-  if (!timelineData || Object.keys(timelineData).length === 0) {
-    return null;
-  }
+  // if (!timelineData || Object.keys(timelineData).length === 0) {
+  //   return null;
+  // }
 
   const timeline = await tx.hSLoanApplicationsProcessingTimeline.create({
     data: {
@@ -547,9 +547,9 @@ export const createLoanApplicationAcademicDetails = async (
   loanApplicationId: number,
   academicData: any
 ) => {
-  if (!academicData || Object.keys(academicData).length === 0) {
-    return null;
-  }
+  // if (!academicData || Object.keys(academicData).length === 0) {
+  //   return null;
+  // }
 
   const academic = await tx.hSLoanApplicationsAcademicDetails.create({
     data: {
@@ -568,9 +568,9 @@ export const createLoanApplicationFinancialRequirements = async (
   loanApplicationId: number,
   financialData: any
 ) => {
-  if (!financialData || Object.keys(financialData).length === 0) {
-    return null;
-  }
+  // if (!financialData || Object.keys(financialData).length === 0) {
+  //   return null;
+  // }
 
   const financial = await tx.hSLoanApplicationsFinancialRequirements.create({
     data: {
@@ -589,9 +589,9 @@ export const createLoanApplicationStatus = async (
   loanApplicationId: number,
   statusData: any
 ) => {
-  if (!statusData || Object.keys(statusData).length === 0) {
-    return null;
-  }
+  // if (!statusData || Object.keys(statusData).length === 0) {
+  //   return null;
+  // }
 
   const status = await tx.hSLoanApplicationsStatus.create({
     data: {
@@ -610,9 +610,9 @@ export const createLoanApplicationLenderInformation = async (
   loanApplicationId: number,
   lenderData: any
 ) => {
-  if (!lenderData || Object.keys(lenderData).length === 0) {
-    return null;
-  }
+  // if (!lenderData || Object.keys(lenderData).length === 0) {
+  //   return null;
+  // }
 
   const lender = await tx.hSLoanApplicationsLenderInformation.create({
     data: {
@@ -631,9 +631,9 @@ export const createLoanApplicationDocumentManagement = async (
   loanApplicationId: number,
   documentData: any
 ) => {
-  if (!documentData || Object.keys(documentData).length === 0) {
-    return null;
-  }
+  // if (!documentData || Object.keys(documentData).length === 0) {
+  //   return null;
+  // }
 
   const document = await tx.hSLoanApplicationsDocumentManagement.create({
     data: {
@@ -652,9 +652,9 @@ export const createLoanApplicationRejectionDetails = async (
   loanApplicationId: number,
   rejectionData: any
 ) => {
-  if (!rejectionData || Object.keys(rejectionData).length === 0) {
-    return null;
-  }
+  // if (!rejectionData || Object.keys(rejectionData).length === 0) {
+  //   return null;
+  // }
 
   const rejection = await tx.hSLoanApplicationsRejectionDetails.create({
     data: {
@@ -673,9 +673,9 @@ export const createLoanApplicationCommunicationPreferences = async (
   loanApplicationId: number,
   commData: any
 ) => {
-  if (!commData || Object.keys(commData).length === 0) {
-    return null;
-  }
+  // if (!commData || Object.keys(commData).length === 0) {
+  //   return null;
+  // }
 
   const comm = await tx.hSLoanApplicationsCommunicationPreferences.create({
     data: {
@@ -695,9 +695,9 @@ export const createLoanApplicationSystemTracking = async (
   systemData: any,
   userId: number
 ) => {
-  if (!systemData || Object.keys(systemData).length === 0) {
-    return null;
-  }
+  // if (!systemData || Object.keys(systemData).length === 0) {
+  //   return null;
+  // }
 
   const system = await tx.hSLoanApplicationsSystemTracking.create({
     data: {
@@ -716,9 +716,9 @@ export const createLoanApplicationCommissionRecord = async (
   loanApplicationId: number,
   commissionData: any
 ) => {
-  if (!commissionData || Object.keys(commissionData).length === 0) {
-    return null;
-  }
+  // if (!commissionData || Object.keys(commissionData).length === 0) {
+  //   return null;
+  // }
 
   const commission = await tx.hSLoanApplicationsCommissionRecords.create({
     data: {
@@ -737,9 +737,9 @@ export const createLoanApplicationAdditionalService = async (
   loanApplicationId: number,
   serviceData: any
 ) => {
-  if (!serviceData || Object.keys(serviceData).length === 0) {
-    return null;
-  }
+  // if (!serviceData || Object.keys(serviceData).length === 0) {
+  //   return null;
+  // }
 
   const service = await tx.hSLoanApplicationsAdditionalServices.create({
     data: {
@@ -953,7 +953,7 @@ export const updateLoanApplicationSystemTracking = async (
   tx: any,
   applicationId: number,
   systemTrackingData: any,
-  userId: number
+  // userId: number
 ) => {
   if (!systemTrackingData || Object.keys(systemTrackingData).length === 0) {
     return null;
@@ -965,7 +965,7 @@ export const updateLoanApplicationSystemTracking = async (
     },
     data: {
       ...systemTrackingData,
-      last_modified_by: userId.toString(),
+      // last_modified_by: userId.toString(),
       updated_at: new Date(),
     },
   });

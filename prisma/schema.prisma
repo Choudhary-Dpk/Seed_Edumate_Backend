@@ -206,6 +206,7 @@ model HSB2BPartners {
   city                   String?
   country                String?
   gst_number             String?
+  gst_rate               Int?
   incorporation_date     DateTime?
   pan_number             String?
   partner_display_name   String?
@@ -697,16 +698,22 @@ model HSLoanApplicationsCommissionRecords  {
   application_id Int     @unique
   application    HSLoanApplications @relation(fields: [application_id], references: [id], onDelete: Cascade)
 
-  commission_amount              Decimal?
+  commission_amount              Decimal? @db.Decimal(16, 4)
   commission_approval_date       DateTime?
   commission_calculation_base    String?
   commission_payment_date        DateTime?
-  commission_rate                Decimal?
+  commission_model                String?
+  tds_applicable                String?
+  gst_applicable                String?
+  gst_rate                Decimal? @db.Decimal(16, 4)
+  tds_rate                Decimal? @db.Decimal(16, 4)
+  commission_rate                String?
+  commission_type                String?
   commission_status              String?
   partner_commission_applicable  String?
   settlement_id                  String?
 
-    created_at DateTime  @default(now())
+  created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
 
   @@map("hs_loan_applications_commission_records")

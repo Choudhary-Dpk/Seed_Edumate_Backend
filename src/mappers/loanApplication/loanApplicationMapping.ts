@@ -518,6 +518,42 @@ export const mapAllLoanApplicationFields = async (
         ? input.commission_amount
         : null;
 
+  if (input.commission_model !== undefined)
+    mapped.commission_model =
+      input.commission_model !== null && input.commission_model !== ""
+        ? input.commission_model
+        : null;
+
+  if (input.commission_rate !== undefined)
+    mapped.commission_rate =
+      input.commission_rate !== null && input.commission_rate !== ""
+        ? input.commission_rate
+        : null;
+
+  if (input.tds_applicable !== undefined)
+    mapped.tds_applicable =
+      input.tds_applicable !== null && input.tds_applicable !== ""
+        ? input.tds_applicable
+        : null;
+
+  if (input.gst_applicable !== undefined)
+    mapped.gst_applicable =
+      input.gst_applicable !== null && input.gst_applicable !== ""
+        ? input.gst_applicable
+        : null;
+
+  if (input.gst_rate !== undefined)
+    mapped.gst_rate =
+      input.gst_rate !== null && input.gst_rate !== ""
+        ? input.gst_rate
+        : null;
+
+  if (input.tds_rate !== undefined)
+    mapped.tds_rate =
+      input.tds_rate !== null && input.tds_rate !== ""
+        ? input.tds_rate
+        : null;
+
   if (input.commission_rate !== undefined)
     mapped.commission_rate =
       input.commission_rate !== null && input.commission_rate !== ""

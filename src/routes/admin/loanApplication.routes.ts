@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { validateAdminToken } from "../../middlewares";
+import { validateAdminToken, validateApiKey } from "../../middlewares";
 import { validateLoanFields } from "../../middlewares/loanApplication.middleware";
 import { createLoanApplicationsController, deleteLoanApplicationController, getLoanApplicationDetailsController, getLoanApplicationsListController, updateLoanApplicationController } from "../../controllers/loan.controller";
 import { loanApplicationPaginationValidationRules, validateReqParams } from "../../middlewares/validators/validator";
@@ -16,6 +16,11 @@ router.post(
 router.put(
   "/:id",
   validateAdminToken(["Admin"]),
+  updateLoanApplicationController
+);
+router.put(
+  "/edit/:id",
+  validateApiKey,
   updateLoanApplicationController
 );
 router.delete(
