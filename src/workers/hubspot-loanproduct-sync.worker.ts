@@ -57,7 +57,7 @@ export async function updateLoanProduct(
   productData: Record<string, any>
 ): Promise<{ id: string }> {
   try {
-    const response = await axios.patch(
+    const response: any = await axios.patch(
       `${HUBSPOT_API_URL}/crm/v3/objects/${LOAN_PRODUCT_OBJECT_TYPE}/${hubspotId}`,
       {
         properties: productData,
