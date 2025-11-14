@@ -987,6 +987,7 @@ model HSEdumateContacts  {
   emi_lead                     MktEmiCalculatorLeads?
   b2b_partner                  HSB2BPartners?                        @relation("B2BPartnerContacts", fields: [b2b_partner_id], references: [id])
   loan_applications            HSLoanApplications[]               @relation("ContactLoanApplications")
+  commission_settlements       HSCommissionSettlements[]
 
   @@index([hs_object_id])
   @@index([seed_contact])
@@ -1240,6 +1241,7 @@ model HSLenders  {
   loan_offerings         HSLendersLoanOfferings?
   loan_products          HSLoanProducts[]
   loan_application       HSLoanApplications[]
+  commission_settlements HSCommissionSettlements[]
 
   @@index([lender_name])
   @@index([lender_type])
@@ -1889,14 +1891,14 @@ model HSCommissionSettlements  {
   id Int @id @default(autoincrement())
   application_id             Int?
   b2b_partner_id             Int?
+  lead_reference_id          Int?
+  lender_id                  Int?
+  student_id                 String?
+  settlement_id              String?   @unique
 
   // Basic Information
-  settlement_id              String?   @unique
   settlement_reference_number String?
-  lead_reference_id          String?
-  partner_id                 String?
   partner_name               String?
-  student_id                 String?
   student_name               String?
   settlement_date            DateTime?
   settlement_month           String?
@@ -1946,9 +1948,11 @@ model HSCommissionSettlements  {
   transaction                 HSCommissionSettlementsTransactionDetails?
   loan_application            HSLoanApplications? @relation(fields: [application_id], references: [id])
   b2b_partner                 HSB2BPartners? @relation(fields: [b2b_partner_id], references: [id])
+  lender                      HSLenders? @relation(fields: [lender_id], references: [id])
+  edumate_contacts            HSEdumateContacts? @relation(fields: [lead_reference_id], references: [id])
 
   @@index([settlement_id])
-  @@index([partner_id])
+  @@index([b2b_partner_id, lender_id, student_id, hs_object_id])
   @@index([application_id])
   @@index([settlement_date])
   @@index([is_deleted])

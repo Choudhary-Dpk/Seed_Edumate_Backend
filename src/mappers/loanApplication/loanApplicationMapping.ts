@@ -27,7 +27,6 @@ export const mapAllLoanApplicationFields = async (
         ? input.assigned_counselor
         : null;
 
-  // MISSING: lender_id
   if (input.lender_id !== undefined)
     mapped.lender_id =
       input.lender_id !== null && input.lender_id !== ""

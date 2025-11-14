@@ -1,4 +1,4 @@
-import { Request, Response,NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
 import { sendResponse } from "../utils/api";
 import { checkCommissionSettlementFields } from "../models/helpers/commission.helper";
 
@@ -13,7 +13,6 @@ export const checkDuplicateCommissionSettlementFields = async (
       student_id,
       settlement_reference_number,
       hs_object_id,
-      partner_id,
     } = req.body;
 
     // Skip if no relevant fields provided
@@ -21,8 +20,7 @@ export const checkDuplicateCommissionSettlementFields = async (
       !lead_reference_id &&
       !student_id &&
       !settlement_reference_number &&
-      !hs_object_id &&
-      !partner_id
+      !hs_object_id
     ) {
       return next();
     }
@@ -32,8 +30,7 @@ export const checkDuplicateCommissionSettlementFields = async (
       lead_reference_id,
       student_id,
       settlement_reference_number,
-      hs_object_id,
-      partner_id,
+      hs_object_id
     );
 
     if (existing) {
@@ -75,12 +72,7 @@ export const checkDuplicateCommissionSettlementFields = async (
         );
       }
 
-      if (
-        partner_id &&
-        student_id &&
-        existing.partner_id === partner_id &&
-        existing.student_id === student_id
-      ) {
+      if (student_id && existing.student_id === student_id) {
         return sendResponse(
           res,
           409,

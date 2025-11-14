@@ -512,7 +512,7 @@ export const createLoanApplication = async (
   const application = await tx.hSLoanApplications.create({
     data: {
       ...mainData,
-      // user_id: userId,
+      application_date: new Date(),
       created_at: new Date(),
       updated_at: new Date(),
     },
@@ -526,10 +526,6 @@ export const createLoanApplicationProcessingTimeline = async (
   loanApplicationId: number,
   timelineData: any
 ) => {
-  // if (!timelineData || Object.keys(timelineData).length === 0) {
-  //   return null;
-  // }
-
   const timeline = await tx.hSLoanApplicationsProcessingTimeline.create({
     data: {
       application: {
@@ -912,7 +908,7 @@ export const updateLoanApplicationCommunicationPreferences = async (
 export const updateLoanApplicationSystemTracking = async (
   tx: any,
   applicationId: number,
-  systemTrackingData: any,
+  systemTrackingData: any
   // userId: number
 ) => {
   if (!systemTrackingData || Object.keys(systemTrackingData).length === 0) {
