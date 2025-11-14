@@ -4,37 +4,38 @@ export const categorizeHSLendersByTable = (
   const categorized: Record<string, Record<string, any>> = {};
 
   // Main HSLenders Fields
-const hsLendersFields = [
-  "external_id",
-  "lender_display_name",
-  "lender_name",
-  "legal_name",
-  "short_code",
-  "lender_logo_url",
-  "website_url",
-  "lender_category",
-  "lender_type",
-  "is_active",
-  "created_at",
-  "updated_at",
-  "created_by",
-  "updated_by",
-  "hs_created_by_user_id",
-  "hs_createdate",
-  "hs_lastmodifieddate",
-  "hs_merged_object_ids",
-  "hs_object_id",
-  "hs_object_source_detail_1",
-  "hs_object_source_detail_2",
-  "hs_object_source_detail_3",
-  "hs_object_source_label",
-  "hs_shared_team_ids",
-  "hs_shared_user_ids",
-  "hs_updated_by_user_id",
-  "hubspot_owner_assigneddate",
-  "hubspot_owner_id",
-  "hubspot_team_id",
-];
+  const hsLendersFields = [
+    "external_id",
+    "lender_display_name",
+    "lender_name",
+    "legal_name",
+    "short_code",
+    "lender_logo_url",
+    "website_url",
+    "lender_category",
+    "lender_type",
+    "is_active",
+    "created_at",
+    "updated_at",
+    "created_by",
+    "updated_by",
+    "hs_created_by_user_id",
+    "hs_createdate",
+    "hs_lastmodifieddate",
+    "hs_merged_object_ids",
+    "hs_object_id",
+    "hs_object_source_detail_1",
+    "hs_object_source_detail_2",
+    "hs_object_source_detail_3",
+    "hs_object_source_label",
+    "hs_shared_team_ids",
+    "hs_shared_user_ids",
+    "hs_updated_by_user_id",
+    "hubspot_owner_assigneddate",
+    "hubspot_owner_id",
+    "hubspot_team_id",
+    "is_deleted",
+  ];
 
   // HSLendersContactInfo Fields
   const hsLendersContactInfoFields = [
@@ -98,18 +99,15 @@ const hsLendersFields = [
 
   // HSLendersPartnershipsDetails Fields
   const hsLendersPartnershipsDetailsFields = [
-    "partnership_type",
-    "agreement_start_date",
-    "agreement_end_date",
-    "auto_renewal",
-    "renewal_notice_days",
-    "commission_structure",
-    "commission_percentage",
-    "partnership_end_date",
-    "partnership_start_date",
     "partnership_status",
-    "payout_terms",
+    "partnership_start_date",
+    "partnership_end_date",
+    "commission_percentage",
+    "commission_structure",
     "revenue_share_model",
+    "payout_terms",
+    "created_at",
+    "updated_at",
   ];
 
   // HSLendersSystemTracking Fields
@@ -118,8 +116,12 @@ const hsLendersFields = [
     "lender_record_status",
     "notes",
     "performance_rating",
+    "created_by_user",
+    "created_date",
     "last_modified_by",
     "last_modified_date",
+    "created_at",
+    "updated_at",
   ];
 
   // Categorize HSLenders main table

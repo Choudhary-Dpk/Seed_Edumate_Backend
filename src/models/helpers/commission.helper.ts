@@ -349,7 +349,6 @@ export const fetchCommissionSettlementsList = async (
     is_active: true,
     OR: search
       ? [
-          { lead_reference_id: { contains: search, mode: "insensitive" } },
           { student_id: { contains: search, mode: "insensitive" } },
           { student_name: { contains: search, mode: "insensitive" } },
           { partner_name: { contains: search, mode: "insensitive" } },
@@ -420,8 +419,7 @@ export const checkCommissionSettlementFields = async (
   lead_reference_id?: string,
   student_id?: string,
   settlement_reference_number?: string,
-  hs_object_id?: string,
-  partner_id?: number
+  hs_object_id?: string
 ) => {
   const conditions: any[] = [];
 
@@ -431,9 +429,9 @@ export const checkCommissionSettlementFields = async (
     conditions.push({ settlement_reference_number });
   if (hs_object_id) conditions.push({ hs_object_id });
 
-  if (partner_id && student_id) {
+  if (student_id) {
     conditions.push({
-      AND: [{ partner_id }, { student_id }],
+      AND: [{ student_id }],
     });
   }
 
@@ -453,11 +451,46 @@ export const checkCommissionSettlementFields = async (
       student_id: true,
       settlement_reference_number: true,
       hs_object_id: true,
-      partner_id: true,
       partner_name: true,
       student_name: true,
     },
   });
 
   return result;
+};
+
+export const fetchCommissionSettlementsByLead = async (leadId: number) => {
+  const where: Prisma.HSCommissionSettlementsWhereInput = {
+    is_active: true,
+    is_deleted: false,
+    lead_reference_id: leadId,
+  };
+
+  const orderBy: Prisma.HSCommissionSettlementsOrderByWithRelationInput = {
+    created_at: "desc",
+  };
+
+  const [rows, count] = await Promise.all([
+    prisma.hSCommissionSettlements.findMany({
+      where,
+      orderBy,
+      include: {
+        calculation_details: true,
+        communication: true,
+        tax_deductions: true,
+        documentaion: true,
+        hold_dispute: true,
+        loan_details: true,
+        payment_details: true,
+        performance_metrics: true,
+        reconciliation: true,
+        status_history: true,
+        system_tracking: true,
+        transaction: true,
+      },
+    }),
+    prisma.hSCommissionSettlements.count({ where }),
+  ]);
+
+  return { rows, count };
 };

@@ -46,6 +46,7 @@ export const categorizeB2BByTable = (mappedFields: Record<string, any>) => {
     "hubspot_owner_assigneddate",
     "hubspot_owner_id",
     "hubspot_team_id",
+    "gst_rate",
   ];
 
   // Business Capabilities Fields
@@ -186,12 +187,12 @@ export const categorizeB2BByTable = (mappedFields: Record<string, any>) => {
   // System Tracking Fields
   const systemTrackingFields = [
     "api_access_provided",
-    "created_by",
+    "created_by_user",
     "created_date",
     "data_source",
     "integration_status",
     "internal_tags",
-    "last_modified_by",
+    "last_modified_by_user",
     "last_modified_date",
     "notes",
     "partner_record_status",

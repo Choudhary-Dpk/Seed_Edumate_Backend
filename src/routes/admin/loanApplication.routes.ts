@@ -1,16 +1,23 @@
 import { Router } from "express";
 import { validateAdminToken, validateApiKey } from "../../middlewares";
-import { validateLoanFields } from "../../middlewares/loanApplication.middleware";
-import { createLoanApplicationsController, deleteLoanApplicationController, getLoanApplicationDetailsController, getLoanApplicationsListController, updateLoanApplicationController } from "../../controllers/loan.controller";
-import { loanApplicationPaginationValidationRules, validateReqParams } from "../../middlewares/validators/validator";
-import { getLoanApplicationsList } from "../../controllers/loanApplication.controller";
+import {
+  loanApplicationPaginationValidationRules,
+  validateReqParams,
+} from "../../middlewares/validators/validator";
+import {
+  createLoanApplicationsController,
+  deleteLoanApplicationController,
+  getLoanApplicationDetailsController,
+  getLoanApplicationsList,
+  getLoanApplicationsListController,
+  updateLoanApplicationController,
+} from "../../controllers/loanApplication.controller";
 
 const router = Router();
 
 router.post(
   "/",
   validateAdminToken(["Admin"]),
-  validateLoanFields,
   createLoanApplicationsController
 );
 router.put(

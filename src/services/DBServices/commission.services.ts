@@ -26,6 +26,20 @@ export const categorizeCommissionSettlementByTable = (
     "hs_object_id",
     "hs_updated_by_user_id",
     "hubspot_owner_id",
+    "b2b_partner_id",
+    "settlement_date",
+    "hs_merged_object_ids",
+    "hs_object_source_detail_1",
+    "hs_object_source_detail_2",
+    "hs_object_source_detail_3",
+    "hs_object_source_label",
+    "hs_shared_team_ids",
+    "hs_shared_user_ids",
+    "hubspot_owner_assigneddate",
+    "hubspot_team_id",
+    "is_deleted",
+    "deleted_by",
+    "deleted_on",
   ];
 
   // Settlement Status Fields
@@ -51,6 +65,7 @@ export const categorizeCommissionSettlementByTable = (
     "settlement_record_status",
     "system_generated",
     "version_number",
+    "created_by_user",
   ];
 
   // Transaction Details Fields
@@ -109,7 +124,7 @@ export const categorizeCommissionSettlementByTable = (
     "beneficiary_bank_name",
     "beneficiary_ifsc_code",
     "last_retry_date",
-    "payment_completed_date",
+    "payment_completion_date",
     "payment_failure_reason",
     "payment_initiation_date",
     "payment_method",

@@ -81,6 +81,10 @@ export const mapAllB2BPartnerFields = async (
         ? input.website_url
         : null;
 
+  if (input.gst_rate !== undefined)
+    mapped.gst_rate =
+      input.gst_rate !== null && input.gst_rate !== "" ? input.gst_rate : null;
+
   if (input.hs_created_by_user_id !== undefined)
     mapped.hs_created_by_user_id =
       input.hs_created_by_user_id !== null && input.hs_created_by_user_id !== ""
@@ -115,6 +119,65 @@ export const mapAllB2BPartnerFields = async (
     mapped.hubspot_owner_id =
       input.hubspot_owner_id !== null && input.hubspot_owner_id !== ""
         ? input.hubspot_owner_id
+        : null;
+
+  if (input.hs_merged_object_ids !== undefined)
+    mapped.hs_merged_object_ids =
+      input.hs_merged_object_ids !== null && input.hs_merged_object_ids !== ""
+        ? input.hs_merged_object_ids
+        : null;
+
+  if (input.hs_object_source_detail_1 !== undefined)
+    mapped.hs_object_source_detail_1 =
+      input.hs_object_source_detail_1 !== null &&
+      input.hs_object_source_detail_1 !== ""
+        ? input.hs_object_source_detail_1
+        : null;
+
+  if (input.hs_object_source_detail_2 !== undefined)
+    mapped.hs_object_source_detail_2 =
+      input.hs_object_source_detail_2 !== null &&
+      input.hs_object_source_detail_2 !== ""
+        ? input.hs_object_source_detail_2
+        : null;
+
+  if (input.hs_object_source_detail_3 !== undefined)
+    mapped.hs_object_source_detail_3 =
+      input.hs_object_source_detail_3 !== null &&
+      input.hs_object_source_detail_3 !== ""
+        ? input.hs_object_source_detail_3
+        : null;
+
+  if (input.hs_object_source_label !== undefined)
+    mapped.hs_object_source_label =
+      input.hs_object_source_label !== null &&
+      input.hs_object_source_label !== ""
+        ? input.hs_object_source_label
+        : null;
+
+  if (input.hs_shared_team_ids !== undefined)
+    mapped.hs_shared_team_ids =
+      input.hs_shared_team_ids !== null && input.hs_shared_team_ids !== ""
+        ? input.hs_shared_team_ids
+        : null;
+
+  if (input.hs_shared_user_ids !== undefined)
+    mapped.hs_shared_user_ids =
+      input.hs_shared_user_ids !== null && input.hs_shared_user_ids !== ""
+        ? input.hs_shared_user_ids
+        : null;
+
+  if (input.hubspot_owner_assigneddate !== undefined)
+    mapped.hubspot_owner_assigneddate =
+      input.hubspot_owner_assigneddate !== null &&
+      input.hubspot_owner_assigneddate !== ""
+        ? input.hubspot_owner_assigneddate
+        : null;
+
+  if (input.hubspot_team_id !== undefined)
+    mapped.hubspot_team_id =
+      input.hubspot_team_id !== null && input.hubspot_team_id !== ""
+        ? input.hubspot_team_id
         : null;
 
   // ===== BUSINESS CAPABILITIES FIELDS =====
@@ -739,10 +802,10 @@ export const mapAllB2BPartnerFields = async (
         ? input.api_access_provided
         : null;
 
-  if (input.created_by !== undefined)
-    mapped.created_by =
-      input.created_by !== null && input.created_by !== ""
-        ? input.created_by
+  if (input.created_by_user !== undefined)
+    mapped.created_by_user =
+      input.created_by_user !== null && input.created_by_user !== ""
+        ? input.created_by_user
         : null;
 
   if (input.created_date !== undefined)
@@ -769,10 +832,10 @@ export const mapAllB2BPartnerFields = async (
         ? input.internal_tags
         : null;
 
-  if (input.last_modified_by !== undefined)
-    mapped.last_modified_by =
-      input.last_modified_by !== null && input.last_modified_by !== ""
-        ? input.last_modified_by
+  if (input.last_modified_by_user !== undefined)
+    mapped.last_modified_by_user =
+      input.last_modified_by_user !== null && input.last_modified_by_user !== ""
+        ? input.last_modified_by_user
         : null;
 
   if (input.last_modified_date !== undefined)

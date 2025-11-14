@@ -82,9 +82,7 @@ export const categorizeLoanProductByTable = (
   // Main Loan Product Fields (HSLoanProducts)
   const mainLoanProductFields = [
     // Basic Information
-    "db_id",
     "lender_id",
-    "lender_db_id",
     "lender_name",
     "partner_name",
     "product_name",

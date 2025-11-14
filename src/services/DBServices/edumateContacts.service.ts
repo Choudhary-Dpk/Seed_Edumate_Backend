@@ -1,13 +1,7 @@
-// ==================== HELPER FUNCTIONS ====================
-
 import prisma from "../../config/prisma";
-import {
-  mapAllFields,
-} from "../../mappers/edumateContact/mapping";
+import { mapAllFields } from "../../mappers/edumateContact/mapping";
 import { CategorizedContactData } from "../../types/contact.types";
 import logger from "../../utils/logger";
-
-// ==================== STEP 2: CATEGORIZATION FUNCTION ====================
 
 /**
  * Categorizes mapped fields into their respective tables
@@ -16,38 +10,46 @@ export const categorizeByTable = (mappedFields: Record<string, any>) => {
   const categorized: CategorizedContactData = {};
 
   // Main Contact Fields
-const mainContactFields = [
-  "deleted_by_id",
-  "b2b_partner_id",
+  const mainContactFields = [
+    "deleted_by_id",
+    "b2b_partner_id",
 
-  // HubSpot System Fields
-  "hs_created_by_user_id",
-  "hs_createdate",
-  "hs_lastmodifieddate",
-  "hs_merged_object_ids",
-  "hs_object_id",
-  "hs_object_source_detail_1",
-  "hs_object_source_detail_2",
-  "hs_object_source_detail_3",
-  "hs_object_source_label",
-  "hs_shared_team_ids",
-  "hs_shared_user_ids",
-  "hs_updated_by_user_id",
+    // HubSpot System Fields
+    "hs_created_by_user_id",
+    "hs_createdate",
+    "hs_lastmodifieddate",
+    "hs_merged_object_ids",
+    "hs_object_id",
+    "hs_object_source_detail_1",
+    "hs_object_source_detail_2",
+    "hs_object_source_detail_3",
+    "hs_object_source_label",
+    "hs_shared_team_ids",
+    "hs_shared_user_ids",
+    "hs_updated_by_user_id",
 
-  "hubspot_owner_assigneddate",
-  "hubspot_owner_id",
-  "hubspot_team_id",
+    "hubspot_owner_assigneddate",
+    "hubspot_owner_id",
+    "hubspot_team_id",
 
-  // Business Fields
-  "base_currency",
-  "study_destination_currency",
-  "user_selected_currency",
-  "course_type",
-  "co_applicant_1_email",
-  "co_applicant_1_mobile_number",
-  "is_deleted",
-];
-
+    // Business Fields
+    "base_currency",
+    "study_destination_currency",
+    "user_selected_currency",
+    "course_type",
+    "co_applicant_1_email",
+    "co_applicant_1_mobile_number",
+    "is_deleted",
+    "seed_contact",
+    "is_active",
+    "created_by",
+    "created_at",
+    "updated_by",
+    "updated_at",
+    "deleted_by",
+    "deleted_on",
+    "email",
+  ];
 
   // Personal Information Fields
   const personalInfoFields = [

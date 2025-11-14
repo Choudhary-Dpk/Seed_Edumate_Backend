@@ -8,7 +8,17 @@ export const mapAllCommissionSettlementFields = async (
   // Collect all enum translations needed
   const enumTranslations: Array<{ enumName: string; sourceValue: any }> = [];
 
-  // MAIN COMMISSION SETTLEMENT FIELDS
+  if (input.settlement_id !== undefined)
+    mapped.settlement_id =
+      input.settlement_id !== null && input.settlement_id !== ""
+        ? input.settlement_id
+        : null;
+
+  if (input.settlement_date !== undefined)
+    mapped.settlement_date =
+      input.settlement_date !== null && input.settlement_date !== ""
+        ? input.settlement_date
+        : null;
   if (input.lead_reference_id !== undefined)
     mapped.lead_reference_id =
       input.lead_reference_id !== null && input.lead_reference_id !== ""
@@ -42,7 +52,10 @@ export const mapAllCommissionSettlementFields = async (
 
   if (input.loan_application_db_id !== undefined)
     mapped.application_id =
-      input.loan_application_db_id !== null && input.loan_application_db_id !== "" ? input.loan_application_db_id : null;
+      input.loan_application_db_id !== null &&
+      input.loan_application_db_id !== ""
+        ? input.loan_application_db_id
+        : null;
 
   if (input.lender_type !== undefined)
     mapped.lender_type =
@@ -585,11 +598,11 @@ export const mapAllCommissionSettlementFields = async (
       input.last_retry_date !== null && input.last_retry_date !== ""
         ? input.last_retry_date
         : null;
-  if (input.payment_completed_date !== undefined)
-    mapped.payment_completed_date =
-      input.payment_completed_date !== null &&
-      input.payment_completed_date !== ""
-        ? input.payment_completed_date
+  if (input.payment_completion_date !== undefined)
+    mapped.payment_completion_date =
+      input.payment_completion_date !== null &&
+      input.payment_completion_date !== ""
+        ? input.payment_completion_date
         : null;
   if (input.payment_failure_reason !== undefined)
     mapped.payment_failure_reason =

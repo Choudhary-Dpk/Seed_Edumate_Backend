@@ -19,7 +19,6 @@ const parseDate = (
 
 export const mapMainContact = (data: Record<string, any>) => {
   return {
-    email: data.email,
     deleted_by_id: data.deleted_by_id,
     b2b_partner_id: data.b2b_partner_id,
     hs_created_by_user_id: data.hs_created_by_user_id,
@@ -234,8 +233,65 @@ export const mapAllFields = async (
     mapped.hs_lastmodifieddate = parseDate(hsModified);
   }
 
+  // ===== NEW: ADDITIONAL HUBSPOT SYSTEM FIELDS =====
+  if (
+    input.hsMergedObjectIds !== undefined ||
+    input.hs_merged_object_ids !== undefined
+  ) {
+    mapped.hs_merged_object_ids =
+      input.hsMergedObjectIds ?? input.hs_merged_object_ids ?? null;
+  }
+
   if (input.hsObjectId !== undefined || input.hs_object_id !== undefined) {
     mapped.hs_object_id = input.hsObjectId ?? input.hs_object_id ?? null;
+  }
+
+  if (
+    input.hsObjectSourceDetail1 !== undefined ||
+    input.hs_object_source_detail_1 !== undefined
+  ) {
+    mapped.hs_object_source_detail_1 =
+      input.hsObjectSourceDetail1 ?? input.hs_object_source_detail_1 ?? null;
+  }
+
+  if (
+    input.hsObjectSourceDetail2 !== undefined ||
+    input.hs_object_source_detail_2 !== undefined
+  ) {
+    mapped.hs_object_source_detail_2 =
+      input.hsObjectSourceDetail2 ?? input.hs_object_source_detail_2 ?? null;
+  }
+
+  if (
+    input.hsObjectSourceDetail3 !== undefined ||
+    input.hs_object_source_detail_3 !== undefined
+  ) {
+    mapped.hs_object_source_detail_3 =
+      input.hsObjectSourceDetail3 ?? input.hs_object_source_detail_3 ?? null;
+  }
+
+  if (
+    input.hsObjectSourceLabel !== undefined ||
+    input.hs_object_source_label !== undefined
+  ) {
+    mapped.hs_object_source_label =
+      input.hsObjectSourceLabel ?? input.hs_object_source_label ?? null;
+  }
+
+  if (
+    input.hsSharedTeamIds !== undefined ||
+    input.hs_shared_team_ids !== undefined
+  ) {
+    mapped.hs_shared_team_ids =
+      input.hsSharedTeamIds ?? input.hs_shared_team_ids ?? null;
+  }
+
+  if (
+    input.hsSharedUserIds !== undefined ||
+    input.hs_shared_user_ids !== undefined
+  ) {
+    mapped.hs_shared_user_ids =
+      input.hsSharedUserIds ?? input.hs_shared_user_ids ?? null;
   }
 
   if (
@@ -247,11 +303,32 @@ export const mapAllFields = async (
   }
 
   if (
+    input.hubspotOwnerAssigneddate !== undefined ||
+    input.hubspot_owner_assigneddate !== undefined
+  ) {
+    const assignedDate =
+      input.hubspotOwnerAssigneddate ?? input.hubspot_owner_assigneddate;
+    mapped.hubspot_owner_assigneddate = parseDate(assignedDate);
+  }
+
+  if (
     input.hubspotOwnerId !== undefined ||
     input.hubspot_owner_id !== undefined
   ) {
     mapped.hubspot_owner_id =
       input.hubspotOwnerId ?? input.hubspot_owner_id ?? null;
+  }
+
+  if (
+    input.hubspotTeamId !== undefined ||
+    input.hubspot_team_id !== undefined
+  ) {
+    mapped.hubspot_team_id =
+      input.hubspotTeamId ?? input.hubspot_team_id ?? null;
+  }
+
+  if (input.seed_contact !== undefined) {
+    mapped.seed_contact = input.seed_contact;
   }
 
   if (input.baseCurrency !== undefined || input.base_currency !== undefined) {
@@ -296,6 +373,12 @@ export const mapAllFields = async (
 
   if (input.isDeleted !== undefined || input.is_deleted !== undefined) {
     mapped.is_deleted = input.isDeleted ?? input.is_deleted ?? null;
+  }
+
+  // ===== NEW: AUDIT FIELD - DELETED_ON =====
+  if (input.deletedOn !== undefined || input.deleted_on !== undefined) {
+    const deletedDate = input.deletedOn ?? input.deleted_on;
+    mapped.deleted_on = parseDate(deletedDate);
   }
 
   // ===== PERSONAL INFORMATION FIELDS =====
@@ -776,6 +859,15 @@ export const mapAllFields = async (
   if (input.createdDate !== undefined || input.created_date !== undefined) {
     const created = input.createdDate ?? input.created_date;
     mapped.created_date = parseDate(created); // full ISO-8601
+  }
+
+  // ===== NEW: SYSTEM TRACKING created_by_user (String field) =====
+  if (
+    input.createdByUser !== undefined ||
+    input.created_by_user !== undefined
+  ) {
+    mapped.created_by_user =
+      input.createdByUser ?? input.created_by_user ?? null;
   }
 
   if (
