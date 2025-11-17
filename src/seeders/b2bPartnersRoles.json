@@ -1,10 +1,5 @@
 [
   {
-    "role": "Admin",
-    "display_name": "Administrator",
-    "description": "Has full access to all partner data, settings, and configurations"
-  },
-  {
     "role": "Manager",
     "display_name": "Manager",
     "description": "Can manage teams, approve requests, and oversee partner operations"

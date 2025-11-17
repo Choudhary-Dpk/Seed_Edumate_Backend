@@ -6,11 +6,6 @@ export const mapAllHSLendersFields = async (
   const mapped: Record<string, any> = {};
 
   // ===== MAIN HSLENDERS FIELDS (Simple - No Enum) =====
-  if (input.external_id !== undefined)
-    mapped.external_id =
-      input.external_id !== null && input.external_id !== ""
-        ? input.external_id
-        : null;
 
   if (input.lender_display_name !== undefined)
     mapped.lender_display_name =
@@ -22,18 +17,6 @@ export const mapAllHSLendersFields = async (
     mapped.lender_name =
       input.lender_name !== null && input.lender_name !== ""
         ? input.lender_name
-        : null;
-
-  if (input.legal_name !== undefined)
-    mapped.legal_name =
-      input.legal_name !== null && input.legal_name !== ""
-        ? input.legal_name
-        : null;
-
-  if (input.short_code !== undefined)
-    mapped.short_code =
-      input.short_code !== null && input.short_code !== ""
-        ? input.short_code
         : null;
 
   if (input.lender_logo_url !== undefined)
@@ -113,10 +96,6 @@ export const mapAllHSLendersFields = async (
       input.hubspot_owner_id !== null && input.hubspot_owner_id !== ""
         ? input.hubspot_owner_id
         : null;
-
-  if (input.db_id !== undefined)
-    mapped.db_id =
-      input.db_id !== null && input.db_id !== "" ? input.db_id : null;
 
   if (input.lender_type !== undefined)
     mapped.lender_type =
@@ -456,35 +435,6 @@ export const mapAllHSLendersFields = async (
         : null;
 
   // ===== PARTNERSHIPS DETAILS FIELDS (Some have Enums) =====
-  if (input.partnership_type !== undefined)
-    mapped.partnership_type =
-      input.partnership_type !== null && input.partnership_type !== ""
-        ? input.partnership_type
-        : null;
-
-  if (input.agreement_start_date !== undefined)
-    mapped.agreement_start_date =
-      input.agreement_start_date !== null && input.agreement_start_date !== ""
-        ? input.agreement_start_date
-        : null;
-
-  if (input.agreement_end_date !== undefined)
-    mapped.agreement_end_date =
-      input.agreement_end_date !== null && input.agreement_end_date !== ""
-        ? input.agreement_end_date
-        : null;
-
-  if (input.auto_renewal !== undefined)
-    mapped.auto_renewal =
-      input.auto_renewal !== null && input.auto_renewal !== ""
-        ? input.auto_renewal
-        : null;
-
-  if (input.renewal_notice_days !== undefined)
-    mapped.renewal_notice_days =
-      input.renewal_notice_days !== null && input.renewal_notice_days !== ""
-        ? input.renewal_notice_days
-        : null;
 
   if (input.commission_structure !== undefined)
     mapped.commission_structure =

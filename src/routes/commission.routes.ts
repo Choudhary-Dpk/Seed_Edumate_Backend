@@ -4,10 +4,12 @@ import {
   createCommissionSettlementController,
   deleteCommissionSettlementController,
   getCommissionSettlementDetails,
+  getCommissionSettlementsByLead,
   getCommissionSettlementsListController,
   updateCommissionSettlementController,
 } from "../controllers/commission.controller";
 import { checkDuplicateCommissionSettlementFields } from "../middlewares/commission.middleware";
+import { validateContactLeadById } from "../middlewares/contacts";
 const router = Router();
 
 router.post(
@@ -24,5 +26,6 @@ router.get(
   validateApiKey,
   getCommissionSettlementsListController
 );
+router.get("/lead", getCommissionSettlementsByLead);
 
 export { router as commissionRoutes };
