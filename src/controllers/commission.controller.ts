@@ -38,7 +38,9 @@ import {
   deleteCommissionSettlement,
   getCommissionSettlement,
   fetchCommissionSettlementsList,
+  fetchCommissionSettlementsByLead,
 } from "../models/helpers/commission.helper";
+import { getContactLeadById } from "../models/helpers/contact.helper";
 
 export const createCommissionSettlementController = async (
   req: RequestWithPayload<LoginPayload>,
@@ -414,6 +416,41 @@ export const getCommissionSettlementsListController = async (
       page,
       size,
     });
+  } catch (error) {
+    logger.error(`Error fetching commission settlements list: ${error}`);
+    next(error);
+  }
+};
+
+export const getCommissionSettlementsByLead = async (
+  req: RequestWithPayload<LoginPayload>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const leadId = parseInt(req.query.leadId as string);
+    console.log("leadId", leadId);
+    if (!leadId || isNaN(leadId)) {
+      return sendResponse(res, 400, "Invalid leadId provided", null);
+    }
+
+    const leadDetails = await getContactLeadById(leadId);
+    if (!leadDetails || leadDetails.is_deleted === true) {
+      return sendResponse(res, 404, "Lead not found");
+    }
+
+    logger.debug(
+      `Fetching commission settlements details for leadId: ${leadId}`
+    );
+    const response = await fetchCommissionSettlementsByLead(leadId);
+    logger.debug(`Commission settlements details fetched successfully`);
+
+    sendResponse(
+      res,
+      200,
+      "Commission settlements details fetched successfully",
+      response
+    );
   } catch (error) {
     logger.error(`Error fetching commission settlements list: ${error}`);
     next(error);

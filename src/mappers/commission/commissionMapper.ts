@@ -8,7 +8,23 @@ export const mapAllCommissionSettlementFields = async (
   // Collect all enum translations needed
   const enumTranslations: Array<{ enumName: string; sourceValue: any }> = [];
 
-  // MAIN COMMISSION SETTLEMENT FIELDS
+  if (input.settlement_id !== undefined)
+    mapped.settlement_id =
+      input.settlement_id !== null && input.settlement_id !== ""
+        ? input.settlement_id
+        : null;
+  
+  if(input.edumate_contact_db_id !== undefined)
+    mapped.lead_reference_id =
+      input.edumate_contact_db_id !== null && input.edumate_contact_db_id !== ""
+        ? input.edumate_contact_db_id
+        : null;      
+
+  if (input.settlement_date !== undefined)
+    mapped.settlement_date =
+      input.settlement_date !== null && input.settlement_date !== ""
+        ? input.settlement_date
+        : null;
   if (input.lead_reference_id !== undefined)
     mapped.lead_reference_id =
       input.lead_reference_id !== null && input.lead_reference_id !== ""
@@ -19,10 +35,10 @@ export const mapAllCommissionSettlementFields = async (
       input.student_id !== null && input.student_id !== ""
         ? input.student_id
         : null;
-  if (input.partner_id !== undefined)
-    mapped.partner_id =
-      input.partner_id !== null && input.partner_id !== ""
-        ? String(input.partner_id)
+  if (input.b2b_partner_db_id !== undefined)
+    mapped.b2b_partner_id =
+      input.b2b_partner_db_id !== null && input.b2b_partner_db_id !== ""
+        ? input.b2b_partner_db_id
         : null;
   if (input.partner_name !== undefined)
     mapped.partner_name =
@@ -42,7 +58,16 @@ export const mapAllCommissionSettlementFields = async (
 
   if (input.loan_application_db_id !== undefined)
     mapped.application_id =
-      input.loan_application_db_id !== null && input.loan_application_db_id !== "" ? input.loan_application_db_id : null;
+      input.loan_application_db_id !== null &&
+      input.loan_application_db_id !== ""
+        ? input.loan_application_db_id
+        : null;
+
+  if(input.lender_db_id !== undefined)
+    mapped.lender_id =
+      input.lender_db_id !== null && input.lender_db_id !== ""
+        ? input.lender_db_id
+        : null;      
 
   if (input.lender_type !== undefined)
     mapped.lender_type =
@@ -230,10 +255,7 @@ export const mapAllCommissionSettlementFields = async (
     input.settlement_status !== null &&
     input.settlement_status !== ""
   ) {
-    enumTranslations.push({
-      enumName: "settlementStatus",
-      sourceValue: input.settlement_status,
-    });
+    mapped.settlement_status = input.settlement_status || null;
   }
 
   if (input.verification_date !== undefined)
@@ -391,10 +413,7 @@ export const mapAllCommissionSettlementFields = async (
     input.commission_model !== null &&
     input.commission_model !== ""
   ) {
-    enumTranslations.push({
-      enumName: "commissionModel",
-      sourceValue: input.commission_model,
-    });
+    mapped.commission_model = input.commission_model || null;
   }
 
   if (input.commission_rate_applied !== undefined)
@@ -585,11 +604,11 @@ export const mapAllCommissionSettlementFields = async (
       input.last_retry_date !== null && input.last_retry_date !== ""
         ? input.last_retry_date
         : null;
-  if (input.payment_completed_date !== undefined)
-    mapped.payment_completed_date =
-      input.payment_completed_date !== null &&
-      input.payment_completed_date !== ""
-        ? input.payment_completed_date
+  if (input.payment_completion_date !== undefined)
+    mapped.payment_completion_date =
+      input.payment_completion_date !== null &&
+      input.payment_completion_date !== ""
+        ? input.payment_completion_date
         : null;
   if (input.payment_failure_reason !== undefined)
     mapped.payment_failure_reason =

@@ -65,10 +65,22 @@ export const config: AppConfig = {
         associationCategory: "USER_DEFINED",
         associationTypeId: 466,
       },
+      loanApplicationToEdumateContact: {
+        associationCategory: "USER_DEFINED",
+        associationTypeId: 485,
+      },
       loanApplicationToB2BPartner: {
         associationCategory: "USER_DEFINED",
         associationTypeId: 457,
-      }
+      },
+      loanApplicationToLender: {
+        associationCategory: "USER_DEFINED",
+        associationTypeId: 425,
+      },
+      loanApplicationToLoanProduct: {
+        associationCategory: "USER_DEFINED",
+        associationTypeId: 469,
+      },
     },
   },
   logging: {

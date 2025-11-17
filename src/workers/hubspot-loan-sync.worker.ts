@@ -153,8 +153,29 @@ async function handleLoanCreate(payload: any, loanId: number): Promise<string | 
     throw new Error(`Loan application ${loanId} not found`);
   }
 
-      // Fetch B2B Partner's hs_object_id if b2b_partner_id exists
+    // Fetch Edumate Contact, B2B Partner, Lender, and Loan Product HS Object IDs for associations
+    let edumateContactHsObjectId: string | null = null;
     let b2bPartnerHsObjectId: string | null = null;
+    let lenderHsObjectId: string | null = null;
+    let loanProductHsObjectId: string | null = null;
+
+    if (loanApplication.contact_id) {
+      const contact = await prisma.hSEdumateContacts.findUnique({
+        where: { id: loanApplication.contact_id },
+        select: { hs_object_id: true }
+      });
+      if (contact?.hs_object_id) {
+        edumateContactHsObjectId = contact.hs_object_id;
+        logger.info("✅ Found Edumate Contact for association", {
+          contactId: loanApplication.contact_id,
+          hsObjectId: edumateContactHsObjectId
+        });
+      } else {
+        logger.warn("⚠️ Edumate Contact found but no hs_object_id", {
+          contactId: loanApplication.contact_id
+        });
+      }
+    }
     
     if (loanApplication.b2b_partner_id) {
       const b2bPartner = await prisma.hSB2BPartners.findUnique({
@@ -175,11 +196,48 @@ async function handleLoanCreate(payload: any, loanId: number): Promise<string | 
       }
     }
 
+    if (loanApplication.lender_id) {
+      const lender = await prisma.hSLenders.findUnique({
+        where: { id: loanApplication.lender_id },
+        select: { hs_object_id: true }
+      });
+
+      if (lender?.hs_object_id) {
+        lenderHsObjectId = lender.hs_object_id;
+        logger.info("✅ Found Lender for association", {
+          lenderId: loanApplication.lender_id,
+          hsObjectId: lenderHsObjectId
+        });
+      } else {
+        logger.warn("⚠️ Lender found but no hs_object_id", {
+          lenderId: loanApplication.lender_id
+        });
+      }
+    }
+
+    if (loanApplication.product_id) {
+      const loanProduct = await prisma.hSLoanProducts.findUnique({
+        where: { id: loanApplication.product_id },
+        select: { hs_object_id: true }
+      });
+      if (loanProduct?.hs_object_id) {
+        loanProductHsObjectId = loanProduct.hs_object_id;
+        logger.info("✅ Found Loan Product for association", {
+          productId: loanApplication.product_id,
+          hsObjectId: loanProductHsObjectId
+        });
+      } else {
+        logger.warn("⚠️ Loan Product found but no hs_object_id", {
+          productId: loanApplication.product_id
+        });
+      }
+    }
+
   // Transform to HubSpot format
   const hubspotPayload = transformLoanToHubSpotFormat(loanApplication);
 
   // Create in HubSpot
-  const result = await createLoanApplication(hubspotPayload, b2bPartnerHsObjectId);
+  const result = await createLoanApplication(hubspotPayload, edumateContactHsObjectId, b2bPartnerHsObjectId, lenderHsObjectId, loanProductHsObjectId);
 
   return result.id;
 }
@@ -277,9 +335,9 @@ function transformLoanToHubSpotFormat(loanApp: any): any {
     student_name: loanApp.student_name || null,
     student_email: loanApp.student_email || null,
     student_phone: loanApp.student_phone || null,
-    application_source: mapLoanEnumValue('application_source', loanApp.application_source),
+    application_source: loanApp.application_source || null,
     assigned_counselor_id: loanApp.assigned_counselor_id || null,
-    b2b_partner_id: loanApp.b2b_partner_id || null,
+    // b2b_partner_id: loanApp.b2b_partner_id || null,
     
     // ========================================
     // ACADEMIC DETAILS
@@ -288,7 +346,7 @@ function transformLoanToHubSpotFormat(loanApp: any): any {
     target_course: academicDetails.target_course || null,
     target_university: academicDetails.target_university || null,
     target_university_country: academicDetails.target_university_country || null,
-    course_level: mapLoanEnumValue('course_level', academicDetails.course_level),
+    course_level: academicDetails.course_level || null,
     course_start_date: academicDetails.course_start_date 
       ? new Date(academicDetails.course_start_date).toISOString().split('T')[0] 
       : null,
@@ -296,9 +354,9 @@ function transformLoanToHubSpotFormat(loanApp: any): any {
       ? new Date(academicDetails.course_end_date).toISOString().split('T')[0] 
       : null,
     course_duration: academicDetails.course_duration || null,
-    admission_status: mapLoanEnumValue('admission_status', academicDetails.admission_status),
-    visa_status: mapLoanEnumValue('visa_status', academicDetails.visa_status),
-    i20_cas_received: mapLoanEnumValue('i20_cas_received', academicDetails.i20_cas_received),
+    admission_status: academicDetails.admission_status || null,
+    visa_status: academicDetails.visa_status || null,
+    i20_cas_received: academicDetails.i20_cas_received || null,
     
     // ========================================
     // FINANCIAL REQUIREMENTS
@@ -342,11 +400,11 @@ function transformLoanToHubSpotFormat(loanApp: any): any {
     // APPLICATION STATUS
     // ========================================
     
-    status: mapLoanEnumValue('status', status.status),
-    priority_level: mapLoanEnumValue('priority_level', status.priority_level),
+    status: status.status || null,
+    priority_level: status.priority_level || null,
     application_notes: status.application_notes || null,
     internal_notes: status.internal_notes || null,
-    record_status: mapLoanEnumValue('record_status', status.record_status),
+    record_status: status.record_status || null,
     
     // ========================================
     // LENDER INFORMATION
@@ -356,11 +414,11 @@ function transformLoanToHubSpotFormat(loanApp: any): any {
     primary_lender_name: lenderInfo.primary_lender_name || null,
     loan_product_id: lenderInfo.loan_product_id || null,
     loan_product_name: lenderInfo.loan_product_name || null,
-    loan_product_type: mapLoanEnumValue('loan_product_type', lenderInfo.loan_product_type),
+    loan_product_type: lenderInfo.loan_product_type || null,
     interest_rate_offered: lenderInfo.interest_rate_offered 
       ? parseFloat(lenderInfo.interest_rate_offered) 
       : null,
-    interest_rate_type: mapLoanEnumValue('interest_rate_type', lenderInfo.interest_rate_type),
+    interest_rate_type: lenderInfo.interest_rate_type || null,
     loan_tenure_years: lenderInfo.loan_tenure_years || null,
     moratorium_period_months: lenderInfo.moratorium_period_months || null,
     emi_amount: lenderInfo.emi_amount 
@@ -409,7 +467,7 @@ function transformLoanToHubSpotFormat(loanApp: any): any {
       : null,
     total_processing_days: timeline.total_processing_days || null,
     sla_breach: timeline.sla_breach || null,
-    delay_reason: mapLoanEnumValue('delay_reason', timeline.delay_reason),
+    delay_reason: timeline.delay_reason || null,
     
     // ========================================
     // REJECTION DETAILS
@@ -418,18 +476,18 @@ function transformLoanToHubSpotFormat(loanApp: any): any {
     rejection_date: rejection.rejection_date 
       ? new Date(rejection.rejection_date).toISOString().split('T')[0] 
       : null,
-    rejection_reason: mapLoanEnumValue('rejection_reason', rejection.rejection_reason),
+    rejection_reason: rejection.rejection_reason || null,
     rejection_details: rejection.rejection_details || null,
     appeal_submitted: rejection.appeal_submitted || null,
-    appeal_outcome: mapLoanEnumValue('appeal_outcome', rejection.appeal_outcome),
+    appeal_outcome: rejection.appeal_outcome || null,
     resolution_provided: rejection.resolution_provided || null,
     
     // ========================================
     // COMMUNICATION PREFERENCES
     // ========================================
     
-    communication_preference: mapLoanEnumValue('communication_preference', commPrefs.communication_preference),
-    follow_up_frequency: mapLoanEnumValue('follow_up_frequency', commPrefs.follow_up_frequency),
+    communication_preference: commPrefs.communication_preference || null,
+    follow_up_frequency: commPrefs.follow_up_frequency || null,
     last_contact_date: commPrefs.last_contact_date 
       ? new Date(commPrefs.last_contact_date).toISOString().split('T')[0] 
       : null,
@@ -448,10 +506,10 @@ function transformLoanToHubSpotFormat(loanApp: any): any {
     // SYSTEM TRACKING
     // ========================================
     
-    application_source_system: mapLoanEnumValue('application_source_system', systemTracking.application_source_system),
-    integration_status: mapLoanEnumValue('integration_status', systemTracking.integration_status),
+    application_source_system: systemTracking.application_source_system || null,
+    integration_status: systemTracking.integration_status || null,
     external_reference_id: systemTracking.external_reference_id || null,
-    application_record_status: mapLoanEnumValue('application_record_status', systemTracking.application_record_status),
+    application_record_status: systemTracking.application_record_status || null,
     
     // ========================================
     // COMMISSION RECORDS
@@ -463,8 +521,8 @@ function transformLoanToHubSpotFormat(loanApp: any): any {
     commission_rate: commission.commission_rate 
       ? parseFloat(commission.commission_rate) 
       : null,
-    commission_calculation_base: mapLoanEnumValue('commission_calculation_base', commission.commission_calculation_base),
-    commission_status: mapLoanEnumValue('commission_status', commission.commission_status),
+    commission_calculation_base: commission.commission_calculation_base || null,
+    commission_status: commission.commission_status || null,
     commission_approval_date: commission.commission_approval_date 
       ? new Date(commission.commission_approval_date).toISOString().split('T')[0] 
       : null,
