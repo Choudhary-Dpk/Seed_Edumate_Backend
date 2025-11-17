@@ -186,6 +186,7 @@ async function createOutboxEntry(
   data: any
 ): Promise<void> {
   try {
+    console.log("Creating Edumate Outbox Entry:", { tableName, recordId, operation });
     // ✅ If normalized table, handle differently
     if (isNormalizedTable(tableName)) {
       await handleNormalizedTableChange(client, tableName, recordId, operation, data);

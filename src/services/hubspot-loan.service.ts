@@ -14,7 +14,10 @@ import { handleHubSpotError } from "./hubspotClient.service";
 const hubspotClient = new Client({ accessToken: config.hubspot.accessToken });
 // HubSpot Loan Application Object Type
 const LOAN_OBJECT_TYPE = config?.hubspot?.customObjects?.loanApplication; // Replace with your actual HubSpot custom object name
-const B2B_PARTNER_LOAN_APP_ASSOCIATION = config?.hubspot?.associations?.loanApplicationToB2BPartner; 
+const B2B_PARTNER_LOAN_APP_ASSOCIATION = config?.hubspot?.associations?.loanApplicationToB2BPartner;
+const LENDER_LOAN_APP_ASSOCIATION = config?.hubspot?.associations?.loanApplicationToLender;
+const LOAN_PRODUCT_LOAN_APP_ASSOCIATION = config?.hubspot?.associations?.loanApplicationToLoanProduct; 
+const EDUMATE_CONTACT_LOAN_APP_ASSOCIATION = config?.hubspot?.associations?.edumateContactToLoanApplication; 
 
 /**
  * HubSpot Loan Application Interface
@@ -45,7 +48,10 @@ function convertToHubSpotLoanObject<T>(obj: any): T {
  */
 export async function createLoanApplication(
   properties: Record<string, any>,
-  b2bPartnerHSId: string | null = null
+  edumateContactHsObjectId: string | null = null,
+  b2bPartnerHSId: string | null = null,
+  lenderHSId: string | null = null,
+  loanProductHSId: string | null = null
 ): Promise<HubSpotLoanApplication> {
   try {
 
@@ -57,6 +63,21 @@ export async function createLoanApplication(
       }>;
     }> = [];
 
+    // Add Edumate Contact association if available
+    if (edumateContactHsObjectId) {
+      associations.push({
+        to: { id: edumateContactHsObjectId },
+        types: [
+          {
+            associationCategory: EDUMATE_CONTACT_LOAN_APP_ASSOCIATION?.associationCategory || "USER_DEFINED",
+            associationTypeId: EDUMATE_CONTACT_LOAN_APP_ASSOCIATION?.associationTypeId || 485,
+          },
+        ],
+      });
+      logger.info("🔗 Adding Edumate Contact association", {
+        edumateContactHsObjectId,
+      });
+    }
     // Add B2B Partner association if available
     if (b2bPartnerHSId) {
       associations.push({
@@ -71,6 +92,37 @@ export async function createLoanApplication(
 
       logger.info("🔗 Adding B2B Partner association", {
         b2bPartnerHSId,
+      });
+    }
+    // Add Lender association if available
+    if (lenderHSId) {
+      associations.push({
+        to: { id: lenderHSId },
+        types: [
+          {
+            associationCategory: LENDER_LOAN_APP_ASSOCIATION?.associationCategory || "USER_DEFINED",
+            associationTypeId: LENDER_LOAN_APP_ASSOCIATION?.associationTypeId || 425,
+          },
+        ],
+      });
+      logger.info("🔗 Adding Lender association", 
+        {
+          lenderHSId,
+        });
+    }
+    // Add Loan Product association if available
+    if (loanProductHSId) {
+      associations.push({
+        to: { id: loanProductHSId },
+        types: [
+          {
+            associationCategory: LOAN_PRODUCT_LOAN_APP_ASSOCIATION?.associationCategory || "USER_DEFINED",
+            associationTypeId: LOAN_PRODUCT_LOAN_APP_ASSOCIATION?.associationTypeId || 469,
+          },
+        ],
+      });
+      logger.info("🔗 Adding Loan Product association", {
+        loanProductHSId,
       });
     }
 

@@ -446,6 +446,7 @@ function transformToHubSpotFormat(contact: any) {
     // ========================================
     
     // Contact Details
+    db_id: contact.id,
     email: personalInfo.email || null,
     first_name: personalInfo.first_name || null,
     last_name: personalInfo.last_name || null,

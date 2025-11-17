@@ -17,6 +17,7 @@ const LOAN_SYNC_MODELS = [
   "HSLoanApplicationsSystemTracking",
   "HSLoanApplicationsCommissionRecords",
   "HSLoanApplicationsAdditionalServices",
+  "HSLoanApplicationsStatus",
 ];
 
 // System fields that shouldn't trigger sync
@@ -58,6 +59,7 @@ function isNormalizedTable(tableName: string): boolean {
     "HSLoanApplicationsSystemTracking",
     "HSLoanApplicationsCommissionRecords",
     "HSLoanApplicationsAdditionalServices",
+    "HSLoanApplicationsStatus",
   ];
   
   return normalizedTables.includes(tableName);
@@ -96,6 +98,7 @@ export function createLoanHubSpotSyncExtension() {
 
           // Handle UPDATE
           async update({ args, query, model }: any) {
+            console.log("Loan Sync Middleware - UPDATE:", { model, args });
             if (!LOAN_SYNC_MODELS.includes(model)) {
               return query(args);
             }
@@ -184,6 +187,7 @@ async function createLoanOutboxEntry(
   data: any
 ): Promise<void> {
   try {
+    console.log("Creating outbox entry for:", { tableName, recordId, operation });
     // ✅ If normalized table, handle differently
     if (isNormalizedTable(tableName)) {
       await handleNormalizedLoanTableChange(client, tableName, recordId, operation, data);
@@ -227,7 +231,7 @@ async function handleNormalizedLoanTableChange(
 ): Promise<void> {
   try {
     const loanApplicationId = data.loan_application_id || recordId;
-    
+
     if (!loanApplicationId) {
       logger.warn(`No loan_application_id found for ${tableName}#${recordId}`);
       return;

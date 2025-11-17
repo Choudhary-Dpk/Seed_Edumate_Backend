@@ -13,6 +13,12 @@ export const mapAllCommissionSettlementFields = async (
       input.settlement_id !== null && input.settlement_id !== ""
         ? input.settlement_id
         : null;
+  
+  if(input.edumate_contact_db_id !== undefined)
+    mapped.lead_reference_id =
+      input.edumate_contact_db_id !== null && input.edumate_contact_db_id !== ""
+        ? input.edumate_contact_db_id
+        : null;      
 
   if (input.settlement_date !== undefined)
     mapped.settlement_date =
@@ -29,10 +35,10 @@ export const mapAllCommissionSettlementFields = async (
       input.student_id !== null && input.student_id !== ""
         ? input.student_id
         : null;
-  if (input.partner_id !== undefined)
-    mapped.partner_id =
-      input.partner_id !== null && input.partner_id !== ""
-        ? String(input.partner_id)
+  if (input.b2b_partner_db_id !== undefined)
+    mapped.b2b_partner_id =
+      input.b2b_partner_db_id !== null && input.b2b_partner_db_id !== ""
+        ? input.b2b_partner_db_id
         : null;
   if (input.partner_name !== undefined)
     mapped.partner_name =
@@ -56,6 +62,12 @@ export const mapAllCommissionSettlementFields = async (
       input.loan_application_db_id !== ""
         ? input.loan_application_db_id
         : null;
+
+  if(input.lender_db_id !== undefined)
+    mapped.lender_id =
+      input.lender_db_id !== null && input.lender_db_id !== ""
+        ? input.lender_db_id
+        : null;      
 
   if (input.lender_type !== undefined)
     mapped.lender_type =
@@ -243,10 +255,7 @@ export const mapAllCommissionSettlementFields = async (
     input.settlement_status !== null &&
     input.settlement_status !== ""
   ) {
-    enumTranslations.push({
-      enumName: "settlementStatus",
-      sourceValue: input.settlement_status,
-    });
+    mapped.settlement_status = input.settlement_status || null;
   }
 
   if (input.verification_date !== undefined)
@@ -404,10 +413,7 @@ export const mapAllCommissionSettlementFields = async (
     input.commission_model !== null &&
     input.commission_model !== ""
   ) {
-    enumTranslations.push({
-      enumName: "commissionModel",
-      sourceValue: input.commission_model,
-    });
+    mapped.commission_model = input.commission_model || null;
   }
 
   if (input.commission_rate_applied !== undefined)
