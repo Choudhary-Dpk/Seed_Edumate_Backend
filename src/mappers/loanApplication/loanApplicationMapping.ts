@@ -21,6 +21,10 @@ export const mapAllLoanApplicationFields = async (
 
   // ===== MAIN LOAN APPLICATION FIELDS (Non-Enum) =====
 
+  if (input.source !== undefined)
+    mapped.source =
+      input.source !== null && input.source !== "" ? input.source : null;
+
   if (input.assigned_counselor !== undefined)
     mapped.assigned_counselor =
       input.assigned_counselor !== null && input.assigned_counselor !== ""

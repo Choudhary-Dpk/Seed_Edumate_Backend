@@ -416,14 +416,12 @@ export const fetchCommissionSettlementsList = async (
 };
 
 export const checkCommissionSettlementFields = async (
-  lead_reference_id?: string,
   student_id?: string,
   settlement_reference_number?: string,
   hs_object_id?: string
 ) => {
   const conditions: any[] = [];
 
-  if (lead_reference_id) conditions.push({ lead_reference_id });
   if (student_id) conditions.push({ student_id });
   if (settlement_reference_number)
     conditions.push({ settlement_reference_number });

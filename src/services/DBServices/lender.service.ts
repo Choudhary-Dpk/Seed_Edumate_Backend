@@ -35,6 +35,7 @@ export const categorizeHSLendersByTable = (
     "hubspot_owner_id",
     "hubspot_team_id",
     "is_deleted",
+    "source",
   ];
 
   // HSLendersContactInfo Fields

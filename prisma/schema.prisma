@@ -109,6 +109,7 @@ model LoanEligibilityMatrix {
   analytical_score_max    Decimal? @db.Decimal(16, 4) 
   language_exam_score_min Decimal? @db.Decimal(16, 4) 
   language_exam_score_max Decimal? @db.Decimal(16, 4)
+  source           String? @default("webportal")
 
   @@index([loan_amount, loan_amount_currency], map: "idx_amount_currency")
   @@index([analytical_exam_name], map: "idx_analytical_exam")
@@ -233,6 +234,7 @@ model HSB2BPartners {
   hubspot_owner_assigneddate  DateTime?
   hubspot_owner_id            String?
   hubspot_team_id             String?
+  source           String? @default("webportal")
 
   // Audit Fields
   is_active  Boolean  @default(true)
@@ -260,6 +262,7 @@ model HSB2BPartners {
   system_tracking          HSB2BPartnersSystemTracking?
   b2b_partner_contacts     HSEdumateContacts[]                      @relation("B2BPartnerContacts")
   commission_settlements   HSCommissionSettlements[]
+  invoice                  Invoice[]
 
   @@index([partner_name])
   @@index([partner_type])
@@ -537,6 +540,8 @@ model currency_conversion {
   from_currency String   @db.VarChar(3)
   to_currency   String   @db.VarChar(3)
   exchange_rate Decimal  @db.Decimal(12, 6)
+  source           String? @default("webportal")
+
   last_updated  DateTime @default(now()) @db.Timestamp(6)
   is_active     Boolean  @default(true)
 
@@ -549,6 +554,7 @@ model B2BPartnersUsers {
   email                        String                                 @unique @map("email")
   password_hash                String?                                @map("password_hash")
   full_name                    String?                                @map("full_name")
+  source           String?  @default("webportal")
   is_active                    Boolean                                @default(true) @map("is_active")
   created_at                   DateTime                               @default(now()) @map("created_at")
   updated_at                   DateTime                               @default(now()) @updatedAt @map("updated_at")
@@ -572,6 +578,7 @@ model HSLoanApplications  {
   contact_id Int?
   lender_id  Int?
   product_id Int?
+  source           String? @default("webportal")
   
   // Basic Information
   application_date       DateTime?
@@ -628,6 +635,7 @@ model HSLoanApplications  {
   lender  HSLenders? @relation(fields: [lender_id], references: [id])
   loan_product   HSLoanProducts? @relation(fields: [product_id], references: [id])
   commission_settlement   HSCommissionSettlements[]
+  invoice                  Invoice[]
 
   @@index([student_email])
   @@index([application_date])
@@ -937,6 +945,7 @@ model HSEdumateContacts  {
   id Int @id @default(autoincrement())
   b2b_partner_id Int?
   deleted_by_id Int?
+  source           String? @default("webportal")
 
   // Basic Information
   seed_contact               String?
@@ -988,6 +997,7 @@ model HSEdumateContacts  {
   b2b_partner                  HSB2BPartners?                        @relation("B2BPartnerContacts", fields: [b2b_partner_id], references: [id])
   loan_applications            HSLoanApplications[]               @relation("ContactLoanApplications")
   commission_settlements       HSCommissionSettlements[]
+  invoice                      Invoice[]
 
   @@index([hs_object_id])
   @@index([seed_contact])
@@ -1196,6 +1206,7 @@ model HSEdumateContactsSystemTracking  {
 
 model HSLenders  {
   id Int @id @default(autoincrement())
+  source           String? @default("webportal")
 
   // Basic Information
   lender_name                String?
@@ -1242,6 +1253,7 @@ model HSLenders  {
   loan_products          HSLoanProducts[]
   loan_application       HSLoanApplications[]
   commission_settlements HSCommissionSettlements[]
+  invoice                  Invoice[]
 
   @@index([lender_name])
   @@index([lender_type])
@@ -1389,6 +1401,8 @@ model HSLendersSystemTracking  {
 
 model HSLoanProducts  {
   id Int @id @default(autoincrement())
+  source           String? @default("webportal")
+
   // Basic Information
   lender_id             Int?
   lender_name           String?
@@ -1442,6 +1456,8 @@ model HSLoanProducts  {
   system_integration                HSLoanProductsSystemIntegration?
   system_tracking                   HSLoanProductsSystemTracking?
   loan_application                  HSLoanApplications[]
+  commission_settlement             HSCommissionSettlements[]
+  invoice                  Invoice[]
 
   @@index([product_name])
   @@index([lender_id])
@@ -1694,6 +1710,8 @@ model HSLoanProductsSystemTracking  {
 
 model HSLoanDocuments {
   id                    Int                                  @id @default(autoincrement())
+  source           String? @default("webportal")
+
   document_category     DocumentCategory?                    @default(dbgenerated()) @map("document_category")
   document_description  String?                              @map("document_description")
   document_display_name String?                              @map("document_display_name")
@@ -1895,6 +1913,8 @@ model HSCommissionSettlements  {
   lender_id                  Int?
   student_id                 String?
   settlement_id              String?   @unique
+  product_id                 Int?
+  source           String? @default("webportal")
 
   // Basic Information
   settlement_reference_number String?
@@ -1950,6 +1970,7 @@ model HSCommissionSettlements  {
   b2b_partner                 HSB2BPartners? @relation(fields: [b2b_partner_id], references: [id])
   lender                      HSLenders? @relation(fields: [lender_id], references: [id])
   edumate_contacts            HSEdumateContacts? @relation(fields: [lead_reference_id], references: [id])
+  loan_product                HSLoanProducts? @relation(fields: [product_id],references: [id])
 
   @@index([settlement_id])
   @@index([b2b_partner_id, lender_id, student_id, hs_object_id])
@@ -2233,8 +2254,35 @@ model HSCommissionSettlementsTransactionDetails  {
   @@map("hs_commission_settlements_transaction_details")
 }
 
+model Invoice {
+  id                    Int       @id @default(autoincrement())
+  file                  String?
+  url                   String?
+  status                String?
+  date                  DateTime? @default(now())
+  commission_settlement_ids    String?
+  contact_id             Int?
+  b2b_partner_id          Int?
+  application_id         Int?
+  lender_id              Int?
+  product_id             Int?
+  source           String? @default("webportal")
+
+  contact HSEdumateContacts? @relation(fields: [contact_id], references: [id])
+  partner HSB2BPartners? @relation(fields: [b2b_partner_id], references: [id])
+  loan_application HSLoanApplications? @relation(fields: [application_id], references: [id])
+  lender HSLenders? @relation(fields: [lender_id], references: [id])
+  loan_product HSLoanProducts? @relation(fields: [product_id], references: [id])
+  
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@map("invoice")
+}
+
 model MktEligibilityCheckerLeads {
   id         Int               @id @default(autoincrement())
+  source           String? @default("webportal")
   contact_id Int               @unique
   created_at DateTime          @default(now())
   updated_at DateTime          @default(now()) @updatedAt
@@ -2245,6 +2293,7 @@ model MktEligibilityCheckerLeads {
 
 model MktEmiCalculatorLeads {
   id         Int               @id @default(autoincrement())
+  source           String? @default("webportal")
   contact_id Int               @unique
   created_at DateTime          @default(now())
   updated_at DateTime          @default(now()) @updatedAt
@@ -2255,6 +2304,7 @@ model MktEmiCalculatorLeads {
 
 model CurrencyConfigs {
   id                  Int      @id @default(autoincrement())
+  source           String?    @default("webportal")
   code                String   @unique @db.VarChar(3)
   iso_code            String   @db.VarChar(3)
   symbol              String   @db.VarChar(10)
