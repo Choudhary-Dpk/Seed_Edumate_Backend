@@ -34,6 +34,8 @@ export const categorizeLoanProductByTable = (
     "hubspot_owner_assigneddate",
     "hubspot_owner_id",
     "hubspot_team_id",
+    "source",
+
     // Audit Fields
     "is_active",
     "is_deleted",

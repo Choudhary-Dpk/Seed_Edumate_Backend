@@ -109,6 +109,7 @@ model LoanEligibilityMatrix {
   analytical_score_max    Decimal? @db.Decimal(16, 4) 
   language_exam_score_min Decimal? @db.Decimal(16, 4) 
   language_exam_score_max Decimal? @db.Decimal(16, 4)
+  source           String? @default("webportal")
 
   @@index([loan_amount, loan_amount_currency], map: "idx_amount_currency")
   @@index([analytical_exam_name], map: "idx_analytical_exam")
@@ -233,6 +234,7 @@ model HSB2BPartners {
   hubspot_owner_assigneddate  DateTime?
   hubspot_owner_id            String?
   hubspot_team_id             String?
+  source           String? @default("webportal")
 
   // Audit Fields
   is_active  Boolean  @default(true)
@@ -538,6 +540,8 @@ model currency_conversion {
   from_currency String   @db.VarChar(3)
   to_currency   String   @db.VarChar(3)
   exchange_rate Decimal  @db.Decimal(12, 6)
+  source           String? @default("webportal")
+
   last_updated  DateTime @default(now()) @db.Timestamp(6)
   is_active     Boolean  @default(true)
 
@@ -550,6 +554,7 @@ model B2BPartnersUsers {
   email                        String                                 @unique @map("email")
   password_hash                String?                                @map("password_hash")
   full_name                    String?                                @map("full_name")
+  source           String?  @default("webportal")
   is_active                    Boolean                                @default(true) @map("is_active")
   created_at                   DateTime                               @default(now()) @map("created_at")
   updated_at                   DateTime                               @default(now()) @updatedAt @map("updated_at")
@@ -573,6 +578,7 @@ model HSLoanApplications  {
   contact_id Int?
   lender_id  Int?
   product_id Int?
+  source           String? @default("webportal")
   
   // Basic Information
   application_date       DateTime?
@@ -939,6 +945,7 @@ model HSEdumateContacts  {
   id Int @id @default(autoincrement())
   b2b_partner_id Int?
   deleted_by_id Int?
+  source           String? @default("webportal")
 
   // Basic Information
   seed_contact               String?
@@ -1199,6 +1206,7 @@ model HSEdumateContactsSystemTracking  {
 
 model HSLenders  {
   id Int @id @default(autoincrement())
+  source           String? @default("webportal")
 
   // Basic Information
   lender_name                String?
@@ -1393,6 +1401,8 @@ model HSLendersSystemTracking  {
 
 model HSLoanProducts  {
   id Int @id @default(autoincrement())
+  source           String? @default("webportal")
+
   // Basic Information
   lender_id             Int?
   lender_name           String?
@@ -1700,6 +1710,8 @@ model HSLoanProductsSystemTracking  {
 
 model HSLoanDocuments {
   id                    Int                                  @id @default(autoincrement())
+  source           String? @default("webportal")
+
   document_category     DocumentCategory?                    @default(dbgenerated()) @map("document_category")
   document_description  String?                              @map("document_description")
   document_display_name String?                              @map("document_display_name")
@@ -1902,6 +1914,7 @@ model HSCommissionSettlements  {
   student_id                 String?
   settlement_id              String?   @unique
   product_id                 Int?
+  source           String? @default("webportal")
 
   // Basic Information
   settlement_reference_number String?
@@ -2253,6 +2266,7 @@ model Invoice {
   application_id         Int?
   lender_id              Int?
   product_id             Int?
+  source           String? @default("webportal")
 
   contact HSEdumateContacts? @relation(fields: [contact_id], references: [id])
   partner HSB2BPartners? @relation(fields: [b2b_partner_id], references: [id])
@@ -2268,6 +2282,7 @@ model Invoice {
 
 model MktEligibilityCheckerLeads {
   id         Int               @id @default(autoincrement())
+  source           String? @default("webportal")
   contact_id Int               @unique
   created_at DateTime          @default(now())
   updated_at DateTime          @default(now()) @updatedAt
@@ -2278,6 +2293,7 @@ model MktEligibilityCheckerLeads {
 
 model MktEmiCalculatorLeads {
   id         Int               @id @default(autoincrement())
+  source           String? @default("webportal")
   contact_id Int               @unique
   created_at DateTime          @default(now())
   updated_at DateTime          @default(now()) @updatedAt
@@ -2288,6 +2304,7 @@ model MktEmiCalculatorLeads {
 
 model CurrencyConfigs {
   id                  Int      @id @default(autoincrement())
+  source           String?    @default("webportal")
   code                String   @unique @db.VarChar(3)
   iso_code            String   @db.VarChar(3)
   symbol              String   @db.VarChar(10)
@@ -2358,59 +2375,59 @@ model SyncOutbox {
   @@map("sync_outbox")
 }
 
-// model LeadsView {
-//   // Primary Key
-//   contact_id                  Int       @id
+model LeadsView {
+  // Primary Key
+  contact_id                  Int       @id
   
-//   // IDs and References
-//   loan_application_id         Int?
-//   b2b_partner_id              Int?
+  // IDs and References
+  loan_application_id         Int?
+  b2b_partner_id              Int?
   
-//   // Personal Information
-//   first_name                  String?
-//   last_name                   String?
-//   email                       String?
-//   phone_number                String?
+  // Personal Information
+  first_name                  String?
+  last_name                   String?
+  email                       String?
+  phone_number                String?
   
-//   // Academic Profile
-//   admission_status            String?  @default(dbgenerated()) 
-//   current_education_level     String?          @default(dbgenerated()) 
-//   current_institution         String?
-//   current_course_major        String?
-//   preferred_study_destination String?      @default(dbgenerated()) 
-//   target_universities         String?
+  // Academic Profile
+  admission_status            String?  @default(dbgenerated()) 
+  current_education_level     String?          @default(dbgenerated()) 
+  current_institution         String?
+  current_course_major        String?
+  preferred_study_destination String?      @default(dbgenerated()) 
+  target_universities         String?
   
-//   // Loan Application Basic Info
-//   application_date            DateTime?
-//   student_id                  String?
-//   student_name                String?
-//   student_email               String?
-//   student_phone               String?
-//   application_source          String?              @default(dbgenerated()) 
+  // Loan Application Basic Info
+  application_date            DateTime?
+  student_id                  String?
+  student_name                String?
+  student_email               String?
+  student_phone               String?
+  application_source          String?              @default(dbgenerated()) 
   
-//   // Academic Details
-//   visa_status                 String?                     @default(dbgenerated()) 
+  // Academic Details
+  visa_status                 String?                     @default(dbgenerated()) 
   
-//   // Application Status
-//   application_status                      String?
+  // Application Status
+  application_status                      String?
   
-//   // System Tracking
-//   integration_status          String?              @default(dbgenerated()) 
+  // System Tracking
+  integration_status          String?              @default(dbgenerated()) 
   
-//   // Commission Records
-//   commission_status           String? 
-//   commission_amount           Decimal? @db.Decimal(16, 4)                       
+  // Commission Records
+  commission_status           String? 
+  commission_amount           Decimal? @db.Decimal(16, 4)                       
   
-//   // Financial Requirements
-//   loan_amount_requested       Decimal? @db.Decimal(16, 4)                        
-//   loan_amount_approved        Decimal? @db.Decimal(16, 4)                        
-//   loan_amount_disbursed       Decimal? @db.Decimal(16, 4)                        
+  // Financial Requirements
+  loan_amount_requested       Decimal? @db.Decimal(16, 4)                        
+  loan_amount_approved        Decimal? @db.Decimal(16, 4)                        
+  loan_amount_disbursed       Decimal? @db.Decimal(16, 4)                        
   
-//   // Lender Information
-//   processing_fee              Decimal? @db.Decimal(16, 4)                       
+  // Lender Information
+  processing_fee              Decimal? @db.Decimal(16, 4)                       
 
-//   @@map("leads_view")
-// }
+  @@map("leads_view")
+}
 
 
 model EnumMapping {

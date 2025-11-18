@@ -8,17 +8,21 @@ export const mapAllCommissionSettlementFields = async (
   // Collect all enum translations needed
   const enumTranslations: Array<{ enumName: string; sourceValue: any }> = [];
 
+  if (input.source !== undefined)
+    mapped.source =
+      input.source !== null && input.source !== "" ? input.source : null;
+
   if (input.settlement_id !== undefined)
     mapped.settlement_id =
       input.settlement_id !== null && input.settlement_id !== ""
         ? input.settlement_id
         : null;
-  
-  if(input.edumate_contact_db_id !== undefined)
+
+  if (input.edumate_contact_db_id !== undefined)
     mapped.lead_reference_id =
       input.edumate_contact_db_id !== null && input.edumate_contact_db_id !== ""
         ? input.edumate_contact_db_id
-        : null;      
+        : null;
 
   if (input.settlement_date !== undefined)
     mapped.settlement_date =
@@ -63,11 +67,11 @@ export const mapAllCommissionSettlementFields = async (
         ? input.loan_application_db_id
         : null;
 
-  if(input.lender_db_id !== undefined)
+  if (input.lender_db_id !== undefined)
     mapped.lender_id =
       input.lender_db_id !== null && input.lender_db_id !== ""
         ? input.lender_db_id
-        : null;      
+        : null;
 
   if (input.lender_type !== undefined)
     mapped.lender_type =

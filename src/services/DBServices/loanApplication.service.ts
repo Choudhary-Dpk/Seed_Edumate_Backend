@@ -18,6 +18,7 @@ export const categorizeLoanApplicationByTable = (
     "contact_id",
     "lender_id",
     "product_id",
+    "source",
 
     // HubSpot System Fields
     "hs_created_by_user_id",

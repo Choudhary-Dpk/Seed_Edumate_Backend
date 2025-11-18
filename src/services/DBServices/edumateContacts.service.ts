@@ -27,10 +27,10 @@ export const categorizeByTable = (mappedFields: Record<string, any>) => {
     "hs_shared_team_ids",
     "hs_shared_user_ids",
     "hs_updated_by_user_id",
-
     "hubspot_owner_assigneddate",
     "hubspot_owner_id",
     "hubspot_team_id",
+    "source",
 
     // Business Fields
     "base_currency",

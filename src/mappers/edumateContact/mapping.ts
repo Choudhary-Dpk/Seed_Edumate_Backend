@@ -165,7 +165,7 @@ export const mapLoanPreferences = (data: Record<string, any>) => {
 
 export const mapSystemTracking = (data: Record<string, any>) => {
   return {
-    created_by: data.created_by,
+    created_by: String(data.created_by),
     created_date: data.created_date,
     last_modified_by: data.last_modified_by,
     last_modified_date: data.last_modified_date,
@@ -204,6 +204,10 @@ export const mapAllFields = async (
       : input?.coApplicantAnnualIncome;
 
   // ===== MAIN CONTACT FIELDS =====
+  if (input.source !== undefined)
+    mapped.source =
+      input.source !== null && input.source !== "" ? input.source : null;
+
   if (input.deletedById !== undefined || input.deleted_by_id !== undefined) {
     mapped.deleted_by_id = input.deletedById ?? input.deleted_by_id ?? null;
   }
