@@ -260,6 +260,7 @@ model HSB2BPartners {
   system_tracking          HSB2BPartnersSystemTracking?
   b2b_partner_contacts     HSEdumateContacts[]                      @relation("B2BPartnerContacts")
   commission_settlements   HSCommissionSettlements[]
+  invoice                  Invoice[]
 
   @@index([partner_name])
   @@index([partner_type])
@@ -628,6 +629,7 @@ model HSLoanApplications  {
   lender  HSLenders? @relation(fields: [lender_id], references: [id])
   loan_product   HSLoanProducts? @relation(fields: [product_id], references: [id])
   commission_settlement   HSCommissionSettlements[]
+  invoice                  Invoice[]
 
   @@index([student_email])
   @@index([application_date])
@@ -988,6 +990,7 @@ model HSEdumateContacts  {
   b2b_partner                  HSB2BPartners?                        @relation("B2BPartnerContacts", fields: [b2b_partner_id], references: [id])
   loan_applications            HSLoanApplications[]               @relation("ContactLoanApplications")
   commission_settlements       HSCommissionSettlements[]
+  invoice                      Invoice[]
 
   @@index([hs_object_id])
   @@index([seed_contact])
@@ -1242,6 +1245,7 @@ model HSLenders  {
   loan_products          HSLoanProducts[]
   loan_application       HSLoanApplications[]
   commission_settlements HSCommissionSettlements[]
+  invoice                  Invoice[]
 
   @@index([lender_name])
   @@index([lender_type])
@@ -1442,6 +1446,8 @@ model HSLoanProducts  {
   system_integration                HSLoanProductsSystemIntegration?
   system_tracking                   HSLoanProductsSystemTracking?
   loan_application                  HSLoanApplications[]
+  commission_settlement             HSCommissionSettlements[]
+  invoice                  Invoice[]
 
   @@index([product_name])
   @@index([lender_id])
@@ -1895,6 +1901,7 @@ model HSCommissionSettlements  {
   lender_id                  Int?
   student_id                 String?
   settlement_id              String?   @unique
+  product_id                 Int?
 
   // Basic Information
   settlement_reference_number String?
@@ -1950,6 +1957,7 @@ model HSCommissionSettlements  {
   b2b_partner                 HSB2BPartners? @relation(fields: [b2b_partner_id], references: [id])
   lender                      HSLenders? @relation(fields: [lender_id], references: [id])
   edumate_contacts            HSEdumateContacts? @relation(fields: [lead_reference_id], references: [id])
+  loan_product                HSLoanProducts? @relation(fields: [product_id],references: [id])
 
   @@index([settlement_id])
   @@index([b2b_partner_id, lender_id, student_id, hs_object_id])
@@ -2233,6 +2241,31 @@ model HSCommissionSettlementsTransactionDetails  {
   @@map("hs_commission_settlements_transaction_details")
 }
 
+model Invoice {
+  id                    Int       @id @default(autoincrement())
+  file                  String?
+  url                   String?
+  status                String?
+  date                  DateTime? @default(now())
+  commission_settlement_ids    String?
+  contact_id             Int?
+  b2b_partner_id          Int?
+  application_id         Int?
+  lender_id              Int?
+  product_id             Int?
+
+  contact HSEdumateContacts? @relation(fields: [contact_id], references: [id])
+  partner HSB2BPartners? @relation(fields: [b2b_partner_id], references: [id])
+  loan_application HSLoanApplications? @relation(fields: [application_id], references: [id])
+  lender HSLenders? @relation(fields: [lender_id], references: [id])
+  loan_product HSLoanProducts? @relation(fields: [product_id], references: [id])
+  
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@map("invoice")
+}
+
 model MktEligibilityCheckerLeads {
   id         Int               @id @default(autoincrement())
   contact_id Int               @unique
@@ -2325,59 +2358,59 @@ model SyncOutbox {
   @@map("sync_outbox")
 }
 
-model LeadsView {
-  // Primary Key
-  contact_id                  Int       @id
+// model LeadsView {
+//   // Primary Key
+//   contact_id                  Int       @id
   
-  // IDs and References
-  loan_application_id         Int?
-  b2b_partner_id              Int?
+//   // IDs and References
+//   loan_application_id         Int?
+//   b2b_partner_id              Int?
   
-  // Personal Information
-  first_name                  String?
-  last_name                   String?
-  email                       String?
-  phone_number                String?
+//   // Personal Information
+//   first_name                  String?
+//   last_name                   String?
+//   email                       String?
+//   phone_number                String?
   
-  // Academic Profile
-  admission_status            String?  @default(dbgenerated()) 
-  current_education_level     String?          @default(dbgenerated()) 
-  current_institution         String?
-  current_course_major        String?
-  preferred_study_destination String?      @default(dbgenerated()) 
-  target_universities         String?
+//   // Academic Profile
+//   admission_status            String?  @default(dbgenerated()) 
+//   current_education_level     String?          @default(dbgenerated()) 
+//   current_institution         String?
+//   current_course_major        String?
+//   preferred_study_destination String?      @default(dbgenerated()) 
+//   target_universities         String?
   
-  // Loan Application Basic Info
-  application_date            DateTime?
-  student_id                  String?
-  student_name                String?
-  student_email               String?
-  student_phone               String?
-  application_source          String?              @default(dbgenerated()) 
+//   // Loan Application Basic Info
+//   application_date            DateTime?
+//   student_id                  String?
+//   student_name                String?
+//   student_email               String?
+//   student_phone               String?
+//   application_source          String?              @default(dbgenerated()) 
   
-  // Academic Details
-  visa_status                 String?                     @default(dbgenerated()) 
+//   // Academic Details
+//   visa_status                 String?                     @default(dbgenerated()) 
   
-  // Application Status
-  application_status                      String?
+//   // Application Status
+//   application_status                      String?
   
-  // System Tracking
-  integration_status          String?              @default(dbgenerated()) 
+//   // System Tracking
+//   integration_status          String?              @default(dbgenerated()) 
   
-  // Commission Records
-  commission_status           String? 
-  commission_amount           Decimal? @db.Decimal(16, 4)                       
+//   // Commission Records
+//   commission_status           String? 
+//   commission_amount           Decimal? @db.Decimal(16, 4)                       
   
-  // Financial Requirements
-  loan_amount_requested       Decimal? @db.Decimal(16, 4)                        
-  loan_amount_approved        Decimal? @db.Decimal(16, 4)                        
-  loan_amount_disbursed       Decimal? @db.Decimal(16, 4)                        
+//   // Financial Requirements
+//   loan_amount_requested       Decimal? @db.Decimal(16, 4)                        
+//   loan_amount_approved        Decimal? @db.Decimal(16, 4)                        
+//   loan_amount_disbursed       Decimal? @db.Decimal(16, 4)                        
   
-  // Lender Information
-  processing_fee              Decimal? @db.Decimal(16, 4)                       
+//   // Lender Information
+//   processing_fee              Decimal? @db.Decimal(16, 4)                       
 
-  @@map("leads_view")
-}
+//   @@map("leads_view")
+// }
 
 
 model EnumMapping {

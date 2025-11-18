@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { sendResponse } from "../utils/api";
 import { checkCommissionSettlementFields } from "../models/helpers/commission.helper";
+import prisma from "../config/prisma";
 
 export const checkDuplicateCommissionSettlementFields = async (
   req: Request,
@@ -8,43 +9,21 @@ export const checkDuplicateCommissionSettlementFields = async (
   next: NextFunction
 ) => {
   try {
-    const {
-      lead_reference_id,
-      student_id,
-      settlement_reference_number,
-      hs_object_id,
-    } = req.body;
+    const { student_id, settlement_reference_number, hs_object_id } = req.body;
 
     // Skip if no relevant fields provided
-    if (
-      !lead_reference_id &&
-      !student_id &&
-      !settlement_reference_number &&
-      !hs_object_id
-    ) {
+    if (!student_id && !settlement_reference_number && !hs_object_id) {
       return next();
     }
 
     // Check for existing record using helper function
     const existing = await checkCommissionSettlementFields(
-      lead_reference_id,
       student_id,
       settlement_reference_number,
       hs_object_id
     );
 
     if (existing) {
-      if (
-        lead_reference_id &&
-        existing.lead_reference_id === lead_reference_id
-      ) {
-        return sendResponse(
-          res,
-          409,
-          "This lead reference ID already has a commission settlement"
-        );
-      }
-
       if (student_id && existing.student_id === student_id) {
         return sendResponse(
           res,
@@ -89,5 +68,133 @@ export const checkDuplicateCommissionSettlementFields = async (
       "Error in duplicate commission settlement field check middleware:",
       error
     );
+  }
+};
+
+export const validateSettlementIds = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    let commission_settlement_ids = req.body.commission_settlement_ids;
+
+    console.log("Raw body:", req.body);
+    console.log("File:", req.file);
+    console.log("commission_settlement_ids (raw):", commission_settlement_ids);
+    console.log("Type:", typeof commission_settlement_ids);
+
+    // Check if commission_settlement_ids is provided
+    if (!commission_settlement_ids) {
+      return sendResponse(res, 400, "Commission settlement IDs are required");
+    }
+
+    if (typeof commission_settlement_ids === "string") {
+      try {
+        commission_settlement_ids = JSON.parse(commission_settlement_ids);
+        console.log("Parsed IDs:", commission_settlement_ids);
+      } catch (parseError) {
+        console.error("JSON parse error:", parseError);
+        return sendResponse(
+          res,
+          400,
+          "Invalid commission settlement IDs format - must be valid JSON array"
+        );
+      }
+    }
+
+    // Check if it's an array after parsing
+    if (!Array.isArray(commission_settlement_ids)) {
+      return sendResponse(
+        res,
+        400,
+        "Commission settlement IDs must be an array"
+      );
+    }
+
+    if (commission_settlement_ids.length === 0) {
+      return sendResponse(
+        res,
+        400,
+        "Commission settlement IDs array cannot be empty"
+      );
+    }
+
+    // Validate all elements are numbers - with proper type guard
+    const settlementIdsArray: number[] = commission_settlement_ids
+      .map((id: any) => {
+        if (typeof id === "string") {
+          const parsed = parseInt(id, 10);
+          return isNaN(parsed) ? null : parsed;
+        }
+        if (typeof id === "number" && !isNaN(id)) {
+          return id;
+        }
+        return null;
+      })
+      .filter((id): id is number => id !== null);
+
+    console.log("Final settlement IDs array:", settlementIdsArray);
+
+    if (settlementIdsArray.length === 0) {
+      return sendResponse(
+        res,
+        400,
+        "Commission settlement IDs must contain valid numbers"
+      );
+    }
+
+    if (settlementIdsArray.length !== commission_settlement_ids.length) {
+      return sendResponse(
+        res,
+        400,
+        "All commission settlement IDs must be valid numbers"
+      );
+    }
+
+    // Validate that all settlement IDs exist in database
+    const existingSettlements = await prisma.hSCommissionSettlements.findMany({
+      where: {
+        id: {
+          in: settlementIdsArray, // ← Now TypeScript knows this is number[]
+        },
+        is_deleted: false,
+        is_active: true,
+      },
+      include: {
+        calculation_details: true,
+        documentaion: true,
+      },
+    });
+
+    console.log("Found settlements:", existingSettlements.length);
+
+    // Check if all IDs exist
+    if (existingSettlements.length !== settlementIdsArray.length) {
+      const foundIds = existingSettlements.map((s) => s.id);
+      const missingIds = settlementIdsArray.filter(
+        (id) => !foundIds.includes(id)
+      );
+
+      return res.status(404).json({
+        success: false,
+        message:
+          "Some commission settlement IDs do not exist or are inactive/deleted",
+        missingIds: missingIds,
+        foundIds: foundIds,
+      });
+    }
+
+    // Attach validated settlements to request object for use in controller
+    (req as any).validatedSettlements = {
+      settlements: existingSettlements,
+      settlementIds: settlementIdsArray,
+    };
+
+    console.log("=== VALIDATION SUCCESS ===");
+    next();
+  } catch (error: any) {
+    console.error("Error validating settlement IDs:", error);
+    return sendResponse(res, 500, "Error validating settlement IDs");
   }
 };

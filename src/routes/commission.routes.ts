@@ -7,9 +7,14 @@ import {
   getCommissionSettlementsByLead,
   getCommissionSettlementsListController,
   updateCommissionSettlementController,
+  uploadInvoiceController,
 } from "../controllers/commission.controller";
-import { checkDuplicateCommissionSettlementFields } from "../middlewares/commission.middleware";
-import { validateContactLeadById } from "../middlewares/contacts";
+import {
+  checkDuplicateCommissionSettlementFields,
+  validateSettlementIds,
+} from "../middlewares/commission.middleware";
+import multer from "../setup/multer";
+export const invoiceUpload = multer(10, ["application/pdf", "pdf"]);
 const router = Router();
 
 router.post(
@@ -27,5 +32,11 @@ router.get(
   getCommissionSettlementsListController
 );
 router.get("/lead", getCommissionSettlementsByLead);
+router.post(
+  "/upload-invoice",
+  invoiceUpload.single("file"),
+  validateSettlementIds,
+  uploadInvoiceController
+);
 
 export { router as commissionRoutes };
