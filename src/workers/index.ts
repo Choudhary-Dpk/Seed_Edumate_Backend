@@ -1,6 +1,7 @@
 import { startHubSpotSyncWorker } from './hubspot-sync.worker';
 import { startLoanHubSpotSyncWorker } from './hubspot-loan-sync.worker'; // 🆕 ADD THIS LINE
 import logger from '../utils/logger';
+import { startCommissionSettlementsHubSpotSyncWorker } from "./hubspot-commission-settlement-sync.worker";
 
 /**
  * Start all background workers
@@ -8,16 +9,21 @@ import logger from '../utils/logger';
 export async function startWorkers() {
   try {
     logger.info("🔧 Initializing background workers...");
-    
-    // Start Contact sync worker
-    startHubSpotSyncWorker().catch((error) => {
-      logger.error("Contact Sync Worker crashed:", error);
-      process.exit(1);
-    });
 
-    // 🆕 ADD THIS BLOCK - Start Loan sync worker
-    startLoanHubSpotSyncWorker().catch((error) => {
-      logger.error("Loan Sync Worker crashed:", error);
+    // Start Contact sync worker
+    // startHubSpotSyncWorker().catch((error) => {
+    //   logger.error("Contact Sync Worker crashed:", error);
+    //   process.exit(1);
+    // });
+
+    // // 🆕 ADD THIS BLOCK - Start Loan sync worker
+    // startLoanHubSpotSyncWorker().catch((error) => {
+    //   logger.error("Loan Sync Worker crashed:", error);
+    //   process.exit(1);
+    // });
+
+    startCommissionSettlementsHubSpotSyncWorker().catch((error) => {
+      logger.error("Commission Settlment Sync Worker crashed:", error);
       process.exit(1);
     });
 
