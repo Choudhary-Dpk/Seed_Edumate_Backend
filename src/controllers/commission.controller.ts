@@ -43,6 +43,7 @@ import {
   fetchCommissionSettlementsByLead,
 } from "../models/helpers/commission.helper";
 import { getContactLeadById } from "../models/helpers/contact.helper";
+import { FRONTEND_URL } from "../setup/secrets";
 
 export const createCommissionSettlementController = async (
   req: RequestWithPayload<LoginPayload>,
@@ -509,7 +510,7 @@ export const uploadInvoiceController = async (
     fs.writeFileSync(filePath, file.buffer);
 
     // Generate file URL
-    const fileUrl = `/uploads/invoices/${fileName}`;
+    const fileUrl = `${FRONTEND_URL}/uploads/invoices/${fileName}`;
 
     console.log("File saved:", filePath);
 
@@ -556,7 +557,7 @@ export const uploadInvoiceController = async (
               invoice_number: invoiceNumber,
               invoice_date: invoice.date,
               invoice_amount: settlementAmount,
-              invoice_status: status,
+              invoice_status: "Received",
               invoice_url: fileUrl,
               invoice_required: "Yes",
             },
