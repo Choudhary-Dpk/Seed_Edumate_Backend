@@ -43,7 +43,7 @@ import {
   fetchCommissionSettlementsByLead,
 } from "../models/helpers/commission.helper";
 import { getContactLeadById } from "../models/helpers/contact.helper";
-import { FRONTEND_URL } from "../setup/secrets";
+import { BACKEND_URL, FRONTEND_URL } from "../setup/secrets";
 
 export const createCommissionSettlementController = async (
   req: RequestWithPayload<LoginPayload>,
@@ -510,7 +510,7 @@ export const uploadInvoiceController = async (
     fs.writeFileSync(filePath, file.buffer);
 
     // Generate file URL
-    const fileUrl = `${FRONTEND_URL}/uploads/invoices/${fileName}`;
+    const fileUrl = `${BACKEND_URL}/uploads/invoices/${fileName}`;
 
     console.log("File saved:", filePath);
 

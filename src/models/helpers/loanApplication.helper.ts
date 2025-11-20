@@ -247,6 +247,7 @@ export const getLoanList = async (
     lender: string | null;
     loanProduct: string | null;
     status: string | null;
+    applicationStatus: string | null;
   }
 ) => {
   const where: any = {
@@ -280,9 +281,11 @@ export const getLoanList = async (
     };
   }
 
-  if (filters.status) {
+  if (filters.applicationStatus) {
     where.loan_application_status = {
-      status: filters.status,
+      is: {
+        application_status: filters.applicationStatus,
+      },
     };
   }
 
@@ -314,7 +317,11 @@ export const getLoanList = async (
         };
         break;
       case "applicationStatus":
-        orderBy = { loan_application_status: { status: sortDir || "desc" } };
+        orderBy = {
+          loan_application_status: {
+            application_status: sortDir || "desc",
+          },
+        };
         break;
       default:
         orderBy = { created_at: "desc" };
