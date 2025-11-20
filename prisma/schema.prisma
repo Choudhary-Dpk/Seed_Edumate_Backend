@@ -248,7 +248,7 @@ model HSB2BPartners {
 
   // Relationships
   users                    B2BPartnersUsers[]
-  deleted_by_user          B2BPartnersUsers?                        @relation("PartnerDeletedBy", fields: [deleted_by], onDelete:Cascade)
+  deleted_by_user          B2BPartnersUsers?                        @relation("PartnerDeletedBy", fields: [deleted_by], references: [id], onDelete: Cascade)
   business_capabilities    HSB2BPartnersBusinessCapabilities?
   commission_structure     HSB2BPartnersCommissionStructure?
   compliance               HSB2BPartnersComplianceAndDocumentation?
