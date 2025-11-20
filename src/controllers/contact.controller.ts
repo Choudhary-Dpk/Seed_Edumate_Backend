@@ -572,7 +572,6 @@ export const uploadContactsCSV = async (
     }
 
     logger.debug(`Fetching hubspotId from userId: ${id}`);
-    const hubspotId = await getHubspotIdByUserId(id);
     logger.debug(`Hubspot id fetched successfully`);
 
     const {
@@ -600,7 +599,7 @@ export const uploadContactsCSV = async (
     logger.debug(`File records history added successfully`);
 
     // 2. Validate + Normalize rows
-    const { validRows, errors } = validateContactRows(rows, id, hubspotId!);
+    const { validRows, errors } = validateContactRows(rows, id);
     if (validRows.length === 0) {
       return sendResponse(res, 400, "No valid rows found in CSV", { errors });
     }

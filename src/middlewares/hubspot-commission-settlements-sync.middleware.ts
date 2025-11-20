@@ -105,6 +105,7 @@ export function createCommissionHubSpotSyncExtension() {
               model,
               args,
             });
+
             if (!COMMISSION_SYNC_MODELS.includes(model)) {
               return query(args);
             }
