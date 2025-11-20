@@ -26,6 +26,7 @@ import {
 
 export type ContactsLead = {
   // ===== MAIN CONTACT FIELDS =====
+  source?: string | null;
   created_by_user?: string | null;
   createdByUser?: string | null;
   deletedOn?: string | null;

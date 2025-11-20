@@ -1,26 +1,32 @@
 // src/services/hubspotClient.ts
-import { Client } from '@hubspot/api-client';
-import { 
+import { Client } from "@hubspot/api-client";
+import {
   SimplePublicObjectInputForCreate,
   BatchInputSimplePublicObjectInputForCreate,
   PublicObjectSearchRequest,
-  SimplePublicObject
-} from '@hubspot/api-client/lib/codegen/crm/objects';
-import { config } from '../config/config';
+  SimplePublicObject,
+} from "@hubspot/api-client/lib/codegen/crm/objects";
+import { config } from "../config/config";
 import { logger } from "../utils/logger";
-import { 
-  HubSpotContact, 
-  HubSpotCompany, 
+import {
+  HubSpotContact,
+  HubSpotCompany,
   HubSpotDeal,
   HubSpotEdumateContact,
   HubSpotPaginatedResponse,
   HubSpotError,
-  HubSpotOwner
-} from '../types';
+  HubSpotOwner,
+} from "../types";
+import {
+  convertToHubSpotCommissionSettlementsObject,
+  HubSpotCommissionSettlements,
+} from "./hubspot-commission-settlements.service";
+import { COMMISSION_SETTLEMENTS_OBJECT_TYPE } from "../setup/secrets";
 
 // Initialize HubSpot client
 const hubspotClient = new Client({ accessToken: config.hubspot.accessToken });
-const B2B_PARTNER_LEAD_ASSOCIATION = config.hubspot.associations?.edumateContactToB2BPartner;
+const B2B_PARTNER_LEAD_ASSOCIATION =
+  config.hubspot.associations?.edumateContactToB2BPartner;
 const EDUMATE_CONTACT_OBJECT_TYPE = config.hubspot.customObjects.edumateContact;
 const EDUMATE_B2B_PARTNERS_OBJECT_TYPE =
   config.hubspot.customObjects.b2bPartners || "2-46227624";
@@ -842,10 +848,12 @@ export const deleteContactsLead = async (loanId: string): Promise<void> => {
   }
 };
 
-export const createMultiContactsLead = async (propertiesList: Record<string, any>[], b2bPartnerHSId: string | null = null) => {
+export const createMultiContactsLead = async (
+  propertiesList: Record<string, any>[],
+  b2bPartnerHSId: string | null = null
+) => {
   try {
-
-      const associations: Array<{
+    const associations: Array<{
       to: { id: string };
       types: Array<{
         associationCategory: any;
@@ -859,8 +867,11 @@ export const createMultiContactsLead = async (propertiesList: Record<string, any
         to: { id: b2bPartnerHSId },
         types: [
           {
-            associationCategory: B2B_PARTNER_LEAD_ASSOCIATION?.associationCategory || "USER_DEFINED",
-            associationTypeId: B2B_PARTNER_LEAD_ASSOCIATION?.associationTypeId || 466,
+            associationCategory:
+              B2B_PARTNER_LEAD_ASSOCIATION?.associationCategory ||
+              "USER_DEFINED",
+            associationTypeId:
+              B2B_PARTNER_LEAD_ASSOCIATION?.associationTypeId || 466,
           },
         ],
       });
@@ -894,6 +905,36 @@ export const createMultiContactsLead = async (propertiesList: Record<string, any
     logger.error("Error creating contacts leads applications in HubSpot", {
       error,
       propertiesList,
+    });
+    throw handleHubSpotError(error);
+  }
+};
+
+export const createCommissionSettlements = async (
+  commissionProperties: any,
+  commissionSettlementHSId: string | null = null
+) => {
+  try {
+    const createInput: SimplePublicObjectInputForCreate = {
+      properties: commissionProperties,
+      associations: [],
+    };
+
+    const response = await hubspotClient.crm.objects.basicApi.create(
+      COMMISSION_SETTLEMENTS_OBJECT_TYPE!,
+      createInput
+    );
+
+    logger.info("Created commission settlements in HubSpot", {
+      commissionId: response.id,
+    });
+    return convertToHubSpotCommissionSettlementsObject<HubSpotCommissionSettlements>(
+      response
+    );
+  } catch (error) {
+    logger.error("Error creating commission settlements in HubSpot", {
+      commissionProperties,
+      error,
     });
     throw handleHubSpotError(error);
   }

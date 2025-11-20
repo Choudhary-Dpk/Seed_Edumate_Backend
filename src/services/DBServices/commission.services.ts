@@ -40,6 +40,7 @@ export const categorizeCommissionSettlementByTable = (
     "is_deleted",
     "deleted_by",
     "deleted_on",
+    "source",
   ];
 
   // Settlement Status Fields

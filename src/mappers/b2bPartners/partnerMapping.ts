@@ -6,6 +6,10 @@ export const mapAllB2BPartnerFields = async (
   const mapped: Record<string, any> = {};
 
   // ===== MAIN PARTNER FIELDS =====
+  if (input.source !== undefined)
+    mapped.source =
+      input.source !== null && input.source !== "" ? input.source : null;
+
   if (input.business_address !== undefined)
     mapped.business_address =
       input.business_address !== null && input.business_address !== ""

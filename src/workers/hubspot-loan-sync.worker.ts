@@ -130,7 +130,10 @@ async function processSingleLoanEntry(entry: any) {
 /**
  * Handle CREATE operation for loan application
  */
-async function handleLoanCreate(payload: any, loanId: number): Promise<string | undefined> {
+async function handleLoanCreate(
+  payload: any,
+  loanId: number
+): Promise<string | undefined> {
   // Fetch complete loan application data
   const loanApplication = await prisma.hSLoanApplications.findUnique({
     where: { id: loanId },
@@ -153,91 +156,97 @@ async function handleLoanCreate(payload: any, loanId: number): Promise<string | 
     throw new Error(`Loan application ${loanId} not found`);
   }
 
-    // Fetch Edumate Contact, B2B Partner, Lender, and Loan Product HS Object IDs for associations
-    let edumateContactHsObjectId: string | null = null;
-    let b2bPartnerHsObjectId: string | null = null;
-    let lenderHsObjectId: string | null = null;
-    let loanProductHsObjectId: string | null = null;
+  // Fetch Edumate Contact, B2B Partner, Lender, and Loan Product HS Object IDs for associations
+  let edumateContactHsObjectId: string | null = null;
+  let b2bPartnerHsObjectId: string | null = null;
+  let lenderHsObjectId: string | null = null;
+  let loanProductHsObjectId: string | null = null;
 
-    if (loanApplication.contact_id) {
-      const contact = await prisma.hSEdumateContacts.findUnique({
-        where: { id: loanApplication.contact_id },
-        select: { hs_object_id: true }
+  if (loanApplication.contact_id) {
+    const contact = await prisma.hSEdumateContacts.findUnique({
+      where: { id: loanApplication.contact_id },
+      select: { hs_object_id: true },
+    });
+    if (contact?.hs_object_id) {
+      edumateContactHsObjectId = contact.hs_object_id;
+      logger.info("✅ Found Edumate Contact for association", {
+        contactId: loanApplication.contact_id,
+        hsObjectId: edumateContactHsObjectId,
       });
-      if (contact?.hs_object_id) {
-        edumateContactHsObjectId = contact.hs_object_id;
-        logger.info("✅ Found Edumate Contact for association", {
-          contactId: loanApplication.contact_id,
-          hsObjectId: edumateContactHsObjectId
-        });
-      } else {
-        logger.warn("⚠️ Edumate Contact found but no hs_object_id", {
-          contactId: loanApplication.contact_id
-        });
-      }
-    }
-    
-    if (loanApplication.b2b_partner_id) {
-      const b2bPartner = await prisma.hSB2BPartners.findUnique({
-        where: { id: loanApplication.b2b_partner_id },
-        select: { hs_object_id: true }
+    } else {
+      logger.warn("⚠️ Edumate Contact found but no hs_object_id", {
+        contactId: loanApplication.contact_id,
       });
-  
-      if (b2bPartner?.hs_object_id) {
-        b2bPartnerHsObjectId = b2bPartner.hs_object_id;
-        logger.info("✅ Found B2B Partner for association", {
-          b2bPartnerId: loanApplication.b2b_partner_id,
-          hsObjectId: b2bPartnerHsObjectId
-        });
-      } else {
-        logger.warn("⚠️ B2B Partner found but no hs_object_id", {
-          b2bPartnerId: loanApplication.b2b_partner_id
-        });
-      }
     }
+  }
 
-    if (loanApplication.lender_id) {
-      const lender = await prisma.hSLenders.findUnique({
-        where: { id: loanApplication.lender_id },
-        select: { hs_object_id: true }
-      });
+  if (loanApplication.b2b_partner_id) {
+    const b2bPartner = await prisma.hSB2BPartners.findUnique({
+      where: { id: loanApplication.b2b_partner_id },
+      select: { hs_object_id: true },
+    });
 
-      if (lender?.hs_object_id) {
-        lenderHsObjectId = lender.hs_object_id;
-        logger.info("✅ Found Lender for association", {
-          lenderId: loanApplication.lender_id,
-          hsObjectId: lenderHsObjectId
-        });
-      } else {
-        logger.warn("⚠️ Lender found but no hs_object_id", {
-          lenderId: loanApplication.lender_id
-        });
-      }
-    }
-
-    if (loanApplication.product_id) {
-      const loanProduct = await prisma.hSLoanProducts.findUnique({
-        where: { id: loanApplication.product_id },
-        select: { hs_object_id: true }
+    if (b2bPartner?.hs_object_id) {
+      b2bPartnerHsObjectId = b2bPartner.hs_object_id;
+      logger.info("✅ Found B2B Partner for association", {
+        b2bPartnerId: loanApplication.b2b_partner_id,
+        hsObjectId: b2bPartnerHsObjectId,
       });
-      if (loanProduct?.hs_object_id) {
-        loanProductHsObjectId = loanProduct.hs_object_id;
-        logger.info("✅ Found Loan Product for association", {
-          productId: loanApplication.product_id,
-          hsObjectId: loanProductHsObjectId
-        });
-      } else {
-        logger.warn("⚠️ Loan Product found but no hs_object_id", {
-          productId: loanApplication.product_id
-        });
-      }
+    } else {
+      logger.warn("⚠️ B2B Partner found but no hs_object_id", {
+        b2bPartnerId: loanApplication.b2b_partner_id,
+      });
     }
+  }
+
+  if (loanApplication.lender_id) {
+    const lender = await prisma.hSLenders.findUnique({
+      where: { id: loanApplication.lender_id },
+      select: { hs_object_id: true },
+    });
+
+    if (lender?.hs_object_id) {
+      lenderHsObjectId = lender.hs_object_id;
+      logger.info("✅ Found Lender for association", {
+        lenderId: loanApplication.lender_id,
+        hsObjectId: lenderHsObjectId,
+      });
+    } else {
+      logger.warn("⚠️ Lender found but no hs_object_id", {
+        lenderId: loanApplication.lender_id,
+      });
+    }
+  }
+
+  if (loanApplication.product_id) {
+    const loanProduct = await prisma.hSLoanProducts.findUnique({
+      where: { id: loanApplication.product_id },
+      select: { hs_object_id: true },
+    });
+    if (loanProduct?.hs_object_id) {
+      loanProductHsObjectId = loanProduct.hs_object_id;
+      logger.info("✅ Found Loan Product for association", {
+        productId: loanApplication.product_id,
+        hsObjectId: loanProductHsObjectId,
+      });
+    } else {
+      logger.warn("⚠️ Loan Product found but no hs_object_id", {
+        productId: loanApplication.product_id,
+      });
+    }
+  }
 
   // Transform to HubSpot format
   const hubspotPayload = transformLoanToHubSpotFormat(loanApplication);
 
   // Create in HubSpot
-  const result = await createLoanApplication(hubspotPayload, edumateContactHsObjectId, b2bPartnerHsObjectId, lenderHsObjectId, loanProductHsObjectId);
+  const result = await createLoanApplication(
+    hubspotPayload,
+    edumateContactHsObjectId,
+    b2bPartnerHsObjectId,
+    lenderHsObjectId,
+    loanProductHsObjectId
+  );
 
   return result.id;
 }
@@ -245,7 +254,10 @@ async function handleLoanCreate(payload: any, loanId: number): Promise<string | 
 /**
  * Handle UPDATE operation for loan application
  */
-async function handleLoanUpdate(payload: any, loanId: number): Promise<string | undefined> {
+async function handleLoanUpdate(
+  payload: any,
+  loanId: number
+): Promise<string | undefined> {
   // Fetch complete loan application data
   const loanApplication = await prisma.hSLoanApplications.findUnique({
     where: { id: loanId },

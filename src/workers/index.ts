@@ -1,27 +1,31 @@
 import { startHubSpotSyncWorker } from './hubspot-sync.worker';
 import { startLoanHubSpotSyncWorker } from './hubspot-loan-sync.worker'; // 🆕 ADD THIS LINE
 import logger from '../utils/logger';
+import { startCommissionSettlementsHubSpotSyncWorker } from "./hubspot-commission-settlement-sync.worker";
 
 /**
  * Start all background workers
  */
 export async function startWorkers() {
   try {
-    logger.info("🔧 Initializing background workers...");
-    
-    // Start Contact sync worker
-    startHubSpotSyncWorker().catch((error) => {
-      logger.error("Contact Sync Worker crashed:", error);
-      process.exit(1);
-    });
+    logger.info("Initializing background workers...");
 
-    // 🆕 ADD THIS BLOCK - Start Loan sync worker
+    // startHubSpotSyncWorker().catch((error) => {
+    //   logger.error("Contact Sync Worker crashed:", error);
+    //   process.exit(1);
+    // });
+
     startLoanHubSpotSyncWorker().catch((error) => {
       logger.error("Loan Sync Worker crashed:", error);
       process.exit(1);
     });
 
-    logger.info("✅ All workers started successfully");
+    startCommissionSettlementsHubSpotSyncWorker().catch((error) => {
+      logger.error("Commission Settlment Sync Worker crashed:", error);
+      process.exit(1);
+    });
+
+    logger.info("All workers started successfully");
   } catch (error) {
     logger.error("Failed to start workers:", error);
     process.exit(1);

@@ -883,6 +883,7 @@ export const getLoanApplicationsList = async (
         lender?: string;
         loanProduct?: string;
         status?: string;
+        applicationStatus?: string;
       }) || {};
 
     const filters = {
@@ -890,6 +891,7 @@ export const getLoanApplicationsList = async (
       lender: filtersFromQuery.lender || null,
       loanProduct: filtersFromQuery.loanProduct || null,
       status: filtersFromQuery.status || null,
+      applicationStatus: filtersFromQuery.applicationStatus || null,
     };
 
     console.log("Parsed filters:", filters);

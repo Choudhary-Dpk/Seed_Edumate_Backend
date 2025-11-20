@@ -6,6 +6,9 @@ export const mapAllHSLendersFields = async (
   const mapped: Record<string, any> = {};
 
   // ===== MAIN HSLENDERS FIELDS (Simple - No Enum) =====
+  if (input.source !== undefined)
+    mapped.source =
+      input.source !== null && input.source !== "" ? input.source : null;
 
   if (input.lender_display_name !== undefined)
     mapped.lender_display_name =

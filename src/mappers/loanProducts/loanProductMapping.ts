@@ -351,6 +351,10 @@ export const mapAllLoanProductFields = async (
   // =====================================================================
 
   // === MAIN LOAN PRODUCT FIELDS ===
+  if (input.source !== undefined)
+    mapped.source =
+      input.source !== null && input.source !== "" ? input.source : null;
+
   if (input.deleted_by_id !== undefined) {
     mapped.deleted_by_id =
       input.deleted_by_id !== null && input.deleted_by_id !== ""

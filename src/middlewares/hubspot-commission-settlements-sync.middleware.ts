@@ -1,35 +1,35 @@
-// src/middleware/hubspot-loan-sync.middleware.ts
+// src/middleware/hubspot-commission-sync.middleware.ts
 
 import { Prisma } from "@prisma/client";
 import logger from "../utils/logger";
 
-// Tables to track for Loan Applications
-const LOAN_SYNC_MODELS = [
-  "HSLoanApplications",
-  "HSLoanApplicationsAcademicDetails",
-  "HSLoanApplicationsFinancialRequirements",
-  "HSLoanApplicationsStatus",
-  "HSLoanApplicationsLenderInformation",
-  "HSLoanApplicationsDocumentManagement",
-  "HSLoanApplicationsProcessingTimeline",
-  "HSLoanApplicationsRejectionDetails",
-  "HSLoanApplicationsCommunicationPreferences",
-  "HSLoanApplicationsSystemTracking",
-  "HSLoanApplicationsCommissionRecords",
-  "HSLoanApplicationsAdditionalServices",
-  "HSLoanApplicationsStatus",
+// Tables to track for Commission Settlements
+const COMMISSION_SYNC_MODELS = [
+  "HSCommissionSettlements",
+  "HSCommissionSettlementsCommissionCalculation",
+  "HSCommissionSettlementsCommunication",
+  "HSCommissionSettlementsTaxAndDeductions",
+  "HSCommissionSettlementsDocumentation",
+  "HSCommissionSettlementsHoldAndDisputes",
+  "HSCommissionSettlementsLoanDetails",
+  "HSCommissionSettlementsPaymentProcessing",
+  "HSCommissionSettlementsPerformanceAnalytics",
+  "HSCommissionSettlementsReconciliations",
+  "HSCommissionSettlementsSettlementStatus",
+  "HSCommissionSettlementsSystemTracking",
+  "HSCommissionSettlementsTransactionDetails",
 ];
 
 // System fields that shouldn't trigger sync
 const SYSTEM_FIELDS = [
-  'hs_object_id',
-  'hs_created_by_user_id',
-  'hs_createdate',
-  'hs_lastmodifieddate',
-  'hs_updated_by_user_id',
-  'hubspot_owner_id',
-  'updated_at',
-  'created_at',
+  "hs_object_id",
+  "hs_created_by_user_id",
+  "hs_createdate",
+  "hs_lastmodifieddate",
+  "hs_updated_by_user_id",
+  "hubspot_owner_id",
+  "updated_at",
+  "created_at",
 ];
 
 /**
@@ -37,10 +37,10 @@ const SYSTEM_FIELDS = [
  */
 function isOnlySystemFieldUpdate(args: any): boolean {
   if (!args?.data) return false;
-  
+
   const updatingFields = Object.keys(args.data);
-  
-  return updatingFields.every(field => SYSTEM_FIELDS.includes(field));
+
+  return updatingFields.every((field) => SYSTEM_FIELDS.includes(field));
 }
 
 /**
@@ -48,50 +48,50 @@ function isOnlySystemFieldUpdate(args: any): boolean {
  */
 function isNormalizedTable(tableName: string): boolean {
   const normalizedTables = [
-    "HSLoanApplicationsAcademicDetails",
-    "HSLoanApplicationsFinancialRequirements",
-    "HSLoanApplicationsStatus",
-    "HSLoanApplicationsLenderInformation",
-    "HSLoanApplicationsDocumentManagement",
-    "HSLoanApplicationsProcessingTimeline",
-    "HSLoanApplicationsRejectionDetails",
-    "HSLoanApplicationsCommunicationPreferences",
-    "HSLoanApplicationsSystemTracking",
-    "HSLoanApplicationsCommissionRecords",
-    "HSLoanApplicationsAdditionalServices",
-    "HSLoanApplicationsStatus",
+    "HSCommissionSettlementsCommissionCalculation",
+    "HSCommissionSettlementsCommunication",
+    "HSCommissionSettlementsTaxAndDeductions",
+    "HSCommissionSettlementsDocumentation",
+    "HSCommissionSettlementsHoldAndDisputes",
+    "HSCommissionSettlementsLoanDetails",
+    "HSCommissionSettlementsPaymentProcessing",
+    "HSCommissionSettlementsPerformanceAnalytics",
+    "HSCommissionSettlementsReconciliations",
+    "HSCommissionSettlementsSettlementStatus",
+    "HSCommissionSettlementsSystemTracking",
+    "HSCommissionSettlementsTransactionDetails",
   ];
-  
+
   return normalizedTables.includes(tableName);
 }
 
 /**
- * Prisma Extension for Loan Application HubSpot Sync
+ * Prisma Extension for Commission Settlement HubSpot Sync
  */
-export function createLoanHubSpotSyncExtension() {
+export function createCommissionHubSpotSyncExtension() {
   return Prisma.defineExtension((client) => {
     return client.$extends({
-      name: "hubspot-loan-sync",
+      name: "hubspot-commission-sync",
       query: {
         $allModels: {
           // Handle CREATE
           async create({ args, query, model }: any) {
             const result = await query(args);
-            if (!LOAN_SYNC_MODELS.includes(model)) {
+            if (!COMMISSION_SYNC_MODELS.includes(model)) {
               return result;
             }
 
             try {
-              await createLoanOutboxEntry(
+              await createCommissionOutboxEntry(
                 client,
                 model,
-                result.id || result.loan_application_id,
+                result.id || result.settlement_id,
                 "CREATE",
                 result
               );
             } catch (error) {
               logger.error(
-                `Loan sync outbox failed for CREATE ${model}:`,
+                `Commission sync outbox failed for CREATE ${model}:`,
                 error
               );
             }
@@ -101,15 +101,26 @@ export function createLoanHubSpotSyncExtension() {
 
           // Handle UPDATE
           async update({ args, query, model }: any) {
-            console.log("Loan Sync Middleware - UPDATE:", { model, args });
-            if (!LOAN_SYNC_MODELS.includes(model)) {
+            console.log("Commission Sync Middleware - UPDATE:", {
+              model,
+              args,
+            });
+
+            if (!COMMISSION_SYNC_MODELS.includes(model)) {
+              return query(args);
+            }
+
+            if (args?.data?.source === "hubspot") {
+              logger.debug(
+                `Skipping commission sync for HubSpot-source UPDATE: ${model}`
+              );
               return query(args);
             }
 
             // ✅ Skip if only system fields
             if (isOnlySystemFieldUpdate(args)) {
               logger.debug(
-                `Skipping loan sync for system field update: ${model}`
+                `Skipping commission sync for system field update: ${model}`
               );
               return query(args);
             }
@@ -121,7 +132,7 @@ export function createLoanHubSpotSyncExtension() {
               });
             } catch (error) {
               logger.error(
-                `Failed to fetch old loan record for ${model}:`,
+                `Failed to fetch old commission record for ${model}:`,
                 error
               );
             }
@@ -130,16 +141,16 @@ export function createLoanHubSpotSyncExtension() {
 
             if (oldRecord) {
               try {
-                await createLoanOutboxEntry(
+                await createCommissionOutboxEntry(
                   client,
                   model,
-                  oldRecord.id || oldRecord.loan_application_id,
+                  oldRecord.id || oldRecord.settlement_id,
                   "UPDATE",
                   result
                 );
               } catch (error) {
                 logger.error(
-                  `Loan sync outbox failed for UPDATE ${model}:`,
+                  `Commission sync outbox failed for UPDATE ${model}:`,
                   error
                 );
               }
@@ -150,7 +161,7 @@ export function createLoanHubSpotSyncExtension() {
 
           // Handle DELETE
           async delete({ args, query, model }: any) {
-            if (!LOAN_SYNC_MODELS.includes(model)) {
+            if (!COMMISSION_SYNC_MODELS.includes(model)) {
               return query(args);
             }
 
@@ -161,7 +172,7 @@ export function createLoanHubSpotSyncExtension() {
               });
             } catch (error) {
               logger.error(
-                `Failed to fetch loan record before delete for ${model}:`,
+                `Failed to fetch commission record before delete for ${model}:`,
                 error
               );
             }
@@ -170,16 +181,16 @@ export function createLoanHubSpotSyncExtension() {
 
             if (oldRecord) {
               try {
-                await createLoanOutboxEntry(
+                await createCommissionOutboxEntry(
                   client,
                   model,
-                  oldRecord.id || oldRecord.loan_application_id,
+                  oldRecord.id || oldRecord.settlement_id,
                   "DELETE",
                   oldRecord
                 );
               } catch (error) {
                 logger.error(
-                  `Loan sync outbox failed for DELETE ${model}:`,
+                  `Commission sync outbox failed for DELETE ${model}:`,
                   error
                 );
               }
@@ -194,9 +205,9 @@ export function createLoanHubSpotSyncExtension() {
 }
 
 /**
- * Create outbox entry for Loan Application
+ * Create outbox entry for Commission Settlement
  */
-async function createLoanOutboxEntry(
+async function createCommissionOutboxEntry(
   client: any,
   tableName: string,
   recordId: any,
@@ -211,7 +222,7 @@ async function createLoanOutboxEntry(
     });
     // ✅ If normalized table, handle differently
     if (isNormalizedTable(tableName)) {
-      await handleNormalizedLoanTableChange(
+      await handleNormalizedCommissionTableChange(
         client,
         tableName,
         recordId,
@@ -221,11 +232,11 @@ async function createLoanOutboxEntry(
       return;
     }
 
-    // Main loan application table entry
+    // Main commission settlement table entry
     await client.syncOutbox.create({
       data: {
         entity_type: tableName,
-        entity_id: recordId,
+        entity_id: recordId, // ✅ Convert to string
         operation: operation,
         payload: sanitizeForJson(data),
         status: "PENDING",
@@ -235,11 +246,11 @@ async function createLoanOutboxEntry(
     });
 
     logger.debug(
-      `✅ Loan Outbox Entry: ${operation} ${tableName}#${recordId} created`
+      `✅ Commission Outbox Entry: ${operation} ${tableName}#${recordId} created`
     );
   } catch (error) {
     logger.error(
-      `Failed to create loan outbox entry for ${tableName}#${recordId}:`,
+      `Failed to create commission outbox entry for ${tableName}#${recordId}:`,
       error
     );
     throw error;
@@ -247,9 +258,9 @@ async function createLoanOutboxEntry(
 }
 
 /**
- * Handle normalized loan table changes
+ * Handle normalized commission table changes
  */
-async function handleNormalizedLoanTableChange(
+async function handleNormalizedCommissionTableChange(
   client: any,
   tableName: string,
   recordId: any,
@@ -257,18 +268,18 @@ async function handleNormalizedLoanTableChange(
   data: any
 ): Promise<void> {
   try {
-    const loanApplicationId = data.loan_application_id || recordId;
+    const settlementId = data.settlement_id || recordId;
 
-    if (!loanApplicationId) {
-      logger.warn(`No loan_application_id found for ${tableName}#${recordId}`);
+    if (!settlementId) {
+      logger.warn(`No settlement_id found for ${tableName}#${recordId}`);
       return;
     }
 
     // Check for existing pending entry
     const existingEntry = await client.syncOutbox.findFirst({
       where: {
-        entity_type: "HSLoanApplications",
-        entity_id: loanApplicationId,
+        entity_type: "HSCommissionSettlements",
+        entity_id: settlementId, // ✅ Convert to string
         status: "PENDING",
       },
     });
@@ -279,16 +290,16 @@ async function handleNormalizedLoanTableChange(
         where: { id: existingEntry.id },
         data: { updated_at: new Date() },
       });
-      
+
       logger.debug(
-        `Updated pending entry for HSLoanApplications#${loanApplicationId} (${tableName} changed)`
+        `Updated pending entry for HSCommissionSettlements#${settlementId} (${tableName} changed)`
       );
     } else {
       // Create new
       await client.syncOutbox.create({
         data: {
-          entity_type: "HSLoanApplications",
-          entity_id: loanApplicationId,
+          entity_type: "HSCommissionSettlements",
+          entity_id: settlementId,
           operation: "UPDATE",
           payload: { triggered_by: tableName },
           status: "PENDING",
@@ -296,13 +307,13 @@ async function handleNormalizedLoanTableChange(
           created_at: new Date(),
         },
       });
-      
+
       logger.debug(
-        `Created outbox for HSLoanApplications#${loanApplicationId} (${tableName} ${operation})`
+        `Created outbox for HSCommissionSettlements#${settlementId} (${tableName} ${operation})`
       );
     }
   } catch (error) {
-    logger.error(`Failed to handle normalized loan table change:`, error);
+    logger.error(`Failed to handle normalized commission table change:`, error);
     throw error;
   }
 }
@@ -314,8 +325,8 @@ function sanitizeForJson(obj: any): any {
   if (obj === null || obj === undefined) return null;
   if (obj instanceof Date) return obj.toISOString();
   if (typeof obj === "bigint") return obj.toString();
-  if (Array.isArray(obj)) return obj.map(item => sanitizeForJson(item));
-  
+  if (Array.isArray(obj)) return obj.map((item) => sanitizeForJson(item));
+
   if (typeof obj === "object") {
     const sanitized: any = {};
     for (const key in obj) {
@@ -323,6 +334,6 @@ function sanitizeForJson(obj: any): any {
     }
     return sanitized;
   }
-  
+
   return obj;
 }

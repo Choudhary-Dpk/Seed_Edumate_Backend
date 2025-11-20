@@ -1,4 +1,6 @@
-import { NextFunction, Response } from "express";
+import { NextFunction, Response, Request } from "express";
+import fs from "fs";
+import path from "path";
 import prisma from "../config/prisma";
 import { mapAllCommissionSettlementFields } from "../mappers/commission/commissionMapper";
 import {
@@ -41,6 +43,7 @@ import {
   fetchCommissionSettlementsByLead,
 } from "../models/helpers/commission.helper";
 import { getContactLeadById } from "../models/helpers/contact.helper";
+import { BACKEND_URL, FRONTEND_URL } from "../setup/secrets";
 
 export const createCommissionSettlementController = async (
   req: RequestWithPayload<LoginPayload>,
@@ -454,5 +457,152 @@ export const getCommissionSettlementsByLead = async (
   } catch (error) {
     logger.error(`Error fetching commission settlements list: ${error}`);
     next(error);
+  }
+};
+
+export const uploadInvoiceController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { status = "pending", date } = req.body;
+    const file = req.file;
+
+    console.log("=== CONTROLLER DEBUG ===");
+    console.log("File:", file);
+    console.log("Body:", req.body);
+
+    // Check if file is uploaded
+    if (!file) {
+      return sendResponse(res, 400, "Invoice file is required");
+    }
+
+    // Get validated settlements from middleware
+    const { settlements, settlementIds } = (req as any).validatedSettlements;
+
+    // Get the first settlement to extract data
+    const firstSettlement = settlements[0];
+
+    // Calculate total invoice amount from all settlements
+    const totalAmount = settlements.reduce((sum: number, settlement: any) => {
+      const grossAmount =
+        settlement.calculation_details?.total_gross_amount || 0;
+      return sum + parseFloat(grossAmount.toString());
+    }, 0);
+
+    // Since you're using memory storage, save file to disk
+    const uploadDir = path.join(process.cwd(), "uploads", "invoices");
+
+    // Create directory if doesn't exist
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+
+    // Generate unique filename
+    const timestamp = Date.now();
+    const uniqueSuffix = Math.round(Math.random() * 1e9);
+    const fileExt = path.extname(file.originalname);
+    const fileName = `invoice-${timestamp}-${uniqueSuffix}${fileExt}`;
+    const filePath = path.join(uploadDir, fileName);
+
+    // Write buffer to file
+    fs.writeFileSync(filePath, file.buffer);
+
+    // Generate file URL
+    const fileUrl = `${BACKEND_URL}/uploads/invoices/${fileName}`;
+
+    console.log("File saved:", filePath);
+
+    // Create invoice record - extract data from first settlement
+    const invoice = await prisma.invoice.create({
+      data: {
+        file: fileName,
+        url: fileUrl,
+        status: status,
+        date: date ? new Date(date) : new Date(),
+        commission_settlement_ids: settlementIds.join(","),
+        contact_id: firstSettlement.lead_reference_id,
+        b2b_partner_id: firstSettlement.b2b_partner_id,
+        application_id: firstSettlement.application_id,
+        lender_id: firstSettlement.lender_id,
+        product_id: firstSettlement.product_id,
+      },
+      include: {
+        contact: true,
+        partner: true,
+        loan_application: true,
+        lender: true,
+        loan_product: true,
+      },
+    });
+
+    console.log("Invoice created:", invoice.id);
+
+    // Generate invoice number
+    const invoiceNumber = `${invoice.id}`;
+
+    // Update HSCommissionSettlementsDocumentation for each settlement ID
+    const documentationUpdates = await Promise.all(
+      settlements.map(async (settlement: any) => {
+        const settlementAmount =
+          settlement.calculation_details?.total_gross_amount || 0;
+
+        // Check if documentation record exists for this settlement
+        if (settlement.documentaion) {
+          // Update existing documentation
+          return await prisma.hSCommissionSettlementsDocumentation.update({
+            where: { settlement_id: settlement.id },
+            data: {
+              invoice_number: invoiceNumber,
+              invoice_date: invoice.date,
+              invoice_amount: settlementAmount,
+              invoice_status: "Received",
+              invoice_url: fileUrl,
+              invoice_required: "Yes",
+            },
+          });
+        } else {
+          // Create new documentation record
+          return await prisma.hSCommissionSettlementsDocumentation.create({
+            data: {
+              settlement_id: settlement.id,
+              invoice_number: invoiceNumber,
+              invoice_date: invoice.date,
+              invoice_amount: settlementAmount,
+              invoice_status: status,
+              invoice_url: fileUrl,
+              invoice_required: "Yes",
+            },
+          });
+        }
+      })
+    );
+
+    return sendResponse(
+      res,
+      200,
+      "Invoice uploaded and commission settlements updated successfully",
+      {
+        invoice: {
+          id: invoice.id,
+          invoice_number: invoiceNumber,
+          file: invoice.file,
+          url: invoice.url,
+          status: invoice.status,
+          date: invoice.date,
+          total_amount: totalAmount,
+          settlement_ids: settlementIds,
+          settlements_count: settlementIds.length,
+          contact_id: invoice.contact_id,
+          b2b_partner_id: invoice.b2b_partner_id,
+          application_id: invoice.application_id,
+          lender_id: invoice.lender_id,
+        },
+        updated_settlements: documentationUpdates.length,
+      }
+    );
+  } catch (error: any) {
+    console.error("Error uploading invoice:", error);
   }
 };

@@ -249,7 +249,6 @@ const VALID_TARGET_DEGREE_LEVEL = [
 export const validateContactRows = (
   rows: any[],
   userId: number,
-  hubspotId: string
 ): ContactsValidationResult => {
   const validRows: ContactsLead[] = [];
   const errors: { row: number; reason: string }[] = [];
@@ -347,8 +346,7 @@ export const validateContactRows = (
         targetDegreeLevel,
         intakeMonth,
         userId,
-        createdBy: userId,
-        b2bHubspotId: hubspotId,
+        createdBy: userId.toString(),
       });
     }
   });
