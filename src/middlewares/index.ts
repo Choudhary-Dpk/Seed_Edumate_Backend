@@ -1,6 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import { sendResponse } from "../utils/api";
-import { getAdminUserByEmail, getUserByEmail } from "../models/helpers/user.helper";
+import {
+  getAdminUserByEmail,
+  getUserByEmail,
+} from "../models/helpers/user.helper";
 import {
   getAdminDetailsFromToken,
   getAdminUserById,
@@ -467,6 +470,7 @@ export const validateRefreshToken = async (
 ) => {
   try {
     const { refreshToken } = req.body;
+    console.log("refreshtoken", refreshToken);
     if (!refreshToken) {
       return sendResponse(res, 400, "Refresh token is required");
     }
@@ -485,6 +489,7 @@ export const validateRefreshToken = async (
         },
       },
     });
+    console.log("session", session);
 
     if (!session) {
       return sendResponse(res, 401, "Invalid or revoked refresh token");

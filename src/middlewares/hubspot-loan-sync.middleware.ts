@@ -76,7 +76,6 @@ export function createLoanHubSpotSyncExtension() {
         $allModels: {
           // Handle CREATE
           async create({ args, query, model }: any) {
-            debugger;
             const result = await query(args);
             if (!LOAN_SYNC_MODELS.includes(model)) {
               return result;
@@ -205,7 +204,6 @@ async function createLoanOutboxEntry(
   data: any
 ): Promise<void> {
   try {
-    debugger;
     console.log("Creating outbox entry for:", {
       tableName,
       recordId,

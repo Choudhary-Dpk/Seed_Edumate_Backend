@@ -134,7 +134,6 @@ async function handleLoanCreate(
   payload: any,
   loanId: number
 ): Promise<string | undefined> {
-  debugger;
   // Fetch complete loan application data
   const loanApplication = await prisma.hSLoanApplications.findUnique({
     where: { id: loanId },
@@ -259,7 +258,6 @@ async function handleLoanUpdate(
   payload: any,
   loanId: number
 ): Promise<string | undefined> {
-  debugger;
   // Fetch complete loan application data
   const loanApplication = await prisma.hSLoanApplications.findUnique({
     where: { id: loanId },
