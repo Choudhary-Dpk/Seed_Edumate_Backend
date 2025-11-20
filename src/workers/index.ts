@@ -10,10 +10,10 @@ export async function startWorkers() {
   try {
     logger.info("Initializing background workers...");
 
-    // startHubSpotSyncWorker().catch((error) => {
-    //   logger.error("Contact Sync Worker crashed:", error);
-    //   process.exit(1);
-    // });
+    startHubSpotSyncWorker().catch((error) => {
+      logger.error("Contact Sync Worker crashed:", error);
+      process.exit(1);
+    });
 
     startLoanHubSpotSyncWorker().catch((error) => {
       logger.error("Loan Sync Worker crashed:", error);
