@@ -90,7 +90,10 @@ export function createLoanHubSpotSyncExtension() {
                 result
               );
             } catch (error) {
-              logger.error(`Loan sync outbox failed for CREATE ${model}:`, error);
+              logger.error(
+                `Loan sync outbox failed for CREATE ${model}:`,
+                error
+              );
             }
 
             return result;
@@ -105,7 +108,9 @@ export function createLoanHubSpotSyncExtension() {
 
             // ✅ Skip if only system fields
             if (isOnlySystemFieldUpdate(args)) {
-              logger.debug(`Skipping loan sync for system field update: ${model}`);
+              logger.debug(
+                `Skipping loan sync for system field update: ${model}`
+              );
               return query(args);
             }
 
@@ -115,7 +120,10 @@ export function createLoanHubSpotSyncExtension() {
                 where: args.where,
               });
             } catch (error) {
-              logger.error(`Failed to fetch old loan record for ${model}:`, error);
+              logger.error(
+                `Failed to fetch old loan record for ${model}:`,
+                error
+              );
             }
 
             const result = await query(args);
@@ -130,7 +138,10 @@ export function createLoanHubSpotSyncExtension() {
                   result
                 );
               } catch (error) {
-                logger.error(`Loan sync outbox failed for UPDATE ${model}:`, error);
+                logger.error(
+                  `Loan sync outbox failed for UPDATE ${model}:`,
+                  error
+                );
               }
             }
 
@@ -149,7 +160,10 @@ export function createLoanHubSpotSyncExtension() {
                 where: args.where,
               });
             } catch (error) {
-              logger.error(`Failed to fetch loan record before delete for ${model}:`, error);
+              logger.error(
+                `Failed to fetch loan record before delete for ${model}:`,
+                error
+              );
             }
 
             const result = await query(args);
@@ -164,7 +178,10 @@ export function createLoanHubSpotSyncExtension() {
                   oldRecord
                 );
               } catch (error) {
-                logger.error(`Loan sync outbox failed for DELETE ${model}:`, error);
+                logger.error(
+                  `Loan sync outbox failed for DELETE ${model}:`,
+                  error
+                );
               }
             }
 
@@ -187,10 +204,20 @@ async function createLoanOutboxEntry(
   data: any
 ): Promise<void> {
   try {
-    console.log("Creating outbox entry for:", { tableName, recordId, operation });
+    console.log("Creating outbox entry for:", {
+      tableName,
+      recordId,
+      operation,
+    });
     // ✅ If normalized table, handle differently
     if (isNormalizedTable(tableName)) {
-      await handleNormalizedLoanTableChange(client, tableName, recordId, operation, data);
+      await handleNormalizedLoanTableChange(
+        client,
+        tableName,
+        recordId,
+        operation,
+        data
+      );
       return;
     }
 

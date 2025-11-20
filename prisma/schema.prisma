@@ -89,7 +89,7 @@ model AdminTokens {
   user_id   Int
   createdOn DateTime   @default(now())
   token     String
-  user      AdminUsers @relation("AdminTokens", fields: [user_id], references: [id])
+  user      AdminUsers @relation("AdminTokens", fields: [user_id], references: [id], onDelete:Cascade)
 
   @@map("admin_tokens")
 }
@@ -248,7 +248,7 @@ model HSB2BPartners {
 
   // Relationships
   users                    B2BPartnersUsers[]
-  deleted_by_user          B2BPartnersUsers?                        @relation("PartnerDeletedBy", fields: [deleted_by], references: [id])
+  deleted_by_user          B2BPartnersUsers?                        @relation("PartnerDeletedBy", fields: [deleted_by], onDelete:Cascade)
   business_capabilities    HSB2BPartnersBusinessCapabilities?
   commission_structure     HSB2BPartnersCommissionStructure?
   compliance               HSB2BPartnersComplianceAndDocumentation?
@@ -521,7 +521,7 @@ model B2BPartnersTokens {
   token     String
   user_id   Int
   createdOn DateTime         @default(now())
-  user      B2BPartnersUsers @relation("Tokens", fields: [user_id], references: [id])
+  user      B2BPartnersUsers @relation("Tokens", fields: [user_id], references: [id], onDelete:Cascade)
 
   @@map("b2b_partners_tokens")
 }
@@ -561,7 +561,7 @@ model B2BPartnersUsers {
   sessions                     B2BPartnersSessions[]                  @relation("Session")
   tokens                       B2BPartnersTokens[]                    @relation("Tokens")
   roles                        B2BPartnersUserRoles[]                 @relation("UserRole")
-  b2b_partner                  HSB2BPartners                          @relation(fields: [b2b_id], references: [id])
+  b2b_partner                  HSB2BPartners                          @relation(fields: [b2b_id], references: [id], onDelete: Cascade)
   email_history                EmailHistory[]                         @relation("EmailHistory")
   uploaded_files               FileUploads[]                          @relation("FileUpload")
   deleted_by_partners          HSB2BPartners[]                        @relation("PartnerDeletedBy")
@@ -619,7 +619,7 @@ model HSLoanApplications  {
   deleted_on DateTime?
 
   // Relationships
-  user                    AdminUsers?                           @relation("UserLoanApplications", fields: [user_id], references: [id])
+  user                    AdminUsers?                           @relation("UserLoanApplications", fields: [user_id], references: [id], onDelete:Cascade)
   academic_details        HSLoanApplicationsAcademicDetails?
   additional_services     HSLoanApplicationsAdditionalServices?
   commission_records      HSLoanApplicationsCommissionRecords?
@@ -631,9 +631,9 @@ model HSLoanApplications  {
   rejection_details       HSLoanApplicationsRejectionDetails?
   loan_application_status HSLoanApplicationsStatus?
   system_tracking         HSLoanApplicationsSystemTracking?
-  contact                 HSEdumateContacts? @relation("ContactLoanApplications",fields: [contact_id], references: [id])
-  lender  HSLenders? @relation(fields: [lender_id], references: [id])
-  loan_product   HSLoanProducts? @relation(fields: [product_id], references: [id])
+  contact                 HSEdumateContacts? @relation("ContactLoanApplications",fields: [contact_id], references: [id], onDelete:Cascade)
+  lender  HSLenders? @relation(fields: [lender_id], references: [id], onDelete:Cascade)
+  loan_product   HSLoanProducts? @relation(fields: [product_id], references: [id], onDelete:Cascade)
   commission_settlement   HSCommissionSettlements[]
   invoice                  Invoice[]
 
@@ -894,8 +894,8 @@ model FileUploads {
   created_at        DateTime         @default(now())
   updated_at        DateTime         @default(now()) @updatedAt
   processed_at      DateTime?
-  entity_type       FileEntities     @relation(fields: [entity_type_id], references: [id])
-  uploaded_by       B2BPartnersUsers @relation("FileUpload", fields: [uploaded_by_id], references: [id])
+  entity_type       FileEntities     @relation(fields: [entity_type_id], references: [id], onDelete:Cascade)
+  uploaded_by       B2BPartnersUsers @relation("FileUpload", fields: [uploaded_by_id], references: [id], onDelete:Cascade)
 
   @@index([entity_type_id])
   @@index([created_at])
@@ -932,8 +932,8 @@ model EmailHistory {
   email_type_id Int               @map("email_type_id")
   sent_at       DateTime?         @map("sent_at")
   created_at    DateTime          @default(now()) @map("created_at")
-  email_type    EmailTypes        @relation(fields: [email_type_id], references: [id])
-  user          B2BPartnersUsers? @relation("EmailHistory", fields: [user_id], references: [id])
+  email_type    EmailTypes        @relation(fields: [email_type_id], references: [id], onDelete:Cascade)
+  user          B2BPartnersUsers? @relation("EmailHistory", fields: [user_id], references: [id],onDelete:Cascade)
 
   @@index([user_id])
   @@index([email_type_id])
@@ -994,7 +994,7 @@ model HSEdumateContacts  {
   system_tracking              HSEdumateContactsSystemTracking?
   eligibility_lead             MktEligibilityCheckerLeads?
   emi_lead                     MktEmiCalculatorLeads?
-  b2b_partner                  HSB2BPartners?                        @relation("B2BPartnerContacts", fields: [b2b_partner_id], references: [id])
+  b2b_partner                  HSB2BPartners?                        @relation("B2BPartnerContacts", fields: [b2b_partner_id], references: [id], onDelete:Cascade)
   loan_applications            HSLoanApplications[]               @relation("ContactLoanApplications")
   commission_settlements       HSCommissionSettlements[]
   invoice                      Invoice[]
@@ -1966,11 +1966,11 @@ model HSCommissionSettlements  {
   system_tracking             HSCommissionSettlementsSystemTracking?
   tax_deductions              HSCommissionSettlementsTaxAndDeductions?
   transaction                 HSCommissionSettlementsTransactionDetails?
-  loan_application            HSLoanApplications? @relation(fields: [application_id], references: [id])
-  b2b_partner                 HSB2BPartners? @relation(fields: [b2b_partner_id], references: [id])
-  lender                      HSLenders? @relation(fields: [lender_id], references: [id])
-  edumate_contacts            HSEdumateContacts? @relation(fields: [lead_reference_id], references: [id])
-  loan_product                HSLoanProducts? @relation(fields: [product_id],references: [id])
+  loan_application            HSLoanApplications? @relation(fields: [application_id], references: [id], onDelete:Cascade)
+  b2b_partner                 HSB2BPartners? @relation(fields: [b2b_partner_id], references: [id], onDelete:Cascade)
+  lender                      HSLenders? @relation(fields: [lender_id], references: [id], onDelete:Cascade)
+  edumate_contacts            HSEdumateContacts? @relation(fields: [lead_reference_id], references: [id], onDelete:Cascade)
+  loan_product                HSLoanProducts? @relation(fields: [product_id],references: [id], onDelete:Cascade)
 
   @@index([settlement_id])
   @@index([b2b_partner_id, lender_id, student_id, hs_object_id])
@@ -2268,11 +2268,11 @@ model Invoice {
   product_id             Int?
   source           String? @default("webportal")
 
-  contact HSEdumateContacts? @relation(fields: [contact_id], references: [id])
-  partner HSB2BPartners? @relation(fields: [b2b_partner_id], references: [id])
-  loan_application HSLoanApplications? @relation(fields: [application_id], references: [id])
-  lender HSLenders? @relation(fields: [lender_id], references: [id])
-  loan_product HSLoanProducts? @relation(fields: [product_id], references: [id])
+  contact HSEdumateContacts? @relation(fields: [contact_id], references: [id], onDelete:Cascade)
+  partner HSB2BPartners? @relation(fields: [b2b_partner_id], references: [id], onDelete:Cascade)
+  loan_application HSLoanApplications? @relation(fields: [application_id], references: [id], onDelete:Cascade)
+  lender HSLenders? @relation(fields: [lender_id], references: [id], onDelete:Cascade)
+  loan_product HSLoanProducts? @relation(fields: [product_id], references: [id], onDelete:Cascade)
   
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
@@ -2286,7 +2286,7 @@ model MktEligibilityCheckerLeads {
   contact_id Int               @unique
   created_at DateTime          @default(now())
   updated_at DateTime          @default(now()) @updatedAt
-  contact    HSEdumateContacts @relation(fields: [contact_id], references: [id])
+  contact    HSEdumateContacts? @relation(fields: [contact_id], references: [id], onDelete: Cascade)
 
   @@map("mkt_eligibility_checker_leads")
 }
@@ -2297,7 +2297,7 @@ model MktEmiCalculatorLeads {
   contact_id Int               @unique
   created_at DateTime          @default(now())
   updated_at DateTime          @default(now()) @updatedAt
-  contact    HSEdumateContacts @relation(fields: [contact_id], references: [id])
+  contact    HSEdumateContacts? @relation(fields: [contact_id], references: [id], onDelete: Cascade)
 
   @@map("mkt_emi_calculator_leads")
 }
@@ -2496,7 +2496,7 @@ model FieldMapping {
   
   requiresEnumMap   Boolean      @default(false)
   enumMapId         String?
-  enumMap           EnumMapping? @relation(fields: [enumMapId], references: [id])
+  enumMap           EnumMapping? @relation(fields: [enumMapId], references: [id], onDelete:Cascade)
   
   version           Int          @default(1)
   isActive          Boolean      @default(true)
