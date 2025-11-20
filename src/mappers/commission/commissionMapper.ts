@@ -32,7 +32,7 @@ export const mapAllCommissionSettlementFields = async (
   if (input.lead_reference_id !== undefined)
     mapped.lead_reference_id =
       input.lead_reference_id !== null && input.lead_reference_id !== ""
-        ? input.lead_reference_id
+        ? Number(input.lead_reference_id)
         : null;
   if (input.student_id !== undefined)
     mapped.student_id =
