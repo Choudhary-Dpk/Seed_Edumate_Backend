@@ -69,11 +69,11 @@ function isNormalizedTable(tableName: string): boolean {
  * Prisma Extension for Commission Settlement HubSpot Sync
  */
 export function createCommissionHubSpotSyncExtension() {
-  return Prisma.defineExtension((client) => {
+  return Prisma.defineExtension((client: any) => {
     return client.$extends({
       name: "hubspot-commission-sync",
       query: {
-        $allModels: ({
+        $allModels: {
           // Handle CREATE
           async create({ args, query, model }: any) {
             console.log("Commission Sync Middleware - CREATE:", {
@@ -210,7 +210,7 @@ export function createCommissionHubSpotSyncExtension() {
 
             return result;
           },
-        } as any),
+        },
       },
     });
   });
