@@ -540,13 +540,12 @@ export const uploadInvoiceController = async (
     console.log("Invoice created:", invoice.id);
 
     // Generate invoice number
-    const invoiceNumber = `${invoice.id}`;
+    const invoiceNumber = req.body.invoice_number || `${invoice.id}`;
 
     // Update HSCommissionSettlementsDocumentation for each settlement ID
     const documentationUpdates = await Promise.all(
       settlements.map(async (settlement: any) => {
-        const settlementAmount =
-          settlement.calculation_details?.total_gross_amount || 0;
+        const settlementAmount = req.body.invoice_amount;
 
         // Check if documentation record exists for this settlement
         if (settlement.documentaion) {
@@ -555,7 +554,11 @@ export const uploadInvoiceController = async (
             where: { settlement_id: settlement.id },
             data: {
               invoice_number: invoiceNumber,
-              invoice_date: invoice.date,
+              invoice_date: req.body.invoice_date
+                ? new Date(req.body.invoice_date)
+                : invoice.date
+                ? new Date(invoice.date)
+                : null,
               invoice_amount: settlementAmount,
               invoice_status: "Received",
               invoice_url: fileUrl,
@@ -568,7 +571,11 @@ export const uploadInvoiceController = async (
             data: {
               settlement_id: settlement.id,
               invoice_number: invoiceNumber,
-              invoice_date: invoice.date,
+              invoice_date: req.body.invoice_date
+                ? new Date(req.body.invoice_date)
+                : invoice.date
+                ? new Date(invoice.date)
+                : null,
               invoice_amount: settlementAmount,
               invoice_status: status,
               invoice_url: fileUrl,
