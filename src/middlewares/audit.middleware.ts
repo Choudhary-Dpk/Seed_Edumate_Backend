@@ -38,7 +38,7 @@ export const setAuditContext = (
  * This works with Prisma v5+
  */
 export function createAuditExtension() {
-  return Prisma.defineExtension((client) => {
+  return Prisma.defineExtension((client: any) => {
     return client.$extends({
       name: "audit-logger",
       query: {

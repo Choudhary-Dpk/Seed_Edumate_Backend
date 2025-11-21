@@ -195,7 +195,7 @@ async function processBatchEntries(entries: any[]) {
   }
 
     // Transform all to HubSpot format
-    const hubspotPayloads = completeContactsData.map(contact => 
+    const hubspotPayloads = completeContactsData.map((contact: any) => 
       transformToHubSpotFormat(contact)
     );
 

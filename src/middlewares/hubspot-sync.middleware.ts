@@ -57,7 +57,7 @@ function isNormalizedTable(tableName: string): boolean {
  * Prisma Extension for HubSpot Sync
  */
 export function createHubSpotSyncExtension() {
-  return Prisma.defineExtension((client) => {
+  return Prisma.defineExtension((client: any) => {
     return client.$extends({
       name: "hubspot-sync",
       query: {

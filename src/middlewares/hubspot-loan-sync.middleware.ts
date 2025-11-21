@@ -69,7 +69,7 @@ function isNormalizedTable(tableName: string): boolean {
  * Prisma Extension for Loan Application HubSpot Sync
  */
 export function createLoanHubSpotSyncExtension() {
-  return Prisma.defineExtension((client) => {
+  return Prisma.defineExtension((client: any) => {
     return client.$extends({
       name: "hubspot-loan-sync",
       query: {
