@@ -73,11 +73,23 @@ export function createCommissionHubSpotSyncExtension() {
     return client.$extends({
       name: "hubspot-commission-sync",
       query: {
-        $allModels: {
+        $allModels: ({
           // Handle CREATE
           async create({ args, query, model }: any) {
+            console.log("Commission Sync Middleware - CREATE:", {
+              model,
+              args,
+            });
+            
             const result = await query(args);
             if (!COMMISSION_SYNC_MODELS.includes(model)) {
+              return result;
+            }
+            
+            if (args?.data?.source === "hubspot") {
+              logger.debug(
+                `Skipping commission sync for HubSpot-source UPDATE: ${model}`
+              );
               return result;
             }
 
@@ -198,7 +210,7 @@ export function createCommissionHubSpotSyncExtension() {
 
             return result;
           },
-        },
+        } as any),
       },
     });
   });

@@ -189,7 +189,7 @@ export const createCommissionSettlementController = async (
       };
 
       return settlement;
-    });
+    }, { timeout: 180000 });
 
     logger.debug(
       `Commission settlement creation transaction completed successfully`,
