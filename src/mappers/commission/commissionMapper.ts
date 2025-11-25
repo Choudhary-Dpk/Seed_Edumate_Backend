@@ -12,6 +12,12 @@ export const mapAllCommissionSettlementFields = async (
     mapped.source =
       input.source !== null && input.source !== "" ? input.source : null;
 
+  if (input.hs_application_id !== undefined)
+    mapped.hs_application_id =
+      input.hs_application_id !== null && input.hs_application_id !== ""
+        ? input.hs_application_id
+        : null;
+
   if (input.settlement_id !== undefined)
     mapped.settlement_id =
       input.settlement_id !== null && input.settlement_id !== ""

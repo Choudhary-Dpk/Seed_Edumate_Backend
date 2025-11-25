@@ -343,7 +343,11 @@ export const fetchCommissionSettlementsList = async (
   offset: number,
   sortKey: string | null,
   sortDir: "asc" | "desc" | null,
-  search: string | null
+  search: string | null,
+  filters?: {
+    partner: string | null;
+    lead: string | null;
+  }
 ) => {
   const where: Prisma.HSCommissionSettlementsWhereInput = {
     is_active: true,
@@ -361,6 +365,16 @@ export const fetchCommissionSettlementsList = async (
         ]
       : undefined,
   };
+
+  // Apply partner filter
+  if (filters && filters.partner) {
+    where.b2b_partner_id = Number(filters.partner);
+  }
+
+  // Apply lead filter
+  if (filters && filters.lead) {
+    where.lead_reference_id = Number(filters.lead);
+  }
 
   let orderBy: any = { created_at: "desc" };
   if (sortKey) {
@@ -407,6 +421,18 @@ export const fetchCommissionSettlementsList = async (
         status_history: true,
         system_tracking: true,
         transaction: true,
+        edumate_contacts: {
+          select: {
+            id: true,
+            personal_information: {
+              select: {
+                first_name: true,
+                last_name: true,
+                email: true,
+              },
+            },
+          },
+        },
       },
     }),
     prisma.hSCommissionSettlements.count({ where }),

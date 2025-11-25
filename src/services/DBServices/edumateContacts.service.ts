@@ -13,6 +13,7 @@ export const categorizeByTable = (mappedFields: Record<string, any>) => {
   const mainContactFields = [
     "deleted_by_id",
     "b2b_partner_id",
+    "hs_b2b_partner_id",
 
     // HubSpot System Fields
     "hs_created_by_user_id",

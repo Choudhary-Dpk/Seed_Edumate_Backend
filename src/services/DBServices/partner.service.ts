@@ -48,6 +48,7 @@ export const categorizeB2BByTable = (mappedFields: Record<string, any>) => {
     "hubspot_team_id",
     "gst_rate",
     "source",
+    "is_commission_applicable",
   ];
 
   // Business Capabilities Fields
