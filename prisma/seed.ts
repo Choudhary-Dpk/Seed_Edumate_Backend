@@ -2784,6 +2784,51 @@ const seedPartnerEnumMappings = async () => {
   const hubspotObjectType = "2-46470693";
 
   try {
+    const isCommissionApplicable = await prisma.enumMapping.upsert({
+      where: {
+        enumName_version: {
+          enumName: "isCommissionApplicable",
+          version: 1,
+        },
+      },
+      update: {
+        hubspotProperty: "is_commission_applicable",
+        hubspotObjectType: hubspotObjectType,
+        isActive: true,
+      },
+      create: {
+        enumName: "isCommissionApplicable",
+        hubspotProperty: "is_commission_applicable",
+        hubspotObjectType: hubspotObjectType,
+        version: 1,
+        isActive: true,
+        description: "Type of is commission applicable",
+      },
+    });
+
+    await prisma.enumValue.createMany({
+      data: [
+        {
+          enumMappingId: isCommissionApplicable.id,
+          sourceValue: "Yes",
+          hubspotValue: "Yes",
+          displayLabel: "Yes",
+          sortOrder: 1,
+          isActive: true,
+        },
+        {
+          enumMappingId: isCommissionApplicable.id,
+          sourceValue: "No",
+          hubspotValue: "No",
+          displayLabel: "No",
+          sortOrder: 2,
+          isActive: true,
+        },
+      ],
+      skipDuplicates: true,
+    });
+    successCount++;
+
     console.log("\nSeeding Business Type...");
     const businessTypeEnum = await prisma.enumMapping.upsert({
       where: {

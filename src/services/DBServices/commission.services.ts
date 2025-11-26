@@ -41,6 +41,7 @@ export const categorizeCommissionSettlementByTable = (
     "deleted_by",
     "deleted_on",
     "source",
+    "hs_application_id",
   ];
 
   // Settlement Status Fields

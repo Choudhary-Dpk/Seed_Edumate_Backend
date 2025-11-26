@@ -65,131 +65,141 @@ export const createCommissionSettlementController = async (
 
     let data: any = {};
 
-    const result = await prisma.$transaction(async (tx: any) => {
-      logger.debug(`Creating commission settlement`);
-      const settlement = await createCommissionSettlement(
-        tx,
-        categorized["mainSettlement"]
-      );
-      logger.debug(
-        `Commission settlement created successfully with id: ${settlement.id}`
-      );
-
-      logger.debug(
-        `Creating settlement status for settlement: ${settlement.id}`
-      );
-      const settlementStatus = await createCommissionSettlementStatus(
-        tx,
-        settlement.id,
-        categorized["settlementStatus"]
-      );
-
-      logger.debug(`Creating system tracking for settlement: ${settlement.id}`);
-      const systemTracking = await createCommissionSettlementSystemTracking(
-        tx,
-        settlement.id,
-        categorized["systemTracking"]
-      );
-
-      logger.debug(
-        `Creating transaction details for settlement: ${settlement.id}`
-      );
-      const transactionDetails =
-        await createCommissionSettlementTransactionDetails(
+    const result = await prisma.$transaction(
+      async (tx: any) => {
+        logger.debug(`Creating commission settlement`);
+        const settlement = await createCommissionSettlement(
           tx,
-          settlement.id,
-          categorized["transactionDetails"]
+          categorized["mainSettlement"]
+        );
+        logger.debug(
+          `Commission settlement created successfully with id: ${settlement.id}`
         );
 
-      logger.debug(
-        `Creating commission calculation for settlement: ${settlement.id}`
-      );
-      const commissionCalculation = await createCommissionSettlementCalculation(
-        tx,
-        settlement.id,
-        categorized["commissionCalculation"]
-      );
-
-      logger.debug(`Creating communication for settlement: ${settlement.id}`);
-      const communication = await createCommissionSettlementCommunication(
-        tx,
-        settlement.id,
-        categorized["communication"]
-      );
-
-      logger.debug(`Creating loan details for settlement: ${settlement.id}`);
-      const loanDetails = await createCommissionSettlementLoanDetails(
-        tx,
-        settlement.id,
-        categorized["loanDetails"]
-      );
-
-      logger.debug(
-        `Creating payment processing for settlement: ${settlement.id}`
-      );
-      const paymentProcessing =
-        await createCommissionSettlementPaymentProcessing(
+        logger.debug(
+          `Creating settlement status for settlement: ${settlement.id}`
+        );
+        const settlementStatus = await createCommissionSettlementStatus(
           tx,
           settlement.id,
-          categorized["paymentProcessing"]
+          categorized["settlementStatus"]
         );
 
-      logger.debug(`Creating tax deductions for settlement: ${settlement.id}`);
-      const taxDeductions = await createCommissionSettlementTaxDeductions(
-        tx,
-        settlement.id,
-        categorized["taxDeductions"]
-      );
-
-      logger.debug(`Creating documentation for settlement: ${settlement.id}`);
-      const documentation = await createCommissionSettlementDocumentation(
-        tx,
-        settlement.id,
-        categorized["documentation"]
-      );
-
-      logger.debug(`Creating hold disputes for settlement: ${settlement.id}`);
-      const holdDisputes = await createCommissionSettlementHoldDisputes(
-        tx,
-        settlement.id,
-        categorized["holdDisputes"]
-      );
-
-      logger.debug(`Creating reconciliation for settlement: ${settlement.id}`);
-      const reconciliation = await createCommissionSettlementReconciliation(
-        tx,
-        settlement.id,
-        categorized["reconciliation"]
-      );
-
-      logger.debug(
-        `Creating performance analytics for settlement: ${settlement.id}`
-      );
-      const performanceAnalytics =
-        await createCommissionSettlementPerformanceAnalytics(
+        logger.debug(
+          `Creating system tracking for settlement: ${settlement.id}`
+        );
+        const systemTracking = await createCommissionSettlementSystemTracking(
           tx,
           settlement.id,
-          categorized["performanceAnalytics"]
+          categorized["systemTracking"]
         );
 
-      data = {
-        settlement: { ...settlement },
-        settlementStatus: { ...settlementStatus },
-        systemTracking: { ...systemTracking },
-        transactionDetails: { ...transactionDetails },
-        commissionCalculation: { ...commissionCalculation },
-        communication: { ...communication },
-        loanDetails: { ...loanDetails },
-        paymentProcessing: { ...paymentProcessing },
-        taxDeductions: { ...taxDeductions },
-        documentation: { ...documentation },
-        holdDisputes: { ...holdDisputes },
-        reconciliation: { ...reconciliation },
-        performanceAnalytics: { ...performanceAnalytics },
-      };
+        logger.debug(
+          `Creating transaction details for settlement: ${settlement.id}`
+        );
+        const transactionDetails =
+          await createCommissionSettlementTransactionDetails(
+            tx,
+            settlement.id,
+            categorized["transactionDetails"]
+          );
 
-      return settlement;
-    }, { timeout: 180000 });
+        logger.debug(
+          `Creating commission calculation for settlement: ${settlement.id}`
+        );
+        const commissionCalculation =
+          await createCommissionSettlementCalculation(
+            tx,
+            settlement.id,
+            categorized["commissionCalculation"]
+          );
+
+        logger.debug(`Creating communication for settlement: ${settlement.id}`);
+        const communication = await createCommissionSettlementCommunication(
+          tx,
+          settlement.id,
+          categorized["communication"]
+        );
+
+        logger.debug(`Creating loan details for settlement: ${settlement.id}`);
+        const loanDetails = await createCommissionSettlementLoanDetails(
+          tx,
+          settlement.id,
+          categorized["loanDetails"]
+        );
+
+        logger.debug(
+          `Creating payment processing for settlement: ${settlement.id}`
+        );
+        const paymentProcessing =
+          await createCommissionSettlementPaymentProcessing(
+            tx,
+            settlement.id,
+            categorized["paymentProcessing"]
+          );
+
+        logger.debug(
+          `Creating tax deductions for settlement: ${settlement.id}`
+        );
+        const taxDeductions = await createCommissionSettlementTaxDeductions(
+          tx,
+          settlement.id,
+          categorized["taxDeductions"]
+        );
+
+        logger.debug(`Creating documentation for settlement: ${settlement.id}`);
+        const documentation = await createCommissionSettlementDocumentation(
+          tx,
+          settlement.id,
+          categorized["documentation"]
+        );
+
+        logger.debug(`Creating hold disputes for settlement: ${settlement.id}`);
+        const holdDisputes = await createCommissionSettlementHoldDisputes(
+          tx,
+          settlement.id,
+          categorized["holdDisputes"]
+        );
+
+        logger.debug(
+          `Creating reconciliation for settlement: ${settlement.id}`
+        );
+        const reconciliation = await createCommissionSettlementReconciliation(
+          tx,
+          settlement.id,
+          categorized["reconciliation"]
+        );
+
+        logger.debug(
+          `Creating performance analytics for settlement: ${settlement.id}`
+        );
+        const performanceAnalytics =
+          await createCommissionSettlementPerformanceAnalytics(
+            tx,
+            settlement.id,
+            categorized["performanceAnalytics"]
+          );
+
+        data = {
+          settlement: { ...settlement },
+          settlementStatus: { ...settlementStatus },
+          systemTracking: { ...systemTracking },
+          transactionDetails: { ...transactionDetails },
+          commissionCalculation: { ...commissionCalculation },
+          communication: { ...communication },
+          loanDetails: { ...loanDetails },
+          paymentProcessing: { ...paymentProcessing },
+          taxDeductions: { ...taxDeductions },
+          documentation: { ...documentation },
+          holdDisputes: { ...holdDisputes },
+          reconciliation: { ...reconciliation },
+          performanceAnalytics: { ...performanceAnalytics },
+        };
+
+        return settlement;
+      },
+      { timeout: 180000 }
+    );
 
     logger.debug(
       `Commission settlement creation transaction completed successfully`,
@@ -399,6 +409,17 @@ export const getCommissionSettlementsListController = async (
 
     const offset = (page - 1) * size;
 
+    const filtersFromQuery =
+      (req.query.filters as {
+        partner?: string;
+        lead?: string;
+      }) || {};
+
+    const filters = {
+      partner: filtersFromQuery.partner || null,
+      lead: filtersFromQuery.lead || null,
+    };
+
     logger.debug(
       `Fetching commission settlements list with page: ${page}, size: ${size}, sortKey: ${sortKey}, sortDir: ${sortDir}, search: ${search}`
     );
@@ -407,7 +428,8 @@ export const getCommissionSettlementsListController = async (
       offset,
       sortKey,
       sortDir,
-      search
+      search,
+      filters
     );
     logger.debug(
       `Commission settlements list fetched successfully. Count: ${count}`

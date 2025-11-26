@@ -208,6 +208,10 @@ export const mapAllFields = async (
     mapped.source =
       input.source !== null && input.source !== "" ? input.source : null;
 
+  if (input.hs_b2b_partner_id !== undefined)
+    mapped.hs_b2b_partner_id =
+      input.hs_b2b_partner_id !== null && input.hs_b2b_partner_id !== "" ? input.hs_b2b_partner_id : null;
+
   if (input.deletedById !== undefined || input.deleted_by_id !== undefined) {
     mapped.deleted_by_id = input.deletedById ?? input.deleted_by_id ?? null;
   }

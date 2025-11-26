@@ -14,6 +14,8 @@ import {
   validateSettlementIds,
 } from "../middlewares/commission.middleware";
 import multer from "../setup/multer";
+import { getB2bPartnersList } from "../controllers/partner.controller";
+import { getLeadsViewList } from "../controllers/loanApplication.controller";
 export const invoiceUpload = multer(10, ["application/pdf", "pdf"]);
 const router = Router();
 
@@ -28,7 +30,7 @@ router.delete("/:id", validateApiKey, deleteCommissionSettlementController);
 router.get("/details/:id", validateApiKey, getCommissionSettlementDetails);
 router.get(
   "/pagination",
-  validateApiKey,
+  // validateApiKey,
   getCommissionSettlementsListController
 );
 router.get("/lead", getCommissionSettlementsByLead);
@@ -38,5 +40,7 @@ router.post(
   validateSettlementIds,
   uploadInvoiceController
 );
+router.get("/partners", getB2bPartnersList);
+router.get("/leads", getLeadsViewList);
 
 export { router as commissionRoutes };

@@ -355,6 +355,12 @@ export const mapAllLoanProductFields = async (
     mapped.source =
       input.source !== null && input.source !== "" ? input.source : null;
 
+  if (input.hs_lender_id !== undefined)
+    mapped.hs_lender_id =
+      input.hs_lender_id !== null && input.hs_lender_id !== ""
+        ? input.hs_lender_id
+        : null;
+
   if (input.deleted_by_id !== undefined) {
     mapped.deleted_by_id =
       input.deleted_by_id !== null && input.deleted_by_id !== ""
