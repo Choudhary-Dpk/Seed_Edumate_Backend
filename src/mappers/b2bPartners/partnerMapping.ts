@@ -868,6 +868,18 @@ export const mapAllB2BPartnerFields = async (
   // ===== COLLECT ENUM TRANSLATIONS =====
   const enumTranslations = [];
 
+  if (
+    input.is_commission_applicable !== undefined &&
+    input.is_commission_applicable !== null &&
+    input.is_commission_applicable !== ""
+  ) {
+    enumTranslations.push({
+      field: "is_commission_applicable",
+      enumName: "isCommissionApplicable",
+      sourceValue: input.is_commission_applicable,
+    });
+  }
+
   // 1. Business Type
   if (
     input.business_type !== undefined &&

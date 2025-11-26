@@ -804,7 +804,7 @@ export const getLeadsViewList = async (
   next: NextFunction
 ) => {
   try {
-    const { id } = req.payload!;
+    // const { id } = req.payload!;
     console.log("req.query", req.query);
 
     const size = Number(req.query.size) || 10;

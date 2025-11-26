@@ -74,6 +74,22 @@ export const getUserRole = async (userId: number) => {
   };
 };
 
+export const getIsCommissionApplicable = async (userId: number) => {
+  const user = await prisma.b2BPartnersUsers.findUnique({
+    where: {
+      id: userId,
+    },
+    select: {
+      b2b_partner: {
+        select: {
+          is_commission_applicable: true,
+        },
+      },
+    },
+  });
+  return user?.b2b_partner?.is_commission_applicable || false;
+};
+
 export const getAdminRole = async (userId: number) => {
   const userWithRoles = await prisma.adminUsers.findUnique({
     where: { id: userId },

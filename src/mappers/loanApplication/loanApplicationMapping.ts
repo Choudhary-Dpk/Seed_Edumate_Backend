@@ -25,6 +25,30 @@ export const mapAllLoanApplicationFields = async (
     mapped.source =
       input.source !== null && input.source !== "" ? input.source : null;
 
+  if (input.hs_contact_id !== undefined)
+    mapped.hs_contact_id =
+      input.hs_contact_id !== null && input.hs_contact_id !== ""
+        ? input.hs_contact_id
+        : null;
+
+  if (input.hs_b2b_partner_id !== undefined)
+    mapped.hs_b2b_partner_id =
+      input.hs_b2b_partner_id !== null && input.hs_b2b_partner_id !== ""
+        ? input.hs_b2b_partner_id
+        : null;
+
+  if (input.hs_lender_id !== undefined)
+    mapped.hs_lender_id =
+      input.hs_lender_id !== null && input.hs_lender_id !== ""
+        ? input.hs_lender_id
+        : null;
+
+  if (input.hs_product_id !== undefined)
+    mapped.hs_product_id =
+      input.hs_product_id !== null && input.hs_product_id !== ""
+        ? input.hs_product_id
+        : null;
+
   if (input.assigned_counselor !== undefined)
     mapped.assigned_counselor =
       input.assigned_counselor !== null && input.assigned_counselor !== ""
