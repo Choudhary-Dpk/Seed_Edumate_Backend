@@ -723,7 +723,7 @@ export const updateEdumateContactsHubspotTracking = async (
           where: { id: contact.id },
           data: {
             hs_object_id: hs_object_id ?? hs.id,
-            hs_updated_by_user_id: userId?.toString(),
+            hs_updated_by_user_id: userId,
             hs_createdate: hs_createdate ? new Date(hs_createdate) : undefined,
             hs_lastmodifieddate: hs_lastmodifieddate
               ? new Date(hs_lastmodifieddate)

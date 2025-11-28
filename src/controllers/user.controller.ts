@@ -17,10 +17,12 @@ import { LoginPayload, ProtectedPayload } from "../types/auth";
 import {
   revokePreviousEmailTokens,
   saveEmailToken,
+  updateAdminPassword,
   updatePassword,
 } from "../models/helpers/auth";
 import { FRONTEND_URL } from "../setup/secrets";
 import { logEmailHistory } from "../models/helpers/email.helper";
+import { PortalType } from "../middlewares";
 
 export const getIpInfo = async (req: Request, res: Response) => {
   try {
@@ -116,24 +118,74 @@ export const createUser = async (
   }
 };
 
+// export const changePassword = async (
+//   req: RequestWithPayload<ProtectedPayload>,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   try {
+//     const { id } = req.payload!;
+//     const { newPassword } = req.body;
+
+//     logger.debug(`Encrypting password for userId: ${id}`);
+//     const hash = await hashPassword(newPassword);
+//     logger.debug(`Password encrypted successfully`);
+
+//     logger.debug(`Updating password for userId: ${id}`);
+//     await updatePassword(id, hash);
+//     logger.debug(`Password updated successfully`);
+
+//     sendResponse(res, 200, "Password changed successfully");
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
+/**
+ * 🔥 UNIFIED CHANGE PASSWORD
+ * Works for both Admin and Partner portals
+ * Portal type is automatically detected by authenticate() middleware
+ * Requires authenticated user to provide current password before changing
+ */
 export const changePassword = async (
   req: RequestWithPayload<ProtectedPayload>,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const { id } = req.payload!;
+    const { id, email } = req.payload!;
     const { newPassword } = req.body;
 
-    logger.debug(`Encrypting password for userId: ${id}`);
-    const hash = await hashPassword(newPassword);
-    logger.debug(`Password encrypted successfully`);
+    logger.debug(
+      `Changing password for userId: ${id}, portal: ${req.portalType}`
+    );
 
+    logger.debug(`Hashing new password for userId: ${id}`);
+    const hashedPassword = await hashPassword(newPassword);
+    logger.debug(`Password hashed successfully`);
+
+    // 🔥 Update password based on portal type
     logger.debug(`Updating password for userId: ${id}`);
-    await updatePassword(id, hash);
+    if (req.portalType === PortalType.ADMIN) {
+      await updateAdminPassword(id, hashedPassword);
+    } else if (req.portalType === PortalType.PARTNER) {
+      await updatePassword(id, hashedPassword);
+    }
     logger.debug(`Password updated successfully`);
 
-    sendResponse(res, 200, "Password changed successfully");
+    // Optional: Log the password change in email history
+    logger.debug(`Logging password change for userId: ${id}`);
+    await logEmailHistory({
+      userId: id,
+      to: email,
+      subject: "Password Changed",
+      type: "Password Change",
+    });
+    logger.debug(`Password change logged successfully`);
+
+    sendResponse(res, 200, "Password changed successfully", {
+      portalType: req.portalType, // Optional: inform frontend
+    });
   } catch (error) {
     next(error);
   }

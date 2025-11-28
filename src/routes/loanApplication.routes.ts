@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { validateToken } from "../middlewares";
+import { authenticate, AuthMethod } from "../middlewares";
 import {
   createLoanApplicationsController,
   updateLoanApplicationController,
@@ -84,27 +84,42 @@ const router = Router();
 
 router.post(
   "/",
-  validateToken(["Admin", "Manager", "User"]),
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin", "Manager", "User"],
+  }),
   createLoanApplicationsController
 );
 router.put(
   "/:id",
-  validateToken(["Admin", "Manager", "User"]),
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin", "Manager", "User"],
+  }),
   updateLoanApplicationController
 );
 router.delete(
   "/:id",
-  validateToken(["Admin", "Manager", "User"]),
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin", "Manager", "User"],
+  }),
   deleteLoanApplicationController
 );
 router.get(
   "/details/:id",
-  validateToken(["Admin", "Manager", "User"]),
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin", "Manager", "User"],
+  }),
   getLoanApplicationDetailsController
 );
 router.get(
   "/pagination",
-  validateToken(["Admin", "Manager", "User"]),
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin", "Manager", "User"],
+  }),
   getLoanApplicationsListController
 );
 

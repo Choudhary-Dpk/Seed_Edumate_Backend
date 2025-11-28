@@ -9,12 +9,17 @@ import logger from "../../utils/logger";
 import {
   deleteOtps,
   deleteUserSession,
+  revokePreviousAdminEmailTokens,
   revokePreviousEmailTokens,
+  saveAdminEmailToken,
   saveEmailToken,
   saveOtp,
+  storeAdminRefreshToken,
   storeRefreshToken,
+  updateAdminPassword,
   updatePassword,
   updateUserLastLoggedIn,
+  useAdminEmailToken,
   useEmailToken,
 } from "../../models/helpers/auth";
 import { generateOtp, sendResponse } from "../../utils/api";
@@ -30,9 +35,67 @@ import moment from "moment";
 import { FRONTEND_URL } from "../../setup/secrets";
 import { logEmailHistory } from "../../models/helpers/email.helper";
 import {
+  getAdminRole,
   getIsCommissionApplicable,
   getUserRole,
 } from "../../models/helpers/partners.helper";
+import { PortalType } from "../../middlewares";
+
+// export const login = async (
+//   req: RequestWithPayload<LoginPayload>,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   try {
+//     const { email, id, ipDetails, deviceDetails } = req.payload!;
+//     // const { otp } = req.body;
+
+//     // logger.debug(`Validating otp ${otp} for userId: ${id}`);
+//     // const otpData = await validateOtp(id, otp);
+//     // if (!otpData) {
+//     //   return sendResponse(res, 401, "Invalid otp");
+//     // }
+//     // logger.debug(`Otp validated successfully`);
+
+//     // logger.debug(`Using otp ${otp} for userId: ${id}`);
+//     // await useOtp(id, otp);
+//     // logger.debug(`Otp used successfully`);
+
+//     logger.debug(`Generating JWT Token for userId: ${id} and email: ${email}`);
+//     const jwt = await generateJWTToken(id, email);
+//     logger.debug(`JWT Token generated successfully`);
+
+//     logger.debug(`Generating Refresh Token for userId: ${id}`);
+//     const refreshToken = await generateRefreshToken(id, email);
+//     logger.debug(`Refresh Token generated successfully`);
+
+//     logger.debug(`Storing refresh token in database`);
+//     await storeRefreshToken(id, refreshToken, ipDetails, deviceDetails?.device);
+//     logger.debug(`Refresh token stored successfully`);
+
+//     logger.debug(`Updating login history for userId: ${id}`);
+//     await updateUserLastLoggedIn(
+//       id,
+//       "partner",
+//       ipDetails,
+//       "success",
+//       deviceDetails?.device
+//     );
+//     logger.debug(`User login history updated successfully`);
+
+//     logger.debug(`Fetching role of userId: ${id}`);
+//     const role = await getUserRole(id);
+//     logger.debug(`Role fetched successfully`);
+
+//     sendResponse(res, 200, "User logged in successfully", {
+//       jwtToken: jwt,
+//       refreshToken: refreshToken,
+//       role,
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 
 export const login = async (
   req: RequestWithPayload<LoginPayload>,
@@ -41,49 +104,63 @@ export const login = async (
 ) => {
   try {
     const { email, id, ipDetails, deviceDetails } = req.payload!;
-    // const { otp } = req.body;
-
-    // logger.debug(`Validating otp ${otp} for userId: ${id}`);
-    // const otpData = await validateOtp(id, otp);
-    // if (!otpData) {
-    //   return sendResponse(res, 401, "Invalid otp");
-    // }
-    // logger.debug(`Otp validated successfully`);
-
-    // logger.debug(`Using otp ${otp} for userId: ${id}`);
-    // await useOtp(id, otp);
-    // logger.debug(`Otp used successfully`);
 
     logger.debug(`Generating JWT Token for userId: ${id} and email: ${email}`);
-    const jwt = await generateJWTToken(id, email);
+    const jwt = await generateJWTToken(id, email, req.portalType);
     logger.debug(`JWT Token generated successfully`);
 
     logger.debug(`Generating Refresh Token for userId: ${id}`);
     const refreshToken = await generateRefreshToken(id, email);
     logger.debug(`Refresh Token generated successfully`);
 
-    logger.debug(`Storing refresh token in database`);
-    await storeRefreshToken(id, refreshToken, ipDetails, deviceDetails?.device);
+    // 🔥 Store refresh token based on portal type
+    logger.debug(
+      `Storing refresh token in database for portal: ${req.portalType}`
+    );
+    if (req.portalType === PortalType.ADMIN) {
+      await storeAdminRefreshToken(
+        id,
+        refreshToken,
+        ipDetails,
+        deviceDetails?.device
+      );
+    } else if (req.portalType === PortalType.PARTNER) {
+      await storeRefreshToken(
+        id,
+        refreshToken,
+        ipDetails,
+        deviceDetails?.device
+      );
+    }
     logger.debug(`Refresh token stored successfully`);
 
+    // 🔥 Update login history based on portal type
     logger.debug(`Updating login history for userId: ${id}`);
+    const userType = req.portalType === PortalType.ADMIN ? "admin" : "partner";
     await updateUserLastLoggedIn(
       id,
-      "partner",
+      userType,
       ipDetails,
       "success",
       deviceDetails?.device
     );
     logger.debug(`User login history updated successfully`);
 
-    logger.debug(`Fetching role of userId: ${id}`);
-    const role = await getUserRole(id);
+    // 🔥 Fetch role based on portal type
+    logger.debug(
+      `Fetching role of userId: ${id} for portal: ${req.portalType}`
+    );
+    const role =
+      req.portalType === PortalType.ADMIN
+        ? await getAdminRole(id)
+        : await getUserRole(id);
     logger.debug(`Role fetched successfully`);
 
     sendResponse(res, 200, "User logged in successfully", {
       jwtToken: jwt,
       refreshToken: refreshToken,
       role,
+      portalType: req.portalType, // Return portal type to frontend
     });
   } catch (error) {
     next(error);
@@ -144,6 +221,66 @@ export const sendOtp = async (
   }
 };
 
+// export const forgotPassword = async (
+//   req: RequestWithPayload<LoginPayload>,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   try {
+//     const { email, id, name } = req.payload!;
+
+//     logger.debug(`Generating emailToken`);
+//     const emailToken = await generateEmailToken(30);
+//     logger.debug(`Email token generated successfully`);
+
+//     logger.debug(`Getting forgot password template`);
+//     let content = await getEmailTemplate("forgot-password");
+//     if (!content) {
+//       return sendResponse(res, 500, "Email template not found");
+//     }
+//     logger.debug(`Forgot password template fetched successfully`);
+
+//     const expiry = moment().add(30, "minutes").toDate().toISOString();
+//     const redirectUri = `${FRONTEND_URL}/partners/reset-password?token=${emailToken}&expiry=${expiry}`;
+//     console.log("Redirect URI:", redirectUri);
+//     content = content.replace(/{%currentYear%}/, moment().format("YYYY"));
+//     content = content.replace(
+//       /{%name%}/g,
+//       name!.charAt(0).toUpperCase() + name!.slice(1)
+//     );
+//     const html = content.replace("{%reset-password-url%}", redirectUri);
+//     const subject = "Forgot Password";
+
+//     logger.debug(`Revoking previous email tokens`);
+//     await revokePreviousEmailTokens(id);
+//     logger.debug(`Email tokens revoked successfully`);
+
+//     logger.debug(`Saving email token for userId: ${id}`);
+//     await saveEmailToken(id, emailToken);
+//     logger.debug(`Email token saved successfully`);
+
+//     logger.debug(`Saving email history for userId: ${id}`);
+//     await logEmailHistory({
+//       userId: id,
+//       to: email,
+//       subject,
+//       type: "Forgot Password",
+//     });
+//     logger.debug(`Email history saved successfully`);
+
+//     emailQueue.push({ to: email, subject: subject, html: html, retry: 0 });
+
+//     sendResponse(res, 200, "Forgot password request sent successfully");
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
+/**
+ * 🔥 UNIFIED FORGOT PASSWORD
+ * Works for both Admin and Partner portals
+ * Portal type is automatically detected by validateEmail middleware
+ */
 export const forgotPassword = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
@@ -152,7 +289,9 @@ export const forgotPassword = async (
   try {
     const { email, id, name } = req.payload!;
 
-    logger.debug(`Generating emailToken`);
+    logger.debug(
+      `Generating emailToken for userId: ${id}, portal: ${req.portalType}`
+    );
     const emailToken = await generateEmailToken(30);
     logger.debug(`Email token generated successfully`);
 
@@ -164,24 +303,44 @@ export const forgotPassword = async (
     logger.debug(`Forgot password template fetched successfully`);
 
     const expiry = moment().add(30, "minutes").toDate().toISOString();
-    const redirectUri = `${FRONTEND_URL}/partners/reset-password?token=${emailToken}&expiry=${expiry}`;
-    console.log("Redirect URI:", redirectUri);
+
+    // 🔥 Different redirect URI based on portal type
+    const portalPath =
+      req.portalType === PortalType.ADMIN ? "admin" : "partners";
+    const redirectUri = `${FRONTEND_URL}/${portalPath}/reset-password?token=${emailToken}&expiry=${expiry}`;
+
+    logger.debug(`Redirect URI: ${redirectUri}`);
+
+    // Replace template variables
     content = content.replace(/{%currentYear%}/, moment().format("YYYY"));
     content = content.replace(
       /{%name%}/g,
-      name!.charAt(0).toUpperCase() + name!.slice(1)
+      name ? name.charAt(0).toUpperCase() + name.slice(1) : "User"
     );
     const html = content.replace("{%reset-password-url%}", redirectUri);
     const subject = "Forgot Password";
 
-    logger.debug(`Revoking previous email tokens`);
-    await revokePreviousEmailTokens(id);
+    // 🔥 Revoke previous tokens based on portal type
+    logger.debug(
+      `Revoking previous email tokens for portal: ${req.portalType}`
+    );
+    if (req.portalType === PortalType.ADMIN) {
+      await revokePreviousAdminEmailTokens(id);
+    } else if (req.portalType === PortalType.PARTNER) {
+      await revokePreviousEmailTokens(id);
+    }
     logger.debug(`Email tokens revoked successfully`);
 
+    // 🔥 Save email token based on portal type
     logger.debug(`Saving email token for userId: ${id}`);
-    await saveEmailToken(id, emailToken);
+    if (req.portalType === PortalType.ADMIN) {
+      await saveAdminEmailToken(id, emailToken);
+    } else if (req.portalType === PortalType.PARTNER) {
+      await saveEmailToken(id, emailToken);
+    }
     logger.debug(`Email token saved successfully`);
 
+    // 🔥 Log email history
     logger.debug(`Saving email history for userId: ${id}`);
     await logEmailHistory({
       userId: id,
@@ -191,13 +350,52 @@ export const forgotPassword = async (
     });
     logger.debug(`Email history saved successfully`);
 
+    // Add to email queue
     emailQueue.push({ to: email, subject: subject, html: html, retry: 0 });
 
-    sendResponse(res, 200, "Forgot password request sent successfully");
+    sendResponse(res, 200, "Forgot password request sent successfully", {
+      portalType: req.portalType, // Optional: inform frontend which portal
+    });
   } catch (error) {
     next(error);
   }
 };
+
+// export const resetPassword = async (
+//   req: RequestWithPayload<ResetPasswordPayload>,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   try {
+//     const { emailToken, password } = req.body;
+//     const { id, email } = req.payload!;
+
+//     logger.debug(`Using emailToken: ${emailToken} for userId: ${id}`);
+//     await useEmailToken(id, emailToken);
+//     logger.debug(`Email token used successfully`);
+
+//     logger.debug(`Hashing password for userId: ${id}`);
+//     const hashedPassword = await hashPassword(password);
+//     logger.debug(`Password hashed successfully`);
+
+//     logger.debug(`Updating password for userId: ${id}`);
+//     await updatePassword(id, hashedPassword);
+//     logger.debug(`Password updated successfully`);
+
+//     logger.debug(`Saving email history for userId: ${id}`);
+//     await logEmailHistory({
+//       userId: id,
+//       to: email,
+//       subject: "Reset Password",
+//       type: "Reset Password",
+//     });
+//     logger.debug(`Email history saved successfully`);
+
+//     sendResponse(res, 200, "Password reset successfully");
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 
 export const resetPassword = async (
   req: RequestWithPayload<ResetPasswordPayload>,
@@ -208,16 +406,31 @@ export const resetPassword = async (
     const { emailToken, password } = req.body;
     const { id, email } = req.payload!;
 
-    logger.debug(`Using emailToken: ${emailToken} for userId: ${id}`);
-    await useEmailToken(id, emailToken);
+    logger.debug(
+      `Using emailToken: ${emailToken} for userId: ${id}, portal: ${req.portalType}`
+    );
+
+    // 🔥 Delete token based on portal type
+    if (req.portalType === PortalType.ADMIN) {
+      await useAdminEmailToken(id, emailToken);
+    } else if (req.portalType === PortalType.PARTNER) {
+      await useEmailToken(id, emailToken);
+    }
     logger.debug(`Email token used successfully`);
 
     logger.debug(`Hashing password for userId: ${id}`);
     const hashedPassword = await hashPassword(password);
     logger.debug(`Password hashed successfully`);
 
-    logger.debug(`Updating password for userId: ${id}`);
-    await updatePassword(id, hashedPassword);
+    // 🔥 Update password based on portal type
+    logger.debug(
+      `Updating password for userId: ${id}, portal: ${req.portalType}`
+    );
+    if (req.portalType === PortalType.ADMIN) {
+      await updateAdminPassword(id, hashedPassword);
+    } else if (req.portalType === PortalType.PARTNER) {
+      await updatePassword(id, hashedPassword);
+    }
     logger.debug(`Password updated successfully`);
 
     logger.debug(`Saving email history for userId: ${id}`);
@@ -229,12 +442,58 @@ export const resetPassword = async (
     });
     logger.debug(`Email history saved successfully`);
 
-    sendResponse(res, 200, "Password reset successfully");
+    sendResponse(res, 200, "Password reset successfully", {
+      portalType: req.portalType, // Optional: inform frontend
+    });
   } catch (error) {
     next(error);
   }
 };
 
+// export const setPassword = async (
+//   req: RequestWithPayload<ResetPasswordPayload>,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   try {
+//     const { emailToken, password } = req.body;
+//     const { id, email } = req.payload!;
+
+//     logger.debug(`Using email token for userId: ${id}`);
+//     await useEmailToken(id, emailToken);
+//     logger.debug(`Email token used successfully`);
+
+//     logger.debug(`Hashing password for userId: ${id}`);
+//     const hashedPassword = await hashPassword(password);
+//     logger.debug(`Password hashed successfully`);
+
+//     logger.debug(`Updating password for userId: ${id}`);
+//     await updatePassword(id, hashedPassword);
+//     logger.debug(`Password updated successfully`);
+
+//     logger.debug(`Saving email history for userId: ${id}`);
+//     await logEmailHistory({
+//       userId: id,
+//       to: email,
+//       subject: "Reset Password",
+//       type: "Reset Password",
+//     });
+//     logger.debug(`Email history saved successfully`);
+
+//     sendResponse(res, 200, "Password set successfully");
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
+/**
+ * 🔥 UNIFIED SET PASSWORD
+ * Works for both Admin and Partner portals
+ * Portal type is automatically detected by validateEmailToken middleware
+ *
+ * Note: This is functionally identical to resetPassword but with different messaging
+ * Used for initial password setup vs password reset scenarios
+ */
 export const setPassword = async (
   req: RequestWithPayload<ResetPasswordPayload>,
   res: Response,
@@ -244,28 +503,45 @@ export const setPassword = async (
     const { emailToken, password } = req.body;
     const { id, email } = req.payload!;
 
-    logger.debug(`Using email token for userId: ${id}`);
-    await useEmailToken(id, emailToken);
+    logger.debug(
+      `Using emailToken for userId: ${id}, portal: ${req.portalType}`
+    );
+
+    // 🔥 Delete token based on portal type
+    if (req.portalType === PortalType.ADMIN) {
+      await useAdminEmailToken(id, emailToken);
+    } else if (req.portalType === PortalType.PARTNER) {
+      await useEmailToken(id, emailToken);
+    }
     logger.debug(`Email token used successfully`);
 
     logger.debug(`Hashing password for userId: ${id}`);
     const hashedPassword = await hashPassword(password);
     logger.debug(`Password hashed successfully`);
 
-    logger.debug(`Updating password for userId: ${id}`);
-    await updatePassword(id, hashedPassword);
+    // 🔥 Update password based on portal type
+    logger.debug(
+      `Updating password for userId: ${id}, portal: ${req.portalType}`
+    );
+    if (req.portalType === PortalType.ADMIN) {
+      await updateAdminPassword(id, hashedPassword);
+    } else if (req.portalType === PortalType.PARTNER) {
+      await updatePassword(id, hashedPassword);
+    }
     logger.debug(`Password updated successfully`);
 
     logger.debug(`Saving email history for userId: ${id}`);
     await logEmailHistory({
       userId: id,
       to: email,
-      subject: "Reset Password",
-      type: "Reset Password",
+      subject: "Set Password",
+      type: "Set Password",
     });
     logger.debug(`Email history saved successfully`);
 
-    sendResponse(res, 200, "Password set successfully");
+    sendResponse(res, 200, "Password set successfully", {
+      portalType: req.portalType, // Optional: inform frontend
+    });
   } catch (error) {
     next(error);
   }

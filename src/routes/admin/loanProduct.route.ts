@@ -1,6 +1,9 @@
 import { Router } from "express";
 
-import { validateAdminToken } from "../../middlewares";
+import {
+  authenticate,
+  AuthMethod,
+} from "../../middlewares";
 import {
   createLoanProductController,
   updateLoanProductController,
@@ -13,28 +16,43 @@ const router = Router();
 
 router.post(
   "/",
-  validateAdminToken(["Admin"]),
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin"],
+  }),
   checkDuplicateLoanProductFields,
   createLoanProductController
 );
 router.put(
   "/:id",
-  validateAdminToken(["Admin"]),
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin"],
+  }),
   updateLoanProductController
 );
 router.delete(
   "/:id",
-  validateAdminToken(["Admin"]),
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin"],
+  }),
   deleteLoanProductController
 );
 router.get(
   "/details/:id",
-  validateAdminToken(["Admin"]),
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin"],
+  }),
   getLoanProductDetails
 );
 router.get(
   "/pagination",
-  validateAdminToken(["Admin"]),
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin"],
+  }),
   getLoanProductsListController
 );
 

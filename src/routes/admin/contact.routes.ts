@@ -19,14 +19,20 @@ import {
   uploadContactsCSV,
 } from "../../controllers/contact.controller";
 import { validateAndParseCSVFile } from "../../middlewares/loanApplication.middleware";
-import { validateAdminToken } from "../../middlewares";
+import {
+  authenticate,
+  AuthMethod,
+} from "../../middlewares";
 import { getLeadsViewList } from "../../controllers/loanApplication.controller";
 
 const router = Router();
 
 router.post(
   "/",
-  validateAdminToken(["Admin"]),
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin"],
+  }),
   createContactsLeadValidationRules(),
   validateReqParams,
   validateContactsLeadPayload,
@@ -34,7 +40,10 @@ router.post(
 );
 router.delete(
   "/:id",
-  validateAdminToken(["Admin"]),
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin"],
+  }),
   validateId(),
   validateReqParams,
   validateContactLeadById,
@@ -42,7 +51,10 @@ router.delete(
 );
 router.get(
   "/details/:id",
-  validateAdminToken(["Admin"]),
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin"],
+  }),
   validateId(),
   validateReqParams,
   validateContactLeadById,
@@ -50,7 +62,10 @@ router.get(
 );
 router.put(
   "/:id",
-  validateAdminToken(["Admin"]),
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin"],
+  }),
   editContactsLeadValidationRules(),
   validateReqParams,
   validateContactLeadById,
@@ -58,14 +73,20 @@ router.put(
 );
 router.get(
   "/list",
-  validateAdminToken(["Admin"]),
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin"],
+  }),
   contactsLeadPaginationValidationRules(),
   validateReqParams,
   getLeadsViewList
 );
 router.post(
   "/upload-csv",
-  validateAdminToken(["Admin"]),
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin"],
+  }),
   validateAndParseCSVFile("CSV"),
   uploadContactsCSV
 );

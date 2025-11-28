@@ -1,9 +1,16 @@
 import { Router } from "express";
 import { getPermissions } from "../controllers/permissions.controller";
-import { validateToken } from "../middlewares";
+import { authenticate, AuthMethod } from "../middlewares";
 
 const router = Router();
 
-router.get("/", validateToken(["Admin","Manager","User"]), getPermissions);
+router.get(
+  "/",
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin", "Manager", "User"],
+  }),
+  getPermissions
+);
 
 export { router as permissionsRoutes };

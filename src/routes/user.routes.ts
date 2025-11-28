@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router } from "express";
 import {
   getAllUsers,
   createUser,
@@ -7,7 +7,7 @@ import {
 } from "../controllers/user.controller";
 import authRoutes from "./auth.routes";
 import { getRoles } from "../controllers/hubspot.controller";
-import { validateToken } from "../middlewares";
+import { authenticate, AuthMethod } from "../middlewares";
 import { createUserValidator } from "../middlewares/validators/validator";
 
 const router = Router();
@@ -18,7 +18,14 @@ router.post("/", createUserValidator, createUser);
 
 router.get("/ip-info", getIpInfo);
 router.use("/auth", authRoutes);
-router.get("/profile", validateToken(["Admin", "Manager", "User"]), getProfile);
+router.get(
+  "/profile",
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin", "Manager", "User"],
+  }),
+  getProfile
+);
 router.get("/roles", getRoles);
 
 export { router as userRoutes };

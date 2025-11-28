@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router } from "express";
 // import {
 //   checkLoanEligibility,
 //   createLoanApplicationsController,
@@ -9,16 +9,34 @@ import { Router } from 'express';
 //   getLoanApplicationsListController,
 //   updateLoanApplicationController,
 // } from "../controllers/loan.controller";
-import { validateApiKey } from "../middlewares";
-import { checkLoanEligibility, generateRepaymentScheduleAndEmail, getConvertedCurrency } from '../controllers/loan.controller';
+import { authenticate, AuthMethod, validateApiKey } from "../middlewares";
+import {
+  checkLoanEligibility,
+  generateRepaymentScheduleAndEmail,
+  getConvertedCurrency,
+} from "../controllers/loan.controller";
 
 const router = Router();
 
-router.post("/check-eligibility", validateApiKey, checkLoanEligibility);
-router.get("/currency-convert", validateApiKey, getConvertedCurrency);
+router.post(
+  "/check-eligibility",
+  authenticate({
+    method: AuthMethod.API_KEY,
+  }),
+  checkLoanEligibility
+);
+router.get(
+  "/currency-convert",
+  authenticate({
+    method: AuthMethod.API_KEY,
+  }),
+  getConvertedCurrency
+);
 router.post(
   "/repaymentSchedule-and-email",
-  validateApiKey,
+  authenticate({
+    method: AuthMethod.API_KEY,
+  }),
   generateRepaymentScheduleAndEmail
 );
 
