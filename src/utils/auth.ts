@@ -24,9 +24,10 @@ export const generateEmailToken = (size: number) => {
 export const generateJWTToken = (
   userId: number,
   email: string,
+  portalType?: string,
   sessionId?: string
 ): Promise<string> => {
-  const payload = { id: userId, email, sessionId };
+  const payload = { id: userId, email, portalType, sessionId };
 
   return new Promise((resolve, reject) => {
     sign(payload, JWT_SECRET!, { expiresIn: "30m" }, (err, token) => {

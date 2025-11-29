@@ -18,7 +18,6 @@ import {
   getUserDetailsByEmail,
 } from "../models/helpers";
 import { decodeToken, validateUserPassword } from "../utils/auth";
-import { JwtPayload } from "jsonwebtoken";
 import { RequestWithPayload } from "../types/api.types";
 import {
   AdminProtectedPayload,
@@ -34,9 +33,7 @@ import {
 } from "../models/helpers/partners.helper";
 import { fetchIpDetails } from "../services/user.service";
 import { UAParser } from "ua-parser-js";
-import { API_KEY } from "../setup/secrets";
 import moment from "moment";
-import prisma from "../config/prisma";
 import { AllowedPemissions } from "../types";
 
 export const validateCreateUser = async (
@@ -94,6 +91,38 @@ export const validateCreateAdminUser = async (
   }
 };
 
+// export const validateEmailToken = async (
+//   req: RequestWithPayload<ResetPasswordPayload>,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   try {
+//     const { emailToken } = req.body as { emailToken?: string };
+
+//     if (!emailToken) {
+//       return sendResponse(res, 400, "Email token is required");
+//     }
+
+//     const details = await getUserDetailsFromToken(emailToken);
+//     if (!details?.id) {
+//       return sendResponse(res, 401, "Invalid token");
+//     }
+
+//     req.payload = {
+//       id: details.user_id,
+//       email: details.user.email,
+//     };
+
+//     next();
+//   } catch (error) {
+//     return sendResponse(res, 500, "Internal server error");
+//   }
+// };
+
+/**
+ * 🔥 UNIFIED EMAIL TOKEN VALIDATION
+ * Automatically detects portal type by checking which token table contains the token
+ */
 export const validateEmailToken = async (
   req: RequestWithPayload<ResetPasswordPayload>,
   res: Response,
@@ -106,18 +135,34 @@ export const validateEmailToken = async (
       return sendResponse(res, 400, "Email token is required");
     }
 
-    const details = await getUserDetailsFromToken(emailToken);
-    if (!details?.id) {
-      return sendResponse(res, 401, "Invalid token");
+    // 🔥 Try Admin token table first
+    const adminTokenDetails = await getAdminDetailsFromToken(emailToken);
+
+    if (adminTokenDetails?.id) {
+      req.portalType = PortalType.ADMIN; // ✅ Set portal type
+      req.payload = {
+        id: adminTokenDetails.user_id,
+        email: adminTokenDetails.user.email,
+      };
+      return next();
     }
 
-    req.payload = {
-      id: details.user_id,
-      email: details.user.email,
-    };
+    // 🔥 If not admin, try Partner token table
+    const partnerTokenDetails = await getUserDetailsFromToken(emailToken);
 
-    next();
-  } catch (error) {
+    if (partnerTokenDetails?.id) {
+      req.portalType = PortalType.PARTNER; // ✅ Set portal type
+      req.payload = {
+        id: partnerTokenDetails.user_id,
+        email: partnerTokenDetails.user.email,
+      };
+      return next();
+    }
+
+    // Token not found in either table
+    return sendResponse(res, 401, "Invalid or expired token");
+  } catch (error: any) {
+    console.error("Validate email token error:", error);
     return sendResponse(res, 500, "Internal server error");
   }
 };
@@ -150,33 +195,80 @@ export const validateAdminEmailToken = async (
   }
 };
 
+// export const validateEmail = async (
+//   req: RequestWithPayload<LoginPayload>,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   try {
+//     const email = req.body.email;
+
+//     const userDetails = await getUserDetailsByEmail(email);
+//     if (!userDetails) {
+//       return sendResponse(res, 400, "User not found");
+//     }
+
+//     if (!userDetails.is_active) {
+//       return sendResponse(res, 400, "User is disabled");
+//     }
+
+//     req.payload = {
+//       id: userDetails.id,
+//       email: email,
+//       name: userDetails.full_name!,
+//       passwordHash: userDetails.password_hash,
+//       passwordSetOn: userDetails.updated_at,
+//     };
+//     next();
+//   } catch (error) {
+//     sendResponse(res, 500, "Internal Server Error");
+//   }
+// };
+
+// In your validateEmail middleware (or wherever you validate credentials)
 export const validateEmail = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const email = req.body.email;
+    const { email } = req.body;
 
-    const userDetails = await getUserDetailsByEmail(email);
-    if (!userDetails) {
-      return sendResponse(res, 400, "User not found");
+    if (!email) {
+      return sendResponse(res, 400, "Email is required");
     }
 
-    if (!userDetails.is_active) {
-      return sendResponse(res, 400, "User is disabled");
+    // 🔥 Try to find in Admin table first
+    const adminUser = await getAdminDetailsByEmail(email);
+
+    if (adminUser) {
+      req.portalType = PortalType.ADMIN; // Set portal type
+      req.payload = {
+        ...req.payload,
+        id: adminUser.id,
+        email: adminUser.email,
+        passwordHash: adminUser.password_hash,
+      };
+      return next();
     }
 
-    req.payload = {
-      id: userDetails.id,
-      email: email,
-      name: userDetails.full_name!,
-      passwordHash: userDetails.password_hash,
-      passwordSetOn: userDetails.updated_at,
-    };
-    next();
-  } catch (error) {
-    sendResponse(res, 500, "Internal Server Error");
+    // 🔥 If not admin, try Partner
+    const partnerUser = await getUserDetailsByEmail(email);
+
+    if (partnerUser) {
+      req.portalType = PortalType.PARTNER; // Set portal type
+      req.payload = {
+        ...req.payload,
+        id: partnerUser.id,
+        email: partnerUser.email,
+        passwordHash: partnerUser.password_hash,
+      };
+      return next();
+    }
+
+    return sendResponse(res, 404, "User not found");
+  } catch (error: any) {
+    return sendResponse(res, 500, error?.message || "Internal server error");
   }
 };
 
@@ -216,10 +308,10 @@ export const validatePassword = async (
   next: NextFunction
 ) => {
   try {
-    const { passwordHash, passwordSetOn } = req.payload!;
+    const { passwordHash } = req.payload!;
     const { password } = req.body;
 
-    if (!passwordHash || !passwordSetOn) {
+    if (!passwordHash) {
       return sendResponse(res, 403, "Password not set");
     }
 
@@ -238,158 +330,158 @@ export const validatePassword = async (
   }
 };
 
-export const validateAdminToken =
-  (allowedRoles?: AllowedAdminRoles[], requireAuth: boolean = true) =>
-  async (
-    req: RequestWithPayload<AdminProtectedPayload>,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      if (!requireAuth) {
-        return next();
-      }
+// export const validateAdminToken =
+//   (allowedRoles?: AllowedAdminRoles[], requireAuth: boolean = true) =>
+//   async (
+//     req: RequestWithPayload<AdminProtectedPayload>,
+//     res: Response,
+//     next: NextFunction
+//   ) => {
+//     try {
+//       if (!requireAuth) {
+//         return next();
+//       }
 
-      const authHeader = req.headers.authorization;
-      if (!authHeader || !authHeader.startsWith("Bearer ")) {
-        return sendResponse(
-          res,
-          401,
-          "Missing or invalid Authorization header"
-        );
-      }
+//       const authHeader = req.headers.authorization;
+//       if (!authHeader || !authHeader.startsWith("Bearer ")) {
+//         return sendResponse(
+//           res,
+//           401,
+//           "Missing or invalid Authorization header"
+//         );
+//       }
 
-      const token = authHeader.split(" ")[1];
-      let decodedToken: JwtPayload;
-      try {
-        decodedToken = await decodeToken(token);
-      } catch (error) {
-        console.log("error", error);
-        return sendResponse(res, 401, "Unauthorized user");
-      }
+//       const token = authHeader.split(" ")[1];
+//       let decodedToken: JwtPayload;
+//       try {
+//         decodedToken = await decodeToken(token);
+//       } catch (error) {
+//         console.log("error", error);
+//         return sendResponse(res, 401, "Unauthorized user");
+//       }
 
-      const adminUser = await getAdminUserById(decodedToken.id, true);
-      console.log("adminUsr", adminUser);
-      if (!adminUser) {
-        return sendResponse(res, 401, "Admin user not found");
-      }
+//       const adminUser = await getAdminUserById(decodedToken.id, true);
+//       console.log("adminUsr", adminUser);
+//       if (!adminUser) {
+//         return sendResponse(res, 401, "Admin user not found");
+//       }
 
-      if (!adminUser.is_active) {
-        return sendResponse(
-          res,
-          401,
-          "Your account has been disabled, please contact system administrator"
-        );
-      }
+//       if (!adminUser.is_active) {
+//         return sendResponse(
+//           res,
+//           401,
+//           "Your account has been disabled, please contact system administrator"
+//         );
+//       }
 
-      const adminUserSession = await getAdminUserSessionById(decodedToken.id);
-      console.log(adminUserSession);
-      if (!adminUserSession?.is_valid) {
-        return sendResponse(res, 401, "Invalid admin user session");
-      }
+//       const adminUserSession = await getAdminUserSessionById(decodedToken.id);
+//       console.log(adminUserSession);
+//       if (!adminUserSession?.is_valid) {
+//         return sendResponse(res, 401, "Invalid admin user session");
+//       }
 
-      const roles = adminUser.admin_user_roles.map((ur) => ur.role.role);
-      console.log("roles", roles);
-      req.payload = {
-        id: adminUser.id,
-        email: adminUser.email,
-        passwordHash: adminUser.password_hash,
-        roles,
-      };
+//       const roles = adminUser.admin_user_roles.map((ur) => ur.role.role);
+//       console.log("roles", roles);
+//       req.payload = {
+//         id: adminUser.id,
+//         email: adminUser.email,
+//         passwordHash: adminUser.password_hash,
+//         roles,
+//       };
 
-      if (allowedRoles && allowedRoles.length > 0) {
-        const hasAccess = roles.some((r) =>
-          allowedRoles.includes(r as AllowedAdminRoles)
-        );
-        if (!hasAccess) {
-          return sendResponse(res, 403, "Access Denied");
-        }
-      }
+//       if (allowedRoles && allowedRoles.length > 0) {
+//         const hasAccess = roles.some((r) =>
+//           allowedRoles.includes(r as AllowedAdminRoles)
+//         );
+//         if (!hasAccess) {
+//           return sendResponse(res, 403, "Access Denied");
+//         }
+//       }
 
-      next();
-    } catch (error: any) {
-      return sendResponse(
-        res,
-        500,
-        error?.message?.toString() || "Internal server error"
-      );
-    }
-  };
+//       next();
+//     } catch (error: any) {
+//       return sendResponse(
+//         res,
+//         500,
+//         error?.message?.toString() || "Internal server error"
+//       );
+//     }
+//   };
 
-export const validateToken =
-  (allowedRoles?: AllowedRoles[], requireAuth: boolean = true) =>
-  async (
-    req: RequestWithPayload<ProtectedPayload>,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      if (!requireAuth) {
-        return next();
-      }
+// export const validateToken =
+//   (allowedRoles?: AllowedRoles[], requireAuth: boolean = true) =>
+//   async (
+//     req: RequestWithPayload<ProtectedPayload>,
+//     res: Response,
+//     next: NextFunction
+//   ) => {
+//     try {
+//       if (!requireAuth) {
+//         return next();
+//       }
 
-      const authHeader = req.headers.authorization;
-      if (!authHeader || !authHeader.startsWith("Bearer ")) {
-        return sendResponse(
-          res,
-          401,
-          "Missing or invalid Authorization header"
-        );
-      }
+//       const authHeader = req.headers.authorization;
+//       if (!authHeader || !authHeader.startsWith("Bearer ")) {
+//         return sendResponse(
+//           res,
+//           401,
+//           "Missing or invalid Authorization header"
+//         );
+//       }
 
-      const token = authHeader.split(" ")[1];
-      let decodedToken: JwtPayload;
-      try {
-        decodedToken = await decodeToken(token);
-      } catch (error) {
-        console.log("error", error);
-        return sendResponse(res, 401, "Unauthorized user");
-      }
+//       const token = authHeader.split(" ")[1];
+//       let decodedToken: JwtPayload;
+//       try {
+//         decodedToken = await decodeToken(token);
+//       } catch (error) {
+//         console.log("error", error);
+//         return sendResponse(res, 401, "Unauthorized user");
+//       }
 
-      const user = await getUserById(decodedToken.id, true);
-      if (!user) {
-        return sendResponse(res, 401, "User not found");
-      }
+//       const user = await getUserById(decodedToken.id, true);
+//       if (!user) {
+//         return sendResponse(res, 401, "User not found");
+//       }
 
-      if (!user.is_active) {
-        return sendResponse(
-          res,
-          401,
-          "Your account has been disabled, please contact system administrator"
-        );
-      }
+//       if (!user.is_active) {
+//         return sendResponse(
+//           res,
+//           401,
+//           "Your account has been disabled, please contact system administrator"
+//         );
+//       }
 
-      const userSession = await getUserSessionById(decodedToken.id);
-      if (!userSession?.is_valid) {
-        return sendResponse(res, 401, "Invalid user session");
-      }
+//       const userSession = await getUserSessionById(decodedToken.id);
+//       if (!userSession?.is_valid) {
+//         return sendResponse(res, 401, "Invalid user session");
+//       }
 
-      const roles = user.roles.map((ur) => ur.role.role);
-      req.payload = {
-        id: user.id,
-        email: user.email,
-        passwordHash: user.password_hash,
-        roles,
-      };
+//       const roles = user.roles.map((ur) => ur.role.role);
+//       req.payload = {
+//         id: user.id,
+//         email: user.email,
+//         passwordHash: user.password_hash,
+//         roles,
+//       };
 
-      if (allowedRoles && allowedRoles.length > 0) {
-        const hasAccess = roles.some((r) =>
-          allowedRoles.includes(r as AllowedRoles)
-        );
-        if (!hasAccess) {
-          return sendResponse(res, 403, "Access Denied");
-        }
-      }
+//       if (allowedRoles && allowedRoles.length > 0) {
+//         const hasAccess = roles.some((r) =>
+//           allowedRoles.includes(r as AllowedRoles)
+//         );
+//         if (!hasAccess) {
+//           return sendResponse(res, 403, "Access Denied");
+//         }
+//       }
 
-      next();
-    } catch (error: any) {
-      return sendResponse(
-        res,
-        500,
-        error?.message?.toString() || "Internal server error"
-      );
-    }
-  };
+//       next();
+//     } catch (error: any) {
+//       return sendResponse(
+//         res,
+//         500,
+//         error?.message?.toString() || "Internal server error"
+//       );
+//     }
+//   };
 
 export const validateChangePassword = async (
   req: RequestWithPayload<ProtectedPayload>,
@@ -572,6 +664,7 @@ export const validateApiKey = (
 ) => {
   try {
     const clientKey = req.headers["edumate-api-key"];
+    console.log("clientKey", clientKey);
 
     if (!clientKey || clientKey !== API_KEY) {
       return sendResponse(res, 401, "Invalid or missing API Key");
@@ -629,3 +722,409 @@ export const validateModulePermissions = (
     }
   };
 };
+
+import jwt from "jsonwebtoken";
+import { PrismaClient } from "@prisma/client";
+import { JWT_SECRET, API_KEY } from "../setup/secrets";
+
+const prisma = new PrismaClient();
+
+// Portal types
+export enum PortalType {
+  ADMIN = "ADMIN",
+  PARTNER = "PARTNER",
+}
+
+// Auth method types
+export enum AuthMethod {
+  JWT = "JWT",
+  API_KEY = "API_KEY",
+  BOTH = "BOTH",
+}
+
+interface AuthOptions {
+  method?: AuthMethod;
+  allowedRoles?: string[]; // Works for both admin and partner roles
+}
+
+interface JwtPayload {
+  id: number;
+  email: string;
+  portalType?: PortalType;
+  sessionId?: string;
+  iat?: number;
+  exp?: number;
+}
+
+/**
+ * ✅ UNIVERSAL AUTHENTICATION MIDDLEWARE
+ *
+ * Works with your existing:
+ * - generateJWTToken() - no changes needed
+ * - validateApiKey() - keeps single API key approach
+ * - Session management - AdminSessions & B2BPartnersSessions
+ *
+ * Automatically detects portal type by checking which session table has the user
+ *
+ * Usage:
+ * router.get("/", authenticate({ allowedRoles: ["Admin"] }), controller)
+ * router.post("/", authenticate({ method: AuthMethod.BOTH }), controller)
+ */
+export const authenticate = (options: AuthOptions = {}) => {
+  const { method = AuthMethod.BOTH, allowedRoles = [] } = options;
+
+  return async (
+    req: RequestWithPayload<ProtectedPayload>,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      // 🔹 Step 1: Extract credentials
+      const authHeader = req.headers.authorization;
+      const apiKey = req.headers["edumate-api-key"] as string;
+
+      const token = authHeader?.startsWith("Bearer ")
+        ? authHeader.split(" ")[1]
+        : null;
+
+      // 🔹 Step 2: Determine authentication method
+      let authMethod: AuthMethod;
+      if (method === AuthMethod.JWT) {
+        if (!token) {
+          return sendResponse(
+            res,
+            401,
+            "JWT token is required but not provided"
+          );
+        }
+        authMethod = AuthMethod.JWT;
+      } else if (method === AuthMethod.API_KEY) {
+        if (!apiKey) {
+          return sendResponse(res, 401, "API key is required but not provided");
+        }
+        authMethod = AuthMethod.API_KEY;
+      } else {
+        // AuthMethod.BOTH - auto-detect
+        if (token) {
+          authMethod = AuthMethod.JWT;
+        } else if (apiKey) {
+          authMethod = AuthMethod.API_KEY;
+        } else {
+          return sendResponse(
+            res,
+            401,
+            "Authentication required. Provide either JWT token or API key"
+          );
+        }
+      }
+
+      // 🔹 Step 3: Authenticate based on method
+      if (authMethod === AuthMethod.JWT) {
+        // JWT authentication - full entity with roles, payload, etc.
+        const authenticatedEntity = await authenticateWithJWT(
+          token!,
+          allowedRoles
+        );
+
+        if (!authenticatedEntity) {
+          return sendResponse(res, 401, "Invalid or expired JWT token");
+        }
+
+        // Attach to request (backward compatible)
+        req.user = authenticatedEntity.user;
+        req.payload = authenticatedEntity.payload;
+        req.authMethod = authMethod;
+        req.portalType = authenticatedEntity.portalType;
+      } else if (authMethod === AuthMethod.API_KEY) {
+        // ✅ API Key authentication - super simple validation only
+        const isValid = await authenticateWithApiKey(apiKey!);
+
+        if (!isValid) {
+          return sendResponse(res, 401, "Invalid or missing API Key");
+        }
+
+        // ✅ Only set authMethod, nothing else needed
+        req.authMethod = authMethod;
+        // No user, no payload, no portalType - just proceed
+      }
+
+      next();
+    } catch (error: any) {
+      console.error("Authentication error:", error);
+      return sendResponse(
+        res,
+        500,
+        error?.message?.toString() || "Internal server error"
+      );
+    }
+  };
+};
+
+/**
+ * 🔐 Authenticate with JWT
+ * Uses your existing JWT_SECRET and automatically detects portal by checking sessions
+ */
+async function authenticateWithJWT(
+  token: string,
+  allowedRoles: string[]
+): Promise<any | null> {
+  try {
+    // Decode token with your existing JWT_SECRET
+    const decodedToken = jwt.verify(token, JWT_SECRET!) as JwtPayload;
+
+    // ✅ If token has portalType, use it to check the correct table directly
+    if (decodedToken.portalType) {
+      if (decodedToken.portalType === PortalType.ADMIN) {
+        const adminUser = await prisma.adminUsers.findUnique({
+          where: { id: decodedToken.id },
+          include: {
+            admin_user_roles: {
+              include: {
+                role: true,
+              },
+            },
+          },
+        });
+
+        if (adminUser) {
+          return await validateAdminUser(adminUser, allowedRoles);
+        }
+      } else if (decodedToken.portalType === PortalType.PARTNER) {
+        const partnerUser = await prisma.b2BPartnersUsers.findUnique({
+          where: { id: decodedToken.id },
+          include: {
+            roles: {
+              include: {
+                role: true,
+              },
+            },
+            b2b_partner: true,
+          },
+        });
+
+        if (partnerUser) {
+          return await validatePartnerUser(partnerUser, allowedRoles);
+        }
+      }
+    }
+
+    // ✅ Fallback for old tokens without portalType (backward compatibility)
+    // Try to determine by email lookup in both tables
+    console.warn(
+      "Token without portalType detected, using fallback email lookup"
+    );
+
+    // Try admin first
+    const adminUser = await prisma.adminUsers.findFirst({
+      where: {
+        id: decodedToken.id,
+        email: decodedToken.email, // ✅ Also check email to ensure correct user
+      },
+      include: {
+        admin_user_roles: {
+          include: {
+            role: true,
+          },
+        },
+      },
+    });
+
+    if (adminUser) {
+      return await validateAdminUser(adminUser, allowedRoles);
+    }
+
+    // Try partner
+    const partnerUser = await prisma.b2BPartnersUsers.findFirst({
+      where: {
+        id: decodedToken.id,
+        email: decodedToken.email, // ✅ Also check email to ensure correct user
+      },
+      include: {
+        roles: {
+          include: {
+            role: true,
+          },
+        },
+        b2b_partner: true,
+      },
+    });
+
+    if (partnerUser) {
+      return await validatePartnerUser(partnerUser, allowedRoles);
+    }
+
+    // User not found in either table
+    console.error("User not found in admin or partner tables");
+    return null;
+  } catch (error) {
+    console.error("JWT authentication error:", error);
+    return null;
+  }
+}
+
+/**
+ * 🔐 Validate Admin User
+ */
+async function validateAdminUser(
+  adminUser: any,
+  allowedRoles: string[]
+): Promise<any | null> {
+  try {
+    if (!adminUser.is_active) {
+      throw new Error(
+        "Your account has been disabled, please contact system administrator"
+      );
+    }
+
+    // Check session validity (your existing logic)
+    const session = await prisma.adminSessions.findFirst({
+      where: {
+        user_id: adminUser.id,
+        is_valid: true,
+      },
+      orderBy: {
+        created_at: "desc",
+      },
+    });
+
+    if (!session) {
+      throw new Error("Invalid admin user session");
+    }
+
+    // Check session expiration
+    if (session.expires_at && new Date() > session.expires_at) {
+      throw new Error("Admin session expired");
+    }
+
+    // Extract roles
+    const roles = adminUser.admin_user_roles.map((ur: any) => ur.role.role);
+
+    // Check allowed roles
+    if (allowedRoles.length > 0) {
+      const hasAccess = roles.some((role: string) =>
+        allowedRoles.includes(role)
+      );
+      if (!hasAccess) {
+        throw new Error("Access Denied");
+      }
+    }
+
+    return {
+      portalType: PortalType.ADMIN,
+      user: {
+        id: adminUser.id,
+        email: adminUser.email,
+        fullName: adminUser.full_name,
+        roles: roles,
+        isActive: adminUser.is_active,
+      },
+      payload: {
+        // For backward compatibility with your existing code
+        id: adminUser.id,
+        email: adminUser.email,
+        passwordHash: adminUser.password_hash,
+        roles: roles,
+      },
+    };
+  } catch (error) {
+    console.error("Admin validation error:", error);
+    throw error;
+  }
+}
+
+/**
+ * 🔐 Validate Partner User
+ */
+async function validatePartnerUser(
+  partnerUser: any,
+  allowedRoles: string[]
+): Promise<any | null> {
+  try {
+    if (!partnerUser.is_active) {
+      throw new Error(
+        "Your account has been disabled, please contact system administrator"
+      );
+    }
+
+    if (!partnerUser.b2b_partner.is_active) {
+      throw new Error("Partner organization is disabled");
+    }
+
+    // Check session validity (your existing logic)
+    const session = await prisma.b2BPartnersSessions.findFirst({
+      where: {
+        user_id: partnerUser.id,
+        is_valid: true,
+      },
+      orderBy: {
+        created_at: "desc",
+      },
+    });
+
+    if (!session) {
+      throw new Error("Invalid user session");
+    }
+
+    // Check session expiration
+    if (session.expires_at && new Date() > session.expires_at) {
+      throw new Error("Partner session expired");
+    }
+
+    // Extract roles
+    const roles = partnerUser.roles.map((ur: any) => ur.role.role);
+
+    // Check allowed roles
+    if (allowedRoles.length > 0) {
+      const hasAccess = roles.some((role: string) =>
+        allowedRoles.includes(role)
+      );
+      if (!hasAccess) {
+        throw new Error("Access Denied");
+      }
+    }
+
+    return {
+      portalType: PortalType.PARTNER,
+      user: {
+        id: partnerUser.id,
+        email: partnerUser.email,
+        fullName: partnerUser.full_name,
+        roles: roles,
+        isActive: partnerUser.is_active,
+        partnerId: partnerUser.b2b_id,
+        partnerName: partnerUser.b2b_partner.partner_name,
+      },
+      payload: {
+        // For backward compatibility
+        id: partnerUser.id,
+        email: partnerUser.email,
+        passwordHash: partnerUser.password_hash,
+        roles: roles,
+      },
+    };
+  } catch (error) {
+    console.error("Partner validation error:", error);
+    throw error;
+  }
+}
+
+/**
+ * 🔐 Authenticate with API Key (ULTRA-SIMPLIFIED)
+ * Just validates the API key and returns true/false
+ * No payload, no user entity, no roles - just validation
+ */
+async function authenticateWithApiKey(apiKey: string): Promise<boolean> {
+  try {
+    // Simple validation against your existing API_KEY environment variable
+    if (!apiKey || apiKey !== API_KEY) {
+      console.error("Invalid or missing API Key");
+      return false;
+    }
+
+    // ✅ API key is valid - that's all we need to know
+    return true;
+  } catch (error) {
+    console.error("API key authentication error:", error);
+    return false;
+  }
+}

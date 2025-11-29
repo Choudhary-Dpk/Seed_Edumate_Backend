@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { validateApiKey, validateToken } from "../middlewares";
+import { authenticate, AuthMethod } from "../middlewares";
 import {
   createLoanProductController,
   deleteLoanProductController,
@@ -12,13 +12,39 @@ const router = Router();
 
 router.post(
   "/",
-  validateApiKey,
+  authenticate({
+    method: AuthMethod.API_KEY,
+  }),
   checkDuplicateLoanProductFields,
   createLoanProductController
 );
-router.put("/:id", validateApiKey, updateLoanProductController);
-router.delete("/:id", validateApiKey, deleteLoanProductController);
-router.get("/details/:id", validateApiKey, getLoanProductDetails);
-router.get("/pagination", validateApiKey, getLoanProductsListController);
+router.put(
+  "/:id",
+  authenticate({
+    method: AuthMethod.API_KEY,
+  }),
+  updateLoanProductController
+);
+router.delete(
+  "/:id",
+  authenticate({
+    method: AuthMethod.API_KEY,
+  }),
+  deleteLoanProductController
+);
+router.get(
+  "/details/:id",
+  authenticate({
+    method: AuthMethod.API_KEY,
+  }),
+  getLoanProductDetails
+);
+router.get(
+  "/pagination",
+  authenticate({
+    method: AuthMethod.API_KEY,
+  }),
+  getLoanProductsListController
+);
 
 export { router as loanProuductRoutes };

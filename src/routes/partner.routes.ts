@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getPartnersList } from "../controllers/hubspot.controller";
-import { validateApiKey } from "../middlewares";
+import { authenticate, AuthMethod, validateApiKey } from "../middlewares";
 import {
   createB2bPartner,
   deletePartner,
@@ -20,32 +20,46 @@ const router = Router();
 router.get("/list", getPartnersList);
 router.post(
   "/",
-  validateApiKey,
+  authenticate({
+    method: AuthMethod.API_KEY,
+  }),
   checkDuplicateB2BPartnerFields,
   createB2bPartner
 );
 router.put(
   "/:id",
-  validateApiKey,
+  authenticate({
+    method: AuthMethod.API_KEY,
+  }),
   validateId(),
   validateReqParams,
   updateB2bPartner
 );
 router.delete(
   "/:id",
-  validateApiKey,
+  authenticate({
+    method: AuthMethod.API_KEY,
+  }),
   validateId(),
   validateReqParams,
   deletePartner
 );
 router.get(
   "/details/:id",
-  validateApiKey,
+  authenticate({
+    method: AuthMethod.API_KEY,
+  }),
   validateId(),
   validateReqParams,
   getB2bPartnerDetails
 );
-router.get("/pagination", validateApiKey, getB2bPartnersList);
+router.get(
+  "/pagination",
+  authenticate({
+    method: AuthMethod.API_KEY,
+  }),
+  getB2bPartnersList
+);
 router.get("/filter", getLeadsByPartnerFieldsController);
 
 export { router as partnerRoutes };

@@ -1,6 +1,17 @@
 import { Router } from "express";
-import { validateAdminToken } from "../../middlewares";
-import { getLenderListController, getLoanProductsByLenderController, createLenderController, updateLenderController, getLendersListController, deleteLendersController, getLenderDetailsController } from "../../controllers/lender.controller";
+import {
+  authenticate,
+  AuthMethod,
+} from "../../middlewares";
+import {
+  getLenderListController,
+  getLoanProductsByLenderController,
+  createLenderController,
+  updateLenderController,
+  getLendersListController,
+  deleteLendersController,
+  getLenderDetailsController,
+} from "../../controllers/lender.controller";
 import { checkDuplicateLenderFields } from "../../middlewares/lender.middleware";
 const router = Router();
 
@@ -8,28 +19,43 @@ router.get("/list", getLenderListController);
 router.get("/filter", getLoanProductsByLenderController);
 router.post(
   "/",
-  validateAdminToken(["Admin"]),
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin"],
+  }),
   checkDuplicateLenderFields,
   createLenderController
 );
 router.put(
   "/:id",
-  validateAdminToken(["Admin"]),
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin"],
+  }),
   updateLenderController
 );
 router.get(
   "/pagination",
-  validateAdminToken(["Admin"]),
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin"],
+  }),
   getLendersListController
 );
 router.delete(
   "/:id",
-  validateAdminToken(["Admin"]),
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin"],
+  }),
   deleteLendersController
 );
 router.get(
   "/details/:id",
-  validateAdminToken(["Admin"]),
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin"],
+  }),
   getLenderDetailsController
 );
 
