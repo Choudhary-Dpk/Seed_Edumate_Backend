@@ -123,12 +123,9 @@ export const getInstitutionCosts = async (
     // Validate study_level
     const validStudyLevels = [
       "undergraduate",
-      "postgraduate",
-      "masters",
-      "doctorate",
+      "graduate_mba",
+      "graduate_masters",
       "phd",
-      "diploma",
-      "certificate",
     ];
     if (!validStudyLevels.includes(study_level.toLowerCase())) {
       res.status(400).json({
