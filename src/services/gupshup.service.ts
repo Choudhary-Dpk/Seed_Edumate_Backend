@@ -2,6 +2,8 @@
 import * as hubspotClient from "./hubspotClient.service";
 import { logger } from "../utils/logger";
 import { createHubSpotError } from '../middlewares/errorHandler';
+import axios from "axios";
+// import { Axios } from "axios";
 
 interface AssignmentSyncParams {
   agentId: string;
@@ -17,6 +19,20 @@ interface SyncResult {
   hubspotOwnerId?: string;
   synced: boolean;
   reason: string;
+}
+
+interface SendOtpParams {
+  countryCode: string;
+  number: string;
+  otpCode: string;
+}
+
+
+
+interface GupshupApiResponse {
+  status: string;
+  messageId?: string;
+  message?: string;
 }
 
 export const syncContactOwnerFromAssignment = async (params: AssignmentSyncParams): Promise<SyncResult> => {
@@ -178,6 +194,72 @@ export const updateContactOwner = async (contactId: string, ownerId: string): Pr
       error instanceof Error ? error.message : 'Unknown error',
       error,
       'updateContactOwner'
+    );
+  }
+};
+
+const GUPSHUP_API_URL = "https://api.gupshup.io/wa/api/v1/template/msg";
+const GUPSHUP_API_KEY = process.env.GUPSHUP_API_KEY || "cfxj8kviljfdr4ublzquogjfuylnwgla";
+const GUPSHUP_SOURCE_NUMBER = process.env.GUPSHUP_SOURCE_NUMBER || "918591624998";
+const GUPSHUP_APP_NAME = process.env.GUPSHUP_APP_NAME || "8eKKVmsu7tTb30lEyUPqeolg";
+
+export const sendOtp = async ({
+  countryCode,
+  number,
+  otpCode,
+}: SendOtpParams): Promise<GupshupApiResponse> => {
+  const destinationPhone = `${countryCode}${number}`;
+
+  logger.info("Calling Gupshup OTP template API", {
+    destination: destinationPhone,
+  });
+
+  const template = JSON.stringify({
+    id: "c6236ed4-f801-4b59-9642-999fadead06b",
+    params: [otpCode],
+  });
+
+  const formData = new URLSearchParams({
+    channel: "whatsapp",  // This is required!
+    source: GUPSHUP_SOURCE_NUMBER,
+    destination: destinationPhone,
+    "src.name": GUPSHUP_APP_NAME,
+    template: template,
+  });
+
+  try {
+    const response = await axios.post<GupshupApiResponse>(
+      GUPSHUP_API_URL,
+      formData.toString(),
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Cache-Control": "no-cache",
+          apikey: GUPSHUP_API_KEY,
+        },
+      }
+    );
+
+    logger.info("Gupshup OTP API response", {
+      status: response.status,
+      messageId: response.data.messageId,
+    });
+
+    return {
+      status: "success",
+      messageId: response.data.messageId,
+    };
+  } catch (error) {
+    const axiosError: any = error;
+
+    logger.error("Gupshup OTP API error", {
+      error: axiosError.message,
+      response: axiosError.response?.data,
+      destination: destinationPhone,
+    });
+
+    throw new Error(
+      `Failed to send OTP: ${axiosError.response?.data?.message || axiosError.message}`
     );
   }
 };

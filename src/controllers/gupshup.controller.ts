@@ -44,3 +44,36 @@ export const processAssignmentWebhook = asyncHandler(
     res.json(response);
   }
 );
+
+export const sendOtp = asyncHandler(async (req: Request, res: Response) => {
+  const { country_code, number, otp_code } = req.body;
+
+  if (!country_code || !number || !otp_code) {
+    res.status(400).json({
+      success: false,
+      message: "country_code, number, and otp_code are required",
+    });
+    return;
+  }
+
+  logger.info("Sending WhatsApp OTP", {
+    destination: `${country_code}${number}`,
+  });
+
+  const result = await gupshupService.sendOtp({
+    countryCode: country_code,
+    number,
+    otpCode: otp_code,
+  });
+
+  const response: ApiResponse = {
+    success: true,
+    data: result,
+    message: "OTP sent successfully via WhatsApp",
+    meta: {
+      operation: `whatsapp_otp_to_${country_code}${number}`,
+    },
+  };
+
+  res.json(response);
+});
