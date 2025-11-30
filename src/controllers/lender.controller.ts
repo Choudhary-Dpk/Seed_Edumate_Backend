@@ -324,12 +324,28 @@ export const getLendersListController = async (
     const sortKey = (req.query.sortKey as string) || null;
     const sortDir = (req.query.sortDir as "asc" | "desc") || null;
     const search = (req.query.search as string) || null;
-    const filterByUser = req.query.filterByUser === "true";
+    console.log("req.query", req.query);
+
+    // Extract filters from query params
+    const filtersFromQuery =
+      (req.query.filters as {
+        lender_name?: string;
+        lender_type?: string;
+        lender_category?: string;
+      }) || {};
+
+    const filters = {
+      lender_name: filtersFromQuery.lender_name || null,
+      lender_type: filtersFromQuery.lender_type || null,
+      lender_category: filtersFromQuery.lender_category || null,
+    };
+    console.log("filters", filters);
 
     const offset = (page - 1) * size;
 
     logger.debug(
-      `Fetching lenders list with page: ${page}, size: ${size}, sortKey: ${sortKey}, sortDir: ${sortDir}, search: ${search}`
+      `Fetching lenders list with page: ${page}, size: ${size}, sortKey: ${sortKey}, sortDir: ${sortDir}, search: ${search}, filters:`,
+      filters
     );
     const { rows, count } = await fetchLendersList(
       size,
@@ -337,6 +353,7 @@ export const getLendersListController = async (
       sortKey,
       sortDir,
       search,
+      filters
     );
     logger.debug(`Lenders list fetched successfully. Count: ${count}`);
 
