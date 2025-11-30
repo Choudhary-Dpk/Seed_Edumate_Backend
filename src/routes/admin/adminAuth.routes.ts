@@ -1,5 +1,11 @@
 import { Router } from "express";
-import { getAccessToken } from "../../controllers/common/auth.controller";
+import {
+  forgotPassword,
+  getAccessToken,
+  login,
+  resetPassword,
+  setPassword,
+} from "../../controllers/common/auth.controller";
 import {
   validatePassword,
   getUserIpDetails,
@@ -7,8 +13,11 @@ import {
   validateAdminEmail,
   validateAdminRefreshToken,
   validateAdminEmailToken,
-  validateAdminToken,
   validateCreateAdminUser,
+  validateEmail,
+  validateEmailToken,
+  authenticate,
+  AuthMethod,
 } from "../../middlewares";
 import {
   validateReqParams,
@@ -27,6 +36,7 @@ import {
   setAdminPassword,
 } from "../../controllers/admin/common/auth.controller";
 import { createAdminController } from "../../controllers/admin/user.controller";
+import { changePassword } from "../../controllers/user.controller";
 
 const router = Router();
 
@@ -35,42 +45,59 @@ router.post(
   "/login",
   loginValidationRules(),
   validateReqParams,
-  validateAdminEmail,
+  validateEmail,
   validatePassword,
   // getUserIpDetails,
-  adminLoginController
+  login
 );
 router.post(
   "/forgot-password",
   forgotPasswordValidationRules(),
   validateReqParams,
-  validateAdminEmail,
-  forgotAdminPassword
+  validateEmail,
+  forgotPassword
 );
 router.post(
   "/reset-password",
   passwordValidationRules(),
   validateReqParams,
-  validateAdminEmailToken,
-  resetAdminPassword
+  validateEmailToken,
+  resetPassword
 );
 router.post(
   "/set-password",
   passwordValidationRules(),
   validateReqParams,
-  validateAdminEmailToken,
-  setAdminPassword
+  validateEmailToken,
+  setPassword
 );
 router.put(
   "/change-password",
-  validateAdminToken(["Admin"]),
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin"],
+  }),
   changePasswordValidationRules(),
   validateReqParams,
   validateChangePassword,
-  changeAdminPassword
+  changePassword
 );
-router.post("/logout", validateAdminToken(["Admin"]), logoutAdmin);
-router.get("/profile", validateAdminToken(["Admin"]), getAdminProfile);
+router.post(
+  "/logout",
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin"],
+  }),
+  logoutAdmin
+);
+router.get(
+  "/profile",
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin"],
+  }),
+  getAdminProfile
+);
 router.post("/token", validateAdminRefreshToken, getAccessToken);
 
 export { router as adminAuthRoutes };

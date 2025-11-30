@@ -392,43 +392,63 @@ export const fetchLendersList = async (
   offset: number,
   sortKey: string | null,
   sortDir: "asc" | "desc" | null,
-  search: string | null
+  search: string | null,
+  filters: {
+    lender_name: string | null;
+    lender_type: string | null;
+    lender_category: string | null;
+  }
 ) => {
   const where: Prisma.HSLendersWhereInput = {
     is_active: true,
-    OR: search
-      ? [
-          { lender_display_name: { contains: search, mode: "insensitive" } },
-          { lender_name: { contains: search, mode: "insensitive" } },
-          { website_url: { contains: search, mode: "insensitive" } },
-          { hs_object_id: { contains: search, mode: "insensitive" } },
-          {
-            contact_info: {
-              OR: [
-                {
-                  primary_contact_person: {
-                    contains: search,
-                    mode: "insensitive",
-                  },
-                },
-                {
-                  primary_contact_email: {
-                    contains: search,
-                    mode: "insensitive",
-                  },
-                },
-                {
-                  relationship_manager_name: {
-                    contains: search,
-                    mode: "insensitive",
-                  },
-                },
-              ],
-            },
-          },
-        ]
-      : undefined,
   };
+
+  // Add search filter
+  if (search) {
+    where.OR = [
+      { lender_display_name: { contains: search, mode: "insensitive" } },
+      { lender_name: { contains: search, mode: "insensitive" } },
+      { website_url: { contains: search, mode: "insensitive" } },
+      { hs_object_id: { contains: search, mode: "insensitive" } },
+      {
+        contact_info: {
+          OR: [
+            {
+              primary_contact_person: {
+                contains: search,
+                mode: "insensitive",
+              },
+            },
+            {
+              primary_contact_email: {
+                contains: search,
+                mode: "insensitive",
+              },
+            },
+            {
+              relationship_manager_name: {
+                contains: search,
+                mode: "insensitive",
+              },
+            },
+          ],
+        },
+      },
+    ];
+  }
+
+  // Apply filters
+  if (filters.lender_name) {
+    where.lender_name = filters.lender_name;
+  }
+
+  if (filters.lender_type) {
+    where.lender_type = filters.lender_type;
+  }
+
+  if (filters.lender_category) {
+    where.lender_category = filters.lender_category;
+  }
 
   let orderBy: any = { created_at: "desc" };
   if (sortKey) {
@@ -490,6 +510,7 @@ export const fetchLendersList = async (
         business_metrics: true,
         operational_details: true,
         partnership: true,
+        loan_offerings: true,
         lender_system_tracking: true,
       },
     }),

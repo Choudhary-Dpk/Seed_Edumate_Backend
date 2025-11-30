@@ -1,5 +1,9 @@
 import { Router } from "express";
-import { validateAdminToken, validateApiKey } from "../../middlewares";
+import {
+  authenticate,
+  AuthMethod,
+  validateApiKey,
+} from "../../middlewares";
 import {
   loanApplicationPaginationValidationRules,
   validateReqParams,
@@ -17,37 +21,57 @@ const router = Router();
 
 router.post(
   "/",
-  validateAdminToken(["Admin"]),
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin"],
+  }),
   createLoanApplicationsController
 );
 router.put(
   "/:id",
-  validateAdminToken(["Admin"]),
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin"],
+  }),
   updateLoanApplicationController
 );
 router.put(
   "/edit/:id",
-  validateApiKey,
+  authenticate({
+    method: AuthMethod.API_KEY,
+  }),
   updateLoanApplicationController
 );
 router.delete(
   "/:id",
-  validateAdminToken(["Admin"]),
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin"],
+  }),
   deleteLoanApplicationController
 );
 router.get(
   "/details/:id",
-  validateAdminToken(["Admin"]),
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin"],
+  }),
   getLoanApplicationDetailsController
 );
 router.get(
   "/pagination",
-  validateAdminToken(["Admin"]),
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin"],
+  }),
   getLoanApplicationsListController
 );
 router.get(
   "/list",
-  validateAdminToken(["Admin"]),
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin"],
+  }),
   loanApplicationPaginationValidationRules(),
   validateReqParams,
   getLoanApplicationsList

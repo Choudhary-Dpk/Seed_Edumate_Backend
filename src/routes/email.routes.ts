@@ -6,14 +6,16 @@ import {
 import {
   validatePasswordReset,
 } from "../middlewares/validators/validator";
-import { validateApiKey } from "../middlewares";
+import { authenticate, AuthMethod, validateApiKey } from "../middlewares";
 
 const router = Router();
 
 // Routes
 router.post(
   "/loan-eligibility-info",
-  validateApiKey,
+  authenticate({
+    method: AuthMethod.API_KEY,
+  }),
   sendLoanEligibilityResult
 );
 router.post("/password-reset", validatePasswordReset, sendPasswordReset);

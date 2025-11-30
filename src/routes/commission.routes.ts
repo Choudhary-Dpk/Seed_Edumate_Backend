@@ -1,5 +1,9 @@
 import { Router } from "express";
-import { validateApiKey, validateToken } from "../middlewares";
+import {
+  authenticate,
+  AuthMethod,
+  validateApiKey,
+} from "../middlewares";
 import {
   createCommissionSettlementController,
   deleteCommissionSettlementController,
@@ -21,16 +25,38 @@ const router = Router();
 
 router.post(
   "/",
-  validateApiKey,
+  authenticate({
+    method: AuthMethod.API_KEY,
+  }),
   checkDuplicateCommissionSettlementFields,
   createCommissionSettlementController
 );
-router.put("/:id", validateApiKey, updateCommissionSettlementController);
-router.delete("/:id", validateApiKey, deleteCommissionSettlementController);
-router.get("/details/:id", validateApiKey, getCommissionSettlementDetails);
+router.put(
+  "/:id",
+  authenticate({
+    method: AuthMethod.API_KEY,
+  }),
+  updateCommissionSettlementController
+);
+router.delete(
+  "/:id",
+  authenticate({
+    method: AuthMethod.API_KEY,
+  }),
+  deleteCommissionSettlementController
+);
+router.get(
+  "/details/:id",
+  authenticate({
+    method: AuthMethod.API_KEY,
+  }),
+  getCommissionSettlementDetails
+);
 router.get(
   "/pagination",
-  // validateApiKey,
+  authenticate({
+    method: AuthMethod.API_KEY,
+  }),
   getCommissionSettlementsListController
 );
 router.get("/lead", getCommissionSettlementsByLead);

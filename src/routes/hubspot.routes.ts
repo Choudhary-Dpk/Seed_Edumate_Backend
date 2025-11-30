@@ -1,8 +1,8 @@
 // src/routes/hubspotRoutes.ts
-import { Router } from 'express';
-import * as hubspotController from '../controllers/hubspot.controller';
-import { 
-  validateQuery, 
+import { Router } from "express";
+import * as hubspotController from "../controllers/hubspot.controller";
+import {
+  validateQuery,
   validateParams,
   validateBody,
   idParamSchema,
@@ -11,9 +11,9 @@ import {
   admissionStatusQuerySchema,
   studyDestinationQuerySchema,
   updateEdumateContactSchema,
-} from '../middlewares/validation';
+} from "../middlewares/validation";
 import { validateEdumateContact } from "../middlewares/validators/contact.validator";
-import { validateApiKey } from "../middlewares";
+import { authenticate, AuthMethod, validateApiKey } from "../middlewares";
 
 const router = Router();
 
@@ -37,34 +37,43 @@ router.put(
 );
 router.post(
   "/edumate-contacts/upsert",
-  validateApiKey,
+  authenticate({
+    method: AuthMethod.API_KEY,
+  }),
   validateEdumateContact,
   hubspotController.upsertEdumateContact
 );
-router.delete('/edumate-contacts/:id', 
-  validateParams(idParamSchema), 
+router.delete(
+  "/edumate-contacts/:id",
+  validateParams(idParamSchema),
   hubspotController.deleteEdumateContact
 );
-router.post('/edumate-contacts/batch/create',
+router.post(
+  "/edumate-contacts/batch/create",
   hubspotController.batchCreateEdumateContacts
 );
-router.put('/edumate-contacts/batch/update',
+router.put(
+  "/edumate-contacts/batch/update",
   hubspotController.batchUpdateEdumateContacts
 );
-router.get('/edumate-contacts/search/email', 
-  validateQuery(emailQuerySchema), 
+router.get(
+  "/edumate-contacts/search/email",
+  validateQuery(emailQuerySchema),
   hubspotController.searchEdumateContactsByEmail
 );
-router.get('/edumate-contacts/search/phone', 
-  validateQuery(phoneQuerySchema), 
+router.get(
+  "/edumate-contacts/search/phone",
+  validateQuery(phoneQuerySchema),
   hubspotController.searchEdumateContactsByPhone
 );
-router.get('/edumate-contacts/search/admission-status', 
-  validateQuery(admissionStatusQuerySchema), 
+router.get(
+  "/edumate-contacts/search/admission-status",
+  validateQuery(admissionStatusQuerySchema),
   hubspotController.searchEdumateContactsByAdmissionStatus
 );
-router.get('/edumate-contacts/search/study-destination', 
-  validateQuery(studyDestinationQuerySchema), 
+router.get(
+  "/edumate-contacts/search/study-destination",
+  validateQuery(studyDestinationQuerySchema),
   hubspotController.searchEdumateContactsByStudyDestination
 );
 

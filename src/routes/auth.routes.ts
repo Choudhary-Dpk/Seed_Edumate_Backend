@@ -1,13 +1,22 @@
 import { Router } from "express";
-import { changePasswordValidationRules, createUserValidationRules, forgotPasswordValidationRules, loginValidationRules, passwordValidationRules, validateReqParams } from "../middlewares/validators/validator";
 import {
+  changePasswordValidationRules,
+  createUserValidationRules,
+  forgotPasswordValidationRules,
+  loginValidationRules,
+  passwordValidationRules,
+  validateReqParams,
+} from "../middlewares/validators/validator";
+import {
+  authenticate,
+  AuthMethod,
+  PortalType,
   validateChangePassword,
   validateCreateUser,
   validateEmail,
   validateEmailToken,
   validatePassword,
   validateRefreshToken,
-  validateToken,
 } from "../middlewares";
 import { changePassword, createUser } from "../controllers/user.controller";
 import {
@@ -71,11 +80,21 @@ router.put(
   "/change-password",
   changePasswordValidationRules(),
   validateReqParams,
-  validateToken(["Admin", "Manager", "User"]),
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin", "Manager", "User"],
+  }),
   validateChangePassword,
   changePassword
 );
-router.post("/logout", validateToken(["Admin", "Manager", "User"]), logout);
+router.post(
+  "/logout",
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin", "Manager", "User"],
+  }),
+  logout
+);
 router.post("/token", validateRefreshToken, getAccessToken);
 
 export default router;

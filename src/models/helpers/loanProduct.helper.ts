@@ -491,19 +491,49 @@ export const fetchLoanProductsList = async (
   offset: number,
   sortKey: string | null,
   sortDir: "asc" | "desc" | null,
-  search: string | null
+  search: string | null,
+  filters: {
+    lender_name: string | null;
+    product_type: string | null;
+    product_category: string | null;
+    product_status: string | null;
+    partner_name: string | null;
+  }
 ) => {
   const where: Prisma.HSLoanProductsWhereInput = {
     is_active: true,
-    OR: search
-      ? [
-          { lender_name: { contains: search, mode: "insensitive" } },
-          { partner_name: { contains: search, mode: "insensitive" } },
-          { product_display_name: { contains: search, mode: "insensitive" } },
-          { product_description: { contains: search, mode: "insensitive" } },
-        ]
-      : undefined,
   };
+
+  // Add search filter
+  if (search) {
+    where.OR = [
+      { lender_name: { contains: search, mode: "insensitive" } },
+      { partner_name: { contains: search, mode: "insensitive" } },
+      { product_display_name: { contains: search, mode: "insensitive" } },
+      { product_description: { contains: search, mode: "insensitive" } },
+    ];
+  }
+
+  // Apply filters
+  if (filters.lender_name) {
+    where.lender_name = filters.lender_name;
+  }
+
+  if (filters.product_type) {
+    where.product_type = filters.product_type;
+  }
+
+  if (filters.product_category) {
+    where.product_category = filters.product_category;
+  }
+
+  if (filters.product_status) {
+    where.product_status = filters.product_status;
+  }
+
+  if (filters.partner_name) {
+    where.partner_name = filters.partner_name;
+  }
 
   let orderBy: any = { created_at: "desc" };
   if (sortKey) {
@@ -519,6 +549,9 @@ export const fetchLoanProductsList = async (
         break;
       case "product_status":
         orderBy = { product_status: sortDir || "asc" };
+        break;
+      case "partner_name":
+        orderBy = { partner_name: sortDir || "asc" };
         break;
       case "created_at":
         orderBy = { created_at: sortDir || "desc" };
