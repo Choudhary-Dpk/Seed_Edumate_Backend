@@ -7,6 +7,40 @@ export interface LoanEligibilityResult {
   loan_amount_currency: string;
 }
 
+// Types for extract-costs API
+export interface ExtractCostsRequest {
+  institution_name: string;
+  study_level: string;
+}
+
+export interface ExtractCostsResponse {
+  institution_name?: string;
+  study_level?: string;
+  tuition_fee?: number | string;
+  living_expenses?: number | string;
+  currency?: string;
+  [key: string]: any; // Allow for additional fields from the API
+}
+
+// Types for extract-program API
+export interface ExtractProgramRequest {
+  institution_name: string;
+  program_name: string;
+}
+
+export interface ExtractProgramResponse {
+  institution_name?: string;
+  program_name?: string;
+  duration?: string;
+  degree_type?: string;
+  requirements?: string[];
+  curriculum?: string[];
+  [key: string]: any; // Allow for additional fields from the API
+}
+
+const EXTRACT_COSTS_API_URL =
+  process.env.EXTRACT_COSTS_API_URL || "http://43.205.69.172:8086";
+
 export const findLoanEligibility = async (
   data: LoanEligibilityRequest
 ): Promise<LoanEligibilityResult | null> => {
@@ -82,5 +116,118 @@ export const convertCurrency = async (
       error,
     });
     return null;
+  }
+};
+
+/**
+ * Extract institution costs from external API
+ * Calls the AI-powered cost extraction service
+ */
+export const extractInstitutionCosts = async (
+  data: ExtractCostsRequest
+): Promise<ExtractCostsResponse> => {
+  try {
+    const { institution_name, study_level } = data;
+
+    logger.info("Calling extract-costs API", {
+      institution_name,
+      study_level,
+    });
+
+    const response = await fetch(`${EXTRACT_COSTS_API_URL}/extract-costs/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        institution_name,
+        study_level,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      logger.error("Extract costs API error", {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorText,
+      });
+      throw new Error(
+        `Extract costs API returned ${response.status}: ${response.statusText}`
+      );
+    }
+
+    // response.json() is typed as unknown under strict settings, assert to our expected type
+    const result = (await response.json()) as ExtractCostsResponse;
+
+    logger.info("Extract costs API response received", {
+      institution_name,
+      study_level,
+      hasResult: !!result,
+    });
+
+    return result?.data || {};
+  } catch (error) {
+    logger.error("Error extracting institution costs", {
+      error: error instanceof Error ? error.message : error,
+    });
+    throw error;
+  }
+};
+
+/**
+ * Extract program details from external API
+ * Calls the AI-powered program extraction service
+ */
+export const extractProgramDetails = async (
+  data: ExtractProgramRequest
+): Promise<ExtractProgramResponse> => {
+  try {
+    const { institution_name, program_name } = data;
+
+    logger.info("Calling extract-program API", {
+      institution_name,
+      program_name,
+    });
+
+    const response = await fetch(`${EXTRACT_COSTS_API_URL}/extract-program/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        institution_name,
+        program_name,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      logger.error("Extract program API error", {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorText,
+      });
+      throw new Error(
+        `Extract program API returned ${response.status}: ${response.statusText}`
+      );
+    }
+
+    const result = await response.json() as ExtractProgramResponse;
+
+    logger.info("Extract program API response received", {
+      institution_name,
+      program_name,
+      hasResult: !!result,
+    });
+
+    return result?.data || {};
+  } catch (error) {
+    logger.error("Error extracting program details", {
+      error: error instanceof Error ? error.message : error,
+    });
+    throw error;
   }
 };
