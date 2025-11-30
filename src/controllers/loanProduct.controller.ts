@@ -371,17 +371,37 @@ export const getLoanProductsListController = async (
     const sortDir = (req.query.sortDir as "asc" | "desc") || null;
     const search = (req.query.search as string) || null;
 
+    // Extract filters from query params
+    const filtersFromQuery =
+      (req.query.filters as {
+        lender_name?: string;
+        product_type?: string;
+        product_category?: string;
+        product_status?: string;
+        partner_name?: string;
+      }) || {};
+
+    const filters = {
+      lender_name: filtersFromQuery.lender_name || null,
+      product_type: filtersFromQuery.product_type || null,
+      product_category: filtersFromQuery.product_category || null,
+      product_status: filtersFromQuery.product_status || null,
+      partner_name: filtersFromQuery.partner_name || null,
+    };
+
     const offset = (page - 1) * size;
 
     logger.debug(
-      `Fetching loan products list with page: ${page}, size: ${size}, sortKey: ${sortKey}, sortDir: ${sortDir}, search: ${search}`
+      `Fetching loan products list with page: ${page}, size: ${size}, sortKey: ${sortKey}, sortDir: ${sortDir}, search: ${search}, filters:`,
+      filters
     );
     const { rows, count } = await fetchLoanProductsList(
       size,
       offset,
       sortKey,
       sortDir,
-      search
+      search,
+      filters
     );
     logger.debug(`Loan products list fetched successfully. Count: ${count}`);
 
