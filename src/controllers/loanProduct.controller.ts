@@ -359,6 +359,120 @@ export const getLoanProductDetails = async (
   }
 };
 
+// export const getLoanProductsListController = async (
+//   req: RequestWithPayload<LoginPayload>,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   try {
+//     const size = parseInt(req.query.size as string) || 10;
+//     const page = parseInt(req.query.page as string) || 1;
+//     const sortKey = (req.query.sortKey as string) || null;
+//     const sortDir = (req.query.sortDir as "asc" | "desc") || null;
+//     const search = (req.query.search as string) || null;
+
+//     // Extract filters from query params
+//     const filtersFromQuery =
+//       (req.query.filters as {
+//         lender_name?: string;
+//         product_type?: string;
+//         product_category?: string;
+//         product_status?: string;
+//         partner_name?: string;
+//       }) || {};
+
+//     const filters = {
+//       lender_name: filtersFromQuery.lender_name || null,
+//       product_type: filtersFromQuery.product_type || null,
+//       product_category: filtersFromQuery.product_category || null,
+//       product_status: filtersFromQuery.product_status || null,
+//       partner_name: filtersFromQuery.partner_name || null,
+//     };
+
+//     const offset = (page - 1) * size;
+
+//     logger.debug(
+//       `Fetching loan products list with page: ${page}, size: ${size}, sortKey: ${sortKey}, sortDir: ${sortDir}, search: ${search}, filters:`,
+//       filters
+//     );
+//     const { rows, count } = await fetchLoanProductsList(
+//       size,
+//       offset,
+//       sortKey,
+//       sortDir,
+//       search,
+//       filters
+//     );
+//     logger.debug(`Loan products list fetched successfully. Count: ${count}`);
+
+//     sendResponse(res, 200, "Loan products list fetched successfully", {
+//       data: rows,
+//       total: count,
+//       page,
+//       size,
+//     });
+//   } catch (error) {
+//     logger.error(`Error fetching loan products list: ${error}`);
+//     next(error);
+//   }
+// };
+
+
+interface LoanProductFilters {
+  // Existing filters
+  lender_name?: string | null;
+  product_type?: string | null;
+  product_category?: string | null;
+  product_status?: string | null;
+  partner_name?: string | null;
+
+  // Financial filters
+  interest_rate_min?: number | null;
+  interest_rate_max?: number | null;
+  loan_amount_min?: number | null;
+  loan_amount_max?: number | null;
+  processing_fee_max?: number | null;
+
+  // Eligibility filters
+  study_level?: string | null;
+  target_segment?: string | null;
+  minimum_age?: number | null;
+  maximum_age?: number | null;
+  nationality_restrictions?: string | null;
+
+  // Geographic filters
+  supported_course_types?: string | null;
+  restricted_countries?: string | null;
+  course_duration_min?: number | null;
+  course_duration_max?: number | null;
+
+  // Intake period filters
+  intake_month?: string | null;
+  intake_year?: number | null;
+
+  // Application filters
+  school_name?: string | null;
+  program_name?: string | null;
+
+  // Additional financial filters
+  total_tuition_fee?: number | null;
+  cost_of_living?: number | null;
+
+  // Collateral filters
+  collateral_required?: string | null;
+  guarantor_required?: string | null;
+
+  // Repayment filters
+  repayment_period_min?: number | null;
+  repayment_period_max?: number | null;
+  moratorium_available?: boolean | null;
+
+  // Special features
+  tax_benefits_available?: string | null;
+  digital_features?: string | null;
+}
+
+
 export const getLoanProductsListController = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
@@ -371,30 +485,100 @@ export const getLoanProductsListController = async (
     const sortDir = (req.query.sortDir as "asc" | "desc") || null;
     const search = (req.query.search as string) || null;
 
-    // Extract filters from query params
-    const filtersFromQuery =
-      (req.query.filters as {
-        lender_name?: string;
-        product_type?: string;
-        product_category?: string;
-        product_status?: string;
-        partner_name?: string;
-      }) || {};
+    // Extract filters from query params with type conversion
+    const filtersFromQuery = req.query.filters as any || {};
 
-    const filters = {
+    const filters: LoanProductFilters = {
+      // Existing filters
       lender_name: filtersFromQuery.lender_name || null,
       product_type: filtersFromQuery.product_type || null,
       product_category: filtersFromQuery.product_category || null,
       product_status: filtersFromQuery.product_status || null,
       partner_name: filtersFromQuery.partner_name || null,
+
+      // Financial filters
+      interest_rate_min: filtersFromQuery.interest_rate_min
+        ? parseFloat(filtersFromQuery.interest_rate_min)
+        : null,
+      interest_rate_max: filtersFromQuery.interest_rate_max
+        ? parseFloat(filtersFromQuery.interest_rate_max)
+        : null,
+      loan_amount_min: filtersFromQuery.loan_amount_min
+        ? parseFloat(filtersFromQuery.loan_amount_min)
+        : null,
+      loan_amount_max: filtersFromQuery.loan_amount_max
+        ? parseFloat(filtersFromQuery.loan_amount_max)
+        : null,
+      processing_fee_max: filtersFromQuery.processing_fee_max
+        ? parseFloat(filtersFromQuery.processing_fee_max)
+        : null,
+
+      // Eligibility filters
+      study_level: filtersFromQuery.study_level || null,
+      target_segment: filtersFromQuery.target_segment || null,
+      minimum_age: filtersFromQuery.minimum_age
+        ? parseInt(filtersFromQuery.minimum_age)
+        : null,
+      maximum_age: filtersFromQuery.maximum_age
+        ? parseInt(filtersFromQuery.maximum_age)
+        : null,
+      nationality_restrictions: filtersFromQuery.nationality_restrictions || null,
+
+      // Geographic filters
+      supported_course_types: filtersFromQuery.supported_course_types || null,
+      restricted_countries: filtersFromQuery.restricted_countries || null,
+      course_duration_min: filtersFromQuery.course_duration_min
+        ? parseInt(filtersFromQuery.course_duration_min)
+        : null,
+      course_duration_max: filtersFromQuery.course_duration_max
+        ? parseInt(filtersFromQuery.course_duration_max)
+        : null,
+
+      // Intake period
+      intake_month: filtersFromQuery.intake_month || null,
+      intake_year: filtersFromQuery.intake_year
+        ? parseInt(filtersFromQuery.intake_year)
+        : null,
+
+      // Application filters
+      school_name: filtersFromQuery.school_name || null,
+      program_name: filtersFromQuery.program_name || null,
+
+      // Additional financial
+      total_tuition_fee: filtersFromQuery.total_tuition_fee
+        ? parseFloat(filtersFromQuery.total_tuition_fee)
+        : null,
+      cost_of_living: filtersFromQuery.cost_of_living
+        ? parseFloat(filtersFromQuery.cost_of_living)
+        : null,
+
+      // Collateral filters
+      collateral_required: filtersFromQuery.collateral_required || null,
+      guarantor_required: filtersFromQuery.guarantor_required || null,
+
+      // Repayment filters
+      repayment_period_min: filtersFromQuery.repayment_period_min
+        ? parseInt(filtersFromQuery.repayment_period_min)
+        : null,
+      repayment_period_max: filtersFromQuery.repayment_period_max
+        ? parseInt(filtersFromQuery.repayment_period_max)
+        : null,
+      moratorium_available: filtersFromQuery.moratorium_available
+        ? filtersFromQuery.moratorium_available === "true"
+        : null,
+
+      // Special features
+      tax_benefits_available: filtersFromQuery.tax_benefits_available || null,
+      digital_features: filtersFromQuery.digital_features || null,
     };
 
     const offset = (page - 1) * size;
 
-    logger.debug(
+    console.log(
       `Fetching loan products list with page: ${page}, size: ${size}, sortKey: ${sortKey}, sortDir: ${sortDir}, search: ${search}, filters:`,
       filters
     );
+
     const { rows, count } = await fetchLoanProductsList(
       size,
       offset,
@@ -403,16 +587,22 @@ export const getLoanProductsListController = async (
       search,
       filters
     );
-    logger.debug(`Loan products list fetched successfully. Count: ${count}`);
 
-    sendResponse(res, 200, "Loan products list fetched successfully", {
-      data: rows,
-      total: count,
-      page,
-      size,
+    console.log(`Loan products list fetched successfully. Count: ${count}`);
+
+    res.status(200).json({
+      success: true,
+      message: "Loan products list fetched successfully",
+      data: {
+        data: rows,
+        total: count,
+        page,
+        size,
+        totalPages: Math.ceil(count / size),
+      },
     });
   } catch (error) {
-    logger.error(`Error fetching loan products list: ${error}`);
+    console.error(`Error fetching loan products list: ${error}`);
     next(error);
   }
 };
