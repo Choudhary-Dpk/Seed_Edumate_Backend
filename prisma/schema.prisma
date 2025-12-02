@@ -94,6 +94,55 @@ model AdminTokens {
   @@map("admin_tokens")
 }
 
+model ContactUsers {
+  id                       Int                   @id @default(autoincrement())
+  contact_id               Int?
+  email                    String                @unique
+  password_hash            String?
+  full_name                String?
+  phone                    String?
+  is_active                Boolean               @default(true)
+  favourite  Int[]                 @default([]) 
+  interested Int[]                 @default([])
+  source                   String?               @default("webportal")
+  created_at               DateTime              @default(now())
+  updated_at               DateTime              @default(now()) @updatedAt
+  
+  // Relations
+  contact                  HSEdumateContacts?    @relation("ContactUser", fields: [contact_id], references: [id], onDelete: Cascade)
+  contact_sessions         ContactSessions[]     @relation("ContactSessions")
+  contact_tokens           ContactTokens[]       @relation("ContactTokens")
+  contact_login_history    LoginHistory[] @relation("ContactLoginHistory")
+
+  @@map("contact_users")
+}
+
+model ContactSessions {
+  id                 Int          @id @default(autoincrement())
+  user_id            Int
+  refresh_token_hash String?
+  device_info        String?
+  ip_address         String?
+  is_valid           Boolean      @default(true)
+  created_at         DateTime     @default(now())
+  expires_at         DateTime
+  contact_user       ContactUsers @relation("ContactSessions", fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("contact_sessions")
+}
+
+model ContactTokens {
+  id           Int          @id @default(autoincrement())
+  user_id      Int
+  token        String
+  token_type   String?
+  created_at   DateTime     @default(now())
+  expires_at   DateTime?
+  contact_user ContactUsers @relation("ContactTokens", fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("contact_tokens")
+}
+
 model LoanEligibilityMatrix {
   id                      Int      @id @default(autoincrement())
   country_of_study        String?  @db.VarChar(255)
@@ -166,6 +215,7 @@ model LoginHistory {
   id            Int               @id @default(autoincrement())
   b2b_user_id   Int?              @map("b2b_user_id")
   admin_user_id Int?              @map("admin_user_id")
+  student_id    Int?              @map("student_id")
   user_type     String?           @map("user_type")
   ip_address    String?           @map("ip_address") @db.Inet
   device_info   String?           @map("device_info")
@@ -173,6 +223,7 @@ model LoginHistory {
   created_at    DateTime          @default(now()) @map("created_at")
   admin_user    AdminUsers?       @relation("AdminLoginHistory", fields: [admin_user_id], references: [id], onDelete: Cascade)
   b2b_user      B2BPartnersUsers? @relation("LoginHistory", fields: [b2b_user_id], references: [id], onDelete: Cascade)
+  student_user  ContactUsers?     @relation("ContactLoginHistory", fields: [student_id], references: [id], onDelete: Cascade)
 
   @@map("login_history")
 }
@@ -927,6 +978,7 @@ model HSEdumateContacts {
   invoice                      Invoice[]
   eligibility_lead             MktEligibilityCheckerLeads?
   emi_lead                     MktEmiCalculatorLeads?
+  student                      ContactUsers[] @relation("ContactUser")
 
   @@index([hs_object_id])
   @@index([seed_contact])
