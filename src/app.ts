@@ -19,6 +19,7 @@ import { commissionRoutes } from "./routes/commission.routes";
 import { lenderRoutes } from "./routes/lender.routes";
 import { adminRoutes } from "./routes/admin/index.routes";
 import { startWorkers } from "./workers";
+import { studentRoutes } from "./routes/student.routes";
 const PORT = process.env.PORT || 3031;
 
 app.use(setAuditContext);
@@ -39,6 +40,7 @@ app.use("/loanProduct", loanProuductRoutes);
 app.use("/commission", commissionRoutes);
 app.use("/lenders", lenderRoutes);
 app.use("/admin", adminRoutes);
+app.use("/student", studentRoutes);
 
 // Root route
 app.get("/", (req, res) => {
