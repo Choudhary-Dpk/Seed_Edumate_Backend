@@ -7,5 +7,8 @@ const router = Router();
 router.post('/assignment-webhook', 
   gupshupController.processAssignmentWebhook
 );
+router.post('/send-otp', 
+  gupshupController.sendOtp
+);
 
 export { router as gupshupRoutes };

@@ -11,7 +11,14 @@ import {
   RepaymentScheduleRequest,
 } from "../types/loan-schedule.types";
 import { validateLoanEligibility } from "../middlewares/validators/loan.validator";
-import { convertCurrency, findLoanEligibility } from "../services/loan.service";
+import {
+  convertCurrency,
+  extractInstitutionCosts,
+  extractProgramDetails,
+  ExtractCostsRequest,
+  ExtractProgramRequest,
+  findLoanEligibility,
+} from "../services/loan.service";
 import { sendResponse } from "../utils/api";
 import { generateRequestIdFromPayload } from "../utils/helper";
 
@@ -88,6 +95,178 @@ export const getConvertedCurrency = async (req: Request, res: Response) => {
   } catch (err) {
     console.error(err);
     return sendResponse(res, 500, "Currency conversion failed");
+  }
+};
+
+/**
+ * Get institution costs (tuition, living expenses, etc.)
+ * Calls external AI-powered extraction API
+ */
+export const getInstitutionCosts = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const payload: ExtractCostsRequest = req?.body || {};
+
+    const { institution_name, study_level } = payload;
+
+    // Validation
+    if (!institution_name || !study_level) {
+      res.status(400).json({
+        success: false,
+        message: "Missing required fields: institution_name, study_level",
+      });
+      return;
+    }
+
+    // Validate study_level
+    const validStudyLevels = [
+      "undergraduate",
+      "graduate_mba",
+      "graduate_masters",
+      "phd",
+    ];
+    if (!validStudyLevels.includes(study_level.toLowerCase())) {
+      res.status(400).json({
+        success: false,
+        message: `Invalid study_level. Must be one of: ${validStudyLevels.join(", ")}`,
+      });
+      return;
+    }
+
+    console.log("Extracting institution costs for:", {
+      institution_name,
+      study_level,
+    });
+
+    // Call the external API
+    const result = await extractInstitutionCosts({
+      institution_name,
+      study_level: study_level.toLowerCase(),
+    });
+
+    // Return successful result
+    sendResponse(res, 200, "Institution costs extracted successfully", result);
+  } catch (error) {
+    console.error("Error in getInstitutionCosts:", error);
+
+    // Handle specific error types
+    if (error instanceof Error) {
+      if (error.message.includes("API returned")) {
+        res.status(502).json({
+          success: false,
+          message: "External API error",
+          error: error.message,
+        });
+        return;
+      }
+
+      if (
+        error.message.includes("fetch") ||
+        error.message.includes("network")
+      ) {
+        res.status(503).json({
+          success: false,
+          message: "External service unavailable",
+          error: error.message,
+        });
+        return;
+      }
+    }
+
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error instanceof Error ? error.message : "Unknown error occurred",
+    });
+  }
+};
+
+/**
+ * Get program details (duration, requirements, curriculum, etc.)
+ * Calls external AI-powered extraction API
+ */
+export const getInstitutionProgram = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const payload: ExtractProgramRequest = req?.body || {};
+
+    const { institution_name, program_name } = payload;
+
+    // Validation
+    if (!institution_name || !program_name) {
+      res.status(400).json({
+        success: false,
+        message: "Missing required fields: institution_name, program_name",
+      });
+      return;
+    }
+
+    // Validate minimum length for meaningful queries
+    if (institution_name.trim().length < 3) {
+      res.status(400).json({
+        success: false,
+        message: "institution_name must be at least 3 characters",
+      });
+      return;
+    }
+
+    if (program_name.trim().length < 3) {
+      res.status(400).json({
+        success: false,
+        message: "program_name must be at least 3 characters",
+      });
+      return;
+    }
+
+    console.log("Extracting program details for:", {
+      institution_name,
+      program_name,
+    });
+
+    // Call the external API
+    const result = await extractProgramDetails({
+      institution_name: institution_name.trim(),
+      program_name: program_name.trim(),
+    });
+
+    // Return successful result
+    sendResponse(res, 200, "Program details extracted successfully", result);
+  } catch (error) {
+    console.error("Error in getInstitutionProgram:", error);
+
+    // Handle specific error types
+    if (error instanceof Error) {
+      if (error.message.includes("API returned")) {
+        res.status(502).json({
+          success: false,
+          message: "External API error",
+          error: error.message,
+        });
+        return;
+      }
+
+      if (
+        error.message.includes("fetch") ||
+        error.message.includes("network")
+      ) {
+        res.status(503).json({
+          success: false,
+          message: "External service unavailable",
+          error: error.message,
+        });
+        return;
+      }
+    }
+
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error instanceof Error ? error.message : "Unknown error occurred",
+    });
   }
 };
 
