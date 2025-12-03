@@ -49,10 +49,10 @@ export const studentSignupController = async (
     const categorized = categorizeByTable(mappedFields);
 
     let existingContactDb = null;
-    if (email) {
-      existingContactDb = await getEdumateContactByEmail(email);
-    } else if(phoneNumber) {
+    if (phoneNumber) {
       existingContactDb = await getEdumateContactByPhone(phoneNumber);
+    } else if (email) {
+      existingContactDb = await getEdumateContactByEmail(email);
     }
 
     let result;
@@ -70,33 +70,36 @@ export const studentSignupController = async (
         ...(categorized["leadAttribution"] || {}),
       };
 
-      result = await prisma.$transaction(async (tx: any) => {
-        const contact = await updateEdumateContact(
-          tx,
-          leadId,
-          categorized["mainContact"]
-        );
+      result = await prisma.$transaction(
+        async (tx: any) => {
+          const contact = await updateEdumateContact(
+            tx,
+            leadId,
+            categorized["mainContact"]
+          );
 
-        await updateEdumatePersonalInformation(
-          tx,
-          contact.id,
-          categorized["personalInformation"]
-        );
+          await updateEdumatePersonalInformation(
+            tx,
+            contact.id,
+            categorized["personalInformation"]
+          );
 
-        await updateEdumateAcademicProfile(
-          tx,
-          contact.id,
-          categorized["academicProfile"]
-        );
+          await updateEdumateAcademicProfile(
+            tx,
+            contact.id,
+            categorized["academicProfile"]
+          );
 
-        await updateEdumateLeadAttribution(
-          tx,
-          contact.id,
-          categorized["leadAttribution"]
-        );
+          await updateEdumateLeadAttribution(
+            tx,
+            contact.id,
+            categorized["leadAttribution"]
+          );
 
-        return contact;
-      },{ timeout: 180000});
+          return contact;
+        },
+        { timeout: 180000 }
+      );
     }
 
     // -----------------------------
