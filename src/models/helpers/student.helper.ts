@@ -7,7 +7,7 @@ export const createStudentUser = async (
   fullName?: string
 ) => {
   const existing = await prisma.contactUsers.findUnique({
-    where: { email },
+    where: { phone },
   });
 
   if (existing) return existing;

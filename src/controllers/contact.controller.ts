@@ -27,6 +27,7 @@ import {
   updateEdumateContactLoanPreference,
   updateEdumateContactFinancialInfo,
   updateEdumateContactSystemTracking,
+  getEdumateContactByPhone,
 } from "../models/helpers/contact.helper";
 import { resolveLeadsCsvPath } from "../utils/leads";
 import { FileData } from "../types/leads.types";
@@ -185,7 +186,7 @@ export const upsertContactsLead = async (
 ) => {
   try {
     // const { id } = req.payload!;
-    const { email, formType } = req.body;
+    const { email, formType, phoneNumber } = req.body;
     let data: any = {};
     let leadAttribution: any;
 
@@ -198,7 +199,13 @@ export const upsertContactsLead = async (
     const categorized = categorizeByTable(mappedFields);
     console.log("categorized", categorized);
 
-    const existingContactDb = await getEdumateContactByEmail(email);
+    let existingContactDb = null;
+    if (email) {
+      existingContactDb = await getEdumateContactByEmail(email);
+    } else if(phoneNumber) {
+      existingContactDb = await getEdumateContactByPhone(phoneNumber);
+    }
+
     let result;
     if (existingContactDb?.id) {
       const leadId = existingContactDb?.id;
@@ -215,7 +222,7 @@ export const upsertContactsLead = async (
         logger.debug(
           `Updating personal information for contact: ${contact.id}`
         );
-        await updateEdumatePersonalInformation(
+        const personalInfo = await updateEdumatePersonalInformation(
           tx,
           contact.id,
           categorized["personalInformation"]
@@ -225,7 +232,7 @@ export const upsertContactsLead = async (
         );
 
         logger.debug(`Updating academic profile for contact: ${contact.id}`);
-        await updateEdumateAcademicProfile(
+        const academicsProfile = await updateEdumateAcademicProfile(
           tx,
           contact.id,
           categorized["academicProfile"]
@@ -235,7 +242,7 @@ export const upsertContactsLead = async (
         );
 
         logger.debug(`Updating lead attribution for contact: ${contact.id}`);
-        await updateEdumateLeadAttribution(
+        const leadAttribution = await updateEdumateLeadAttribution(
           tx,
           contact.id,
           categorized["leadAttribution"]
@@ -244,8 +251,24 @@ export const upsertContactsLead = async (
           `Lead attribution updated successfully for contact: ${contact.id}`
         );
 
+        // populate response data similarly to creation flow
+        data = {
+          contact: {
+            ...contact,
+          },
+          personalInfo: {
+            ...personalInfo,
+          },
+          academicsProfile: {
+            ...academicsProfile,
+          },
+          leadAttribution: {
+            ...leadAttribution,
+          },
+        };
+
         return contact;
-      });
+      },{ timeout: 180000, });
     } else {
       result = await prisma.$transaction(
         async (tx: any) => {

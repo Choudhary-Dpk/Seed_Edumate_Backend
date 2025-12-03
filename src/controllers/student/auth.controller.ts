@@ -16,6 +16,7 @@ import {
   updateEdumateContactApplicationJourney,
   updateEdumateContactLoanPreference,
   updateEdumateContactFinancialInfo,
+  getEdumateContactByPhone,
 } from "../../models/helpers/contact.helper";
 import { handleLeadCreation } from "../../services/DBServices/loan.services";
 import { sendResponse } from "../../utils/api";
@@ -39,7 +40,7 @@ export const studentSignupController = async (
   next: NextFunction
 ) => {
   try {
-    const { email, formType, phone, full_name } = req.body;
+    const { email, formType, phoneNumber, full_name } = req.body;
     let data: any = {};
     let leadAttribution: any;
 
@@ -47,8 +48,12 @@ export const studentSignupController = async (
     const mappedFields = await mapAllFields(req.body);
     const categorized = categorizeByTable(mappedFields);
 
-    // 2. Check existing edumate contact
-    const existingContactDb = await getEdumateContactByEmail(email);
+    let existingContactDb = null;
+    if (email) {
+      existingContactDb = await getEdumateContactByEmail(email);
+    } else if(phoneNumber) {
+      existingContactDb = await getEdumateContactByPhone(phoneNumber);
+    }
 
     let result;
 
@@ -91,7 +96,7 @@ export const studentSignupController = async (
         );
 
         return contact;
-      });
+      },{ timeout: 180000});
     }
 
     // -----------------------------
@@ -144,7 +149,7 @@ export const studentSignupController = async (
     const studentUser = await createStudentUser(
       result.id,
       email,
-      phone,
+      phoneNumber,
       full_name
     );
 
@@ -172,15 +177,15 @@ export const studentSigninController = async (
   next: NextFunction
 ) => {
   try {
-    const { phone_number } = req.body;
+    const { phoneNumber } = req.body;
 
     // Validate phone number
-    if (!phone_number) {
+    if (!phoneNumber) {
       return sendResponse(res, 400, "Phone number is required");
     }
 
     // Get student and contact data using helper
-    const data = await findStudentByPhoneNumber(phone_number);
+    const data = await findStudentByPhoneNumber(phoneNumber);
 
     return sendResponse(res, 200, "Student logged in successfully", data);
   } catch (error: any) {
