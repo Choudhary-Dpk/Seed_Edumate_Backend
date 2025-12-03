@@ -49,10 +49,10 @@ export const studentSignupController = async (
     const categorized = categorizeByTable(mappedFields);
 
     let existingContactDb = null;
-    if (email) {
-      existingContactDb = await getEdumateContactByEmail(email);
-    } else if(phoneNumber) {
+    if (phoneNumber) {
       existingContactDb = await getEdumateContactByPhone(phoneNumber);
+    } else if (email) {
+      existingContactDb = await getEdumateContactByEmail(email);
     }
 
     let result;
@@ -70,33 +70,36 @@ export const studentSignupController = async (
         ...(categorized["leadAttribution"] || {}),
       };
 
-      result = await prisma.$transaction(async (tx: any) => {
-        const contact = await updateEdumateContact(
-          tx,
-          leadId,
-          categorized["mainContact"]
-        );
+      result = await prisma.$transaction(
+        async (tx: any) => {
+          const contact = await updateEdumateContact(
+            tx,
+            leadId,
+            categorized["mainContact"]
+          );
 
-        await updateEdumatePersonalInformation(
-          tx,
-          contact.id,
-          categorized["personalInformation"]
-        );
+          await updateEdumatePersonalInformation(
+            tx,
+            contact.id,
+            categorized["personalInformation"]
+          );
 
-        await updateEdumateAcademicProfile(
-          tx,
-          contact.id,
-          categorized["academicProfile"]
-        );
+          await updateEdumateAcademicProfile(
+            tx,
+            contact.id,
+            categorized["academicProfile"]
+          );
 
-        await updateEdumateLeadAttribution(
-          tx,
-          contact.id,
-          categorized["leadAttribution"]
-        );
+          await updateEdumateLeadAttribution(
+            tx,
+            contact.id,
+            categorized["leadAttribution"]
+          );
 
-        return contact;
-      },{ timeout: 180000});
+          return contact;
+        },
+        { timeout: 180000 }
+      );
     }
 
     // -----------------------------
@@ -229,19 +232,19 @@ export const updateStudentController = async (
   next: NextFunction
 ) => {
   try {
-    const { id } = req.params;
+    const { studentId } = req.body;
     const updateData = req.body;
 
     // Validate student_id
-    if (!id) {
+    if (!studentId) {
       return sendResponse(res, 400, "Student ID is required");
     }
 
     // Convert student_id to number
-    const studentId = parseInt(id, 10);
+    const studentIdNumber = parseInt(studentId, 10);
 
     // Check if student_id is a valid number
-    if (isNaN(studentId)) {
+    if (isNaN(studentIdNumber)) {
       return sendResponse(res, 400, "Invalid student ID format");
     }
 
@@ -330,6 +333,26 @@ export const updateStudentController = async (
           : updateData.interested;
     }
 
+    if (!categorized.mainContact) {
+      categorized.mainContact = {};
+    }
+
+    // Add favourite to mainContact for HSEdumateContacts update
+    if (updateData.favourite !== undefined) {
+      (categorized.mainContact as any).favourite =
+        validationResults.favourite.valid.length > 0
+          ? validationResults.favourite.valid
+          : updateData.favourite;
+    }
+
+    // Add interested to mainContact for HSEdumateContacts update
+    if (updateData.interested !== undefined) {
+      (categorized.mainContact as any).interested =
+        validationResults.interested.valid.length > 0
+          ? validationResults.interested.valid
+          : updateData.interested;
+    }
+
     // Use transaction for atomic updates
     await prisma.$transaction(async (tx) => {
       // Update ContactUsers table (email, full_name, phone, favourite, interested)
@@ -338,6 +361,7 @@ export const updateStudentController = async (
       }
 
       // Update edumate contact tables using categorized data
+      // NOTE: This will now include favourite and interested fields
       if (
         categorized.mainContact &&
         Object.keys(categorized.mainContact).length > 0
