@@ -97,7 +97,7 @@ model AdminTokens {
 model ContactUsers {
   id                       Int                   @id @default(autoincrement())
   contact_id               Int?
-  email                    String                @unique
+  email                    String?                @unique
   password_hash            String?
   full_name                String?
   phone                    String?               @unique
