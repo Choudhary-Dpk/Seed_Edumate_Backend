@@ -232,19 +232,19 @@ export const updateStudentController = async (
   next: NextFunction
 ) => {
   try {
-    const { id } = req.params;
+    const { studentId } = req.body;
     const updateData = req.body;
 
     // Validate student_id
-    if (!id) {
+    if (!studentId) {
       return sendResponse(res, 400, "Student ID is required");
     }
 
     // Convert student_id to number
-    const studentId = parseInt(id, 10);
+    const studentIdNumber = parseInt(studentId, 10);
 
     // Check if student_id is a valid number
-    if (isNaN(studentId)) {
+    if (isNaN(studentIdNumber)) {
       return sendResponse(res, 400, "Invalid student ID format");
     }
 

@@ -6,12 +6,37 @@ export const createStudentUser = async (
   phone?: string,
   fullName?: string
 ) => {
-  const existing = await prisma.contactUsers.findUnique({
-    where: { phone },
-  });
+  // Try to find existing user by phone or email
+  let existing = null;
 
-  if (existing) return existing;
+  if (phone) {
+    existing = await prisma.contactUsers.findUnique({
+      where: { phone },
+    });
+  }
 
+  // If not found by phone, try by email
+  if (!existing && email) {
+    existing = await prisma.contactUsers.findUnique({
+      where: { email },
+    });
+  }
+
+  // If user exists, update their information
+  if (existing) {
+    return await prisma.contactUsers.update({
+      where: { id: existing.id },
+      data: {
+        email: email, // Update email
+        phone: phone, // Update phone
+        full_name: fullName, // Update full name
+        contact_id: contactId, // Update contact_id
+        // Don't overwrite favourite and interested arrays
+      },
+    });
+  }
+
+  // If user doesn't exist, create new user
   return await prisma.contactUsers.create({
     data: {
       email,
@@ -76,6 +101,8 @@ export const findStudentByPhoneNumber = async (phone_number: string) => {
       source: true,
       created_at: true,
       updated_at: true,
+      favourite: true,
+      interested: true,
       personal_information: {
         select: {
           first_name: true,
@@ -174,6 +201,8 @@ export const getStudentProfileById = async (student_id: number) => {
       source: true,
       created_at: true,
       updated_at: true,
+      favourite: true,
+      interested: true,
       personal_information: {
         select: {
           first_name: true,
@@ -366,6 +395,8 @@ export const getUpdatedStudentProfile = async (
       source: true,
       created_at: true,
       updated_at: true,
+      favourite: true,
+      interested: true,
       personal_information: {
         select: {
           first_name: true,
