@@ -330,6 +330,26 @@ export const updateStudentController = async (
           : updateData.interested;
     }
 
+    if (!categorized.mainContact) {
+      categorized.mainContact = {};
+    }
+
+    // Add favourite to mainContact for HSEdumateContacts update
+    if (updateData.favourite !== undefined) {
+      (categorized.mainContact as any).favourite =
+        validationResults.favourite.valid.length > 0
+          ? validationResults.favourite.valid
+          : updateData.favourite;
+    }
+
+    // Add interested to mainContact for HSEdumateContacts update
+    if (updateData.interested !== undefined) {
+      (categorized.mainContact as any).interested =
+        validationResults.interested.valid.length > 0
+          ? validationResults.interested.valid
+          : updateData.interested;
+    }
+
     // Use transaction for atomic updates
     await prisma.$transaction(async (tx) => {
       // Update ContactUsers table (email, full_name, phone, favourite, interested)
@@ -338,6 +358,7 @@ export const updateStudentController = async (
       }
 
       // Update edumate contact tables using categorized data
+      // NOTE: This will now include favourite and interested fields
       if (
         categorized.mainContact &&
         Object.keys(categorized.mainContact).length > 0

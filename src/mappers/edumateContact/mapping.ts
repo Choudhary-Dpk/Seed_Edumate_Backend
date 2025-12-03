@@ -204,13 +204,32 @@ export const mapAllFields = async (
       : input?.coApplicantAnnualIncome;
 
   // ===== MAIN CONTACT FIELDS =====
+
+  if (input.favourite !== undefined) {
+    mapped.favourite = Array.isArray(input.favourite)
+      ? input.favourite.filter(
+          (id: any) => typeof id === "number" && !isNaN(id)
+        )
+      : [];
+  }
+
+  if (input.interested !== undefined) {
+    mapped.interested = Array.isArray(input.interested)
+      ? input.interested.filter(
+          (id: any) => typeof id === "number" && !isNaN(id)
+        )
+      : [];
+  }
+
   if (input.source !== undefined)
     mapped.source =
       input.source !== null && input.source !== "" ? input.source : null;
 
   if (input.hs_b2b_partner_id !== undefined)
     mapped.hs_b2b_partner_id =
-      input.hs_b2b_partner_id !== null && input.hs_b2b_partner_id !== "" ? input.hs_b2b_partner_id : null;
+      input.hs_b2b_partner_id !== null && input.hs_b2b_partner_id !== ""
+        ? input.hs_b2b_partner_id
+        : null;
 
   if (input.deletedById !== undefined || input.deleted_by_id !== undefined) {
     mapped.deleted_by_id = input.deletedById ?? input.deleted_by_id ?? null;
