@@ -10,7 +10,17 @@ export const createStudentUser = async (
     where: { phone },
   });
 
-  if (existing) return existing;
+  if (existing) {
+    return await prisma.contactUsers.update({
+      where: { phone },
+      data: {
+        email,
+        full_name: fullName,
+        contact_id: contactId,
+        source: "webportal",
+      },
+    });
+  } ;
 
   return await prisma.contactUsers.create({
     data: {
