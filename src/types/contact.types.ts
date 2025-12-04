@@ -26,6 +26,8 @@ import {
 
 export type ContactsLead = {
   // ===== MAIN CONTACT FIELDS =====
+  favourite?: number[] | [];
+  interested?: number[] | [];
   source?: string | null;
   hs_b2b_partner_id?: string | null;
   created_by_user?: string | null;
