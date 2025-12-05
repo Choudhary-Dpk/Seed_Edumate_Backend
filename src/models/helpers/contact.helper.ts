@@ -137,6 +137,7 @@ export const getEdumateContactByEmail = async (email: string) => {
           is_deleted: true,
         },
       },
+      academic_profile: true,
     },
     where: {
       personal_information: {
@@ -161,6 +162,7 @@ export const getEdumateContactByPhone = async (phone: string) => {
           is_deleted: true,
         },
       },
+      academic_profile: true,
     },
     where: {
       personal_information: {
