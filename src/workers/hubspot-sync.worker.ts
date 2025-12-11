@@ -26,7 +26,7 @@ export async function startHubSpotSyncWorker() {
   while (true) {
     try {
       await processOutboxEntries();
-      
+
       // Wait before next poll
       await sleep(POLL_INTERVAL);
     } catch (error) {
@@ -127,7 +127,11 @@ async function processSingleEntry(entry: any) {
     });
 
     // Update contact table with HubSpot ID
-    if (hubspotId && operation === "CREATE") {
+    if (
+      hubspotId &&
+      (operation === "CREATE" ||
+        (!entry.hs_object_id && operation === "UPDATE"))
+    ) {
       await prisma.hSEdumateContacts.update({
         where: { id: entry.entity_id },
         data: { hs_object_id: hubspotId },
@@ -160,7 +164,7 @@ async function processBatchEntries(entries: any[]) {
 
     // ✅ Fetch complete data for all contacts in batch
     const contactIds = entries.map((e) => e.entity_id);
-    
+
     const completeContactsData = await prisma.hSEdumateContacts.findMany({
       where: { id: { in: contactIds } },
       include: {
@@ -174,33 +178,36 @@ async function processBatchEntries(entries: any[]) {
       },
     });
 
-        // Fetch B2B Partner's hs_object_id if b2b_partner_id exists
-  let b2bPartnerHsObjectId: string | null = null;
-  
-  if (completeContactsData[0].b2b_partner_id) {
-    const b2b_partner_id = completeContactsData[0].b2b_partner_id;
-    const b2bPartner = await getPartnerById(b2b_partner_id);
+    // Fetch B2B Partner's hs_object_id if b2b_partner_id exists
+    let b2bPartnerHsObjectId: string | null = null;
 
-    if (b2bPartner?.hs_object_id) {
-      b2bPartnerHsObjectId = b2bPartner.hs_object_id;
-      logger.info("✅ Found B2B Partner for association", {
-        b2bPartnerId: b2b_partner_id,
-        hsObjectId: b2bPartnerHsObjectId
-      });
-    } else {
-      logger.warn("⚠️ B2B Partner found but no hs_object_id", {
-        b2bPartnerId: b2b_partner_id
-      });
+    if (completeContactsData[0].b2b_partner_id) {
+      const b2b_partner_id = completeContactsData[0].b2b_partner_id;
+      const b2bPartner = await getPartnerById(b2b_partner_id);
+
+      if (b2bPartner?.hs_object_id) {
+        b2bPartnerHsObjectId = b2bPartner.hs_object_id;
+        logger.info("✅ Found B2B Partner for association", {
+          b2bPartnerId: b2b_partner_id,
+          hsObjectId: b2bPartnerHsObjectId,
+        });
+      } else {
+        logger.warn("⚠️ B2B Partner found but no hs_object_id", {
+          b2bPartnerId: b2b_partner_id,
+        });
+      }
     }
-  }
 
     // Transform all to HubSpot format
-    const hubspotPayloads = completeContactsData.map((contact: any) => 
+    const hubspotPayloads = completeContactsData.map((contact: any) =>
       transformToHubSpotFormat(contact)
     );
 
     // Batch create in HubSpot
-    const hubspotResults = await createContactsLoanLeads(hubspotPayloads, b2bPartnerHsObjectId);
+    const hubspotResults = await createContactsLoanLeads(
+      hubspotPayloads,
+      b2bPartnerHsObjectId
+    );
 
     if (!hubspotResults || hubspotResults.length === 0) {
       throw new Error("HubSpot batch create returned empty results");
@@ -254,36 +261,38 @@ async function processBatchEntries(entries: any[]) {
 async function handleCreate(payload: any, entityId: number): Promise<string> {
   // Fetch complete contact data from all normalized tables
   const completeContactData = await fetchCompleteContactData(entityId);
-  
+
   if (!completeContactData) {
     throw new Error(`Contact not found: ${entityId}`);
   }
 
-    // Fetch B2B Partner's hs_object_id if b2b_partner_id exists
+  // Fetch B2B Partner's hs_object_id if b2b_partner_id exists
   let b2bPartnerHsObjectId: string | null = null;
-  
-  if (completeContactData.b2b_partner_id) {
 
+  if (completeContactData.b2b_partner_id) {
     const b2bPartner = await getPartnerById(completeContactData.b2b_partner_id);
 
     if (b2bPartner?.hs_object_id) {
       b2bPartnerHsObjectId = b2bPartner.hs_object_id;
       logger.info("✅ Found B2B Partner for association", {
         b2bPartnerId: completeContactData.b2b_partner_id,
-        hsObjectId: b2bPartnerHsObjectId
+        hsObjectId: b2bPartnerHsObjectId,
       });
     } else {
       logger.warn("⚠️ B2B Partner found but no hs_object_id", {
-        b2bPartnerId: completeContactData.b2b_partner_id
+        b2bPartnerId: completeContactData.b2b_partner_id,
       });
     }
   }
-  
+
   // Transform to HubSpot format with ALL fields
   const hubspotPayload = transformToHubSpotFormat(completeContactData);
-  
-  const hubspotResults = await createContactsLoanLeads([hubspotPayload], b2bPartnerHsObjectId);
-  
+
+  const hubspotResults = await createContactsLoanLeads(
+    [hubspotPayload],
+    b2bPartnerHsObjectId
+  );
+
   if (!hubspotResults || hubspotResults.length === 0) {
     throw new Error("HubSpot create returned empty result");
   }
@@ -294,29 +303,86 @@ async function handleCreate(payload: any, entityId: number): Promise<string> {
 /**
  * Handle UPDATE operation
  */
-async function handleUpdate(payload: any, entityId: number): Promise<string | undefined> {
+// async function handleUpdate(
+//   payload: any,
+//   entityId: number
+// ): Promise<string | undefined> {
+//   debugger;
+//   // Fetch existing HubSpot ID
+//   const contact = await prisma.hSEdumateContacts.findUnique({
+//     where: { id: entityId },
+//     select: { hs_object_id: true },
+//   });
+
+//   if (!contact?.hs_object_id) {
+//     throw new Error("HubSpot ID not found for update");
+//   }
+
+//   // Fetch complete latest contact data from all tables
+//   const completeContactData = await fetchCompleteContactData(entityId);
+
+//   if (!completeContactData) {
+//     throw new Error(`Contact not found: ${entityId}`);
+//   }
+
+//   // Transform to HubSpot format with ALL fields
+//   const hubspotPayload = transformToHubSpotFormat(completeContactData);
+
+//   await updateContactsLoanLead(contact.hs_object_id, hubspotPayload);
+//   return contact.hs_object_id;
+// }
+
+/**
+ * Handle UPDATE operation
+ * If hs_object_id doesn't exist, create instead of update
+ */
+async function handleUpdate(
+  payload: any,
+  entityId: number
+): Promise<string | undefined> {
   // Fetch existing HubSpot ID
   const contact = await prisma.hSEdumateContacts.findUnique({
     where: { id: entityId },
     select: { hs_object_id: true },
   });
 
+  // If no HubSpot ID exists, CREATE instead of UPDATE
   if (!contact?.hs_object_id) {
-    throw new Error("HubSpot ID not found for update");
+    logger.info(
+      `No HubSpot ID found for contact ${entityId}, creating new record instead of updating`
+    );
+    return await handleCreate(payload, entityId);
   }
+
+  // HubSpot ID exists, proceed with UPDATE
+  logger.info(
+    `Updating existing HubSpot contact ${contact.hs_object_id} for entity ${entityId}`
+  );
 
   // Fetch complete latest contact data from all tables
   const completeContactData = await fetchCompleteContactData(entityId);
-  
+
   if (!completeContactData) {
     throw new Error(`Contact not found: ${entityId}`);
   }
-  
+
   // Transform to HubSpot format with ALL fields
   const hubspotPayload = transformToHubSpotFormat(completeContactData);
 
-  await updateContactsLoanLead(contact.hs_object_id, hubspotPayload);
-  return contact.hs_object_id;
+  try {
+    await updateContactsLoanLead(contact.hs_object_id, hubspotPayload);
+    logger.info(`Successfully updated HubSpot contact ${contact.hs_object_id}`);
+    return contact.hs_object_id;
+  } catch (error: any) {
+    // If HubSpot says the contact doesn't exist (404), create it instead
+    if (error?.response?.status === 404) {
+      logger.warn(
+        `HubSpot contact ${contact.hs_object_id} not found (404), creating new record`
+      );
+      return await handleCreate(payload, entityId);
+    }
+    throw error;
+  }
 }
 
 /**
@@ -332,8 +398,9 @@ async function handleDelete(hs_object_id: string): Promise<void> {
  * Handle sync errors
  */
 async function handleSyncError(outboxId: string, error: any) {
-  const errorMessage = error?.response?.data?.message || error?.message || "Unknown error";
-  
+  const errorMessage =
+    error?.response?.data?.message || error?.message || "Unknown error";
+
   logger.error(`Sync error for outbox#${outboxId}:`, errorMessage);
 
   // Check if max retries reached
@@ -423,7 +490,10 @@ async function fetchCompleteContactData(contactId: number) {
 
     return contact;
   } catch (error) {
-    logger.error(`Failed to fetch complete contact data for ${contactId}:`, error);
+    logger.error(
+      `Failed to fetch complete contact data for ${contactId}:`,
+      error
+    );
     throw error;
   }
 }
@@ -444,64 +514,81 @@ function transformToHubSpotFormat(contact: any) {
     // ========================================
     // PERSONAL INFORMATION
     // ========================================
-    
+
     // Contact Details
     db_id: contact.id,
     email: personalInfo.email || null,
     first_name: personalInfo.first_name || null,
     last_name: personalInfo.last_name || null,
     phone_number: personalInfo.phone_number || null,
-    
+
     // Demographics
-    date_of_birth: personalInfo.date_of_birth 
-      ? new Date(personalInfo.date_of_birth).toISOString().split('T')[0] 
+    date_of_birth: personalInfo.date_of_birth
+      ? new Date(personalInfo.date_of_birth).toISOString().split("T")[0]
       : null,
-    gender: mapEnumValue('gender', personalInfo.gender),
+    gender: mapEnumValue("gender", personalInfo.gender),
     nationality: personalInfo.nationality || null,
-    
+
     // Current Address
     current_address: personalInfo.current_address || null,
     city__current_address_: personalInfo.city_current_address || null,
     state__current_address_: personalInfo.state_current_address || null,
     country__current_address_: personalInfo.country_current_address || null,
     pincode__current_address_: personalInfo.pincode_current_address || null,
-    
+
     // Permanent Address
     permanent_address: personalInfo.permanent_address || null,
     city__permanent_address_: personalInfo.city_permanent_address || null,
     state__permanent_address_: personalInfo.state_permanent_address || null,
     country__permanent_address_: personalInfo.country_permanent_address || null,
     pincode__permanent_address_: personalInfo.pincode_permanent_address || null,
-    
+
     // ========================================
     // ACADEMIC PROFILE
     // ========================================
-    
+
     // Current Education
-    current_education_level: mapEnumValue('current_education_level', academicProfile.current_education_level),
+    current_education_level: mapEnumValue(
+      "current_education_level",
+      academicProfile.current_education_level
+    ),
     current_institution: academicProfile.current_institution || null,
     current_course_major: academicProfile.current_course_major || null,
     current_cgpa_percentage: academicProfile.current_cgpa_percentage || null,
     current_graduation_year: academicProfile.current_graduation_year || null,
-    
+
     // Admission Status
-    admission_status: mapEnumValue('admission_status', academicProfile.admission_status),
-    
+    admission_status: mapEnumValue(
+      "admission_status",
+      academicProfile.admission_status
+    ),
+
     // Target Education
-    target_degree_level: mapEnumValue('target_degree_level', academicProfile.target_degree_level),
+    target_degree_level: mapEnumValue(
+      "target_degree_level",
+      academicProfile.target_degree_level
+    ),
     target_course_major: academicProfile.target_course_major || null,
-    preferred_study_destination: mapEnumValue('preferred_study_destination', academicProfile.preferred_study_destination),
+    preferred_study_destination: mapEnumValue(
+      "preferred_study_destination",
+      academicProfile.preferred_study_destination
+    ),
     target_universities: academicProfile.target_universities || null,
-    
+
     // Intake Details
-    intended_start_term: mapEnumValue('intended_start_term', academicProfile.intended_start_term),
-    intended_start_date: academicProfile.intended_start_date 
-      ? new Date(academicProfile.intended_start_date).toISOString().split('T')[0] 
+    intended_start_term: mapEnumValue(
+      "intended_start_term",
+      academicProfile.intended_start_term
+    ),
+    intended_start_date: academicProfile.intended_start_date
+      ? new Date(academicProfile.intended_start_date)
+          .toISOString()
+          .split("T")[0]
       : null,
     intake_month: academicProfile.intake_month || null,
     intake_year: academicProfile.intake_year || null,
     course_duration_months: academicProfile.course_duration_months || null,
-    
+
     // Test Scores
     cat_score: academicProfile.cat_score || null,
     gre_score: academicProfile.gre_score || null,
@@ -513,154 +600,199 @@ function transformToHubSpotFormat(contact: any) {
     nmat_score: academicProfile.nmat_score || null,
     xat_score: academicProfile.xat_score || null,
     other_test_scores: academicProfile.other_test_scores || null,
-    
+
     // ========================================
     // LEAD ATTRIBUTION
     // ========================================
-    
-    lead_source: mapEnumValue('lead_source', leadAttribution.lead_source),
+
+    lead_source: mapEnumValue("lead_source", leadAttribution.lead_source),
     lead_source_detail: leadAttribution.lead_source_detail || null,
     lead_quality_score: leadAttribution.lead_quality_score || null,
     lead_reference_code: leadAttribution.lead_reference_code || null,
-    
+
     // B2B Partner
     b2b_partner_id: leadAttribution.b2b_partner_id || null,
     b2b_partner_name: leadAttribution.b2b_partner_name || null,
-    partner_commission_applicable: leadAttribution.partner_commission_applicable || null,
-    
+    partner_commission_applicable:
+      leadAttribution.partner_commission_applicable || null,
+
     // Referral
     referral_person_name: leadAttribution.referral_person_name || null,
     referral_person_contact: leadAttribution.referral_person_contact || null,
-    
+
     // UTM Parameters
     utm_source: leadAttribution.utm_source || null,
     utm_medium: leadAttribution.utm_medium || null,
     utm_campaign: leadAttribution.utm_campaign || null,
     utm_term: leadAttribution.utm_term || null,
     utm_content: leadAttribution.utm_content || null,
-    
+
     // ========================================
     // FINANCIAL INFORMATION
     // ========================================
-    
+
     // General Financial
-    annual_family_income: financialInfo.annual_family_income 
-      ? parseFloat(financialInfo.annual_family_income) 
+    annual_family_income: financialInfo.annual_family_income
+      ? parseFloat(financialInfo.annual_family_income)
       : null,
-    currency: mapEnumValue('currency', financialInfo.currency),
-    
+    currency: mapEnumValue("currency", financialInfo.currency),
+
     // Education Costs
-    total_course_cost: financialInfo.total_course_cost 
-      ? parseFloat(financialInfo.total_course_cost) 
+    total_course_cost: financialInfo.total_course_cost
+      ? parseFloat(financialInfo.total_course_cost)
       : null,
-    tuition_fee: financialInfo.tuition_fee 
-      ? parseFloat(financialInfo.tuition_fee) 
+    tuition_fee: financialInfo.tuition_fee
+      ? parseFloat(financialInfo.tuition_fee)
       : null,
-    living_expenses: financialInfo.living_expenses 
-      ? parseFloat(financialInfo.living_expenses) 
+    living_expenses: financialInfo.living_expenses
+      ? parseFloat(financialInfo.living_expenses)
       : null,
-    other_expenses: financialInfo.other_expenses 
-      ? parseFloat(financialInfo.other_expenses) 
+    other_expenses: financialInfo.other_expenses
+      ? parseFloat(financialInfo.other_expenses)
       : null,
-    
+
     // Funding
-    loan_amount_required: financialInfo.loan_amount_required 
-      ? parseFloat(financialInfo.loan_amount_required) 
+    loan_amount_required: financialInfo.loan_amount_required
+      ? parseFloat(financialInfo.loan_amount_required)
       : null,
-    scholarship_amount: financialInfo.scholarship_amount 
-      ? parseFloat(financialInfo.scholarship_amount) 
+    scholarship_amount: financialInfo.scholarship_amount
+      ? parseFloat(financialInfo.scholarship_amount)
       : null,
-    self_funding_amount: financialInfo.self_funding_amount 
-      ? parseFloat(financialInfo.self_funding_amount) 
+    self_funding_amount: financialInfo.self_funding_amount
+      ? parseFloat(financialInfo.self_funding_amount)
       : null,
-    
+
     // Collateral
     collateral_available: financialInfo.collateral_available || null,
-    collateral_type: mapEnumValue('collateral_type', financialInfo.collateral_type),
-    collateral_value: financialInfo.collateral_value 
-      ? parseFloat(financialInfo.collateral_value) 
+    collateral_type: mapEnumValue(
+      "collateral_type",
+      financialInfo.collateral_type
+    ),
+    collateral_value: financialInfo.collateral_value
+      ? parseFloat(financialInfo.collateral_value)
       : null,
-    
+
     collateral_2_available: financialInfo.collateral_2_available || null,
-    collateral_2_type: mapEnumValue('collateral_type', financialInfo.collateral_2_type),
-    collateral_2_value: financialInfo.collateral_2_value 
-      ? parseFloat(financialInfo.collateral_2_value) 
+    collateral_2_type: mapEnumValue(
+      "collateral_type",
+      financialInfo.collateral_2_type
+    ),
+    collateral_2_value: financialInfo.collateral_2_value
+      ? parseFloat(financialInfo.collateral_2_value)
       : null,
-    
+
     // Co-applicant 1
     co_applicant_1_name: financialInfo.co_applicant_1_name || null,
     co_applicant_1_email: contact.co_applicant_1_email || null,
     co_applicant_1_mobile_number: contact.co_applicant_1_mobile_number || null,
-    co_applicant_1_income: financialInfo.co_applicant_1_income 
-      ? parseFloat(financialInfo.co_applicant_1_income) 
+    co_applicant_1_income: financialInfo.co_applicant_1_income
+      ? parseFloat(financialInfo.co_applicant_1_income)
       : null,
-    co_applicant_1_occupation: mapEnumValue('co_applicant_occupation', financialInfo.co_applicant_1_occupation),
-    co_applicant_1_relationship: mapEnumValue('co_applicant_relationship', financialInfo.co_applicant_1_relationship),
-    
+    co_applicant_1_occupation: mapEnumValue(
+      "co_applicant_occupation",
+      financialInfo.co_applicant_1_occupation
+    ),
+    co_applicant_1_relationship: mapEnumValue(
+      "co_applicant_relationship",
+      financialInfo.co_applicant_1_relationship
+    ),
+
     // Co-applicant 2
     co_applicant_2_name: financialInfo.co_applicant_2_name || null,
-    co_applicant_2_income: financialInfo.co_applicant_2_income 
-      ? parseFloat(financialInfo.co_applicant_2_income) 
+    co_applicant_2_income: financialInfo.co_applicant_2_income
+      ? parseFloat(financialInfo.co_applicant_2_income)
       : null,
-    co_applicant_2_occupation: mapEnumValue('co_applicant_occupation', financialInfo.co_applicant_2_occupation),
-    co_applicant_2_relationship: mapEnumValue('co_applicant_relationship', financialInfo.co_applicant_2_relationship),
-    
+    co_applicant_2_occupation: mapEnumValue(
+      "co_applicant_occupation",
+      financialInfo.co_applicant_2_occupation
+    ),
+    co_applicant_2_relationship: mapEnumValue(
+      "co_applicant_relationship",
+      financialInfo.co_applicant_2_relationship
+    ),
+
     // Co-applicant 3
     co_applicant_3_name: financialInfo.co_applicant_3_name || null,
-    co_applicant_3_income: financialInfo.co_applicant_3_income 
-      ? parseFloat(financialInfo.co_applicant_3_income) 
+    co_applicant_3_income: financialInfo.co_applicant_3_income
+      ? parseFloat(financialInfo.co_applicant_3_income)
       : null,
-    co_applicant_3_occupation: mapEnumValue('co_applicant_occupation', financialInfo.co_applicant_3_occupation),
-    co_applicant_3_relationship: mapEnumValue('co_applicant_relationship', financialInfo.co_applicant_3_relationship),
-    
+    co_applicant_3_occupation: mapEnumValue(
+      "co_applicant_occupation",
+      financialInfo.co_applicant_3_occupation
+    ),
+    co_applicant_3_relationship: mapEnumValue(
+      "co_applicant_relationship",
+      financialInfo.co_applicant_3_relationship
+    ),
+
     // ========================================
     // LOAN PREFERENCES
     // ========================================
-    
-    loan_type_preference: mapEnumValue('loan_type_preference', loanPreference.loan_type_preference),
+
+    loan_type_preference: mapEnumValue(
+      "loan_type_preference",
+      loanPreference.loan_type_preference
+    ),
     preferred_lenders: loanPreference.preferred_lenders || null,
-    repayment_type_preference: mapEnumValue('repayment_type_preference', loanPreference.repayment_type_preference),
-    
+    repayment_type_preference: mapEnumValue(
+      "repayment_type_preference",
+      loanPreference.repayment_type_preference
+    ),
+
     // ========================================
     // APPLICATION JOURNEY
     // ========================================
-    
+
     assigned_counselor: applicationJourney.assigned_counselor || null,
     counselor_notes: applicationJourney.counselor_notes || null,
-    current_status_disposition: mapEnumValue('current_status_disposition', applicationJourney.current_status_disposition),
-    current_status_disposition_reason: applicationJourney.current_status_disposition_reason || null,
-    priority_level: mapEnumValue('priority_level', applicationJourney.priority_level),
-    
+    current_status_disposition: mapEnumValue(
+      "current_status_disposition",
+      applicationJourney.current_status_disposition
+    ),
+    current_status_disposition_reason:
+      applicationJourney.current_status_disposition_reason || null,
+    priority_level: mapEnumValue(
+      "priority_level",
+      applicationJourney.priority_level
+    ),
+
     // Contact Dates
-    first_contact_date: applicationJourney.first_contact_date 
-      ? new Date(applicationJourney.first_contact_date).toISOString().split('T')[0] 
+    first_contact_date: applicationJourney.first_contact_date
+      ? new Date(applicationJourney.first_contact_date)
+          .toISOString()
+          .split("T")[0]
       : null,
-    last_contact_date: applicationJourney.last_contact_date 
-      ? new Date(applicationJourney.last_contact_date).toISOString().split('T')[0] 
+    last_contact_date: applicationJourney.last_contact_date
+      ? new Date(applicationJourney.last_contact_date)
+          .toISOString()
+          .split("T")[0]
       : null,
-    follow_up_date: applicationJourney.follow_up_date 
-      ? new Date(applicationJourney.follow_up_date).toISOString().split('T')[0] 
+    follow_up_date: applicationJourney.follow_up_date
+      ? new Date(applicationJourney.follow_up_date).toISOString().split("T")[0]
       : null,
-    next_follow_up_date: applicationJourney.next_follow_up_date 
-      ? new Date(applicationJourney.next_follow_up_date).toISOString().split('T')[0] 
+    next_follow_up_date: applicationJourney.next_follow_up_date
+      ? new Date(applicationJourney.next_follow_up_date)
+          .toISOString()
+          .split("T")[0]
       : null,
-    
+
     // ========================================
     // MAIN CONTACT FIELDS
     // ========================================
-    
-    course_type: mapEnumValue('course_type', contact.course_type),
+
+    course_type: mapEnumValue("course_type", contact.course_type),
     base_currency: contact.base_currency || null,
     study_destination_currency: contact.study_destination_currency || null,
     user_selected_currency: contact.user_selected_currency || null,
-    
+
     // ========================================
     // HUBSPOT SYSTEM FIELDS (if updating)
     // ========================================
-    
+
     // Don't send these on CREATE, only on UPDATE
-    ...(contact.hs_object_id && {
-      // hs_object_id: contact.hs_object_id,
-    }),
+    ...(contact.hs_object_id &&
+      {
+        // hs_object_id: contact.hs_object_id,
+      }),
   };
 }
