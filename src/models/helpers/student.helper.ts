@@ -103,6 +103,10 @@ export const findStudentByPhoneNumber = async (phone_number: string) => {
       updated_at: true,
       favourite: true,
       interested: true,
+      academic_profile: true,
+      application_journey: true,
+      commission_settlements: true,
+      financial_Info: true,
       personal_information: {
         select: {
           first_name: true,
@@ -132,11 +136,20 @@ export const findStudentByPhoneNumber = async (phone_number: string) => {
   }
 
   // Flatten personal information into contact object
-  const { personal_information, ...contactBase } = contactData;
+  const {
+    personal_information,
+    academic_profile,
+    financial_Info,
+    application_journey,
+    ...contactBase
+  } = contactData;
 
   const contact = {
     ...contactBase,
     ...personal_information,
+    ...academic_profile,
+    ...financial_Info,
+    ...application_journey,
   };
 
   return {

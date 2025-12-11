@@ -181,7 +181,6 @@ export const mapAllFields = async (
   input: ContactsLead
 ): Promise<Partial<ContactsLead>> => {
   const mapped: Record<string, any> = {};
-
   // Currency conversions
   const loanAmount =
     input?.selectedLoanCurrency &&
@@ -994,19 +993,29 @@ export const mapAllFields = async (
   }
 
   // 5. Target Degree Level
-  if (
-    input.targetDegreeLevel !== undefined ||
-    input.target_degree_level !== undefined
-  ) {
-    const degree = input.targetDegreeLevel ?? input.target_degree_level;
-    if (degree !== null && degree !== "" && degree !== undefined) {
-      enumTranslations.push({
-        field: "target_degree_level",
-        enumName: "targetDegreeLevel",
-        sourceValue: degree,
-      });
-    }
+if (
+  input.targetDegreeLevel !== undefined ||
+  input.target_degree_level !== undefined ||
+  input.levelOfEducation !== undefined ||
+  input.studyLevel !== undefined ||
+  input.study_level !== undefined
+) {
+  // Check all possible field names and use the first valid value
+  const degree =
+    input.targetDegreeLevel ??
+    input.target_degree_level ??
+    input.levelOfEducation??
+    input.studyLevel ??
+    input.study_level;
+
+  if (degree !== null && degree !== "" && degree !== undefined) {
+    enumTranslations.push({
+      field: "target_degree_level",
+      enumName: "targetDegreeLevel",
+      sourceValue: degree,
+    });
   }
+}
 
   // 6. Current Status Disposition
   if (

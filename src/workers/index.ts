@@ -15,15 +15,15 @@ export async function startWorkers() {
       process.exit(1);
     });
 
-    startLoanHubSpotSyncWorker().catch((error) => {
-      logger.error("Loan Sync Worker crashed:", error);
-      process.exit(1);
-    });
+    // startLoanHubSpotSyncWorker().catch((error) => {
+    //   logger.error("Loan Sync Worker crashed:", error);
+    //   process.exit(1);
+    // });
 
-    startCommissionSettlementsHubSpotSyncWorker().catch((error) => {
-      logger.error("Commission Settlment Sync Worker crashed:", error);
-      process.exit(1);
-    });
+    // startCommissionSettlementsHubSpotSyncWorker().catch((error) => {
+    //   logger.error("Commission Settlment Sync Worker crashed:", error);
+    //   process.exit(1);
+    // });
 
     logger.info("All workers started successfully");
   } catch (error) {

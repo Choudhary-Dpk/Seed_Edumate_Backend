@@ -154,6 +154,7 @@ export const categorizeLoanProductByTable = (
     "nationality_restrictions",
     "residency_requirements",
     "target_segment",
+    "study_level",
   ];
 
   // Collateral and Security Fields (HSLoanProductsCollateralAndSecurity)

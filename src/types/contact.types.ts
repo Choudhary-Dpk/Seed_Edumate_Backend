@@ -200,6 +200,8 @@ export type ContactsLead = {
   otherTestScores?: number | null;
 
   // Target Education
+  study_level?: string | null;
+  studyLevel?: string | null;
   target_degree_level?: string | null;
   targetDegreeLevel?: string | null;
 
@@ -489,6 +491,8 @@ export type CategorizedContactData = {
     nmat_score?: number | null;
     xat_score?: number | null;
     other_test_scores?: number | null;
+    study_level?: string | null;
+    studyLevel?: string | null;
     target_degree_level?: string | null;
     target_course_major?: string | null;
     preferred_study_destination?: string | null;

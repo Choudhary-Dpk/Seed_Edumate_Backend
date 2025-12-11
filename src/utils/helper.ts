@@ -238,12 +238,10 @@ const VALID_CURRENT_EDUCATION_LEVEL = [
 ];
 
 const VALID_TARGET_DEGREE_LEVEL = [
-  "Bachelors",
-  "Masters",
+  "Undergraduate",
+  "MBA",
+  "Specialised Masters",
   "PhD",
-  "Diploma",
-  "Certificate",
-  "Professional Course",
 ];
 
 export const validateContactRows = (
