@@ -711,40 +711,34 @@ export const fetchLoanProductsList = async (
       };
     }
 
-    if (filters.loan_amount_min !== null) {
-      where.financial_terms.OR = [
-        {
-          maximum_loan_amount_secured: {
-            gte: filters.loan_amount_min,
-          },
-        },
-        {
-          maximum_loan_amount_unsecured: {
-            gte: filters.loan_amount_min,
-          },
-        },
-      ];
-    }
-
-    if (filters.loan_amount_max !== null) {
-      if (!where.financial_terms.OR) {
-        where.financial_terms.OR = [];
-      }
+    // ✅ FIXED LOAN AMOUNT LOGIC
+    if (filters.loan_amount_min !== null && filters.loan_amount_max !== null) {
+      // Both min and max provided
       where.financial_terms.AND = [
         {
           OR: [
-            {
-              maximum_loan_amount_secured: {
-                lte: filters.loan_amount_max,
-              },
-            },
-            {
-              maximum_loan_amount_unsecured: {
-                lte: filters.loan_amount_max,
-              },
-            },
+            { maximum_loan_amount_secured: { gte: filters.loan_amount_min } },
+            { maximum_loan_amount_unsecured: { gte: filters.loan_amount_min } },
           ],
         },
+        {
+          OR: [
+            { maximum_loan_amount_secured: { lte: filters.loan_amount_max } },
+            { maximum_loan_amount_unsecured: { lte: filters.loan_amount_max } },
+          ],
+        },
+      ];
+    } else if (filters.loan_amount_min !== null) {
+      // Only min provided
+      where.financial_terms.OR = [
+        { maximum_loan_amount_secured: { gte: filters.loan_amount_min } },
+        { maximum_loan_amount_unsecured: { gte: filters.loan_amount_min } },
+      ];
+    } else if (filters.loan_amount_max !== null) {
+      // Only max provided - THIS WAS THE BUG!
+      where.financial_terms.OR = [
+        { maximum_loan_amount_secured: { lte: filters.loan_amount_max } },
+        { maximum_loan_amount_unsecured: { lte: filters.loan_amount_max } },
       ];
     }
 
@@ -765,6 +759,15 @@ export const fetchLoanProductsList = async (
   ) {
     where.eligibility_criteria = {};
 
+    // ✅ Map study_level to target_segment
+    if (filters.study_level) {
+      where.eligibility_criteria.target_segment = {
+        contains: filters.study_level,
+        mode: "insensitive",
+      };
+    }
+
+    // Also handle direct target_segment filter
     if (filters.target_segment) {
       where.eligibility_criteria.target_segment = {
         contains: filters.target_segment,
@@ -791,7 +794,6 @@ export const fetchLoanProductsList = async (
       };
     }
   }
-
   // Geographic coverage filters
   if (
     filters.supported_course_types ||
