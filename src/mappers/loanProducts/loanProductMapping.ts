@@ -165,10 +165,10 @@ export const mapAllLoanProductFields = async (
   }
 
   if (
-    input.study_level &&
-    input.study_level !== "" &&
-    input.target_segment &&
-    input.target_segment !== ""
+    (input.study_level &&
+      input.study_level !== "") ||
+    (input.target_segment &&
+      input.target_segment !== "")
   ) {
     enumTranslations.push({
       field: "target_segment",
