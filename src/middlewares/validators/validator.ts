@@ -465,14 +465,7 @@ export const createContactsLeadValidationRules = () => [
 
   body("target_degree_level")
     .optional({ checkFalsy: true })
-    .isIn([
-      "Bachelors",
-      "Masters",
-      "PhD",
-      "Diploma",
-      "Certificate",
-      "Professional Course",
-    ])
+    .isIn(["Undergraduate", "MBA", "Specialised Masters", "PhD"])
     .withMessage("Invalid target degree level"),
 
   body("course_type")
@@ -590,14 +583,7 @@ export const editContactsLeadValidationRules = () => [
 
   body("target_degree_level")
     .optional({ checkFalsy: true })
-    .isIn([
-      "Bachelors",
-      "Masters",
-      "PhD",
-      "Diploma",
-      "Certificate",
-      "Professional Course",
-    ])
+    .isIn(["Undergraduate", "MBA", "Specialised Masters", "PhD"])
     .withMessage("Invalid target degree level"),
 
   body("course_type")

@@ -5460,17 +5460,17 @@ const seedEdumateContactEnumMappings = async () => {
       data: [
         {
           enumMappingId: targetDegreeLevelEnum.id,
-          sourceValue: "Bachelors",
-          hubspotValue: "Bachelors",
-          displayLabel: "Bachelors",
+          sourceValue: "Undergraduate",
+          hubspotValue: "Undergraduate",
+          displayLabel: "Undergraduate",
           sortOrder: 1,
           isActive: true,
         },
         {
           enumMappingId: targetDegreeLevelEnum.id,
-          sourceValue: "Masters",
-          hubspotValue: "Masters",
-          displayLabel: "Masters",
+          sourceValue: "MBA",
+          hubspotValue: "MBA",
+          displayLabel: "MBA",
           sortOrder: 2,
           isActive: true,
         },
@@ -5484,33 +5484,17 @@ const seedEdumateContactEnumMappings = async () => {
         },
         {
           enumMappingId: targetDegreeLevelEnum.id,
-          sourceValue: "Diploma",
-          hubspotValue: "Diploma",
-          displayLabel: "Diploma",
+          sourceValue: "Specialised Masters",
+          hubspotValue: "Specialised Masters",
+          displayLabel: "Specialised Masters",
           sortOrder: 4,
-          isActive: true,
-        },
-        {
-          enumMappingId: targetDegreeLevelEnum.id,
-          sourceValue: "Certificate",
-          hubspotValue: "Certificate",
-          displayLabel: "Certificate",
-          sortOrder: 5,
-          isActive: true,
-        },
-        {
-          enumMappingId: targetDegreeLevelEnum.id,
-          sourceValue: "Professional Course",
-          hubspotValue: "Professional Course",
-          displayLabel: "Professional Course",
-          sortOrder: 6,
           isActive: true,
         },
       ],
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Target Degree Level seeded (6 values)");
+    console.log("✅ Target Degree Level seeded (4 values)");
 
     // ==================== APPLICATION JOURNEY GROUP ====================
 
@@ -7832,17 +7816,17 @@ const seedLoanApplicationEnumMappings = async () => {
       data: [
         {
           enumMappingId: courseLevelEnum.id,
-          sourceValue: "Bachelors",
-          hubspotValue: "Bachelors",
-          displayLabel: "Bachelors",
+          sourceValue: "Undergraduate",
+          hubspotValue: "Undergraduate",
+          displayLabel: "Undergraduate",
           sortOrder: 1,
           isActive: true,
         },
         {
           enumMappingId: courseLevelEnum.id,
-          sourceValue: "Masters",
-          hubspotValue: "Masters",
-          displayLabel: "Masters",
+          sourceValue: "MBA",
+          hubspotValue: "MBA",
+          displayLabel: "MBA",
           sortOrder: 2,
           isActive: true,
         },
@@ -7856,33 +7840,17 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: courseLevelEnum.id,
-          sourceValue: "Diploma",
-          hubspotValue: "Diploma",
-          displayLabel: "Diploma",
+          sourceValue: "Specialised Masters",
+          hubspotValue: "Specialised Masters",
+          displayLabel: "Specialised Masters",
           sortOrder: 4,
-          isActive: true,
-        },
-        {
-          enumMappingId: courseLevelEnum.id,
-          sourceValue: "Certificate",
-          hubspotValue: "Certificate",
-          displayLabel: "Certificate",
-          sortOrder: 5,
-          isActive: true,
-        },
-        {
-          enumMappingId: courseLevelEnum.id,
-          sourceValue: "Professional",
-          hubspotValue: "Professional",
-          displayLabel: "Professional",
-          sortOrder: 6,
           isActive: true,
         },
       ],
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Course Level seeded (6 values)");
+    console.log("✅ Course Level seeded (4 values)");
 
     // ===== 3. I20 CAS RECEIVED =====
     console.log("\n📄 Seeding I20 CAS Received...");
@@ -10637,9 +10605,9 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: targetSegmentEnum.id,
-          sourceValue: "Graduate",
-          hubspotValue: "Graduate",
-          displayLabel: "Graduate",
+          sourceValue: "MBA",
+          hubspotValue: "MBA",
+          displayLabel: "MBA",
           sortOrder: 2,
           isActive: true,
         },
@@ -10653,57 +10621,17 @@ const seedLoanProductEnumMappings = async () => {
         },
         {
           enumMappingId: targetSegmentEnum.id,
-          sourceValue: "Diploma",
-          hubspotValue: "Diploma",
-          displayLabel: "Diploma",
+          sourceValue: "Specialised Masters",
+          hubspotValue: "Specialised Masters",
+          displayLabel: "Specialised Masters",
           sortOrder: 4,
-          isActive: true,
-        },
-        {
-          enumMappingId: targetSegmentEnum.id,
-          sourceValue: "Certificate",
-          hubspotValue: "Certificate",
-          displayLabel: "Certificate",
-          sortOrder: 5,
-          isActive: true,
-        },
-        {
-          enumMappingId: targetSegmentEnum.id,
-          sourceValue: "Professional",
-          hubspotValue: "Professional",
-          displayLabel: "Professional",
-          sortOrder: 6,
-          isActive: true,
-        },
-        {
-          enumMappingId: targetSegmentEnum.id,
-          sourceValue: "Technical",
-          hubspotValue: "Technical",
-          displayLabel: "Technical",
-          sortOrder: 7,
-          isActive: true,
-        },
-        {
-          enumMappingId: targetSegmentEnum.id,
-          sourceValue: "Medical",
-          hubspotValue: "Medical",
-          displayLabel: "Medical",
-          sortOrder: 8,
-          isActive: true,
-        },
-        {
-          enumMappingId: targetSegmentEnum.id,
-          sourceValue: "Management",
-          hubspotValue: "Management",
-          displayLabel: "Management",
-          sortOrder: 9,
           isActive: true,
         },
       ],
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Target Segment seeded (9 values)");
+    console.log("✅ Target Segment seeded (4 values)");
 
     // ==================== FINANCIAL TERMS ====================
 
