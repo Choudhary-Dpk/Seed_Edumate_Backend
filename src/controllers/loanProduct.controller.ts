@@ -33,6 +33,7 @@ import {
   deleteLoanProduct,
   getLoanProduct,
   fetchLoanProductsList,
+  updateLoanProductEligibilityCriteria,
 } from "../models/helpers/loanProduct.helper";
 
 export const createLoanProductController = async (
@@ -302,6 +303,13 @@ export const updateLoanProductController = async (
         tx,
         productId,
         categorized["financialTerms"]
+      );
+
+      logger.debug(`Updating eligibility criteria for product: ${productId}`); 
+      await updateLoanProductEligibilityCriteria(
+        tx,
+        productId,
+        categorized["eligibilityCriteria"]
       );
 
       return product;
