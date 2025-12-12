@@ -165,10 +165,10 @@ export const mapAllLoanProductFields = async (
   }
 
   if (
-    input.study_level &&
-    input.study_level !== "" &&
-    input.target_segment &&
-    input.target_segment !== ""
+    (input.study_level &&
+      input.study_level !== "") ||
+    (input.target_segment &&
+      input.target_segment !== "")
   ) {
     enumTranslations.push({
       field: "target_segment",
@@ -1036,35 +1036,35 @@ export const mapAllLoanProductFields = async (
         : null;
   }
 
-  if (input.maximum_loan_amount_secured !== undefined) {
+  if (input.maximum_loan_amount___secured !== undefined) {
     mapped.maximum_loan_amount_secured =
-      input.maximum_loan_amount_secured !== null &&
-      input.maximum_loan_amount_secured !== ""
-        ? input.maximum_loan_amount_secured
+      input.maximum_loan_amount___secured !== null &&
+      input.maximum_loan_amount___secured !== ""
+        ? input.maximum_loan_amount___secured
         : null;
   }
 
-  if (input.maximum_loan_amount_unsecured !== undefined) {
+  if (input.maximum_loan_amount___unsecured !== undefined) {
     mapped.maximum_loan_amount_unsecured =
-      input.maximum_loan_amount_unsecured !== null &&
-      input.maximum_loan_amount_unsecured !== ""
-        ? input.maximum_loan_amount_unsecured
+      input.maximum_loan_amount___unsecured !== null &&
+      input.maximum_loan_amount___unsecured !== ""
+        ? input.maximum_loan_amount___unsecured
         : null;
   }
 
-  if (input.minimum_loan_amount_secured !== undefined) {
+  if (input.minimum_loan_amount___secured !== undefined) {
     mapped.minimum_loan_amount_secured =
-      input.minimum_loan_amount_secured !== null &&
-      input.minimum_loan_amount_secured !== ""
-        ? input.minimum_loan_amount_secured
+      input.minimum_loan_amount___secured !== null &&
+      input.minimum_loan_amount___secured !== ""
+        ? input.minimum_loan_amount___secured
         : null;
   }
 
-  if (input.minimum_loan_amount_unsecured !== undefined) {
+  if (input.minimum_loan_amount___unsecured !== undefined) {
     mapped.minimum_loan_amount_unsecured =
-      input.minimum_loan_amount_unsecured !== null &&
-      input.minimum_loan_amount_unsecured !== ""
-        ? input.minimum_loan_amount_unsecured
+      input.minimum_loan_amount___unsecured !== null &&
+      input.minimum_loan_amount___unsecured !== ""
+        ? input.minimum_loan_amount___unsecured
         : null;
   }
 
