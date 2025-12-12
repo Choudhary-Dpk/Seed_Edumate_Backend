@@ -42,10 +42,7 @@ import {
   addFileType,
   updateFileRecord,
 } from "../models/helpers";
-import {
-  getHubspotIdByUserId,
-  getPartnerIdByUserId,
-} from "../models/helpers/partners.helper";
+import { getPartnerIdByUserId } from "../models/helpers/partners.helper";
 import { ContactsLead } from "../types/contact.types";
 import { mapAllFields } from "../mappers/edumateContact/mapping";
 import { categorizeByTable } from "../services/DBServices/edumateContacts.service";
@@ -75,7 +72,7 @@ export const createContactsLead = async (
       const contact = await createEdumateContact(
         tx,
         categorized["mainContact"],
-        // null, // ⬅️ HubSpot ID ab null hai
+        // null, //  HubSpot ID as null
         partnerId!.b2b_id
       );
       logger.debug(`Contact created successfully with id: ${contact.id}`);
@@ -202,73 +199,76 @@ export const upsertContactsLead = async (
     let existingContactDb = null;
     if (email) {
       existingContactDb = await getEdumateContactByEmail(email);
-    } else if(phoneNumber) {
+    } else if (phoneNumber) {
       existingContactDb = await getEdumateContactByPhone(phoneNumber);
     }
 
     let result;
     if (existingContactDb?.id) {
       const leadId = existingContactDb?.id;
-      // ✅ HubSpot update call REMOVE - sirf DB update
-      result = await prisma.$transaction(async (tx: any) => {
-        // logger.debug(`Updating edumate contact for userId: ${id}`);
-        const contact = await updateEdumateContact(
-          tx,
-          +leadId,
-          categorized["mainContact"]
-        );
-        logger.debug(`Contact updated successfully with id: ${contact.id}`);
+      //  HubSpot update call REMOVE - sirf DB update
+      result = await prisma.$transaction(
+        async (tx: any) => {
+          // logger.debug(`Updating edumate contact for userId: ${id}`);
+          const contact = await updateEdumateContact(
+            tx,
+            +leadId,
+            categorized["mainContact"]
+          );
+          logger.debug(`Contact updated successfully with id: ${contact.id}`);
 
-        logger.debug(
-          `Updating personal information for contact: ${contact.id}`
-        );
-        const personalInfo = await updateEdumatePersonalInformation(
-          tx,
-          contact.id,
-          categorized["personalInformation"]
-        );
-        logger.debug(
-          `Personal information updated successfully for contact: ${contact.id}`
-        );
+          logger.debug(
+            `Updating personal information for contact: ${contact.id}`
+          );
+          const personalInfo = await updateEdumatePersonalInformation(
+            tx,
+            contact.id,
+            categorized["personalInformation"]
+          );
+          logger.debug(
+            `Personal information updated successfully for contact: ${contact.id}`
+          );
 
-        logger.debug(`Updating academic profile for contact: ${contact.id}`);
-        const academicsProfile = await updateEdumateAcademicProfile(
-          tx,
-          contact.id,
-          categorized["academicProfile"]
-        );
-        logger.debug(
-          `Academic profile updated successfully for contact: ${contact.id}`
-        );
+          logger.debug(`Updating academic profile for contact: ${contact.id}`);
+          const academicsProfile = await updateEdumateAcademicProfile(
+            tx,
+            contact.id,
+            categorized["academicProfile"]
+          );
+          logger.debug(
+            `Academic profile updated successfully for contact: ${contact.id}`
+          );
 
-        logger.debug(`Updating lead attribution for contact: ${contact.id}`);
-        const leadAttribution = await updateEdumateLeadAttribution(
-          tx,
-          contact.id,
-          categorized["leadAttribution"]
-        );
-        logger.debug(
-          `Lead attribution updated successfully for contact: ${contact.id}`
-        );
+          logger.debug(`Updating lead attribution for contact: ${contact.id}`);
+          const leadAttribution = await updateEdumateLeadAttribution(
+            tx,
+            contact.id,
+            categorized["leadAttribution"]
+          );
+          logger.debug(
+            `Lead attribution updated successfully for contact: ${contact.id}`
+          );
 
-        // populate response data similarly to creation flow
-        data = {
-          contact: {
-            ...contact,
-          },
-          personalInfo: {
-            ...personalInfo,
-          },
-          academicsProfile: {
-            ...academicsProfile,
-          },
-          leadAttribution: {
-            ...leadAttribution,
-          },
-        };
+          // populate response data similarly to creation flow
+          data = {
+            contact: {
+              ...contact,
+            },
+            personalInfo: {
+              ...personalInfo,
+            },
+            academicsProfile: {
+              ...academicsProfile,
+            },
+            leadAttribution: {
+              ...leadAttribution,
+            },
+          };
 
-        return contact;
-      },{ timeout: 180000, });
+          return contact;
+        },
+        { timeout: 180000 }
+      );
     } else {
       result = await prisma.$transaction(
         async (tx: any) => {
@@ -276,7 +276,7 @@ export const upsertContactsLead = async (
           const contact = await createEdumateContact(
             tx,
             categorized["mainContact"]
-            // null // ⬅️ HubSpot ID ab null hai
+            // null //  HubSpot ID ab null hai
           );
           logger.debug(`Contact created successfully with id: ${contact.id}`);
 
@@ -411,7 +411,7 @@ export const editContactsLead = async (
     const categorized = categorizeByTable(mappedFields);
     console.log("categorized", categorized);
 
-    // ✅ HubSpot update call REMOVE - sirf DB update
+    //  HubSpot update call REMOVE - sirf DB update
     await prisma.$transaction(async (tx: any) => {
       logger.debug(`Updating edumate contact for userId: ${id}`);
       const contact = await updateEdumateContact(
@@ -498,7 +498,7 @@ export const editContactsLead = async (
       return contact;
     });
 
-    // ✅ Middleware ne automatically outbox entry create kar di
+    //  Middleware ne automatically outbox entry create kar di
     sendResponse(res, 200, "Lead updated successfully (sync queued)");
   } catch (error) {
     next(error);
@@ -654,7 +654,7 @@ export const uploadContactsCSV = async (
       });
     }
 
-    // ✅ 6. Generate unique batch ID for this upload
+    //  6. Generate unique batch ID for this upload
     const batchId = uuidv4();
     logger.debug(
       `Generated batch ID: ${batchId} for ${toInsert.length} records`
@@ -665,7 +665,7 @@ export const uploadContactsCSV = async (
     );
     console.log("mappedRecords", mappedRecords);
 
-    // ✅ 7. Process in batches (DB insertion only - NO HubSpot calls)
+    //  7. Process in batches (DB insertion only - NO HubSpot calls)
     const BATCH_SIZE = 50;
     const batches = chunkArray(mappedRecords, BATCH_SIZE);
 
@@ -687,7 +687,7 @@ export const uploadContactsCSV = async (
       try {
         logger.debug(`Processing batch ${batchNumber}/${batches.length}`);
 
-        // ✅ Insert into DB only
+        //  Insert into DB only
         const result = await createCSVContacts(categorizedRecords, id, null); // No HubSpot results
         totalInserted += result.count;
 
@@ -695,7 +695,7 @@ export const uploadContactsCSV = async (
           `Batch ${batchNumber}: ${result.count} records inserted into DB`
         );
 
-        // ✅ Manually create outbox entries for this batch
+        //  Manually create outbox entries for this batch
         // (Because createMany doesn't trigger individual create hooks)
         await createBulkOutboxEntries(batch, batchId, batchIndex * BATCH_SIZE);
 
@@ -742,7 +742,7 @@ export const uploadContactsCSV = async (
 };
 
 /**
- * ✅ Helper: Create bulk outbox entries for CSV batch
+ *  Helper: Create bulk outbox entries for CSV batch
  */
 async function createBulkOutboxEntries(
   contacts: ContactsLead[],

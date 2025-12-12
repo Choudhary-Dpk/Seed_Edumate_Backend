@@ -15,8 +15,8 @@ const prisma = basePrisma
 export const checkPrismaConnection = async () => {
   try {
     await basePrisma.$connect(); // ← CHANGE from 'prisma' to 'basePrisma'
-    console.log("✅ Prisma connected successfully");
-    console.log("✅ Audit tracking enabled"); // ← OPTIONAL: Add this line
+    console.log(" Prisma connected successfully");
+    console.log(" Audit tracking enabled"); // ← OPTIONAL: Add this line
   } catch (error) {
     if (error instanceof Error) {
       console.error(

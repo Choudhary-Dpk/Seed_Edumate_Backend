@@ -149,17 +149,10 @@ export const getHubspotIdByUserId = async (
   }
 };
 
-export const createB2BPartner = async (
-  tx: any,
-  mainData: any
-  // hubspotId?: number,
-  // hsCreatedBy?: number
-) => {
+export const createB2BPartner = async (tx: any, mainData: any) => {
   const partner = await tx.hSB2BPartners.create({
     data: {
       ...mainData,
-      // hs_object_id: hubspotId?.toString(),
-      // hs_created_by_user_id: hsCreatedBy,
       created_at: new Date(),
       updated_at: new Date(),
     },

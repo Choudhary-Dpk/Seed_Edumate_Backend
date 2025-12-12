@@ -38,3 +38,30 @@ export type LoginStatus = "success" | "failed" | "logout";
 export type AllowedRoles = "Admin" | "Manager" | "User";
 
 export type AllowedAdminRoles = "Admin";
+
+// Portal types
+export enum PortalType {
+  ADMIN = "ADMIN",
+  PARTNER = "PARTNER",
+}
+
+// Auth method types
+export enum AuthMethod {
+  JWT = "JWT",
+  API_KEY = "API_KEY",
+  BOTH = "BOTH",
+}
+
+export type AuthOptions = {
+  method?: AuthMethod;
+  allowedRoles?: string[]; // Works for both admin and partner roles
+};
+
+export type JwtPayload = {
+  id: number;
+  email: string;
+  portalType?: PortalType;
+  sessionId?: string;
+  iat?: number;
+  exp?: number;
+};

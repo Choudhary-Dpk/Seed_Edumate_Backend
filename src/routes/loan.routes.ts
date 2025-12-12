@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authenticate, AuthMethod } from "../middlewares";
+import { authenticate } from "../middlewares";
 import {
   checkLoanEligibility,
   generateRepaymentScheduleAndEmail,
@@ -7,6 +7,7 @@ import {
   getInstitutionCosts,
   getInstitutionProgram,
 } from "../controllers/loan.controller";
+import { AuthMethod } from "../types/auth";
 
 const router = Router();
 

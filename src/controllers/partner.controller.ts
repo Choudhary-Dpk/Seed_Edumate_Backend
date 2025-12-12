@@ -43,10 +43,6 @@ export const createB2bPartner = async (
   next: NextFunction
 ) => {
   try {
-    // logger.debug(`Fetching hubspotId from userId: ${userId}`);
-    // const hubspotId = await getHubspotIdByUserId(userId);
-    // logger.debug(`Hubspot id fetched successfully`);
-
     if (!req.body.partner_name && !req.body.registration_number) {
       return sendResponse(
         res,
@@ -67,12 +63,7 @@ export const createB2bPartner = async (
 
     const result = await prisma.$transaction(async (tx: any) => {
       logger.debug(`Creating B2B partner`);
-      const partner = await createB2BPartner(
-        tx,
-        categorized["mainPartner"]
-        // hubspotId,
-        // userId
-      );
+      const partner = await createB2BPartner(tx, categorized["mainPartner"]);
       logger.debug(`Partner created successfully with id: ${partner.id}`);
 
       logger.debug(`Creating business capabilities for partner: ${partner.id}`);

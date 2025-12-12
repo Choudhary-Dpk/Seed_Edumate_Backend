@@ -8,16 +8,12 @@ import {
 } from "../../controllers/common/auth.controller";
 import {
   validatePassword,
-  getUserIpDetails,
   validateChangePassword,
-  validateAdminEmail,
   validateAdminRefreshToken,
-  validateAdminEmailToken,
   validateCreateAdminUser,
   validateEmail,
   validateEmailToken,
   authenticate,
-  AuthMethod,
 } from "../../middlewares";
 import {
   validateReqParams,
@@ -27,16 +23,12 @@ import {
   changePasswordValidationRules,
 } from "../../middlewares/validators/validator";
 import {
-  adminLoginController,
-  changeAdminPassword,
-  forgotAdminPassword,
   getAdminProfile,
   logoutAdmin,
-  resetAdminPassword,
-  setAdminPassword,
 } from "../../controllers/admin/common/auth.controller";
 import { createAdminController } from "../../controllers/admin/user.controller";
 import { changePassword } from "../../controllers/user.controller";
+import { AuthMethod } from "../../types/auth";
 
 const router = Router();
 

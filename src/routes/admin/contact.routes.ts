@@ -19,11 +19,9 @@ import {
   uploadContactsCSV,
 } from "../../controllers/contact.controller";
 import { validateAndParseCSVFile } from "../../middlewares/loanApplication.middleware";
-import {
-  authenticate,
-  AuthMethod,
-} from "../../middlewares";
+import { authenticate } from "../../middlewares";
 import { getLeadsViewList } from "../../controllers/loanApplication.controller";
+import { AuthMethod } from "../../types/auth";
 
 const router = Router();
 

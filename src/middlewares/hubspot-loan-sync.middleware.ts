@@ -106,7 +106,7 @@ export function createLoanHubSpotSyncExtension() {
               return query(args);
             }
 
-            // ✅ Skip if only system fields
+            //  Skip if only system fields
             if (isOnlySystemFieldUpdate(args)) {
               logger.debug(
                 `Skipping loan sync for system field update: ${model}`
@@ -209,7 +209,7 @@ async function createLoanOutboxEntry(
       recordId,
       operation,
     });
-    // ✅ If normalized table, handle differently
+    //  If normalized table, handle differently
     if (isNormalizedTable(tableName)) {
       await handleNormalizedLoanTableChange(
         client,
@@ -235,7 +235,7 @@ async function createLoanOutboxEntry(
     });
 
     logger.debug(
-      `✅ Loan Outbox Entry: ${operation} ${tableName}#${recordId} created`
+      ` Loan Outbox Entry: ${operation} ${tableName}#${recordId} created`
     );
   } catch (error) {
     logger.error(

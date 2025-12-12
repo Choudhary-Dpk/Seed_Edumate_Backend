@@ -456,7 +456,7 @@ export const updateSystemTracking = async (hubspotResults: HubspotResult[]) => {
 
       if (!student_email) continue;
 
-      // 🔹 match loan app by email
+      //  match loan app by email
       const loanApp = await tx.hSLoanApplications.findFirst({
         where: { student_email },
         select: { id: true },

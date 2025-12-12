@@ -141,18 +141,27 @@ export const generateStatusBanner = (eligibilityResult?: EligibilityResult): str
                       Your education loan has been pre-approved with competitive rates
                     </p>
                     <div style="display: inline-flex; background: rgba(255,255,255,0.2); color: #b8601f; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif; backdrop-filter: blur(10px); align-items: center;">
-                      ✅ PRE-APPROVED
+                       PRE-APPROVED
                     </div>
                   </td>
                 </tr>
               </table>
             </div>
-            ${(baseLoanAmount || destinationLoanAmount) ? `
+            ${
+              baseLoanAmount || destinationLoanAmount
+                ? `
             <div style="background: linear-gradient(135deg, #05966980 0%, #22c55e82 100% 100%); padding: 24px; border-top: 1px solid #e0f2fe;">
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
-                  ${baseLoanAmount ? `
-                  <td style="text-align: center; ${destinationLoanAmount && destinationLoanAmount !== baseLoanAmount ? 'border-right: 1px solid #e0f2fe; padding-right: 24px;' : ''}">
+                  ${
+                    baseLoanAmount
+                      ? `
+                  <td style="text-align: center; ${
+                    destinationLoanAmount &&
+                    destinationLoanAmount !== baseLoanAmount
+                      ? "border-right: 1px solid #e0f2fe; padding-right: 24px;"
+                      : ""
+                  }">
                     <div style="font-size: 28px; font-weight: 800; color: #0f172a; font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif;">
                       ${baseLoanAmount}
                     </div>
@@ -160,8 +169,13 @@ export const generateStatusBanner = (eligibilityResult?: EligibilityResult): str
                       Base Amount
                     </div>
                   </td>
-                  ` : ''}
-                  ${destinationLoanAmount && destinationLoanAmount !== baseLoanAmount ? `
+                  `
+                      : ""
+                  }
+                  ${
+                    destinationLoanAmount &&
+                    destinationLoanAmount !== baseLoanAmount
+                      ? `
                   <td style="text-align: center; padding-left: 24px;">
                     <div style="font-size: 28px; font-weight: 800; color: #0f172a; font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif;">
                       ${destinationLoanAmount}
@@ -170,11 +184,15 @@ export const generateStatusBanner = (eligibilityResult?: EligibilityResult): str
                       Study Destination
                     </div>
                   </td>
-                  ` : ''}
+                  `
+                      : ""
+                  }
                 </tr>
               </table>
             </div>
-            ` : ''}
+            `
+                : ""
+            }
           </div>
         </td>
       </tr>

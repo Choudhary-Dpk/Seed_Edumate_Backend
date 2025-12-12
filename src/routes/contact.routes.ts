@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authenticate, AuthMethod } from "../middlewares";
+import { authenticate } from "../middlewares";
 import {
   contactsLeadPaginationValidationRules,
   createContactsLeadValidationRules,
@@ -23,6 +23,7 @@ import {
 } from "../controllers/contact.controller";
 import { validateAndParseCSVFile } from "../middlewares/loanApplication.middleware";
 import { getLeadsViewList } from "../controllers/loanApplication.controller";
+import { AuthMethod } from "../types/auth";
 
 const router = Router();
 
@@ -38,14 +39,7 @@ router.post(
   createContactsLead
 );
 
-router.post(
-  "/upsert",
-  // validateToken(["Admin", "Manager", "User"]),
-  // createContactsLeadValidationRules(),
-  validateReqParams,
-  // validateContactsLeadPayload,
-  upsertContactsLead
-);
+router.post("/upsert", upsertContactsLead);
 
 router.delete(
   "/:id",

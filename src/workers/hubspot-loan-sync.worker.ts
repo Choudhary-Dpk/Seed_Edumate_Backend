@@ -121,7 +121,9 @@ async function processSingleLoanEntry(entry: any) {
       });
     }
 
-    logger.debug(`✅ Loan Synced: ${operation} ${entity_type}#${entry.entity_id}`);
+    logger.debug(
+      ` Loan Synced: ${operation} ${entity_type}#${entry.entity_id}`
+    );
   } catch (error: any) {
     await handleLoanSyncError(entry.id, error);
   }
@@ -169,7 +171,7 @@ async function handleLoanCreate(
     });
     if (contact?.hs_object_id) {
       edumateContactHsObjectId = contact.hs_object_id;
-      logger.info("✅ Found Edumate Contact for association", {
+      logger.info(" Found Edumate Contact for association", {
         contactId: loanApplication.contact_id,
         hsObjectId: edumateContactHsObjectId,
       });
@@ -188,7 +190,7 @@ async function handleLoanCreate(
 
     if (b2bPartner?.hs_object_id) {
       b2bPartnerHsObjectId = b2bPartner.hs_object_id;
-      logger.info("✅ Found B2B Partner for association", {
+      logger.info(" Found B2B Partner for association", {
         b2bPartnerId: loanApplication.b2b_partner_id,
         hsObjectId: b2bPartnerHsObjectId,
       });
@@ -207,7 +209,7 @@ async function handleLoanCreate(
 
     if (lender?.hs_object_id) {
       lenderHsObjectId = lender.hs_object_id;
-      logger.info("✅ Found Lender for association", {
+      logger.info(" Found Lender for association", {
         lenderId: loanApplication.lender_id,
         hsObjectId: lenderHsObjectId,
       });
@@ -225,7 +227,7 @@ async function handleLoanCreate(
     });
     if (loanProduct?.hs_object_id) {
       loanProductHsObjectId = loanProduct.hs_object_id;
-      logger.info("✅ Found Loan Product for association", {
+      logger.info(" Found Loan Product for association", {
         productId: loanApplication.product_id,
         hsObjectId: loanProductHsObjectId,
       });

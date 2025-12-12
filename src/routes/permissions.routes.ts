@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { getPermissions } from "../controllers/permissions.controller";
-import { authenticate, AuthMethod } from "../middlewares";
+import { authenticate } from "../middlewares";
+import { AuthMethod } from "../types/auth";
 
 const router = Router();
 

@@ -7,8 +7,9 @@ import {
 } from "../controllers/user.controller";
 import authRoutes from "./auth.routes";
 import { getRoles } from "../controllers/hubspot.controller";
-import { authenticate, AuthMethod } from "../middlewares";
+import { authenticate } from "../middlewares";
 import { createUserValidator } from "../middlewares/validators/validator";
+import { AuthMethod } from "../types/auth";
 
 const router = Router();
 

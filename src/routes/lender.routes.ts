@@ -8,8 +8,9 @@ import {
   updateLenderController,
   getLenderDetailsController,
 } from "../controllers/lender.controller";
-import { authenticate, AuthMethod, validateApiKey } from "../middlewares";
+import { authenticate } from "../middlewares";
 import { checkDuplicateLenderFields } from "../middlewares/lender.middleware";
+import { AuthMethod } from "../types/auth";
 const router = Router();
 
 router.get("/list", getLenderListController);

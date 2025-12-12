@@ -35,7 +35,6 @@ export const setAuditContext = (
 
 /**
  * Setup Prisma Client Extension for automatic audit logging
- * This works with Prisma v5+
  */
 export function createAuditExtension() {
   return Prisma.defineExtension((client: any) => {
@@ -275,7 +274,7 @@ async function logAudit(
     });
 
     logger.debug(
-      `✅ Audit: ${action} ${tableName}#${recordId} - ${fields.length} fields changed`
+      ` Audit: ${action} ${tableName}#${recordId} - ${fields.length} fields changed`
     );
   } catch (error) {
     logger.error(
