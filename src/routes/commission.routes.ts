@@ -1,9 +1,5 @@
 import { Router } from "express";
-import {
-  authenticate,
-  AuthMethod,
-  validateApiKey,
-} from "../middlewares";
+import { authenticate } from "../middlewares";
 import {
   createCommissionSettlementController,
   deleteCommissionSettlementController,
@@ -20,6 +16,7 @@ import {
 import multer from "../setup/multer";
 import { getB2bPartnersList } from "../controllers/partner.controller";
 import { getLeadsViewList } from "../controllers/loanApplication.controller";
+import { AuthMethod } from "../types/auth";
 export const invoiceUpload = multer(10, ["application/pdf", "pdf"]);
 const router = Router();
 

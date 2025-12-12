@@ -90,7 +90,7 @@ export function createHubSpotSyncExtension() {
               return query(args);
             }
 
-            // ✅ Skip if only system fields
+            //  Skip if only system fields
             if (isOnlySystemFieldUpdate(args)) {
               logger.debug(`Skipping sync for system field update: ${model}`);
               return query(args);
@@ -136,7 +136,10 @@ export function createHubSpotSyncExtension() {
                 where: args.where,
               });
             } catch (error) {
-              logger.error(`Failed to fetch record before delete for ${model}:`, error);
+              logger.error(
+                `Failed to fetch record before delete for ${model}:`,
+                error
+              );
             }
 
             const result = await query(args);
@@ -165,8 +168,10 @@ export function createHubSpotSyncExtension() {
             }
 
             const result = await query(args);
-            logger.info(`CreateMany detected for ${model}: ${result.count} records`);
-            
+            logger.info(
+              `CreateMany detected for ${model}: ${result.count} records`
+            );
+
             return result;
           },
         },
@@ -186,10 +191,20 @@ async function createOutboxEntry(
   data: any
 ): Promise<void> {
   try {
-    console.log("Creating Edumate Outbox Entry:", { tableName, recordId, operation });
-    // ✅ If normalized table, handle differently
+    console.log("Creating Edumate Outbox Entry:", {
+      tableName,
+      recordId,
+      operation,
+    });
+    //  If normalized table, handle differently
     if (isNormalizedTable(tableName)) {
-      await handleNormalizedTableChange(client, tableName, recordId, operation, data);
+      await handleNormalizedTableChange(
+        client,
+        tableName,
+        recordId,
+        operation,
+        data
+      );
       return;
     }
 
@@ -207,7 +222,7 @@ async function createOutboxEntry(
     });
 
     logger.debug(
-      `✅ Outbox Entry: ${operation} ${tableName}#${recordId} created`
+      ` Outbox Entry: ${operation} ${tableName}#${recordId} created`
     );
   } catch (error) {
     logger.error(

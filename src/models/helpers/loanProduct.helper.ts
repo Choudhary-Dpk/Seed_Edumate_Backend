@@ -711,7 +711,7 @@ export const fetchLoanProductsList = async (
       };
     }
 
-    // ✅ FIXED LOAN AMOUNT LOGIC
+    //  FIXED LOAN AMOUNT LOGIC
     if (filters.loan_amount_min !== null && filters.loan_amount_max !== null) {
       // Both min and max provided
       where.financial_terms.AND = [
@@ -759,7 +759,7 @@ export const fetchLoanProductsList = async (
   ) {
     where.eligibility_criteria = {};
 
-    // ✅ Map study_level to target_segment
+    //  Map study_level to target_segment
     if (filters.study_level) {
       where.eligibility_criteria.target_segment = {
         contains: filters.study_level,

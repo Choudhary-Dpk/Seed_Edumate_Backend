@@ -13,7 +13,7 @@ import { getEmailTemplate } from "../models/helpers";
 import { emailQueue } from "../utils/queue";
 import logger from "../utils/logger";
 import { RequestWithPayload } from "../types/api.types";
-import { LoginPayload, ProtectedPayload } from "../types/auth";
+import { LoginPayload, PortalType, ProtectedPayload } from "../types/auth";
 import {
   revokePreviousEmailTokens,
   saveEmailToken,
@@ -22,7 +22,6 @@ import {
 } from "../models/helpers/auth";
 import { FRONTEND_URL } from "../setup/secrets";
 import { logEmailHistory } from "../models/helpers/email.helper";
-import { PortalType } from "../middlewares";
 
 export const getIpInfo = async (req: Request, res: Response) => {
   try {
@@ -50,12 +49,6 @@ export const createUser = async (
 ) => {
   try {
     const { fullName, email, b2bId, roleId } = req.body;
-
-    // logger.debug(`Creating hubspot partner`);
-    // const hubspotPartner = await createPartner(email, fullName);
-    // logger.debug(
-    //   `Hubspot partner created successfully for partnerId: ${hubspotPartner.id}`
-    // );
 
     logger.debug(`Creating user in database`);
     const user = await createUsers(
@@ -118,31 +111,8 @@ export const createUser = async (
   }
 };
 
-// export const changePassword = async (
-//   req: RequestWithPayload<ProtectedPayload>,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   try {
-//     const { id } = req.payload!;
-//     const { newPassword } = req.body;
-
-//     logger.debug(`Encrypting password for userId: ${id}`);
-//     const hash = await hashPassword(newPassword);
-//     logger.debug(`Password encrypted successfully`);
-
-//     logger.debug(`Updating password for userId: ${id}`);
-//     await updatePassword(id, hash);
-//     logger.debug(`Password updated successfully`);
-
-//     sendResponse(res, 200, "Password changed successfully");
-//   } catch (error) {
-//     next(error);
-//   }
-// };
-
 /**
- * 🔥 UNIFIED CHANGE PASSWORD
+ *  UNIFIED CHANGE PASSWORD
  * Works for both Admin and Partner portals
  * Portal type is automatically detected by authenticate() middleware
  * Requires authenticated user to provide current password before changing
@@ -164,7 +134,7 @@ export const changePassword = async (
     const hashedPassword = await hashPassword(newPassword);
     logger.debug(`Password hashed successfully`);
 
-    // 🔥 Update password based on portal type
+    //  Update password based on portal type
     logger.debug(`Updating password for userId: ${id}`);
     if (req.portalType === PortalType.ADMIN) {
       await updateAdminPassword(id, hashedPassword);

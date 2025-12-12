@@ -80,12 +80,12 @@ export function createCommissionHubSpotSyncExtension() {
               model,
               args,
             });
-            
+
             const result = await query(args);
             if (!COMMISSION_SYNC_MODELS.includes(model)) {
               return result;
             }
-            
+
             if (args?.data?.source === "hubspot") {
               logger.debug(
                 `Skipping commission sync for HubSpot-source UPDATE: ${model}`
@@ -129,7 +129,7 @@ export function createCommissionHubSpotSyncExtension() {
               return query(args);
             }
 
-            // ✅ Skip if only system fields
+            //  Skip if only system fields
             if (isOnlySystemFieldUpdate(args)) {
               logger.debug(
                 `Skipping commission sync for system field update: ${model}`
@@ -232,7 +232,7 @@ async function createCommissionOutboxEntry(
       recordId,
       operation,
     });
-    // ✅ If normalized table, handle differently
+    //  If normalized table, handle differently
     if (isNormalizedTable(tableName)) {
       await handleNormalizedCommissionTableChange(
         client,
@@ -248,7 +248,7 @@ async function createCommissionOutboxEntry(
     await client.syncOutbox.create({
       data: {
         entity_type: tableName,
-        entity_id: recordId, // ✅ Convert to string
+        entity_id: recordId, //  Convert to string
         operation: operation,
         payload: sanitizeForJson(data),
         status: "PENDING",
@@ -258,7 +258,7 @@ async function createCommissionOutboxEntry(
     });
 
     logger.debug(
-      `✅ Commission Outbox Entry: ${operation} ${tableName}#${recordId} created`
+      ` Commission Outbox Entry: ${operation} ${tableName}#${recordId} created`
     );
   } catch (error) {
     logger.error(
@@ -291,7 +291,7 @@ async function handleNormalizedCommissionTableChange(
     const existingEntry = await client.syncOutbox.findFirst({
       where: {
         entity_type: "HSCommissionSettlements",
-        entity_id: settlementId, // ✅ Convert to string
+        entity_id: settlementId, //  Convert to string
         status: "PENDING",
       },
     });
