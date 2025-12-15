@@ -305,7 +305,7 @@ export const updateLoanProductController = async (
         categorized["financialTerms"]
       );
 
-      logger.debug(`Updating eligibility criteria for product: ${productId}`); 
+      logger.debug(`Updating eligibility criteria for product: ${productId}`);
       await updateLoanProductEligibilityCriteria(
         tx,
         productId,
@@ -425,7 +425,6 @@ export const getLoanProductDetails = async (
 //   }
 // };
 
-
 interface LoanProductFilters {
   // Existing filters
   lender_name?: string | null;
@@ -433,6 +432,7 @@ interface LoanProductFilters {
   product_category?: string | null;
   product_status?: string | null;
   partner_name?: string | null;
+  supported_countries?: string | null;
 
   // Financial filters
   interest_rate_min?: number | null;
@@ -480,7 +480,6 @@ interface LoanProductFilters {
   digital_features?: string | null;
 }
 
-
 export const getLoanProductsListController = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
@@ -494,7 +493,7 @@ export const getLoanProductsListController = async (
     const search = (req.query.search as string) || null;
 
     // Extract filters from query params with type conversion
-    const filtersFromQuery = req.query.filters as any || {};
+    const filtersFromQuery = (req.query.filters as any) || {};
 
     const filters: LoanProductFilters = {
       // Existing filters
@@ -503,6 +502,7 @@ export const getLoanProductsListController = async (
       product_category: filtersFromQuery.product_category || null,
       product_status: filtersFromQuery.product_status || null,
       partner_name: filtersFromQuery.partner_name || null,
+      supported_countries: filtersFromQuery.supported_countries || null,
 
       // Financial filters
       interest_rate_min: filtersFromQuery.interest_rate_min
@@ -530,7 +530,8 @@ export const getLoanProductsListController = async (
       maximum_age: filtersFromQuery.maximum_age
         ? parseInt(filtersFromQuery.maximum_age)
         : null,
-      nationality_restrictions: filtersFromQuery.nationality_restrictions || null,
+      nationality_restrictions:
+        filtersFromQuery.nationality_restrictions || null,
 
       // Geographic filters
       supported_course_types: filtersFromQuery.supported_course_types || null,

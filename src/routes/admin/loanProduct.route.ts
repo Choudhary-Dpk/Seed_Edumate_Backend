@@ -1,9 +1,5 @@
 import { Router } from "express";
-
-import {
-  authenticate,
-  AuthMethod,
-} from "../../middlewares";
+import { authenticate } from "../../middlewares";
 import {
   createLoanProductController,
   updateLoanProductController,
@@ -12,6 +8,7 @@ import {
   getLoanProductsListController,
 } from "../../controllers/loanProduct.controller";
 import { checkDuplicateLoanProductFields } from "../../middlewares/loanProduct.middleware";
+import { AuthMethod } from "../../types/auth";
 const router = Router();
 
 router.post(

@@ -4,7 +4,6 @@ import { gupshupRoutes } from "./routes/gupshup.routes";
 import { loanRoutes } from "./routes/loan.routes";
 import { userRoutes } from "./routes/user.routes";
 import { emailRouter } from "./routes/email.routes";
-import { healthRoutes } from "./routes/health.routes";
 import { loanApplicationRouter } from "./routes/loanApplication.routes";
 import { errorHandler } from "./middlewares/error";
 import { partnerRoutes } from "./routes/partner.routes";
@@ -29,7 +28,6 @@ app.use("/loans", loanRoutes);
 app.use("/hubspot", hubspotRoutes);
 app.use("/contacts", contactRoutes);
 app.use("/gupshup", gupshupRoutes);
-app.use("/health", healthRoutes);
 app.use("/user", userRoutes);
 app.use("/email", emailRouter);
 app.use("/loanApplications", loanApplicationRouter);
@@ -41,16 +39,6 @@ app.use("/commission", commissionRoutes);
 app.use("/lenders", lenderRoutes);
 app.use("/admin", adminRoutes);
 app.use("/student", studentRoutes);
-
-// Root route
-app.get("/", (req, res) => {
-  res.json({
-    success: true,
-    message: "Edumate Integration API",
-    documentation: "/docs",
-    version: "1.0.0",
-  });
-});
 
 // 404 handler
 app.use("*", (req, res) => {
@@ -66,6 +54,6 @@ app.use(errorHandler);
 app.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`);
   await checkPrismaConnection();
-  // ✅ Start background workers
+  //  Start background workers
   await startWorkers();
 });

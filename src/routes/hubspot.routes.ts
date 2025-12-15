@@ -1,4 +1,3 @@
-// src/routes/hubspotRoutes.ts
 import { Router } from "express";
 import * as hubspotController from "../controllers/hubspot.controller";
 import {
@@ -13,7 +12,8 @@ import {
   updateEdumateContactSchema,
 } from "../middlewares/validation";
 import { validateEdumateContact } from "../middlewares/validators/contact.validator";
-import { authenticate, AuthMethod, validateApiKey } from "../middlewares";
+import { authenticate } from "../middlewares";
+import { AuthMethod } from "../types/auth";
 
 const router = Router();
 

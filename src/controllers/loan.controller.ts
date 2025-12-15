@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import {
   calculateRepaymentSchedule,
   calculateRepaymentScheduleWithStrategy,
@@ -130,7 +130,9 @@ export const getInstitutionCosts = async (
     if (!validStudyLevels.includes(study_level.toLowerCase())) {
       res.status(400).json({
         success: false,
-        message: `Invalid study_level. Must be one of: ${validStudyLevels.join(", ")}`,
+        message: `Invalid study_level. Must be one of: ${validStudyLevels.join(
+          ", "
+        )}`,
       });
       return;
     }

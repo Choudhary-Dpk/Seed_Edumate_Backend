@@ -9,8 +9,6 @@ import {
 } from "../middlewares/validators/validator";
 import {
   authenticate,
-  AuthMethod,
-  PortalType,
   validateChangePassword,
   validateCreateUser,
   validateEmail,
@@ -28,6 +26,7 @@ import {
   logout,
   getAccessToken,
 } from "../controllers/common/auth.controller";
+import { AuthMethod } from "../types/auth";
 
 const router = Router();
 
