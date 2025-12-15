@@ -107,6 +107,9 @@ export const findStudentByPhoneNumber = async (phone_number: string) => {
       application_journey: true,
       commission_settlements: true,
       financial_Info: true,
+      loan_preference: true,
+      lead_attribution: true,
+      system_tracking: true,
       personal_information: {
         select: {
           first_name: true,
