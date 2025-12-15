@@ -1,4 +1,3 @@
-// Settlement Period Mapping
 export const settlementPeriodMap: Record<string, string> = {
   Monthly: "MONTHLY",
   Quarterly: "QUARTERLY",

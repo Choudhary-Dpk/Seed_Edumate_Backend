@@ -1,6 +1,6 @@
 import {
-  ApplicationSourceSystem,
   ApplicationStatusEnum,
+  ApplicationSourceSystem,
   IntegrationStatus,
 } from "@prisma/client";
 
