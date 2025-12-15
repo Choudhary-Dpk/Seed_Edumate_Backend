@@ -356,9 +356,15 @@ export const mapAllLoanProductFields = async (
   // =====================================================================
 
   // === MAIN LOAN PRODUCT FIELDS ===
-  if (input.source !== undefined)
-    mapped.source =
-      input.source !== null && input.source !== "" ? input.source : null;
+    if (input.supported_countries !== undefined)
+      mapped.supported_countries =
+        input.supported_countries !== null && input.supported_countries !== ""
+          ? input.supported_countries
+          : null;
+
+    if (input.source !== undefined)
+      mapped.source =
+        input.source !== null && input.source !== "" ? input.source : null;
 
   if (input.hs_lender_id !== undefined)
     mapped.hs_lender_id =
