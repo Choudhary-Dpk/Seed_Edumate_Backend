@@ -571,7 +571,7 @@ export const fetchLoanProductsList = async (
   }
 
   if (filters.product_type) {
-    where.product_type = filters.product_type;
+    where.product_type = { equals: filters.product_type, mode: "insensitive" };
   }
 
   if (filters.product_category) {

@@ -478,6 +478,7 @@ interface LoanProductFilters {
   // Special features
   tax_benefits_available?: string | null;
   digital_features?: string | null;
+
 }
 
 export const getLoanProductsListController = async (
@@ -498,7 +499,7 @@ export const getLoanProductsListController = async (
     const filters: LoanProductFilters = {
       // Existing filters
       lender_name: filtersFromQuery.lender_name || null,
-      product_type: filtersFromQuery.product_type || null,
+      product_type: filtersFromQuery.loan_type || null,
       product_category: filtersFromQuery.product_category || null,
       product_status: filtersFromQuery.product_status || null,
       partner_name: filtersFromQuery.partner_name || null,
