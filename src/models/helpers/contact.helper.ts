@@ -516,17 +516,17 @@ export async function createCSVContacts(
 
   return await prisma.$transaction(
     async (tx) => {
-      // ✅ Step 1: Bulk insert main contacts with EMAIL
+      //  Step 1: Bulk insert main contacts with EMAIL
       await tx.hSEdumateContacts.createMany({
         data: contacts.map((c) => ({
           ...c["mainContact"],
-          email: c["personalInformation"]?.email, // ✅ Set email on main table
+          email: c["personalInformation"]?.email, //  Set email on main table
           b2b_partner_id: partnerId!.b2b_id,
         })),
         skipDuplicates: true,
       });
 
-      // ✅ Step 2: Fetch inserted contacts by EMAIL (super reliable!)
+      //  Step 2: Fetch inserted contacts by EMAIL (super reliable!)
       const emails = contacts
         .map((c) => c["personalInformation"]?.email)
         .filter((email): email is string => !!email && email.trim() !== "");
@@ -545,14 +545,14 @@ export async function createCSVContacts(
         },
       });
 
-      // ✅ Step 3: Create email-to-ID mapping
+      //  Step 3: Create email-to-ID mapping
       const emailToIdMap = new Map(
         insertedContacts.map((c) => [c.email, c.id])
       );
 
       logger.debug(`Mapped ${emailToIdMap.size} contacts by email`);
 
-      // ✅ Step 4: Build data arrays with proper contact_id mapping
+      //  Step 4: Build data arrays with proper contact_id mapping
       const personalInfoData = contacts
         .map((c) => {
           const email = c["personalInformation"]?.email;
@@ -637,7 +637,7 @@ export async function createCSVContacts(
         })
         .filter((item): item is NonNullable<typeof item> => item !== null);
 
-      // ✅ Step 5: Bulk insert all normalized tables
+      //  Step 5: Bulk insert all normalized tables
       if (personalInfoData.length > 0) {
         await tx.hSEdumateContactsPersonalInformation.createMany({
           data: personalInfoData,

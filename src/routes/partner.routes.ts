@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getPartnersList } from "../controllers/hubspot.controller";
-import { authenticate, AuthMethod, validateApiKey } from "../middlewares";
+import { authenticate } from "../middlewares";
 import {
   createB2bPartner,
   deletePartner,
@@ -14,6 +14,7 @@ import {
   validateReqParams,
 } from "../middlewares/validators/validator";
 import { checkDuplicateB2BPartnerFields } from "../middlewares/partner.middleware";
+import { AuthMethod } from "../types/auth";
 
 const router = Router();
 

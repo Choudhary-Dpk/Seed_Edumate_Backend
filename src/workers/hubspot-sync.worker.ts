@@ -138,7 +138,7 @@ async function processSingleEntry(entry: any) {
       });
     }
 
-    logger.debug(`✅ Synced: ${operation} ${entity_type}#${entry.entity_id}`);
+    logger.debug(` Synced: ${operation} ${entity_type}#${entry.entity_id}`);
   } catch (error: any) {
     await handleSyncError(entry.id, error);
   }
@@ -162,7 +162,7 @@ async function processBatchEntries(entries: any[]) {
       },
     });
 
-    // ✅ Fetch complete data for all contacts in batch
+    //  Fetch complete data for all contacts in batch
     const contactIds = entries.map((e) => e.entity_id);
 
     const completeContactsData = await prisma.hSEdumateContacts.findMany({
@@ -187,7 +187,7 @@ async function processBatchEntries(entries: any[]) {
 
       if (b2bPartner?.hs_object_id) {
         b2bPartnerHsObjectId = b2bPartner.hs_object_id;
-        logger.info("✅ Found B2B Partner for association", {
+        logger.info(" Found B2B Partner for association", {
           b2bPartnerId: b2b_partner_id,
           hsObjectId: b2bPartnerHsObjectId,
         });
@@ -239,7 +239,7 @@ async function processBatchEntries(entries: any[]) {
       }
     }
 
-    logger.info(`✅ Batch of ${entries.length} synced successfully`);
+    logger.info(` Batch of ${entries.length} synced successfully`);
   } catch (error: any) {
     logger.error("Batch sync error:", error);
 
@@ -274,7 +274,7 @@ async function handleCreate(payload: any, entityId: number): Promise<string> {
 
     if (b2bPartner?.hs_object_id) {
       b2bPartnerHsObjectId = b2bPartner.hs_object_id;
-      logger.info("✅ Found B2B Partner for association", {
+      logger.info(" Found B2B Partner for association", {
         b2bPartnerId: completeContactData.b2b_partner_id,
         hsObjectId: b2bPartnerHsObjectId,
       });

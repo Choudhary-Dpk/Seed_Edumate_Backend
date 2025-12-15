@@ -62,7 +62,7 @@ const seedAdminRoles = async () => {
       });
       successCount++;
       console.log(
-        `✅ Seeded admin role: ${roleData.role} - ${roleData.display_name}`
+        ` Seeded admin role: ${roleData.role} - ${roleData.display_name}`
       );
     } catch (error) {
       console.error(
@@ -99,7 +99,7 @@ const seedAdminUser = async () => {
     });
 
     console.log(
-      `✅ Admin user created: ${adminUser.email} (${adminUser.full_name})`
+      ` Admin user created: ${adminUser.email} (${adminUser.full_name})`
     );
 
     // Fetch super_admin role
@@ -129,7 +129,7 @@ const seedAdminUser = async () => {
       },
     });
 
-    console.log(`✅ Assigned super_admin role to ${adminUser.email}\n`);
+    console.log(` Assigned super_admin role to ${adminUser.email}\n`);
   } catch (error) {
     console.error(`❌ Error seeding admin user:`, (error as Error).message);
   }
@@ -177,7 +177,7 @@ const seedCurrencies = async () => {
         },
       });
       successCount++;
-      console.log(`✅ Seeded ${currency.code} - ${currency.name}`);
+      console.log(` Seeded ${currency.code} - ${currency.name}`);
     } catch (error) {
       errorCount++;
       console.error(
@@ -214,7 +214,7 @@ const seedRoles = async () => {
       });
       successCount++;
       console.log(
-        `✅ Seeded B2B role: ${roleData.role} - ${roleData.display_name}`
+        ` Seeded B2B role: ${roleData.role} - ${roleData.display_name}`
       );
     } catch (error) {
       errorCount++;
@@ -5134,7 +5134,7 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Admission Status seeded (6 values)");
+    console.log(" Admission Status seeded (6 values)");
 
     // ===== 2. CURRENT EDUCATION LEVEL =====
     console.log("\n📚 Seeding Current Education Level...");
@@ -5214,7 +5214,7 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Current Education Level seeded (6 values)");
+    console.log(" Current Education Level seeded (6 values)");
 
     // ===== 3. INTENDED START TERM =====
     console.log("\n📚 Seeding Intended Start Term...");
@@ -5278,7 +5278,7 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Intended Start Term seeded (4 values)");
+    console.log(" Intended Start Term seeded (4 values)");
 
     // ===== 4. PREFERRED STUDY DESTINATION =====
     console.log("\n🌍 Seeding Preferred Study Destination...");
@@ -5430,7 +5430,7 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Preferred Study Destination seeded (15 values)");
+    console.log(" Preferred Study Destination seeded (15 values)");
 
     // ===== 5. TARGET DEGREE LEVEL =====
     console.log("\n🎓 Seeding Target Degree Level...");
@@ -5494,7 +5494,7 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Target Degree Level seeded (4 values)");
+    console.log(" Target Degree Level seeded (4 values)");
 
     // ==================== APPLICATION JOURNEY GROUP ====================
 
@@ -5576,7 +5576,7 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Current Status Disposition seeded (6 values)");
+    console.log(" Current Status Disposition seeded (6 values)");
 
     // ===== 7. CURRENT STATUS DISPOSITION REASON =====
     console.log("\n📝 Seeding Current Status Disposition Reason...");
@@ -5640,7 +5640,7 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Current Status Disposition Reason seeded (4 values)");
+    console.log(" Current Status Disposition Reason seeded (4 values)");
 
     // ===== 8. PRIORITY LEVEL =====
     console.log("\n⭐ Seeding Priority Level...");
@@ -5696,7 +5696,7 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Priority Level seeded (3 values)");
+    console.log(" Priority Level seeded (3 values)");
 
     // ==================== EDUMATE CONTACTS INFORMATION GROUP ====================
 
@@ -5754,7 +5754,7 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Course Type seeded (3 values)");
+    console.log(" Course Type seeded (3 values)");
 
     // ==================== FINANCIAL INFORMATION GROUP ====================
 
@@ -5820,7 +5820,7 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Co-applicant 1 Occupation seeded (4 values)");
+    console.log(" Co-applicant 1 Occupation seeded (4 values)");
 
     // ===== 11. CO-APPLICANT 1 RELATIONSHIP =====
     console.log("\n👨‍👩‍👧 Seeding Co-applicant 1 Relationship...");
@@ -5924,7 +5924,7 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Co-applicant 1 Relationship seeded (9 values)");
+    console.log(" Co-applicant 1 Relationship seeded (9 values)");
 
     // ===== 12. CO-APPLICANT 2 OCCUPATION =====
     console.log("\n💼 Seeding Co-applicant 2 Occupation...");
@@ -5988,7 +5988,7 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Co-applicant 2 Occupation seeded (4 values)");
+    console.log(" Co-applicant 2 Occupation seeded (4 values)");
 
     // ===== 13. CO-APPLICANT 2 RELATIONSHIP =====
     console.log("\n👨‍👩‍👧 Seeding Co-applicant 2 Relationship...");
@@ -6092,7 +6092,7 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Co-applicant 2 Relationship seeded (9 values)");
+    console.log(" Co-applicant 2 Relationship seeded (9 values)");
 
     // ===== 14. CO-APPLICANT 3 OCCUPATION =====
     console.log("\n💼 Seeding Co-applicant 3 Occupation...");
@@ -6156,7 +6156,7 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Co-applicant 3 Occupation seeded (4 values)");
+    console.log(" Co-applicant 3 Occupation seeded (4 values)");
 
     // ===== 15. CO-APPLICANT 3 RELATIONSHIP =====
     console.log("\n👨‍👩‍👧 Seeding Co-applicant 3 Relationship...");
@@ -6260,7 +6260,7 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Co-applicant 3 Relationship seeded (9 values)");
+    console.log(" Co-applicant 3 Relationship seeded (9 values)");
 
     // ===== 16. COLLATERAL 2 AVAILABLE =====
     console.log("\n🏦 Seeding Collateral 2 Available...");
@@ -6308,7 +6308,7 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Collateral 2 Available seeded (2 values)");
+    console.log(" Collateral 2 Available seeded (2 values)");
 
     // ===== 17. COLLATERAL 2 TYPE =====
     console.log("\n🏦 Seeding Collateral 2 Type...");
@@ -6372,7 +6372,7 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Collateral 2 Type seeded (4 values)");
+    console.log(" Collateral 2 Type seeded (4 values)");
 
     // ===== 18. COLLATERAL AVAILABLE =====
     console.log("\n🏦 Seeding Collateral Available...");
@@ -6420,7 +6420,7 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Collateral Available seeded (2 values)");
+    console.log(" Collateral Available seeded (2 values)");
 
     // ===== 19. COLLATERAL TYPE =====
     console.log("\n🏦 Seeding Collateral Type...");
@@ -6484,7 +6484,7 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Collateral Type seeded (4 values)");
+    console.log(" Collateral Type seeded (4 values)");
 
     // ===== 20. CURRENCY =====
     console.log("\n💰 Seeding Currency...");
@@ -6572,7 +6572,7 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Currency seeded (7 values)");
+    console.log(" Currency seeded (7 values)");
 
     // ==================== LEAD ATTRIBUTION GROUP ====================
 
@@ -6670,7 +6670,7 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Lead Source seeded (8 values)");
+    console.log(" Lead Source seeded (8 values)");
 
     // ===== 22. PARTNER COMMISSION APPLICABLE =====
     console.log("\n💵 Seeding Partner Commission Applicable...");
@@ -6718,7 +6718,7 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Partner Commission Applicable seeded (2 values)");
+    console.log(" Partner Commission Applicable seeded (2 values)");
 
     // ==================== LOAN PREFERENCES GROUP ====================
 
@@ -6784,7 +6784,7 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Loan Type Preference seeded (4 values)");
+    console.log(" Loan Type Preference seeded (4 values)");
 
     // ===== 24. REPAYMENT TYPE PREFERENCE =====
     console.log("\n💳 Seeding Repayment Type Preference...");
@@ -6848,7 +6848,7 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Repayment Type Preference seeded (4 values)");
+    console.log(" Repayment Type Preference seeded (4 values)");
 
     // ==================== PERSONAL INFORMATION GROUP ====================
 
@@ -6914,7 +6914,7 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Gender seeded (4 values)");
+    console.log(" Gender seeded (4 values)");
 
     // ===== 26. NATIONALITY =====
     console.log("\n🌏 Seeding Nationality...");
@@ -7386,7 +7386,7 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Nationality seeded (55 common values - expand as needed)");
+    console.log(" Nationality seeded (55 common values - expand as needed)");
 
     // ==================== SYSTEM TRACKING GROUP ====================
 
@@ -7460,7 +7460,7 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Data Source seeded (5 values)");
+    console.log(" Data Source seeded (5 values)");
 
     // ===== 28. GDPR CONSENT =====
     console.log("\n🔒 Seeding GDPR Consent...");
@@ -7516,7 +7516,7 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ GDPR Consent seeded (3 values)");
+    console.log(" GDPR Consent seeded (3 values)");
 
     // ===== 29. MARKETING CONSENT =====
     console.log("\n📧 Seeding Marketing Consent...");
@@ -7564,7 +7564,7 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Marketing Consent seeded (2 values)");
+    console.log(" Marketing Consent seeded (2 values)");
 
     console.log("\n📋 Seeding Student Record Status...");
     const studentRecordStatusEnum = await prisma.enumMapping.upsert({
@@ -7627,12 +7627,12 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Student Record Status seeded (4 values)");
+    console.log(" Student Record Status seeded (4 values)");
 
     console.log("\n" + "=".repeat(80));
     console.log("📊 EDUMATE CONTACT ENUM MAPPINGS SEEDING SUMMARY");
     console.log("=".repeat(80));
-    console.log(`✅ Successfully seeded: ${successCount}/30 enum mappings`);
+    console.log(` Successfully seeded: ${successCount}/30 enum mappings`);
     console.log(`❌ Errors: ${errorCount}`);
     console.log("=".repeat(80));
 
@@ -7786,7 +7786,7 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Admission Status seeded (7 values)");
+    console.log(" Admission Status seeded (7 values)");
 
     // ===== 2. COURSE LEVEL =====
     console.log("\n🎓 Seeding Course Level...");
@@ -7850,7 +7850,7 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Course Level seeded (4 values)");
+    console.log(" Course Level seeded (4 values)");
 
     // ===== 3. I20 CAS RECEIVED =====
     console.log("\n📄 Seeding I20 CAS Received...");
@@ -7914,7 +7914,7 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ I20 CAS Received seeded (4 values)");
+    console.log(" I20 CAS Received seeded (4 values)");
 
     // ===== 4. VISA STATUS =====
     console.log("\n🛂 Seeding Visa Status...");
@@ -7986,7 +7986,7 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Visa Status seeded (5 values)");
+    console.log(" Visa Status seeded (5 values)");
 
     // ==================== APPLICATION STATUS GROUP ====================
 
@@ -8092,7 +8092,7 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Application Status seeded (9 values)");
+    console.log(" Application Status seeded (9 values)");
 
     // ===== 6. PRIORITY LEVEL =====
     console.log("\n⭐ Seeding Priority Level...");
@@ -8156,7 +8156,7 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Priority Level seeded (4 values)");
+    console.log(" Priority Level seeded (4 values)");
 
     // ==================== COMMISSION & SETTLEMENT GROUP ====================
 
@@ -8214,7 +8214,7 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Commission Calculation Base seeded (3 values)");
+    console.log(" Commission Calculation Base seeded (3 values)");
 
     // ===== 8. COMMISSION STATUS =====
     console.log("\n💵 Seeding Commission Status...");
@@ -8294,7 +8294,7 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Commission Status seeded (6 values)");
+    console.log(" Commission Status seeded (6 values)");
 
     // ===== 9. PARTNER COMMISSION APPLICABLE =====
     console.log("\n🤝 Seeding Partner Commission Applicable...");
@@ -8342,7 +8342,7 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Partner Commission Applicable seeded (2 values)");
+    console.log(" Partner Commission Applicable seeded (2 values)");
 
     // ==================== COMMUNICATION GROUP ====================
 
@@ -8416,7 +8416,7 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Communication Preference seeded (5 values)");
+    console.log(" Communication Preference seeded (5 values)");
 
     // ===== 11. COMPLAINT RAISED =====
     console.log("\n⚠️ Seeding Complaint Raised...");
@@ -8464,7 +8464,7 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Complaint Raised seeded (2 values)");
+    console.log(" Complaint Raised seeded (2 values)");
 
     // ===== 12. FOLLOW UP FREQUENCY =====
     console.log("\n🔄 Seeding Follow Up Frequency...");
@@ -8536,7 +8536,7 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Follow Up Frequency seeded (5 values)");
+    console.log(" Follow Up Frequency seeded (5 values)");
 
     // ==================== LENDER INFORMATION GROUP ====================
 
@@ -8586,7 +8586,7 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Co-signer Required seeded (2 values)");
+    console.log(" Co-signer Required seeded (2 values)");
 
     // ===== 14. COLLATERAL REQUIRED =====
     console.log("\n🏦 Seeding Collateral Required...");
@@ -8634,7 +8634,7 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Collateral Required seeded (2 values)");
+    console.log(" Collateral Required seeded (2 values)");
 
     // ===== 15. INTEREST RATE TYPE =====
     console.log("\n📊 Seeding Interest Rate Type...");
@@ -8690,7 +8690,7 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Interest Rate Type seeded (3 values)");
+    console.log(" Interest Rate Type seeded (3 values)");
 
     // ===== 16. LOAN PRODUCT TYPE =====
     console.log("\n💳 Seeding Loan Product Type...");
@@ -8746,7 +8746,7 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Loan Product Type seeded (3 values)");
+    console.log(" Loan Product Type seeded (3 values)");
 
     // ==================== LOAN APPLICATIONS INFORMATION GROUP ====================
 
@@ -8820,7 +8820,7 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Application Source seeded (5 values)");
+    console.log(" Application Source seeded (5 values)");
 
     // ==================== PROCESSING TIMELINE GROUP ====================
 
@@ -8878,7 +8878,7 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Delay Reason seeded (3 values)");
+    console.log(" Delay Reason seeded (3 values)");
 
     // ===== 19. SLA BREACH =====
     console.log("\n🚨 Seeding SLA Breach...");
@@ -8926,7 +8926,7 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ SLA Breach seeded (2 values)");
+    console.log(" SLA Breach seeded (2 values)");
 
     // ==================== REJECTION & ISSUES GROUP ====================
 
@@ -8992,7 +8992,7 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Appeal Outcome seeded (4 values)");
+    console.log(" Appeal Outcome seeded (4 values)");
 
     // ===== 21. APPEAL SUBMITTED =====
     console.log("\n📝 Seeding Appeal Submitted...");
@@ -9048,7 +9048,7 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Appeal Submitted seeded (3 values)");
+    console.log(" Appeal Submitted seeded (3 values)");
 
     // ===== 22. REJECTION REASON =====
     console.log("\n❌ Seeding Rejection Reason...");
@@ -9144,7 +9144,7 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Rejection Reason seeded (8 values)");
+    console.log(" Rejection Reason seeded (8 values)");
 
     // ==================== SYSTEM TRACKING GROUP ====================
 
@@ -9210,7 +9210,7 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Application Record Status seeded (4 values)");
+    console.log(" Application Record Status seeded (4 values)");
 
     // ===== 24. APPLICATION SOURCE SYSTEM =====
     console.log("\n💻 Seeding Application Source System...");
@@ -9282,7 +9282,7 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Application Source System seeded (5 values)");
+    console.log(" Application Source System seeded (5 values)");
 
     // ===== 25. INTEGRATION STATUS =====
     console.log("\n🔄 Seeding Integration Status...");
@@ -9346,12 +9346,12 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Integration Status seeded (4 values)");
+    console.log(" Integration Status seeded (4 values)");
 
     console.log("\n" + "=".repeat(80));
     console.log("📊 LOAN APPLICATION ENUM MAPPINGS SEEDING SUMMARY");
     console.log("=".repeat(80));
-    console.log(`✅ Successfully seeded: ${successCount}/25 enum mappings`);
+    console.log(` Successfully seeded: ${successCount}/25 enum mappings`);
     console.log(`❌ Errors: ${errorCount}`);
     console.log("=".repeat(80));
 
@@ -9495,7 +9495,7 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Product Type seeded (6 values)");
+    console.log(" Product Type seeded (6 values)");
 
     // ===== 2. PRODUCT CATEGORY =====
     console.log("\n📚 Seeding Product Category...");
@@ -9559,7 +9559,7 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Product Category seeded (4 values)");
+    console.log(" Product Category seeded (4 values)");
 
     // ===== 3. PRODUCT STATUS =====
     console.log("\n⚡ Seeding Product Status...");
@@ -9631,7 +9631,7 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Product Status seeded (5 values)");
+    console.log(" Product Status seeded (5 values)");
 
     // ==================== APPLICATION & PROCESSING ====================
 
@@ -9705,7 +9705,7 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Application Mode seeded (5 values)");
+    console.log(" Application Mode seeded (5 values)");
 
     // ===== 5. DISBURSEMENT PROCESS =====
     console.log("\n💰 Seeding Disbursement Process...");
@@ -9777,7 +9777,7 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Disbursement Process seeded (5 values)");
+    console.log(" Disbursement Process seeded (5 values)");
 
     // ==================== COLLATERAL & SECURITY ====================
 
@@ -9843,7 +9843,7 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Collateral Required seeded (4 values)");
+    console.log(" Collateral Required seeded (4 values)");
 
     // ===== 7. COLLATERAL TYPES ACCEPTED =====
     console.log("\n🏠 Seeding Collateral Types Accepted...");
@@ -9907,7 +9907,7 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Collateral Types Accepted seeded (4 values)");
+    console.log(" Collateral Types Accepted seeded (4 values)");
 
     // ===== 8. GUARANTOR REQUIRED =====
     console.log("\n✍️ Seeding Guarantor Required...");
@@ -9971,7 +9971,7 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Guarantor Required seeded (4 values)");
+    console.log(" Guarantor Required seeded (4 values)");
 
     // ===== 9. INSURANCE REQUIRED =====
     console.log("\n🛡️ Seeding Insurance Required...");
@@ -10035,7 +10035,7 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Insurance Required seeded (4 values)");
+    console.log(" Insurance Required seeded (4 values)");
 
     // ===== 10. THIRD PARTY GUARANTEE ACCEPTED =====
     console.log("\n🤝 Seeding Third Party Guarantee Accepted...");
@@ -10091,7 +10091,7 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Third Party Guarantee Accepted seeded (3 values)");
+    console.log(" Third Party Guarantee Accepted seeded (3 values)");
 
     // ==================== COMPETITIVE ANALYSIS ====================
 
@@ -10165,7 +10165,7 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Market Positioning seeded (5 values)");
+    console.log(" Market Positioning seeded (5 values)");
 
     // ===== 12. PRICING STRATEGY =====
     console.log("\n💵 Seeding Pricing Strategy...");
@@ -10229,7 +10229,7 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Pricing Strategy seeded (4 values)");
+    console.log(" Pricing Strategy seeded (4 values)");
 
     // ==================== ELIGIBILITY CRITERIA ====================
 
@@ -10311,7 +10311,7 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Co-applicant Relationship seeded (6 values)");
+    console.log(" Co-applicant Relationship seeded (6 values)");
 
     // ===== 14. CO-APPLICANT REQUIRED =====
     console.log("\n👤 Seeding Co-applicant Required...");
@@ -10367,7 +10367,7 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Co-applicant Required seeded (3 values)");
+    console.log(" Co-applicant Required seeded (3 values)");
 
     // ===== 15. ENTRANCE EXAM REQUIRED =====
     console.log("\n📝 Seeding Entrance Exam Required...");
@@ -10471,7 +10471,7 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Entrance Exam Required seeded (9 values)");
+    console.log(" Entrance Exam Required seeded (9 values)");
 
     // ===== 16. NATIONALITY RESTRICTIONS =====
     console.log("\n🌍 Seeding Nationality Restrictions...");
@@ -10519,7 +10519,7 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Nationality Restrictions seeded (2 values)");
+    console.log(" Nationality Restrictions seeded (2 values)");
 
     // ===== 17. RESIDENCY REQUIREMENTS =====
     console.log("\n🏡 Seeding Residency Requirements...");
@@ -10567,7 +10567,7 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Residency Requirements seeded (2 values)");
+    console.log(" Residency Requirements seeded (2 values)");
 
     // ===== 18. TARGET SEGMENT =====
     console.log("\n🎯 Seeding Target Segment...");
@@ -10631,7 +10631,7 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Target Segment seeded (4 values)");
+    console.log(" Target Segment seeded (4 values)");
 
     // ==================== FINANCIAL TERMS ====================
 
@@ -10697,7 +10697,7 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Interest Rate Type seeded (4 values)");
+    console.log(" Interest Rate Type seeded (4 values)");
 
     // ===== 20. PROCESSING FEE TYPE =====
     console.log("\n💳 Seeding Processing Fee Type...");
@@ -10753,7 +10753,7 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Processing Fee Type seeded (3 values)");
+    console.log(" Processing Fee Type seeded (3 values)");
 
     // ==================== GEOGRAPHIC COVERAGE ====================
 
@@ -10845,7 +10845,7 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Supported Course Types seeded (7 values)");
+    console.log(" Supported Course Types seeded (7 values)");
 
     // ==================== REPAYMENT TERMS ====================
 
@@ -10911,7 +10911,7 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Moratorium Type seeded (4 values)");
+    console.log(" Moratorium Type seeded (4 values)");
 
     // ===== 23. PART PAYMENT ALLOWED =====
     console.log("\n💸 Seeding Part Payment Allowed...");
@@ -10967,7 +10967,7 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Part Payment Allowed seeded (3 values)");
+    console.log(" Part Payment Allowed seeded (3 values)");
 
     // ===== 24. PREPAYMENT ALLOWED =====
     console.log("\n💰 Seeding Prepayment Allowed...");
@@ -11023,7 +11023,7 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Prepayment Allowed seeded (3 values)");
+    console.log(" Prepayment Allowed seeded (3 values)");
 
     // ===== 25. REPAYMENT FREQUENCY =====
     console.log("\n📅 Seeding Repayment Frequency...");
@@ -11095,7 +11095,7 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Repayment Frequency seeded (5 values)");
+    console.log(" Repayment Frequency seeded (5 values)");
 
     // ==================== SPECIAL FEATURES ====================
 
@@ -11169,7 +11169,7 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Customer Support Features seeded (5 values)");
+    console.log(" Customer Support Features seeded (5 values)");
 
     // ===== 27. DIGITAL FEATURES =====
     console.log("\n📱 Seeding Digital Features...");
@@ -11249,7 +11249,7 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Digital Features seeded (6 values)");
+    console.log(" Digital Features seeded (6 values)");
 
     // ===== 28. FLEXIBLE REPAYMENT OPTIONS =====
     console.log("\n🔄 Seeding Flexible Repayment Options...");
@@ -11321,7 +11321,7 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Flexible Repayment Options seeded (5 values)");
+    console.log(" Flexible Repayment Options seeded (5 values)");
 
     // ===== 29. TAX BENEFITS AVAILABLE =====
     console.log("\n💼 Seeding Tax Benefits Available...");
@@ -11377,7 +11377,7 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Tax Benefits Available seeded (3 values)");
+    console.log(" Tax Benefits Available seeded (3 values)");
 
     // ==================== SYSTEM INTEGRATION ====================
 
@@ -11443,7 +11443,7 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ API Availability seeded (4 values)");
+    console.log(" API Availability seeded (4 values)");
 
     // ===== 31. DATA FORMAT =====
     console.log("\n📄 Seeding Data Format...");
@@ -11515,7 +11515,7 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Data Format seeded (5 values)");
+    console.log(" Data Format seeded (5 values)");
 
     // ===== 32. INTEGRATION COMPLEXITY =====
     console.log("\n⚙️ Seeding Integration Complexity...");
@@ -11579,7 +11579,7 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Integration Complexity seeded (4 values)");
+    console.log(" Integration Complexity seeded (4 values)");
 
     // ===== 33. SANDBOX ENVIRONMENT =====
     console.log("\n🧪 Seeding Sandbox Environment...");
@@ -11635,7 +11635,7 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Sandbox Environment seeded (3 values)");
+    console.log(" Sandbox Environment seeded (3 values)");
 
     // ===== 34. WEBHOOK SUPPORT =====
     console.log("\n🪝 Seeding Webhook Support...");
@@ -11691,7 +11691,7 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Webhook Support seeded (3 values)");
+    console.log(" Webhook Support seeded (3 values)");
 
     // ==================== SYSTEM TRACKING ====================
 
@@ -11757,7 +11757,7 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Product Record Status seeded (4 values)");
+    console.log(" Product Record Status seeded (4 values)");
 
     // ===== 36. REVIEW FREQUENCY =====
     console.log("\n🔍 Seeding Review Frequency...");
@@ -11821,13 +11821,13 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("✅ Review Frequency seeded (4 values)");
+    console.log(" Review Frequency seeded (4 values)");
 
     // ==================== SEEDING SUMMARY ====================
     console.log("\n" + "=".repeat(80));
     console.log("📊 LOAN PRODUCT ENUM MAPPINGS SEEDING SUMMARY");
     console.log("=".repeat(80));
-    console.log(`✅ Successfully seeded: ${successCount}/36 enum mappings`);
+    console.log(` Successfully seeded: ${successCount}/36 enum mappings`);
     console.log(`❌ Errors: ${errorCount}`);
     console.log("=".repeat(80));
 

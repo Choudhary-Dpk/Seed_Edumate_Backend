@@ -1,8 +1,5 @@
 import { Router } from "express";
-import {
-  authenticate,
-  AuthMethod,
-} from "../../middlewares";
+import { authenticate } from "../../middlewares";
 import {
   getLenderListController,
   getLoanProductsByLenderController,
@@ -13,6 +10,7 @@ import {
   getLenderDetailsController,
 } from "../../controllers/lender.controller";
 import { checkDuplicateLenderFields } from "../../middlewares/lender.middleware";
+import { AuthMethod } from "../../types/auth";
 const router = Router();
 
 router.get("/list", getLenderListController);

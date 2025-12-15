@@ -1373,6 +1373,8 @@ model HSLoanProducts {
   deleted_by                        String?
   deleted_on                        DateTime?
   source                            String?                                 @default("webportal")
+  key_features                      String[]                                @default([])
+  supported_countries               String?       
   commission_settlement             HSCommissionSettlements[]
   loan_application                  HSLoanApplications[]
   lender                            HSLenders?                              @relation(fields: [lender_id], references: [id], onDelete: Cascade)

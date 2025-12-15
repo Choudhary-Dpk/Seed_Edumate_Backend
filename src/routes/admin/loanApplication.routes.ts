@@ -1,9 +1,5 @@
 import { Router } from "express";
-import {
-  authenticate,
-  AuthMethod,
-  validateApiKey,
-} from "../../middlewares";
+import { authenticate } from "../../middlewares";
 import {
   loanApplicationPaginationValidationRules,
   validateReqParams,
@@ -16,6 +12,7 @@ import {
   getLoanApplicationsListController,
   updateLoanApplicationController,
 } from "../../controllers/loanApplication.controller";
+import { AuthMethod } from "../../types/auth";
 
 const router = Router();
 

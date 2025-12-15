@@ -1,5 +1,5 @@
 import { Request } from "express";
-import { AuthMethod, PortalType } from "../middlewares";
+import { PortalType, AuthMethod } from "./auth";
 
 export type ServerResponse = {
   success: boolean;

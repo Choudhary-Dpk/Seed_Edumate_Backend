@@ -93,6 +93,8 @@ export const categorizeLoanProductByTable = (
     "product_status",
     "last_updated_date",
     "hs_lender_id",
+    "supported_countries",
+
     // HubSpot System Fields
     "hs_created_by_user_id",
     "hs_createdate",

@@ -54,7 +54,6 @@ export async function createLoanApplication(
   loanProductHSId: string | null = null
 ): Promise<HubSpotLoanApplication> {
   try {
-
     const associations: Array<{
       to: { id: string };
       types: Array<{
@@ -69,8 +68,11 @@ export async function createLoanApplication(
         to: { id: edumateContactHsObjectId },
         types: [
           {
-            associationCategory: EDUMATE_CONTACT_LOAN_APP_ASSOCIATION?.associationCategory || "USER_DEFINED",
-            associationTypeId: EDUMATE_CONTACT_LOAN_APP_ASSOCIATION?.associationTypeId || 485,
+            associationCategory:
+              EDUMATE_CONTACT_LOAN_APP_ASSOCIATION?.associationCategory ||
+              "USER_DEFINED",
+            associationTypeId:
+              EDUMATE_CONTACT_LOAN_APP_ASSOCIATION?.associationTypeId || 485,
           },
         ],
       });
@@ -84,8 +86,11 @@ export async function createLoanApplication(
         to: { id: b2bPartnerHSId },
         types: [
           {
-            associationCategory: B2B_PARTNER_LOAN_APP_ASSOCIATION?.associationCategory || "USER_DEFINED",
-            associationTypeId: B2B_PARTNER_LOAN_APP_ASSOCIATION?.associationTypeId || 457,
+            associationCategory:
+              B2B_PARTNER_LOAN_APP_ASSOCIATION?.associationCategory ||
+              "USER_DEFINED",
+            associationTypeId:
+              B2B_PARTNER_LOAN_APP_ASSOCIATION?.associationTypeId || 457,
           },
         ],
       });
@@ -100,15 +105,17 @@ export async function createLoanApplication(
         to: { id: lenderHSId },
         types: [
           {
-            associationCategory: LENDER_LOAN_APP_ASSOCIATION?.associationCategory || "USER_DEFINED",
-            associationTypeId: LENDER_LOAN_APP_ASSOCIATION?.associationTypeId || 425,
+            associationCategory:
+              LENDER_LOAN_APP_ASSOCIATION?.associationCategory ||
+              "USER_DEFINED",
+            associationTypeId:
+              LENDER_LOAN_APP_ASSOCIATION?.associationTypeId || 425,
           },
         ],
       });
-      logger.info("🔗 Adding Lender association", 
-        {
-          lenderHSId,
-        });
+      logger.info("🔗 Adding Lender association", {
+        lenderHSId,
+      });
     }
     // Add Loan Product association if available
     if (loanProductHSId) {
@@ -116,8 +123,11 @@ export async function createLoanApplication(
         to: { id: loanProductHSId },
         types: [
           {
-            associationCategory: LOAN_PRODUCT_LOAN_APP_ASSOCIATION?.associationCategory || "USER_DEFINED",
-            associationTypeId: LOAN_PRODUCT_LOAN_APP_ASSOCIATION?.associationTypeId || 469,
+            associationCategory:
+              LOAN_PRODUCT_LOAN_APP_ASSOCIATION?.associationCategory ||
+              "USER_DEFINED",
+            associationTypeId:
+              LOAN_PRODUCT_LOAN_APP_ASSOCIATION?.associationTypeId || 469,
           },
         ],
       });
@@ -134,7 +144,7 @@ export async function createLoanApplication(
       }
     );
 
-    logger.info("✅ Loan application created in HubSpot", {
+    logger.info(" Loan application created in HubSpot", {
       hubspotId: response.id,
     });
 
@@ -167,7 +177,7 @@ export async function createMultipleLoanApplications(
       batchInput
     );
 
-    logger.info("✅ Created multiple loan applications in HubSpot", {
+    logger.info(" Created multiple loan applications in HubSpot", {
       count: response.results?.length || 0,
     });
 
@@ -199,7 +209,7 @@ export async function updateLoanApplication(
       }
     );
 
-    logger.info("✅ Loan application updated in HubSpot", {
+    logger.info(" Loan application updated in HubSpot", {
       hubspotId: response.id,
     });
 
@@ -233,7 +243,7 @@ export async function updateMultipleLoanApplications(
       batchInput
     );
 
-    logger.info("✅ Updated multiple loan applications in HubSpot", {
+    logger.info(" Updated multiple loan applications in HubSpot", {
       count: response.results?.length || 0,
     });
 
@@ -259,7 +269,7 @@ export async function deleteLoanApplication(hubspotId: string): Promise<void> {
       hubspotId
     );
 
-    logger.info("✅ Loan application archived in HubSpot", {
+    logger.info(" Loan application archived in HubSpot", {
       hubspotId,
     });
   } catch (error) {
@@ -286,7 +296,7 @@ export async function getLoanApplicationById(
       undefined
     );
 
-    logger.info("✅ Retrieved loan application from HubSpot", {
+    logger.info(" Retrieved loan application from HubSpot", {
       hubspotId: response.id,
     });
 
@@ -316,7 +326,7 @@ export async function getMultipleLoanApplications(
       }
     );
 
-    logger.info("✅ Retrieved multiple loan applications from HubSpot", {
+    logger.info(" Retrieved multiple loan applications from HubSpot", {
       count: response.results?.length || 0,
     });
 
@@ -324,10 +334,13 @@ export async function getMultipleLoanApplications(
       convertToHubSpotLoanObject<HubSpotLoanApplication>(res)
     );
   } catch (error) {
-    logger.error("❌ Error retrieving multiple loan applications from HubSpot", {
-      error,
-      count: hubspotIds.length,
-    });
+    logger.error(
+      "❌ Error retrieving multiple loan applications from HubSpot",
+      {
+        error,
+        count: hubspotIds.length,
+      }
+    );
     throw handleHubSpotError(error);
   }
 }
