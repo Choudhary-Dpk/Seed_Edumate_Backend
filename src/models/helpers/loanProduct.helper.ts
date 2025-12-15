@@ -591,7 +591,7 @@ export const fetchLoanProductsList = async (
 
   if (filters.supported_countries) {
     where.supported_countries = {
-      contains: filters.supported_countries,
+      equals: filters.supported_countries,
       mode: "insensitive",
     };
   }
