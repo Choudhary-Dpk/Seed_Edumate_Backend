@@ -162,7 +162,11 @@ export const getEdumateContactByPhone = async (phone: string) => {
           is_deleted: true,
         },
       },
+      application_journey: true,
+      system_tracking: true,
+      loan_preference: true,
       academic_profile: true,
+      lead_attribution: true,
     },
     where: {
       personal_information: {
