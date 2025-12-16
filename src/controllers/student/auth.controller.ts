@@ -17,6 +17,9 @@ import {
   updateEdumateContactLoanPreference,
   updateEdumateContactFinancialInfo,
   getEdumateContactByPhone,
+  createApplicationJourney,
+  createFinancialInfo,
+  createLoanPreferences,
 } from "../../models/helpers/contact.helper";
 import { handleLeadCreation } from "../../services/DBServices/loan.services";
 import { sendResponse } from "../../utils/api";
@@ -67,6 +70,9 @@ export const studentSignupController = async (
         ...(categorized["personalInformation"] || {}),
         ...(categorized["academicProfile"] || {}),
         ...(categorized["leadAttribution"] || {}),
+        ...(categorized["applicationJourney"] || {}),
+        ...(categorized["financialInfo"] || {}),
+        ...(categorized["loanPreferences"] || {}),
       };
 
       result = await prisma.$transaction(
@@ -81,6 +87,24 @@ export const studentSignupController = async (
             tx,
             contact.id,
             categorized["personalInformation"]
+          );
+
+          await updateEdumateContactApplicationJourney(
+            tx,
+            contact.id,
+            categorized["applicationJourney"]
+          );
+
+          await updateEdumateContactFinancialInfo(
+            tx,
+            contact.id,
+            categorized["financialInfo"]
+          );
+
+          await updateEdumateContactLoanPreference(
+            tx,
+            contact.id,
+            categorized["loanPreferences"]
           );
 
           await updateEdumateAcademicProfile(
@@ -130,12 +154,37 @@ export const studentSignupController = async (
             categorized["leadAttribution"]
           );
 
-          await createEdumateSystemTracking(tx, contact.id);
+          const application = await createApplicationJourney(
+            tx,
+            contact.id,
+            categorized["applicationJourney"]
+          );
+
+          const financial = await createFinancialInfo(
+            tx,
+            contact.id,
+            categorized["financialInfo"]
+          );
+
+          const loanPreference = await createLoanPreferences(
+            tx,
+            contact.id,
+            categorized["loanPreferences"]
+          );
+
+          const systemTracking = await createEdumateSystemTracking(
+            tx,
+            contact.id
+          );
 
           data.contact = {
             ...personalInfo,
             ...academicsProfile,
             ...leadAttribution,
+            ...application,
+            ...financial,
+            ...loanPreference,
+            ...systemTracking,
           };
 
           return contact;
