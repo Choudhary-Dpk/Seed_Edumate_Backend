@@ -105,7 +105,6 @@ export const findStudentByPhoneNumber = async (phone_number: string) => {
       interested: true,
       academic_profile: true,
       application_journey: true,
-      commission_settlements: true,
       financial_Info: true,
       loan_preference: true,
       lead_attribution: true,
@@ -144,15 +143,19 @@ export const findStudentByPhoneNumber = async (phone_number: string) => {
     academic_profile,
     financial_Info,
     application_journey,
+    lead_attribution,
+    loan_preference,
     ...contactBase
   } = contactData;
 
   const contact = {
-    ...contactBase,
-    ...personal_information,
-    ...academic_profile,
-    ...financial_Info,
-    ...application_journey,
+    contactBase,
+    personal_information,
+    academic_profile,
+    financial_Info,
+    lead_attribution,
+    loan_preference,
+    application_journey,
   };
 
   return {
@@ -392,7 +395,7 @@ export const getUpdatedStudentProfile = async (
     },
   });
 
-  // Fetch contact with personal information
+  // ✅ Fetch contact with ALL relations (matching login/signup)
   const contactData = await prisma.hSEdumateContacts.findUnique({
     where: {
       id: contact_id,
@@ -413,6 +416,13 @@ export const getUpdatedStudentProfile = async (
       updated_at: true,
       favourite: true,
       interested: true,
+      // ✅ Added all missing relations
+      academic_profile: true,
+      application_journey: true,
+      financial_Info: true,
+      loan_preference: true,
+      lead_attribution: true,
+      system_tracking: true,
       personal_information: {
         select: {
           first_name: true,
@@ -436,12 +446,28 @@ export const getUpdatedStudentProfile = async (
     },
   });
 
-  // Flatten personal information
-  const { personal_information, ...contactBase } = contactData || {};
+  // ✅ Destructure ALL relations (matching login/signup structure)
+  const {
+    personal_information,
+    academic_profile,
+    financial_Info,
+    application_journey,
+    lead_attribution,
+    loan_preference,
+    system_tracking,
+    ...contactBase
+  } = contactData || {};
 
+  // ✅ Structure contact with all relations (matching login/signup)
   const contact = {
     ...contactBase,
-    ...personal_information,
+    personal_information,
+    academic_profile,
+    financial_Info,
+    lead_attribution,
+    loan_preference,
+    application_journey,
+    system_tracking,
   };
 
   return {
