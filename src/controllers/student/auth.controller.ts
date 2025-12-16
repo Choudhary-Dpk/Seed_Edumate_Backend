@@ -17,6 +17,9 @@ import {
   updateEdumateContactLoanPreference,
   updateEdumateContactFinancialInfo,
   getEdumateContactByPhone,
+  createApplicationJourney,
+  createFinancialInfo,
+  createLoanPreferences,
 } from "../../models/helpers/contact.helper";
 import { handleLeadCreation } from "../../services/DBServices/loan.services";
 import { sendResponse } from "../../utils/api";
@@ -43,6 +46,7 @@ export const studentSignupController = async (
     const { email, formType, phoneNumber, full_name } = req.body;
     let data: any = {};
     let leadAttribution: any;
+
     // 1. Map fields to internal structure
     const mappedFields = await mapAllFields(req.body);
     const categorized = categorizeByTable(mappedFields);
@@ -62,13 +66,6 @@ export const studentSignupController = async (
     if (existingContactDb?.id) {
       const leadId = existingContactDb.id;
 
-      data.contact = {
-        ...(categorized["mainContact"] || {}),
-        ...(categorized["personalInformation"] || {}),
-        ...(categorized["academicProfile"] || {}),
-        ...(categorized["leadAttribution"] || {}),
-      };
-
       result = await prisma.$transaction(
         async (tx: any) => {
           const contact = await updateEdumateContact(
@@ -81,6 +78,24 @@ export const studentSignupController = async (
             tx,
             contact.id,
             categorized["personalInformation"]
+          );
+
+          await updateEdumateContactApplicationJourney(
+            tx,
+            contact.id,
+            categorized["applicationJourney"]
+          );
+
+          await updateEdumateContactFinancialInfo(
+            tx,
+            contact.id,
+            categorized["financialInfo"]
+          );
+
+          await updateEdumateContactLoanPreference(
+            tx,
+            contact.id,
+            categorized["loanPreferences"]
           );
 
           await updateEdumateAcademicProfile(
@@ -100,7 +115,6 @@ export const studentSignupController = async (
         { timeout: 180000 }
       );
     }
-
     // -----------------------------
     // CREATE FLOW
     // -----------------------------
@@ -112,31 +126,43 @@ export const studentSignupController = async (
             categorized["mainContact"]
           );
 
-          const personalInfo = await createEdumatePersonalInformation(
+          await createEdumatePersonalInformation(
             tx,
             contact.id,
             categorized["personalInformation"]
           );
 
-          const academicsProfile = await createEdumateAcademicProfile(
+          await createEdumateAcademicProfile(
             tx,
             contact.id,
             categorized["academicProfile"]
           );
 
-          leadAttribution = await createEdumateLeadAttribution(
+          await createEdumateLeadAttribution(
             tx,
             contact.id,
             categorized["leadAttribution"]
           );
 
-          await createEdumateSystemTracking(tx, contact.id);
+          await createApplicationJourney(
+            tx,
+            contact.id,
+            categorized["applicationJourney"]
+          );
 
-          data.contact = {
-            ...personalInfo,
-            ...academicsProfile,
-            ...leadAttribution,
-          };
+          await createFinancialInfo(
+            tx,
+            contact.id,
+            categorized["financialInfo"]
+          );
+
+          await createLoanPreferences(
+            tx,
+            contact.id,
+            categorized["loanPreferences"]
+          );
+
+          await createEdumateSystemTracking(tx, contact.id);
 
           return contact;
         },
@@ -147,7 +173,6 @@ export const studentSignupController = async (
     // -----------------------------
     // ALWAYS CREATE/UPSERT STUDENT USER
     // -----------------------------
-
     const studentUser = await createStudentUser(
       result.id,
       email,
@@ -155,12 +180,94 @@ export const studentSignupController = async (
       full_name
     );
 
-    data.student = studentUser;
+    // -----------------------------
+    // FETCH COMPLETE CONTACT DATA (SAME AS LOGIN)
+    // -----------------------------
+    const completeContactData = await prisma.hSEdumateContacts.findUnique({
+      where: {
+        id: result.id,
+        is_deleted: false,
+      },
+      select: {
+        id: true,
+        email: true,
+        seed_contact: true,
+        course_type: true,
+        base_currency: true,
+        study_destination_currency: true,
+        user_selected_currency: true,
+        hs_object_id: true,
+        is_active: true,
+        source: true,
+        created_at: true,
+        updated_at: true,
+        favourite: true,
+        interested: true,
+        academic_profile: true,
+        application_journey: true,
+        financial_Info: true,
+        loan_preference: true,
+        lead_attribution: true,
+        system_tracking: true,
+        personal_information: {
+          select: {
+            first_name: true,
+            last_name: true,
+            phone_number: true,
+            date_of_birth: true,
+            gender: true,
+            nationality: true,
+            current_address: true,
+            city_current_address: true,
+            state_current_address: true,
+            country_current_address: true,
+            pincode_current_address: true,
+            permanent_address: true,
+            city_permanent_address: true,
+            state_permanent_address: true,
+            country_permanent_address: true,
+            pincode_permanent_address: true,
+          },
+        },
+      },
+    });
+
+    if (!completeContactData) {
+      throw new Error("Failed to retrieve complete contact data");
+    }
+
+    // ✅ Structure data EXACTLY like login
+    const {
+      personal_information,
+      academic_profile,
+      financial_Info,
+      application_journey,
+      lead_attribution,
+      loan_preference,
+      system_tracking,
+      ...contactBase
+    } = completeContactData;
+
+    const contact = {
+      ...contactBase,
+      personal_information,
+      academic_profile,
+      financial_Info,
+      lead_attribution,
+      loan_preference,
+      application_journey,
+      system_tracking,
+    };
+
+    // ✅ Final data structure matching login
+    data = {
+      student: studentUser,
+      contact: contact,
+    };
 
     // -----------------------------
     // HANDLE LEAD CREATION
     // -----------------------------
-
     if (result?.id && formType) {
       await handleLeadCreation(result.id, formType, email);
     }

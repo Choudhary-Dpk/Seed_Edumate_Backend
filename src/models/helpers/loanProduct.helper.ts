@@ -1,5 +1,6 @@
 import { Prisma } from "@prisma/client";
 import prisma from "../../config/prisma";
+import { equal } from "assert";
 
 export const createLoanProduct = async (tx: any, mainData: any) => {
   const product = await tx.hSLoanProducts.create({
@@ -496,7 +497,7 @@ interface LoanProductFilters {
   supported_countries?: string | null;
 
   // Financial filters
-  interest_rate_min?: number | null;
+  interest_rate?: number | null;
   interest_rate_max?: number | null;
   loan_amount_min?: number | null;
   loan_amount_max?: number | null;
@@ -596,9 +597,9 @@ export const fetchLoanProductsList = async (
     };
   }
 
-  // Financial terms filters
+  // Interest and loan amount
   if (
-    filters.interest_rate_min !== null ||
+    filters.interest_rate !== null ||
     filters.interest_rate_max !== null ||
     filters.loan_amount_min !== null ||
     filters.loan_amount_max !== null ||
@@ -606,49 +607,208 @@ export const fetchLoanProductsList = async (
   ) {
     where.financial_terms = {};
 
-    if (filters.interest_rate_min !== null) {
-      where.financial_terms.interest_rate_range_min = {
-        gte: filters.interest_rate_min,
-      };
+    // Initialize AND array to collect all conditions
+    const financialTermsConditions: any[] = [];
+
+    // Interest Rate Filtering - CONTAINMENT (exact between range)
+    if (filters.interest_rate !== null && filters.interest_rate_max !== null) {
+      // Show products where ENTIRE range is within user's budget
+      financialTermsConditions.push({
+        // Product's MIN rate must be >= user's MIN
+        interest_rate_range_min: {
+          gte: filters.interest_rate,
+        },
+      });
+      financialTermsConditions.push({
+        // Product's MAX rate must be <= user's MAX
+        interest_rate_range_max: {
+          lte: filters.interest_rate_max,
+        },
+      });
+    } else if (filters.interest_rate !== null) {
+      // Only min specified - products starting at or above this rate
+      financialTermsConditions.push({
+        interest_rate_range_min: {
+          lte: filters.interest_rate,
+        },
+        interest_rate_range_max: {
+          gte: filters.interest_rate,
+        },
+      });
+    } else if (filters.interest_rate_max !== null) {
+      // Only max specified - products ending at or below this rate
+      financialTermsConditions.push({
+        interest_rate_range_max: {
+          lte: filters.interest_rate_max,
+        },
+      });
     }
 
-    if (filters.interest_rate_max !== null) {
-      where.financial_terms.interest_rate_range_max = {
-        lte: filters.interest_rate_max,
-      };
-    }
-
-    //  FIXED LOAN AMOUNT LOGIC
+    // Loan Amount Filtering - Product Type Aware
     if (filters.loan_amount_min !== null && filters.loan_amount_max !== null) {
-      // Both min and max provided
-      where.financial_terms.AND = [
-        {
+      // Determine which loan amount fields to check based on product_type
+      if (
+        filters.product_type &&
+        filters.product_type.toLowerCase().startsWith("secured")
+      ) {
+        // Secured loans only
+        financialTermsConditions.push({
+          maximum_loan_amount_secured: { gte: filters.loan_amount_min },
+        });
+        financialTermsConditions.push({
+          OR: [
+            { minimum_loan_amount_secured: { lte: filters.loan_amount_min } },
+            { minimum_loan_amount_secured: null },
+          ],
+        });
+      } else if (
+        filters.product_type &&
+        filters.product_type.toLowerCase().startsWith("unsecured")
+      ) {
+        // Unsecured loans only
+        financialTermsConditions.push({
+          maximum_loan_amount_unsecured: { gte: filters.loan_amount_min },
+        });
+        financialTermsConditions.push({
+          OR: [
+            { minimum_loan_amount_unsecured: { lte: filters.loan_amount_min } },
+            { minimum_loan_amount_unsecured: null },
+          ],
+        });
+      } else {
+        // No product type specified - check both
+        financialTermsConditions.push({
           OR: [
             { maximum_loan_amount_secured: { gte: filters.loan_amount_min } },
             { maximum_loan_amount_unsecured: { gte: filters.loan_amount_min } },
           ],
-        },
-        {
+        });
+        financialTermsConditions.push({
           OR: [
-            { maximum_loan_amount_secured: { lte: filters.loan_amount_max } },
-            { maximum_loan_amount_unsecured: { lte: filters.loan_amount_max } },
+            { minimum_loan_amount_secured: { lte: filters.loan_amount_min } },
+            { minimum_loan_amount_unsecured: { lte: filters.loan_amount_min } },
+            { minimum_loan_amount_secured: null },
+            { minimum_loan_amount_unsecured: null },
           ],
-        },
-      ];
+        });
+      }
     } else if (filters.loan_amount_min !== null) {
-      // Only min provided
-      where.financial_terms.OR = [
-        { maximum_loan_amount_secured: { gte: filters.loan_amount_min } },
-        { maximum_loan_amount_unsecured: { gte: filters.loan_amount_min } },
-      ];
+      // Only min specified
+      if (
+        filters.product_type &&
+        filters.product_type.toLowerCase().startsWith("secured")
+      ) {
+        // Secured loans only
+        financialTermsConditions.push({
+          maximum_loan_amount_secured: { gte: filters.loan_amount_min },
+        });
+        financialTermsConditions.push({
+          OR: [
+            { minimum_loan_amount_secured: { lte: filters.loan_amount_min } },
+            { minimum_loan_amount_secured: null },
+          ],
+        });
+      } else if (
+        filters.product_type &&
+        filters.product_type.toLowerCase().startsWith("unsecured")
+      ) {
+        // Unsecured loans only
+        financialTermsConditions.push({
+          maximum_loan_amount_unsecured: { gte: filters.loan_amount_min },
+        });
+        financialTermsConditions.push({
+          OR: [
+            { minimum_loan_amount_unsecured: { lte: filters.loan_amount_min } },
+            { minimum_loan_amount_unsecured: null },
+          ],
+        });
+      } else {
+        // No product type specified - check both
+        financialTermsConditions.push({
+          OR: [
+            { maximum_loan_amount_secured: { gte: filters.loan_amount_min } },
+            { maximum_loan_amount_unsecured: { gte: filters.loan_amount_min } },
+          ],
+        });
+        financialTermsConditions.push({
+          OR: [
+            { minimum_loan_amount_secured: { lte: filters.loan_amount_min } },
+            { minimum_loan_amount_unsecured: { lte: filters.loan_amount_min } },
+            { minimum_loan_amount_secured: null },
+            { minimum_loan_amount_unsecured: null },
+          ],
+        });
+      }
     } else if (filters.loan_amount_max !== null) {
-      // Only max provided - THIS WAS THE BUG!
-      where.financial_terms.OR = [
-        { maximum_loan_amount_secured: { lte: filters.loan_amount_max } },
-        { maximum_loan_amount_unsecured: { lte: filters.loan_amount_max } },
-      ];
+      // Only max specified
+      if (
+        filters.product_type &&
+        filters.product_type.toLowerCase().startsWith("secured")
+      ) {
+        // Secured loans only
+        if (where.financial_terms.AND) {
+          financialTermsConditions.push({
+            OR: [
+              { minimum_loan_amount_secured: { lte: filters.loan_amount_max } },
+              { minimum_loan_amount_secured: null },
+            ],
+          });
+        } else {
+          where.financial_terms.OR = [
+            { minimum_loan_amount_secured: { lte: filters.loan_amount_max } },
+            { minimum_loan_amount_secured: null },
+          ];
+        }
+      } else if (
+        filters.product_type &&
+        filters.product_type.toLowerCase().startsWith("unsecured")
+      ) {
+        // Unsecured loans only
+        if (where.financial_terms.AND) {
+          financialTermsConditions.push({
+            OR: [
+              {
+                minimum_loan_amount_unsecured: { lte: filters.loan_amount_max },
+              },
+              { minimum_loan_amount_unsecured: null },
+            ],
+          });
+        } else {
+          where.financial_terms.OR = [
+            { minimum_loan_amount_unsecured: { lte: filters.loan_amount_max } },
+            { minimum_loan_amount_unsecured: null },
+          ];
+        }
+      } else {
+        // No product type specified - check both
+        if (where.financial_terms.AND) {
+          financialTermsConditions.push({
+            OR: [
+              { minimum_loan_amount_secured: { lte: filters.loan_amount_max } },
+              {
+                minimum_loan_amount_unsecured: { lte: filters.loan_amount_max },
+              },
+              { minimum_loan_amount_secured: null },
+              { minimum_loan_amount_unsecured: null },
+            ],
+          });
+        } else {
+          where.financial_terms.OR = [
+            { minimum_loan_amount_secured: { lte: filters.loan_amount_max } },
+            { minimum_loan_amount_unsecured: { lte: filters.loan_amount_max } },
+            { minimum_loan_amount_secured: null },
+            { minimum_loan_amount_unsecured: null },
+          ];
+        }
+      }
     }
 
+    // ✅ Apply all collected conditions
+    if (financialTermsConditions.length > 0) {
+      where.financial_terms.AND = financialTermsConditions;
+    }
+
+    // ✅ Processing fee (separate from AND logic)
     if (filters.processing_fee_max !== null) {
       where.financial_terms.processing_fee_percentage = {
         lte: filters.processing_fee_max,

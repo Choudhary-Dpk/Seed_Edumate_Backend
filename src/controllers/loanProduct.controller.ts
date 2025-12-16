@@ -367,64 +367,6 @@ export const getLoanProductDetails = async (
   }
 };
 
-// export const getLoanProductsListController = async (
-//   req: RequestWithPayload<LoginPayload>,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   try {
-//     const size = parseInt(req.query.size as string) || 10;
-//     const page = parseInt(req.query.page as string) || 1;
-//     const sortKey = (req.query.sortKey as string) || null;
-//     const sortDir = (req.query.sortDir as "asc" | "desc") || null;
-//     const search = (req.query.search as string) || null;
-
-//     // Extract filters from query params
-//     const filtersFromQuery =
-//       (req.query.filters as {
-//         lender_name?: string;
-//         product_type?: string;
-//         product_category?: string;
-//         product_status?: string;
-//         partner_name?: string;
-//       }) || {};
-
-//     const filters = {
-//       lender_name: filtersFromQuery.lender_name || null,
-//       product_type: filtersFromQuery.product_type || null,
-//       product_category: filtersFromQuery.product_category || null,
-//       product_status: filtersFromQuery.product_status || null,
-//       partner_name: filtersFromQuery.partner_name || null,
-//     };
-
-//     const offset = (page - 1) * size;
-
-//     logger.debug(
-//       `Fetching loan products list with page: ${page}, size: ${size}, sortKey: ${sortKey}, sortDir: ${sortDir}, search: ${search}, filters:`,
-//       filters
-//     );
-//     const { rows, count } = await fetchLoanProductsList(
-//       size,
-//       offset,
-//       sortKey,
-//       sortDir,
-//       search,
-//       filters
-//     );
-//     logger.debug(`Loan products list fetched successfully. Count: ${count}`);
-
-//     sendResponse(res, 200, "Loan products list fetched successfully", {
-//       data: rows,
-//       total: count,
-//       page,
-//       size,
-//     });
-//   } catch (error) {
-//     logger.error(`Error fetching loan products list: ${error}`);
-//     next(error);
-//   }
-// };
-
 interface LoanProductFilters {
   // Existing filters
   lender_name?: string | null;
@@ -435,7 +377,7 @@ interface LoanProductFilters {
   supported_countries?: string | null;
 
   // Financial filters
-  interest_rate_min?: number | null;
+  interest_rate?: number | null;
   interest_rate_max?: number | null;
   loan_amount_min?: number | null;
   loan_amount_max?: number | null;
@@ -478,7 +420,6 @@ interface LoanProductFilters {
   // Special features
   tax_benefits_available?: string | null;
   digital_features?: string | null;
-
 }
 
 export const getLoanProductsListController = async (
@@ -506,8 +447,8 @@ export const getLoanProductsListController = async (
       supported_countries: filtersFromQuery.supported_countries || null,
 
       // Financial filters
-      interest_rate_min: filtersFromQuery.interest_rate_min
-        ? parseFloat(filtersFromQuery.interest_rate_min)
+      interest_rate: filtersFromQuery.interest_rate
+        ? parseFloat(filtersFromQuery.interest_rate)
         : null,
       interest_rate_max: filtersFromQuery.interest_rate_max
         ? parseFloat(filtersFromQuery.interest_rate_max)
