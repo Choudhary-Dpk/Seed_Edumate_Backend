@@ -596,7 +596,7 @@ export const fetchLoanProductsList = async (
     };
   }
 
-  // Financial terms filters
+  // Interest and loan amount
   if (
     filters.interest_rate_min !== null ||
     filters.interest_rate_max !== null ||
@@ -606,49 +606,89 @@ export const fetchLoanProductsList = async (
   ) {
     where.financial_terms = {};
 
-    if (filters.interest_rate_min !== null) {
-      where.financial_terms.interest_rate_range_min = {
-        gte: filters.interest_rate_min,
-      };
+    // ✅ Initialize AND array to collect all conditions
+    const financialTermsConditions: any[] = [];
+
+    // ✅ Interest Rate Filtering - CONTAINMENT (exact between range)
+    if (
+      filters.interest_rate_min !== null &&
+      filters.interest_rate_max !== null
+    ) {
+      // Show products where ENTIRE range is within user's budget
+      financialTermsConditions.push({
+        // Product's MIN rate must be >= user's MIN
+        interest_rate_range_min: {
+          gte: filters.interest_rate_min,
+        },
+      });
+      financialTermsConditions.push({
+        // Product's MAX rate must be <= user's MAX
+        interest_rate_range_max: {
+          lte: filters.interest_rate_max,
+        },
+      });
+    } else if (filters.interest_rate_min !== null) {
+      // Only min specified - products starting at or above this rate
+      financialTermsConditions.push({
+        interest_rate_range_min: {
+          gte: filters.interest_rate_min,
+        },
+      });
+    } else if (filters.interest_rate_max !== null) {
+      // Only max specified - products ending at or below this rate
+      financialTermsConditions.push({
+        interest_rate_range_max: {
+          lte: filters.interest_rate_max,
+        },
+      });
     }
 
-    if (filters.interest_rate_max !== null) {
-      where.financial_terms.interest_rate_range_max = {
-        lte: filters.interest_rate_max,
-      };
-    }
-
-    //  FIXED LOAN AMOUNT LOGIC
+    // ✅ Loan Amount Filtering
     if (filters.loan_amount_min !== null && filters.loan_amount_max !== null) {
-      // Both min and max provided
-      where.financial_terms.AND = [
-        {
-          OR: [
-            { maximum_loan_amount_secured: { gte: filters.loan_amount_min } },
-            { maximum_loan_amount_unsecured: { gte: filters.loan_amount_min } },
-          ],
-        },
-        {
-          OR: [
-            { maximum_loan_amount_secured: { lte: filters.loan_amount_max } },
-            { maximum_loan_amount_unsecured: { lte: filters.loan_amount_max } },
-          ],
-        },
-      ];
+      financialTermsConditions.push({
+        OR: [
+          { maximum_loan_amount_secured: { gte: filters.loan_amount_min } },
+          { maximum_loan_amount_unsecured: { gte: filters.loan_amount_min } },
+        ],
+      });
+      financialTermsConditions.push({
+        OR: [
+          { minimum_loan_amount_secured: { lte: filters.loan_amount_min } },
+          { minimum_loan_amount_unsecured: { lte: filters.loan_amount_min } },
+          { minimum_loan_amount_secured: null },
+          { minimum_loan_amount_unsecured: null },
+        ],
+      });
     } else if (filters.loan_amount_min !== null) {
-      // Only min provided
-      where.financial_terms.OR = [
-        { maximum_loan_amount_secured: { gte: filters.loan_amount_min } },
-        { maximum_loan_amount_unsecured: { gte: filters.loan_amount_min } },
-      ];
+      financialTermsConditions.push({
+        OR: [
+          { maximum_loan_amount_secured: { gte: filters.loan_amount_min } },
+          { maximum_loan_amount_unsecured: { gte: filters.loan_amount_min } },
+        ],
+      });
+      financialTermsConditions.push({
+        OR: [
+          { minimum_loan_amount_secured: { lte: filters.loan_amount_min } },
+          { minimum_loan_amount_unsecured: { lte: filters.loan_amount_min } },
+          { minimum_loan_amount_secured: null },
+          { minimum_loan_amount_unsecured: null },
+        ],
+      });
     } else if (filters.loan_amount_max !== null) {
-      // Only max provided - THIS WAS THE BUG!
       where.financial_terms.OR = [
-        { maximum_loan_amount_secured: { lte: filters.loan_amount_max } },
-        { maximum_loan_amount_unsecured: { lte: filters.loan_amount_max } },
+        { minimum_loan_amount_secured: { lte: filters.loan_amount_max } },
+        { minimum_loan_amount_unsecured: { lte: filters.loan_amount_max } },
+        { minimum_loan_amount_secured: null },
+        { minimum_loan_amount_unsecured: null },
       ];
     }
 
+    // ✅ Apply all collected conditions
+    if (financialTermsConditions.length > 0) {
+      where.financial_terms.AND = financialTermsConditions;
+    }
+
+    // ✅ Processing fee (separate from AND logic)
     if (filters.processing_fee_max !== null) {
       where.financial_terms.processing_fee_percentage = {
         lte: filters.processing_fee_max,
