@@ -628,9 +628,9 @@ export const fetchLoanProductsList = async (
     } else if (filters.interest_rate !== null) {
       // Only min specified - products starting at or above this rate
       financialTermsConditions.push({
-        interest_rate_range_min: {
-          lte: filters.interest_rate,
-        },
+        // interest_rate_range_min: {
+        //   lte: filters.interest_rate,
+        // },
         interest_rate_range_max: {
           gte: filters.interest_rate,
         },
