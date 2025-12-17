@@ -1374,6 +1374,7 @@ model HSLoanProducts {
   deleted_on                        DateTime?
   source                            String?                                 @default("webportal")
   key_features                      String[]                                @default([])
+  application_process               String[]                                @default([])
   supported_countries               String?       
   commission_settlement             HSCommissionSettlements[]
   loan_application                  HSLoanApplications[]
