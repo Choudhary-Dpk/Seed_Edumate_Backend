@@ -165,10 +165,8 @@ export const mapAllLoanProductFields = async (
   }
 
   if (
-    (input.study_level &&
-      input.study_level !== "") ||
-    (input.target_segment &&
-      input.target_segment !== "")
+    (input.study_level && input.study_level !== "") ||
+    (input.target_segment && input.target_segment !== "")
   ) {
     enumTranslations.push({
       field: "target_segment",
@@ -356,15 +354,21 @@ export const mapAllLoanProductFields = async (
   // =====================================================================
 
   // === MAIN LOAN PRODUCT FIELDS ===
-    if (input.supported_countries !== undefined)
-      mapped.supported_countries =
-        input.supported_countries !== null && input.supported_countries !== ""
-          ? input.supported_countries
-          : null;
+  if (input.supported_countries !== undefined)
+    mapped.supported_countries =
+      input.supported_countries !== null && input.supported_countries !== ""
+        ? input.supported_countries
+        : null;
 
-    if (input.source !== undefined)
-      mapped.source =
-        input.source !== null && input.source !== "" ? input.source : null;
+  if (input.application_process !== undefined)
+    mapped.application_process =
+      input.application_process !== null && input.application_process !== ""
+        ? input.application_process
+        : null;
+
+  if (input.source !== undefined)
+    mapped.source =
+      input.source !== null && input.source !== "" ? input.source : null;
 
   if (input.hs_lender_id !== undefined)
     mapped.hs_lender_id =
