@@ -54,13 +54,17 @@ export const createContactsLead = async (
   next: NextFunction
 ) => {
   try {
-    const { id } = req.payload!;
+    console.log("body", req.body);
+    const id = req.payload?.id || null;
     let data: any = {};
     let leadAttribution: any;
+    let partnerId = req?.body?.b2b_partner_db_id || null;
 
-    logger.debug(`Fetching partner id from request`);
-    const partnerId = await getPartnerIdByUserId(id);
-    logger.debug(`Partner id fetched successfully`);
+    if (!partnerId && id) {
+      logger.debug(`Fetching partner id from request`);
+      partnerId = await getPartnerIdByUserId(id);
+      logger.debug(`Partner id fetched successfully`);
+    }
 
     const mappedFields = await mapAllFields(req.body);
     console.log("mappedFields", mappedFields);
@@ -73,7 +77,7 @@ export const createContactsLead = async (
         tx,
         categorized["mainContact"],
         // null, //  HubSpot ID as null
-        partnerId!.b2b_id
+        partnerId?.b2b_id || null
       );
       logger.debug(`Contact created successfully with id: ${contact.id}`);
 
@@ -403,8 +407,15 @@ export const editContactsLead = async (
   next: NextFunction
 ) => {
   try {
-    const { id } = req.payload!;
+    const id = req.payload?.id || null;
     const leadId = req.params.id;
+    let partnerId = req?.body?.b2b_partner_db_id || null;
+
+    if (!partnerId && id) {
+      logger.debug(`Fetching partner id from request`);
+      partnerId = await getPartnerIdByUserId(id);
+      logger.debug(`Partner id fetched successfully`);
+    }
 
     const mappedFields = await mapAllFields(req.body);
     console.log("mappedFields", mappedFields);
@@ -417,7 +428,8 @@ export const editContactsLead = async (
       const contact = await updateEdumateContact(
         tx,
         +leadId,
-        categorized["mainContact"]
+        categorized["mainContact"],
+        partnerId,
       );
       logger.debug(`Contact updated successfully with id: ${contact.id}`);
 

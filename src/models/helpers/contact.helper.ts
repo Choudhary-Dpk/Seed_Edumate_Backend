@@ -112,7 +112,7 @@ export const createLoanPreferences = async (
 export const createEdumateSystemTracking = async (
   tx: any,
   contactId: number,
-  userId?: number
+  userId?: number | null
 ) => {
   return tx.hSEdumateContactsSystemTracking.create({
     data: {
@@ -184,7 +184,7 @@ export const createEdumateContact = async (
   mainData?: any,
   // hubspotId?: number | null,
   // hsCreatedBy?: number,
-  partnerId?: number
+  partnerId?: number | null
 ) => {
   const contact = await tx.hSEdumateContacts.create({
     data: {
@@ -265,15 +265,14 @@ export const getContactsLead = async (leadId: number) => {
 export const updateEdumateContact = async (
   tx: any,
   contactId: number,
-  mainData?: any
+  mainData?: any,
+  partnerId?: number
 ) => {
   const contact = await tx.hSEdumateContacts.update({
     where: { id: contactId },
     data: {
-      course_type: mainData.course_type
-        ? courseTypeMap[mainData.course_type]
-        : null,
       ...mainData,
+      ...(partnerId ? { b2b_partner_id: partnerId } : {}),
       updated_at: new Date(),
     },
   });
