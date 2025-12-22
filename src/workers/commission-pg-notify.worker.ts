@@ -1,3 +1,4 @@
+// src/workers/commission-pg-notify.worker.ts
 import { Client } from "pg";
 import PQueue from "p-queue";
 import prisma from "../config/prisma";
@@ -67,7 +68,6 @@ async function handleNotification(msg: any) {
       source: data.source,
     });
 
-    // ✅ Only skip HubSpot-source for UPDATEs, not INSERTs
     if (data.source === "hubspot" && data.operation === "UPDATE") {
       logger.debug("[Commission PG NOTIFY] Skipping HubSpot-source UPDATE");
       return;
@@ -127,16 +127,31 @@ async function queueCommissionSync(
   commissionSyncQueue.add(async () => {
     ongoingSync.add(syncKey);
 
+    let outboxEntry = await findOrCreateOutboxEntry(
+      settlementId,
+      operation,
+      hsObjectId
+    );
+
     try {
-      await processCommissionSync(settlementId, operation, hsObjectId);
+      outboxEntry = await markAsProcessing(outboxEntry.id);
+
+      const result = await processCommissionSync(
+        settlementId,
+        operation,
+        hsObjectId
+      );
+
+      await markAsCompleted(outboxEntry.id, result?.hubspotId || hsObjectId);
+
       logger.info(`[Commission PG NOTIFY] Successfully synced ${syncKey}`);
     } catch (error: any) {
       logger.error(`[Commission PG NOTIFY] Sync failed for ${syncKey}:`, error);
-      await addToFallbackQueue(
-        settlementId,
-        operation,
-        hsObjectId,
-        error.message
+
+      await markAsFailed(
+        outboxEntry.id,
+        error.message,
+        outboxEntry.attempts + 1
       );
     } finally {
       ongoingSync.delete(syncKey);
@@ -152,32 +167,33 @@ async function processCommissionSync(
   settlementId: number,
   operation: string,
   hsObjectId: string | null
-): Promise<void> {
+): Promise<{ hubspotId?: string } | void> {
   logger.info(
     `[Commission PG NOTIFY] Processing ${operation} for settlement #${settlementId}`
   );
 
   switch (operation) {
     case "INSERT":
-      await handleCommissionCreate(settlementId);
-      break;
+      const createResult = await handleCommissionCreate(settlementId);
+      return { hubspotId: createResult };
 
     case "UPDATE":
-      await handleCommissionUpdate(settlementId);
-      break;
+      const updateResult = await handleCommissionUpdate(settlementId);
+      return { hubspotId: updateResult };
 
     case "DELETE":
       if (hsObjectId) {
         await handleCommissionDelete(hsObjectId);
       }
-      break;
+      return;
 
     default:
       logger.warn(`[Commission PG NOTIFY] Unknown operation: ${operation}`);
+      return;
   }
 }
 
-async function handleCommissionCreate(settlementId: number): Promise<void> {
+async function handleCommissionCreate(settlementId: number): Promise<string> {
   const settlement = await prisma.hSCommissionSettlements.findUnique({
     where: { id: settlementId },
     include: {
@@ -200,7 +216,6 @@ async function handleCommissionCreate(settlementId: number): Promise<void> {
     throw new Error(`Settlement ${settlementId} not found`);
   }
 
-  // ✅ If settlement has hs_object_id (came from HubSpot), UPDATE instead of skip
   if (settlement.hs_object_id) {
     logger.info(
       `[Commission PG NOTIFY] Settlement #${settlementId} already has HubSpot ID: ${settlement.hs_object_id}, updating with db_id`
@@ -208,9 +223,6 @@ async function handleCommissionCreate(settlementId: number): Promise<void> {
 
     const hubspotPayload =
       transformCommissionSettlementsToHubSpotFormat(settlement);
-
-    console.log("Sending to HubSpot - settlement_id value:", settlementId);
-    console.log("Full payload keys:", Object.keys(hubspotPayload).slice(0, 10));
 
     try {
       await updateCommissionSettlementsApplication(
@@ -227,10 +239,9 @@ async function handleCommissionCreate(settlementId: number): Promise<void> {
       );
     }
 
-    return;
+    return settlement.hs_object_id;
   }
 
-  // Original CREATE logic (for settlements created in your app)
   const hubspotPayload =
     transformCommissionSettlementsToHubSpotFormat(settlement);
 
@@ -251,9 +262,11 @@ async function handleCommissionCreate(settlementId: number): Promise<void> {
   logger.info(
     `[Commission PG NOTIFY] Created settlement #${settlementId} in HubSpot: ${result.id}`
   );
+
+  return result.id;
 }
 
-async function handleCommissionUpdate(settlementId: number): Promise<void> {
+async function handleCommissionUpdate(settlementId: number): Promise<string> {
   const settlement = await prisma.hSCommissionSettlements.findUnique({
     where: { id: settlementId },
     include: {
@@ -282,8 +295,8 @@ async function handleCommissionUpdate(settlementId: number): Promise<void> {
     logger.warn(
       `[Commission PG NOTIFY] No HubSpot ID for settlement ${settlementId}, creating new entry`
     );
-    await handleCommissionCreate(settlementId);
-    return;
+    const newId = await handleCommissionCreate(settlementId);
+    return newId;
   }
 
   const hubspotPayload =
@@ -299,11 +312,14 @@ async function handleCommissionUpdate(settlementId: number): Promise<void> {
       logger.warn(
         `[Commission PG NOTIFY] HubSpot settlement ${hubspotId} not found (404), creating new`
       );
-      await handleCommissionCreate(settlementId);
+      const newId = await handleCommissionCreate(settlementId);
+      return newId;
     } else {
       throw error;
     }
   }
+
+  return hubspotId;
 }
 
 async function handleCommissionDelete(hsObjectId: string): Promise<void> {
@@ -557,33 +573,107 @@ function transformCommissionSettlementsToHubSpotFormat(
   };
 }
 
-async function addToFallbackQueue(
+async function findOrCreateOutboxEntry(
   settlementId: number,
   operation: string,
-  hsObjectId: string | null,
-  errorMessage: string
-): Promise<void> {
-  try {
-    await prisma.syncOutbox.create({
-      data: {
-        entity_type: "HSCommissionSettlements",
-        entity_id: settlementId,
-        operation,
-        payload: { hs_object_id: hsObjectId },
-        status: "PENDING",
-        last_error: errorMessage,
-        priority: 5,
-        attempts: 0,
-      },
-    });
+  hsObjectId: string | null
+): Promise<any> {
+  const existingEntry = await prisma.syncOutbox.findFirst({
+    where: {
+      entity_type: "HSCommissionSettlements",
+      entity_id: settlementId,
+      operation: operation === "INSERT" ? "INSERT" : operation,
+      status: "PENDING",
+    },
+    orderBy: {
+      created_at: "desc",
+    },
+  });
 
-    logger.info(
-      `[Commission PG NOTIFY] Added settlement #${settlementId} to fallback queue`
+  if (existingEntry) {
+    logger.debug(
+      `[Commission PG NOTIFY] Found existing outbox entry for settlement #${settlementId}`
     );
-  } catch (error) {
+    return existingEntry;
+  }
+
+  logger.warn(
+    `[Commission PG NOTIFY] No outbox entry found for settlement #${settlementId}, creating new`
+  );
+
+  const newEntry = await prisma.syncOutbox.create({
+    data: {
+      entity_type: "HSCommissionSettlements",
+      entity_id: settlementId,
+      operation: operation,
+      payload: { hs_object_id: hsObjectId },
+      status: "PENDING",
+      priority: 5,
+      attempts: 0,
+    },
+  });
+
+  return newEntry;
+}
+
+async function markAsProcessing(outboxId: string): Promise<any> {
+  const updated = await prisma.syncOutbox.update({
+    where: { id: outboxId },
+    data: {
+      status: "PROCESSING",
+      processing_at: new Date(),
+      attempts: { increment: 1 },
+    },
+  });
+
+  logger.debug(
+    `[Commission PG NOTIFY] Marked outbox #${outboxId} as PROCESSING`
+  );
+  return updated;
+}
+
+async function markAsCompleted(
+  outboxId: string,
+  hubspotId: string | null
+): Promise<void> {
+  await prisma.syncOutbox.update({
+    where: { id: outboxId },
+    data: {
+      status: "COMPLETED",
+      hubspot_id: hubspotId,
+      processed_at: new Date(),
+      last_error: null,
+    },
+  });
+
+  logger.debug(
+    `[Commission PG NOTIFY] Marked outbox #${outboxId} as COMPLETED (HubSpot ID: ${hubspotId})`
+  );
+}
+
+async function markAsFailed(
+  outboxId: string,
+  errorMessage: string,
+  currentAttempts: number
+): Promise<void> {
+  const isFinalAttempt = currentAttempts >= MAX_RETRIES;
+
+  await prisma.syncOutbox.update({
+    where: { id: outboxId },
+    data: {
+      status: isFinalAttempt ? "FAILED" : "PENDING",
+      last_error: errorMessage,
+      ...(isFinalAttempt && { processed_at: new Date() }),
+    },
+  });
+
+  if (isFinalAttempt) {
     logger.error(
-      "[Commission PG NOTIFY] Failed to add to fallback queue:",
-      error
+      `[Commission PG NOTIFY] Marked outbox #${outboxId} as FAILED after ${MAX_RETRIES} attempts`
+    );
+  } else {
+    logger.debug(
+      `[Commission PG NOTIFY] Marked outbox #${outboxId} as PENDING for retry (attempt ${currentAttempts}/${MAX_RETRIES})`
     );
   }
 }
@@ -619,18 +709,17 @@ function startFallbackProcessor() {
 }
 
 async function processRetry(item: any): Promise<void> {
-  const newAttempts = item.attempts + 1;
-
   await prisma.syncOutbox.update({
     where: { id: item.id },
     data: {
       status: "PROCESSING",
-      attempts: newAttempts,
+      processing_at: new Date(),
+      attempts: { increment: 1 },
     },
   });
 
   try {
-    await processCommissionSync(
+    const result = await processCommissionSync(
       item.entity_id,
       item.operation,
       item.payload?.hs_object_id
@@ -640,7 +729,9 @@ async function processRetry(item: any): Promise<void> {
       where: { id: item.id },
       data: {
         status: "COMPLETED",
+        hubspot_id: result?.hubspotId,
         processed_at: new Date(),
+        last_error: null,
       },
     });
 
@@ -648,6 +739,7 @@ async function processRetry(item: any): Promise<void> {
       `[Commission PG NOTIFY] Retry succeeded for settlement #${item.entity_id}`
     );
   } catch (error: any) {
+    const newAttempts = item.attempts + 1;
     const isFinalAttempt = newAttempts >= MAX_RETRIES;
 
     await prisma.syncOutbox.update({
@@ -655,12 +747,13 @@ async function processRetry(item: any): Promise<void> {
       data: {
         status: isFinalAttempt ? "FAILED" : "PENDING",
         last_error: error.message,
+        ...(isFinalAttempt && { processed_at: new Date() }),
       },
     });
 
     if (isFinalAttempt) {
       logger.error(
-        `[Commission PG NOTIFY] Retry exhausted for settlement #${item.entity_id}`
+        `[Commission PG NOTIFY] Retry exhausted for settlement #${item.entity_id} after ${MAX_RETRIES} attempts`
       );
     }
   }

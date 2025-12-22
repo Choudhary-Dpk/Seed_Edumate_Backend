@@ -69,7 +69,6 @@ async function handleNotification(msg: any) {
       source: data.source,
     });
 
-    // ✅ FIXED: Only skip HubSpot-source for UPDATEs, not INSERTs
     if (data.source === "hubspot" && data.operation === "UPDATE") {
       logger.debug("[Edumate PG NOTIFY] Skipping HubSpot-source UPDATE");
       return;
@@ -121,12 +120,28 @@ async function queueEdumateSync(
   edumateSyncQueue.add(async () => {
     ongoingSync.add(syncKey);
 
+    let outboxEntry = await findOrCreateOutboxEntry(
+      contactId,
+      operation,
+      hsObjectId
+    );
+
     try {
-      await processEdumateSync(contactId, operation, hsObjectId);
+      outboxEntry = await markAsProcessing(outboxEntry.id);
+
+      const result = await processEdumateSync(contactId, operation, hsObjectId);
+
+      await markAsCompleted(outboxEntry.id, result?.hubspotId || hsObjectId);
+
       logger.info(`[Edumate PG NOTIFY] Successfully synced ${syncKey}`);
     } catch (error: any) {
       logger.error(`[Edumate PG NOTIFY] Sync failed for ${syncKey}:`, error);
-      await addToFallbackQueue(contactId, operation, hsObjectId, error.message);
+
+      await markAsFailed(
+        outboxEntry.id,
+        error.message,
+        outboxEntry.attempts + 1
+      );
     } finally {
       ongoingSync.delete(syncKey);
     }
@@ -141,32 +156,33 @@ async function processEdumateSync(
   contactId: number,
   operation: string,
   hsObjectId: string | null
-): Promise<void> {
+): Promise<{ hubspotId?: string } | void> {
   logger.info(
     `[Edumate PG NOTIFY] Processing ${operation} for contact #${contactId}`
   );
 
   switch (operation) {
     case "INSERT":
-      await handleEdumateCreate(contactId);
-      break;
+      const createResult = await handleEdumateCreate(contactId);
+      return { hubspotId: createResult };
 
     case "UPDATE":
-      await handleEdumateUpdate(contactId);
-      break;
+      const updateResult = await handleEdumateUpdate(contactId);
+      return { hubspotId: updateResult };
 
     case "DELETE":
       if (hsObjectId) {
         await handleEdumateDelete(hsObjectId);
       }
-      break;
+      return;
 
     default:
       logger.warn(`[Edumate PG NOTIFY] Unknown operation: ${operation}`);
+      return;
   }
 }
 
-async function handleEdumateCreate(contactId: number): Promise<void> {
+async function handleEdumateCreate(contactId: number): Promise<string> {
   const contact = await prisma.hSEdumateContacts.findUnique({
     where: { id: contactId },
     include: {
@@ -191,10 +207,6 @@ async function handleEdumateCreate(contactId: number): Promise<void> {
 
     const hubspotPayload = transformToHubSpotFormat(contact);
 
-    // ✅ ADD THIS DEBUG LOG
-    console.log("Sending to HubSpot - db_id value:", hubspotPayload.db_id);
-    console.log("Full payload keys:", Object.keys(hubspotPayload).slice(0, 10));
-
     try {
       await updateContactsLoanLead(contact.hs_object_id, hubspotPayload);
       logger.info(
@@ -207,10 +219,9 @@ async function handleEdumateCreate(contactId: number): Promise<void> {
       );
     }
 
-    return;
+    return contact.hs_object_id;
   }
 
-  // Original CREATE logic (for contacts created in your app)
   let b2bPartnerHsObjectId: string | null = null;
   if (contact.b2b_partner_id) {
     const b2bPartner = await getPartnerById(contact.b2b_partner_id);
@@ -224,7 +235,6 @@ async function handleEdumateCreate(contactId: number): Promise<void> {
   }
 
   const hubspotPayload = transformToHubSpotFormat(contact);
-  console.log("hubspotPayload", hubspotPayload);
 
   const results = await createContactsLoanLeads(
     [hubspotPayload],
@@ -246,9 +256,11 @@ async function handleEdumateCreate(contactId: number): Promise<void> {
   logger.info(
     `[Edumate PG NOTIFY] Created contact #${contactId} in HubSpot: ${results[0].id}`
   );
+
+  return results[0].id;
 }
 
-async function handleEdumateUpdate(contactId: number): Promise<void> {
+async function handleEdumateUpdate(contactId: number): Promise<string> {
   const contact = await prisma.hSEdumateContacts.findUnique({
     where: { id: contactId },
     include: {
@@ -272,15 +284,11 @@ async function handleEdumateUpdate(contactId: number): Promise<void> {
     logger.warn(
       `[Edumate PG NOTIFY] No HubSpot ID for contact ${contactId}, creating new entry`
     );
-    await handleEdumateCreate(contactId);
-    return;
+    const newId = await handleEdumateCreate(contactId);
+    return newId;
   }
 
   const hubspotPayload = transformToHubSpotFormat(contact);
-  console.log(
-    "[DEBUG] HubSpot Payload:",
-    JSON.stringify(hubspotPayload, null, 2)
-  );
 
   try {
     await updateContactsLoanLead(hubspotId, hubspotPayload);
@@ -292,11 +300,14 @@ async function handleEdumateUpdate(contactId: number): Promise<void> {
       logger.warn(
         `[Edumate PG NOTIFY] HubSpot contact ${hubspotId} not found (404), creating new`
       );
-      await handleEdumateCreate(contactId);
+      const newId = await handleEdumateCreate(contactId);
+      return newId;
     } else {
       throw error;
     }
   }
+
+  return hubspotId;
 }
 
 async function handleEdumateDelete(hsObjectId: string): Promise<void> {
@@ -307,7 +318,6 @@ async function handleEdumateDelete(hsObjectId: string): Promise<void> {
 }
 
 function transformToHubSpotFormat(contact: any): any {
-  console.log("contact", contact);
   const personalInfo = contact.personal_information || {};
   const academicProfile = contact.academic_profile || {};
   const leadAttribution = contact.lead_attribution || {};
@@ -521,31 +531,106 @@ function transformToHubSpotFormat(contact: any): any {
   };
 }
 
-async function addToFallbackQueue(
+async function findOrCreateOutboxEntry(
   contactId: number,
   operation: string,
-  hsObjectId: string | null,
-  errorMessage: string
-): Promise<void> {
-  try {
-    await prisma.syncOutbox.create({
-      data: {
-        entity_type: "HSEdumateContacts",
-        entity_id: contactId,
-        operation,
-        payload: { hs_object_id: hsObjectId },
-        status: "PENDING",
-        last_error: errorMessage,
-        priority: 5,
-        attempts: 0,
-      },
-    });
+  hsObjectId: string | null
+): Promise<any> {
+  const existingEntry = await prisma.syncOutbox.findFirst({
+    where: {
+      entity_type: "HSEdumateContacts",
+      entity_id: contactId,
+      operation: operation === "INSERT" ? "INSERT" : operation,
+      status: "PENDING",
+    },
+    orderBy: {
+      created_at: "desc",
+    },
+  });
 
-    logger.info(
-      `[Edumate PG NOTIFY] Added contact #${contactId} to fallback queue`
+  if (existingEntry) {
+    logger.debug(
+      `[Edumate PG NOTIFY] Found existing outbox entry for contact #${contactId}`
     );
-  } catch (error) {
-    logger.error("[Edumate PG NOTIFY] Failed to add to fallback queue:", error);
+    return existingEntry;
+  }
+
+  logger.warn(
+    `[Edumate PG NOTIFY] No outbox entry found for contact #${contactId}, creating new`
+  );
+
+  const newEntry = await prisma.syncOutbox.create({
+    data: {
+      entity_type: "HSEdumateContacts",
+      entity_id: contactId,
+      operation: operation,
+      payload: { hs_object_id: hsObjectId },
+      status: "PENDING",
+      priority: 5,
+      attempts: 0,
+    },
+  });
+
+  return newEntry;
+}
+
+async function markAsProcessing(outboxId: string): Promise<any> {
+  const updated = await prisma.syncOutbox.update({
+    where: { id: outboxId },
+    data: {
+      status: "PROCESSING",
+      processing_at: new Date(),
+      attempts: { increment: 1 },
+    },
+  });
+
+  logger.debug(`[Edumate PG NOTIFY] Marked outbox #${outboxId} as PROCESSING`);
+  return updated;
+}
+
+async function markAsCompleted(
+  outboxId: string,
+  hubspotId: string | null
+): Promise<void> {
+  await prisma.syncOutbox.update({
+    where: { id: outboxId },
+    data: {
+      status: "COMPLETED",
+      hubspot_id: hubspotId,
+      processed_at: new Date(),
+      last_error: null,
+    },
+  });
+
+  logger.debug(
+    `[Edumate PG NOTIFY] Marked outbox #${outboxId} as COMPLETED (HubSpot ID: ${hubspotId})`
+  );
+}
+
+async function markAsFailed(
+  outboxId: string,
+  errorMessage: string,
+  currentAttempts: number
+): Promise<void> {
+  const isFinalAttempt = currentAttempts >= MAX_RETRIES;
+
+  await prisma.syncOutbox.update({
+    where: { id: outboxId },
+    data: {
+      status: isFinalAttempt ? "FAILED" : "PENDING",
+      last_error: errorMessage,
+      ...(isFinalAttempt && { processed_at: new Date() }),
+    },
+  });
+
+  if (isFinalAttempt) {
+    logger.error(
+      `[Edumate PG NOTIFY] Marked outbox #${outboxId} as FAILED after ${MAX_RETRIES} attempts`
+    );
+  } else {
+    logger.debug(
+      `[Edumate PG NOTIFY] Marked outbox #${outboxId} as PENDING for retry (attempt ${currentAttempts}/${MAX_RETRIES})`
+    );
   }
 }
 
@@ -580,18 +665,17 @@ function startFallbackProcessor() {
 }
 
 async function processRetry(item: any): Promise<void> {
-  const newAttempts = item.attempts + 1;
-
   await prisma.syncOutbox.update({
     where: { id: item.id },
     data: {
       status: "PROCESSING",
-      attempts: newAttempts,
+      processing_at: new Date(),
+      attempts: { increment: 1 },
     },
   });
 
   try {
-    await processEdumateSync(
+    const result = await processEdumateSync(
       item.entity_id,
       item.operation,
       item.payload?.hs_object_id
@@ -601,7 +685,9 @@ async function processRetry(item: any): Promise<void> {
       where: { id: item.id },
       data: {
         status: "COMPLETED",
+        hubspot_id: result?.hubspotId,
         processed_at: new Date(),
+        last_error: null,
       },
     });
 
@@ -609,6 +695,7 @@ async function processRetry(item: any): Promise<void> {
       `[Edumate PG NOTIFY] Retry succeeded for contact #${item.entity_id}`
     );
   } catch (error: any) {
+    const newAttempts = item.attempts + 1;
     const isFinalAttempt = newAttempts >= MAX_RETRIES;
 
     await prisma.syncOutbox.update({
@@ -616,12 +703,13 @@ async function processRetry(item: any): Promise<void> {
       data: {
         status: isFinalAttempt ? "FAILED" : "PENDING",
         last_error: error.message,
+        ...(isFinalAttempt && { processed_at: new Date() }),
       },
     });
 
     if (isFinalAttempt) {
       logger.error(
-        `[Edumate PG NOTIFY] Retry exhausted for contact #${item.entity_id}`
+        `[Edumate PG NOTIFY] Retry exhausted for contact #${item.entity_id} after ${MAX_RETRIES} attempts`
       );
     }
   }

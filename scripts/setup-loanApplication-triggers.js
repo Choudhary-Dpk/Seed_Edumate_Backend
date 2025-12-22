@@ -130,4 +130,8 @@ async function setupLoanTriggers() {
   }
 }
 
-setupLoanTriggers();
+if (require.main === module) {
+  setupLoanTriggers();
+}
+
+module.exports = setupLoanTriggers;
