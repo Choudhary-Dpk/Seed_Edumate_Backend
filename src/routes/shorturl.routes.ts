@@ -1,28 +1,47 @@
 import { Router } from "express";
 import {
-  shortenSingleUrl,
-  shortenBulkUrls,
-  getAllShortUrls,
-  deleteShortUrl,
+  createSingleShortUrl,
+  createBulkShortUrls,
   redirectShortUrl,
 } from "../controllers/shortUrl.controller";
+import { authenticate } from "../middlewares";
+import { AuthMethod } from "../types/auth";
 
 const router = Router();
 
-// POST /api/short-url - Shorten single URL
-router.post("/", shortenSingleUrl);
+/**
+ * POST /api/short-url
+ * Create a single short URL
+ * Requires API Key authentication
+ */
+router.post(
+  "/",
+  authenticate({
+    method: AuthMethod.API_KEY,
+  }),
+  createSingleShortUrl
+);
 
-// POST /api/short-url/bulk - Shorten bulk URLs
-router.post("/bulk", shortenBulkUrls);
+/**
+ * POST /api/short-url/bulk
+ * Create multiple short URLs for the same long URL
+ * Requires API Key authentication
+ */
+router.post(
+  "/bulk",
+  authenticate({
+    method: AuthMethod.API_KEY,
+  }),
+  createBulkShortUrls
+);
 
-// GET /api/short-url - Get all short URLs with pagination
-router.get("/", getAllShortUrls);
-
-// DELETE /api/short-url/:id - Delete a short URL
-router.delete("/:id", deleteShortUrl);
-
-// GET /s/:shortCode - Redirect to full URL (this should be mounted at root level)
+/**
+ * GET /:code
+ * Redirect short URL to original URL
+ * No authentication required (public endpoint)
+ * This should be mounted at root level, not under /api/short-url
+ */
 export const redirectRouter = Router();
-redirectRouter.get("/:shortCode", redirectShortUrl);
+router.get("/:code", redirectShortUrl);
 
-export { router as shorturlRoutes };
+export { router as shortUrlRoutes };

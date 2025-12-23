@@ -19,7 +19,8 @@ import { lenderRoutes } from "./routes/lender.routes";
 import { adminRoutes } from "./routes/admin/index.routes";
 import { startWorkers } from "./workers";
 import { studentRoutes } from "./routes/student.routes";
-import { shorturlRoutes } from "./routes/shorturl.routes";
+import { shortUrlRoutes } from "./routes/shorturl.routes";
+import { redirectRoutes } from "./routes/redirect.routes";
 const PORT = process.env.PORT || 3031;
 
 // app.use(setAuditContext);
@@ -40,7 +41,8 @@ app.use("/commission", commissionRoutes);
 app.use("/lenders", lenderRoutes);
 app.use("/admin", adminRoutes);
 app.use("/student", studentRoutes);
-app.use("/shorturl", shorturlRoutes);
+app.use("/shorturl", shortUrlRoutes);
+app.use("/", redirectRoutes);
 
 // 404 handler
 app.use("*", (req, res) => {

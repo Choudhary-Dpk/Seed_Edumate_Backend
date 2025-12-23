@@ -2331,16 +2331,18 @@ view leads_view {
 }
 
 model ShortUrl {
-  id         String   @id @default(cuid()) @db.VarChar(255)
-  short_url  String   @unique @db.VarChar(255)
-  full_url   String   @db.VarChar(2550)
-  clicks     Int      @default(0)
-  utm_source String?  @db.VarChar(255)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  id              String    @id @default(cuid())
+  code            String    @unique @db.VarChar(10)
+  longUrl         String    @db.Text
+  redirectCount   Int       @default(0)
+  createdBy       String?   @db.VarChar(255)
+  lastAccessedAt  DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
-  @@index([clicks])
-  @@index([utm_source])
+  @@index([code])
+  @@index([createdBy])
+  @@index([createdAt])
   @@map("short_urls")
 }
 
