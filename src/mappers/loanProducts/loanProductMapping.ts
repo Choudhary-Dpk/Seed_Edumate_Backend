@@ -779,6 +779,18 @@ export const mapAllLoanProductFields = async (
   }
 
   // === APPLICATION AND PROCESSING FIELDS ===
+
+  if (
+    input.application_process !== undefined ||
+    input.applicationProcess !== undefined
+  ) {
+    const applicationProcess =
+      input.application_process ?? input.applicationProcess;
+    if (applicationProcess !== undefined) {
+      mapped.application_process = applicationProcess || null;
+    }
+  }
+
   if (input.disbursement_timeline !== undefined) {
     mapped.disbursement_timeline =
       input.disbursement_timeline !== null && input.disbursement_timeline !== ""
@@ -847,17 +859,6 @@ export const mapAllLoanProductFields = async (
   }
 
   // === SPECIAL FEATURES FIELDS ===
-
-  if (
-    input.application_process !== undefined ||
-    input.applicationProcess !== undefined
-  ) {
-    const applicationProcess =
-      input.application_process ?? input.applicationProcess;
-    if (applicationProcess !== undefined) {
-      mapped.application_process = applicationProcess || null;
-    }
-  }
 
   if (input.key_features !== undefined || input.keyFeatures !== undefined) {
     const keyFeatures = input.key_features ?? input.keyFeatures;

@@ -196,6 +196,7 @@ export const categorizeLoanProductByTable = (
     "documentation_list",
     "mandatory_documents",
     "optional_documents",
+    "application_process",
   ];
 
   // Geographic Coverage Fields (HSLoanProductsGeographicCoverage)
@@ -218,7 +219,6 @@ export const categorizeLoanProductByTable = (
     "loyalty_benefits",
     "tax_benefits_available",
     "key_features",
-    "application_process",
   ];
 
   // Performance Metrics Fields (HSLoanProductsPerformanceMetrics)
