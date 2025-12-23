@@ -1373,8 +1373,6 @@ model HSLoanProducts {
   deleted_by                        String?
   deleted_on                        DateTime?
   source                            String?                                 @default("webportal")
-  key_features                      String[]                                @default([])
-  application_process               String[]                                @default([])
   supported_countries               String?       
   commission_settlement             HSCommissionSettlements[]
   loan_application                  HSLoanApplications[]
@@ -1565,6 +1563,8 @@ model HSLoanProductsSpecialFeatures {
   grace_period_benefits      String?
   loyalty_benefits           String?
   tax_benefits_available     String?
+  key_features               String[]                                @default([])
+  application_process        String[]                                @default([])
   created_at                 DateTime       @default(now())
   updated_at                 DateTime       @default(now()) @updatedAt
   product                    HSLoanProducts @relation(fields: [product_id], references: [id], onDelete: Cascade)

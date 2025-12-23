@@ -360,12 +360,6 @@ export const mapAllLoanProductFields = async (
         ? input.supported_countries
         : null;
 
-  if (input.application_process !== undefined)
-    mapped.application_process =
-      input.application_process !== null && input.application_process !== ""
-        ? input.application_process
-        : null;
-
   if (input.source !== undefined)
     mapped.source =
       input.source !== null && input.source !== "" ? input.source : null;
@@ -853,6 +847,25 @@ export const mapAllLoanProductFields = async (
   }
 
   // === SPECIAL FEATURES FIELDS ===
+
+  if (
+    input.application_process !== undefined ||
+    input.applicationProcess !== undefined
+  ) {
+    const applicationProcess =
+      input.application_process ?? input.applicationProcess;
+    if (applicationProcess !== undefined) {
+      mapped.application_process = applicationProcess || null;
+    }
+  }
+
+  if (input.key_features !== undefined || input.keyFeatures !== undefined) {
+    const keyFeatures = input.key_features ?? input.keyFeatures;
+    if (keyFeatures !== undefined) {
+      mapped.key_features = keyFeatures || null;
+    }
+  }
+
   if (input.forex_tax_benefits !== undefined) {
     mapped.forex_tax_benefits =
       input.forex_tax_benefits !== null && input.forex_tax_benefits !== ""

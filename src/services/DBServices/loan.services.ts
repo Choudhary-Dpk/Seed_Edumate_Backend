@@ -94,7 +94,6 @@ export const categorizeLoanProductByTable = (
     "last_updated_date",
     "hs_lender_id",
     "supported_countries",
-    "application_process",
 
     // HubSpot System Fields
     "hs_created_by_user_id",
@@ -218,6 +217,8 @@ export const categorizeLoanProductByTable = (
     "grace_period_benefits",
     "loyalty_benefits",
     "tax_benefits_available",
+    "key_features",
+    "application_process",
   ];
 
   // Performance Metrics Fields (HSLoanProductsPerformanceMetrics)
