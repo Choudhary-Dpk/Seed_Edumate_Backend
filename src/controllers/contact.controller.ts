@@ -186,7 +186,6 @@ export const upsertContactsLead = async (
   next: NextFunction
 ) => {
   try {
-    debugger;
     // const { id } = req.payload!;
     const { email, formType, phoneNumber } = req.body;
     let data: any = {};
