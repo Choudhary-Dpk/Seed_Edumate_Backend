@@ -30,7 +30,7 @@ BEGIN
     'timestamp', EXTRACT(EPOCH FROM NOW())
   );
 
-  -- FIXED: Always notify on INSERT for main table, block UPDATE from HubSpot
+  -- Always notify on INSERT for main table, block UPDATE from HubSpot
   IF (TG_OP = 'DELETE' 
       OR TG_TABLE_NAME != 'hs_edumate_contacts'
       OR (TG_OP = 'INSERT' AND TG_TABLE_NAME = 'hs_edumate_contacts')
@@ -41,6 +41,49 @@ BEGIN
   RETURN COALESCE(NEW, OLD);
 END;
 $$ LANGUAGE plpgsql;
+
+-- Drop existing triggers if they exist
+DROP TRIGGER IF EXISTS hs_edumate_contacts_sync_trigger ON hs_edumate_contacts;
+DROP TRIGGER IF EXISTS hs_edumate_contacts_personal_information_sync_trigger ON hs_edumate_contacts_personal_information;
+DROP TRIGGER IF EXISTS hs_edumate_contacts_academic_profiles_sync_trigger ON hs_edumate_contacts_academic_profiles;
+DROP TRIGGER IF EXISTS hs_edumate_contacts_lead_attribution_sync_trigger ON hs_edumate_contacts_lead_attribution;
+DROP TRIGGER IF EXISTS hs_edumate_contacts_financial_info_sync_trigger ON hs_edumate_contacts_financial_info;
+DROP TRIGGER IF EXISTS hs_edumate_contacts_loan_preferences_sync_trigger ON hs_edumate_contacts_loan_preferences;
+DROP TRIGGER IF EXISTS hs_edumate_contacts_application_journey_sync_trigger ON hs_edumate_contacts_application_journey;
+DROP TRIGGER IF EXISTS hs_edumate_contacts_system_tracking_sync_trigger ON hs_edumate_contacts_system_tracking;
+
+-- Create triggers for all edumate contact tables
+CREATE TRIGGER hs_edumate_contacts_sync_trigger
+  AFTER INSERT OR UPDATE OR DELETE ON hs_edumate_contacts
+  FOR EACH ROW EXECUTE FUNCTION notify_edumate_sync();
+
+CREATE TRIGGER hs_edumate_contacts_personal_information_sync_trigger
+  AFTER INSERT OR UPDATE OR DELETE ON hs_edumate_contacts_personal_information
+  FOR EACH ROW EXECUTE FUNCTION notify_edumate_sync();
+
+CREATE TRIGGER hs_edumate_contacts_academic_profiles_sync_trigger
+  AFTER INSERT OR UPDATE OR DELETE ON hs_edumate_contacts_academic_profiles
+  FOR EACH ROW EXECUTE FUNCTION notify_edumate_sync();
+
+CREATE TRIGGER hs_edumate_contacts_lead_attribution_sync_trigger
+  AFTER INSERT OR UPDATE OR DELETE ON hs_edumate_contacts_lead_attribution
+  FOR EACH ROW EXECUTE FUNCTION notify_edumate_sync();
+
+CREATE TRIGGER hs_edumate_contacts_financial_info_sync_trigger
+  AFTER INSERT OR UPDATE OR DELETE ON hs_edumate_contacts_financial_info
+  FOR EACH ROW EXECUTE FUNCTION notify_edumate_sync();
+
+CREATE TRIGGER hs_edumate_contacts_loan_preferences_sync_trigger
+  AFTER INSERT OR UPDATE OR DELETE ON hs_edumate_contacts_loan_preferences
+  FOR EACH ROW EXECUTE FUNCTION notify_edumate_sync();
+
+CREATE TRIGGER hs_edumate_contacts_application_journey_sync_trigger
+  AFTER INSERT OR UPDATE OR DELETE ON hs_edumate_contacts_application_journey
+  FOR EACH ROW EXECUTE FUNCTION notify_edumate_sync();
+
+CREATE TRIGGER hs_edumate_contacts_system_tracking_sync_trigger
+  AFTER INSERT OR UPDATE OR DELETE ON hs_edumate_contacts_system_tracking
+  FOR EACH ROW EXECUTE FUNCTION notify_edumate_sync();
 `;
 
 async function setupEdumateTriggers() {
@@ -49,15 +92,18 @@ async function setupEdumateTriggers() {
   });
 
   try {
-    console.log("[Fix] Connecting to database...");
+    console.log("[Edumate Setup] Connecting to database...");
     await client.connect();
 
-    console.log("[Fix] Updating function with correct field handling...");
+    console.log("[Edumate Setup] Creating notify function and triggers...");
     await client.query(sql);
 
-    console.log("[Fix] Function updated successfully!");
+    console.log("[Edumate Setup] Successfully created:");
+    console.log("   - notify_edumate_sync() function");
+    console.log("   - Triggers on all 8 edumate contact tables");
+    console.log("   - Listening on 'edumate_sync_channel'");
   } catch (error) {
-    console.error("[Fix] Error:", error.message);
+    console.error("[Edumate Setup] Error:", error.message);
     process.exit(1);
   } finally {
     await client.end();

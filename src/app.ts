@@ -12,16 +12,17 @@ import { permissionsRoutes } from "./routes/permissions.routes";
 import { masterRoutes } from "./routes/index.routes";
 import app from "./setup/express";
 import "./setup/cron";
-import { setAuditContext } from "./middlewares/audit.middleware";
+// import { setAuditContext } from "./middlewares/audit.middleware";
 import { loanProuductRoutes } from "./routes/loanProudct.routes";
 import { commissionRoutes } from "./routes/commission.routes";
 import { lenderRoutes } from "./routes/lender.routes";
 import { adminRoutes } from "./routes/admin/index.routes";
 import { startWorkers } from "./workers";
 import { studentRoutes } from "./routes/student.routes";
+import { shorturlRoutes } from "./routes/shorturl.routes";
 const PORT = process.env.PORT || 3031;
 
-app.use(setAuditContext);
+// app.use(setAuditContext);
 
 // API Routes
 app.use("/loans", loanRoutes);
@@ -39,6 +40,7 @@ app.use("/commission", commissionRoutes);
 app.use("/lenders", lenderRoutes);
 app.use("/admin", adminRoutes);
 app.use("/student", studentRoutes);
+app.use("/shorturl", shorturlRoutes);
 
 // 404 handler
 app.use("*", (req, res) => {

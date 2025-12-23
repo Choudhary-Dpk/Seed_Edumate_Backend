@@ -186,6 +186,7 @@ export const upsertContactsLead = async (
   next: NextFunction
 ) => {
   try {
+    debugger;
     // const { id } = req.payload!;
     const { email, formType, phoneNumber } = req.body;
     let data: any = {};
@@ -316,6 +317,42 @@ export const upsertContactsLead = async (
             `Lead attribution created successfully for contact: ${contact.id}`
           );
 
+          logger.debug(
+            `Creating lead application journey for contact: ${contact.id}`
+          );
+          await createApplicationJourney(
+            tx,
+            contact.id,
+            categorized["applicationJourney"]
+          );
+          logger.debug(
+            `Lead journey created successfully for contact: ${contact.id}`
+          );
+
+          logger.debug(
+            `Creating lead financial info for contact: ${contact.id}`
+          );
+          await createFinancialInfo(
+            tx,
+            contact.id,
+            categorized["financialInfo"]
+          );
+          logger.debug(
+            `Lead financial info created successfully for contact: ${contact.id}`
+          );
+
+          logger.debug(
+            `Creating lead loan preference for contact: ${contact.id}`
+          );
+          await createLoanPreferences(
+            tx,
+            contact.id,
+            categorized["loanPreferences"]
+          );
+          logger.debug(
+            `Lead loan preference created successfully for contact: ${contact.id}`
+          );
+
           logger.debug(`Creating system tracking for contact: ${contact.id}`);
           await createEdumateSystemTracking(tx, contact.id);
           logger.debug(
@@ -429,7 +466,7 @@ export const editContactsLead = async (
         tx,
         +leadId,
         categorized["mainContact"],
-        partnerId,
+        partnerId
       );
       logger.debug(`Contact updated successfully with id: ${contact.id}`);
 
