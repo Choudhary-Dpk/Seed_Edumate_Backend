@@ -1408,7 +1408,7 @@ model HSLoanProductsApplicationAndProcessing {
   documentation_list    String?
   mandatory_documents   String?
   optional_documents    String?
-  application_process   String[]                                @default([])
+  application_process   String?                               
   created_at            DateTime       @default(now())
   updated_at            DateTime       @default(now()) @updatedAt
   product               HSLoanProducts @relation(fields: [product_id], references: [id], onDelete: Cascade)
@@ -1564,7 +1564,7 @@ model HSLoanProductsSpecialFeatures {
   grace_period_benefits      String?
   loyalty_benefits           String?
   tax_benefits_available     String?
-  key_features               String[]                                @default([])
+  key_features               String?       
   created_at                 DateTime       @default(now())
   updated_at                 DateTime       @default(now()) @updatedAt
   product                    HSLoanProducts @relation(fields: [product_id], references: [id], onDelete: Cascade)
