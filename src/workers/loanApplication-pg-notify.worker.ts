@@ -68,7 +68,7 @@ async function handleNotification(msg: any) {
       source: data.source,
     });
 
-    // ✅ Only skip HubSpot-source for UPDATEs, not INSERTs
+    //  Only skip HubSpot-source for UPDATEs, not INSERTs
     if (data.source === "hubspot" && data.operation === "UPDATE") {
       logger.debug("[Loan PG NOTIFY] Skipping HubSpot-source UPDATE");
       return;
@@ -114,6 +114,36 @@ async function handleNotification(msg: any) {
   }
 }
 
+// async function queueLoanSync(
+//   applicationId: number,
+//   operation: string,
+//   hsObjectId: string | null,
+//   syncKey: string
+// ) {
+//   loanSyncQueue.add(async () => {
+//     loanOngoingSync.add(syncKey);
+
+//     try {
+//       await processLoanSync(applicationId, operation, hsObjectId);
+//       logger.info(`[Loan PG NOTIFY] Successfully synced ${syncKey}`);
+//     } catch (error: any) {
+//       logger.error(`[Loan PG NOTIFY] Sync failed for ${syncKey}:`, error);
+//       await addToFallbackQueue(
+//         applicationId,
+//         operation,
+//         hsObjectId,
+//         error.message
+//       );
+//     } finally {
+//       loanOngoingSync.delete(syncKey);
+//     }
+//   });
+
+//   logger.debug(
+//     `[Loan PG NOTIFY] Queued ${syncKey} (Queue: ${loanSyncQueue.size}, Active: ${loanSyncQueue.pending})`
+//   );
+// }
+
 async function queueLoanSync(
   applicationId: number,
   operation: string,
@@ -123,16 +153,36 @@ async function queueLoanSync(
   loanSyncQueue.add(async () => {
     loanOngoingSync.add(syncKey);
 
+    //  Find or create SyncOutbox entry
+    let outboxEntry = await findOrCreateOutboxEntry(
+      applicationId,
+      operation,
+      hsObjectId
+    );
+
     try {
-      await processLoanSync(applicationId, operation, hsObjectId);
+      //  Mark as PROCESSING
+      outboxEntry = await markAsProcessing(outboxEntry.id);
+
+      // Process the sync
+      const result = await processLoanSync(
+        applicationId,
+        operation,
+        hsObjectId
+      );
+
+      //  Mark as COMPLETED on success
+      await markAsCompleted(outboxEntry.id, result?.hubspotId || hsObjectId);
+
       logger.info(`[Loan PG NOTIFY] Successfully synced ${syncKey}`);
     } catch (error: any) {
       logger.error(`[Loan PG NOTIFY] Sync failed for ${syncKey}:`, error);
-      await addToFallbackQueue(
-        applicationId,
-        operation,
-        hsObjectId,
-        error.message
+
+      //  Mark as PENDING (for retry) or FAILED (if max attempts)
+      await markAsFailed(
+        outboxEntry.id,
+        error.message,
+        outboxEntry.attempts + 1
       );
     } finally {
       loanOngoingSync.delete(syncKey);
@@ -144,11 +194,41 @@ async function queueLoanSync(
   );
 }
 
+// async function processLoanSync(
+//   applicationId: number,
+//   operation: string,
+//   hsObjectId: string | null
+// ): Promise<void> {
+//   logger.info(
+//     `[Loan PG NOTIFY] Processing ${operation} for application #${applicationId}`
+//   );
+
+//   switch (operation) {
+//     case "CREATE":
+//     case "INSERT":
+//       await handleLoanCreate(applicationId);
+//       break;
+
+//     case "UPDATE":
+//       await handleLoanUpdate(applicationId);
+//       break;
+
+//     case "DELETE":
+//       if (hsObjectId) {
+//         await handleLoanDelete(hsObjectId);
+//       }
+//       break;
+
+//     default:
+//       logger.warn(`[Loan PG NOTIFY] Unknown operation: ${operation}`);
+//   }
+// }
+
 async function processLoanSync(
   applicationId: number,
   operation: string,
   hsObjectId: string | null
-): Promise<void> {
+): Promise<{ hubspotId?: string } | void> {
   logger.info(
     `[Loan PG NOTIFY] Processing ${operation} for application #${applicationId}`
   );
@@ -156,25 +236,186 @@ async function processLoanSync(
   switch (operation) {
     case "CREATE":
     case "INSERT":
-      await handleLoanCreate(applicationId);
-      break;
+      const createResult = await handleLoanCreate(applicationId);
+      return { hubspotId: createResult };
 
     case "UPDATE":
-      await handleLoanUpdate(applicationId);
-      break;
+      const updateResult = await handleLoanUpdate(applicationId);
+      return { hubspotId: updateResult };
 
     case "DELETE":
       if (hsObjectId) {
         await handleLoanDelete(hsObjectId);
       }
-      break;
+      return;
 
     default:
       logger.warn(`[Loan PG NOTIFY] Unknown operation: ${operation}`);
+      return;
   }
 }
 
-async function handleLoanCreate(applicationId: number): Promise<void> {
+// async function handleLoanCreate(applicationId: number): Promise<void> {
+//   const loanApplication = await prisma.hSLoanApplications.findUnique({
+//     where: { id: applicationId },
+//     include: {
+//       academic_details: true,
+//       financial_requirements: true,
+//       loan_application_status: true,
+//       lender_information: true,
+//       document_management: true,
+//       processing_timeline: true,
+//       rejection_details: true,
+//       communication_prefs: true,
+//       system_tracking: true,
+//       commission_records: true,
+//       additional_services: true,
+//     },
+//   });
+
+//   if (!loanApplication) {
+//     throw new Error(`Loan application ${applicationId} not found`);
+//   }
+
+//   // If loan has hs_object_id (came from HubSpot), UPDATE instead
+//   if (loanApplication.hs_object_id) {
+//     logger.info(
+//       `[Loan PG NOTIFY] Application #${applicationId} already has HubSpot ID: ${loanApplication.hs_object_id}, updating with db_id`
+//     );
+
+//     const hubspotPayload = transformLoanToHubSpotFormat(loanApplication);
+
+//     try {
+//       await updateLoanApplication(loanApplication.hs_object_id, hubspotPayload);
+//       logger.info(
+//         `[Loan PG NOTIFY] Updated HubSpot loan ${loanApplication.hs_object_id} with db_id: ${applicationId}`
+//       );
+//     } catch (error: any) {
+//       logger.error(
+//         `[Loan PG NOTIFY] Failed to update HubSpot with db_id:`,
+//         error
+//       );
+//     }
+
+//     return;
+//   }
+
+//   // Fetch associations (same as your old working code)
+//   let edumateContactHsObjectId: string | null = null;
+//   let b2bPartnerHsObjectId: string | null = null;
+//   let lenderHsObjectId: string | null = null;
+//   let loanProductHsObjectId: string | null = null;
+
+//   if (loanApplication.contact_id) {
+//     const contact = await prisma.hSEdumateContacts.findUnique({
+//       where: { id: loanApplication.contact_id },
+//       select: { hs_object_id: true },
+//     });
+//     if (contact?.hs_object_id) {
+//       edumateContactHsObjectId = contact.hs_object_id;
+//       logger.info("[Loan PG NOTIFY] Found Edumate Contact for association", {
+//         contactId: loanApplication.contact_id,
+//         hsObjectId: edumateContactHsObjectId,
+//       });
+//     } else {
+//       logger.warn(
+//         "[Loan PG NOTIFY] ⚠️ Edumate Contact found but no hs_object_id",
+//         {
+//           contactId: loanApplication.contact_id,
+//         }
+//       );
+//     }
+//   }
+
+//   if (loanApplication.b2b_partner_id) {
+//     const b2bPartner = await prisma.hSB2BPartners.findUnique({
+//       where: { id: loanApplication.b2b_partner_id },
+//       select: { hs_object_id: true },
+//     });
+
+//     if (b2bPartner?.hs_object_id) {
+//       b2bPartnerHsObjectId = b2bPartner.hs_object_id;
+//       logger.info("[Loan PG NOTIFY] Found B2B Partner for association", {
+//         b2bPartnerId: loanApplication.b2b_partner_id,
+//         hsObjectId: b2bPartnerHsObjectId,
+//       });
+//     } else {
+//       logger.warn("[Loan PG NOTIFY] ⚠️ B2B Partner found but no hs_object_id", {
+//         b2bPartnerId: loanApplication.b2b_partner_id,
+//       });
+//     }
+//   }
+
+//   if (loanApplication.lender_id) {
+//     const lender = await prisma.hSLenders.findUnique({
+//       where: { id: loanApplication.lender_id },
+//       select: { hs_object_id: true },
+//     });
+
+//     if (lender?.hs_object_id) {
+//       lenderHsObjectId = lender.hs_object_id;
+//       logger.info("[Loan PG NOTIFY] Found Lender for association", {
+//         lenderId: loanApplication.lender_id,
+//         hsObjectId: lenderHsObjectId,
+//       });
+//     } else {
+//       logger.warn("[Loan PG NOTIFY] ⚠️ Lender found but no hs_object_id", {
+//         lenderId: loanApplication.lender_id,
+//       });
+//     }
+//   }
+
+//   if (loanApplication.product_id) {
+//     const loanProduct = await prisma.hSLoanProducts.findUnique({
+//       where: { id: loanApplication.product_id },
+//       select: { hs_object_id: true },
+//     });
+//     if (loanProduct?.hs_object_id) {
+//       loanProductHsObjectId = loanProduct.hs_object_id;
+//       logger.info("[Loan PG NOTIFY] Found Loan Product for association", {
+//         productId: loanApplication.product_id,
+//         hsObjectId: loanProductHsObjectId,
+//       });
+//     } else {
+//       logger.warn(
+//         "[Loan PG NOTIFY] ⚠️ Loan Product found but no hs_object_id",
+//         {
+//           productId: loanApplication.product_id,
+//         }
+//       );
+//     }
+//   }
+
+//   // Transform to HubSpot format
+//   const hubspotPayload = transformLoanToHubSpotFormat(loanApplication);
+
+//   //  SIMPLE: Just call create, no fancy retry logic (like your old code)
+//   const result = await createLoanApplication(
+//     hubspotPayload,
+//     edumateContactHsObjectId,
+//     b2bPartnerHsObjectId,
+//     lenderHsObjectId,
+//     loanProductHsObjectId
+//   );
+
+//   if (!result || !result.id) {
+//     throw new Error("HubSpot create returned empty result");
+//   }
+
+//   await prisma.hSLoanApplications.update({
+//     where: { id: applicationId },
+//     data: {
+//       hs_object_id: result.id,
+//       source: "hubspot",
+//     },
+//   });
+
+//   logger.info(
+//     `[Loan PG NOTIFY] Created loan application #${applicationId} in HubSpot: ${result.id}`
+//   );
+// }
+
+async function handleLoanCreate(applicationId: number): Promise<string> {
   const loanApplication = await prisma.hSLoanApplications.findUnique({
     where: { id: applicationId },
     include: {
@@ -216,10 +457,10 @@ async function handleLoanCreate(applicationId: number): Promise<void> {
       );
     }
 
-    return;
+    return loanApplication.hs_object_id; //  Return existing ID
   }
 
-  // Fetch associations (same as your old working code)
+  // Fetch associations
   let edumateContactHsObjectId: string | null = null;
   let b2bPartnerHsObjectId: string | null = null;
   let lenderHsObjectId: string | null = null;
@@ -236,13 +477,6 @@ async function handleLoanCreate(applicationId: number): Promise<void> {
         contactId: loanApplication.contact_id,
         hsObjectId: edumateContactHsObjectId,
       });
-    } else {
-      logger.warn(
-        "[Loan PG NOTIFY] ⚠️ Edumate Contact found but no hs_object_id",
-        {
-          contactId: loanApplication.contact_id,
-        }
-      );
     }
   }
 
@@ -251,16 +485,11 @@ async function handleLoanCreate(applicationId: number): Promise<void> {
       where: { id: loanApplication.b2b_partner_id },
       select: { hs_object_id: true },
     });
-
     if (b2bPartner?.hs_object_id) {
       b2bPartnerHsObjectId = b2bPartner.hs_object_id;
       logger.info("[Loan PG NOTIFY] Found B2B Partner for association", {
         b2bPartnerId: loanApplication.b2b_partner_id,
         hsObjectId: b2bPartnerHsObjectId,
-      });
-    } else {
-      logger.warn("[Loan PG NOTIFY] ⚠️ B2B Partner found but no hs_object_id", {
-        b2bPartnerId: loanApplication.b2b_partner_id,
       });
     }
   }
@@ -270,16 +499,11 @@ async function handleLoanCreate(applicationId: number): Promise<void> {
       where: { id: loanApplication.lender_id },
       select: { hs_object_id: true },
     });
-
     if (lender?.hs_object_id) {
       lenderHsObjectId = lender.hs_object_id;
       logger.info("[Loan PG NOTIFY] Found Lender for association", {
         lenderId: loanApplication.lender_id,
         hsObjectId: lenderHsObjectId,
-      });
-    } else {
-      logger.warn("[Loan PG NOTIFY] ⚠️ Lender found but no hs_object_id", {
-        lenderId: loanApplication.lender_id,
       });
     }
   }
@@ -295,20 +519,13 @@ async function handleLoanCreate(applicationId: number): Promise<void> {
         productId: loanApplication.product_id,
         hsObjectId: loanProductHsObjectId,
       });
-    } else {
-      logger.warn(
-        "[Loan PG NOTIFY] ⚠️ Loan Product found but no hs_object_id",
-        {
-          productId: loanApplication.product_id,
-        }
-      );
     }
   }
 
   // Transform to HubSpot format
   const hubspotPayload = transformLoanToHubSpotFormat(loanApplication);
 
-  // ✅ SIMPLE: Just call create, no fancy retry logic (like your old code)
+  // Call HubSpot API
   const result = await createLoanApplication(
     hubspotPayload,
     edumateContactHsObjectId,
@@ -332,9 +549,62 @@ async function handleLoanCreate(applicationId: number): Promise<void> {
   logger.info(
     `[Loan PG NOTIFY] Created loan application #${applicationId} in HubSpot: ${result.id}`
   );
+
+  return result.id; //  Return new HubSpot ID
 }
 
-async function handleLoanUpdate(applicationId: number): Promise<void> {
+// async function handleLoanUpdate(applicationId: number): Promise<void> {
+//   const loanApplication = await prisma.hSLoanApplications.findUnique({
+//     where: { id: applicationId },
+//     include: {
+//       academic_details: true,
+//       financial_requirements: true,
+//       loan_application_status: true,
+//       lender_information: true,
+//       document_management: true,
+//       processing_timeline: true,
+//       rejection_details: true,
+//       communication_prefs: true,
+//       system_tracking: true,
+//       commission_records: true,
+//       additional_services: true,
+//     },
+//   });
+
+//   if (!loanApplication) {
+//     throw new Error(`Loan application ${applicationId} not found`);
+//   }
+
+//   const hubspotId = loanApplication.hs_object_id;
+
+//   if (!hubspotId) {
+//     logger.warn(
+//       `[Loan PG NOTIFY] No HubSpot ID for loan ${applicationId}, creating new entry`
+//     );
+//     await handleLoanCreate(applicationId);
+//     return;
+//   }
+
+//   const hubspotPayload = transformLoanToHubSpotFormat(loanApplication);
+
+//   try {
+//     await updateLoanApplication(hubspotId, hubspotPayload);
+//     logger.info(
+//       `[Loan PG NOTIFY] Updated loan application #${applicationId} in HubSpot: ${hubspotId}`
+//     );
+//   } catch (error: any) {
+//     if (error?.response?.status === 404) {
+//       logger.warn(
+//         `[Loan PG NOTIFY] HubSpot loan ${hubspotId} not found (404), creating new`
+//       );
+//       await handleLoanCreate(applicationId);
+//     } else {
+//       throw error;
+//     }
+//   }
+// }
+
+async function handleLoanUpdate(applicationId: number): Promise<string> {
   const loanApplication = await prisma.hSLoanApplications.findUnique({
     where: { id: applicationId },
     include: {
@@ -362,8 +632,8 @@ async function handleLoanUpdate(applicationId: number): Promise<void> {
     logger.warn(
       `[Loan PG NOTIFY] No HubSpot ID for loan ${applicationId}, creating new entry`
     );
-    await handleLoanCreate(applicationId);
-    return;
+    const newId = await handleLoanCreate(applicationId);
+    return newId;
   }
 
   const hubspotPayload = transformLoanToHubSpotFormat(loanApplication);
@@ -378,11 +648,14 @@ async function handleLoanUpdate(applicationId: number): Promise<void> {
       logger.warn(
         `[Loan PG NOTIFY] HubSpot loan ${hubspotId} not found (404), creating new`
       );
-      await handleLoanCreate(applicationId);
+      const newId = await handleLoanCreate(applicationId);
+      return newId;
     } else {
       throw error;
     }
   }
+
+  return hubspotId; //  Return HubSpot ID
 }
 
 async function handleLoanDelete(hsObjectId: string): Promise<void> {
@@ -390,6 +663,123 @@ async function handleLoanDelete(hsObjectId: string): Promise<void> {
   logger.info(
     `[Loan PG NOTIFY] Deleted loan application from HubSpot: ${hsObjectId}`
   );
+}
+
+/**
+ * Find existing outbox entry or create new one
+ */
+async function findOrCreateOutboxEntry(
+  applicationId: number,
+  operation: string,
+  hsObjectId: string | null
+): Promise<any> {
+  // Try to find existing PENDING entry created by middleware
+  const existingEntry = await prisma.syncOutbox.findFirst({
+    where: {
+      entity_type: "HSLoanApplications",
+      entity_id: applicationId,
+      operation: operation === "INSERT" ? "CREATE" : operation, // Map INSERT → CREATE
+      status: "PENDING",
+    },
+    orderBy: {
+      created_at: "desc", // Get most recent
+    },
+  });
+
+  if (existingEntry) {
+    logger.debug(
+      `[Loan PG NOTIFY] Found existing outbox entry for loan #${applicationId}`
+    );
+    return existingEntry;
+  }
+
+  // If no entry exists (shouldn't happen), create one
+  logger.warn(
+    `[Loan PG NOTIFY] No outbox entry found for loan #${applicationId}, creating new`
+  );
+
+  const newEntry = await prisma.syncOutbox.create({
+    data: {
+      entity_type: "HSLoanApplications",
+      entity_id: applicationId,
+      operation: operation,
+      payload: { hs_object_id: hsObjectId },
+      status: "PENDING",
+      priority: 5,
+      attempts: 0,
+    },
+  });
+
+  return newEntry;
+}
+
+/**
+ * Mark outbox entry as PROCESSING
+ */
+async function markAsProcessing(outboxId: string): Promise<any> {
+  const updated = await prisma.syncOutbox.update({
+    where: { id: outboxId },
+    data: {
+      status: "PROCESSING",
+      processing_at: new Date(),
+      attempts: { increment: 1 },
+    },
+  });
+
+  logger.debug(`[Loan PG NOTIFY] Marked outbox #${outboxId} as PROCESSING`);
+  return updated;
+}
+
+/**
+ * Mark outbox entry as COMPLETED
+ */
+async function markAsCompleted(
+  outboxId: string,
+  hubspotId: string | null
+): Promise<void> {
+  await prisma.syncOutbox.update({
+    where: { id: outboxId },
+    data: {
+      status: "COMPLETED",
+      hubspot_id: hubspotId,
+      processed_at: new Date(),
+      last_error: null, // Clear any previous errors
+    },
+  });
+
+  logger.debug(
+    `[Loan PG NOTIFY] Marked outbox #${outboxId} as COMPLETED (HubSpot ID: ${hubspotId})`
+  );
+}
+
+/**
+ * Mark outbox entry as FAILED or PENDING (for retry)
+ */
+async function markAsFailed(
+  outboxId: string,
+  errorMessage: string,
+  currentAttempts: number
+): Promise<void> {
+  const isFinalAttempt = currentAttempts >= MAX_RETRIES;
+
+  await prisma.syncOutbox.update({
+    where: { id: outboxId },
+    data: {
+      status: isFinalAttempt ? "FAILED" : "PENDING",
+      last_error: errorMessage,
+      ...(isFinalAttempt && { processed_at: new Date() }),
+    },
+  });
+
+  if (isFinalAttempt) {
+    logger.error(
+      `[Loan PG NOTIFY] Marked outbox #${outboxId} as FAILED after ${MAX_RETRIES} attempts`
+    );
+  } else {
+    logger.debug(
+      `[Loan PG NOTIFY] Marked outbox #${outboxId} as PENDING for retry (attempt ${currentAttempts}/${MAX_RETRIES})`
+    );
+  }
 }
 
 function transformLoanToHubSpotFormat(loanApp: any): any {
@@ -645,29 +1035,80 @@ function startFallbackProcessor() {
   logger.info("[Loan PG NOTIFY] Fallback processor started");
 }
 
-async function processRetry(item: any): Promise<void> {
-  const newAttempts = item.attempts + 1;
+// async function processRetry(item: any): Promise<void> {
+//   const newAttempts = item.attempts + 1;
 
+//   await prisma.syncOutbox.update({
+//     where: { id: item.id },
+//     data: {
+//       status: "PROCESSING",
+//       attempts: newAttempts,
+//     },
+//   });
+
+//   try {
+//     await processLoanSync(
+//       item.entity_id,
+//       item.operation,
+//       item.payload?.hs_object_id
+//     );
+
+//     await prisma.syncOutbox.update({
+//       where: { id: item.id },
+//       data: {
+//         status: "COMPLETED",
+//         processed_at: new Date(),
+//       },
+//     });
+
+//     logger.info(
+//       `[Loan PG NOTIFY] Retry succeeded for loan application #${item.entity_id}`
+//     );
+//   } catch (error: any) {
+//     const isFinalAttempt = newAttempts >= MAX_RETRIES;
+
+//     await prisma.syncOutbox.update({
+//       where: { id: item.id },
+//       data: {
+//         status: isFinalAttempt ? "FAILED" : "PENDING",
+//         last_error: error.message,
+//       },
+//     });
+
+//     if (isFinalAttempt) {
+//       logger.error(
+//         `[Loan PG NOTIFY] Retry exhausted for loan application #${item.entity_id}`
+//       );
+//     }
+//   }
+// }
+
+async function processRetry(item: any): Promise<void> {
+  //  Mark as PROCESSING
   await prisma.syncOutbox.update({
     where: { id: item.id },
     data: {
       status: "PROCESSING",
-      attempts: newAttempts,
+      processing_at: new Date(),
+      attempts: { increment: 1 },
     },
   });
 
   try {
-    await processLoanSync(
+    const result = await processLoanSync(
       item.entity_id,
       item.operation,
       item.payload?.hs_object_id
     );
 
+    //  Mark as COMPLETED
     await prisma.syncOutbox.update({
       where: { id: item.id },
       data: {
         status: "COMPLETED",
+        hubspot_id: result?.hubspotId,
         processed_at: new Date(),
+        last_error: null,
       },
     });
 
@@ -675,19 +1116,22 @@ async function processRetry(item: any): Promise<void> {
       `[Loan PG NOTIFY] Retry succeeded for loan application #${item.entity_id}`
     );
   } catch (error: any) {
+    const newAttempts = item.attempts + 1;
     const isFinalAttempt = newAttempts >= MAX_RETRIES;
 
+    //  Mark as FAILED or PENDING
     await prisma.syncOutbox.update({
       where: { id: item.id },
       data: {
         status: isFinalAttempt ? "FAILED" : "PENDING",
         last_error: error.message,
+        ...(isFinalAttempt && { processed_at: new Date() }),
       },
     });
 
     if (isFinalAttempt) {
       logger.error(
-        `[Loan PG NOTIFY] Retry exhausted for loan application #${item.entity_id}`
+        `[Loan PG NOTIFY] Retry exhausted for loan application #${item.entity_id} after ${MAX_RETRIES} attempts`
       );
     }
   }

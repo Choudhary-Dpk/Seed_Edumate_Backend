@@ -135,4 +135,8 @@ async function setupCommissionTriggers() {
   }
 }
 
-setupCommissionTriggers();
+if (require.main === module) {
+  setupCommissionTriggers();
+}
+
+module.exports = setupCommissionTriggers;

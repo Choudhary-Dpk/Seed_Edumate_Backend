@@ -16,7 +16,8 @@
     "prisma": "prisma",
     "pm2:start": "pm2 start ecosystem.config.js",
     "pm2:stop": "pm2 stop ecosystem.config.js",
-    "pm2:restart": "pm2 restart ecosystem.config.js"
+    "pm2:restart": "pm2 restart ecosystem.config.js",
+    "db:triggers": "node scripts/index.js"
   },
   "dependencies": {
     "@hubspot/api-client": "^9.0.0",
