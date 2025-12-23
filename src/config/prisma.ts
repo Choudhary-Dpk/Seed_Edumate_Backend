@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { createAuditExtension } from "../middlewares/audit.middleware"; // ← ADD THIS LINE
+// import { createAuditExtension } from "../middlewares/audit.middleware"; // ← ADD THIS LINE
 // import { createHubSpotSyncExtension } from "../middlewares/hubspot-sync.middleware";
 import { createLoanHubSpotSyncExtension } from "../middlewares/hubspot-loan-sync.middleware";
 import { createCommissionHubSpotSyncExtension } from "../middlewares/hubspot-commission-settlements-sync.middleware";
@@ -7,7 +7,7 @@ import { createCommissionHubSpotSyncExtension } from "../middlewares/hubspot-com
 const basePrisma = new PrismaClient(); // ← RENAME from 'prisma' to 'basePrisma'
 
 const prisma = basePrisma
-  .$extends(createAuditExtension()) // Audit logging extension
+  // .$extends(createAuditExtension()) // Audit logging extension
   // .$extends(createHubSpotSyncExtension()) // Edumate Contact sync extension
   .$extends(createLoanHubSpotSyncExtension()) // Loan Application sync
   .$extends(createCommissionHubSpotSyncExtension()); // Commission Settlements

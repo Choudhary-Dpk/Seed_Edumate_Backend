@@ -1408,7 +1408,7 @@ model HSLoanProductsApplicationAndProcessing {
   documentation_list    String?
   mandatory_documents   String?
   optional_documents    String?
-  application_process   String[]                                @default([])
+  application_process   String?
   created_at            DateTime       @default(now())
   updated_at            DateTime       @default(now()) @updatedAt
   product               HSLoanProducts @relation(fields: [product_id], references: [id], onDelete: Cascade)
@@ -1564,7 +1564,7 @@ model HSLoanProductsSpecialFeatures {
   grace_period_benefits      String?
   loyalty_benefits           String?
   tax_benefits_available     String?
-  key_features               String[]                                @default([])
+  key_features               String?
   created_at                 DateTime       @default(now())
   updated_at                 DateTime       @default(now()) @updatedAt
   product                    HSLoanProducts @relation(fields: [product_id], references: [id], onDelete: Cascade)
@@ -2328,6 +2328,20 @@ view leads_view {
   loan_amount_approved        Decimal?  @db.Decimal(16, 4)
   loan_amount_disbursed       Decimal?  @db.Decimal(16, 4)
   processing_fee              Decimal?  @db.Decimal(16, 4)
+}
+
+model ShortUrl {
+  id         String   @id @default(cuid()) @db.VarChar(255)
+  short_url  String   @unique @db.VarChar(255)
+  full_url   String   @db.VarChar(2550)
+  clicks     Int      @default(0)
+  utm_source String?  @db.VarChar(255)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([clicks])
+  @@index([utm_source])
+  @@map("short_urls")
 }
 
 enum AuditAction {
