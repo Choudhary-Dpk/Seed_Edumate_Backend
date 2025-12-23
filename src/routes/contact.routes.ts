@@ -30,10 +30,10 @@ const router = Router();
 router.post(
   "/",
   authenticate({
-    method: AuthMethod.JWT,
+    method: AuthMethod.BOTH,
     allowedRoles: ["Admin", "Manager", "User"],
   }),
-  createContactsLeadValidationRules(),
+  // createContactsLeadValidationRules(),
   validateReqParams,
   validateContactsLeadPayload,
   createContactsLead
@@ -44,7 +44,7 @@ router.post("/upsert", upsertContactsLead);
 router.delete(
   "/:id",
   authenticate({
-    method: AuthMethod.JWT,
+    method: AuthMethod.BOTH,
     allowedRoles: ["Admin", "Manager", "User"],
   }),
   validateId(),
@@ -55,7 +55,7 @@ router.delete(
 router.get(
   "/details/:id",
   authenticate({
-    method: AuthMethod.JWT,
+    method: AuthMethod.BOTH,
     allowedRoles: ["Admin", "Manager", "User"],
   }),
   validateId(),
@@ -66,10 +66,10 @@ router.get(
 router.put(
   "/:id",
   authenticate({
-    method: AuthMethod.JWT,
+    method: AuthMethod.BOTH,
     allowedRoles: ["Admin", "Manager", "User"],
   }),
-  editContactsLeadValidationRules(),
+  // editContactsLeadValidationRules(),
   validateReqParams,
   validateContactLeadById,
   editContactsLead
@@ -77,7 +77,7 @@ router.put(
 router.get(
   "/list",
   authenticate({
-    method: AuthMethod.JWT,
+    method: AuthMethod.BOTH,
     allowedRoles: ["Admin", "Manager", "User"],
   }),
   contactsLeadPaginationValidationRules(),
@@ -87,7 +87,7 @@ router.get(
 router.post(
   "/upload-csv",
   authenticate({
-    method: AuthMethod.JWT,
+    method: AuthMethod.BOTH,
     allowedRoles: ["Admin", "Manager", "User"],
   }),
   validateAndParseCSVFile("CSV"),

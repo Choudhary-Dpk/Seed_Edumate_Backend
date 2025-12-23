@@ -165,10 +165,8 @@ export const mapAllLoanProductFields = async (
   }
 
   if (
-    (input.study_level &&
-      input.study_level !== "") ||
-    (input.target_segment &&
-      input.target_segment !== "")
+    (input.study_level && input.study_level !== "") ||
+    (input.target_segment && input.target_segment !== "")
   ) {
     enumTranslations.push({
       field: "target_segment",
@@ -356,15 +354,15 @@ export const mapAllLoanProductFields = async (
   // =====================================================================
 
   // === MAIN LOAN PRODUCT FIELDS ===
-    if (input.supported_countries !== undefined)
-      mapped.supported_countries =
-        input.supported_countries !== null && input.supported_countries !== ""
-          ? input.supported_countries
-          : null;
+  if (input.supported_countries !== undefined)
+    mapped.supported_countries =
+      input.supported_countries !== null && input.supported_countries !== ""
+        ? input.supported_countries
+        : null;
 
-    if (input.source !== undefined)
-      mapped.source =
-        input.source !== null && input.source !== "" ? input.source : null;
+  if (input.source !== undefined)
+    mapped.source =
+      input.source !== null && input.source !== "" ? input.source : null;
 
   if (input.hs_lender_id !== undefined)
     mapped.hs_lender_id =
@@ -781,6 +779,18 @@ export const mapAllLoanProductFields = async (
   }
 
   // === APPLICATION AND PROCESSING FIELDS ===
+
+  if (
+    input.application_process !== undefined ||
+    input.applicationProcess !== undefined
+  ) {
+    const applicationProcess =
+      input.application_process ?? input.applicationProcess;
+    if (applicationProcess !== undefined) {
+      mapped.application_process = applicationProcess || null;
+    }
+  }
+
   if (input.disbursement_timeline !== undefined) {
     mapped.disbursement_timeline =
       input.disbursement_timeline !== null && input.disbursement_timeline !== ""
@@ -849,6 +859,14 @@ export const mapAllLoanProductFields = async (
   }
 
   // === SPECIAL FEATURES FIELDS ===
+
+  if (input.key_features !== undefined || input.keyFeatures !== undefined) {
+    const keyFeatures = input.key_features ?? input.keyFeatures;
+    if (keyFeatures !== undefined) {
+      mapped.key_features = keyFeatures || null;
+    }
+  }
+
   if (input.forex_tax_benefits !== undefined) {
     mapped.forex_tax_benefits =
       input.forex_tax_benefits !== null && input.forex_tax_benefits !== ""

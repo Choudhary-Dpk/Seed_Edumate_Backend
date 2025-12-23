@@ -15,14 +15,14 @@ const SYNC_MODELS = [
 
 // System fields that shouldn't trigger sync
 const SYSTEM_FIELDS = [
-  'hs_object_id',
-  'hs_created_by_user_id',
-  'hs_createdate',
-  'hs_lastmodifieddate',
-  'hs_updated_by_user_id',
-  'hubspot_owner_id',
-  'updated_at',
-  'last_synced_at',
+  "hs_object_id",
+  "hs_created_by_user_id",
+  "hs_createdate",
+  "hs_lastmodifieddate",
+  "hs_updated_by_user_id",
+  "hubspot_owner_id",
+  "updated_at",
+  "last_synced_at",
 ];
 
 /**
@@ -30,10 +30,10 @@ const SYSTEM_FIELDS = [
  */
 function isOnlySystemFieldUpdate(args: any): boolean {
   if (!args?.data) return false;
-  
+
   const updatingFields = Object.keys(args.data);
-  
-  return updatingFields.every(field => SYSTEM_FIELDS.includes(field));
+
+  return updatingFields.every((field) => SYSTEM_FIELDS.includes(field));
 }
 
 /**
@@ -49,7 +49,7 @@ function isNormalizedTable(tableName: string): boolean {
     "HSEdumateContactsApplicationJourney",
     "HSEdumateContactsSystemTracking",
   ];
-  
+
   return normalizedTables.includes(tableName);
 }
 
@@ -66,6 +66,13 @@ export function createHubSpotSyncExtension() {
           async create({ args, query, model }: any) {
             const result = await query(args);
             if (!SYNC_MODELS.includes(model)) {
+              return result;
+            }
+
+            if (args?.data?.source === "hubspot") {
+              logger.debug(
+                `Skipping edumate contact sync for HubSpot-source UPDATE: ${model}`
+              );
               return result;
             }
 
@@ -87,6 +94,13 @@ export function createHubSpotSyncExtension() {
           // Handle UPDATE
           async update({ args, query, model }: any) {
             if (!SYNC_MODELS.includes(model)) {
+              return query(args);
+            }
+
+            if (args?.data?.source === "hubspot") {
+              logger.debug(
+                `Skipping edumate contact sync for HubSpot-source UPDATE: ${model}`
+              );
               return query(args);
             }
 
@@ -245,7 +259,7 @@ async function handleNormalizedTableChange(
 ): Promise<void> {
   try {
     const contactId = data.contact_id || recordId;
-    
+
     if (!contactId) {
       logger.warn(`No contact_id found for ${tableName}#${recordId}`);
       return;
@@ -266,7 +280,7 @@ async function handleNormalizedTableChange(
         where: { id: existingEntry.id },
         data: { updated_at: new Date() },
       });
-      
+
       logger.debug(
         `Updated pending entry for HSEdumateContacts#${contactId} (${tableName} changed)`
       );
@@ -283,7 +297,7 @@ async function handleNormalizedTableChange(
           created_at: new Date(),
         },
       });
-      
+
       logger.debug(
         `Created outbox for HSEdumateContacts#${contactId} (${tableName} ${operation})`
       );
@@ -301,8 +315,8 @@ function sanitizeForJson(obj: any): any {
   if (obj === null || obj === undefined) return null;
   if (obj instanceof Date) return obj.toISOString();
   if (typeof obj === "bigint") return obj.toString();
-  if (Array.isArray(obj)) return obj.map(item => sanitizeForJson(item));
-  
+  if (Array.isArray(obj)) return obj.map((item) => sanitizeForJson(item));
+
   if (typeof obj === "object") {
     const sanitized: any = {};
     for (const key in obj) {
@@ -310,6 +324,6 @@ function sanitizeForJson(obj: any): any {
     }
     return sanitized;
   }
-  
+
   return obj;
 }

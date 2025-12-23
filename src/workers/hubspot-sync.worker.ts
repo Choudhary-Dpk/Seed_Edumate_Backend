@@ -307,7 +307,6 @@ async function handleCreate(payload: any, entityId: number): Promise<string> {
 //   payload: any,
 //   entityId: number
 // ): Promise<string | undefined> {
-//   debugger;
 //   // Fetch existing HubSpot ID
 //   const contact = await prisma.hSEdumateContacts.findUnique({
 //     where: { id: entityId },
