@@ -57,7 +57,7 @@ export interface LoanDetails {
 }
 
 export interface RepaymentScheduleResponse {
-  status: 'sent' | 'not-sent';
+  status: "sent" | "not-sent";
   loanDetails: LoanDetails;
   monthlySchedule: MonthlyPayment[];
   yearlyBreakdown: YearlyBreakdown[];
@@ -67,6 +67,12 @@ export interface RepaymentScheduleResponse {
     sentAt: string;
   };
   pdfFileName?: string;
+  pdf?: {
+    base64: string;
+    fileName: string;
+    mimeType: string;
+    size: number;
+  };
   requestId: string;
 }
 
