@@ -9,8 +9,8 @@ const basePrisma = new PrismaClient(); // ← RENAME from 'prisma' to 'basePrism
 const prisma = basePrisma
   // .$extends(createAuditExtension()) // Audit logging extension
   // .$extends(createHubSpotSyncExtension()) // Edumate Contact sync extension
-  .$extends(createLoanHubSpotSyncExtension()) // Loan Application sync
-  .$extends(createCommissionHubSpotSyncExtension()); // Commission Settlements
+  // .$extends(createLoanHubSpotSyncExtension()) // Loan Application sync
+  // .$extends(createCommissionHubSpotSyncExtension()); // Commission Settlements
 
 export const checkPrismaConnection = async () => {
   try {
