@@ -1,7 +1,7 @@
 import prisma from "../config/prisma";
 import logger from "../utils/logger";
 
-const BASE_DOMAIN = process.env.BASE_DOMAIN || "http://localhost:3031";
+const BASE_DOMAIN = process.env.BACKEND_URL || "http://localhost:3031";
 
 /**
  * Generate a random Base62 short code

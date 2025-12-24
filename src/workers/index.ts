@@ -1,7 +1,4 @@
-import { startHubSpotSyncWorker } from "./hubspot-sync.worker";
-import { startLoanHubSpotSyncWorker } from "./hubspot-loan-sync.worker"; // 🆕 ADD THIS LINE
 import logger from "../utils/logger";
-import { startCommissionSettlementsHubSpotSyncWorker } from "./hubspot-commission-settlement-sync.worker";
 import { startEdumatePGNotifyWorker } from "./edumate-pg-notify.worker";
 import { startCommissionPGNotifyWorker } from "./commission-pg-notify.worker";
 import { startLoanPGNotifyWorker } from "./loanApplication-pg-notify.worker";
