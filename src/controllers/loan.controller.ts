@@ -387,25 +387,37 @@ export const generateRepaymentScheduleAndEmail = async (
 
     let emailResponse;
     let pdfFileName: string | undefined;
+    let pdfBase64: string | undefined; // ✅ Add PDF base64 variable
 
-    if (sendEmail && email) {
-      try {
-        console.log("Generating PDF and sending email...");
+    try {
+      console.log("Generating PDF...");
 
-        // Generate PDF with strategy information
-        const pdfMetadata = {
-          fromName,
-          requestId,
-          customerDetails,
-          ...(strategyType && { strategyType, strategyConfig }),
-        };
+      // Generate PDF with strategy information
+      const pdfMetadata = {
+        fromName,
+        requestId,
+        customerDetails,
+        ...(strategyType && { strategyType, strategyConfig }),
+      };
 
-        const { buffer: pdfBuffer, fileName } = await generatePDF(
-          calculationResult,
-          pdfMetadata
-        );
+      const { buffer: pdfBuffer, fileName } = await generatePDF(
+        calculationResult,
+        pdfMetadata
+      );
 
-        pdfFileName = fileName;
+      pdfFileName = fileName;
+
+      // ✅ Convert PDF buffer to base64 for response
+      pdfBase64 = pdfBuffer.toString("base64");
+      console.log(
+        "PDF generated successfully, size:",
+        pdfBuffer.length,
+        "bytes"
+      );
+
+      // Send email only if sendEmail flag is true
+      if (sendEmail && email) {
+        console.log("Sending email...");
 
         // Customize email subject and message for strategies
         const emailSubject = strategyType
@@ -436,24 +448,23 @@ export const generateRepaymentScheduleAndEmail = async (
         };
 
         console.log("Email sent successfully to:", email);
-      } catch (emailError) {
-        console.error("Error in email sending process:", emailError);
-
-        // Return error response for email failure but still provide calculation
-        res.status(500).json({
-          success: false,
-          message: "Failed to send email",
-          error:
-            emailError instanceof Error
-              ? emailError.message
-              : "Email sending failed",
-          calculation: calculationResult, // Still provide calculation results
-        });
-        return;
       }
+    } catch (error) {
+      console.error("Error in PDF generation or email sending:", error);
+
+      // Return error response
+      res.status(500).json({
+        success: false,
+        message: sendEmail
+          ? "Failed to generate PDF or send email"
+          : "Failed to generate PDF",
+        error: error instanceof Error ? error.message : "PDF generation failed",
+        calculation: calculationResult, // Still provide calculation results
+      });
+      return;
     }
 
-    // Prepare response
+    // ✅ Prepare response with PDF blob
     const response: RepaymentScheduleResponse = {
       status: sendEmail && emailResponse ? "sent" : "not-sent",
       loanDetails: calculationResult.loanDetails,
@@ -461,6 +472,15 @@ export const generateRepaymentScheduleAndEmail = async (
       yearlyBreakdown: calculationResult.yearlyBreakdown,
       ...(emailResponse && { email: emailResponse }),
       ...(pdfFileName && { pdfFileName }),
+      // Include PDF as base64 string
+      ...(pdfBase64 && {
+        pdf: {
+          base64: pdfBase64,
+          fileName: pdfFileName,
+          mimeType: "application/pdf",
+          size: Buffer.from(pdfBase64, "base64").length,
+        },
+      }),
       requestId,
     };
 
