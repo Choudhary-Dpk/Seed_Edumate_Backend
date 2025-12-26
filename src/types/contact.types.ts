@@ -94,6 +94,9 @@ export type ContactsLead = {
   user_selected_currency?: string | null;
   userSelectedCurrency?: string | null;
 
+  preferred_currency?: string | null;
+  preferredCurrency?: string | null;
+
   course_type?: string | null;
   courseType?: string | null;
 
