@@ -6,6 +6,7 @@ import { partnerRoutes } from "./partner.routes";
 import { lenderRoutes } from "./lender.routes";
 import { loanProuductRoutes } from "./loanProduct.route";
 import { commissionRoutes } from "../commission.routes";
+import { shortUrlRoutes } from "../shorturl.routes";
 
 const router = Router();
 
@@ -16,5 +17,6 @@ router.use("/partners", partnerRoutes);
 router.use("/lenders", lenderRoutes);
 router.use("/loanProduct", loanProuductRoutes);
 router.use("/commission", commissionRoutes);
+router.use("/shorturl", shortUrlRoutes);
 
 export { router as adminRoutes };
