@@ -342,7 +342,6 @@ export const generateRepaymentScheduleAndEmail = async (
 
     // Determine calculation method based on input
     if (strategyType && strategyConfig) {
-      // NEW: Use strategy-based calculation
       console.log("Using strategy-based calculation:", strategyType);
       calculationResult = calculateRepaymentScheduleWithStrategy(
         principal,
@@ -352,7 +351,6 @@ export const generateRepaymentScheduleAndEmail = async (
         strategyConfig
       );
     } else if (emi) {
-      // LEGACY: Use provided EMI (backward compatibility)
       console.log("Using legacy EMI-based calculation:", emi);
       calculationResult = calculateRepaymentSchedule(
         principal,
@@ -361,7 +359,6 @@ export const generateRepaymentScheduleAndEmail = async (
         emi
       );
     } else {
-      // STANDARD: Calculate standard EMI and use it
       console.log("Using standard calculation (no EMI provided)");
       const standardEMI = calculateStandardEMI(
         principal,
@@ -387,12 +384,14 @@ export const generateRepaymentScheduleAndEmail = async (
 
     let emailResponse;
     let pdfFileName: string | undefined;
-    let pdfBase64: string | undefined; // ✅ Add PDF base64 variable
+    let pdfBase64: string | undefined;
+    let pdfBuffer: Buffer | undefined;
+    let pdfError: string | undefined; // ✅ Track PDF errors
 
+    // Try PDF generation - don't fail if it errors
     try {
       console.log("Generating PDF...");
 
-      // Generate PDF with strategy information
       const pdfMetadata = {
         fromName,
         requestId,
@@ -400,26 +399,29 @@ export const generateRepaymentScheduleAndEmail = async (
         ...(strategyType && { strategyType, strategyConfig }),
       };
 
-      const { buffer: pdfBuffer, fileName } = await generatePDF(
-        calculationResult,
-        pdfMetadata
-      );
+      const pdfResult = await generatePDF(calculationResult, pdfMetadata);
 
-      pdfFileName = fileName;
-
-      // ✅ Convert PDF buffer to base64 for response
+      pdfBuffer = pdfResult.buffer;
+      pdfFileName = pdfResult.fileName;
       pdfBase64 = pdfBuffer.toString("base64");
+
       console.log(
         "PDF generated successfully, size:",
         pdfBuffer.length,
         "bytes"
       );
+    } catch (error) {
+      console.error("PDF generation failed, continuing without PDF:", error);
+      pdfError =
+        error instanceof Error ? error.message : "PDF generation failed";
+      //Don't return - continue with email and response
+    }
 
-      // Send email only if sendEmail flag is true
-      if (sendEmail && email) {
+    // Send email (with or without PDF)
+    if (sendEmail && email) {
+      try {
         console.log("Sending email...");
 
-        // Customize email subject and message for strategies
         const emailSubject = strategyType
           ? `${subject} - ${getStrategyDisplayName(strategyType)}`
           : subject;
@@ -430,41 +432,46 @@ export const generateRepaymentScheduleAndEmail = async (
             )} optimization.`
           : message;
 
-        // Send email with PDF attachment
-        await sendRepaymentScheduleEmail({
-          name,
-          email,
-          fromName,
-          subject: emailSubject,
-          message: emailMessage,
-          pdfBuffer,
-          pdfFileName: fileName,
-        });
+        // Send with PDF if available
+        if (pdfBuffer && pdfFileName) {
+          await sendRepaymentScheduleEmail({
+            name,
+            email,
+            fromName,
+            subject: emailSubject,
+            message: emailMessage,
+            pdfBuffer,
+            pdfFileName,
+          });
+          console.log("Email sent with PDF attachment to:", email);
+        } else {
+          // Send without PDF if generation failed
+          await sendRepaymentScheduleEmail({
+            name,
+            email,
+            fromName,
+            subject: emailSubject,
+            message: `${emailMessage}\n\nNote: PDF generation encountered an issue. Please find your loan calculation details in the response.`,
+            pdfBuffer: undefined as any,
+            pdfFileName: undefined as any,
+          });
+          console.log("Email sent without PDF to:", email);
+        }
 
         emailResponse = {
           to: email,
           subject: emailSubject,
           sentAt: new Date().toISOString(),
+          hasPdfAttachment: !!pdfBuffer, // ✅ Flag if PDF was included
         };
 
         console.log("Email sent successfully to:", email);
+      } catch (emailError) {
+        console.error("Email sending failed:", emailError);
       }
-    } catch (error) {
-      console.error("Error in PDF generation or email sending:", error);
-
-      // Return error response
-      res.status(500).json({
-        success: false,
-        message: sendEmail
-          ? "Failed to generate PDF or send email"
-          : "Failed to generate PDF",
-        error: error instanceof Error ? error.message : "PDF generation failed",
-        calculation: calculationResult, // Still provide calculation results
-      });
-      return;
     }
 
-    // ✅ Prepare response with PDF blob
+    // Prepare response with available data
     const response: RepaymentScheduleResponse = {
       status: sendEmail && emailResponse ? "sent" : "not-sent",
       loanDetails: calculationResult.loanDetails,
@@ -472,13 +479,20 @@ export const generateRepaymentScheduleAndEmail = async (
       yearlyBreakdown: calculationResult.yearlyBreakdown,
       ...(emailResponse && { email: emailResponse }),
       ...(pdfFileName && { pdfFileName }),
-      // Include PDF as base64 string
       ...(pdfBase64 && {
         pdf: {
           base64: pdfBase64,
           fileName: pdfFileName,
           mimeType: "application/pdf",
           size: Buffer.from(pdfBase64, "base64").length,
+        },
+      }),
+      // Include warning if PDF failed
+      ...(pdfError && {
+        warnings: {
+          pdfGeneration: pdfError,
+          message:
+            "PDF generation failed, but calculation completed successfully",
         },
       }),
       requestId,
@@ -495,13 +509,13 @@ export const generateRepaymentScheduleAndEmail = async (
 
     console.log("Response prepared successfully for requestId:", requestId);
 
-    // Return successful response
+    // Always return success if calculation succeeded
     sendResponse(
       res,
       200,
       `Repayment schedule generated successfully${
         strategyType ? ` with ${getStrategyDisplayName(strategyType)}` : ""
-      }`,
+      }${pdfError ? " (PDF generation failed)" : ""}`,
       response
     );
   } catch (error) {

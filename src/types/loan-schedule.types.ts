@@ -65,13 +65,18 @@ export interface RepaymentScheduleResponse {
     to: string;
     subject: string;
     sentAt: string;
+    hasPdfAttachment?: boolean;
   };
   pdfFileName?: string;
   pdf?: {
     base64: string;
-    fileName: string;
+    fileName?: string;
     mimeType: string;
     size: number;
+  };
+  warnings?: {
+    pdfGeneration?: string;
+    message?: string;
   };
   requestId: string;
 }
