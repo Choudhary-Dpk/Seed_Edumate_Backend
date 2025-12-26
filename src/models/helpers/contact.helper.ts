@@ -367,11 +367,28 @@ export const updateEdumateContactLoanPreference = async (
   contactId: number,
   loanPreference?: any
 ) => {
+  // Safety check - don't update if empty or all values are null/undefined
+  if (!loanPreference || Object.keys(loanPreference).length === 0) {
+    return null;
+  }
+
+  // Remove null/undefined values
+  const cleanData: any = {};
+  Object.keys(loanPreference).forEach((key) => {
+    if (loanPreference[key] !== null && loanPreference[key] !== undefined) {
+      cleanData[key] = loanPreference[key];
+    }
+  });
+
+  if (Object.keys(cleanData).length === 0) {
+    return null; // Don't update if everything was null
+  }
+
   const data = await tx.hSEdumateContactsLoanPreferences.update({
     where: { contact_id: contactId },
     data: {
       updated_at: new Date(),
-      ...loanPreference,
+      ...cleanData,
     },
   });
 

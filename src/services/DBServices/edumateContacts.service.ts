@@ -168,7 +168,6 @@ export const categorizeByTable = (mappedFields: Record<string, any>) => {
   // Loan Preferences Fields
   const loanPreferencesFields = [
     "loan_type_preference",
-    "loanPreference",
     "preferred_lenders",
     "repayment_type_preference",
   ];
