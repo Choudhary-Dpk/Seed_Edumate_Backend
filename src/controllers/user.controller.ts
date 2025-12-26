@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import prisma from "../config/prisma";
-import { fetchIpDetails } from "../services/user.service";
+import { fetchCurrencyConversion, fetchIpDetails } from "../services/user.service";
 import { sendResponse } from "../utils/api";
 import {
   assignRole,
@@ -175,6 +175,47 @@ export const getProfile = async (
     }
 
     sendResponse(res, 200, "Profile fetched successfully", profile);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getCurrencyConversion = async (
+  req: RequestWithPayload<LoginPayload>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { base } = req.query;
+
+    // Validation
+    if (!base || typeof base !== "string") {
+      throw new Error("Base currency is required");
+    }
+
+    const baseCurrency = base.toUpperCase().trim();
+
+    // Validate currency code format (3 letters)
+    if (!/^[A-Z]{3}$/.test(baseCurrency)) {
+      throw new Error(
+        "Invalid currency code. Must be a 3-letter code (e.g., USD, EUR, INR)"
+      );
+    }
+
+    logger.debug(`Fetching currency conversion rates for base: ${baseCurrency}`);
+    
+    const data = await fetchCurrencyConversion(baseCurrency);
+    
+    logger.debug(
+      `Currency conversion rates fetched successfully for ${baseCurrency}`
+    );
+    
+    sendResponse(
+      res,
+      200,
+      "Currency conversion rates fetched successfully",
+      data
+    );
   } catch (error) {
     next(error);
   }
