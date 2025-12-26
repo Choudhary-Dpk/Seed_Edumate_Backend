@@ -4,6 +4,7 @@ import {
   createUser,
   getIpInfo,
   getProfile,
+  getCurrencyConversion,
 } from "../controllers/user.controller";
 import authRoutes from "./auth.routes";
 import { getRoles } from "../controllers/hubspot.controller";
@@ -28,5 +29,6 @@ router.get(
   getProfile
 );
 router.get("/roles", getRoles);
+router.get("/currency-conversion", getCurrencyConversion);
 
 export { router as userRoutes };
