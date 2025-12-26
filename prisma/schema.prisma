@@ -943,6 +943,9 @@ model HSEdumateContacts {
   study_destination_currency   String?
   user_selected_currency       String?
   preferred_currency           String?
+  original_principal           Int?
+  exchange_rate_used           Int?
+  conversion_timestamp         String?
   co_applicant_1_email         String?
   co_applicant_1_mobile_number String?
   email                        String?

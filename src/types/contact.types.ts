@@ -97,6 +97,15 @@ export type ContactsLead = {
   preferred_currency?: string | null;
   preferredCurrency?: string | null;
 
+  original_principal?: string | null;
+  originalPrincipal?: string | null;
+
+  exchange_rate_used?: string | null;
+  exchangeRateUsed?: string | null;
+
+  conversion_timestamp?: string | null;
+  conversionTimestamp?: string | null;
+
   course_type?: string | null;
   courseType?: string | null;
 

@@ -214,8 +214,38 @@ export const mapAllFields = async (
       input.preferred_currency ?? input.preferredCurrency ?? null;
     mapped.preferred_currency = mappedPreferredCurrency;
   }
-  mapped.source =
-    input.source !== null && input.source !== "" ? input.source : null;
+
+  if (
+    input.original_principal !== undefined ||
+    input.originalPrincipal !== undefined
+  ) {
+    const mappedOriginalPrincipal =
+      input.original_principal ?? input.original_principal ?? null;
+    mapped.original_principal = mappedOriginalPrincipal;
+  }
+
+  if (
+    input.exchange_rate_used !== undefined ||
+    input.exchangeRateUsed !== undefined
+  ) {
+    const mappedOriginalPrincipal =
+      input.exchange_rate_used ?? input.exchangeRateUsed ?? null;
+    mapped.exchange_rate_used = mappedOriginalPrincipal;
+  }
+
+  if (
+    input.conversion_timestamp !== undefined ||
+    input.conversionTimestamp !== undefined
+  ) {
+    const mappedOriginalPrincipal =
+      input.conversion_timestamp ?? input.conversionTimestamp ?? null;
+    mapped.conversion_timestamp = mappedOriginalPrincipal;
+  }
+
+  if (input.source !== undefined) {
+    mapped.source =
+      input.source !== null && input.source !== "" ? input.source : null;
+  }
 
   if (input.favourite !== undefined) {
     mapped.favourite = Array.isArray(input.favourite)
