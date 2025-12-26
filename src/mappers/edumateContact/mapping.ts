@@ -183,26 +183,39 @@ export const mapAllFields = async (
   const mapped: Record<string, any> = {};
   // Currency conversions
   const loanAmount =
-    input?.selectedLoanCurrency &&
-    input?.selectedLoanCurrency != "INR" &&
+    (input?.selectedLoanCurrency || input?.preferredCurrency) &&
+    (input?.selectedLoanCurrency || input?.preferredCurrency) != "INR" &&
     input?.loanAmount
       ? await convertCurrency(
           Number(input?.loanAmount) || 0,
-          input?.selectedLoanCurrency || "INR",
+          input?.selectedLoanCurrency || input?.preferredCurrency || "INR",
           "INR"
         )
       : input?.loanAmount;
 
   const coApplicantAnnualIncome =
-    input?.baseCurrency != "INR" && input?.coApplicantAnnualIncome
+    (input?.baseCurrency || input?.preferredCurrency) &&
+    (input?.baseCurrency || input?.preferredCurrency) != "INR" &&
+    input?.coApplicantAnnualIncome
       ? await convertCurrency(
           Number(input?.coApplicantAnnualIncome),
-          input?.baseCurrency || "INR",
+          input?.baseCurrency || input?.preferredCurrency || "INR",
           "INR"
         )
       : input?.coApplicantAnnualIncome;
 
   // ===== MAIN CONTACT FIELDS =====
+
+  if (
+    input.preferred_currency !== undefined ||
+    input.preferredCurrency !== undefined
+  ) {
+    const mappedPreferredCurrency =
+      input.preferred_currency ?? input.preferredCurrency ?? null;
+    mapped.preferred_currency = mappedPreferredCurrency;
+  }
+  mapped.source =
+    input.source !== null && input.source !== "" ? input.source : null;
 
   if (input.favourite !== undefined) {
     mapped.favourite = Array.isArray(input.favourite)
@@ -993,29 +1006,29 @@ export const mapAllFields = async (
   }
 
   // 5. Target Degree Level
-if (
-  input.targetDegreeLevel !== undefined ||
-  input.target_degree_level !== undefined ||
-  input.levelOfEducation !== undefined ||
-  input.studyLevel !== undefined ||
-  input.study_level !== undefined
-) {
-  // Check all possible field names and use the first valid value
-  const degree =
-    input.targetDegreeLevel ??
-    input.target_degree_level ??
-    input.levelOfEducation??
-    input.studyLevel ??
-    input.study_level;
+  if (
+    input.targetDegreeLevel !== undefined ||
+    input.target_degree_level !== undefined ||
+    input.levelOfEducation !== undefined ||
+    input.studyLevel !== undefined ||
+    input.study_level !== undefined
+  ) {
+    // Check all possible field names and use the first valid value
+    const degree =
+      input.targetDegreeLevel ??
+      input.target_degree_level ??
+      input.levelOfEducation ??
+      input.studyLevel ??
+      input.study_level;
 
-  if (degree !== null && degree !== "" && degree !== undefined) {
-    enumTranslations.push({
-      field: "target_degree_level",
-      enumName: "targetDegreeLevel",
-      sourceValue: degree,
-    });
+    if (degree !== null && degree !== "" && degree !== undefined) {
+      enumTranslations.push({
+        field: "target_degree_level",
+        enumName: "targetDegreeLevel",
+        sourceValue: degree,
+      });
+    }
   }
-}
 
   // 6. Current Status Disposition
   if (

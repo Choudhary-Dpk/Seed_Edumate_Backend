@@ -5,7 +5,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = env("DATABASE_URL") 
 }
 
 model AdminUsers {
@@ -933,15 +933,16 @@ model EmailHistory {
 model HSEdumateContacts {
   id                           Int                                   @id @default(autoincrement())
   b2b_partner_id               Int?
-  hs_b2b_partner_id           String?
+  hs_b2b_partner_id            String?
   deleted_by_id                Int?
-  favourite  Int[]                 @default([]) 
-  interested Int[]                 @default([])
+  favourite  Int[]             @default([]) 
+  interested Int[]             @default([])
   seed_contact                 String?
   course_type                  String?
   base_currency                String?
   study_destination_currency   String?
   user_selected_currency       String?
+  preferred_currency           String?
   co_applicant_1_email         String?
   co_applicant_1_mobile_number String?
   email                        String?

@@ -39,6 +39,8 @@ export const categorizeByTable = (mappedFields: Record<string, any>) => {
     "base_currency",
     "study_destination_currency",
     "user_selected_currency",
+    "preferred_currency",
+    "preferredCurrency",
     "course_type",
     "co_applicant_1_email",
     "co_applicant_1_mobile_number",
