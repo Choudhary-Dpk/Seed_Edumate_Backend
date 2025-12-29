@@ -182,16 +182,16 @@ export const mapAllFields = async (
 ): Promise<Partial<ContactsLead>> => {
   const mapped: Record<string, any> = {};
   // Currency conversions
-  const loanAmount =
-    (input?.selectedLoanCurrency || input?.preferredCurrency) &&
-    (input?.selectedLoanCurrency || input?.preferredCurrency) != "INR" &&
-    input?.loanAmount
-      ? await convertCurrency(
-          Number(input?.loanAmount) || 0,
-          input?.selectedLoanCurrency || input?.preferredCurrency || "INR",
-          "INR"
-        )
-      : input?.loanAmount;
+  // const loanAmount =
+  //   (input?.selectedLoanCurrency || input?.preferredCurrency) &&
+  //   (input?.selectedLoanCurrency || input?.preferredCurrency) != "INR" &&
+  //   input?.loanAmount
+  //     ? await convertCurrency(
+  //         Number(input?.loanAmount) || 0,
+  //         input?.selectedLoanCurrency || input?.preferredCurrency || "INR",
+  //         "INR"
+  //       )
+  //     : input?.loanAmount;
 
   const coApplicantAnnualIncome =
     (input?.baseCurrency || input?.preferredCurrency) &&
@@ -217,10 +217,10 @@ export const mapAllFields = async (
 
   if (
     input.original_principal !== undefined ||
-    input.originalPrincipal !== undefined
+    input.originalPrincipal !== undefined || input.loanAmountOrg !== undefined
   ) {
     const mappedOriginalPrincipal =
-      input.original_principal ?? input.original_principal ?? null;
+      Number(input.original_principal ?? input.originalPrincipal ?? input.loanAmountOrg ?? null);
     mapped.original_principal = mappedOriginalPrincipal;
   }
 
@@ -823,7 +823,7 @@ export const mapAllFields = async (
     input.loan_amount_required !== undefined
   ) {
     mapped.loan_amount_required =
-      loanAmount ?? input.loan_amount_required ?? null;
+      Number(input.loanAmount ?? input.loan_amount_required ?? null);
   }
 
   if (
