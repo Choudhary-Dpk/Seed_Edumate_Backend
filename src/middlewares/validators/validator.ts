@@ -690,3 +690,7 @@ export const createUserValidator = [
 
   body("email").isEmail().withMessage("Email must be valid"),
 ];
+
+export const validEmailValidator = () => [
+  body("email").isEmail().withMessage("Valid email is required"),
+];

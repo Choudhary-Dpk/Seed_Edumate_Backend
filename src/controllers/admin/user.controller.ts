@@ -37,10 +37,10 @@ export const createAdminController = async (
     logger.debug(`Email token generated successfully`);
 
     logger.debug(`Getting template for set password`);
-    let content = await getEmailTemplate("set-password");
+    let content = await getEmailTemplate("Set Password");
     logger.debug(`Email template fetched successfully`);
     if (!content) {
-      throw new Error("set-password - Email template not found");
+      throw new Error("Set Password - Email template not found");
     }
 
     const expiry = moment().add(2, "days").toDate().toISOString();
@@ -63,9 +63,8 @@ export const createAdminController = async (
     await saveAdminEmailToken(user.id, emailToken);
     logger.debug(`Email token saved successfully`);
 
-    logger.debug(`Saving email history for userId: ${user.id}`);
+    logger.debug(`Saving email history`);
     await logEmailHistory({
-      userId: user.id,
       to: email,
       subject,
       type: "Set Password",

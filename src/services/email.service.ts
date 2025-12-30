@@ -49,7 +49,6 @@ export const sendEmail = async (options: EmailOptions): Promise<void> => {
     console.log("Email sent successfully:", info.messageId);
 
     await logEmailHistory({
-      userId: null,
       to: Array.isArray(options.to) ? options.to.join(", ") : options.to,
       cc: Array.isArray(options.cc) ? options.cc.join(", ") : options.cc,
       bcc: Array.isArray(options.bcc) ? options.bcc.join(", ") : options.bcc,
@@ -145,7 +144,6 @@ export const sendRepaymentScheduleEmail = async (
   });
 
   await logEmailHistory({
-    userId: null,
     to: email,
     subject: subject,
     type: "Repayment Schedule Email",

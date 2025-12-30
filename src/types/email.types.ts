@@ -62,7 +62,6 @@ export type EmailOptions = {
 };
 
 export type LogEmailOptions = {
-  userId: number | null;
   to: string;
   cc?: string;
   bcc?: string;
