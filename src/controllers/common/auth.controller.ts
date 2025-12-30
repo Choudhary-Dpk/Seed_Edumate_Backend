@@ -131,7 +131,7 @@ export const sendOtp = async (
     logger.debug(`Otp saved successfully`);
 
     logger.debug(`Fetching email template`);
-    let emailTemplate = await getEmailTemplate("otp");
+    let emailTemplate = await getEmailTemplate("Otp");
     if (!emailTemplate) {
       return sendResponse(res, 500, "Email template not found");
     }
@@ -147,9 +147,8 @@ export const sendOtp = async (
     const html = emailTemplate.replace(`{%otp%}`, otp);
     const subject = "EDUMATE - One time password";
 
-    logger.debug(`Saving email history for userId: ${id}`);
+    logger.debug(`Saving email history`);
     await logEmailHistory({
-      userId: id,
       to: email,
       subject,
       type: "OTP",
@@ -184,7 +183,7 @@ export const forgotPassword = async (
     logger.debug(`Email token generated successfully`);
 
     logger.debug(`Getting forgot password template`);
-    let content = await getEmailTemplate("forgot-password");
+    let content = await getEmailTemplate("Forgot Password");
     if (!content) {
       return sendResponse(res, 500, "Email template not found");
     }
@@ -228,10 +227,8 @@ export const forgotPassword = async (
     }
     logger.debug(`Email token saved successfully`);
 
-    //  Log email history
-    logger.debug(`Saving email history for userId: ${id}`);
+    logger.debug(`Saving email history`);
     await logEmailHistory({
-      userId: id,
       to: email,
       subject,
       type: "Forgot Password",
@@ -285,9 +282,8 @@ export const resetPassword = async (
     }
     logger.debug(`Password updated successfully`);
 
-    logger.debug(`Saving email history for userId: ${id}`);
+    logger.debug(`Saving email history`);
     await logEmailHistory({
-      userId: id,
       to: email,
       subject: "Reset Password",
       type: "Reset Password",
@@ -346,9 +342,8 @@ export const setPassword = async (
     }
     logger.debug(`Password updated successfully`);
 
-    logger.debug(`Saving email history for userId: ${id}`);
+    logger.debug(`Saving email history`);
     await logEmailHistory({
-      userId: id,
       to: email,
       subject: "Set Password",
       type: "Set Password",

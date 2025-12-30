@@ -1,12 +1,15 @@
 import { Router } from "express";
 import {
+  sendEmailController,
   sendLoanEligibilityResult,
   sendPasswordReset,
 } from "../controllers/email.controller";
 import {
   validatePasswordReset,
+  validateReqParams,
+  validEmailValidator,
 } from "../middlewares/validators/validator";
-import { authenticate } from "../middlewares";
+import { authenticate, validateEmail } from "../middlewares";
 import { AuthMethod } from "../types/auth";
 
 const router = Router();
@@ -19,5 +22,12 @@ router.post(
   sendLoanEligibilityResult
 );
 router.post("/password-reset", validatePasswordReset, sendPasswordReset);
+router.post(
+  "/",
+  validEmailValidator(),
+  validateReqParams,
+  validateEmail,
+  sendEmailController
+);
 
 export { router as emailRouter };

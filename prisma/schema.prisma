@@ -586,7 +586,6 @@ model B2BPartnersUsers {
   tokens              B2BPartnersTokens[]    @relation("Tokens")
   roles               B2BPartnersUserRoles[] @relation("UserRole")
   b2b_partner         HSB2BPartners          @relation(fields: [b2b_id], references: [id], onDelete: Cascade)
-  email_history       EmailHistory[]         @relation("EmailHistory")
   uploaded_files      FileUploads[]          @relation("FileUpload")
   deleted_by_partners HSB2BPartners[]        @relation("PartnerDeletedBy")
   login_history       LoginHistory[]         @relation("LoginHistory")
@@ -914,17 +913,15 @@ model EmailTypes {
 
 model EmailHistory {
   id            Int               @id @default(autoincrement())
-  user_id       Int?              @map("user_id")
   reciepient    String            @map("reciepient")
   cc            String?           @map("cc")
   bcc           String?           @map("bcc")
+  subject       String?           @map("subject")
   email_type_id Int               @map("email_type_id")
   sent_at       DateTime?         @map("sent_at")
   created_at    DateTime          @default(now()) @map("created_at")
   email_type    EmailTypes        @relation(fields: [email_type_id], references: [id], onDelete: Cascade)
-  user          B2BPartnersUsers? @relation("EmailHistory", fields: [user_id], references: [id], onDelete: Cascade)
 
-  @@index([user_id])
   @@index([email_type_id])
   @@index([sent_at])
   @@map("email_history")

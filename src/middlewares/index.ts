@@ -34,6 +34,7 @@ import { fetchIpDetails } from "../services/user.service";
 import { UAParser } from "ua-parser-js";
 import moment from "moment";
 import { AllowedPemissions } from "../types";
+import { getEdumateContactByEmail } from "../models/helpers/contact.helper";
 
 export const validateCreateUser = async (
   req: Request,
@@ -171,6 +172,11 @@ export const validateEmail = async (
         email: partnerUser.email,
         passwordHash: partnerUser.password_hash,
       };
+      return next();
+    }
+
+    const edumateUser = await getEdumateContactByEmail(email);
+    if (edumateUser?.personal_information?.email || edumateUser?.email) {
       return next();
     }
 
