@@ -100,6 +100,8 @@ export type ContactsLead = {
   original_principal?: string | null;
   originalPrincipal?: string | null;
 
+  loanAmountOrg?: string | null;
+
   exchange_rate_used?: string | null;
   exchangeRateUsed?: string | null;
 
