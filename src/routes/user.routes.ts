@@ -7,10 +7,10 @@ import {
   getCurrencyConversion,
 } from "../controllers/user.controller";
 import authRoutes from "./auth.routes";
-import { getRoles } from "../controllers/hubspot.controller";
 import { authenticate } from "../middlewares";
 import { createUserValidator } from "../middlewares/validators/validator";
 import { AuthMethod } from "../types/auth";
+import { getRoles } from "../controllers/partner.controller";
 
 const router = Router();
 

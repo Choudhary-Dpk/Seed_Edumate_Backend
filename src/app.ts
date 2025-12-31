@@ -1,4 +1,3 @@
-import { hubspotRoutes } from "./routes/hubspot.routes";
 import { checkPrismaConnection } from "./config/prisma";
 import { gupshupRoutes } from "./routes/gupshup.routes";
 import { loanRoutes } from "./routes/loan.routes";
@@ -12,7 +11,6 @@ import { permissionsRoutes } from "./routes/permissions.routes";
 import { masterRoutes } from "./routes/index.routes";
 import app from "./setup/express";
 import "./setup/cron";
-// import { setAuditContext } from "./middlewares/audit.middleware";
 import { loanProuductRoutes } from "./routes/loanProudct.routes";
 import { commissionRoutes } from "./routes/commission.routes";
 import { lenderRoutes } from "./routes/lender.routes";
@@ -22,11 +20,8 @@ import { studentRoutes } from "./routes/student.routes";
 import { redirectRoutes } from "./routes/redirect.routes";
 const PORT = process.env.PORT || 3031;
 
-// app.use(setAuditContext);
-
 // API Routes
 app.use("/loans", loanRoutes);
-app.use("/hubspot", hubspotRoutes);
 app.use("/contacts", contactRoutes);
 app.use("/gupshup", gupshupRoutes);
 app.use("/user", userRoutes);

@@ -15,25 +15,6 @@ export interface AuditContext {
 export const auditContext = new AsyncLocalStorage<AuditContext>();
 
 /**
- * Express middleware to capture audit context
- */
-export const setAuditContext = (
-  req: RequestWithPayload<LoginPayload>,
-  res: Response,
-  next: NextFunction
-) => {
-  const context: AuditContext = {
-    userId: req.payload?.id || undefined, // Handle undefined payload
-    ipAddress: req.ip || req.socket?.remoteAddress || "unknown",
-    userAgent: req.headers["user-agent"] || "unknown",
-  };
-
-  // Run rest of request inside this context
-  auditContext.enterWith(context);
-  next();
-};
-
-/**
  * Setup Prisma Client Extension for automatic audit logging
  */
 export function createAuditExtension() {

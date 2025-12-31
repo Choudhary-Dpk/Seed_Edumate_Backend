@@ -19,6 +19,8 @@ import {
   fetchB2BPartnersList,
   getB2BPartner,
   getLeadsByDynamicFilters,
+  getPartners,
+  getUserRoles,
   updateB2BBusinessCapabilities,
   updateB2BCommissionStructure,
   updateB2BComplianceDocumentation,
@@ -445,6 +447,38 @@ export const getLeadsByPartnerFieldsController = async (
     sendResponse(res, 200, "Leads fetched successfully", leads);
   } catch (error) {
     logger.error(`Error fetching contacts list: ${error}`);
+    next(error);
+  }
+};
+
+export const getPartnersList = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    logger.debug(`Fetching partners list`);
+    const list = await getPartners();
+    logger.debug(`Partners list fetched successfully`);
+
+    sendResponse(res, 200, "Partners list fetched successfully", list);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getRoles = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    logger.debug(`Fetching roles list`);
+    const list = await getUserRoles();
+    logger.debug(`Roles list fetched successfully`);
+
+    sendResponse(res, 200, "Roles list fetched successfully", list);
+  } catch (error) {
     next(error);
   }
 };
