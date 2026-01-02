@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { getPartnersList } from "../controllers/hubspot.controller";
 import { authenticate } from "../middlewares";
 import {
   createB2bPartner,
@@ -7,6 +6,7 @@ import {
   getB2bPartnerDetails,
   getB2bPartnersList,
   getLeadsByPartnerFieldsController,
+  getPartnersList,
   updateB2bPartner,
 } from "../controllers/partner.controller";
 import {

@@ -8,7 +8,6 @@ import {
   getLeadById,
 } from "../models/helpers/loanApplication.helper";
 import multer from "../setup/multer";
-import * as hubspotService from "../services/hubspot.service";
 import { FileData } from "../types/leads.types";
 import { parseCSVWithCsvParse } from "../utils/helper";
 const upload = multer(10);
@@ -44,11 +43,6 @@ export const validateLoanApplicationPayload = async (
           "Loan Amount Approved cannot be greater than Loan Amount Requested"
         );
       }
-    }
-
-    const existingEmail = await hubspotService.fetchLeadByEmail(email);
-    if (existingEmail.total > 0 || existingEmail.results?.length > 0) {
-      return sendResponse(res, 400, "Email already exists in HubSpot");
     }
 
     const existingLead = await getLeadByEmail(email);
@@ -94,11 +88,6 @@ export const validateUpdateLoanApplication = async (
           "Loan Amount Approved cannot be greater than Loan Amount Requested"
         );
       }
-    }
-
-    const existingEmail = await hubspotService.fetchLeadByEmail(email);
-    if (existingEmail.total > 0 || existingEmail.results?.length > 0) {
-      return sendResponse(res, 400, "Email already exists in HubSpot");
     }
 
     const existingLead = await getLeadByEmail(email);

@@ -1,5 +1,3 @@
-// src/workers/hubspot-loan-sync.worker.ts
-
 import prisma from "../config/prisma";
 import logger from "../utils/logger";
 import {
@@ -18,12 +16,12 @@ const MAX_RETRIES = 5;
  */
 export async function startLoanHubSpotSyncWorker() {
   logger.info("🚀 Loan Application HubSpot Sync Worker started");
-  
+
   // Continuous polling
   while (true) {
     try {
       await processLoanOutboxEntries();
-      
+
       // Wait before next poll
       await sleep(POLL_INTERVAL);
     } catch (error) {
@@ -57,7 +55,9 @@ async function processLoanOutboxEntries() {
     return; // Nothing to process
   }
 
-  logger.info(`Processing ${pendingEntries.length} pending loan application outbox entries`);
+  logger.info(
+    `Processing ${pendingEntries.length} pending loan application outbox entries`
+  );
 
   // Process each entry individually
   for (const entry of pendingEntries) {
@@ -312,7 +312,9 @@ async function handleLoanDelete(hs_object_id: string): Promise<void> {
   // const hubspotId = loanApplication?.hs_object_id;
 
   if (!hs_object_id) {
-    logger.warn(`No HubSpot ID found for loan ${hs_object_id}, skipping delete`);
+    logger.warn(
+      `No HubSpot ID found for loan ${hs_object_id}, skipping delete`
+    );
     return;
   }
 
@@ -341,8 +343,8 @@ function transformLoanToHubSpotFormat(loanApp: any): any {
     // MAIN LOAN APPLICATION FIELDS
     // ========================================
     db_id: loanApp.id,
-    application_date: loanApp.application_date 
-      ? new Date(loanApp.application_date).toISOString().split('T')[0] 
+    application_date: loanApp.application_date
+      ? new Date(loanApp.application_date).toISOString().split("T")[0]
       : null,
     lead_reference_code: loanApp.lead_reference_code || null,
     student_id: loanApp.student_id || null,
@@ -352,214 +354,225 @@ function transformLoanToHubSpotFormat(loanApp: any): any {
     application_source: loanApp.application_source || null,
     assigned_counselor_id: loanApp.assigned_counselor_id || null,
     // b2b_partner_id: loanApp.b2b_partner_id || null,
-    
+
     // ========================================
     // ACADEMIC DETAILS
     // ========================================
-    
+
     target_course: academicDetails.target_course || null,
     target_university: academicDetails.target_university || null,
-    target_university_country: academicDetails.target_university_country || null,
+    target_university_country:
+      academicDetails.target_university_country || null,
     course_level: academicDetails.course_level || null,
-    course_start_date: academicDetails.course_start_date 
-      ? new Date(academicDetails.course_start_date).toISOString().split('T')[0] 
+    course_start_date: academicDetails.course_start_date
+      ? new Date(academicDetails.course_start_date).toISOString().split("T")[0]
       : null,
-    course_end_date: academicDetails.course_end_date 
-      ? new Date(academicDetails.course_end_date).toISOString().split('T')[0] 
+    course_end_date: academicDetails.course_end_date
+      ? new Date(academicDetails.course_end_date).toISOString().split("T")[0]
       : null,
     course_duration: academicDetails.course_duration || null,
     admission_status: academicDetails.admission_status || null,
     visa_status: academicDetails.visa_status || null,
     i20_cas_received: academicDetails.i20_cas_received || null,
-    
+
     // ========================================
     // FINANCIAL REQUIREMENTS
     // ========================================
-    
-    loan_amount_requested: financialReq.loan_amount_requested 
-      ? parseFloat(financialReq.loan_amount_requested) 
+
+    loan_amount_requested: financialReq.loan_amount_requested
+      ? parseFloat(financialReq.loan_amount_requested)
       : null,
-    loan_amount_approved: financialReq.loan_amount_approved 
-      ? parseFloat(financialReq.loan_amount_approved) 
+    loan_amount_approved: financialReq.loan_amount_approved
+      ? parseFloat(financialReq.loan_amount_approved)
       : null,
-    loan_amount_disbursed: financialReq.loan_amount_disbursed 
-      ? parseFloat(financialReq.loan_amount_disbursed) 
+    loan_amount_disbursed: financialReq.loan_amount_disbursed
+      ? parseFloat(financialReq.loan_amount_disbursed)
       : null,
-    tuition_fee: financialReq.tuition_fee 
-      ? parseFloat(financialReq.tuition_fee) 
+    tuition_fee: financialReq.tuition_fee
+      ? parseFloat(financialReq.tuition_fee)
       : null,
-    living_expenses: financialReq.living_expenses 
-      ? parseFloat(financialReq.living_expenses) 
+    living_expenses: financialReq.living_expenses
+      ? parseFloat(financialReq.living_expenses)
       : null,
-    travel_expenses: financialReq.travel_expenses 
-      ? parseFloat(financialReq.travel_expenses) 
+    travel_expenses: financialReq.travel_expenses
+      ? parseFloat(financialReq.travel_expenses)
       : null,
-    insurance_cost: financialReq.insurance_cost 
-      ? parseFloat(financialReq.insurance_cost) 
+    insurance_cost: financialReq.insurance_cost
+      ? parseFloat(financialReq.insurance_cost)
       : null,
-    other_expenses: financialReq.other_expenses 
-      ? parseFloat(financialReq.other_expenses) 
+    other_expenses: financialReq.other_expenses
+      ? parseFloat(financialReq.other_expenses)
       : null,
-    total_funding_required: financialReq.total_funding_required 
-      ? parseFloat(financialReq.total_funding_required) 
+    total_funding_required: financialReq.total_funding_required
+      ? parseFloat(financialReq.total_funding_required)
       : null,
-    scholarship_amount: financialReq.scholarship_amount 
-      ? parseFloat(financialReq.scholarship_amount) 
+    scholarship_amount: financialReq.scholarship_amount
+      ? parseFloat(financialReq.scholarship_amount)
       : null,
-    self_funding_amount: financialReq.self_funding_amount 
-      ? parseFloat(financialReq.self_funding_amount) 
+    self_funding_amount: financialReq.self_funding_amount
+      ? parseFloat(financialReq.self_funding_amount)
       : null,
-    
+
     // ========================================
     // APPLICATION STATUS
     // ========================================
-    
+
     status: status.status || null,
     priority_level: status.priority_level || null,
     application_notes: status.application_notes || null,
     internal_notes: status.internal_notes || null,
     record_status: status.record_status || null,
-    
+
     // ========================================
     // LENDER INFORMATION
     // ========================================
-    
+
     primary_lender_id: lenderInfo.primary_lender_id || null,
     primary_lender_name: lenderInfo.primary_lender_name || null,
     loan_product_id: lenderInfo.loan_product_id || null,
     loan_product_name: lenderInfo.loan_product_name || null,
     loan_product_type: lenderInfo.loan_product_type || null,
-    interest_rate_offered: lenderInfo.interest_rate_offered 
-      ? parseFloat(lenderInfo.interest_rate_offered) 
+    interest_rate_offered: lenderInfo.interest_rate_offered
+      ? parseFloat(lenderInfo.interest_rate_offered)
       : null,
     interest_rate_type: lenderInfo.interest_rate_type || null,
     loan_tenure_years: lenderInfo.loan_tenure_years || null,
     moratorium_period_months: lenderInfo.moratorium_period_months || null,
-    emi_amount: lenderInfo.emi_amount 
-      ? parseFloat(lenderInfo.emi_amount) 
+    emi_amount: lenderInfo.emi_amount
+      ? parseFloat(lenderInfo.emi_amount)
       : null,
-    processing_fee: lenderInfo.processing_fee 
-      ? parseFloat(lenderInfo.processing_fee) 
+    processing_fee: lenderInfo.processing_fee
+      ? parseFloat(lenderInfo.processing_fee)
       : null,
     co_signer_required: lenderInfo.co_signer_required || null,
     collateral_required: lenderInfo.collateral_required || null,
     collateral_type: lenderInfo.collateral_type || null,
-    collateral_value: lenderInfo.collateral_value 
-      ? parseFloat(lenderInfo.collateral_value) 
+    collateral_value: lenderInfo.collateral_value
+      ? parseFloat(lenderInfo.collateral_value)
       : null,
     guarantor_details: lenderInfo.guarantor_details || null,
-    
+
     // ========================================
     // DOCUMENT MANAGEMENT
     // ========================================
-    
+
     documents_required_list: docManagement.documents_required_list || null,
     documents_submitted_list: docManagement.documents_submitted_list || null,
     documents_pending_list: docManagement.documents_pending_list || null,
-    
+
     // ========================================
     // PROCESSING TIMELINE
     // ========================================
-    
-    lender_submission_date: timeline.lender_submission_date 
-      ? new Date(timeline.lender_submission_date).toISOString().split('T')[0] 
+
+    lender_submission_date: timeline.lender_submission_date
+      ? new Date(timeline.lender_submission_date).toISOString().split("T")[0]
       : null,
-    lender_acknowledgment_date: timeline.lender_acknowledgment_date 
-      ? new Date(timeline.lender_acknowledgment_date).toISOString().split('T')[0] 
+    lender_acknowledgment_date: timeline.lender_acknowledgment_date
+      ? new Date(timeline.lender_acknowledgment_date)
+          .toISOString()
+          .split("T")[0]
       : null,
-    approval_date: timeline.approval_date 
-      ? new Date(timeline.approval_date).toISOString().split('T')[0] 
+    approval_date: timeline.approval_date
+      ? new Date(timeline.approval_date).toISOString().split("T")[0]
       : null,
-    sanction_letter_date: timeline.sanction_letter_date 
-      ? new Date(timeline.sanction_letter_date).toISOString().split('T')[0] 
+    sanction_letter_date: timeline.sanction_letter_date
+      ? new Date(timeline.sanction_letter_date).toISOString().split("T")[0]
       : null,
-    disbursement_request_date: timeline.disbursement_request_date 
-      ? new Date(timeline.disbursement_request_date).toISOString().split('T')[0] 
+    disbursement_request_date: timeline.disbursement_request_date
+      ? new Date(timeline.disbursement_request_date).toISOString().split("T")[0]
       : null,
-    disbursement_date: timeline.disbursement_date 
-      ? new Date(timeline.disbursement_date).toISOString().split('T')[0] 
+    disbursement_date: timeline.disbursement_date
+      ? new Date(timeline.disbursement_date).toISOString().split("T")[0]
       : null,
     total_processing_days: timeline.total_processing_days || null,
     sla_breach: timeline.sla_breach || null,
     delay_reason: timeline.delay_reason || null,
-    
+
     // ========================================
     // REJECTION DETAILS
     // ========================================
-    
-    rejection_date: rejection.rejection_date 
-      ? new Date(rejection.rejection_date).toISOString().split('T')[0] 
+
+    rejection_date: rejection.rejection_date
+      ? new Date(rejection.rejection_date).toISOString().split("T")[0]
       : null,
     rejection_reason: rejection.rejection_reason || null,
     rejection_details: rejection.rejection_details || null,
     appeal_submitted: rejection.appeal_submitted || null,
     appeal_outcome: rejection.appeal_outcome || null,
     resolution_provided: rejection.resolution_provided || null,
-    
+
     // ========================================
     // COMMUNICATION PREFERENCES
     // ========================================
-    
+
     communication_preference: commPrefs.communication_preference || null,
     follow_up_frequency: commPrefs.follow_up_frequency || null,
-    last_contact_date: commPrefs.last_contact_date 
-      ? new Date(commPrefs.last_contact_date).toISOString().split('T')[0] 
+    last_contact_date: commPrefs.last_contact_date
+      ? new Date(commPrefs.last_contact_date).toISOString().split("T")[0]
       : null,
-    next_follow_up_date: commPrefs.next_follow_up_date 
-      ? new Date(commPrefs.next_follow_up_date).toISOString().split('T')[0] 
+    next_follow_up_date: commPrefs.next_follow_up_date
+      ? new Date(commPrefs.next_follow_up_date).toISOString().split("T")[0]
       : null,
-    customer_satisfaction_rating: commPrefs.customer_satisfaction_rating || null,
+    customer_satisfaction_rating:
+      commPrefs.customer_satisfaction_rating || null,
     customer_feedback: commPrefs.customer_feedback || null,
     complaint_raised: commPrefs.complaint_raised || null,
     complaint_details: commPrefs.complaint_details || null,
-    complaint_resolution_date: commPrefs.complaint_resolution_date 
-      ? new Date(commPrefs.complaint_resolution_date).toISOString().split('T')[0] 
+    complaint_resolution_date: commPrefs.complaint_resolution_date
+      ? new Date(commPrefs.complaint_resolution_date)
+          .toISOString()
+          .split("T")[0]
       : null,
-    
+
     // ========================================
     // SYSTEM TRACKING
     // ========================================
-    
+
     application_source_system: systemTracking.application_source_system || null,
     integration_status: systemTracking.integration_status || null,
     external_reference_id: systemTracking.external_reference_id || null,
     application_record_status: systemTracking.application_record_status || null,
-    
+
     // ========================================
     // COMMISSION RECORDS
     // ========================================
-    
-    commission_amount: commission.commission_amount 
-      ? parseFloat(commission.commission_amount) 
+
+    commission_amount: commission.commission_amount
+      ? parseFloat(commission.commission_amount)
       : null,
-    commission_rate: commission.commission_rate 
-      ? parseFloat(commission.commission_rate) 
+    commission_rate: commission.commission_rate
+      ? parseFloat(commission.commission_rate)
       : null,
     commission_calculation_base: commission.commission_calculation_base || null,
     commission_status: commission.commission_status || null,
-    commission_approval_date: commission.commission_approval_date 
-      ? new Date(commission.commission_approval_date).toISOString().split('T')[0] 
+    commission_approval_date: commission.commission_approval_date
+      ? new Date(commission.commission_approval_date)
+          .toISOString()
+          .split("T")[0]
       : null,
-    commission_payment_date: commission.commission_payment_date 
-      ? new Date(commission.commission_payment_date).toISOString().split('T')[0] 
+    commission_payment_date: commission.commission_payment_date
+      ? new Date(commission.commission_payment_date).toISOString().split("T")[0]
       : null,
-    partner_commission_applicable: commission.partner_commission_applicable || null,
+    partner_commission_applicable:
+      commission.partner_commission_applicable || null,
     settlement_id: commission.settlement_id || null,
-    
+
     // ========================================
     // ADDITIONAL SERVICES
     // ========================================
-    
-    additional_services_notes: additionalServices.additional_services_notes || null,
-    
+
+    additional_services_notes:
+      additionalServices.additional_services_notes || null,
+
     // ========================================
     // HUBSPOT SYSTEM FIELDS (if updating)
     // ========================================
-    
+
     // Don't send these on CREATE, only on UPDATE
-    ...(loanApp.hs_object_id && {
-      // hs_object_id: loanApp.hs_object_id,
-    }),
+    ...(loanApp.hs_object_id &&
+      {
+        // hs_object_id: loanApp.hs_object_id,
+      }),
   };
 }
 

@@ -2,8 +2,6 @@ import { Router } from "express";
 import { authenticate } from "../middlewares";
 import {
   contactsLeadPaginationValidationRules,
-  createContactsLeadValidationRules,
-  editContactsLeadValidationRules,
   validateId,
   validateReqParams,
 } from "../middlewares/validators/validator";
@@ -17,7 +15,6 @@ import {
   downloadContactsTemplate,
   editContactsLead,
   getContactsLeadDetails,
-  getContactsLeadsList,
   uploadContactsCSV,
   upsertContactsLead,
 } from "../controllers/contact.controller";
