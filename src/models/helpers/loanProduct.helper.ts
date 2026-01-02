@@ -1,6 +1,5 @@
 import { Prisma } from "@prisma/client";
 import prisma from "../../config/prisma";
-import { equal } from "assert";
 
 export const createLoanProduct = async (tx: any, mainData: any) => {
   const product = await tx.hSLoanProducts.create({
@@ -1151,7 +1150,7 @@ export const getLoanProductsByLender = async (lenderId: number) => {
       system_integration: true,
       loan_product_competitive_analysis: true,
       system_tracking: true,
-      lender: true, // optional: includes basic lender info if needed
+      lender: true,
     },
   });
 

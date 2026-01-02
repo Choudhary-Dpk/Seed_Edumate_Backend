@@ -1,7 +1,6 @@
-// src/utils/logger.ts
-import winston from 'winston';
-import DailyRotateFile from 'winston-daily-rotate-file';
-import { config } from '../config/config';
+import winston from "winston";
+import DailyRotateFile from "winston-daily-rotate-file";
+import { config } from "../config/config";
 
 const logFormat = winston.format.combine(
   winston.format.timestamp(),
@@ -11,11 +10,11 @@ const logFormat = winston.format.combine(
 
 const consoleFormat = winston.format.combine(
   winston.format.colorize(),
-  winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+  winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
   winston.format.printf(({ timestamp, level, message, ...meta }) => {
-    let metaStr = '';
+    let metaStr = "";
     if (Object.keys(meta).length > 0) {
-      metaStr = '\n' + JSON.stringify(meta, null, 2);
+      metaStr = "\n" + JSON.stringify(meta, null, 2);
     }
     return `${timestamp} [${level}]: ${message}${metaStr}`;
   })
@@ -23,68 +22,67 @@ const consoleFormat = winston.format.combine(
 
 // Daily rotate file transport for all logs
 const fileRotateTransport = new DailyRotateFile({
-  filename: 'logs/application-%DATE%.log',
-  datePattern: 'YYYY-MM-DD',
+  filename: "logs/application-%DATE%.log",
+  datePattern: "YYYY-MM-DD",
   maxFiles: config.logging.maxFiles,
   maxSize: config.logging.maxSize,
   format: logFormat,
-  level: config.logging.level
+  level: config.logging.level,
 });
 
 // Daily rotate file transport for error logs only
 const errorFileRotateTransport = new DailyRotateFile({
-  filename: 'logs/error-%DATE%.log',
-  datePattern: 'YYYY-MM-DD',
-  level: 'error',
+  filename: "logs/error-%DATE%.log",
+  datePattern: "YYYY-MM-DD",
+  level: "error",
   maxFiles: config.logging.maxFiles,
   maxSize: config.logging.maxSize,
-  format: logFormat
+  format: logFormat,
 });
 
 // Exception handler
 const exceptionHandler = new DailyRotateFile({
-  filename: 'logs/exceptions-%DATE%.log',
-  datePattern: 'YYYY-MM-DD',
+  filename: "logs/exceptions-%DATE%.log",
+  datePattern: "YYYY-MM-DD",
   maxFiles: config.logging.maxFiles,
   maxSize: config.logging.maxSize,
-  format: logFormat
+  format: logFormat,
 });
 
 // Rejection handler
 const rejectionHandler = new DailyRotateFile({
-  filename: 'logs/rejections-%DATE%.log',
-  datePattern: 'YYYY-MM-DD',
+  filename: "logs/rejections-%DATE%.log",
+  datePattern: "YYYY-MM-DD",
   maxFiles: config.logging.maxFiles,
   maxSize: config.logging.maxSize,
-  format: logFormat
+  format: logFormat,
 });
 
 export const logger = winston.createLogger({
   level: config.logging.level,
   format: logFormat,
-  defaultMeta: { service: 'hubspot-integration' },
-  transports: [
-    fileRotateTransport,
-    errorFileRotateTransport
-  ],
+  defaultMeta: { service: "hubspot-integration" },
+  transports: [fileRotateTransport, errorFileRotateTransport],
   exceptionHandlers: [exceptionHandler],
   rejectionHandlers: [rejectionHandler],
-  exitOnError: false
+  exitOnError: false,
 });
 
 // Console transport for development
-if (config.server.environment === 'development') {
-  logger.add(new winston.transports.Console({
-    format: consoleFormat,
-    level: 'debug'
-  }));
+if (config.server.environment === "development") {
+  logger.add(
+    new winston.transports.Console({
+      format: consoleFormat,
+      level: "debug",
+    })
+  );
 }
 
 // Handle PM2 cluster mode
-if (process.env.NODE_ENV === 'production') {
-  logger.info('Logger initialized for production with PM2 compatibility', {
+if (process.env.NODE_ENV === "production") {
+  logger.info("Logger initialized for production with PM2 compatibility", {
     level: config.logging.level,
-    environment: config.server.environment
+    environment: config.server.environment,
   });
 }
 

@@ -1,4 +1,10 @@
-import { ApiAccessStatus, B2BIntegrationStatus, PortalAccessStatus, PartnerRecordStatus, B2BDataSource } from "@prisma/client";
+import {
+  ApiAccessStatus,
+  B2BIntegrationStatus,
+  PortalAccessStatus,
+  PartnerRecordStatus,
+  B2BDataSource,
+} from "@prisma/client";
 
 // ApiAccessStatus mapping
 export const apiAccessStatusMap: Record<string, ApiAccessStatus> = {

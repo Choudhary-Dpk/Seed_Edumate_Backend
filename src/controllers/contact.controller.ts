@@ -17,7 +17,6 @@ import {
   updateEdumatePersonalInformation,
   updateEdumateAcademicProfile,
   updateEdumateLeadAttribution,
-  fetchContactsLeadList,
   createCSVContacts,
   getEdumateContactByEmail,
   createApplicationJourney,

@@ -1,4 +1,3 @@
-// src/config/pg-notify-client.ts
 import { Client } from "pg";
 import logger from "../utils/logger";
 
@@ -106,7 +105,6 @@ async function reconnect(): Promise<void> {
       instance = null;
     }
 
-    // Reconnect
     await connect();
 
     // Verify connection was established

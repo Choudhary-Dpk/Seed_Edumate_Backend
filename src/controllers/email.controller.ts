@@ -1,12 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import { validationResult } from "express-validator";
 import {
+  EmailOptions,
   sendLoanEligibilityResultEmail,
   sendPasswordResetEmail,
 } from "../services/email.service";
-import { EmailData } from "../types/email.types";
-import { RequestWithPayload } from "../types/api.types";
-import { LoginPayload, PortalType } from "../types/auth";
+import { EmailData, SendEmailRequest } from "../types/email.types";
+import { PortalType } from "../types/auth";
 import logger from "../utils/logger";
 import { sendResponse } from "../utils/api";
 import { emailQueue } from "../utils/queue";
@@ -76,65 +76,12 @@ export const sendPasswordReset = async (req: Request, res: Response) => {
   }
 };
 
-export interface EmailOptions {
-  to: string | string[];
-  subject: string;
-  text?: string;
-  html?: string;
-  from?: string;
-  cc?: string | string[];
-  bcc?: string | string[];
-  attachments?: Array<{
-    filename: string;
-    path?: string;
-    content?: Buffer | string;
-    contentType?: string;
-  }>;
-}
-
-interface SendEmailRequest {
-  emailType: string;
-  to: string | string[];
-  userId?: number;
-  variables?: Record<string, string>;
-  subject: string;
-  from?: string;
-  cc?: string | string[];
-  bcc?: string | string[];
-  attachments?: Array<{
-    filename: string;
-    path?: string;
-    content?: Buffer | string;
-    contentType?: string;
-  }>;
-}
-
 /**
  * Universal Email Controller - Final Version
  * - Takes name directly from req.body
  * - Generates reset URLs internally based on emailType
  * - Handles all email types with proper variable replacement
  */
-interface SendEmailRequest {
-  emailType: string;
-  to: string | string[];
-  userId?: number;
-  name?: string;
-  subject: string;
-  from?: string;
-  cc?: string | string[];
-  bcc?: string | string[];
-  attachments?: Array<{
-    filename: string;
-    path?: string;
-    content?: Buffer | string;
-    contentType?: string;
-  }>;
-  otp?: string; // For OTP emails
-  emailToken?: string; // For password-related emails
-  portalType?: PortalType; // For admin/partner portal differentiation
-  exploreLoansUrl?: string; // For show interest emails
-}
 
 export const sendEmailController = async (
   req: Request<{}, {}, SendEmailRequest>,

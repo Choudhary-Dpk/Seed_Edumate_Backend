@@ -1,7 +1,3 @@
-// src/types/hubspot.types.ts
-// Use HubSpot SDK types directly - no custom redefinition needed
-
-// Internal representation types for mapping
 export interface HubSpotContact {
   id: string;
   properties: {

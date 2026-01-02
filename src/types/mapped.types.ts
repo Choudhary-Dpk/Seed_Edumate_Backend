@@ -1,5 +1,3 @@
-
-// src/types/mapped.types.ts
 export interface MappedContact {
   id: string;
   email: string;
@@ -49,7 +47,7 @@ export interface MappedDeal {
 // Mapped Edumate Contact Interface
 export interface MappedEdumateContact {
   id: string;
-  
+
   // Personal Information
   firstName: string;
   lastName: string;
@@ -59,7 +57,7 @@ export interface MappedEdumateContact {
   dateOfBirth?: Date;
   gender?: string;
   nationality?: string;
-  
+
   // Address Information
   currentAddress?: {
     address?: string;
@@ -75,7 +73,7 @@ export interface MappedEdumateContact {
     country?: string;
     pincode?: string;
   };
-  
+
   // Academic Information
   currentEducation?: {
     level?: string;
@@ -84,7 +82,7 @@ export interface MappedEdumateContact {
     cgpaPercentage?: number;
     graduationYear?: number;
   };
-  
+
   targetEducation?: {
     degreeLevel?: string;
     courseMajor?: string;
@@ -94,7 +92,7 @@ export interface MappedEdumateContact {
     intendedStartTerm?: string;
     courseDurationMonths?: number;
   };
-  
+
   testScores?: {
     gmat?: number;
     gre?: number;
@@ -102,7 +100,7 @@ export interface MappedEdumateContact {
     ielts?: number;
     other?: string;
   };
-  
+
   // Application Journey
   admissionStatus?: string;
   applicationJourney?: {
@@ -116,7 +114,7 @@ export interface MappedEdumateContact {
     nextFollowUpDate?: Date;
     followUpDate?: Date;
   };
-  
+
   // Financial Information
   financialProfile?: {
     annualFamilyIncome?: number;
@@ -129,27 +127,27 @@ export interface MappedEdumateContact {
     scholarshipAmount?: number;
     currency?: string;
   };
-  
+
   coApplicants?: Array<{
     name?: string;
     relationship?: string;
     occupation?: string;
     income?: number;
   }>;
-  
+
   collateral?: Array<{
     available?: string;
     type?: string;
     value?: number;
   }>;
-  
+
   // Loan Preferences
   loanPreferences?: {
     loanTypePreference?: string;
     preferredLenders?: string;
     repaymentTypePreference?: string;
   };
-  
+
   // Lead Attribution
   leadAttribution?: {
     leadSource?: string;
@@ -167,7 +165,7 @@ export interface MappedEdumateContact {
     utmTerm?: string;
     utmContent?: string;
   };
-  
+
   // System Information
   ownerId?: string;
   createdAt: Date;
@@ -179,7 +177,7 @@ export interface MappedEdumateContact {
   marketingConsent?: string;
   studentRecordStatus?: string;
   tags?: string;
-  
+
   // Custom properties that don't fit into structured categories
   customProperties?: Record<string, any>;
 }
