@@ -1,5 +1,3 @@
-// src/middleware/hubspot-loan-sync.middleware.ts
-
 import { Prisma } from "@prisma/client";
 import logger from "../utils/logger";
 

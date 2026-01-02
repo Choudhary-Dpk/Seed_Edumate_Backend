@@ -189,8 +189,6 @@ export const createEdumateContact = async (
   const contact = await tx.hSEdumateContacts.create({
     data: {
       ...mainData,
-      // hs_object_id: hubspotId,
-      // hs_created_by_user_id: hsCreatedBy,
       b2b_partner_id: partnerId,
       created_at: new Date(),
     },
@@ -317,8 +315,6 @@ export const updateEdumateLeadAttribution = async (
   contactId: number,
   leadData?: any
 ) => {
-  // if (!leadData.b2b_partner_name) return null;
-
   const leadAttribution = await tx.hSEdumateContactsLeadAttribution.update({
     where: { contact_id: contactId },
     data: {
@@ -367,12 +363,10 @@ export const updateEdumateContactLoanPreference = async (
   contactId: number,
   loanPreference?: any
 ) => {
-  // Safety check - don't update if empty or all values are null/undefined
   if (!loanPreference || Object.keys(loanPreference).length === 0) {
     return null;
   }
 
-  // Remove null/undefined values
   const cleanData: any = {};
   Object.keys(loanPreference).forEach((key) => {
     if (loanPreference[key] !== null && loanPreference[key] !== undefined) {
@@ -425,7 +419,6 @@ export const fetchContactsLeadList = async (
 ) => {
   const where: Prisma.HSEdumateContactsWhereInput = {
     is_deleted: false,
-    // b2b_partner_id: partnerId,
   };
 
   // Add search filter

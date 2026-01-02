@@ -1,4 +1,3 @@
-// src/types/common.types.ts
 export interface ApiResponse<T = any> {
   success: boolean;
   data?: T;
@@ -26,6 +25,6 @@ export interface SearchOptions extends PaginationOptions {
   properties?: string[];
   sorts?: {
     propertyName: string;
-    direction: 'ASCENDING' | 'DESCENDING';
+    direction: "ASCENDING" | "DESCENDING";
   }[];
 }

@@ -1,6 +1,3 @@
-import { Response, NextFunction } from "express";
-import { RequestWithPayload } from "../types/api.types";
-import { LoginPayload } from "../types/auth";
 import { AsyncLocalStorage } from "async_hooks";
 import { Prisma } from "@prisma/client";
 import logger from "../utils/logger";

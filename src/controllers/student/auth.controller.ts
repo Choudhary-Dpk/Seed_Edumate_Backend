@@ -30,7 +30,6 @@ import {
   getStudentProfileById,
   getUpdatedStudentProfile,
   updateContactUser,
-  updateStudentFavouriteInterested,
   validateLoanProductIds,
 } from "../../models/helpers/student.helper";
 import { mapAllFields } from "../../mappers/edumateContact/mapping";
@@ -64,9 +63,6 @@ export const studentSignupController = async (
 
     let result;
 
-    // -----------------------------
-    // UPDATE FLOW
-    // -----------------------------
     if (existingContactDb?.id) {
       const leadId = existingContactDb.id;
 
@@ -118,11 +114,7 @@ export const studentSignupController = async (
         },
         { timeout: 180000 }
       );
-    }
-    // -----------------------------
-    // CREATE FLOW
-    // -----------------------------
-    else {
+    } else {
       result = await prisma.$transaction(
         async (tx: any) => {
           const contact = await createEdumateContact(
@@ -174,9 +166,6 @@ export const studentSignupController = async (
       );
     }
 
-    // -----------------------------
-    // ALWAYS CREATE/UPSERT STUDENT USER
-    // -----------------------------
     const studentUser = await createStudentUser(
       result.id,
       email,
@@ -184,9 +173,6 @@ export const studentSignupController = async (
       full_name
     );
 
-    // -----------------------------
-    // FETCH COMPLETE CONTACT DATA (SAME AS LOGIN)
-    // -----------------------------
     const completeContactData = await prisma.hSEdumateContacts.findUnique({
       where: {
         id: result.id,
@@ -240,7 +226,6 @@ export const studentSignupController = async (
       throw new Error("Failed to retrieve complete contact data");
     }
 
-    // ✅ Structure data EXACTLY like login
     const {
       personal_information,
       academic_profile,
@@ -263,15 +248,11 @@ export const studentSignupController = async (
       system_tracking,
     };
 
-    // ✅ Final data structure matching login
     data = {
       student: studentUser,
       contact: contact,
     };
 
-    // -----------------------------
-    // HANDLE LEAD CREATION
-    // -----------------------------
     if (result?.id && formType) {
       await handleLeadCreation(result.id, formType, email);
     }
