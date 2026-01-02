@@ -822,18 +822,10 @@ const generateHTMLTemplate = (
   const { years, months } = convertTenureInYears(loanDetails?.tenureYears);
 
   const formatCurrency = (amount: number): string => {
-    try {
-      return new Intl.NumberFormat("en-IN", {
-        style: "currency",
-        currency: "INR",
-        minimumFractionDigits: 2,
-      }).format(amount);
-    } catch (error) {
-      return `₹ ${new Intl.NumberFormat("en-IN", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }).format(amount)}`;
-    }
+    return new Intl.NumberFormat("en-IN", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount);
   };
 
   const formatNumber = (num: number): string =>

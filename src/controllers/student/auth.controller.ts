@@ -546,44 +546,6 @@ export const updateStudentController = async (
     // Fetch updated student and contact data
     const data = await getUpdatedStudentProfile(studentId, student.contact_id);
 
-    logger.debug(`Getting show interest template`);
-    let content = await getEmailTemplate("show-interest");
-    if (!content) {
-      return sendResponse(
-        res,
-        500,
-        "Show interest template found successfully"
-      );
-    }
-    logger.debug(`Forgot password template fetched successfully`);
-
-    content = content.replace(/{%currentYear%}/, moment().format("YYYY"));
-    content = content.replace(
-      /{%name%}/g,
-      categorized.personalInformation?.first_name
-        ? categorized.personalInformation?.first_name.charAt(0).toUpperCase() +
-            categorized.personalInformation?.first_name.slice(1)
-        : "User"
-    );
-    const html = content;
-    const subject = "Show Interest";
-
-    logger.debug(`Sending email to: ${categorized.personalInformation?.email}`);
-    emailQueue.push({
-      to: categorized.personalInformation?.email || "",
-      subject,
-      html,
-      retry: 0,
-    });
-
-    logger.debug(`Saving email history for studentId: ${studentId}`);
-    await logEmailHistory({
-      to: categorized.personalInformation?.email ?? "",
-      subject,
-      type: "Show Interest",
-    });
-    logger.debug(`Email history saved successfully`);
-
     return sendResponse(res, 200, "Student profile updated successfully", data);
   } catch (error: any) {
     next(error);
