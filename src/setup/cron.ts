@@ -1,295 +1,108 @@
-import cron from "node-cron";
-import axios from "axios";
-import { EXCHANGE_RATE_API_KEY } from "./secrets";
-import { upsertCurrencyConversion } from "../models/helpers/cron.helper";
+import dotenv from 'dotenv';
+import cron from 'node-cron';
+import fs from 'fs';
+import { updatePropertySync } from '../scripts/sync_loan_product_options';
+import { updateExchangeRates } from '../scripts/curreny_update';
 
-// Configuration
-const API_KEY = EXCHANGE_RATE_API_KEY;
-const BASE_URL = "https://v6.exchangerate-api.com/v6";
+dotenv.config();
 
-const CURRENCIES = [
-  "USD",
-  "AED",
-  "AFN",
-  "ALL",
-  "AMD",
-  "ANG",
-  "AOA",
-  "ARS",
-  "AUD",
-  "AWG",
-  "AZN",
-  "BAM",
-  "BBD",
-  "BDT",
-  "BGN",
-  "BHD",
-  "BIF",
-  "BMD",
-  "BND",
-  "BOB",
-  "BRL",
-  "BSD",
-  "BTN",
-  "BWP",
-  "BYN",
-  "BZD",
-  "CAD",
-  "CDF",
-  "CHF",
-  "CLP",
-  "CNY",
-  "COP",
-  "CRC",
-  "CUP",
-  "CVE",
-  "CZK",
-  "DJF",
-  "DKK",
-  "DOP",
-  "DZD",
-  "EGP",
-  "ERN",
-  "ETB",
-  "EUR",
-  "FJD",
-  "FKP",
-  "FOK",
-  "GBP",
-  "GEL",
-  "GGP",
-  "GHS",
-  "GIP",
-  "GMD",
-  "GNF",
-  "GTQ",
-  "GYD",
-  "HKD",
-  "HNL",
-  "HRK",
-  "HTG",
-  "HUF",
-  "IDR",
-  "ILS",
-  "IMP",
-  "INR",
-  "IQD",
-  "IRR",
-  "ISK",
-  "JEP",
-  "JMD",
-  "JOD",
-  "JPY",
-  "KES",
-  "KGS",
-  "KHR",
-  "KID",
-  "KMF",
-  "KRW",
-  "KWD",
-  "KYD",
-  "KZT",
-  "LAK",
-  "LBP",
-  "LKR",
-  "LRD",
-  "LSL",
-  "LYD",
-  "MAD",
-  "MDL",
-  "MGA",
-  "MKD",
-  "MMK",
-  "MNT",
-  "MOP",
-  "MRU",
-  "MUR",
-  "MVR",
-  "MWK",
-  "MXN",
-  "MYR",
-  "MZN",
-  "NAD",
-  "NGN",
-  "NIO",
-  "NOK",
-  "NPR",
-  "NZD",
-  "OMR",
-  "PAB",
-  "PEN",
-  "PGK",
-  "PHP",
-  "PKR",
-  "PLN",
-  "PYG",
-  "QAR",
-  "RON",
-  "RSD",
-  "RUB",
-  "RWF",
-  "SAR",
-  "SBD",
-  "SCR",
-  "SDG",
-  "SEK",
-  "SGD",
-  "SHP",
-  "SLE",
-  "SLL",
-  "SOS",
-  "SRD",
-  "SSP",
-  "STN",
-  "SYP",
-  "SZL",
-  "THB",
-  "TJS",
-  "TMT",
-  "TND",
-  "TOP",
-  "TRY",
-  "TTD",
-  "TVD",
-  "TWD",
-  "TZS",
-  "UAH",
-  "UGX",
-  "UYU",
-  "UZS",
-  "VES",
-  "VND",
-  "VUV",
-  "WST",
-  "XAF",
-  "XCD",
-  "XCG",
-  "XDR",
-  "XOF",
-  "XPF",
-  "YER",
-  "ZAR",
-  "ZMW",
-  "ZWL",
-];
+// Create logs directory
+if (!fs.existsSync('./logs')) fs.mkdirSync('./logs');
 
-// Lock to prevent concurrent executions
-let isJobRunning = false;
+// Simple logger with 10-day rotation
+function log(taskName: string, message: string): void {
+  const now = new Date();
+  const day = now.getDate();
+  const period = day <= 10 ? '01-10' : day <= 20 ? '11-20' : '21-end';
+  const date = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const logFile = `./logs/${taskName}_${date}_${period}.log`;
+  
+  const timestamp = now.toISOString();
+  fs.appendFileSync(logFile, `[${timestamp}] ${message}\n`);
+  console.log(`[${taskName}] ${message}`);
+}
 
-const processCurrencyBatch = async (baseCurrency: string) => {
+// ==================================================
+// YOUR TASKS
+// ==================================================
+
+// Task 1: HubSpot Property Update
+async function propertyUpdate(): Promise<void> {
+  log('property-update', 'Starting...');
+  
   try {
-    const response: any = await axios.get(
-      `${BASE_URL}/${API_KEY}/latest/${baseCurrency}`,
-      {
-        timeout: 10000,
-      }
-    );
-
-    if (
-      response.data?.result !== "success" ||
-      !response.data?.conversion_rates
-    ) {
-      console.error(`Invalid API response for ${baseCurrency}`);
-      return { success: 0, errors: 1 };
-    }
-
-    const conversionRates = response.data.conversion_rates;
-    let batchSuccess = 0;
-    let batchErrors = 0;
-
-    for (const targetCurrency of CURRENCIES) {
-      if (baseCurrency === targetCurrency) continue;
-
-      const forwardRate = Number(conversionRates[targetCurrency]);
-      if (!forwardRate || forwardRate <= 0) {
-        batchErrors++;
-        continue;
-      }
-
-      const reverseRate = 1 / forwardRate;
-
-      // Use helper to upsert DB
-      const result = await upsertCurrencyConversion({
-        baseCurrency,
-        targetCurrency,
-        forwardRate,
-        reverseRate,
-      });
-
-      batchSuccess += result.success;
-      batchErrors += result.errors;
-    }
-
-    console.log(`${baseCurrency}: ${batchSuccess} pairs updated`);
-    return { success: batchSuccess, errors: batchErrors };
-  } catch (apiError: any) {
-    console.error(`API error for ${baseCurrency}:`, apiError);
-    return { success: 0, errors: 1 };
+    await updatePropertySync();
+    log('property-update', 'Done!');
+  } catch (error: any) {
+    log('property-update', `Error: ${error.message}`);
+    throw error;
   }
-};
+}
 
-// Main update function
-const updateExchangeRates = async () => {
-  console.log(`[${new Date().toISOString()}] Starting currency update...`);
-
-  let totalSuccess = 0;
-  let totalErrors = 0;
-
-  for (const currency of CURRENCIES) {
-    const result = await processCurrencyBatch(currency);
-    totalSuccess += result.success;
-    totalErrors += result.errors;
-
-    // optional small delay to avoid API rate limits
-    await new Promise((resolve) => setTimeout(resolve, 100));
+// Task 2: Currency Update
+async function currencyUpdate(): Promise<void> {
+  log('currency-update', 'Starting...');
+  
+  try {
+    await updateExchangeRates();
+    log('currency-update', 'Done!');
+  } catch (error: any) {
+    log('currency-update', `Error: ${error.message}`);
+    throw error;
   }
+}
 
-  console.log(`[${new Date().toISOString()}] Update completed`);
-  console.log(`Success: ${totalSuccess} | Errors: ${totalErrors}`);
-};
+// Task 3: Database Cleanup
+async function dbCleanup(): Promise<void> {
+  log('db-cleanup', 'Starting...');
+  
+  // Your cleanup code here
+  
+  log('db-cleanup', 'Done!');
+}
 
-// Cron job: runs at midnight (00:00 UTC) daily
-const currencyUpdateJob = cron.schedule(
-  "0 0 * * *",
-  async () => {
-    // Prevent overlapping executions
-    if (isJobRunning) {
-      console.log(
-        `[${new Date().toISOString()}] Skipping - previous update still running`
-      );
-      return;
-    }
+// ==================================================
+// SCHEDULES
+// ==================================================
 
-    isJobRunning = true;
-    console.log(`\n[${new Date().toISOString()}] Cron job triggered`);
-
-    try {
-      await updateExchangeRates();
-      console.log(
-        `[${new Date().toISOString()}] Cron job completed successfully\n`
-      );
-    } catch (error) {
-      console.error(
-        `[${new Date().toISOString()}] Cron job failed:`,
-        error instanceof Error ? error.message : "Unknown error"
-      );
-    } finally {
-      // Always release lock
-      isJobRunning = false;
-    }
-  },
-  {
-    timezone: "UTC",
+// Property Update - Daily at midnight
+cron.schedule('0 0 * * *', async () => {
+  try {
+    await propertyUpdate();
+  } catch (error: any) {
+    log('property-update', `Failed: ${error.message}`);
   }
-);
+});
 
-console.log("Currency Update Cron Initialized");
-console.log("Schedule: Daily at 00:00 UTC (midnight)");
-console.log(`Tracking: ${CURRENCIES.length} currencies`);
-console.log(
-  `Target: ${CURRENCIES.length * (CURRENCIES.length - 1)} bidirectional pairs\n`
-);
+// Currency Update - Daily at midnight
+cron.schedule('0 0 * * *', async () => {
+  try {
+    await currencyUpdate();
+  } catch (error: any) {
+    log('currency-update', `Failed: ${error.message}`);
+  }
+});
+
+// Database Cleanup - Every Sunday at 3 AM
+cron.schedule('0 3 * * 0', async () => {
+  try {
+    await dbCleanup();
+  } catch (error: any) {
+    log('db-cleanup', `Failed: ${error.message}`);
+  }
+});
+
+// ==================================================
+// STARTUP
+// ==================================================
+
+console.log('✓ Cron Manager Started');
+console.log('✓ Property Update: Daily at 2 AM');
+console.log('✓ Currency Update: Daily at midnight');
+console.log('✓ DB Cleanup: Sunday at 3 AM');
+console.log('✓ Logs: ./logs/');
+
+log('manager', 'Cron manager started');
 
 // Export for manual triggers if needed
-export { updateExchangeRates, currencyUpdateJob };
-export default currencyUpdateJob;
+export { propertyUpdate, currencyUpdate, dbCleanup };
