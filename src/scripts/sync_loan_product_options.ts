@@ -78,7 +78,7 @@ async function fetchLoanProducts(): Promise<Product[]> {
 async function updateMultiCheckboxProperty(products: Product[]): Promise<any> {
   console.log('Updating multi-checkbox property on Edumate Contact object...');
   console.log(`Target object: ${EDUMATE_CONTACT_OBJECT}, Property: ${EDUMATE_CONTACT_PROPERTY}`);
-  debugger
+
   const options: PropertyOption[] = products.map((product, index) => ({
     label: product.label,
     value: product.value,
