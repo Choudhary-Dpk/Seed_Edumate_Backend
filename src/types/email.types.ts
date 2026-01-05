@@ -1,3 +1,5 @@
+import { PortalType } from "./auth";
+
 export interface PersonalInfo {
   name: string;
   email: string;
@@ -5,7 +7,7 @@ export interface PersonalInfo {
 }
 
 export interface ExamData {
-  status: 'taken' | 'not_taken' | 'scheduled';
+  status: "taken" | "not_taken" | "scheduled";
   score: string;
 }
 
@@ -67,4 +69,25 @@ export type LogEmailOptions = {
   bcc?: string;
   type: string;
   subject: string;
+};
+
+export type SendEmailRequest = {
+  emailType: string;
+  to: string | string[];
+  userId?: number;
+  name?: string;
+  subject: string;
+  from?: string;
+  cc?: string | string[];
+  bcc?: string | string[];
+  attachments?: Array<{
+    filename: string;
+    path?: string;
+    content?: Buffer | string;
+    contentType?: string;
+  }>;
+  otp?: string; // For OTP emails
+  emailToken?: string; // For password-related emails
+  portalType?: PortalType; // For admin/partner portal differentiation
+  exploreLoansUrl?: string; // For show interest emails
 };

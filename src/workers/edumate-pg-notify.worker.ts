@@ -205,7 +205,8 @@ async function handleEdumateCreate(contactId: number): Promise<string> {
       `[Edumate PG NOTIFY] Contact #${contactId} already has HubSpot ID: ${contact.hs_object_id}, updating with db_id`
     );
 
-    const hubspotPayload = transformToHubSpotFormat(contact);
+    const hubspotPayload = await transformToHubSpotFormat(contact);
+    console.log("hubspotpayload", hubspotPayload);
 
     try {
       await updateContactsLoanLead(contact.hs_object_id, hubspotPayload);
@@ -234,7 +235,8 @@ async function handleEdumateCreate(contactId: number): Promise<string> {
     }
   }
 
-  const hubspotPayload = transformToHubSpotFormat(contact);
+  const hubspotPayload = await transformToHubSpotFormat(contact);
+  console.log("hubspotpayload", hubspotPayload);
 
   const results = await createContactsLoanLeads(
     [hubspotPayload],
@@ -288,7 +290,8 @@ async function handleEdumateUpdate(contactId: number): Promise<string> {
     return newId;
   }
 
-  const hubspotPayload = transformToHubSpotFormat(contact);
+  const hubspotPayload = await transformToHubSpotFormat(contact);
+  console.log("hubspotpayload", hubspotPayload);
 
   try {
     await updateContactsLoanLead(hubspotId, hubspotPayload);
@@ -317,13 +320,102 @@ async function handleEdumateDelete(hsObjectId: string): Promise<void> {
   );
 }
 
-function transformToHubSpotFormat(contact: any): any {
+/**
+ * Maps loan product database IDs to their corresponding HubSpot object IDs
+ * Returns semicolon-separated string format for HubSpot multi-value fields
+ * Example: "hubspotId1;hubspotId2;hubspotId3"
+ *
+ * @param productIds - Array of loan product database IDs
+ * @returns Semicolon-separated string of HubSpot object IDs, or null if none found
+ */
+async function mapLoanProductIdsToHsObjectIds(
+  productIds: number[]
+): Promise<string | null> {
+  if (!productIds || productIds.length === 0) {
+    return null;
+  }
+
+  try {
+    const loanProducts = await prisma.hSLoanProducts.findMany({
+      where: {
+        id: { in: productIds },
+        is_deleted: false,
+        hs_object_id: { not: null },
+      },
+      select: {
+        id: true,
+        hs_object_id: true,
+        product_name: true,
+      },
+    });
+
+    const hsObjectIds = loanProducts
+      .filter((product) => product.hs_object_id)
+      .map((product) => product.hs_object_id as string);
+    const formattedString =
+      hsObjectIds.length > 0 ? hsObjectIds.join("; ") : null;
+
+    logger.debug(
+      `[Edumate PG NOTIFY] Mapped ${productIds.length} loan product IDs to ${hsObjectIds.length} HubSpot object IDs`,
+      {
+        input_db_ids: productIds,
+        output_format: formattedString,
+        mapped_products: loanProducts.map((p) => ({
+          db_id: p.id,
+          product_name: p.product_name,
+          hs_object_id: p.hs_object_id,
+        })),
+      }
+    );
+
+    // Log any missing mappings
+    const foundIds = loanProducts.map((p) => p.id);
+    const missingIds = productIds.filter((id) => !foundIds.includes(id));
+    if (missingIds.length > 0) {
+      logger.warn(
+        `[Edumate PG NOTIFY] Could not find HubSpot object IDs for loan product IDs: ${missingIds.join(
+          ", "
+        )}`
+      );
+    }
+
+    return formattedString;
+  } catch (error) {
+    logger.error(
+      `[Edumate PG NOTIFY] Error mapping loan product IDs to HubSpot object IDs:`,
+      error
+    );
+    return null;
+  }
+}
+
+async function transformToHubSpotFormat(contact: any): Promise<any> {
   const personalInfo = contact.personal_information || {};
   const academicProfile = contact.academic_profile || {};
   const leadAttribution = contact.lead_attribution || {};
   const financialInfo = contact.financial_Info || {};
   const loanPreference = contact.loan_preference || {};
   const applicationJourney = contact.application_journey || {};
+
+  // Map interested loan product IDs to HubSpot object IDs (semicolon-separated)
+  const interestedLoanProductsHsIds = await mapLoanProductIdsToHsObjectIds(
+    contact.interested || []
+  );
+
+  // Map favourite loan product IDs to HubSpot object IDs (if you need this field too)
+  const favouriteLoanProductsHsIds = await mapLoanProductIdsToHsObjectIds(
+    contact.favourite || []
+  );
+
+  logger.debug(
+    `[Edumate PG NOTIFY] Contact #${contact.id} loan products mapping:`,
+    {
+      interested_db_ids: contact.interested,
+      interested_hs_ids_formatted: interestedLoanProductsHsIds,
+      favourite_db_ids: contact.favourite,
+      favourite_hs_ids_formatted: favouriteLoanProductsHsIds,
+    }
+  );
 
   return {
     db_id: contact.id || personalInfo.contact_id,
@@ -493,6 +585,13 @@ function transformToHubSpotFormat(contact: any): any {
       "repayment_type_preference",
       loanPreference.repayment_type_preference
     ),
+    // Map interested loan products from DB IDs to HubSpot record IDs (semicolon-separated)
+    // Format: "hubspotId1;hubspotId2;hubspotId3"
+    interested_loan_products:
+      interestedLoanProductsHsIds ||
+      (loanPreference.interested_loan_products?.length > 0
+        ? loanPreference.interested_loan_products.join(";")
+        : null),
     assigned_counselor: applicationJourney.assigned_counselor || null,
     counselor_notes: applicationJourney.counselor_notes || null,
     current_status_disposition: mapEnumValue(

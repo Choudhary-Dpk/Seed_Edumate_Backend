@@ -1,6 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import prisma from "../config/prisma";
-import { fetchCurrencyConversion, fetchIpDetails } from "../services/user.service";
+import {
+  fetchCurrencyConversion,
+  fetchIpDetails,
+} from "../services/user.service";
 import { sendResponse } from "../utils/api";
 import {
   assignRole,
@@ -200,14 +203,16 @@ export const getCurrencyConversion = async (
       );
     }
 
-    logger.debug(`Fetching currency conversion rates for base: ${baseCurrency}`);
-    
+    logger.debug(
+      `Fetching currency conversion rates for base: ${baseCurrency}`
+    );
+
     const data = await fetchCurrencyConversion(baseCurrency);
-    
+
     logger.debug(
       `Currency conversion rates fetched successfully for ${baseCurrency}`
     );
-    
+
     sendResponse(
       res,
       200,

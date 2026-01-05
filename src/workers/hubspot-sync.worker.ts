@@ -302,37 +302,6 @@ async function handleCreate(payload: any, entityId: number): Promise<string> {
 
 /**
  * Handle UPDATE operation
- */
-// async function handleUpdate(
-//   payload: any,
-//   entityId: number
-// ): Promise<string | undefined> {
-//   // Fetch existing HubSpot ID
-//   const contact = await prisma.hSEdumateContacts.findUnique({
-//     where: { id: entityId },
-//     select: { hs_object_id: true },
-//   });
-
-//   if (!contact?.hs_object_id) {
-//     throw new Error("HubSpot ID not found for update");
-//   }
-
-//   // Fetch complete latest contact data from all tables
-//   const completeContactData = await fetchCompleteContactData(entityId);
-
-//   if (!completeContactData) {
-//     throw new Error(`Contact not found: ${entityId}`);
-//   }
-
-//   // Transform to HubSpot format with ALL fields
-//   const hubspotPayload = transformToHubSpotFormat(completeContactData);
-
-//   await updateContactsLoanLead(contact.hs_object_id, hubspotPayload);
-//   return contact.hs_object_id;
-// }
-
-/**
- * Handle UPDATE operation
  * If hs_object_id doesn't exist, create instead of update
  */
 async function handleUpdate(

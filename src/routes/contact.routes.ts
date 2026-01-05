@@ -30,7 +30,6 @@ router.post(
     method: AuthMethod.BOTH,
     allowedRoles: ["Admin", "Manager", "User"],
   }),
-  // createContactsLeadValidationRules(),
   validateReqParams,
   validateContactsLeadPayload,
   createContactsLead
@@ -66,7 +65,6 @@ router.put(
     method: AuthMethod.BOTH,
     allowedRoles: ["Admin", "Manager", "User"],
   }),
-  // editContactsLeadValidationRules(),
   validateReqParams,
   validateContactLeadById,
   editContactsLead

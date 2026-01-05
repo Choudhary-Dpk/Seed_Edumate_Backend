@@ -1,4 +1,4 @@
-import { NextFunction, Response, Request } from "express";
+import { NextFunction, Response } from "express";
 import logger from "../utils/logger";
 import { RequestWithPayload } from "../types/api.types";
 import { LoginPayload } from "../types/auth";
@@ -508,9 +508,6 @@ export const getLeadsViewList = async (
   next: NextFunction
 ) => {
   try {
-    // const { id } = req.payload!;
-    console.log("req.query", req.query);
-
     const size = Number(req.query.size) || 10;
     const page = Number(req.query.page) || 1;
     const search = (req.query.search as string) || null;
