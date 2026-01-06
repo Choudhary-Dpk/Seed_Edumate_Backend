@@ -423,18 +423,21 @@ export const mapAllFields = async (
   }
 
   if (
+    input.coApplicantEmail !== undefined ||
     input.coApplicant1Email !== undefined ||
     input.co_applicant_1_email !== undefined
   ) {
     mapped.co_applicant_1_email =
-      input.coApplicant1Email ?? input.co_applicant_1_email ?? null;
+      input.coApplicantEmail ?? input.coApplicant1Email ?? input.co_applicant_1_email ?? null;
   }
 
   if (
+    input.coApplicantMobile !== undefined ||
     input.coApplicant1MobileNumber !== undefined ||
     input.co_applicant_1_mobile_number !== undefined
   ) {
     mapped.co_applicant_1_mobile_number =
+      input.coApplicantMobile ??
       input.coApplicant1MobileNumber ??
       input.co_applicant_1_mobile_number ??
       null;

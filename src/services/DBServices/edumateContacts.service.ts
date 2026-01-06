@@ -130,6 +130,8 @@ export const categorizeByTable = (mappedFields: Record<string, any>) => {
     "annual_family_income",
     "currency",
     "co_applicant_1_name",
+    "co_applicant_1_email",
+    "co_applicant_1_mobile_number",
     "co_applicant_1_income",
     "co_applicant_1_occupation",
     "co_applicant_1_relationship",
