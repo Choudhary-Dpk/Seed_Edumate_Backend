@@ -944,7 +944,11 @@ model HSEdumateContacts {
   exchange_rate_used           Decimal?          @db.Decimal(16, 4)
   conversion_timestamp         String?
   co_applicant_1_email         String?
+  coapplicant_2_email          String?
+  coapplicant_3_email          String?
   co_applicant_1_mobile_number String?
+  coapplicant_2_mobile_number  String?
+  coapplicant_3_mobile_number  String?
   email                        String?
   hs_created_by_user_id        Int?
   hs_createdate                DateTime?

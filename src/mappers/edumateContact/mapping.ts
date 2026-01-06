@@ -217,10 +217,15 @@ export const mapAllFields = async (
 
   if (
     input.original_principal !== undefined ||
-    input.originalPrincipal !== undefined || input.loanAmountOrg !== undefined
+    input.originalPrincipal !== undefined ||
+    input.loanAmountOrg !== undefined
   ) {
-    const mappedOriginalPrincipal =
-      Number(input.original_principal ?? input.originalPrincipal ?? input.loanAmountOrg ?? null);
+    const mappedOriginalPrincipal = Number(
+      input.original_principal ??
+        input.originalPrincipal ??
+        input.loanAmountOrg ??
+        null
+    );
     mapped.original_principal = mappedOriginalPrincipal;
   }
 
@@ -428,7 +433,38 @@ export const mapAllFields = async (
     input.co_applicant_1_email !== undefined
   ) {
     mapped.co_applicant_1_email =
-      input.coApplicantEmail ?? input.coApplicant1Email ?? input.co_applicant_1_email ?? null;
+      input.coApplicantEmail ??
+      input.coApplicant1Email ??
+      input.co_applicant_1_email ??
+      null;
+  }
+
+  if (
+    input.coApplicantEmail !== undefined ||
+    input.coApplicant1Email !== undefined ||
+    input.co_applicant_1_email !== undefined
+  ) {
+    mapped.co_applicant_1_email =
+      input.coApplicantEmail ??
+      input.coApplicant1Email ??
+      input.co_applicant_1_email ??
+      null;
+  }
+
+  if (
+    input.coApplicant2Email !== undefined ||
+    input.coapplicant_2_email !== undefined
+  ) {
+    mapped.coapplicant_2_email =
+      input.coApplicant2Email ?? input.coapplicant_2_email ?? null;
+  }
+
+  if (
+    input.coApplicant3Email !== undefined ||
+    input.coapplicant_3_email !== undefined
+  ) {
+    mapped.coapplicant_3_email =
+      input.coApplicant3Email ?? input.coapplicant_3_email ?? null;
   }
 
   if (
@@ -440,6 +476,26 @@ export const mapAllFields = async (
       input.coApplicantMobile ??
       input.coApplicant1MobileNumber ??
       input.co_applicant_1_mobile_number ??
+      null;
+  }
+
+  if (
+    input.coApplicant2MobileNumber !== undefined ||
+    input.coapplicant_2_mobile_number !== undefined
+  ) {
+    mapped.coapplicant_2_mobile_number =
+      input.coApplicant2MobileNumber ??
+      input.coapplicant_2_mobile_number ??
+      null;
+  }
+
+  if (
+    input.coApplicant3MobileNumber !== undefined ||
+    input.coapplicant_3_mobile_number !== undefined
+  ) {
+    mapped.coapplicant_3_mobile_number =
+      input.coApplicant3MobileNumber ??
+      input.coapplicant_3_mobile_number ??
       null;
   }
 
@@ -825,8 +881,9 @@ export const mapAllFields = async (
     input.loanAmount !== undefined ||
     input.loan_amount_required !== undefined
   ) {
-    mapped.loan_amount_required =
-      Number(input.loanAmount ?? input.loan_amount_required ?? null);
+    mapped.loan_amount_required = Number(
+      input.loanAmount ?? input.loan_amount_required ?? null
+    );
   }
 
   if (

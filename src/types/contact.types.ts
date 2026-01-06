@@ -114,8 +114,20 @@ export type ContactsLead = {
   co_applicant_1_email?: string | null;
   coApplicant1Email?: string | null;
 
+  coapplicant_2_email?: string | null;
+  coApplicant2Email?: string | null;
+
+  coapplicant_3_email?: string | null;
+  coApplicant3Email?: string | null;
+
   co_applicant_1_mobile_number?: string | null;
   coApplicant1MobileNumber?: string | null;
+
+  coapplicant_2_mobile_number?: string | null;
+  coApplicant2MobileNumber?: string | null;
+
+  coapplicant_3_mobile_number?: string | null;
+  coApplicant3MobileNumber?: string | null;
 
   is_deleted?: boolean | null;
   isDeleted?: boolean | null;
