@@ -384,10 +384,11 @@ export const mapAllLoanProductFields = async (
         : null;
   }
 
-  if (input.lender_id !== undefined) {
+  if (input.lender_db_id !== undefined || input.lender_id !== undefined) {
+    const lenderId = input.lender_db_id ?? input.lender_id;
     mapped.lender_id =
-      input.lender_id !== null && input.lender_id !== ""
-        ? input.lender_id
+      lenderId !== null && lenderId !== ""
+        ? Number(lenderId)
         : null;
   }
 
