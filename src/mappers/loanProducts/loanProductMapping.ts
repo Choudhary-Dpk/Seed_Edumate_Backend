@@ -1092,5 +1092,13 @@ export const mapAllLoanProductFields = async (
         : null;
   }
 
+  if (input.logo_url !== undefined) {
+    mapped.logo_url =
+      input.logo_url !== null &&
+      input.logo_url !== ""
+        ? input.logo_url
+        : null;
+  }
+
   return mapped;
 };
