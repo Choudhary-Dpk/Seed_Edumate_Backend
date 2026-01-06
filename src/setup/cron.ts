@@ -145,7 +145,7 @@ async function dbCleanup(): Promise<void> {
 // ==================================================
 
 // Property Update - Daily at midnight
-cron.schedule("* * * * *", async () => {
+cron.schedule("0 0 * * *", async () => {
   try {
     await propertyUpdate();
   } catch (error: any) {
@@ -154,7 +154,7 @@ cron.schedule("* * * * *", async () => {
 });
 
 // Currency Update - Daily at midnight
-cron.schedule("* * * * *", async () => {
+cron.schedule("0 0 * * *", async () => {
   try {
     await currencyUpdate();
   } catch (error: any) {

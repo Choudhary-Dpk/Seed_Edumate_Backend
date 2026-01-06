@@ -1065,6 +1065,8 @@ model HSEdumateContactsFinancialInfo {
   collateral_2_type           String?
   collateral_2_value          Decimal?          @db.Decimal(16, 4)
   co_applicant_1_name         String?
+  co_applicant_1_email        String?
+  co_applicant_1_mobile_number String?
   co_applicant_1_relationship String?
   co_applicant_1_occupation   String?
   co_applicant_1_income       Decimal?          @db.Decimal(16, 4)
