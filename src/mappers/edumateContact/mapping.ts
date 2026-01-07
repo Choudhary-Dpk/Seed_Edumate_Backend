@@ -533,7 +533,7 @@ export const mapAllFields = async (
 
   if (input.dateOfBirth !== undefined || input.date_of_birth !== undefined) {
     const dob = input.dateOfBirth ?? input.date_of_birth;
-    mapped.date_of_birth = dob;
+    mapped.date_of_birth = dob ? new Date(dob) : null;
   }
 
   if (input.nationality !== undefined) {
