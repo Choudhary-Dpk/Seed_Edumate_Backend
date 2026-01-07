@@ -229,12 +229,10 @@ const VALID_ADMISSION_STATUS = [
 ];
 
 const VALID_CURRENT_EDUCATION_LEVEL = [
-  "High School",
-  "Bachelors",
-  "Masters",
+  "Undergraduate",
+  "MBA",
+  "Specialised Masters",
   "PhD",
-  "Diploma",
-  "Other",
 ];
 
 const VALID_TARGET_DEGREE_LEVEL = [
@@ -246,7 +244,7 @@ const VALID_TARGET_DEGREE_LEVEL = [
 
 export const validateContactRows = (
   rows: any[],
-  userId: number,
+  userId: number
 ): ContactsValidationResult => {
   const validRows: ContactsLead[] = [];
   const errors: { row: number; reason: string }[] = [];
