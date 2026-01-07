@@ -488,6 +488,7 @@ export const getLoanProduct = async (productId: number) => {
 
 interface LoanProductFilters {
   // Existing filters
+  ids?: number[] | null;
   lender_name?: string | null;
   product_type?: string | null;
   product_category?: string | null;
@@ -563,6 +564,12 @@ export const fetchLoanProductsList = async (
       { product_description: { contains: search, mode: "insensitive" } },
       { product_name: { contains: search, mode: "insensitive" } },
     ];
+  }
+
+  if (filters.ids && filters.ids.length > 0) {
+    where.id = {
+      in: filters.ids,
+    };
   }
 
   // Apply basic filters

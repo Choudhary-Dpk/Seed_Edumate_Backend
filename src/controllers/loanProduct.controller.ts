@@ -369,6 +369,7 @@ export const getLoanProductDetails = async (
 
 interface LoanProductFilters {
   // Existing filters
+  ids?: number[] | null;
   lender_name?: string | null;
   product_type?: string | null;
   product_category?: string | null;
@@ -439,6 +440,16 @@ export const getLoanProductsListController = async (
 
     const filters: LoanProductFilters = {
       // Existing filters
+      ids: filtersFromQuery.ids
+        ? Array.isArray(filtersFromQuery.ids)
+          ? filtersFromQuery.ids
+              .map((id: any) => parseInt(id))
+              .filter((id: number) => !isNaN(id))
+          : typeof filtersFromQuery.ids === "string" &&
+            filtersFromQuery.ids.startsWith("[")
+          ? JSON.parse(filtersFromQuery.ids).filter((id: number) => !isNaN(id))
+          : [parseInt(filtersFromQuery.ids)].filter((id: number) => !isNaN(id))
+        : null,
       lender_name: filtersFromQuery.lender_name || null,
       product_type: filtersFromQuery.loan_type || null,
       product_category: filtersFromQuery.product_category || null,
