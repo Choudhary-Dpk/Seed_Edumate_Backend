@@ -18,6 +18,7 @@ import { adminRoutes } from "./routes/admin/index.routes";
 import { startWorkers } from "./workers";
 import { studentRoutes } from "./routes/student.routes";
 import { redirectRoutes } from "./routes/redirect.routes";
+import { setupPm2Logrotate } from "./utils/pm2-logrotate.utils";
 const PORT = process.env.PORT || 3031;
 
 // API Routes
@@ -47,6 +48,8 @@ app.use("*", (req, res) => {
 
 // Error handler
 app.use(errorHandler);
+
+setupPm2Logrotate();
 
 app.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`);
