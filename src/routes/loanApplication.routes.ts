@@ -6,6 +6,7 @@ import {
   deleteLoanApplicationController,
   getLoanApplicationDetailsController,
   getLoanApplicationsListController,
+  getLoanApplicationsList,
 } from "../controllers/loanApplication.controller";
 import { AuthMethod } from "../types/auth";
 
@@ -24,6 +25,13 @@ router.put(
   authenticate({
     method: AuthMethod.JWT,
     allowedRoles: ["Admin", "Manager", "User"],
+  }),
+  updateLoanApplicationController
+);
+router.put(
+  "/edit/:id",
+  authenticate({
+    method: AuthMethod.API_KEY,
   }),
   updateLoanApplicationController
 );
@@ -50,6 +58,14 @@ router.get(
     allowedRoles: ["Admin", "Manager", "User"],
   }),
   getLoanApplicationsListController
+);
+router.get(
+  "/list",
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin", "Manager", "User"],
+  }),
+  getLoanApplicationsList
 );
 
 export { router as loanApplicationRouter };

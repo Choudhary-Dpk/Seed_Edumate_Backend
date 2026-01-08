@@ -1,9 +1,9 @@
 // src/services/emailService.ts
-import nodemailer from 'nodemailer';
-import { EmailConfig, gmailConfig } from '../config/email-config';
-import { generateLoanApplicationEmail } from '../utils/email templates/loanEligibilityResult';
-import { EmailData } from '../types/email.types';
-import { generateEMIRepaymentScheduleEmail } from '../utils/email templates/repaymentScheduleDetails';
+import nodemailer from "nodemailer";
+import { EmailConfig, gmailConfig } from "../config/email-config";
+import { generateLoanApplicationEmail } from "../utils/email templates/loanEligibilityResult";
+import { EmailData } from "../types/email.types";
+import { generateEMIRepaymentScheduleEmail } from "../utils/email templates/repaymentScheduleDetails";
 import { logEmailHistory } from "../models/helpers/email.helper";
 
 export interface EmailOptions {
@@ -46,7 +46,6 @@ export const sendEmail = async (options: EmailOptions): Promise<void> => {
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log("Email sent successfully:", info.messageId);
 
     await logEmailHistory({
       to: Array.isArray(options.to) ? options.to.join(", ") : options.to,

@@ -26,7 +26,11 @@ import {
 import { FRONTEND_URL } from "../setup/secrets";
 import { logEmailHistory } from "../models/helpers/email.helper";
 
-export const getIpInfo = async (req: Request, res: Response) => {
+export const getIpInfo = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const ip =
       (req.query.ip as string) ||
@@ -35,9 +39,9 @@ export const getIpInfo = async (req: Request, res: Response) => {
       "";
 
     const data = await fetchIpDetails(ip);
-    return res.status(200).json(data);
-  } catch (err) {
-    return res.status(500).json({ message: "Failed to fetch IP details" });
+    return sendResponse(res, 200, "Success", data);
+  } catch (error) {
+    next(error);
   }
 };
 export const getAllUsers = async (_: Request, res: Response) => {

@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import logger from "../utils/logger";
 
 const prisma = new PrismaClient();
 
@@ -105,7 +106,7 @@ class EnumMappingService {
         const hubspotValue = lookupMap.get(key) || null;
 
         if (!hubspotValue) {
-          console.log(
+          logger.debug(
             `No mapping found for ${translation.enumName}: "${translation.sourceValue}"`
           );
         }

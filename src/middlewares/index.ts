@@ -35,6 +35,7 @@ import { UAParser } from "ua-parser-js";
 import moment from "moment";
 import { AllowedPemissions } from "../types";
 import { getEdumateContactByEmail } from "../models/helpers/contact.helper";
+import logger from "../utils/logger";
 
 export const validateCreateUser = async (
   req: Request,
@@ -287,7 +288,7 @@ export const getUserIpDetails = async (
     }
 
     const ipDetails = await fetchIpDetails(ip);
-    console.log("ipDetails", ipDetails);
+    logger.debug("ipDetails", ipDetails);
 
     const parser = new UAParser(req.headers["user-agent"] || "");
     const uaResult = parser.getResult();
@@ -300,7 +301,7 @@ export const getUserIpDetails = async (
       device: uaResult.device.type || "desktop",
     };
 
-    console.log("deviceInfo", deviceInfo);
+    logger.debug("deviceInfo", deviceInfo);
 
     req.payload = {
       ...req.payload,

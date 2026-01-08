@@ -100,7 +100,6 @@ async function setupEdumateTriggers() {
 
     console.log("[Edumate Setup] Successfully created:");
     console.log("   - notify_edumate_sync() function");
-    console.log("   - Triggers on all 8 edumate contact tables");
     console.log("   - Listening on 'edumate_sync_channel'");
   } catch (error) {
     console.error("[Edumate Setup] Error:", error.message);

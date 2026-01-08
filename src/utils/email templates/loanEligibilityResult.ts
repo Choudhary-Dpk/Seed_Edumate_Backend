@@ -1,16 +1,27 @@
 import { config } from "../../config/config";
 import { EMAIL_TEMPLATES } from "../../config/email-config";
-import { EligibilityResult, PersonalInfo, FormData, EmailData } from "../../types/email.types";
+import {
+  EligibilityResult,
+  PersonalInfo,
+  FormData,
+  EmailData,
+} from "../../types/email.types";
 
 const edumateLogo = config?.edumate?.logo;
 
 /**
  * Creates a standardized info item for the application summary (2-column layout within sections)
  */
-export const createInfoItem = (label: string, value: string | undefined | null, isLeft: boolean = true): string => {
-  if (!value) return '';
+export const createInfoItem = (
+  label: string,
+  value: string | undefined | null,
+  isLeft: boolean = true
+): string => {
+  if (!value) return "";
   return `
-    <td width="48%" style="vertical-align: top; padding: ${isLeft ? '0 8px 0 0' : '0 0 0 8px'};">
+    <td width="48%" style="vertical-align: top; padding: ${
+      isLeft ? "0 8px 0 0" : "0 0 0 8px"
+    };">
       <div style="background: #ffffff; border-radius: 8px; padding: 16px; margin-bottom: 12px; border: 1px solid #e0f2fe; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
         <div style="font-size: 11px; color: #64748b; margin-bottom: 6px; font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
           ${label}
@@ -26,8 +37,11 @@ export const createInfoItem = (label: string, value: string | undefined | null, 
 /**
  * Creates a single column info item for odd items
  */
-export const createSingleInfoItem = (label: string, value: string | undefined | null): string => {
-  if (!value) return '';
+export const createSingleInfoItem = (
+  label: string,
+  value: string | undefined | null
+): string => {
+  if (!value) return "";
   return `
     <tr>
       <td colspan="2" style="padding: 0;">
@@ -47,32 +61,42 @@ export const createSingleInfoItem = (label: string, value: string | undefined | 
 /**
  * Generates test scores section from exam data (2-column layout)
  */
-export const generateTestScores = (examData: { [key: string]: any } | undefined): string => {
-  if (!examData || Object.keys(examData).length === 0) return '';
-  
-  const scores = Object.entries(examData).filter(([_, examInfo]) => examInfo?.score);
-  let testScoresHTML = '';
-  
+export const generateTestScores = (
+  examData: { [key: string]: any } | undefined
+): string => {
+  if (!examData || Object.keys(examData).length === 0) return "";
+
+  const scores = Object.entries(examData).filter(
+    ([_, examInfo]) => examInfo?.score
+  );
+  let testScoresHTML = "";
+
   for (let i = 0; i < scores.length; i += 2) {
     const [examName1, examInfo1] = scores[i];
     const [examName2, examInfo2] = scores[i + 1] || [null, null];
-    
+
     testScoresHTML += `
       <tr>
         ${createInfoItem(examName1, examInfo1.score, true)}
-        ${examInfo2 ? createInfoItem(examName2, examInfo2.score, false) : '<td width="48%"></td>'}
+        ${
+          examInfo2
+            ? createInfoItem(examName2, examInfo2.score, false)
+            : '<td width="48%"></td>'
+        }
       </tr>
     `;
   }
-  
+
   return testScoresHTML;
 };
 
 /**
  * Generates the status banner section (eligible/non-eligible)
  */
-export const generateStatusBanner = (eligibilityResult?: EligibilityResult): string => {
-  if (!eligibilityResult) return '';
+export const generateStatusBanner = (
+  eligibilityResult?: EligibilityResult
+): string => {
+  if (!eligibilityResult) return "";
 
   const isEligible = eligibilityResult.isEligible;
 
@@ -116,7 +140,8 @@ export const generateStatusBanner = (eligibilityResult?: EligibilityResult): str
 
   // Eligible user banner
   const baseLoanAmount = eligibilityResult.data?.base_loan_amount;
-  const destinationLoanAmount = eligibilityResult.data?.study_destination_loan_amount;
+  const destinationLoanAmount =
+    eligibilityResult.data?.study_destination_loan_amount;
 
   return `
     <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 32px; box-shadow: 10px 10px 16px rgba(0, 0, 0, 0.08);">
@@ -289,23 +314,30 @@ export const generateQuickActions = (): string => {
 /**
  * Generates personal information section (2-column layout within the section)
  */
-export const generatePersonalInfoSection = (personalInfo: PersonalInfo, formdata: FormData): string => {
+export const generatePersonalInfoSection = (
+  personalInfo: PersonalInfo,
+  formdata: FormData
+): string => {
   const items = [
-    { label: 'Full Name', value: personalInfo?.name },
-    { label: 'Email Address', value: personalInfo?.email },
-    { label: 'Phone Number', value: personalInfo?.phone },
-    { label: 'Study Destination', value: formdata?.countryOfStudy }
-  ].filter(item => item.value);
+    { label: "Full Name", value: personalInfo?.name },
+    { label: "Email Address", value: personalInfo?.email },
+    { label: "Phone Number", value: personalInfo?.phone },
+    { label: "Study Destination", value: formdata?.countryOfStudy },
+  ].filter((item) => item.value);
 
-  let itemsHTML = '';
+  let itemsHTML = "";
   for (let i = 0; i < items.length; i += 2) {
     const item1 = items[i];
     const item2 = items[i + 1];
-    
+
     itemsHTML += `
       <tr>
         ${createInfoItem(item1.label, item1.value, true)}
-        ${item2 ? createInfoItem(item2.label, item2.value, false) : '<td width="48%"></td>'}
+        ${
+          item2
+            ? createInfoItem(item2.label, item2.value, false)
+            : '<td width="48%"></td>'
+        }
       </tr>
     `;
   }
@@ -331,28 +363,40 @@ export const generatePersonalInfoSection = (personalInfo: PersonalInfo, formdata
  */
 export const generateEducationLoanSection = (formdata: FormData): string => {
   const basicItems = [
-    { label: 'Education Level', value: formdata?.levelOfEducation },
-    { label: 'Course Type', value: formdata?.courseType },
-    { label: 'Requested Amount', value: formdata?.loanAmount },
-    { label: 'Loan Preference', value: formdata?.loanPreference },
-    { label: 'Intake Period', value: (formdata?.intakeMonth && formdata?.intakeYear) ? `${formdata.intakeMonth} ${formdata.intakeYear}` : undefined }
-  ].filter(item => item.value);
+    { label: "Education Level", value: formdata?.levelOfEducation },
+    { label: "Course Type", value: formdata?.courseType },
+    { label: "Requested Amount", value: formdata?.loanAmount },
+    { label: "Loan Preference", value: formdata?.loanPreference },
+    {
+      label: "Intake Period",
+      value:
+        formdata?.intakeMonth && formdata?.intakeYear
+          ? `${formdata.intakeMonth} ${formdata.intakeYear}`
+          : undefined,
+    },
+  ].filter((item) => item.value);
 
-  let basicItemsHTML = '';
+  let basicItemsHTML = "";
   for (let i = 0; i < basicItems.length; i += 2) {
     const item1 = basicItems[i];
     const item2 = basicItems[i + 1];
-    
+
     basicItemsHTML += `
       <tr>
         ${createInfoItem(item1.label, item1.value, true)}
-        ${item2 ? createInfoItem(item2.label, item2.value, false) : '<td width="48%"></td>'}
+        ${
+          item2
+            ? createInfoItem(item2.label, item2.value, false)
+            : '<td width="48%"></td>'
+        }
       </tr>
     `;
   }
 
   // Generate test scores (2-column layout)
-  const testScoresHTML = generateTestScores(formdata?.analyticalExam) + generateTestScores(formdata?.languageExam);
+  const testScoresHTML =
+    generateTestScores(formdata?.analyticalExam) +
+    generateTestScores(formdata?.languageExam);
 
   return `
     <div style="background: #ffffff; border-radius: 12px; border: 1px solid #e0f2fe; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden; margin-bottom: 24px;">
@@ -375,27 +419,32 @@ export const generateEducationLoanSection = (formdata: FormData): string => {
  * Generates co-applicant information section (2-column layout within the section)
  */
 export const generateCoApplicantSection = (formdata: FormData): string => {
-  const hasCoApplicantData = formdata?.coApplicant || 
-                           formdata?.coApplicantIncomeType || 
-                           formdata?.coApplicantAnnualIncome;
+  const hasCoApplicantData =
+    formdata?.coApplicant ||
+    formdata?.coApplicantIncomeType ||
+    formdata?.coApplicantAnnualIncome;
 
-  let coApplicantContent = '';
-  
+  let coApplicantContent = "";
+
   if (hasCoApplicantData) {
     const items = [
-      { label: 'Co-Applicant', value: formdata?.coApplicant },
-      { label: 'Income Type', value: formdata?.coApplicantIncomeType },
-      { label: 'Annual Income', value: formdata?.coApplicantAnnualIncome }
-    ].filter(item => item.value);
+      { label: "Co-Applicant", value: formdata?.coApplicant },
+      { label: "Income Type", value: formdata?.coApplicantIncomeType },
+      { label: "Annual Income", value: formdata?.coApplicantAnnualIncome },
+    ].filter((item) => item.value);
 
     for (let i = 0; i < items.length; i += 2) {
       const item1 = items[i];
       const item2 = items[i + 1];
-      
+
       coApplicantContent += `
         <tr>
           ${createInfoItem(item1.label, item1.value, true)}
-          ${item2 ? createInfoItem(item2.label, item2.value, false) : '<td width="48%"></td>'}
+          ${
+            item2
+              ? createInfoItem(item2.label, item2.value, false)
+              : '<td width="48%"></td>'
+          }
         </tr>
       `;
     }
@@ -436,7 +485,6 @@ export const generateApplicationSummary = (
   personalInfo: PersonalInfo,
   formdata: FormData
 ): string => {
-  console.log("personalInfo", personalInfo);
   return `
     <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 32px;">
       <tr>
@@ -485,7 +533,6 @@ export const generateApplicationSummary = (
  * Main function to generate complete email HTML
  */
 export const generateLoanApplicationEmail = (data: EmailData): string => {
-  console.log("data", data);
   const { personalInfo, formdata, eligibilityResult } = data;
 
   const companyName = "Edumate";

@@ -1,11 +1,12 @@
-import { 
-  CalculationResult, 
-  MonthlyPayment, 
-  YearlyBreakdown, 
-  LoanDetails, 
-  StrategyConfig, 
-  StrategyType 
-} from '../types/loan-schedule.types';
+import {
+  CalculationResult,
+  MonthlyPayment,
+  YearlyBreakdown,
+  LoanDetails,
+  StrategyConfig,
+  StrategyType,
+} from "../types/loan-schedule.types";
+import logger from "../utils/logger";
 
 const roundTo2 = (num: number): number => Math.round(num * 100) / 100;
 
@@ -13,20 +14,21 @@ const roundTo2 = (num: number): number => Math.round(num * 100) / 100;
  * Calculate standard EMI using compound interest formula
  */
 export const calculateStandardEMI = (
-  principal: number, 
-  annualRate: number, 
+  principal: number,
+  annualRate: number,
   tenureYears: number
 ): number => {
   const monthlyRate = annualRate / 12 / 100;
   const totalMonths = tenureYears * 12;
-  
+
   if (monthlyRate === 0) {
     return principal / totalMonths;
   }
-  
-  const numerator = principal * monthlyRate * Math.pow(1 + monthlyRate, totalMonths);
+
+  const numerator =
+    principal * monthlyRate * Math.pow(1 + monthlyRate, totalMonths);
   const denominator = Math.pow(1 + monthlyRate, totalMonths) - 1;
-  
+
   return numerator / denominator;
 };
 
@@ -40,11 +42,9 @@ export const calculateRepaymentSchedule = (
   tenureYears: number,
   emi: number
 ): CalculationResult => {
-  console.log('calculateRepaymentSchedule called with:', { principal, annualRate, tenureYears, emi });
-  
   const tenureMonths = tenureYears * 12;
   const monthlyRate = annualRate / 100 / 12;
-  
+
   // Initialize tracking variables
   let remainingBalance = principal;
   let cumulativePrincipal = 0;
@@ -55,13 +55,13 @@ export const calculateRepaymentSchedule = (
   for (let month = 1; month <= tenureMonths; month++) {
     let interestPayment = roundTo2(remainingBalance * monthlyRate);
     let principalPayment = roundTo2(emi - interestPayment);
-    
+
     // Final month adjustment to ensure remaining balance = 0.00
     if (month === tenureMonths) {
       principalPayment = roundTo2(remainingBalance);
       emi = roundTo2(principalPayment + interestPayment);
     }
-    
+
     remainingBalance = roundTo2(remainingBalance - principalPayment);
     cumulativePrincipal = roundTo2(cumulativePrincipal + principalPayment);
     cumulativeInterest = roundTo2(cumulativeInterest + interestPayment);
@@ -71,13 +71,19 @@ export const calculateRepaymentSchedule = (
       emi: roundTo2(emi),
       principalPayment,
       interestPayment,
-      remainingBalance: month === tenureMonths ? 0.00 : remainingBalance,
+      remainingBalance: month === tenureMonths ? 0.0 : remainingBalance,
       cumulativePrincipal,
       cumulativeInterest,
     });
   }
 
-  return generateCalculationResult(principal, annualRate, tenureYears, emi, monthlySchedule);
+  return generateCalculationResult(
+    principal,
+    annualRate,
+    tenureYears,
+    emi,
+    monthlySchedule
+  );
 };
 
 /**
@@ -90,48 +96,74 @@ export const calculateRepaymentScheduleWithStrategy = (
   strategyType?: StrategyType,
   strategyConfig?: StrategyConfig
 ): CalculationResult => {
-  console.log('calculateRepaymentScheduleWithStrategy called with:', { 
-    principal, annualRate, tenureYears, strategyType, strategyConfig 
-  });
-
   // If no strategy, use standard calculation
   if (!strategyType) {
-    const standardEMI = calculateStandardEMI(principal, annualRate, tenureYears);
-    return calculateRepaymentSchedule(principal, annualRate, tenureYears, standardEMI);
+    const standardEMI = calculateStandardEMI(
+      principal,
+      annualRate,
+      tenureYears
+    );
+    return calculateRepaymentSchedule(
+      principal,
+      annualRate,
+      tenureYears,
+      standardEMI
+    );
   }
 
   // Handle different strategy types
   switch (strategyType) {
-    case 'stepup':
+    case "stepup":
       const stepUpAmount = strategyConfig?.stepup?.annualIncrease || 0;
-      return calculateStepUpSchedule(principal, annualRate, tenureYears, stepUpAmount);
-      
-    case 'prepayment':
+      return calculateStepUpSchedule(
+        principal,
+        annualRate,
+        tenureYears,
+        stepUpAmount
+      );
+
+    case "prepayment":
       const prepaymentConfig = strategyConfig?.prepayment;
       if (prepaymentConfig) {
         return calculatePrepaymentSchedule(
-          principal, 
-          annualRate, 
-          tenureYears, 
-          prepaymentConfig.amount, 
+          principal,
+          annualRate,
+          tenureYears,
+          prepaymentConfig.amount,
           prepaymentConfig.year
         );
       }
       break;
-      
-    case 'secured':
+
+    case "secured":
       const securedRate = strategyConfig?.secured?.newRate || annualRate;
-      const securedEMI = calculateStandardEMI(principal, securedRate, tenureYears);
-      return calculateRepaymentSchedule(principal, securedRate, tenureYears, securedEMI);
-      
+      const securedEMI = calculateStandardEMI(
+        principal,
+        securedRate,
+        tenureYears
+      );
+      return calculateRepaymentSchedule(
+        principal,
+        securedRate,
+        tenureYears,
+        securedEMI
+      );
+
     default:
-      console.log('Unknown strategy type, falling back to standard calculation');
+      logger.debug(
+        "Unknown strategy type, falling back to standard calculation"
+      );
       break;
   }
 
   // Fallback to standard calculation
   const fallbackEMI = calculateStandardEMI(principal, annualRate, tenureYears);
-  return calculateRepaymentSchedule(principal, annualRate, tenureYears, fallbackEMI);
+  return calculateRepaymentSchedule(
+    principal,
+    annualRate,
+    tenureYears,
+    fallbackEMI
+  );
 };
 
 /**
@@ -143,11 +175,9 @@ export const calculateStepUpSchedule = (
   tenureYears: number,
   annualIncrease: number
 ): CalculationResult => {
-  console.log('calculateStepUpSchedule called with:', { principal, annualRate, tenureYears, annualIncrease });
-
   const monthlyRate = annualRate / 100 / 12;
   const initialEMI = calculateStandardEMI(principal, annualRate, tenureYears);
-  
+
   let remainingBalance = principal;
   let currentEMI = initialEMI;
   let cumulativePrincipal = 0;
@@ -155,18 +185,23 @@ export const calculateStepUpSchedule = (
   const monthlySchedule: MonthlyPayment[] = [];
   let month = 1;
 
-  console.log('Step-up calculation starting with EMI:', initialEMI, 'Annual increase:', annualIncrease);
+  logger.debug(
+    "Step-up calculation starting with EMI:",
+    initialEMI,
+    "Annual increase:",
+    annualIncrease
+  );
 
   while (remainingBalance > 0.01 && month <= tenureYears * 12) {
     // Increase EMI at start of each year (except first year)
     if (month > 1 && (month - 1) % 12 === 0) {
       currentEMI += annualIncrease;
-      console.log(`Month ${month}: EMI increased to ${currentEMI}`);
+      logger.debug(`Month ${month}: EMI increased to ${currentEMI}`);
     }
 
     let interestPayment = roundTo2(remainingBalance * monthlyRate);
     let principalPayment = roundTo2(currentEMI - interestPayment);
-    
+
     // Handle final payment
     if (principalPayment >= remainingBalance) {
       principalPayment = roundTo2(remainingBalance);
@@ -175,7 +210,7 @@ export const calculateStepUpSchedule = (
     } else {
       remainingBalance = roundTo2(remainingBalance - principalPayment);
     }
-    
+
     cumulativePrincipal = roundTo2(cumulativePrincipal + principalPayment);
     cumulativeInterest = roundTo2(cumulativeInterest + interestPayment);
 
@@ -193,9 +228,19 @@ export const calculateStepUpSchedule = (
   }
 
   const actualTenureYears = (month - 1) / 12;
-  console.log('Step-up calculation completed. Actual tenure:', actualTenureYears, 'years');
+  logger.debug(
+    "Step-up calculation completed. Actual tenure:",
+    actualTenureYears,
+    "years"
+  );
 
-  return generateCalculationResult(principal, annualRate, actualTenureYears, initialEMI, monthlySchedule);
+  return generateCalculationResult(
+    principal,
+    annualRate,
+    actualTenureYears,
+    initialEMI,
+    monthlySchedule
+  );
 };
 
 /**
@@ -208,26 +253,35 @@ export const calculatePrepaymentSchedule = (
   prepaymentAmount: number,
   prepaymentYear: number
 ): CalculationResult => {
-  console.log('calculatePrepaymentSchedule called with:', { 
-    principal, annualRate, tenureYears, prepaymentAmount, prepaymentYear 
+  logger.debug("calculatePrepaymentSchedule called with:", {
+    principal,
+    annualRate,
+    tenureYears,
+    prepaymentAmount,
+    prepaymentYear,
   });
 
   const monthlyRate = annualRate / 100 / 12;
   const standardEMI = calculateStandardEMI(principal, annualRate, tenureYears);
   const prepaymentMonth = prepaymentYear * 12;
-  
+
   let remainingBalance = principal;
   let cumulativePrincipal = 0;
   let cumulativeInterest = 0;
   const monthlySchedule: MonthlyPayment[] = [];
   let month = 1;
 
-  console.log('Prepayment calculation starting. EMI:', standardEMI, 'Prepayment in month:', prepaymentMonth);
+  logger.debug(
+    "Prepayment calculation starting. EMI:",
+    standardEMI,
+    "Prepayment in month:",
+    prepaymentMonth
+  );
 
   while (remainingBalance > 0.01 && month <= tenureYears * 12) {
     let interestPayment = roundTo2(remainingBalance * monthlyRate);
     let principalPayment = roundTo2(standardEMI - interestPayment);
-    
+
     // Handle final payment
     if (principalPayment >= remainingBalance) {
       principalPayment = roundTo2(remainingBalance);
@@ -235,7 +289,7 @@ export const calculatePrepaymentSchedule = (
     } else {
       remainingBalance = roundTo2(remainingBalance - principalPayment);
     }
-    
+
     cumulativePrincipal = roundTo2(cumulativePrincipal + principalPayment);
     cumulativeInterest = roundTo2(cumulativeInterest + interestPayment);
 
@@ -254,39 +308,61 @@ export const calculatePrepaymentSchedule = (
       const effectivePrepayment = Math.min(prepaymentAmount, remainingBalance);
       remainingBalance = roundTo2(remainingBalance - effectivePrepayment);
       cumulativePrincipal = roundTo2(cumulativePrincipal + effectivePrepayment);
-      
+
       // Update the current month's remaining balance
-      monthlySchedule[monthlySchedule.length - 1].remainingBalance = remainingBalance;
-      
-      console.log(`Month ${month}: Applied prepayment of ${effectivePrepayment}. New balance: ${remainingBalance}`);
+      monthlySchedule[monthlySchedule.length - 1].remainingBalance =
+        remainingBalance;
+
+      logger.debug(
+        `Month ${month}: Applied prepayment of ${effectivePrepayment}. New balance: ${remainingBalance}`
+      );
     }
 
     month++;
   }
 
   const actualTenureYears = (month - 1) / 12;
-  console.log('Prepayment calculation completed. Actual tenure:', actualTenureYears, 'years');
+  logger.debug(
+    "Prepayment calculation completed. Actual tenure:",
+    actualTenureYears,
+    "years"
+  );
 
-  return generateCalculationResult(principal, annualRate, actualTenureYears, standardEMI, monthlySchedule);
+  return generateCalculationResult(
+    principal,
+    annualRate,
+    actualTenureYears,
+    standardEMI,
+    monthlySchedule
+  );
 };
 
 /**
  * Generate yearly breakdown from monthly schedule
  */
-const generateYearlyBreakdown = (monthlySchedule: MonthlyPayment[]): YearlyBreakdown[] => {
+const generateYearlyBreakdown = (
+  monthlySchedule: MonthlyPayment[]
+): YearlyBreakdown[] => {
   const yearlyBreakdown: YearlyBreakdown[] = [];
   const actualYears = Math.ceil(monthlySchedule.length / 12);
-  
+
   for (let year = 1; year <= actualYears; year++) {
     const yearStartMonth = (year - 1) * 12 + 1;
     const yearEndMonth = Math.min(year * 12, monthlySchedule.length);
-    
+
     const yearMonths = monthlySchedule.slice(yearStartMonth - 1, yearEndMonth);
-    
-    const totalEMI = roundTo2(yearMonths.reduce((sum, month) => sum + month.emi, 0));
-    const totalPrincipal = roundTo2(yearMonths.reduce((sum, month) => sum + month.principalPayment, 0));
-    const totalInterest = roundTo2(yearMonths.reduce((sum, month) => sum + month.interestPayment, 0));
-    const remainingBalance = yearMonths[yearMonths.length - 1]?.remainingBalance || 0;
+
+    const totalEMI = roundTo2(
+      yearMonths.reduce((sum, month) => sum + month.emi, 0)
+    );
+    const totalPrincipal = roundTo2(
+      yearMonths.reduce((sum, month) => sum + month.principalPayment, 0)
+    );
+    const totalInterest = roundTo2(
+      yearMonths.reduce((sum, month) => sum + month.interestPayment, 0)
+    );
+    const remainingBalance =
+      yearMonths[yearMonths.length - 1]?.remainingBalance || 0;
 
     yearlyBreakdown.push({
       year,
@@ -310,9 +386,13 @@ const generateCalculationResult = (
   monthlyEMI: number,
   monthlySchedule: MonthlyPayment[]
 ): CalculationResult => {
-  const totalAmount = roundTo2(monthlySchedule.reduce((sum, month) => sum + month.emi, 0));
-  const totalInterest = roundTo2(monthlySchedule.reduce((sum, month) => sum + month.interestPayment, 0));
-  
+  const totalAmount = roundTo2(
+    monthlySchedule.reduce((sum, month) => sum + month.emi, 0)
+  );
+  const totalInterest = roundTo2(
+    monthlySchedule.reduce((sum, month) => sum + month.interestPayment, 0)
+  );
+
   const yearlyBreakdown = generateYearlyBreakdown(monthlySchedule);
 
   const loanDetails: LoanDetails = {
@@ -324,11 +404,11 @@ const generateCalculationResult = (
     totalInterest,
   };
 
-  console.log('Calculation result generated:', {
+  logger.debug("Calculation result generated:", {
     monthlyScheduleLength: monthlySchedule.length,
     yearlyBreakdownLength: yearlyBreakdown.length,
     totalAmount,
-    totalInterest
+    totalInterest,
   });
 
   return {
