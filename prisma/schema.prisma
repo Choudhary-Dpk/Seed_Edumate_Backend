@@ -2354,6 +2354,24 @@ model ShortUrl {
   @@map("short_urls")
 }
 
+model Testimonials {
+  id          Int      @id @default(autoincrement())
+  name        String?   @db.VarChar(255)
+  university  String?   @db.VarChar(255)
+  country     String?   @db.VarChar(100)
+  course      String?   @db.VarChar(255)
+  loan_amount String?  @db.VarChar(255)
+  rating      Int?      @default(5) @db.SmallInt
+  quote       String?   @db.Text
+  image       String?  @db.Text
+  is_active   Boolean  @default(true)
+  is_deleted  Boolean  @default(false)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@map("testimonials")
+}
+
 enum AuditAction {
   CREATE
   UPDATE
