@@ -19,8 +19,8 @@ import { startWorkers } from "./workers";
 import { studentRoutes } from "./routes/student.routes";
 import { redirectRoutes } from "./routes/redirect.routes";
 import { setupPm2Logrotate } from "./utils/pm2-logrotate.utils";
+import { testimonialRoutes } from "./routes/testimonials.route";
 import { sendResponse } from "./utils/api";
-import { testimonialRoutes } from "./routes/testimonial.routes";
 const PORT = process.env.PORT || 3031;
 
 // API Routes
@@ -38,7 +38,7 @@ app.use("/commission", commissionRoutes);
 app.use("/lenders", lenderRoutes);
 app.use("/admin", adminRoutes);
 app.use("/student", studentRoutes);
-app.use("/testimonials", testimonialRoutes);
+app.use("/testimonials", testimonialRoutes)
 app.use("/", redirectRoutes);
 
 // 404 handler
