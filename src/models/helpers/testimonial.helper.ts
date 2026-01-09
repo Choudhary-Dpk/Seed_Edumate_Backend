@@ -18,14 +18,14 @@ export const createTestimonial = async (data: any) => {
 };
 
 export const getTestimonials = async (limit: number, offset: number) => {
-  const where = { is_deleted: false };
+  const where = { is_deleted: false, is_active: true };
 
   const [rows, count] = await Promise.all([
     prisma.testimonials.findMany({
       where,
       skip: offset,
       take: limit,
-      orderBy: { created_at: "desc" },
+      orderBy: { created_at: "asc" },
     }),
     prisma.testimonials.count({ where }),
   ]);
