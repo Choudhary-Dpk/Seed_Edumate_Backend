@@ -108,7 +108,6 @@ function sendNotification(
 // Fetch all loan products with pagination
 async function fetchLoanProducts(logger?: LogFunction): Promise<Product[]> {
   const logMsg = (msg: string) => {
-    console.log(msg);
     if (logger) logger("property-update", msg);
   };
 
@@ -163,7 +162,6 @@ async function updateMultiCheckboxProperty(
   logger?: LogFunction
 ): Promise<any> {
   const logMsg = (msg: string) => {
-    console.log(msg);
     if (logger) logger("property-update", msg);
   };
 
@@ -230,7 +228,6 @@ export async function updatePropertySync(logger?: LogFunction): Promise<void> {
   const startTime = Date.now();
 
   const logMsg = (msg: string) => {
-    console.log(msg);
     if (logger) logger("property-update", msg);
   };
 

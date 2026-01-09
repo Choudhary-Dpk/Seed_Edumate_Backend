@@ -8,6 +8,10 @@ import {
   getInstitutionProgram,
 } from "../controllers/loan.controller";
 import { AuthMethod } from "../types/auth";
+import {
+  loanEligibilityValidation,
+  validateReqParams,
+} from "../middlewares/validators/validator";
 
 const router = Router();
 
@@ -16,6 +20,8 @@ router.post(
   authenticate({
     method: AuthMethod.API_KEY,
   }),
+  loanEligibilityValidation(),
+  validateReqParams,
   checkLoanEligibility
 );
 

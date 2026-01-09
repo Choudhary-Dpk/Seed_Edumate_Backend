@@ -79,11 +79,6 @@ export const validateSettlementIds = async (
   try {
     let commission_settlement_ids = req.body.commission_settlement_ids;
 
-    console.log("Raw body:", req.body);
-    console.log("File:", req.file);
-    console.log("commission_settlement_ids (raw):", commission_settlement_ids);
-    console.log("Type:", typeof commission_settlement_ids);
-
     // Check if commission_settlement_ids is provided
     if (!commission_settlement_ids) {
       return sendResponse(res, 400, "Commission settlement IDs are required");
@@ -176,13 +171,12 @@ export const validateSettlementIds = async (
         (id) => !foundIds.includes(id)
       );
 
-      return res.status(404).json({
-        success: false,
-        message:
-          "Some commission settlement IDs do not exist or are inactive/deleted",
-        missingIds: missingIds,
-        foundIds: foundIds,
-      });
+      return sendResponse(
+        res,
+        404,
+        "Some commission settlement IDs do not exist or are inactive/deleted",
+        { missingIds, foundIds }
+      );
     }
 
     // Attach validated settlements to request object for use in controller
@@ -191,7 +185,6 @@ export const validateSettlementIds = async (
       settlementIds: settlementIdsArray,
     };
 
-    console.log("=== VALIDATION SUCCESS ===");
     next();
   } catch (error: any) {
     console.error("Error validating settlement IDs:", error);

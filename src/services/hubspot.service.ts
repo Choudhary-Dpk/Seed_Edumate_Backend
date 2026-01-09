@@ -805,8 +805,6 @@ export const updateContactsLoanLead = async (
   leads: ContactsLead
 ) => {
   try {
-    // const hubspotMappedData = await mapToHubSpotProperties(leads);
-    // console.log("hubspotMappedData",hubspotMappedData)
     const response = await hubspotClient.updateContactsLoanLeadInHubspot(
       leadId,
       leads

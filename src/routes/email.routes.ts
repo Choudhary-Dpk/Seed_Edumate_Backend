@@ -21,7 +21,12 @@ router.post(
   }),
   sendLoanEligibilityResult
 );
-router.post("/password-reset", validatePasswordReset, sendPasswordReset);
+router.post(
+  "/password-reset",
+  validatePasswordReset,
+  validateReqParams,
+  sendPasswordReset
+);
 router.post(
   "/",
   validEmailValidator(),

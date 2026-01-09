@@ -424,11 +424,7 @@ export const updateLoanApplicationController = async (
       return application;
     });
 
-    res.status(200).json({
-      success: true,
-      message: "Loan application updated successfully",
-      data: data,
-    });
+    sendResponse(res, 200, "Loan application updated successfully", data);
   } catch (error) {
     logger.error(`Error updating loan application: ${error}`);
     next(error);
@@ -529,8 +525,6 @@ export const getLeadsViewList = async (
       loanProduct: filtersFromQuery.loanProduct || null,
       status: filtersFromQuery.status || null,
     };
-
-    console.log("Parsed filters:", filters);
 
     const offset = size * (page - 1);
 

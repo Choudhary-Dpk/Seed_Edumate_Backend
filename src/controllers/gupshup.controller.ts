@@ -3,6 +3,7 @@ import * as gupshupService from "../services/gupshup.service";
 import { ApiResponse } from "../types";
 import { asyncHandler } from "../middlewares/errorHandler";
 import logger from "../utils/logger";
+import { sendResponse } from "../utils/api";
 
 export const processAssignmentWebhook = asyncHandler(
   async (req: Request, res: Response) => {
@@ -49,11 +50,11 @@ export const sendOtp = asyncHandler(async (req: Request, res: Response) => {
   const { country_code, number, otp_code } = req.body;
 
   if (!country_code || !number || !otp_code) {
-    res.status(400).json({
-      success: false,
-      message: "country_code, number, and otp_code are required",
-    });
-    return;
+    return sendResponse(
+      res,
+      400,
+      "country_code, number, and otp_code are required"
+    );
   }
 
   logger.info("Sending WhatsApp OTP", {

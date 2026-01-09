@@ -261,7 +261,6 @@ const processCurrencyBatch = async (
   logger?: LogFunction
 ) => {
   const logMsg = (msg: string) => {
-    console.log(msg);
     if (logger) logger("currency-update", msg);
   };
 
@@ -309,7 +308,6 @@ const processCurrencyBatch = async (
 export async function updateExchangeRates(logger?: LogFunction): Promise<void> {
   if (isRunning) {
     const msg = "Already running, skipping...";
-    console.log(msg);
     if (logger) logger("currency-update", msg);
     return;
   }
@@ -318,7 +316,6 @@ export async function updateExchangeRates(logger?: LogFunction): Promise<void> {
   isRunning = true;
 
   const logMsg = (msg: string) => {
-    console.log(msg);
     if (logger) logger("currency-update", msg);
   };
 

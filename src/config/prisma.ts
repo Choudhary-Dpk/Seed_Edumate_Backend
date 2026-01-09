@@ -8,7 +8,6 @@ export const checkPrismaConnection = async () => {
   try {
     await basePrisma.$connect();
     console.log(" Prisma connected successfully");
-    console.log(" Audit tracking enabled");
   } catch (error) {
     if (error instanceof Error) {
       console.error(

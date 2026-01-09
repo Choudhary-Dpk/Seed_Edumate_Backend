@@ -324,7 +324,6 @@ export const getLendersListController = async (
     const sortKey = (req.query.sortKey as string) || null;
     const sortDir = (req.query.sortDir as "asc" | "desc") || null;
     const search = (req.query.search as string) || null;
-    console.log("req.query", req.query);
 
     // Extract filters from query params
     const filtersFromQuery =
@@ -339,7 +338,6 @@ export const getLendersListController = async (
       lender_type: filtersFromQuery.lender_type || null,
       lender_category: filtersFromQuery.lender_category || null,
     };
-    console.log("filters", filters);
 
     const offset = (page - 1) * size;
 

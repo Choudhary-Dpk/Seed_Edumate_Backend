@@ -1,4 +1,5 @@
 import Multer from "multer";
+import logger from "../utils/logger";
 
 const multer = (sizeInMb: number, fileTypes?: string[]) =>
   Multer({
@@ -8,7 +9,7 @@ const multer = (sizeInMb: number, fileTypes?: string[]) =>
       fieldSize: sizeInMb * 1024 * 1024,
     },
     fileFilter: (req, file, cb) => {
-      console.log("File received:", {
+      logger.debug("File received:", {
         originalname: file.originalname,
         mimetype: file.mimetype,
         fieldname: file.fieldname,
