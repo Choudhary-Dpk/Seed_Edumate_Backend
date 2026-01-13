@@ -206,6 +206,7 @@ export const generateRepaymentScheduleAndEmail = async (
 ): Promise<void> => {
   try {
     const payload: RepaymentScheduleRequest = req?.body || {};
+    console.log("payload", payload);
 
     // Extract fields with backward compatibility
     const {
@@ -285,7 +286,7 @@ export const generateRepaymentScheduleAndEmail = async (
     let pdfFileName: string | undefined;
     let pdfBase64: string | undefined;
     let pdfBuffer: Buffer | undefined;
-    let pdfError: string | undefined; // ✅ Track PDF errors
+    let pdfError: string | undefined;
 
     // Try PDF generation - don't fail if it errors
     try {
@@ -305,9 +306,7 @@ export const generateRepaymentScheduleAndEmail = async (
       pdfBase64 = pdfBuffer.toString("base64");
 
       logger.debug(
-        "PDF generated successfully, size:",
-        pdfBuffer.length,
-        "bytes"
+        `PDF generated successfully, size: ${pdfBuffer.length} bytes, file: ${pdfFileName}`
       );
     } catch (error) {
       console.error("PDF generation failed, continuing without PDF:", error);
@@ -319,7 +318,7 @@ export const generateRepaymentScheduleAndEmail = async (
     // Send email (with or without PDF)
     if (sendEmail && email) {
       try {
-        logger.debug("Sending email...");
+        logger.debug(`Preparing to send email to: ${email} (${name})`);
 
         const emailSubject = strategyType
           ? `${subject} - ${getStrategyDisplayName(strategyType)}`
@@ -342,7 +341,9 @@ export const generateRepaymentScheduleAndEmail = async (
             pdfBuffer,
             pdfFileName,
           });
-          logger.debug("Email sent with PDF attachment to:", email);
+          logger.debug(
+            `Email with PDF sent to: ${email} | PDF: ${pdfFileName} (${pdfBuffer.length} bytes)`
+          );
         } else {
           // Send without PDF if generation failed
           await sendRepaymentScheduleEmail({
@@ -354,18 +355,29 @@ export const generateRepaymentScheduleAndEmail = async (
             pdfBuffer: undefined as any,
             pdfFileName: undefined as any,
           });
-          logger.debug("Email sent without PDF to:", email);
+          logger.debug(
+            `Email without PDF sent to: ${email} | Reason: ${
+              pdfError || "PDF not generated"
+            }`
+          );
         }
 
         emailResponse = {
           to: email,
           subject: emailSubject,
           sentAt: new Date().toISOString(),
-          hasPdfAttachment: !!pdfBuffer, // ✅ Flag if PDF was included
+          hasPdfAttachment: !!pdfBuffer,
         };
 
-        logger.debug("Email sent successfully to:", email);
+        logger.debug(
+          `Email delivery confirmed: ${email} at ${emailResponse.sentAt}`
+        );
       } catch (error) {
+        logger.error(
+          `Email sending failed for: ${email} - ${
+            error instanceof Error ? error.message : String(error)
+          }`
+        );
         next(error);
       }
     }
@@ -406,6 +418,12 @@ export const generateRepaymentScheduleAndEmail = async (
       firstKey && processedRequests.delete(firstKey);
     }
 
+    logger.info(
+      `✓ Repayment schedule generated for ${email} | RequestID: ${requestId} | Strategy: ${
+        strategyType || "standard"
+      } | PDF: ${!!pdfBuffer ? "✓" : "✗"}${pdfError ? ` (${pdfError})` : ""}`
+    );
+
     // Always return success if calculation succeeded
     sendResponse(
       res,
@@ -416,10 +434,14 @@ export const generateRepaymentScheduleAndEmail = async (
       response
     );
   } catch (error) {
+    logger.error(
+      `✗ Error in generateRepaymentScheduleAndEmail: ${
+        error instanceof Error ? error.message : String(error)
+      }`
+    );
     next(error);
   }
 };
-
 /**
  * Helper function to get user-friendly strategy names
  */
