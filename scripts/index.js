@@ -32,10 +32,6 @@ async function setupAllTriggers() {
     console.log("✓ Loan triggers created\n");
 
     console.log(" All triggers setup completed successfully!\n");
-    console.log("Summary:");
-    console.log("   • Total Functions: 3");
-    console.log("   • Total Triggers: 33");
-    console.log("   • Total Channels: 3\n");
   } catch (error) {
     console.error("\n Error setting up triggers:", error.message);
     console.error(error.stack);

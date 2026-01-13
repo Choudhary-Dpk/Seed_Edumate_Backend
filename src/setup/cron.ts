@@ -29,7 +29,6 @@ function log(taskName: string, message: string): void {
 
   const timestamp = now.toISOString();
   fs.appendFileSync(logFile, `[${timestamp}] ${message}\n`);
-  console.log(`[${taskName}] ${message}`);
 }
 
 // Send email notification
@@ -161,16 +160,6 @@ cron.schedule("0 0 * * *", async () => {
     log("currency-update", `Failed: ${error.message}`);
   }
 });
-
-// ==================================================
-// STARTUP
-// ==================================================
-
-console.log("✓ Cron Manager Started");
-console.log("✓ Property Update: Daily at midnight");
-console.log("✓ Currency Update: Daily at midnight");
-console.log("✓ DB Cleanup: Sunday at 3 AM");
-console.log("✓ Logs: ./logs/");
 
 log("manager", "Cron manager started");
 

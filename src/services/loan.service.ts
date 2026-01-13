@@ -1,5 +1,4 @@
 import prisma from "../config/prisma";
-import { LoanEligibilityRequest } from "../middlewares/validators/loan.validator";
 import logger from "../utils/logger";
 
 export interface LoanEligibilityResult {
@@ -42,7 +41,7 @@ const EXTRACT_COSTS_API_URL =
   process.env.EXTRACT_COSTS_API_URL || "http://43.205.69.172:8086";
 
 export const findLoanEligibility = async (
-  data: LoanEligibilityRequest
+  data: any
 ): Promise<LoanEligibilityResult | null> => {
   try {
     const {
@@ -215,7 +214,7 @@ export const extractProgramDetails = async (
       );
     }
 
-    const result = await response.json() as ExtractProgramResponse;
+    const result = (await response.json()) as ExtractProgramResponse;
 
     logger.info("Extract program API response received", {
       institution_name,

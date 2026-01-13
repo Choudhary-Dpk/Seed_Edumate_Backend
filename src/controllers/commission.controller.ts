@@ -454,7 +454,6 @@ export const getCommissionSettlementsByLead = async (
 ) => {
   try {
     const leadId = parseInt(req.query.leadId as string);
-    console.log("leadId", leadId);
     if (!leadId || isNaN(leadId)) {
       return sendResponse(res, 400, "Invalid leadId provided", null);
     }
@@ -490,11 +489,6 @@ export const uploadInvoiceController = async (
   try {
     const { status = "pending", date } = req.body;
     const file = req.file;
-
-    console.log("=== CONTROLLER DEBUG ===");
-    console.log("File:", file);
-    console.log("Body:", req.body);
-
     // Check if file is uploaded
     if (!file) {
       return sendResponse(res, 400, "Invoice file is required");
@@ -533,9 +527,6 @@ export const uploadInvoiceController = async (
 
     // Generate file URL
     const fileUrl = `${BACKEND_URL}/uploads/invoices/${fileName}`;
-
-    console.log("File saved:", filePath);
-
     // Create invoice record - extract data from first settlement
     const invoice = await prisma.invoice.create({
       data: {
@@ -558,8 +549,6 @@ export const uploadInvoiceController = async (
         loan_product: true,
       },
     });
-
-    console.log("Invoice created:", invoice.id);
 
     // Generate invoice number
     const invoiceNumber = req.body.invoice_number || `${invoice.id}`;

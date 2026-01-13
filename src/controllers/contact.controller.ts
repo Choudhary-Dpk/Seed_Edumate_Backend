@@ -53,7 +53,6 @@ export const createContactsLead = async (
   next: NextFunction
 ) => {
   try {
-    console.log("body", req.body);
     const id = req.payload?.id || null;
     let data: any = {};
     let leadAttribution: any;
@@ -559,7 +558,6 @@ export const downloadContactsTemplate = (
 ) => {
   try {
     const filePath = resolveLeadsCsvPath("contacts.csv");
-    console.log("filePath", filePath);
     // Download as contacts_leads.csv
     res.download(filePath, "contacts_leads.csv", (err) => {
       if (err) return next(err);

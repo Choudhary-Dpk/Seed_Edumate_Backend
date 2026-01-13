@@ -694,3 +694,51 @@ export const createUserValidator = [
 export const validEmailValidator = () => [
   body("email").isEmail().withMessage("Valid email is required"),
 ];
+
+export const loanEligibilityValidation = () => [
+  body("country_of_study")
+    .notEmpty()
+    .withMessage("Country of study is required")
+    .isString()
+    .withMessage("Country of study must be a string")
+    .isLength({ max: 100 })
+    .withMessage("Country of study must not exceed 100 characters"),
+
+  body("level_of_education")
+    .notEmpty()
+    .withMessage("Level of education is required")
+    .isString()
+    .withMessage("Level of education must be a string")
+    .isLength({ max: 50 })
+    .withMessage("Level of education must not exceed 50 characters"),
+
+  body("course_type")
+    .notEmpty()
+    .withMessage("Course type is required")
+    .isString()
+    .withMessage("Course type must be a string")
+    .isLength({ max: 100 })
+    .withMessage("Course type must not exceed 100 characters"),
+
+  body("analytical_exam_name")
+    .optional({ values: "null" })
+    .isString()
+    .withMessage("Analytical exam name must be a string")
+    .isLength({ max: 50 })
+    .withMessage("Analytical exam name must not exceed 50 characters"),
+
+  body("language_exam_name")
+    .optional({ values: "null" })
+    .isString()
+    .withMessage("Language exam name must be a string")
+    .isLength({ max: 50 })
+    .withMessage("Language exam name must not exceed 50 characters"),
+
+  body("preference")
+    .notEmpty()
+    .withMessage("Preference is required")
+    .isString()
+    .withMessage("Preference must be a string")
+    .isLength({ max: 20 })
+    .withMessage("Preference must not exceed 20 characters"),
+];

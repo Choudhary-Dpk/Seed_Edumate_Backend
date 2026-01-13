@@ -14,7 +14,7 @@ const CONCURRENCY = 10;
 const RATE_LIMIT = 100;
 const FALLBACK_CHECK_INTERVAL = 30000;
 
-const CHANNEL_NAME = "loan_sync_channel"; // Define channel name as constant
+const CHANNEL_NAME = "loan_sync_channel";
 
 const loanSyncQueue = new PQueue({
   concurrency: CONCURRENCY,

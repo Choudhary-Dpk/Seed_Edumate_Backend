@@ -440,8 +440,6 @@ export const getLeadsByPartnerFieldsController = async (
 ) => {
   try {
     const filters = req.query;
-    console.log("filters", filters);
-
     const leads = await getLeadsByDynamicFilters(filters);
 
     sendResponse(res, 200, "Leads fetched successfully", leads);

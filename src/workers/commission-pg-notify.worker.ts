@@ -1,6 +1,6 @@
 import PQueue from "p-queue";
 import prisma from "../config/prisma";
-import { getInstance, registerChannel } from "../config/pg-notify-client"; // Import shared client
+import { getInstance, registerChannel } from "../config/pg-notify-client";
 import logger from "../utils/logger";
 import {
   createCommissionSettlementsOnHubspot,
@@ -14,10 +14,7 @@ const CONCURRENCY = 10;
 const RATE_LIMIT = 100;
 const FALLBACK_CHECK_INTERVAL = 30000;
 
-const CHANNEL_NAME = "commission_sync_channel"; // Define channel name as constant
-
-// REMOVED: const commissionPgClient = new Client({ ... });
-// Now using shared client from pg-notify-client
+const CHANNEL_NAME = "commission_sync_channel";
 
 const commissionSyncQueue = new PQueue({
   concurrency: CONCURRENCY,

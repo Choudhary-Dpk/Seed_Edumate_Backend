@@ -120,7 +120,6 @@ async function setupLoanTriggers() {
 
     console.log("[Loan Setup] Successfully created:");
     console.log("   - notify_loan_sync() function");
-    console.log("   - Triggers on all 12 loan application tables");
     console.log("   - Listening on 'loan_sync_channel'");
   } catch (error) {
     console.error("[Loan Setup] Error:", error.message);

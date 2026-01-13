@@ -125,7 +125,6 @@ async function setupCommissionTriggers() {
 
     console.log("[Commission Setup] Successfully created:");
     console.log("   - notify_commission_sync() function");
-    console.log("   - Triggers on all 13 commission settlement tables");
     console.log("   - Listening on 'commission_sync_channel'");
   } catch (error) {
     console.error("[Commission Setup] Error:", error.message);

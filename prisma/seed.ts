@@ -1142,17 +1142,33 @@ const seedLenderEnumMappings = async () => {
         },
         {
           enumMappingId: dataSourceEnum.id,
-          sourceValue: "API Integration",
-          hubspotValue: "API Integration",
-          displayLabel: "API Integration",
+          sourceValue: "API",
+          hubspotValue: "API",
+          displayLabel: "API",
           sortOrder: 3,
+          isActive: true,
+        },
+        {
+          enumMappingId: dataSourceEnum.id,
+          sourceValue: "Website Form",
+          hubspotValue: "Website Form",
+          displayLabel: "Website Form",
+          sortOrder: 4,
+          isActive: true,
+        },
+        {
+          enumMappingId: dataSourceEnum.id,
+          sourceValue: "Partner Integration",
+          hubspotValue: "Partner Integration",
+          displayLabel: "Partner Integration",
+          sortOrder: 5,
           isActive: true,
         },
       ],
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Data Source seeded (3 values)");
+    console.log("Data Source seeded (5 values)");
 
     console.log("\n Seeding Lender Record Status...");
     const recordStatusEnum = await prisma.enumMapping.upsert({
@@ -5164,26 +5180,18 @@ const seedEdumateContactEnumMappings = async () => {
       data: [
         {
           enumMappingId: currentEducationLevelEnum.id,
-          sourceValue: "High School",
-          hubspotValue: "High School",
-          displayLabel: "High School",
+          sourceValue: "Undergraduate",
+          hubspotValue: "Undergraduate",
+          displayLabel: "Undergraduate",
           sortOrder: 1,
           isActive: true,
         },
         {
           enumMappingId: currentEducationLevelEnum.id,
-          sourceValue: "Bachelors",
-          hubspotValue: "Bachelors",
-          displayLabel: "Bachelors",
+          sourceValue: "MBA",
+          hubspotValue: "MBA",
+          displayLabel: "MBA",
           sortOrder: 2,
-          isActive: true,
-        },
-        {
-          enumMappingId: currentEducationLevelEnum.id,
-          sourceValue: "Masters",
-          hubspotValue: "Masters",
-          displayLabel: "Masters",
-          sortOrder: 3,
           isActive: true,
         },
         {
@@ -5191,30 +5199,22 @@ const seedEdumateContactEnumMappings = async () => {
           sourceValue: "PhD",
           hubspotValue: "PhD",
           displayLabel: "PhD",
+          sortOrder: 3,
+          isActive: true,
+        },
+        {
+          enumMappingId: currentEducationLevelEnum.id,
+          sourceValue: "Specialised Masters",
+          hubspotValue: "Specialised Masters",
+          displayLabel: "Specialised Masters",
           sortOrder: 4,
-          isActive: true,
-        },
-        {
-          enumMappingId: currentEducationLevelEnum.id,
-          sourceValue: "Diploma",
-          hubspotValue: "Diploma",
-          displayLabel: "Diploma",
-          sortOrder: 5,
-          isActive: true,
-        },
-        {
-          enumMappingId: currentEducationLevelEnum.id,
-          sourceValue: "Other",
-          hubspotValue: "Other",
-          displayLabel: "Other",
-          sortOrder: 6,
           isActive: true,
         },
       ],
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Current Education Level seeded (6 values)");
+    console.log(" Current Education Level seeded (4 values)");
 
     // ===== 3. INTENDED START TERM =====
     console.log("\n📚 Seeding Intended Start Term...");
@@ -7639,10 +7639,10 @@ const seedEdumateContactEnumMappings = async () => {
     console.log("\n📋 ENUM VALUES COUNT:");
     console.log("   ACADEMIC INFORMATION GROUP:");
     console.log("   1. Admission Status: 6 values");
-    console.log("   2. Current Education Level: 6 values");
+    console.log("   2. Current Education Level: 4 values");
     console.log("   3. Intended Start Term: 4 values");
     console.log("   4. Preferred Study Destination: 15 values");
-    console.log("   5. Target Degree Level: 6 values");
+    console.log("   5. Target Degree Level: 4 values");
 
     console.log("\n   APPLICATION JOURNEY GROUP:");
     console.log("   6. Current Status Disposition: 6 values");
@@ -7768,18 +7768,10 @@ const seedLoanApplicationEnumMappings = async () => {
         },
         {
           enumMappingId: admissionStatusEnum.id,
-          sourceValue: "Deferred",
-          hubspotValue: "Deferred",
-          displayLabel: "Deferred",
-          sortOrder: 6,
-          isActive: true,
-        },
-        {
-          enumMappingId: admissionStatusEnum.id,
           sourceValue: "Interview Scheduled",
           hubspotValue: "Interview Scheduled",
           displayLabel: "Interview Scheduled",
-          sortOrder: 7,
+          sortOrder: 6,
           isActive: true,
         },
       ],

@@ -22,7 +22,6 @@ export const validateContactsLeadPayload = async (
     }
 
     const existingContact = await getEdumateContactByPhone(phone_number);
-    console.log("existingContact", existingContact);
     if (existingContact && existingContact.is_deleted === false) {
       return sendResponse(res, 400, "Phone number already exists");
     }
@@ -41,9 +40,6 @@ export const validateContactLeadById = async (
 ) => {
   try {
     const id = req.params.id;
-    console.log(req.params);
-    console.log("id", id);
-
     const leadDetails = await getContactLeadById(+id);
     if (!leadDetails || leadDetails.is_deleted === true) {
       return sendResponse(res, 404, "Lead not found");

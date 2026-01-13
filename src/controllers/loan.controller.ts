@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import {
   calculateRepaymentSchedule,
   calculateRepaymentScheduleWithStrategy,
@@ -10,7 +10,6 @@ import {
   RepaymentScheduleResponse,
   RepaymentScheduleRequest,
 } from "../types/loan-schedule.types";
-import { validateLoanEligibility } from "../middlewares/validators/loan.validator";
 import {
   convertCurrency,
   extractInstitutionCosts,
@@ -21,31 +20,17 @@ import {
 } from "../services/loan.service";
 import { sendResponse } from "../utils/api";
 import { generateRequestIdFromPayload } from "../utils/helper";
+import logger from "../utils/logger";
 
 export const checkLoanEligibility = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ): Promise<void> => {
   try {
     const payload = req?.body || {};
-    // Validate the request body
-    const validation = validateLoanEligibility(payload);
 
-    if (!validation.success) {
-      res.status(400).json({
-        success: false,
-        message: "Validation failed",
-        errors: validation?.error?.issues.map((err) => ({
-          field: err.path.join("."),
-          message: err.message,
-        })),
-      });
-      return;
-    }
-
-    // Find loan eligibility
     const result = await findLoanEligibility(payload);
-
     if (!result) {
       return sendResponse(
         res,
@@ -54,7 +39,6 @@ export const checkLoanEligibility = async (
       );
     }
 
-    // Return successful result
     sendResponse(res, 200, "Loan eligibility found", [
       {
         loan_amount: result?.loan_amount,
@@ -62,16 +46,15 @@ export const checkLoanEligibility = async (
       },
     ]);
   } catch (error) {
-    console.error("Error in checkLoanEligibility:", error);
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-      error: error instanceof Error ? error.message : "Unknown error occurred",
-    });
+    next(error);
   }
 };
 
-export const getConvertedCurrency = async (req: Request, res: Response) => {
+export const getConvertedCurrency = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const amountParam = req.query.amount as string;
     const from = req.query.from as string;
@@ -91,10 +74,11 @@ export const getConvertedCurrency = async (req: Request, res: Response) => {
     }
 
     const converted = await convertCurrency(numericAmount, from, to);
-    return res.status(200).json({ convertedAmount: converted });
-  } catch (err) {
-    console.error(err);
-    return sendResponse(res, 500, "Currency conversion failed");
+    return sendResponse(res, 200, "Currency converted successfully", {
+      convertedAmount: converted,
+    });
+  } catch (error) {
+    next(error);
   }
 };
 
@@ -104,7 +88,8 @@ export const getConvertedCurrency = async (req: Request, res: Response) => {
  */
 export const getInstitutionCosts = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ): Promise<void> => {
   try {
     const payload: ExtractCostsRequest = req?.body || {};
@@ -113,10 +98,11 @@ export const getInstitutionCosts = async (
 
     // Validation
     if (!institution_name || !study_level) {
-      res.status(400).json({
-        success: false,
-        message: "Missing required fields: institution_name, study_level",
-      });
+      sendResponse(
+        res,
+        400,
+        "Missing required fields: institution_name, study_level"
+      );
       return;
     }
 
@@ -128,12 +114,11 @@ export const getInstitutionCosts = async (
       "phd",
     ];
     if (!validStudyLevels.includes(study_level.toLowerCase())) {
-      res.status(400).json({
-        success: false,
-        message: `Invalid study_level. Must be one of: ${validStudyLevels.join(
-          ", "
-        )}`,
-      });
+      sendResponse(
+        res,
+        400,
+        `Invalid study_level. Must be one of: ${validStudyLevels.join(", ")}`
+      );
       return;
     }
 
@@ -151,37 +136,7 @@ export const getInstitutionCosts = async (
     // Return successful result
     sendResponse(res, 200, "Institution costs extracted successfully", result);
   } catch (error) {
-    console.error("Error in getInstitutionCosts:", error);
-
-    // Handle specific error types
-    if (error instanceof Error) {
-      if (error.message.includes("API returned")) {
-        res.status(502).json({
-          success: false,
-          message: "External API error",
-          error: error.message,
-        });
-        return;
-      }
-
-      if (
-        error.message.includes("fetch") ||
-        error.message.includes("network")
-      ) {
-        res.status(503).json({
-          success: false,
-          message: "External service unavailable",
-          error: error.message,
-        });
-        return;
-      }
-    }
-
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-      error: error instanceof Error ? error.message : "Unknown error occurred",
-    });
+    next(error);
   }
 };
 
@@ -191,7 +146,8 @@ export const getInstitutionCosts = async (
  */
 export const getInstitutionProgram = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ): Promise<void> => {
   try {
     const payload: ExtractProgramRequest = req?.body || {};
@@ -200,27 +156,22 @@ export const getInstitutionProgram = async (
 
     // Validation
     if (!institution_name || !program_name) {
-      res.status(400).json({
-        success: false,
-        message: "Missing required fields: institution_name, program_name",
-      });
+      sendResponse(
+        res,
+        400,
+        "Missing required fields: institution_name, program_name"
+      );
       return;
     }
 
     // Validate minimum length for meaningful queries
     if (institution_name.trim().length < 3) {
-      res.status(400).json({
-        success: false,
-        message: "institution_name must be at least 3 characters",
-      });
+      sendResponse(res, 400, "institution_name must be at least 3 characters");
       return;
     }
 
     if (program_name.trim().length < 3) {
-      res.status(400).json({
-        success: false,
-        message: "program_name must be at least 3 characters",
-      });
+      sendResponse(res, 400, "program_name must be at least 3 characters");
       return;
     }
 
@@ -238,37 +189,7 @@ export const getInstitutionProgram = async (
     // Return successful result
     sendResponse(res, 200, "Program details extracted successfully", result);
   } catch (error) {
-    console.error("Error in getInstitutionProgram:", error);
-
-    // Handle specific error types
-    if (error instanceof Error) {
-      if (error.message.includes("API returned")) {
-        res.status(502).json({
-          success: false,
-          message: "External API error",
-          error: error.message,
-        });
-        return;
-      }
-
-      if (
-        error.message.includes("fetch") ||
-        error.message.includes("network")
-      ) {
-        res.status(503).json({
-          success: false,
-          message: "External service unavailable",
-          error: error.message,
-        });
-        return;
-      }
-    }
-
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-      error: error instanceof Error ? error.message : "Unknown error occurred",
-    });
+    next(error);
   }
 };
 
@@ -280,11 +201,12 @@ const processedRequests = new Map<string, RepaymentScheduleResponse>();
  */
 export const generateRepaymentScheduleAndEmail = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ): Promise<void> => {
   try {
     const payload: RepaymentScheduleRequest = req?.body || {};
-    console.log("Received request payload:", JSON.stringify(payload, null, 2));
+    console.log("payload", payload);
 
     // Extract fields with backward compatibility
     const {
@@ -306,22 +228,13 @@ export const generateRepaymentScheduleAndEmail = async (
 
     // Validation
     if (!principal || !annualRate || !tenureYears || !name || !email) {
-      res.status(400).json({
-        success: false,
-        message:
-          "Missing required fields: principal, annualRate, tenureYears, name, email",
-      });
+      sendResponse(
+        res,
+        400,
+        "Missing required fields: principal, annualRate, tenureYears, name, email"
+      );
       return;
     }
-
-    console.log("Processing loan calculation:", {
-      principal,
-      annualRate,
-      tenureYears,
-      hasEmi: !!emi,
-      strategyType,
-      hasStrategyConfig: !!strategyConfig,
-    });
 
     const requestId = generateRequestIdFromPayload(payload);
     const customerDetails = { name, email, mobileNumber, address };
@@ -329,7 +242,6 @@ export const generateRepaymentScheduleAndEmail = async (
     // Check for idempotency - if request was already processed
     if (processedRequests.has(requestId)) {
       const cachedResponse = processedRequests.get(requestId)!;
-      console.log("Returning cached response for requestId:", requestId);
       return sendResponse(
         res,
         200,
@@ -342,7 +254,6 @@ export const generateRepaymentScheduleAndEmail = async (
 
     // Determine calculation method based on input
     if (strategyType && strategyConfig) {
-      console.log("Using strategy-based calculation:", strategyType);
       calculationResult = calculateRepaymentScheduleWithStrategy(
         principal,
         annualRate,
@@ -351,7 +262,6 @@ export const generateRepaymentScheduleAndEmail = async (
         strategyConfig
       );
     } else if (emi) {
-      console.log("Using legacy EMI-based calculation:", emi);
       calculationResult = calculateRepaymentSchedule(
         principal,
         annualRate,
@@ -359,7 +269,6 @@ export const generateRepaymentScheduleAndEmail = async (
         emi
       );
     } else {
-      console.log("Using standard calculation (no EMI provided)");
       const standardEMI = calculateStandardEMI(
         principal,
         annualRate,
@@ -373,24 +282,15 @@ export const generateRepaymentScheduleAndEmail = async (
       );
     }
 
-    console.log("Calculation completed:", {
-      strategyType,
-      originalTenure: tenureYears,
-      calculatedTenure: calculationResult.loanDetails.tenureYears,
-      monthlyEMI: calculationResult.loanDetails.monthlyEMI,
-      totalInterest: calculationResult.loanDetails.totalInterest,
-      monthlyScheduleLength: calculationResult.monthlySchedule.length,
-    });
-
     let emailResponse;
     let pdfFileName: string | undefined;
     let pdfBase64: string | undefined;
     let pdfBuffer: Buffer | undefined;
-    let pdfError: string | undefined; // ✅ Track PDF errors
+    let pdfError: string | undefined;
 
     // Try PDF generation - don't fail if it errors
     try {
-      console.log("Generating PDF...");
+      logger.debug("Generating PDF...");
 
       const pdfMetadata = {
         fromName,
@@ -405,10 +305,8 @@ export const generateRepaymentScheduleAndEmail = async (
       pdfFileName = pdfResult.fileName;
       pdfBase64 = pdfBuffer.toString("base64");
 
-      console.log(
-        "PDF generated successfully, size:",
-        pdfBuffer.length,
-        "bytes"
+      logger.debug(
+        `PDF generated successfully, size: ${pdfBuffer.length} bytes, file: ${pdfFileName}`
       );
     } catch (error) {
       console.error("PDF generation failed, continuing without PDF:", error);
@@ -420,7 +318,7 @@ export const generateRepaymentScheduleAndEmail = async (
     // Send email (with or without PDF)
     if (sendEmail && email) {
       try {
-        console.log("Sending email...");
+        logger.debug(`Preparing to send email to: ${email} (${name})`);
 
         const emailSubject = strategyType
           ? `${subject} - ${getStrategyDisplayName(strategyType)}`
@@ -443,7 +341,9 @@ export const generateRepaymentScheduleAndEmail = async (
             pdfBuffer,
             pdfFileName,
           });
-          console.log("Email sent with PDF attachment to:", email);
+          logger.debug(
+            `Email with PDF sent to: ${email} | PDF: ${pdfFileName} (${pdfBuffer.length} bytes)`
+          );
         } else {
           // Send without PDF if generation failed
           await sendRepaymentScheduleEmail({
@@ -455,19 +355,30 @@ export const generateRepaymentScheduleAndEmail = async (
             pdfBuffer: undefined as any,
             pdfFileName: undefined as any,
           });
-          console.log("Email sent without PDF to:", email);
+          logger.debug(
+            `Email without PDF sent to: ${email} | Reason: ${
+              pdfError || "PDF not generated"
+            }`
+          );
         }
 
         emailResponse = {
           to: email,
           subject: emailSubject,
           sentAt: new Date().toISOString(),
-          hasPdfAttachment: !!pdfBuffer, // ✅ Flag if PDF was included
+          hasPdfAttachment: !!pdfBuffer,
         };
 
-        console.log("Email sent successfully to:", email);
-      } catch (emailError) {
-        console.error("Email sending failed:", emailError);
+        logger.debug(
+          `Email delivery confirmed: ${email} at ${emailResponse.sentAt}`
+        );
+      } catch (error) {
+        logger.error(
+          `Email sending failed for: ${email} - ${
+            error instanceof Error ? error.message : String(error)
+          }`
+        );
+        next(error);
       }
     }
 
@@ -507,7 +418,11 @@ export const generateRepaymentScheduleAndEmail = async (
       firstKey && processedRequests.delete(firstKey);
     }
 
-    console.log("Response prepared successfully for requestId:", requestId);
+    logger.info(
+      `✓ Repayment schedule generated for ${email} | RequestID: ${requestId} | Strategy: ${
+        strategyType || "standard"
+      } | PDF: ${!!pdfBuffer ? "✓" : "✗"}${pdfError ? ` (${pdfError})` : ""}`
+    );
 
     // Always return success if calculation succeeded
     sendResponse(
@@ -519,15 +434,14 @@ export const generateRepaymentScheduleAndEmail = async (
       response
     );
   } catch (error) {
-    console.error("Error in generateRepaymentScheduleAndEmail:", error);
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-      error: error instanceof Error ? error.message : "Unknown error occurred",
-    });
+    logger.error(
+      `✗ Error in generateRepaymentScheduleAndEmail: ${
+        error instanceof Error ? error.message : String(error)
+      }`
+    );
+    next(error);
   }
 };
-
 /**
  * Helper function to get user-friendly strategy names
  */
