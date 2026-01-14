@@ -557,8 +557,7 @@ export const fetchLoanProductsList = async (
     filters.interest_rate !== null ||
     filters.interest_rate_max !== null ||
     filters.loan_amount_min !== null ||
-    filters.loan_amount_max !== null ||
-    filters.processing_fee_max !== null
+    filters.loan_amount_max !== null
   ) {
     where.financial_terms = {};
 
@@ -583,9 +582,6 @@ export const fetchLoanProductsList = async (
     } else if (filters.interest_rate !== null) {
       // Only min specified - products starting at or above this rate
       financialTermsConditions.push({
-        // interest_rate_range_min: {
-        //   lte: filters.interest_rate,
-        // },
         interest_rate_range_max: {
           gte: filters.interest_rate,
         },
@@ -762,13 +758,6 @@ export const fetchLoanProductsList = async (
     if (financialTermsConditions.length > 0) {
       where.financial_terms.AND = financialTermsConditions;
     }
-
-    // ✅ Processing fee (separate from AND logic)
-    if (filters.processing_fee_max !== null) {
-      where.financial_terms.processing_fee_percentage = {
-        lte: filters.processing_fee_max,
-      };
-    }
   }
 
   // Eligibility criteria filters
@@ -816,6 +805,7 @@ export const fetchLoanProductsList = async (
       };
     }
   }
+
   // Geographic coverage filters
   if (
     filters.supported_course_types ||
@@ -912,8 +902,7 @@ export const fetchLoanProductsList = async (
   // Repayment terms filters
   if (
     filters.repayment_period_min !== null ||
-    filters.repayment_period_max !== null ||
-    filters.moratorium_available !== null
+    filters.repayment_period_max !== null
   ) {
     where.repayment_terms = {};
 
@@ -926,12 +915,6 @@ export const fetchLoanProductsList = async (
     if (filters.repayment_period_max !== null) {
       where.repayment_terms.repayment_period_maximum = {
         lte: filters.repayment_period_max,
-      };
-    }
-
-    if (filters.moratorium_available !== null && filters.moratorium_available) {
-      where.repayment_terms.moratorium_period = {
-        gt: 0,
       };
     }
   }
@@ -1044,7 +1027,30 @@ export const fetchLoanProductsList = async (
     prisma.hSLoanProducts.count({ where }),
   ]);
 
-  return { rows, count };
+  // ✅ POST-FETCH FILTERING for string fields that store numeric values
+  let filteredRows = rows;
+
+  // Filter by processing fee (string field that contains numeric value)
+  if (filters.processing_fee_max !== null) {
+    filteredRows = filteredRows.filter((row) => {
+      const feeStr = row.financial_terms?.processing_fee_percentage;
+      if (!feeStr) return true; // Include products with no fee specified
+      const fee = parseFloat(feeStr);
+      return !isNaN(fee) && fee <= filters.processing_fee_max!;
+    });
+  }
+
+  // Filter by moratorium availability (string field that contains numeric value)
+  if (filters.moratorium_available !== null && filters.moratorium_available) {
+    filteredRows = filteredRows.filter((row) => {
+      const periodStr = row.repayment_terms?.moratorium_period;
+      if (!periodStr) return false; // Exclude if no moratorium period
+      const period = parseFloat(periodStr);
+      return !isNaN(period) && period > 0;
+    });
+  }
+
+  return { rows: filteredRows, count: filteredRows.length };
 };
 
 export const checkLoanProductFields = async (
