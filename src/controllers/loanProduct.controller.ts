@@ -385,15 +385,15 @@ export const getLoanProductsListController = async (
 
     const filters: LoanProductFilters = {
       // Existing filters
-      ids: filtersFromQuery.ids
-        ? Array.isArray(filtersFromQuery.ids)
-          ? filtersFromQuery.ids
-              .map((id: any) => parseInt(id))
-              .filter((id: number) => !isNaN(id))
-          : typeof filtersFromQuery.ids === "string" &&
-            filtersFromQuery.ids.startsWith("[")
-          ? JSON.parse(filtersFromQuery.ids).filter((id: number) => !isNaN(id))
-          : [parseInt(filtersFromQuery.ids)].filter((id: number) => !isNaN(id))
+      ids: filtersFromQuery.interested
+        ? Array.isArray(filtersFromQuery.interested)
+          ? filtersFromQuery.interested
+            .map((id: any) => parseInt(id))
+            .filter((id: number) => !isNaN(id))
+          : typeof filtersFromQuery.interested === "string" &&
+            filtersFromQuery.interested.startsWith("[")
+            ? JSON.parse(filtersFromQuery.interested).filter((id: number) => !isNaN(id))
+            : [parseInt(filtersFromQuery.interested)].filter((id: number) => !isNaN(id))
         : null,
       lender_name: filtersFromQuery.lender_name || null,
       product_type: filtersFromQuery.loan_type || null,
