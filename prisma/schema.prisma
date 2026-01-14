@@ -1485,7 +1485,7 @@ model HSLoanProductsFinancialTerms {
   interest_rate_range_min       Decimal?       @db.Decimal(16, 4)
   interest_rate_type            String?
   legal_charges                 Decimal?       @db.Decimal(16, 4)
-  loan_to_value_ratio           Decimal?       @db.Decimal(16, 4)
+  loan_to_value_ratio           String?
   margin_money_percentage       Decimal?       @db.Decimal(16, 4)
   maximum_loan_amount_secured   Decimal?       @db.Decimal(16, 4)
   maximum_loan_amount_unsecured Decimal?       @db.Decimal(16, 4)
@@ -1494,7 +1494,7 @@ model HSLoanProductsFinancialTerms {
   processing_fee_amount         Decimal?       @db.Decimal(16, 4)
   processing_fee_maximum        Decimal?       @db.Decimal(16, 4)
   processing_fee_minimum        Decimal?       @db.Decimal(16, 4)
-  processing_fee_percentage     Decimal?       @db.Decimal(16, 4)
+  processing_fee_percentage     String?
   processing_fee_type           String?
   rack_rate                     Decimal?       @db.Decimal(16, 4)
   valuation_charges             Decimal?       @db.Decimal(16, 4)
@@ -1542,10 +1542,10 @@ model HSLoanProductsPerformanceMetrics {
 model HSLoanProductsRepaymentTerms {
   id                        Int            @id @default(autoincrement())
   product_id                Int            @unique
-  bounce_charges            Decimal?       @db.Decimal(16, 4)
+  bounce_charges            String?
   foreclosure_charges       String?
   late_payment_charges      String?
-  moratorium_period         Int?
+  moratorium_period         String?
   moratorium_type           String?
   part_payment_allowed      String?
   part_payment_minimum      Decimal?       @db.Decimal(16, 4)
