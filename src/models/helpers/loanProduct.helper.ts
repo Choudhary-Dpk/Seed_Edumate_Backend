@@ -511,6 +511,10 @@ export const fetchLoanProductsList = async (
     ];
   }
 
+  if (Array.isArray(filters.ids) && filters.ids.length === 0) {
+    return { rows: [], count: 0 };
+  }
+
   if (filters.ids && filters.ids.length > 0) {
     where.id = {
       in: filters.ids,
