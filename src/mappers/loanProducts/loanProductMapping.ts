@@ -508,7 +508,7 @@ export const mapAllLoanProductFields = async (
   if (input.hs_object_source_detail_1 !== undefined) {
     mapped.hs_object_source_detail_1 =
       input.hs_object_source_detail_1 !== null &&
-      input.hs_object_source_detail_1 !== ""
+        input.hs_object_source_detail_1 !== ""
         ? input.hs_object_source_detail_1
         : null;
   }
@@ -516,7 +516,7 @@ export const mapAllLoanProductFields = async (
   if (input.hs_object_source_detail_2 !== undefined) {
     mapped.hs_object_source_detail_2 =
       input.hs_object_source_detail_2 !== null &&
-      input.hs_object_source_detail_2 !== ""
+        input.hs_object_source_detail_2 !== ""
         ? input.hs_object_source_detail_2
         : null;
   }
@@ -524,7 +524,7 @@ export const mapAllLoanProductFields = async (
   if (input.hs_object_source_detail_3 !== undefined) {
     mapped.hs_object_source_detail_3 =
       input.hs_object_source_detail_3 !== null &&
-      input.hs_object_source_detail_3 !== ""
+        input.hs_object_source_detail_3 !== ""
         ? input.hs_object_source_detail_3
         : null;
   }
@@ -532,7 +532,7 @@ export const mapAllLoanProductFields = async (
   if (input.hs_object_source_label !== undefined) {
     mapped.hs_object_source_label =
       input.hs_object_source_label !== null &&
-      input.hs_object_source_label !== ""
+        input.hs_object_source_label !== ""
         ? input.hs_object_source_label
         : null;
   }
@@ -554,7 +554,7 @@ export const mapAllLoanProductFields = async (
   if (input.hubspot_owner_assigneddate !== undefined) {
     mapped.hubspot_owner_assigneddate =
       input.hubspot_owner_assigneddate !== null &&
-      input.hubspot_owner_assigneddate !== ""
+        input.hubspot_owner_assigneddate !== ""
         ? input.hubspot_owner_assigneddate
         : null;
   }
@@ -577,7 +577,7 @@ export const mapAllLoanProductFields = async (
   if (input.system_tracking_created_by !== undefined) {
     mapped.system_tracking_created_by =
       input.system_tracking_created_by !== null &&
-      input.system_tracking_created_by !== ""
+        input.system_tracking_created_by !== ""
         ? input.system_tracking_created_by
         : null;
   }
@@ -647,7 +647,7 @@ export const mapAllLoanProductFields = async (
   if (input.minimum_percentage_required !== undefined) {
     mapped.minimum_percentage_required =
       input.minimum_percentage_required !== null &&
-      input.minimum_percentage_required !== ""
+        input.minimum_percentage_required !== ""
         ? input.minimum_percentage_required
         : null;
   }
@@ -676,7 +676,7 @@ export const mapAllLoanProductFields = async (
   if (input.co_applicant_income_criteria !== undefined) {
     mapped.co_applicant_income_criteria =
       input.co_applicant_income_criteria !== null &&
-      input.co_applicant_income_criteria !== ""
+        input.co_applicant_income_criteria !== ""
         ? input.co_applicant_income_criteria
         : null;
   }
@@ -692,7 +692,7 @@ export const mapAllLoanProductFields = async (
   if (input.collateral_threshold_amount !== undefined) {
     mapped.collateral_threshold_amount =
       input.collateral_threshold_amount !== null &&
-      input.collateral_threshold_amount !== ""
+        input.collateral_threshold_amount !== ""
         ? input.collateral_threshold_amount
         : null;
   }
@@ -700,7 +700,7 @@ export const mapAllLoanProductFields = async (
   if (input.insurance_coverage_percentage !== undefined) {
     mapped.insurance_coverage_percentage =
       input.insurance_coverage_percentage !== null &&
-      input.insurance_coverage_percentage !== ""
+        input.insurance_coverage_percentage !== ""
         ? input.insurance_coverage_percentage
         : null;
   }
@@ -716,7 +716,7 @@ export const mapAllLoanProductFields = async (
   if (input.repayment_period_maximum !== undefined) {
     mapped.repayment_period_maximum =
       input.repayment_period_maximum !== null &&
-      input.repayment_period_maximum !== ""
+        input.repayment_period_maximum !== ""
         ? input.repayment_period_maximum
         : null;
   }
@@ -724,7 +724,7 @@ export const mapAllLoanProductFields = async (
   if (input.repayment_period_minimum !== undefined) {
     mapped.repayment_period_minimum =
       input.repayment_period_minimum !== null &&
-      input.repayment_period_minimum !== ""
+        input.repayment_period_minimum !== ""
         ? input.repayment_period_minimum
         : null;
   }
@@ -739,7 +739,7 @@ export const mapAllLoanProductFields = async (
   if (input.prepayment_lock_in_period !== undefined) {
     mapped.prepayment_lock_in_period =
       input.prepayment_lock_in_period !== null &&
-      input.prepayment_lock_in_period !== ""
+        input.prepayment_lock_in_period !== ""
         ? input.prepayment_lock_in_period
         : null;
   }
@@ -831,7 +831,7 @@ export const mapAllLoanProductFields = async (
   if (input.not_supported_universities !== undefined) {
     mapped.not_supported_universities =
       input.not_supported_universities !== null &&
-      input.not_supported_universities !== ""
+        input.not_supported_universities !== ""
         ? input.not_supported_universities
         : null;
   }
@@ -846,7 +846,7 @@ export const mapAllLoanProductFields = async (
   if (input.course_duration_minimum !== undefined) {
     mapped.course_duration_minimum =
       input.course_duration_minimum !== null &&
-      input.course_duration_minimum !== ""
+        input.course_duration_minimum !== ""
         ? input.course_duration_minimum
         : null;
   }
@@ -854,7 +854,7 @@ export const mapAllLoanProductFields = async (
   if (input.course_duration_maximum !== undefined) {
     mapped.course_duration_maximum =
       input.course_duration_maximum !== null &&
-      input.course_duration_maximum !== ""
+        input.course_duration_maximum !== ""
         ? input.course_duration_maximum
         : null;
   }
@@ -885,7 +885,7 @@ export const mapAllLoanProductFields = async (
   if (input.insurance_coverage_included !== undefined) {
     mapped.insurance_coverage_included =
       input.insurance_coverage_included !== null &&
-      input.insurance_coverage_included !== ""
+        input.insurance_coverage_included !== ""
         ? input.insurance_coverage_included
         : null;
   }
@@ -901,7 +901,7 @@ export const mapAllLoanProductFields = async (
   if (input.application_volume_monthly !== undefined) {
     mapped.application_volume_monthly =
       input.application_volume_monthly !== null &&
-      input.application_volume_monthly !== ""
+        input.application_volume_monthly !== ""
         ? input.application_volume_monthly
         : null;
   }
@@ -909,7 +909,7 @@ export const mapAllLoanProductFields = async (
   if (input.application_volume_quarterly !== undefined) {
     mapped.application_volume_quarterly =
       input.application_volume_quarterly !== null &&
-      input.application_volume_quarterly !== ""
+        input.application_volume_quarterly !== ""
         ? input.application_volume_quarterly
         : null;
   }
@@ -917,7 +917,7 @@ export const mapAllLoanProductFields = async (
   if (input.application_volume_yearly !== undefined) {
     mapped.application_volume_yearly =
       input.application_volume_yearly !== null &&
-      input.application_volume_yearly !== ""
+        input.application_volume_yearly !== ""
         ? input.application_volume_yearly
         : null;
   }
@@ -939,7 +939,7 @@ export const mapAllLoanProductFields = async (
   if (input.average_processing_days !== undefined) {
     mapped.average_processing_days =
       input.average_processing_days !== null &&
-      input.average_processing_days !== ""
+        input.average_processing_days !== ""
         ? input.average_processing_days
         : null;
   }
@@ -947,7 +947,7 @@ export const mapAllLoanProductFields = async (
   if (input.customer_satisfaction_rating !== undefined) {
     mapped.customer_satisfaction_rating =
       input.customer_satisfaction_rating !== null &&
-      input.customer_satisfaction_rating !== ""
+        input.customer_satisfaction_rating !== ""
         ? input.customer_satisfaction_rating
         : null;
   }
@@ -955,7 +955,7 @@ export const mapAllLoanProductFields = async (
   if (input.product_popularity_score !== undefined) {
     mapped.product_popularity_score =
       input.product_popularity_score !== null &&
-      input.product_popularity_score !== ""
+        input.product_popularity_score !== ""
         ? input.product_popularity_score
         : null;
   }
@@ -964,25 +964,41 @@ export const mapAllLoanProductFields = async (
   if (input.technical_documentation_url !== undefined) {
     mapped.technical_documentation_url =
       input.technical_documentation_url !== null &&
-      input.technical_documentation_url !== ""
+        input.technical_documentation_url !== ""
         ? input.technical_documentation_url
         : null;
   }
 
   // === FINANCIAL TERMS FIELDS ===
-  if (input.interest_rate_range_min !== undefined) {
-    mapped.interest_rate_range_min =
-      input.interest_rate_range_min !== null &&
-      input.interest_rate_range_min !== ""
-        ? input.interest_rate_range_min
+  if (input.interest_rate_range_min_secured !== undefined) {
+    mapped.interest_rate_range_min_secured =
+      input.interest_rate_range_min_secured !== null &&
+        input.interest_rate_range_min_secured !== ""
+        ? input.interest_rate_range_min_secured
         : null;
   }
 
-  if (input.interest_rate_range_max !== undefined) {
-    mapped.interest_rate_range_max =
-      input.interest_rate_range_max !== null &&
-      input.interest_rate_range_max !== ""
-        ? input.interest_rate_range_max
+  if (input.interest_rate_range_min_unsecured !== undefined) {
+    mapped.interest_rate_range_min_unsecured =
+      input.interest_rate_range_min_unsecured !== null &&
+        input.interest_rate_range_min_unsecured !== ""
+        ? input.interest_rate_range_min_unsecured
+        : null;
+  }
+
+  if (input.interest_rate_range_max_secured !== undefined) {
+    mapped.interest_rate_range_max_secured =
+      input.interest_rate_range_max_secured !== null &&
+        input.interest_rate_range_max_secured !== ""
+        ? input.interest_rate_range_max_secured
+        : null;
+  }
+
+  if (input.interest_rate_range_max_unsecured !== undefined) {
+    mapped.interest_rate_range_max_unsecured =
+      input.interest_rate_range_max_unsecured !== null &&
+        input.interest_rate_range_max_unsecured !== ""
+        ? input.interest_rate_range_max_unsecured
         : null;
   }
 
@@ -1017,7 +1033,7 @@ export const mapAllLoanProductFields = async (
   if (input.processing_fee_percentage !== undefined) {
     mapped.processing_fee_percentage =
       input.processing_fee_percentage !== null &&
-      input.processing_fee_percentage !== ""
+        input.processing_fee_percentage !== ""
         ? input.processing_fee_percentage
         : null;
   }
@@ -1032,7 +1048,7 @@ export const mapAllLoanProductFields = async (
   if (input.processing_fee_minimum !== undefined) {
     mapped.processing_fee_minimum =
       input.processing_fee_minimum !== null &&
-      input.processing_fee_minimum !== ""
+        input.processing_fee_minimum !== ""
         ? input.processing_fee_minimum
         : null;
   }
@@ -1040,7 +1056,7 @@ export const mapAllLoanProductFields = async (
   if (input.processing_fee_maximum !== undefined) {
     mapped.processing_fee_maximum =
       input.processing_fee_maximum !== null &&
-      input.processing_fee_maximum !== ""
+        input.processing_fee_maximum !== ""
         ? input.processing_fee_maximum
         : null;
   }
@@ -1048,7 +1064,7 @@ export const mapAllLoanProductFields = async (
   if (input.administrative_charges !== undefined) {
     mapped.administrative_charges =
       input.administrative_charges !== null &&
-      input.administrative_charges !== ""
+        input.administrative_charges !== ""
         ? input.administrative_charges
         : null;
   }
@@ -1056,7 +1072,7 @@ export const mapAllLoanProductFields = async (
   if (input.margin_money_percentage !== undefined) {
     mapped.margin_money_percentage =
       input.margin_money_percentage !== null &&
-      input.margin_money_percentage !== ""
+        input.margin_money_percentage !== ""
         ? input.margin_money_percentage
         : null;
   }
@@ -1064,7 +1080,7 @@ export const mapAllLoanProductFields = async (
   if (input.maximum_loan_amount___secured !== undefined) {
     mapped.maximum_loan_amount_secured =
       input.maximum_loan_amount___secured !== null &&
-      input.maximum_loan_amount___secured !== ""
+        input.maximum_loan_amount___secured !== ""
         ? input.maximum_loan_amount___secured
         : null;
   }
@@ -1072,7 +1088,7 @@ export const mapAllLoanProductFields = async (
   if (input.maximum_loan_amount___unsecured !== undefined) {
     mapped.maximum_loan_amount_unsecured =
       input.maximum_loan_amount___unsecured !== null &&
-      input.maximum_loan_amount___unsecured !== ""
+        input.maximum_loan_amount___unsecured !== ""
         ? input.maximum_loan_amount___unsecured
         : null;
   }
@@ -1080,7 +1096,7 @@ export const mapAllLoanProductFields = async (
   if (input.minimum_loan_amount___secured !== undefined) {
     mapped.minimum_loan_amount_secured =
       input.minimum_loan_amount___secured !== null &&
-      input.minimum_loan_amount___secured !== ""
+        input.minimum_loan_amount___secured !== ""
         ? input.minimum_loan_amount___secured
         : null;
   }
@@ -1088,15 +1104,48 @@ export const mapAllLoanProductFields = async (
   if (input.minimum_loan_amount___unsecured !== undefined) {
     mapped.minimum_loan_amount_unsecured =
       input.minimum_loan_amount___unsecured !== null &&
-      input.minimum_loan_amount___unsecured !== ""
+        input.minimum_loan_amount___unsecured !== ""
         ? input.minimum_loan_amount___unsecured
         : null;
   }
 
+  if (input.maximum_loan_amount_secured !== undefined) {
+    mapped.maximum_loan_amount_secured =
+      input.maximum_loan_amount_secured !== null &&
+        input.maximum_loan_amount_secured !== ""
+        ? input.maximum_loan_amount_secured
+        : null;
+  }
+
+  if (input.maximum_loan_amount_unsecured !== undefined) {
+    mapped.minimum_loan_amount_unsecured =
+      input.maximum_loan_amount_unsecured !== null &&
+        input.maximum_loan_amount_unsecured !== ""
+        ? input.maximum_loan_amount_unsecured
+        : null;
+  }
+
+  if (input.minimum_loan_amount_secured !== undefined) {
+    mapped.minimum_loan_amount_secured =
+      input.minimum_loan_amount_secured !== null &&
+        input.minimum_loan_amount_secured !== ""
+        ? input.minimum_loan_amount_secured
+        : null;
+  }
+
+  if (input.minimum_loan_amount_unsecured !== undefined) {
+    mapped.minimum_loan_amount_unsecured =
+      input.minimum_loan_amount_unsecured !== null &&
+        input.minimum_loan_amount_unsecured !== ""
+        ? input.minimum_loan_amount_unsecured
+        : null;
+  }
+
+
   if (input.logo_url !== undefined) {
     mapped.logo_url =
       input.logo_url !== null &&
-      input.logo_url !== ""
+        input.logo_url !== ""
         ? input.logo_url
         : null;
   }
