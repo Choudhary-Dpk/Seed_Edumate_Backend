@@ -1481,8 +1481,10 @@ model HSLoanProductsFinancialTerms {
   id                            Int            @id @default(autoincrement())
   product_id                    Int            @unique
   administrative_charges        Decimal?       @db.Decimal(16, 4)
-  interest_rate_range_max       Decimal?       @db.Decimal(16, 4)
-  interest_rate_range_min       Decimal?       @db.Decimal(16, 4)
+  interest_rate_range_max_secured       Decimal?       @db.Decimal(16, 4)
+  interest_rate_range_max_unsecured Decimal?           @db.Decimal(16,4)
+  interest_rate_range_min_secured       Decimal?       @db.Decimal(16, 4)
+  interest_rate_range_min_unsecured   Decimal?           @db.Decimal(16,4)
   interest_rate_type            String?
   legal_charges                 Decimal?       @db.Decimal(16, 4)
   loan_to_value_ratio           String?

@@ -951,11 +951,8 @@ export const fetchLoanProductsList = async (
         };
         break;
       case "max_loan_amount":
-        orderBy = {
-          financial_terms: {
-            maximum_loan_amount_unsecured: sortDir || "desc",
-          },
-        };
+        // Will sort in post-fetch to handle both secured/unsecured
+        orderBy = { created_at: "desc" };
         break;
       case "processing_fee":
         orderBy = {
@@ -1047,6 +1044,27 @@ export const fetchLoanProductsList = async (
       if (!periodStr) return false; // Exclude if no moratorium period
       const period = parseFloat(periodStr);
       return !isNaN(period) && period > 0;
+    });
+  }
+
+  // ✅ POST-FETCH SORTING for max_loan_amount (handles both secured and unsecured)
+  if (sortKey === "max_loan_amount") {
+    filteredRows = filteredRows.sort((a, b) => {
+      // Get max amount from both secured and unsecured, pick the higher one
+      const aSecured = Number(a.financial_terms?.maximum_loan_amount_secured || 0);
+      const aUnsecured = Number(a.financial_terms?.maximum_loan_amount_unsecured || 0);
+      const aMax = Math.max(aSecured, aUnsecured);
+
+      const bSecured = Number(b.financial_terms?.maximum_loan_amount_secured || 0);
+      const bUnsecured = Number(b.financial_terms?.maximum_loan_amount_unsecured || 0);
+      const bMax = Math.max(bSecured, bUnsecured);
+
+      // Sort based on direction
+      if (sortDir === "asc") {
+        return aMax - bMax;
+      } else {
+        return bMax - aMax;
+      }
     });
   }
 
