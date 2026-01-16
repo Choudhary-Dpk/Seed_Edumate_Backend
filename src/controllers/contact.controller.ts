@@ -60,7 +60,7 @@ export const createContactsLead = async (
 
     if (!partnerId && id) {
       logger.debug(`Fetching partner id from request`);
-      partnerId = await getPartnerIdByUserId(id);
+      partnerId = (await getPartnerIdByUserId(id))?.b2b_id || null;
       logger.debug(`Partner id fetched successfully`);
     }
 
@@ -75,7 +75,7 @@ export const createContactsLead = async (
         tx,
         categorized["mainContact"],
         // null, //  HubSpot ID as null
-        partnerId?.b2b_id || null
+        partnerId
       );
       logger.debug(`Contact created successfully with id: ${contact.id}`);
 
