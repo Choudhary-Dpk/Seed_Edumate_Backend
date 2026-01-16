@@ -19,7 +19,8 @@ const multer = (sizeInMb: number, fileTypes?: string[]) =>
         const allowedMimes = [
           "text/csv",
           "application/csv",
-          "application/vnd.ms-excel",
+          "application/vnd.ms-excel", // Old .xls
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx 
           "text/plain",
           "application/octet-stream",
         ];
