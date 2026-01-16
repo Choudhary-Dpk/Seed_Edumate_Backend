@@ -110,7 +110,7 @@ export const validateAndParseCSVFile =
     res: Response,
     next: NextFunction
   ) => {
-    const id = req.payload?.id || req.body?.id;
+    const id = parseInt(req.payload?.id || req.body?.id);
     try {
       upload.single("file")(req, res, async (err: any) => {
         if (!req.file) {

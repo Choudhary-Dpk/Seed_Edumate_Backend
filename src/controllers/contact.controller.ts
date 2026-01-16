@@ -573,7 +573,7 @@ export const uploadContactsCSV = async (
   next: NextFunction
 ) => {
   try {
-    const id = req.payload?.id || req.body?.id;
+    const id = parseInt(req.payload?.id || req.body?.id);
     const fileData = req.fileData;
 
     if (!fileData) {
