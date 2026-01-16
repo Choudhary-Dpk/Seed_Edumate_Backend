@@ -171,6 +171,8 @@ export type ContactsLead = {
   pincodePermanentAddress?: string | null;
 
   // ===== ACADEMIC PROFILE =====
+  program_of_interest_final?: string | null;
+
   admission_status?: string | null;
   admissionStatus?: string | null;
 
@@ -254,6 +256,9 @@ export type ContactsLead = {
   intakeYear?: string | number | null;
 
   // ===== APPLICATION JOURNEY =====
+  lifecycle_stages?: string | null;
+  lifecycle_stages_status?: string | null;
+
   assigned_counselor?: string | null;
   assignedCounselor?: string | null;
 

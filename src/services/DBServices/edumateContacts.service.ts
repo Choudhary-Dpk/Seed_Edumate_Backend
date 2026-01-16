@@ -114,6 +114,7 @@ export const categorizeByTable = (mappedFields: Record<string, any>) => {
     "intended_start_date",
     "intake_month",
     "intake_year",
+    "program_of_interest_final"
   ];
 
   // Application Journey Fields
@@ -127,6 +128,8 @@ export const categorizeByTable = (mappedFields: Record<string, any>) => {
     "last_contact_date",
     "follow_up_date",
     "next_follow_up_date",
+    "lifecycle_stages",
+    "lifecycle_stages_status"
   ];
 
   // Financial Info Fields
