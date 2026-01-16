@@ -2379,6 +2379,15 @@ model Testimonials {
   @@map("testimonials")
 }
 
+model FProgramOfInterest {
+  id  Int @id @default(autoincrement())
+  program_name String?
+  hs_program_id Int?
+  hs_company_id Int?
+
+  @@map("f_program_of_interest")
+}
+
 enum AuditAction {
   CREATE
   UPDATE
