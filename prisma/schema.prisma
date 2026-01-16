@@ -1024,6 +1024,7 @@ model HSEdumateContactsAcademicProfiles {
   nmat_score                  Decimal?          @db.Decimal(16, 4)
   duolingo_score              Decimal?          @db.Decimal(16, 4)
   other_test_scores           String?
+  program_of_interest_final   String?
   created_at                  DateTime          @default(now())
   updated_at                  DateTime          @default(now()) @updatedAt
   contact                     HSEdumateContacts @relation(fields: [contact_id], references: [id], onDelete: Cascade)
@@ -1043,6 +1044,8 @@ model HSEdumateContactsApplicationJourney {
   last_contact_date                 DateTime?
   next_follow_up_date               DateTime?
   follow_up_date                    DateTime?
+  lifecycle_stages                  String?
+  lifecycle_stages_status           String?
   created_at                        DateTime          @default(now())
   updated_at                        DateTime          @default(now()) @updatedAt
   contact                           HSEdumateContacts @relation(fields: [contact_id], references: [id], onDelete: Cascade)

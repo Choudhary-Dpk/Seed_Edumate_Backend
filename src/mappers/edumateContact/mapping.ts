@@ -195,13 +195,13 @@ export const mapAllFields = async (
 
   const coApplicantAnnualIncome =
     (input?.baseCurrency || input?.preferredCurrency) &&
-    (input?.baseCurrency || input?.preferredCurrency) != "INR" &&
-    input?.coApplicantAnnualIncome
+      (input?.baseCurrency || input?.preferredCurrency) != "INR" &&
+      input?.coApplicantAnnualIncome
       ? await convertCurrency(
-          Number(input?.coApplicantAnnualIncome),
-          input?.baseCurrency || input?.preferredCurrency || "INR",
-          "INR"
-        )
+        Number(input?.coApplicantAnnualIncome),
+        input?.baseCurrency || input?.preferredCurrency || "INR",
+        "INR"
+      )
       : input?.coApplicantAnnualIncome;
 
   // ===== MAIN CONTACT FIELDS =====
@@ -222,9 +222,9 @@ export const mapAllFields = async (
   ) {
     const mappedOriginalPrincipal = Number(
       input.original_principal ??
-        input.originalPrincipal ??
-        input.loanAmountOrg ??
-        null
+      input.originalPrincipal ??
+      input.loanAmountOrg ??
+      null
     );
     mapped.original_principal = mappedOriginalPrincipal;
   }
@@ -255,16 +255,16 @@ export const mapAllFields = async (
   if (input.favourite !== undefined) {
     mapped.favourite = Array.isArray(input.favourite)
       ? input.favourite.filter(
-          (id: any) => typeof id === "number" && !isNaN(id)
-        )
+        (id: any) => typeof id === "number" && !isNaN(id)
+      )
       : [];
   }
 
   if (input.interested !== undefined) {
     mapped.interested = Array.isArray(input.interested)
       ? input.interested.filter(
-          (id: any) => typeof id === "number" && !isNaN(id)
-        )
+        (id: any) => typeof id === "number" && !isNaN(id)
+      )
       : [];
   }
 
@@ -622,6 +622,14 @@ export const mapAllFields = async (
 
   // ===== ACADEMIC PROFILE FIELDS =====
   if (
+    input.program_of_interest_final !== undefined ||
+    input.program_of_interest_final !== undefined
+  ) {
+    mapped.program_of_interest_final =
+      input.program_of_interest_final ?? input.program_of_interest_final ?? null;
+  }
+
+  if (
     input.currentInstitution !== undefined ||
     input.current_institution !== undefined
   ) {
@@ -733,6 +741,14 @@ export const mapAllFields = async (
   }
 
   // ===== APPLICATION JOURNEY FIELDS =====
+  if (input.lifecycle_stages !== undefined) {
+    mapped.lifecycle_stages = input.lifecycle_stages
+  }
+
+  if (input.lifecycle_stages_status !== undefined) {
+    mapped.lifecycle_stages_status = input.lifecycle_stages_status
+  }
+
   if (
     input.assignedCounselor !== undefined ||
     input.assigned_counselor !== undefined
