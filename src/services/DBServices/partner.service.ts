@@ -49,6 +49,12 @@ export const categorizeB2BByTable = (mappedFields: Record<string, any>) => {
     "gst_rate",
     "source",
     "is_commission_applicable",
+    "company_id",
+    "university_id",
+    "hs_company_id",
+    "school_id",
+    "short_name",
+    "university",
   ];
 
   // Business Capabilities Fields
@@ -101,12 +107,16 @@ export const categorizeB2BByTable = (mappedFields: Record<string, any>) => {
     "marketing_contact_person",
     "marketing_contact_phone",
     "primary_contact_designation",
+    "designation",
     "primary_contact_email",
+    "email",
     "primary_contact_person",
+    "client_name",
     "primary_contact_phone",
     "secondary_contact_email",
     "secondary_contact_person",
     "secondary_contact_phone",
+    "designation",
   ];
 
   // Financial Tracking Fields
