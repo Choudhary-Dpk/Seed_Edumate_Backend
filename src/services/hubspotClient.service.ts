@@ -84,8 +84,7 @@ export const handleHubSpotError = (error: any): Error => {
   // Handle HTTP errors
   if (error.status) {
     return new Error(
-      `HubSpot API Error: HTTP ${error.status} - ${
-        error.message || "Unknown error"
+      `HubSpot API Error: HTTP ${error.status} - ${error.message || "Unknown error"
       }`
     );
   }
@@ -685,6 +684,58 @@ export const createHubspotPartner = async (
   } catch (error) {
     logger.error("Error creating Edumate partner in HubSpot", {
       properties,
+      error,
+    });
+    throw handleHubSpotError(error);
+  }
+};
+
+export const updateHubspotPartner = async (
+  partnerId: string,
+  properties: Record<string, any>
+): Promise<HubSpotEdumateContact> => {
+  try {
+    const updateInput = {
+      properties,
+    };
+
+    const response = await hubspotClient.crm.objects.basicApi.update(
+      EDUMATE_B2B_PARTNERS_OBJECT_TYPE,
+      partnerId,
+      updateInput
+    );
+
+    logger.info("Updated Edumate partner in HubSpot", {
+      partnerId: response.id,
+      updatedProperties: Object.keys(properties),
+    });
+
+    return convertToHubSpotObject<HubSpotEdumateContact>(response);
+  } catch (error) {
+    logger.error("Error updating Edumate partner in HubSpot", {
+      partnerId,
+      properties,
+      error,
+    });
+    throw handleHubSpotError(error);
+  }
+};
+
+export const deleteHubspotPartner = async (
+  partnerId: string
+): Promise<void> => {
+  try {
+    await hubspotClient.crm.objects.basicApi.archive(
+      EDUMATE_B2B_PARTNERS_OBJECT_TYPE,
+      partnerId
+    );
+
+    logger.info("Deleted Edumate partner in HubSpot", {
+      partnerId,
+    });
+  } catch (error) {
+    logger.error("Error deleting Edumate partner in HubSpot", {
+      partnerId,
       error,
     });
     throw handleHubSpotError(error);

@@ -291,7 +291,9 @@ model HSB2BPartners {
   deleted_on                 DateTime?
   gst_rate                   Int?
   source                     String?                                  @default("webportal")
-  is_commission_applicable    String?                                 
+  is_commission_applicable    String?          
+  company_id                 String?
+  university_id              String?                       
   users                      B2BPartnersUsers[]
   deleted_by_user            B2BPartnersUsers?                        @relation("PartnerDeletedBy", fields: [deleted_by], references: [id], onDelete: Cascade)
   business_capabilities      HSB2BPartnersBusinessCapabilities?

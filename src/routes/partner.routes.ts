@@ -8,6 +8,7 @@ import {
   getLeadsByPartnerFieldsController,
   getPartnersList,
   updateB2bPartner,
+  upsertUniversityController,
 } from "../controllers/partner.controller";
 import {
   validateId,
@@ -62,5 +63,8 @@ router.get(
   getB2bPartnersList
 );
 router.get("/filter", getLeadsByPartnerFieldsController);
+router.put("/pulse/university", authenticate({
+  method: AuthMethod.API_KEY,
+}), upsertUniversityController)
 
 export { router as partnerRoutes };

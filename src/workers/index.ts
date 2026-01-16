@@ -2,6 +2,7 @@ import logger from "../utils/logger";
 import { startEdumatePGNotifyWorker } from "./edumate-pg-notify.worker";
 import { startCommissionPGNotifyWorker } from "./commission-pg-notify.worker";
 import { startLoanPGNotifyWorker } from "./loanApplication-pg-notify.worker";
+import { startB2BPartnerPGNotifyWorker } from "./partner-pg-notify-worker";
 /**
  * Start all background workers
  */
@@ -25,6 +26,14 @@ export async function startWorkers() {
     startLoanPGNotifyWorker().catch((error) => {
       logger.error(
         "[Workers] Loan Application PG NOTIFY Worker crashed:",
+        error
+      );
+      process.exit(1);
+    });
+
+    startB2BPartnerPGNotifyWorker().catch((error) => {
+      logger.error(
+        "[Workers] B2B Partners PG NOTIFY Worker crashed:",
         error
       );
       process.exit(1);

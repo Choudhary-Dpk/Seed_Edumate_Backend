@@ -480,3 +480,350 @@ export const getRoles = async (
     next(error);
   }
 };
+
+export const upsertUniversityController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    debugger
+    const { hs_company_id, school_id } = req.body;
+
+    if (!hs_company_id || !school_id) {
+      return sendResponse(
+        res,
+        400,
+        "Company Id and University Id are required"
+      );
+    }
+
+    logger.debug(
+      `Checking if B2B partner exists with company_id: ${hs_company_id} and university_id: ${school_id}`
+    );
+
+    // Check if partner exists
+    const existingPartner = await prisma.hSB2BPartners.findFirst({
+      where: {
+        company_id: hs_company_id,
+        university_id: school_id,
+        is_deleted: false,
+      },
+    });
+
+    // Use your existing mapping and categorization functions
+    logger.debug(`Mapping B2B partner fields`);
+    const mappedFields = await mapAllB2BPartnerFields(req.body);
+    console.log("mappedFields", mappedFields);
+
+    logger.debug(`Categorizing B2B partner data`);
+    const categorized = categorizeB2BByTable(mappedFields);
+    console.log("categorized", categorized);
+
+    if (existingPartner) {
+      logger.debug(`Partner exists with id: ${existingPartner.id}. Updating...`);
+
+      // Update existing partner using your existing update helpers
+      const result = await prisma.$transaction(async (tx: any) => {
+        // Update main partner
+        const updatedPartner = await updateB2BPartner(
+          tx,
+          existingPartner.id,
+          categorized.mainPartner
+        );
+        logger.debug(`Partner updated with id: ${updatedPartner.id}`);
+
+        // Update business capabilities
+        const businessCapabilities = await updateB2BBusinessCapabilities(
+          tx,
+          existingPartner.id,
+          categorized.businessCapabilities
+        );
+        if (businessCapabilities) {
+          logger.debug(`Business capabilities updated for partner: ${existingPartner.id}`);
+        }
+
+        // Update commission structure
+        const commissionStructure = await updateB2BCommissionStructure(
+          tx,
+          existingPartner.id,
+          categorized.commissionStructure
+        );
+        if (commissionStructure) {
+          logger.debug(`Commission structure updated for partner: ${existingPartner.id}`);
+        }
+
+        // Update compliance documentation
+        const complianceDocumentation = await updateB2BComplianceDocumentation(
+          tx,
+          existingPartner.id,
+          categorized.complianceDocumentation
+        );
+        if (complianceDocumentation) {
+          logger.debug(`Compliance documentation updated for partner: ${existingPartner.id}`);
+        }
+
+        // Update contact info
+        const contactInfo = await updateB2BContactInfo(
+          tx,
+          existingPartner.id,
+          categorized.contactInfo
+        );
+        if (contactInfo) {
+          logger.debug(`Contact info updated for partner: ${existingPartner.id}`);
+        }
+
+        // Update financial tracking
+        const financialTracking = await updateB2BFinancialTracking(
+          tx,
+          existingPartner.id,
+          categorized.financialTracking
+        );
+        if (financialTracking) {
+          logger.debug(`Financial tracking updated for partner: ${existingPartner.id}`);
+        }
+
+        // Update lead attribution
+        const leadAttribution = await updateB2BLeadAttribution(
+          tx,
+          existingPartner.id,
+          categorized.leadAttribution
+        );
+        if (leadAttribution) {
+          logger.debug(`Lead attribution updated for partner: ${existingPartner.id}`);
+        }
+
+        // Update marketing promotion
+        const marketingPromotion = await updateB2BMarketingPromotion(
+          tx,
+          existingPartner.id,
+          categorized.marketingPromotion
+        );
+        if (marketingPromotion) {
+          logger.debug(`Marketing promotion updated for partner: ${existingPartner.id}`);
+        }
+
+        // Update partnership details
+        const partnershipDetails = await updateB2BPartnershipDetails(
+          tx,
+          existingPartner.id,
+          categorized.partnershipDetails
+        );
+        if (partnershipDetails) {
+          logger.debug(`Partnership details updated for partner: ${existingPartner.id}`);
+        }
+
+        // Update performance metrics
+        const performanceMetrics = await updateB2BPerformanceMetrics(
+          tx,
+          existingPartner.id,
+          categorized.performanceMetrics
+        );
+        if (performanceMetrics) {
+          logger.debug(`Performance metrics updated for partner: ${existingPartner.id}`);
+        }
+
+        // Update relationship management
+        const relationshipManagement = await updateB2BRelationshipManagement(
+          tx,
+          existingPartner.id,
+          categorized.relationshipManagement
+        );
+        if (relationshipManagement) {
+          logger.debug(`Relationship management updated for partner: ${existingPartner.id}`);
+        }
+
+        // Update system tracking
+        const systemTracking = await updateB2BSystemTracking(
+          tx,
+          existingPartner.id,
+          categorized.systemTracking
+        );
+        if (systemTracking) {
+          logger.debug(`System tracking updated for partner: ${existingPartner.id}`);
+        }
+
+        return {
+          partner: updatedPartner,
+          businessCapabilities,
+          commissionStructure,
+          complianceDocumentation,
+          contactInfo,
+          financialTracking,
+          leadAttribution,
+          marketingPromotion,
+          partnershipDetails,
+          performanceMetrics,
+          relationshipManagement,
+          systemTracking,
+        };
+      });
+
+      logger.debug(`Partner updated successfully with id: ${existingPartner.id}`);
+      return sendResponse(res, 200, "B2B Partner updated successfully", result);
+    } else {
+      logger.debug(
+        `Partner does not exist. Creating new partner with company_id: ${hs_company_id}`
+      );
+
+      // Create new partner using existing helpers
+      const result = await prisma.$transaction(async (tx: any) => {
+        // Create main partner
+        logger.debug(`Creating B2B partner`);
+        const newPartner = await createB2BPartner(tx, categorized.mainPartner);
+        logger.debug(`Partner created successfully with id: ${newPartner.id}`);
+
+        // Create business capabilities
+        logger.debug(`Creating business capabilities for partner: ${newPartner.id}`);
+        const businessCapabilities = await createB2BBusinessCapabilities(
+          tx,
+          newPartner.id,
+          categorized.businessCapabilities
+        );
+        logger.debug(
+          `Business capabilities created successfully for partner: ${newPartner.id}`
+        );
+
+        // Create commission structure
+        logger.debug(`Creating commission structure for partner: ${newPartner.id}`);
+        const commissionStructure = await createB2BCommissionStructure(
+          tx,
+          newPartner.id,
+          categorized.commissionStructure
+        );
+        logger.debug(
+          `Commission structure created successfully for partner: ${newPartner.id}`
+        );
+
+        // Create compliance documentation
+        logger.debug(
+          `Creating compliance documentation for partner: ${newPartner.id}`
+        );
+        const complianceDocumentation = await createB2BComplianceDocumentation(
+          tx,
+          newPartner.id,
+          categorized.complianceDocumentation
+        );
+        logger.debug(
+          `Compliance documentation created successfully for partner: ${newPartner.id}`
+        );
+
+        // Create contact info
+        logger.debug(`Creating contact info for partner: ${newPartner.id}`);
+        const contactInfo = await createB2BContactInfo(
+          tx,
+          newPartner.id,
+          categorized.contactInfo
+        );
+        logger.debug(
+          `Contact info created successfully for partner: ${newPartner.id}`
+        );
+
+        // Create financial tracking
+        logger.debug(`Creating financial tracking for partner: ${newPartner.id}`);
+        const financialTracking = await createB2BFinancialTracking(
+          tx,
+          newPartner.id,
+          categorized.financialTracking
+        );
+        logger.debug(
+          `Financial tracking created successfully for partner: ${newPartner.id}`
+        );
+
+        // Create lead attribution
+        logger.debug(`Creating lead attribution for partner: ${newPartner.id}`);
+        const leadAttribution = await createB2BLeadAttribution(
+          tx,
+          newPartner.id,
+          categorized.leadAttribution
+        );
+        logger.debug(
+          `Lead attribution created successfully for partner: ${newPartner.id}`
+        );
+
+        // Create marketing promotion
+        logger.debug(`Creating marketing promotion for partner: ${newPartner.id}`);
+        const marketingPromotion = await createB2BMarketingPromotion(
+          tx,
+          newPartner.id,
+          categorized.marketingPromotion
+        );
+        logger.debug(
+          `Marketing promotion created successfully for partner: ${newPartner.id}`
+        );
+
+        // Create partnership details
+        logger.debug(`Creating partnership details for partner: ${newPartner.id}`);
+        const partnershipDetails = await createB2BPartnershipDetails(
+          tx,
+          newPartner.id,
+          categorized.partnershipDetails
+        );
+        logger.debug(
+          `Partnership details created successfully for partner: ${newPartner.id}`
+        );
+
+        // Create performance metrics
+        logger.debug(`Creating performance metrics for partner: ${newPartner.id}`);
+        const performanceMetrics = await createB2BPerformanceMetrics(
+          tx,
+          newPartner.id,
+          categorized.performanceMetrics
+        );
+        logger.debug(
+          `Performance metrics created successfully for partner: ${newPartner.id}`
+        );
+
+        // Create relationship management
+        logger.debug(
+          `Creating relationship management for partner: ${newPartner.id}`
+        );
+        const relationshipManagement = await createB2BRelationshipManagement(
+          tx,
+          newPartner.id,
+          categorized.relationshipManagement
+        );
+        logger.debug(
+          `Relationship management created successfully for partner: ${newPartner.id}`
+        );
+
+        // Create system tracking
+        logger.debug(`Creating system tracking for partner: ${newPartner.id}`);
+        const systemTracking = await createB2BSystemTracking(
+          tx,
+          newPartner.id,
+          categorized.systemTracking
+        );
+        logger.debug(
+          `System tracking created successfully for partner: ${newPartner.id}`
+        );
+
+        return {
+          partner: newPartner,
+          businessCapabilities,
+          commissionStructure,
+          complianceDocumentation,
+          contactInfo,
+          financialTracking,
+          leadAttribution,
+          marketingPromotion,
+          partnershipDetails,
+          performanceMetrics,
+          relationshipManagement,
+          systemTracking,
+        };
+      });
+
+      logger.debug(`New partner created successfully with id: ${result.partner.id}`);
+      return sendResponse(
+        res,
+        201,
+        "B2B Partner created successfully",
+        result
+      );
+    }
+  } catch (error) {
+    logger.error(`Error in upsert university controller: ${error}`);
+    next(error);
+  }
+};

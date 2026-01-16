@@ -5,6 +5,7 @@ require("dotenv").config();
 const setupEdumateSQL = require("./setup-edumate-triggers");
 const setupCommissionSQL = require("./setup-commission-triggers");
 const setupLoanSQL = require("./setup-loanApplication-triggers");
+const setupPartnersSQL = require("./setup-partners-triggers");
 
 async function setupAllTriggers() {
   const client = new Client({
@@ -30,6 +31,11 @@ async function setupAllTriggers() {
     console.log("Setting up Loan Application triggers...");
     await setupLoanSQL();
     console.log("✓ Loan triggers created\n");
+
+    // Setup B2B Partners
+    console.log("Setting up B2B Partners triggers...");
+    await setupPartnersSQL();
+    console.log("✓ B2B Partners triggers created\n");
 
     console.log(" All triggers setup completed successfully!\n");
   } catch (error) {
