@@ -690,7 +690,7 @@ export async function createCSVContacts(
         .map((c) => {
           const email = c["personalInformation"]?.email;
           const contactId = email ? emailToIdMap.get(email) : null;
-          if (!contactId || !c["financialInfo"]) return null;
+          if (!contactId) return null;
           return {
             contact_id: contactId,
             ...c["financialInfo"],
@@ -702,7 +702,7 @@ export async function createCSVContacts(
         .map((c) => {
           const email = c["personalInformation"]?.email;
           const contactId = email ? emailToIdMap.get(email) : null;
-          if (!contactId || !c["loanPreference"]) return null;
+          if (!contactId) return null;
           return {
             contact_id: contactId,
             ...c["loanPreference"],
@@ -714,7 +714,7 @@ export async function createCSVContacts(
         .map((c) => {
           const email = c["personalInformation"]?.email;
           const contactId = email ? emailToIdMap.get(email) : null;
-          if (!contactId || !c["applicationJourney"]) return null;
+          if (!contactId) return null;
           return {
             contact_id: contactId,
             ...c["applicationJourney"],
@@ -726,7 +726,7 @@ export async function createCSVContacts(
         .map((c) => {
           const email = c["personalInformation"]?.email;
           const contactId = email ? emailToIdMap.get(email) : null;
-          if (!contactId || !c["systemTracking"]) return null;
+          if (!contactId) return null;
           return {
             contact_id: contactId,
             ...c["systemTracking"],
