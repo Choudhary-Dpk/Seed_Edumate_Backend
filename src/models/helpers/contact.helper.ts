@@ -179,6 +179,68 @@ export const getEdumateContactByPhone = async (phone: string) => {
   return contact;
 };
 
+export const getEdumateContactByEmailAndPartnerId = async (
+  email: string,
+  partnerId: number
+) => {
+  const contact = await prisma.hSEdumateContacts.findFirst({
+    include: {
+      personal_information: {
+        select: {
+          id: true,
+          first_name: true,
+          last_name: true,
+          email: true,
+          is_deleted: true,
+        },
+      },
+      academic_profile: true,
+    },
+    where: {
+      b2b_partner_id: partnerId,
+      personal_information: {
+        email: email,
+        is_deleted: false,
+      },
+    },
+  });
+
+  return contact;
+};
+
+export const getEdumateContactByPhoneAndPartnerId = async (
+  phone: string,
+  partnerId: number
+) => {
+  const contact = await prisma.hSEdumateContacts.findFirst({
+    include: {
+      personal_information: {
+        select: {
+          id: true,
+          first_name: true,
+          last_name: true,
+          email: true,
+          is_deleted: true,
+        },
+      },
+      application_journey: true,
+      system_tracking: true,
+      loan_preference: true,
+      academic_profile: true,
+      lead_attribution: true,
+    },
+    where: {
+      b2b_partner_id: partnerId,
+      personal_information: {
+        phone_number: phone,
+        is_deleted: false,
+      },
+    },
+  });
+
+  return contact;
+};
+
 export const createEdumateContact = async (
   tx: any,
   mainData?: any,

@@ -5,8 +5,12 @@ import { sendResponse } from "../utils/api";
 import {
   getContactLeadById,
   getEdumateContactByEmail,
+  getEdumateContactByEmailAndPartnerId,
   getEdumateContactByPhone,
+  getEdumateContactByPhoneAndPartnerId,
 } from "../models/helpers/contact.helper";
+import logger from "../utils/logger";
+import { getPartnerIdByUserId } from "../models/helpers/partners.helper";
 
 export const validateContactsLeadPayload = async (
   req: RequestWithPayload<LoginPayload>,
@@ -15,15 +19,23 @@ export const validateContactsLeadPayload = async (
 ) => {
   try {
     const { email, phone_number } = req.body;
+    const id = req.payload?.id || null;
+    let partnerId = req?.body?.b2b_partner_db_id || null;
 
-    const existingLead = await getEdumateContactByEmail(email);
+    if (!partnerId && id) {
+      logger.debug(`Fetching partner id from request`);
+      partnerId = (await getPartnerIdByUserId(id))?.b2b_id || null;
+      logger.debug(`Partner id fetched successfully`);
+    }
+
+    const existingLead = await getEdumateContactByEmailAndPartnerId(email, partnerId);
     if (existingLead && existingLead.is_deleted === false) {
       return sendResponse(res, 400, "Lead already exists");
     }
 
-    const existingContact = await getEdumateContactByPhone(phone_number);
+    const existingContact = await getEdumateContactByPhoneAndPartnerId(phone_number, partnerId);
     if (existingContact && existingContact.is_deleted === false) {
-      return sendResponse(res, 400, "Phone number already exists");
+      return sendResponse(res, 400, "Lead already exists");
     }
 
     next();
