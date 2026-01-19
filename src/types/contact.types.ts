@@ -172,6 +172,7 @@ export type ContactsLead = {
 
   // ===== ACADEMIC PROFILE =====
   program_of_interest_final?: string | null;
+  program_of_interest?: string | null;
 
   admission_status?: string | null;
   admissionStatus?: string | null;

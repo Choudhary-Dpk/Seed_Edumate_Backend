@@ -623,10 +623,10 @@ export const mapAllFields = async (
   // ===== ACADEMIC PROFILE FIELDS =====
   if (
     input.program_of_interest_final !== undefined ||
-    input.program_of_interest_final !== undefined
+    input.program_of_interest !== undefined
   ) {
     mapped.program_of_interest_final =
-      input.program_of_interest_final ?? input.program_of_interest_final ?? null;
+      input.program_of_interest_final ?? input.program_of_interest ?? null;
   }
 
   if (
