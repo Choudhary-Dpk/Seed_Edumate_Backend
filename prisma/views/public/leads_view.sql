@@ -2,6 +2,8 @@ SELECT
   c.id AS contact_id,
   c.b2b_partner_id,
   c.hubspot_owner_id,
+  c.created_at,
+  c.updated_at,
   pi.first_name,
   pi.last_name,
   pi.email,

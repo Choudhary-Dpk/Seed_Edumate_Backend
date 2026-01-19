@@ -2344,10 +2344,10 @@ model Testimonials {
 }
 
 model FProgramOfInterest {
-  hs_program_id Int     @id // Primary key, must be unique
   program_name  String?
-  school_name   String?
+  hs_program_id Int     @id
   hs_company_id Int?
+  school_name   String?
 
   @@map("f_program_of_interest")
 }
@@ -2356,6 +2356,8 @@ view leads_view {
   contact_id                  Int?
   b2b_partner_id              Int?
   hubspot_owner_id            String?
+  created_at                  DateTime?
+  updated_at                  DateTime?
   first_name                  String?
   last_name                   String?
   email                       String?
@@ -2369,7 +2371,7 @@ view leads_view {
   intake_year                 String?
   intake_month                String?
   program_of_interest_final   String?
-  lifecycle_stages            String?  @default("Outreach yet to be initiated")
+  lifecycle_stages            String?
   lifecycle_stages_status     String?
   loan_application_id         Int?
   application_date            DateTime?
