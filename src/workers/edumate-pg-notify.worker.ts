@@ -626,6 +626,7 @@ async function transformToHubSpotFormat(contact: any): Promise<any> {
     base_currency: contact.base_currency || null,
     study_destination_currency: contact.study_destination_currency || null,
     user_selected_currency: contact.user_selected_currency || null,
+    program_of_interest_final: contact.program_of_interest_final || null,
     ...(contact.hs_object_id && {}),
   };
 }
