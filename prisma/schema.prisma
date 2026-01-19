@@ -2344,9 +2344,9 @@ model Testimonials {
 }
 
 model FProgramOfInterest {
-  id            Int     @id @default(autoincrement())
+  hs_program_id Int     @id // Primary key, must be unique
   program_name  String?
-  hs_program_id Int?
+  school_name   String?
   hs_company_id Int?
 
   @@map("f_program_of_interest")
