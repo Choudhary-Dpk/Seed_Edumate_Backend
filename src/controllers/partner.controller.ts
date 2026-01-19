@@ -521,7 +521,7 @@ export const upsertUniversityController = async (
 
     // Use your existing mapping and categorization functions
     logger.debug(`Mapping B2B partner fields`);
-    const mappedFields = await mapAllB2BPartnerFields(req.body);
+    const mappedFields = await mapAllB2BPartnerFields({...req.body, partner_type: 'University'});
     console.log("mappedFields", mappedFields);
 
     logger.debug(`Categorizing B2B partner data`);
