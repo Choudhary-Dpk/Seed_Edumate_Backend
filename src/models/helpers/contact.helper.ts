@@ -580,14 +580,36 @@ export const findContacts = async (batch: any[]) => {
   return contacts;
 };
 
+export const findContactsByPartnerId = async (
+  batch: any[],
+  partnerId: number
+) => {
+  const contacts = await prisma.hSEdumateContactsPersonalInformation.findMany({
+    where: {
+      OR: batch.map((v) => ({
+        OR: [{ email: v.email }, { phone_number: v.phoneNumber }],
+        is_deleted: false,
+        contact: {
+          b2b_partner_id: partnerId,
+        },
+      })),
+    },
+    select: {
+      email: true,
+      phone_number: true,
+    },
+  });
+
+  return contacts;
+};
+
 export async function createCSVContacts(
   contacts: Record<string, Record<string, any>>[],
-  userId: number,
+  partnerId: number,
   hubspotResults: any[] | null,
   batchId: string | null = null,
   batchPosition: number = 0
 ) {
-  const partnerId = await getPartnerIdByUserId(userId);
 
   return await prisma.$transaction(
     async (tx) => {
@@ -596,7 +618,7 @@ export async function createCSVContacts(
         data: contacts.map((c) => ({
           ...c["mainContact"],
           email: c["personalInformation"]?.email, //  Set email on main table
-          b2b_partner_id: partnerId!.b2b_id,
+          b2b_partner_id: partnerId,
         })),
         skipDuplicates: true,
       });

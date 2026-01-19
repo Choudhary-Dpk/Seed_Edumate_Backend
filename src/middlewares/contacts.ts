@@ -136,6 +136,7 @@ export const validateContactsJSONPayload = async (
         contact.educationLevel ||
         contact.currentEducationLevel ||
         contact.current_education_level,
+      "Program Of Interest": contact.programOfInterest || contact.program_of_interest || contact.program_of_interest_final,  
     }));
 
     // Attach transformed data to request for controller

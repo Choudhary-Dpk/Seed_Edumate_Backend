@@ -622,7 +622,7 @@ export const uploadContactsCSV = async (
 
     // 4. Deduplicate against DB
     const { unique: toInsert, duplicates: duplicatesInDb } =
-      await deduplicateContactsInDb(uniqueInFile);
+      await deduplicateContactsInDb(uniqueInFile, 0);
     console.log("toInsert", toInsert, duplicatesInDb);
 
     // 5. Handle no new records
@@ -742,7 +742,7 @@ export const uploadContactsJSON = async (
   try {
     const id = parseInt(req.payload?.id || req.body?.id);
     const { transformedContacts, totalRecords } = req.body;
-
+    const partnerId = (await getPartnerIdByUserId(id))!.b2b_id;
     if (!transformedContacts || !Array.isArray(transformedContacts)) {
       return sendResponse(res, 400, "Invalid or missing contact data");
     }
@@ -793,7 +793,7 @@ export const uploadContactsJSON = async (
     // 4. Deduplicate against DB
     logger.debug(`Checking for duplicates in database`);
     const { unique: toInsert, duplicates: duplicatesInDb } =
-      await deduplicateContactsInDb(uniqueInFile);
+      await deduplicateContactsInDb(uniqueInFile, partnerId);
     logger.debug(
       `DB duplicates: ${duplicatesInDb}, records to insert: ${toInsert.length}`
     );
@@ -854,7 +854,7 @@ export const uploadContactsJSON = async (
         );
 
         // Insert into DB only (no HubSpot sync during bulk)
-        const result = await createCSVContacts(categorizedRecords, id, null);
+        const result = await createCSVContacts(categorizedRecords, partnerId, null);
         totalInserted += result.count;
 
         logger.debug(
