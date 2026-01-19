@@ -4,6 +4,14 @@ export const getUserByEmail = async (email: string) => {
   const user = await prisma.b2BPartnersUsers.findFirst({
     select: {
       id: true,
+      b2b_id: true,
+      email: true,
+      password_hash: true,
+      full_name: true,
+      is_active: true,
+      created_at: true,
+      updated_at: true,
+      source: true,
     },
     where: {
       email: email,
@@ -53,7 +61,7 @@ export const createUsers = async (
 export const createAdmin = async (
   fullName: string,
   email: string,
-  phone: number
+  phone: number,
 ) => {
   const user = await prisma.adminUsers.create({
     data: {

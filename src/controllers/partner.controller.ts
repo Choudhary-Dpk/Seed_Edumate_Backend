@@ -38,7 +38,7 @@ import { mapAllB2BPartnerFields } from "../mappers/b2bPartners/partnerMapping";
 import { categorizeB2BByTable } from "../services/DBServices/partner.service";
 import { sendResponse } from "../utils/api";
 import prisma from "../config/prisma";
-import { createUsers } from "../models/helpers/user.helper";
+import { createUsers, getUserByEmail } from "../models/helpers/user.helper";
 import { hashPassword } from "../utils/auth";
 
 export const createB2bPartner = async (
@@ -676,6 +676,22 @@ export const upsertUniversityController = async (
           );
         }
 
+        // ========== GET EXISTING B2B USER ==========
+        let b2bUser = null;
+        const userEmail =
+          categorized.contactInfo?.primary_contact_email || email;
+
+        if (userEmail) {
+          logger.debug(`Fetching B2B partner user with email: ${userEmail}`);
+          b2bUser = await getUserByEmail(userEmail);
+          if (b2bUser) {
+            logger.debug(`B2B partner user found with id: ${b2bUser.id}`);
+          } else {
+            logger.debug(`No B2B partner user found with email: ${userEmail}`);
+          }
+        }
+        // ==========================================
+
         return {
           b2bPartners: {
             partner: updatedPartner,
@@ -691,7 +707,7 @@ export const upsertUniversityController = async (
             relationshipManagement,
             systemTracking,
           },
-          b2bUsers: null,
+          b2bUsers: b2bUser,
         };
       });
 
@@ -862,6 +878,8 @@ export const upsertUniversityController = async (
             logger.warn(
               `User with email ${userEmail} already exists. Skipping user creation.`,
             );
+            // Fetch existing user data to return in response
+            b2bUser = await getUserByEmail(userEmail);
           } else {
             logger.debug(
               `Creating B2B partner user for partner: ${newPartner.id}`,
