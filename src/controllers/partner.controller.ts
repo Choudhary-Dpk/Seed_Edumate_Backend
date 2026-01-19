@@ -489,7 +489,6 @@ export const upsertUniversityController = async (
   next: NextFunction,
 ) => {
   try {
-    debugger;
     const {
       hs_company_id,
       school_id,
