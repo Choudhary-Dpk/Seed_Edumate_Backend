@@ -279,35 +279,35 @@ export const validateContactRows = (
     if (!phoneNumber) rowErrors.push("Missing Phone Number");
 
     // --- Enum validations ---
-    if (admissionStatus && !VALID_ADMISSION_STATUS.includes(admissionStatus)) {
-      rowErrors.push(
-        `Invalid Admission Status: "${admissionStatus}". Valid values: ${VALID_ADMISSION_STATUS.join(
-          ", "
-        )}`
-      );
-    }
+    // if (admissionStatus && !VALID_ADMISSION_STATUS.includes(admissionStatus)) {
+    //   rowErrors.push(
+    //     `Invalid Admission Status: "${admissionStatus}". Valid values: ${VALID_ADMISSION_STATUS.join(
+    //       ", "
+    //     )}`
+    //   );
+    // }
 
-    if (
-      educationLevel &&
-      !VALID_CURRENT_EDUCATION_LEVEL.includes(educationLevel)
-    ) {
-      rowErrors.push(
-        `Invalid Current Education Level: "${educationLevel}". Valid values: ${VALID_CURRENT_EDUCATION_LEVEL.join(
-          ", "
-        )}`
-      );
-    }
+    // if (
+    //   educationLevel &&
+    //   !VALID_CURRENT_EDUCATION_LEVEL.includes(educationLevel)
+    // ) {
+    //   rowErrors.push(
+    //     `Invalid Current Education Level: "${educationLevel}". Valid values: ${VALID_CURRENT_EDUCATION_LEVEL.join(
+    //       ", "
+    //     )}`
+    //   );
+    // }
 
-    if (
-      targetDegreeLevel &&
-      !VALID_TARGET_DEGREE_LEVEL.includes(targetDegreeLevel)
-    ) {
-      rowErrors.push(
-        `Invalid Target Degree Level: "${targetDegreeLevel}". Valid values: ${VALID_TARGET_DEGREE_LEVEL.join(
-          ", "
-        )}`
-      );
-    }
+    // if (
+    //   targetDegreeLevel &&
+    //   !VALID_TARGET_DEGREE_LEVEL.includes(targetDegreeLevel)
+    // ) {
+    //   rowErrors.push(
+    //     `Invalid Target Degree Level: "${targetDegreeLevel}". Valid values: ${VALID_TARGET_DEGREE_LEVEL.join(
+    //       ", "
+    //     )}`
+    //   );
+    // }
 
     // Optional but typed validations
     let dateOfBirth: Date | undefined;
