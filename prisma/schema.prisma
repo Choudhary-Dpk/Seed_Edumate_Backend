@@ -2369,7 +2369,7 @@ view leads_view {
   intake_year                 String?
   intake_month                String?
   program_of_interest_final   String?
-  lifecycle_stages            String?
+  lifecycle_stages            String?  @default("Outreach yet to be initiated")
   lifecycle_stages_status     String?
   loan_application_id         Int?
   application_date            DateTime?
