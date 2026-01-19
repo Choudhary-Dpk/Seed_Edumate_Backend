@@ -30,9 +30,11 @@ export const createUsers = async (
   email: string,
   b2bId: number,
   passwordHash: string | null,
-  fullName: string
+  fullName: string,
+  tx?: any,
 ) => {
-  const user = await prisma.b2BPartnersUsers.create({
+  const prismaClient = tx || prisma;
+  const user = await prismaClient.b2BPartnersUsers.create({
     data: {
       full_name: fullName,
       b2b_id: b2bId,
