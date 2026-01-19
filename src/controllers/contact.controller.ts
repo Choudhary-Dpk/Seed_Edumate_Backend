@@ -591,6 +591,8 @@ export const uploadContactsCSV = async (
       entity_type,
     } = fileData;
 
+    logger.debug(`Processing uploaded CSV with ${total_records} records`, rows);
+
     // 1. Store metadata into FileUpload table
     logger.debug(`Entering File type in database`);
     const fileEntity = await addFileType(entity_type);
