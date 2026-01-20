@@ -591,6 +591,8 @@ export const uploadContactsCSV = async (
       entity_type,
     } = fileData;
 
+    logger.debug(`Processing uploaded CSV with ${total_records} records`, rows);
+
     // 1. Store metadata into FileUpload table
     logger.debug(`Entering File type in database`);
     const fileEntity = await addFileType(entity_type);
@@ -620,7 +622,7 @@ export const uploadContactsCSV = async (
 
     // 4. Deduplicate against DB
     const { unique: toInsert, duplicates: duplicatesInDb } =
-      await deduplicateContactsInDb(uniqueInFile);
+      await deduplicateContactsInDb(uniqueInFile, 0);
     console.log("toInsert", toInsert, duplicatesInDb);
 
     // 5. Handle no new records
@@ -726,6 +728,196 @@ export const uploadContactsCSV = async (
     next(error);
   }
 };
+
+
+/**
+ * Controller to handle bulk contact import via JSON
+ * POST /api/contacts/upload-json
+ */
+export const uploadContactsJSON = async (
+  req: RequestWithPayload<LoginPayload>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const id = parseInt(req.payload?.id || req.body?.id);
+    const { transformedContacts, totalRecords } = req.body;
+    const partnerId = (await getPartnerIdByUserId(id))!.b2b_id;
+    if (!transformedContacts || !Array.isArray(transformedContacts)) {
+      return sendResponse(res, 400, "Invalid or missing contact data");
+    }
+
+    logger.debug(
+      `Processing JSON upload with ${totalRecords} records for userId: ${id}`
+    );
+
+    // 1. Store metadata into FileUpload table (JSON type)
+    logger.debug(`Recording file type in database`);
+    const fileEntity = await addFileType("JSON");
+    logger.debug(`File type recorded successfully`);
+
+    // logger.debug(`Creating file upload record`);
+    // const fileUpload = await addFileRecord(
+    //   "bulk_contacts_import.json", // Generic filename
+    //   "application/json", // MIME type
+    //   transformedContacts,
+    //   totalRecords,
+    //   id,
+    //   fileEntity.id!
+    // );
+    // logger.debug(`File upload record created successfully`);
+
+    // 2. Validate + Normalize rows (reusing CSV validation logic)
+    logger.debug(`Validating contact rows`);
+    const { validRows, errors } = validateContactRows(transformedContacts, id);
+    
+    if (validRows.length === 0) {
+      logger.warn(`No valid rows found in JSON payload`);
+      return sendResponse(res, 400, "No valid contacts found in JSON", {
+        errors,
+      });
+    }
+
+    logger.debug(
+      `Validation complete: ${validRows.length} valid, ${errors.length} invalid`
+    );
+
+    // 3. Deduplicate inside payload
+    logger.debug(`Checking for duplicates within payload`);
+    const { unique: uniqueInFile, duplicates: duplicatesInFile } =
+      deduplicateContactsInFile(validRows);
+    logger.debug(
+      `In-payload duplicates: ${duplicatesInFile}, unique: ${uniqueInFile.length}`
+    );
+
+    // 4. Deduplicate against DB
+    logger.debug(`Checking for duplicates in database`);
+    const { unique: toInsert, duplicates: duplicatesInDb } =
+      await deduplicateContactsInDb(uniqueInFile, partnerId);
+    logger.debug(
+      `DB duplicates: ${duplicatesInDb}, records to insert: ${toInsert.length}`
+    );
+
+    // 5. Handle no new records
+    if (toInsert.length === 0) {
+      logger.debug(`No new records to insert, updating file record`);
+      // await updateFileRecord(fileUpload.id, 0, validRows.length);
+
+      return sendResponse(res, 200, "No new contacts to insert", {
+        totalRecords: totalRecords,
+        validRows: validRows.length,
+        inserted: 0,
+        skippedInvalid: errors.length,
+        skippedDuplicatesInFile: duplicatesInFile,
+        skippedDuplicatesInDb: duplicatesInDb,
+        errors,
+      });
+    }
+
+    // 6. Generate unique batch ID for this upload
+    const batchId = uuidv4();
+    logger.debug(
+      `Generated batch ID: ${batchId} for ${toInsert.length} records`
+    );
+
+    // 7. Map fields to database structure
+    logger.debug(`Mapping contact fields to database structure`);
+    const mappedRecords = await Promise.all(
+      toInsert.map((contact) => mapAllFields(contact))
+    );
+    logger.debug(`Mapped ${mappedRecords.length} records successfully`);
+
+    // 8. Process in batches (DB insertion only - NO HubSpot calls)
+    const BATCH_SIZE = 50;
+    const batches = chunkArray(mappedRecords, BATCH_SIZE);
+
+    logger.debug(
+      `Processing ${mappedRecords.length} records in ${batches.length} batches of ${BATCH_SIZE}`
+    );
+
+    let totalInserted = 0;
+    const insertionErrors: any[] = [];
+
+    // Process each batch
+    for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
+      const batch = batches[batchIndex];
+      const batchNumber = batchIndex + 1;
+
+      // Categorize records for database insertion
+      const categorizedRecords = await Promise.all(
+        batch.map((contact) => categorizeByTable(contact))
+      );
+
+      try {
+        logger.debug(
+          `Processing batch ${batchNumber}/${batches.length} (${batch.length} records)`
+        );
+
+        // Insert into DB only (no HubSpot sync during bulk)
+        const result = await createCSVContacts(categorizedRecords, partnerId, null);
+        totalInserted += result.count;
+
+        logger.debug(
+          `Batch ${batchNumber}: ${result.count} records inserted into DB`
+        );
+
+        // Create outbox entries for this batch (for async HubSpot sync)
+        await createBulkOutboxEntries(
+          batch,
+          batchId,
+          batchIndex * BATCH_SIZE
+        );
+
+        logger.debug(
+          `Batch ${batchNumber}: Outbox entries created for sync queue`
+        );
+      } catch (error: any) {
+        logger.error(`Batch ${batchNumber}: DB insertion failed`, { error });
+
+        insertionErrors.push({
+          batchNumber,
+          error: error.message,
+          recordCount: batch.length,
+        });
+      }
+    }
+
+    logger.debug(
+      `All ${batches.length} batches processed. Total inserted: ${totalInserted}`
+    );
+
+    // 9. Update FileUpload stats
+    // logger.debug(`Updating file upload record with results`);
+    // await updateFileRecord(
+    //   fileUpload.id,
+    //   totalInserted,
+    //   errors.length + insertionErrors.length
+    // );
+    // logger.debug(`File upload record updated successfully`);
+
+    return sendResponse(
+      res,
+      201,
+      "JSON bulk import processed successfully (sync queued)",
+      {
+        totalRecords: totalRecords,
+        validRows: validRows.length,
+        inserted: totalInserted,
+        skippedInvalid: errors.length,
+        skippedDuplicatesInFile: duplicatesInFile,
+        skippedDuplicatesInDb: duplicatesInDb,
+        batchesProcessed: batches.length,
+        batchId: batchId,
+        syncStatus: "queued",
+        errors: errors.concat(insertionErrors),
+      }
+    );
+  } catch (error) {
+    logger.error("Error in uploadContactsJSON:", error);
+    next(error);
+  }
+};
+
 
 /**
  *  Helper: Create bulk outbox entries for CSV batch

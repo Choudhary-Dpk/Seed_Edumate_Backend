@@ -4,7 +4,6 @@ export const mapAllB2BPartnerFields = async (
   input: Record<string, any>
 ): Promise<Record<string, any>> => {
   const mapped: Record<string, any> = {};
-  debugger
   // ===== MAIN PARTNER FIELDS =====
   if (input.company_id !== undefined || input.hs_company_id !== undefined) {
     mapped.company_id =

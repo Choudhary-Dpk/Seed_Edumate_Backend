@@ -179,6 +179,68 @@ export const getEdumateContactByPhone = async (phone: string) => {
   return contact;
 };
 
+export const getEdumateContactByEmailAndPartnerId = async (
+  email: string,
+  partnerId: number
+) => {
+  const contact = await prisma.hSEdumateContacts.findFirst({
+    include: {
+      personal_information: {
+        select: {
+          id: true,
+          first_name: true,
+          last_name: true,
+          email: true,
+          is_deleted: true,
+        },
+      },
+      academic_profile: true,
+    },
+    where: {
+      b2b_partner_id: partnerId,
+      personal_information: {
+        email: email,
+        is_deleted: false,
+      },
+    },
+  });
+
+  return contact;
+};
+
+export const getEdumateContactByPhoneAndPartnerId = async (
+  phone: string,
+  partnerId: number
+) => {
+  const contact = await prisma.hSEdumateContacts.findFirst({
+    include: {
+      personal_information: {
+        select: {
+          id: true,
+          first_name: true,
+          last_name: true,
+          email: true,
+          is_deleted: true,
+        },
+      },
+      application_journey: true,
+      system_tracking: true,
+      loan_preference: true,
+      academic_profile: true,
+      lead_attribution: true,
+    },
+    where: {
+      b2b_partner_id: partnerId,
+      personal_information: {
+        phone_number: phone,
+        is_deleted: false,
+      },
+    },
+  });
+
+  return contact;
+};
+
 export const createEdumateContact = async (
   tx: any,
   mainData?: any,
@@ -518,14 +580,36 @@ export const findContacts = async (batch: any[]) => {
   return contacts;
 };
 
+export const findContactsByPartnerId = async (
+  batch: any[],
+  partnerId: number
+) => {
+  const contacts = await prisma.hSEdumateContactsPersonalInformation.findMany({
+    where: {
+      OR: batch.map((v) => ({
+        OR: [{ email: v.email }, { phone_number: v.phoneNumber }],
+        is_deleted: false,
+        contact: {
+          b2b_partner_id: partnerId,
+        },
+      })),
+    },
+    select: {
+      email: true,
+      phone_number: true,
+    },
+  });
+
+  return contacts;
+};
+
 export async function createCSVContacts(
   contacts: Record<string, Record<string, any>>[],
-  userId: number,
+  partnerId: number,
   hubspotResults: any[] | null,
   batchId: string | null = null,
   batchPosition: number = 0
 ) {
-  const partnerId = await getPartnerIdByUserId(userId);
 
   return await prisma.$transaction(
     async (tx) => {
@@ -534,7 +618,7 @@ export async function createCSVContacts(
         data: contacts.map((c) => ({
           ...c["mainContact"],
           email: c["personalInformation"]?.email, //  Set email on main table
-          b2b_partner_id: partnerId!.b2b_id,
+          b2b_partner_id: partnerId,
         })),
         skipDuplicates: true,
       });
@@ -606,7 +690,7 @@ export async function createCSVContacts(
         .map((c) => {
           const email = c["personalInformation"]?.email;
           const contactId = email ? emailToIdMap.get(email) : null;
-          if (!contactId || !c["financialInfo"]) return null;
+          if (!contactId) return null;
           return {
             contact_id: contactId,
             ...c["financialInfo"],
@@ -618,7 +702,7 @@ export async function createCSVContacts(
         .map((c) => {
           const email = c["personalInformation"]?.email;
           const contactId = email ? emailToIdMap.get(email) : null;
-          if (!contactId || !c["loanPreference"]) return null;
+          if (!contactId) return null;
           return {
             contact_id: contactId,
             ...c["loanPreference"],
@@ -630,7 +714,7 @@ export async function createCSVContacts(
         .map((c) => {
           const email = c["personalInformation"]?.email;
           const contactId = email ? emailToIdMap.get(email) : null;
-          if (!contactId || !c["applicationJourney"]) return null;
+          if (!contactId) return null;
           return {
             contact_id: contactId,
             ...c["applicationJourney"],
@@ -642,7 +726,7 @@ export async function createCSVContacts(
         .map((c) => {
           const email = c["personalInformation"]?.email;
           const contactId = email ? emailToIdMap.get(email) : null;
-          if (!contactId || !c["systemTracking"]) return null;
+          if (!contactId) return null;
           return {
             contact_id: contactId,
             ...c["systemTracking"],

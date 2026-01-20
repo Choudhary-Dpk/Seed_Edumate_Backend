@@ -5,7 +5,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL") 
+  url      = env("DATABASE_URL")
 }
 
 model AdminUsers {
@@ -95,26 +95,24 @@ model AdminTokens {
 }
 
 model ContactUsers {
-  id                       Int                   @id @default(autoincrement())
-  contact_id               Int?
-  email                    String?                @unique
-  password_hash            String?
-  first_name              String?
-  last_name               String?
-  full_name                String?
-  phone                    String?               @unique
-  is_active                Boolean               @default(true)
-  favourite  Int[]                 @default([]) 
-  interested Int[]                 @default([])
-  source                   String?               @default("webportal")
-  created_at               DateTime              @default(now())
-  updated_at               DateTime              @default(now()) @updatedAt
-  
-  // Relations
-  contact                  HSEdumateContacts?    @relation("ContactUser", fields: [contact_id], references: [id], onDelete: Cascade)
-  contact_sessions         ContactSessions[]     @relation("ContactSessions")
-  contact_tokens           ContactTokens[]       @relation("ContactTokens")
-  contact_login_history    LoginHistory[] @relation("ContactLoginHistory")
+  id                    Int                @id @default(autoincrement())
+  contact_id            Int?
+  email                 String?            @unique
+  password_hash         String?
+  full_name             String?
+  phone                 String?            @unique
+  is_active             Boolean            @default(true)
+  favourite             Int[]              @default([])
+  interested            Int[]              @default([])
+  source                String?            @default("webportal")
+  created_at            DateTime           @default(now())
+  updated_at            DateTime           @default(now()) @updatedAt
+  first_name            String?
+  last_name             String?
+  contact_sessions      ContactSessions[]  @relation("ContactSessions")
+  contact_tokens        ContactTokens[]    @relation("ContactTokens")
+  contact               HSEdumateContacts? @relation("ContactUser", fields: [contact_id], references: [id], onDelete: Cascade)
+  contact_login_history LoginHistory[]     @relation("ContactLoginHistory")
 
   @@map("contact_users")
 }
@@ -217,12 +215,12 @@ model LoginHistory {
   id            Int               @id @default(autoincrement())
   b2b_user_id   Int?              @map("b2b_user_id")
   admin_user_id Int?              @map("admin_user_id")
-  student_id    Int?              @map("student_id")
   user_type     String?           @map("user_type")
   ip_address    String?           @map("ip_address") @db.Inet
   device_info   String?           @map("device_info")
   status        LoginStatus?      @map("status")
   created_at    DateTime          @default(now()) @map("created_at")
+  student_id    Int?              @map("student_id")
   admin_user    AdminUsers?       @relation("AdminLoginHistory", fields: [admin_user_id], references: [id], onDelete: Cascade)
   b2b_user      B2BPartnersUsers? @relation("LoginHistory", fields: [b2b_user_id], references: [id], onDelete: Cascade)
   student_user  ContactUsers?     @relation("ContactLoginHistory", fields: [student_id], references: [id], onDelete: Cascade)
@@ -266,7 +264,6 @@ model HSB2BPartners {
   registration_number        String?
   state                      String?
   website_url                String?
-  hs_created_by_user_id      Int?
   hs_createdate              DateTime?
   hs_lastmodifieddate        DateTime?
   hs_merged_object_ids       String?
@@ -277,7 +274,6 @@ model HSB2BPartners {
   hs_object_source_label     String?
   hs_shared_team_ids         String?
   hs_shared_user_ids         String?
-  hs_updated_by_user_id      Int?
   hubspot_owner_assigneddate DateTime?
   hubspot_owner_id           String?
   hubspot_team_id            String?
@@ -291,7 +287,9 @@ model HSB2BPartners {
   deleted_on                 DateTime?
   gst_rate                   Int?
   source                     String?                                  @default("webportal")
-  is_commission_applicable    String?          
+  hs_created_by_user_id      Int?
+  hs_updated_by_user_id      Int?
+  is_commission_applicable   String?
   company_id                 String?
   university_id              String?        
   logo_url                   String?               
@@ -310,8 +308,8 @@ model HSB2BPartners {
   system_tracking            HSB2BPartnersSystemTracking?
   commission_settlements     HSCommissionSettlements[]
   b2b_partner_contacts       HSEdumateContacts[]                      @relation("B2BPartnerContacts")
-  invoice                    Invoice[]
   loan_applications          HSLoanApplications[]
+  invoice                    Invoice[]
 
   @@index([partner_name])
   @@index([partner_type])
@@ -347,7 +345,6 @@ model HSB2BPartnersCommissionStructure {
   beneficiary_name            String?
   bonus_structure             String?
   commission_model            String?
-  commission_rate             Int?
   commission_type             String?
   fixed_commission_amount     Decimal?      @db.Decimal(16, 4)
   gst_applicable              String?
@@ -361,6 +358,7 @@ model HSB2BPartnersCommissionStructure {
   tiered_commission_structure String?
   created_at                  DateTime      @default(now())
   updated_at                  DateTime      @default(now()) @updatedAt
+  commission_rate             Int?
   partner                     HSB2BPartners @relation(fields: [partner_id], references: [id], onDelete: Cascade)
 
   @@map("hs_b2b_partners_commission_structure")
@@ -521,19 +519,19 @@ model HSB2BPartnersSystemTracking {
   partner_id             Int           @unique
   api_access_provided    String?
   created_by_user        String?
-  created_by            String?
   created_date           DateTime?
   data_source            String?
   integration_status     String?
   internal_tags          String?
   last_modified_by_user  String?
-  last_modified_by        String?
   last_modified_date     DateTime?
   notes                  String?
   partner_record_status  String?
   portal_access_provided String?
   created_at             DateTime      @default(now())
   updated_at             DateTime      @default(now()) @updatedAt
+  created_by             String?
+  last_modified_by       String?
   partner                HSB2BPartners @relation(fields: [partner_id], references: [id], onDelete: Cascade)
 
   @@index([partner_record_status])
@@ -601,22 +599,15 @@ model HSLoanApplications {
   user_id                    Int?
   deleted_by_id              Int?
   contact_id                 Int?
-  hs_contact_id              String?
-  b2b_partner_id             Int?
-  hs_b2b_partner_id          String?
-  lender_id                  Int?
-  hs_lender_id               String?
-  product_id                 Int?
-  hs_product_id              String?
-  student_id                 String?
   application_date           DateTime?
   application_source         String?
   assigned_counselor         String?
+  b2b_partner_id             Int?
   lead_reference_code        String?
+  student_id                 String?
   student_name               String?
   student_email              String?
   student_phone              String?
-  hs_created_by_user_id      Int?
   hs_createdate              DateTime?
   hs_lastmodifieddate        DateTime?
   hs_merged_object_ids       String?
@@ -627,7 +618,6 @@ model HSLoanApplications {
   hs_object_source_label     String?
   hs_shared_team_ids         String?
   hs_shared_user_ids         String?
-  hs_updated_by_user_id      Int?
   hubspot_owner_assigneddate DateTime?
   hubspot_owner_id           String?
   hubspot_team_id            String?
@@ -639,9 +629,17 @@ model HSLoanApplications {
   updated_at                 DateTime                                    @default(now()) @updatedAt
   deleted_by                 String?
   deleted_on                 DateTime?
+  lender_id                  Int?
+  product_id                 Int?
   source                     String?                                     @default("webportal")
-  partner                    HSB2BPartners?                              @relation(fields: [b2b_partner_id], references: [id], onDelete: Cascade)
+  hs_b2b_partner_id          String?
+  hs_contact_id              String?
+  hs_lender_id               String?
+  hs_product_id              String?
+  hs_created_by_user_id      Int?
+  hs_updated_by_user_id      Int?
   commission_settlement      HSCommissionSettlements[]
+  partner                    HSB2BPartners?                              @relation(fields: [b2b_partner_id], references: [id], onDelete: Cascade)
   contact                    HSEdumateContacts?                          @relation("ContactLoanApplications", fields: [contact_id], references: [id], onDelete: Cascade)
   lender                     HSLenders?                                  @relation(fields: [lender_id], references: [id], onDelete: Cascade)
   loan_product               HSLoanProducts?                             @relation(fields: [product_id], references: [id], onDelete: Cascade)
@@ -720,7 +718,6 @@ model HSLoanApplicationsCommissionRecords {
   commission_approval_date      DateTime?
   commission_calculation_base   String?
   commission_payment_date       DateTime?
-  commission_rate               Int?
   commission_status             String?
   partner_commission_applicable String?
   settlement_id                 String?
@@ -732,6 +729,7 @@ model HSLoanApplicationsCommissionRecords {
   gst_rate                      Decimal?           @db.Decimal(16, 4)
   tds_applicable                String?
   tds_rate                      Decimal?           @db.Decimal(16, 4)
+  commission_rate               Int?
   application                   HSLoanApplications @relation(fields: [application_id], references: [id], onDelete: Cascade)
 
   @@map("hs_loan_applications_commission_records")
@@ -792,8 +790,6 @@ model HSLoanApplicationsFinancialRequirements {
 
 model HSLoanApplicationsLenderInformation {
   id                       Int                @id @default(autoincrement())
-  loan_product_id          Int?
-  hs_loan_product_id       String?
   application_id           Int                @unique
   co_signer_required       String?
   collateral_required      String?
@@ -812,8 +808,10 @@ model HSLoanApplicationsLenderInformation {
   processing_fee           Decimal?           @db.Decimal(16, 4)
   created_at               DateTime           @default(now())
   updated_at               DateTime           @default(now()) @updatedAt
+  hs_loan_product_id       String?
+  loan_product_id          Int?
   application              HSLoanApplications @relation(fields: [application_id], references: [id], onDelete: Cascade)
-  loan_product             HSLoanProducts?     @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
+  loan_product             HSLoanProducts?    @relation(fields: [loan_product_id], references: [id], onDelete: Cascade)
 
   @@map("hs_loan_applications_lender_information")
 }
@@ -915,15 +913,15 @@ model EmailTypes {
 }
 
 model EmailHistory {
-  id            Int               @id @default(autoincrement())
-  reciepient    String            @map("reciepient")
-  cc            String?           @map("cc")
-  bcc           String?           @map("bcc")
-  subject       String?           @map("subject")
-  email_type_id Int               @map("email_type_id")
-  sent_at       DateTime?         @map("sent_at")
-  created_at    DateTime          @default(now()) @map("created_at")
-  email_type    EmailTypes        @relation(fields: [email_type_id], references: [id], onDelete: Cascade)
+  id            Int        @id @default(autoincrement())
+  reciepient    String     @map("reciepient")
+  cc            String?    @map("cc")
+  bcc           String?    @map("bcc")
+  email_type_id Int        @map("email_type_id")
+  sent_at       DateTime?  @map("sent_at")
+  created_at    DateTime   @default(now()) @map("created_at")
+  subject       String?    @map("subject")
+  email_type    EmailTypes @relation(fields: [email_type_id], references: [id], onDelete: Cascade)
 
   @@index([email_type_id])
   @@index([sent_at])
@@ -933,27 +931,15 @@ model EmailHistory {
 model HSEdumateContacts {
   id                           Int                                   @id @default(autoincrement())
   b2b_partner_id               Int?
-  hs_b2b_partner_id            String?
   deleted_by_id                Int?
-  favourite  Int[]             @default([]) 
-  interested Int[]             @default([])
   seed_contact                 String?
   course_type                  String?
   base_currency                String?
   study_destination_currency   String?
   user_selected_currency       String?
-  preferred_currency           String?
-  original_principal           Decimal?          @db.Decimal(16, 4)
-  exchange_rate_used           Decimal?          @db.Decimal(16, 4)
-  conversion_timestamp         String?
   co_applicant_1_email         String?
-  coapplicant_2_email          String?
-  coapplicant_3_email          String?
   co_applicant_1_mobile_number String?
-  coapplicant_2_mobile_number  String?
-  coapplicant_3_mobile_number  String?
   email                        String?
-  hs_created_by_user_id        Int?
   hs_createdate                DateTime?
   hs_lastmodifieddate          DateTime?
   hs_merged_object_ids         String?
@@ -964,7 +950,6 @@ model HSEdumateContacts {
   hs_object_source_label       String?
   hs_shared_team_ids           String?
   hs_shared_user_ids           String?
-  hs_updated_by_user_id        Int?
   hubspot_owner_assigneddate   DateTime?
   hubspot_owner_id             String?
   hubspot_team_id              String?
@@ -977,6 +962,20 @@ model HSEdumateContacts {
   deleted_by                   String?
   deleted_on                   DateTime?
   source                       String?                               @default("webportal")
+  hs_b2b_partner_id            String?
+  hs_created_by_user_id        Int?
+  hs_updated_by_user_id        Int?
+  favourite                    Int[]                                 @default([])
+  interested                   Int[]                                 @default([])
+  conversion_timestamp         String?
+  exchange_rate_used           Decimal?                              @db.Decimal(16, 4)
+  original_principal           Decimal?                              @db.Decimal(16, 4)
+  preferred_currency           String?
+  coapplicant_2_email          String?
+  coapplicant_2_mobile_number  String?
+  coapplicant_3_email          String?
+  coapplicant_3_mobile_number  String?
+  student                      ContactUsers[]                        @relation("ContactUser")
   commission_settlements       HSCommissionSettlements[]
   b2b_partner                  HSB2BPartners?                        @relation("B2BPartnerContacts", fields: [b2b_partner_id], references: [id], onDelete: Cascade)
   academic_profile             HSEdumateContactsAcademicProfiles?
@@ -990,7 +989,6 @@ model HSEdumateContacts {
   invoice                      Invoice[]
   eligibility_lead             MktEligibilityCheckerLeads?
   emi_lead                     MktEmiCalculatorLeads?
-  student                      ContactUsers[] @relation("ContactUser")
 
   @@index([hs_object_id])
   @@index([seed_contact])
@@ -1027,9 +1025,9 @@ model HSEdumateContactsAcademicProfiles {
   nmat_score                  Decimal?          @db.Decimal(16, 4)
   duolingo_score              Decimal?          @db.Decimal(16, 4)
   other_test_scores           String?
-  program_of_interest_final   String?
   created_at                  DateTime          @default(now())
   updated_at                  DateTime          @default(now()) @updatedAt
+  program_of_interest_final   String?
   contact                     HSEdumateContacts @relation(fields: [contact_id], references: [id], onDelete: Cascade)
 
   @@map("hs_edumate_contacts_academic_profiles")
@@ -1047,50 +1045,50 @@ model HSEdumateContactsApplicationJourney {
   last_contact_date                 DateTime?
   next_follow_up_date               DateTime?
   follow_up_date                    DateTime?
-  lifecycle_stages                  String?
-  lifecycle_stages_status           String?
   created_at                        DateTime          @default(now())
   updated_at                        DateTime          @default(now()) @updatedAt
+  lifecycle_stages                  String?           @default("Outreach yet to be initiated")
+  lifecycle_stages_status           String?
   contact                           HSEdumateContacts @relation(fields: [contact_id], references: [id], onDelete: Cascade)
 
   @@map("hs_edumate_contacts_application_journey")
 }
 
 model HSEdumateContactsFinancialInfo {
-  id                          Int               @id @default(autoincrement())
-  contact_id                  Int               @unique
-  annual_family_income        Decimal?          @db.Decimal(16, 4)
-  currency                    String?
-  total_course_cost           Decimal?          @db.Decimal(16, 4)
-  tuition_fee                 Decimal?          @db.Decimal(16, 4)
-  living_expenses             Decimal?          @db.Decimal(16, 4)
-  other_expenses              Decimal?          @db.Decimal(16, 4)
-  loan_amount_required        Decimal?          @db.Decimal(16, 4)
-  scholarship_amount          Decimal?          @db.Decimal(16, 4)
-  self_funding_amount         Decimal?          @db.Decimal(16, 4)
-  collateral_available        String?
-  collateral_type             String?
-  collateral_value            Decimal?          @db.Decimal(16, 4)
-  collateral_2_available      String?
-  collateral_2_type           String?
-  collateral_2_value          Decimal?          @db.Decimal(16, 4)
-  co_applicant_1_name         String?
-  co_applicant_1_email        String?
+  id                           Int               @id @default(autoincrement())
+  contact_id                   Int               @unique
+  annual_family_income         Decimal?          @db.Decimal(16, 4)
+  currency                     String?
+  total_course_cost            Decimal?          @db.Decimal(16, 4)
+  tuition_fee                  Decimal?          @db.Decimal(16, 4)
+  living_expenses              Decimal?          @db.Decimal(16, 4)
+  other_expenses               Decimal?          @db.Decimal(16, 4)
+  loan_amount_required         Decimal?          @db.Decimal(16, 4)
+  scholarship_amount           Decimal?          @db.Decimal(16, 4)
+  self_funding_amount          Decimal?          @db.Decimal(16, 4)
+  collateral_available         String?
+  collateral_type              String?
+  collateral_value             Decimal?          @db.Decimal(16, 4)
+  collateral_2_available       String?
+  collateral_2_type            String?
+  collateral_2_value           Decimal?          @db.Decimal(16, 4)
+  co_applicant_1_name          String?
+  co_applicant_1_relationship  String?
+  co_applicant_1_occupation    String?
+  co_applicant_1_income        Decimal?          @db.Decimal(16, 4)
+  co_applicant_2_name          String?
+  co_applicant_2_relationship  String?
+  co_applicant_2_occupation    String?
+  co_applicant_2_income        Decimal?          @db.Decimal(16, 4)
+  co_applicant_3_name          String?
+  co_applicant_3_relationship  String?
+  co_applicant_3_occupation    String?
+  co_applicant_3_income        Decimal?          @db.Decimal(16, 4)
+  created_at                   DateTime          @default(now())
+  updated_at                   DateTime          @default(now()) @updatedAt
+  co_applicant_1_email         String?
   co_applicant_1_mobile_number String?
-  co_applicant_1_relationship String?
-  co_applicant_1_occupation   String?
-  co_applicant_1_income       Decimal?          @db.Decimal(16, 4)
-  co_applicant_2_name         String?
-  co_applicant_2_relationship String?
-  co_applicant_2_occupation   String?
-  co_applicant_2_income       Decimal?          @db.Decimal(16, 4)
-  co_applicant_3_name         String?
-  co_applicant_3_relationship String?
-  co_applicant_3_occupation   String?
-  co_applicant_3_income       Decimal?          @db.Decimal(16, 4)
-  created_at                  DateTime          @default(now())
-  updated_at                  DateTime          @default(now()) @updatedAt
-  contact                     HSEdumateContacts @relation(fields: [contact_id], references: [id], onDelete: Cascade)
+  contact                      HSEdumateContacts @relation(fields: [contact_id], references: [id], onDelete: Cascade)
 
   @@map("hs_edumate_contacts_financial_info")
 }
@@ -1098,7 +1096,6 @@ model HSEdumateContactsFinancialInfo {
 model HSEdumateContactsLeadAttribution {
   id                            Int               @id @default(autoincrement())
   contact_id                    Int               @unique
-  hs_b2b_partner_id            String?
   lead_reference_code           String?
   lead_source                   String?
   lead_source_detail            String?
@@ -1114,6 +1111,7 @@ model HSEdumateContactsLeadAttribution {
   utm_term                      String?
   created_at                    DateTime          @default(now())
   updated_at                    DateTime          @default(now()) @updatedAt
+  hs_b2b_partner_id             String?
   contact                       HSEdumateContacts @relation(fields: [contact_id], references: [id], onDelete: Cascade)
 
   @@map("hs_edumate_contacts_lead_attribution")
@@ -1188,7 +1186,6 @@ model HSLenders {
   lender_category            String?
   lender_logo_url            String?
   website_url                String?
-  hs_created_by_user_id      Int?
   hs_createdate              DateTime?
   hs_lastmodifieddate        DateTime?
   hs_merged_object_ids       String?
@@ -1199,7 +1196,6 @@ model HSLenders {
   hs_object_source_label     String?
   hs_shared_team_ids         String?
   hs_shared_user_ids         String?
-  hs_updated_by_user_id      Int?
   hubspot_owner_assigneddate DateTime?
   hubspot_owner_id           String?
   hubspot_team_id            String?
@@ -1212,6 +1208,8 @@ model HSLenders {
   deleted_by                 String?
   deleted_on                 DateTime?
   source                     String?                       @default("webportal")
+  hs_created_by_user_id      Int?
+  hs_updated_by_user_id      Int?
   commission_settlements     HSCommissionSettlements[]
   business_metrics           HSLendersBusinessMetrics?
   contact_info               HSLendersContactInfo?
@@ -1352,7 +1350,6 @@ model HSLendersSystemTracking {
 model HSLoanProducts {
   id                                Int                                     @id @default(autoincrement())
   lender_id                         Int?
-  hs_lender_id                      String?
   lender_name                       String?
   partner_name                      String?
   product_name                      String?
@@ -1362,7 +1359,6 @@ model HSLoanProducts {
   product_category                  String?
   product_status                    String?
   last_updated_date                 DateTime?
-  hs_created_by_user_id             Int?
   hs_createdate                     DateTime?
   hs_lastmodifieddate               DateTime?
   hs_merged_object_ids              String?
@@ -1373,7 +1369,6 @@ model HSLoanProducts {
   hs_object_source_label            String?
   hs_shared_team_ids                String?
   hs_shared_user_ids                String?
-  hs_updated_by_user_id             Int?
   hubspot_owner_assigneddate        DateTime?
   hubspot_owner_id                  String?
   hubspot_team_id                   String?
@@ -1386,10 +1381,14 @@ model HSLoanProducts {
   deleted_by                        String?
   deleted_on                        DateTime?
   source                            String?                                 @default("webportal")
-  supported_countries               String?       
-  logo_url                          String?       
+  hs_lender_id                      String?
+  hs_created_by_user_id             Int?
+  hs_updated_by_user_id             Int?
+  supported_countries               String?
+  logo_url                          String?
   commission_settlement             HSCommissionSettlements[]
   loan_application                  HSLoanApplications[]
+  lender_information_records        HSLoanApplicationsLenderInformation[]
   lender                            HSLenders?                              @relation(fields: [lender_id], references: [id], onDelete: Cascade)
   processing_details                HSLoanProductsApplicationAndProcessing?
   collateral_security               HSLoanProductsCollateralAndSecurity?
@@ -1403,7 +1402,6 @@ model HSLoanProducts {
   system_integration                HSLoanProductsSystemIntegration?
   system_tracking                   HSLoanProductsSystemTracking?
   invoice                           Invoice[]
-  lender_information_records  HSLoanApplicationsLenderInformation[]
 
   @@index([product_name])
   @@index([lender_id])
@@ -1422,9 +1420,9 @@ model HSLoanProductsApplicationAndProcessing {
   documentation_list    String?
   mandatory_documents   String?
   optional_documents    String?
-  application_process   String?
   created_at            DateTime       @default(now())
   updated_at            DateTime       @default(now()) @updatedAt
+  application_process   String?
   product               HSLoanProducts @relation(fields: [product_id], references: [id], onDelete: Cascade)
 
   @@map("hs_loan_products_application_and_processing")
@@ -1484,31 +1482,31 @@ model HSLoanProductsEligibilityCriteria {
 }
 
 model HSLoanProductsFinancialTerms {
-  id                            Int            @id @default(autoincrement())
-  product_id                    Int            @unique
-  administrative_charges        Decimal?       @db.Decimal(16, 4)
-  interest_rate_range_max_secured       Decimal?       @db.Decimal(16, 4)
-  interest_rate_range_max_unsecured Decimal?           @db.Decimal(16,4)
-  interest_rate_range_min_secured       Decimal?       @db.Decimal(16, 4)
-  interest_rate_range_min_unsecured   Decimal?           @db.Decimal(16,4)
-  interest_rate_type            String?
-  legal_charges                 Decimal?       @db.Decimal(16, 4)
-  loan_to_value_ratio           String?
-  margin_money_percentage       Decimal?       @db.Decimal(16, 4)
-  maximum_loan_amount_secured   Decimal?       @db.Decimal(16, 4)
-  maximum_loan_amount_unsecured Decimal?       @db.Decimal(16, 4)
-  minimum_loan_amount_secured   Decimal?       @db.Decimal(16, 4)
-  minimum_loan_amount_unsecured Decimal?       @db.Decimal(16, 4)
-  processing_fee_amount         Decimal?       @db.Decimal(16, 4)
-  processing_fee_maximum        Decimal?       @db.Decimal(16, 4)
-  processing_fee_minimum        Decimal?       @db.Decimal(16, 4)
-  processing_fee_percentage     String?
-  processing_fee_type           String?
-  rack_rate                     Decimal?       @db.Decimal(16, 4)
-  valuation_charges             Decimal?       @db.Decimal(16, 4)
-  created_at                    DateTime       @default(now())
-  updated_at                    DateTime       @default(now()) @updatedAt
-  product                       HSLoanProducts @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  id                                Int            @id @default(autoincrement())
+  product_id                        Int            @unique
+  administrative_charges            Decimal?       @db.Decimal(16, 4)
+  interest_rate_type                String?
+  legal_charges                     Decimal?       @db.Decimal(16, 4)
+  loan_to_value_ratio               String?
+  margin_money_percentage           Decimal?       @db.Decimal(16, 4)
+  maximum_loan_amount_secured       Decimal?       @db.Decimal(16, 4)
+  maximum_loan_amount_unsecured     Decimal?       @db.Decimal(16, 4)
+  minimum_loan_amount_secured       Decimal?       @db.Decimal(16, 4)
+  minimum_loan_amount_unsecured     Decimal?       @db.Decimal(16, 4)
+  processing_fee_amount             Decimal?       @db.Decimal(16, 4)
+  processing_fee_maximum            Decimal?       @db.Decimal(16, 4)
+  processing_fee_minimum            Decimal?       @db.Decimal(16, 4)
+  processing_fee_percentage         String?
+  processing_fee_type               String?
+  rack_rate                         Decimal?       @db.Decimal(16, 4)
+  valuation_charges                 Decimal?       @db.Decimal(16, 4)
+  created_at                        DateTime       @default(now())
+  updated_at                        DateTime       @default(now()) @updatedAt
+  interest_rate_range_max_secured   Decimal?       @db.Decimal(16, 4)
+  interest_rate_range_max_unsecured Decimal?       @db.Decimal(16, 4)
+  interest_rate_range_min_secured   Decimal?       @db.Decimal(16, 4)
+  interest_rate_range_min_unsecured Decimal?       @db.Decimal(16, 4)
+  product                           HSLoanProducts @relation(fields: [product_id], references: [id], onDelete: Cascade)
 
   @@map("hs_loan_products_financial_terms")
 }
@@ -1580,9 +1578,9 @@ model HSLoanProductsSpecialFeatures {
   grace_period_benefits      String?
   loyalty_benefits           String?
   tax_benefits_available     String?
-  key_features               String?
   created_at                 DateTime       @default(now())
   updated_at                 DateTime       @default(now()) @updatedAt
+  key_features               String?
   product                    HSLoanProducts @relation(fields: [product_id], references: [id], onDelete: Cascade)
 
   @@map("hs_loan_products_special_features")
@@ -1609,7 +1607,6 @@ model HSLoanProductsSystemTracking {
   product_id            Int            @unique
   change_log            String?
   created_by_user       String?
-  created_by            String?
   created_date          DateTime?
   last_modified_by      String?
   last_modified_date    DateTime?
@@ -1620,6 +1617,7 @@ model HSLoanProductsSystemTracking {
   version_number        String?
   created_at            DateTime       @default(now())
   updated_at            DateTime       @default(now()) @updatedAt
+  created_by            String?
   product               HSLoanProducts @relation(fields: [product_id], references: [id], onDelete: Cascade)
 
   @@map("hs_loan_products_system_tracking")
@@ -1641,13 +1639,13 @@ model HSLoanDocuments {
   updated_at            DateTime?                            @default(now()) @updatedAt @map("updated_at")
   created_by            String?                              @map("created_by")
   updated_by            String?                              @map("updated_by")
-  hs_created_by_user_id Int?                                 @map("hs_created_by_user_id")
   hs_createdate         DateTime?                            @map("hs_createdate")
   hs_lastmodifieddate   DateTime?                            @map("hs_lastmodifieddate")
   hs_object_id          String?                              @map("hs_object_id")
-  hs_updated_by_user_id Int?                              @map("hs_updated_by_user_id")
   hubspot_owner_id      String?                              @map("hubspot_owner_id")
   source                String?                              @default("webportal")
+  hs_created_by_user_id Int?                                 @map("hs_created_by_user_id")
+  hs_updated_by_user_id Int?                                 @map("hs_updated_by_user_id")
   alternative_docs      HSLoanDocumentsAlternativeDocuments?
   applicability_rules   HSLoanDocumentsApplicability?
   compliance_config     HSLoanDocumentsCompliance?
@@ -1824,9 +1822,8 @@ model HSLoanDocumentsCustomerExperience {
 model HSCommissionSettlements {
   id                          Int                                           @id @default(autoincrement())
   settlement_id               String?                                       @unique
-  application_id              Int?
-  hs_application_id            String?
   settlement_reference_number String?
+  application_id              Int?
   partner_name                String?
   student_id                  String?
   student_name                String?
@@ -1835,7 +1832,6 @@ model HSCommissionSettlements {
   settlement_period           String?
   settlement_year             Int?
   verified_by                 String?
-  hs_created_by_user_id       Int?
   hs_createdate               DateTime?
   hs_lastmodifieddate         DateTime?
   hs_merged_object_ids        String?
@@ -1846,7 +1842,6 @@ model HSCommissionSettlements {
   hs_object_source_label      String?
   hs_shared_team_ids          String?
   hs_shared_user_ids          String?
-  hs_updated_by_user_id       Int?
   hubspot_owner_assigneddate  DateTime?
   hubspot_owner_id            String?
   hubspot_team_id             String?
@@ -1859,14 +1854,17 @@ model HSCommissionSettlements {
   deleted_by                  String?
   deleted_on                  DateTime?
   b2b_partner_id              Int?
-  hs_b2b_partner_id           String?
   lender_id                   Int?
-  hs_lender_id                String?
   lead_reference_id           Int?
-  hs_lead_reference_id        String?
   product_id                  Int?
-  hs_product_id               String?
   source                      String?                                       @default("webportal")
+  hs_application_id           String?
+  hs_b2b_partner_id           String?
+  hs_lead_reference_id        String?
+  hs_lender_id                String?
+  hs_product_id               String?
+  hs_created_by_user_id       Int?
+  hs_updated_by_user_id       Int?
   loan_application            HSLoanApplications?                           @relation(fields: [application_id], references: [id], onDelete: Cascade)
   b2b_partner                 HSB2BPartners?                                @relation(fields: [b2b_partner_id], references: [id], onDelete: Cascade)
   edumate_contacts            HSEdumateContacts?                            @relation(fields: [lead_reference_id], references: [id], onDelete: Cascade)
@@ -1949,9 +1947,6 @@ model HSCommissionSettlementsTaxAndDeductions {
   other_deductions_description String?
   total_deductions             Decimal?                @db.Decimal(16, 4)
   net_payable_amount           Decimal?                @db.Decimal(16, 4)
-  // withholding_tax_applicable   Boolean?                @default(false)
-  // withholding_tax_rate         Decimal?                @db.Decimal(16, 4)
-  // withholding_tax_amount       Decimal?                @db.Decimal(16, 4)
   created_at                   DateTime                @default(now())
   updated_at                   DateTime                @default(now()) @updatedAt
   settlement                   HSCommissionSettlements @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
@@ -2139,13 +2134,13 @@ model Invoice {
   commission_settlement_ids String?
   contact_id                Int?
   b2b_partner_id            Int?
-  hs_b2b_partner_id         String?
   application_id            Int?
   lender_id                 Int?
   product_id                Int?
   source                    String?             @default("webportal")
   createdAt                 DateTime            @default(now())
   updatedAt                 DateTime            @updatedAt
+  hs_b2b_partner_id         String?
   loan_application          HSLoanApplications? @relation(fields: [application_id], references: [id], onDelete: Cascade)
   partner                   HSB2BPartners?      @relation(fields: [b2b_partner_id], references: [id], onDelete: Cascade)
   contact                   HSEdumateContacts?  @relation(fields: [contact_id], references: [id], onDelete: Cascade)
@@ -2315,9 +2310,55 @@ model FieldMapping {
   @@map("field_mappings")
 }
 
+model ShortUrl {
+  id             String    @id @default(cuid())
+  code           String    @unique @db.VarChar(10)
+  createdAt      DateTime  @default(now())
+  createdBy      String?   @db.VarChar(255)
+  lastAccessedAt DateTime?
+  longUrl        String
+  redirectCount  Int       @default(0)
+  updatedAt      DateTime  @updatedAt
+
+  @@index([code])
+  @@index([createdBy])
+  @@index([createdAt])
+  @@map("short_urls")
+}
+
+model Testimonials {
+  id          Int      @id @default(autoincrement())
+  name        String?  @db.VarChar(255)
+  university  String?  @db.VarChar(255)
+  country     String?  @db.VarChar(100)
+  course      String?  @db.VarChar(255)
+  loan_amount String?  @db.VarChar(255)
+  rating      Int?     @default(5) @db.SmallInt
+  quote       String?
+  image       String?
+  is_active   Boolean  @default(true)
+  is_deleted  Boolean  @default(false)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@map("testimonials")
+}
+
+model FProgramOfInterest {
+  program_name  String?
+  hs_program_id Int     @id
+  hs_company_id Int?
+  school_name   String?
+
+  @@map("f_program_of_interest")
+}
+
 view leads_view {
   contact_id                  Int?
   b2b_partner_id              Int?
+  hubspot_owner_id            String?
+  created_at                  DateTime?
+  updated_at                  DateTime?
   first_name                  String?
   last_name                   String?
   email                       String?
@@ -2328,6 +2369,11 @@ view leads_view {
   current_course_major        String?
   preferred_study_destination String?
   target_universities         String?
+  intake_year                 String?
+  intake_month                String?
+  program_of_interest_final   String?
+  lifecycle_stages            String?  
+  lifecycle_stages_status     String?
   loan_application_id         Int?
   application_date            DateTime?
   student_id                  String?
@@ -2344,49 +2390,6 @@ view leads_view {
   loan_amount_approved        Decimal?  @db.Decimal(16, 4)
   loan_amount_disbursed       Decimal?  @db.Decimal(16, 4)
   processing_fee              Decimal?  @db.Decimal(16, 4)
-}
-
-model ShortUrl {
-  id              String    @id @default(cuid())
-  code            String    @unique @db.VarChar(10)
-  longUrl         String    @db.Text
-  redirectCount   Int       @default(0)
-  createdBy       String?   @db.VarChar(255)
-  lastAccessedAt  DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-
-  @@index([code])
-  @@index([createdBy])
-  @@index([createdAt])
-  @@map("short_urls")
-}
-
-model Testimonials {
-  id          Int      @id @default(autoincrement())
-  name        String?   @db.VarChar(255)
-  university  String?   @db.VarChar(255)
-  country     String?   @db.VarChar(100)
-  course      String?   @db.VarChar(255)
-  loan_amount String?  @db.VarChar(255)
-  rating      Int?      @default(5) @db.SmallInt
-  quote       String?   @db.Text
-  image       String?  @db.Text
-  is_active   Boolean  @default(true)
-  is_deleted  Boolean  @default(false)
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
-
-  @@map("testimonials")
-}
-
-model FProgramOfInterest {
-  id  Int @id @default(autoincrement())
-  program_name String?
-  hs_program_id Int?
-  hs_company_id Int?
-
-  @@map("f_program_of_interest")
 }
 
 enum AuditAction {

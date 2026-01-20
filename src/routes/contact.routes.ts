@@ -7,6 +7,7 @@ import {
 } from "../middlewares/validators/validator";
 import {
   validateContactLeadById,
+  validateContactsJSONPayload,
   validateContactsLeadPayload,
 } from "../middlewares/contacts";
 import {
@@ -16,6 +17,7 @@ import {
   editContactsLead,
   getContactsLeadDetails,
   uploadContactsCSV,
+  uploadContactsJSON,
   upsertContactsLead,
 } from "../controllers/contact.controller";
 import { validateAndParseCSVFile } from "../middlewares/loanApplication.middleware";
@@ -87,6 +89,16 @@ router.post(
   }),
   validateAndParseCSVFile("CSV"),
   uploadContactsCSV
+);
+// Bulk upload contacts via JSON payload
+router.post(
+  "/bulk-import",
+  authenticate({
+    method: AuthMethod.BOTH,
+    allowedRoles: ["Admin", "Manager", "User"],
+  }),
+  validateContactsJSONPayload,
+  uploadContactsJSON
 );
 router.get("/template", downloadContactsTemplate);
 

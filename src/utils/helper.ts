@@ -2,7 +2,7 @@ import crypto from "crypto";
 import { Row, ValidationResult } from "../types/leads.types";
 import { findLeads } from "../models/helpers/loanApplication.helper";
 import { parse } from "csv-parse";
-import { findContacts } from "../models/helpers/contact.helper";
+import { findContacts, findContactsByPartnerId } from "../models/helpers/contact.helper";
 import { ContactsLead, ContactsValidationResult } from "../types/contact.types";
 
 // Helper function for consistent 2-decimal rounding
@@ -271,6 +271,7 @@ export const validateContactRows = (
     const intakeMonth = r["Intake Month"]?.toString().trim();
     const admissionStatus = r["Admission Status"]?.toString().trim();
     const educationLevel = r["Current Education Level"]?.toString().trim();
+    const programOfInterest = r["Program Of Interest"]?.toString().trim();
 
     // --- Required validations ---
     if (!firstName) rowErrors.push("Missing First Name");
@@ -279,35 +280,35 @@ export const validateContactRows = (
     if (!phoneNumber) rowErrors.push("Missing Phone Number");
 
     // --- Enum validations ---
-    if (admissionStatus && !VALID_ADMISSION_STATUS.includes(admissionStatus)) {
-      rowErrors.push(
-        `Invalid Admission Status: "${admissionStatus}". Valid values: ${VALID_ADMISSION_STATUS.join(
-          ", "
-        )}`
-      );
-    }
+    // if (admissionStatus && !VALID_ADMISSION_STATUS.includes(admissionStatus)) {
+    //   rowErrors.push(
+    //     `Invalid Admission Status: "${admissionStatus}". Valid values: ${VALID_ADMISSION_STATUS.join(
+    //       ", "
+    //     )}`
+    //   );
+    // }
 
-    if (
-      educationLevel &&
-      !VALID_CURRENT_EDUCATION_LEVEL.includes(educationLevel)
-    ) {
-      rowErrors.push(
-        `Invalid Current Education Level: "${educationLevel}". Valid values: ${VALID_CURRENT_EDUCATION_LEVEL.join(
-          ", "
-        )}`
-      );
-    }
+    // if (
+    //   educationLevel &&
+    //   !VALID_CURRENT_EDUCATION_LEVEL.includes(educationLevel)
+    // ) {
+    //   rowErrors.push(
+    //     `Invalid Current Education Level: "${educationLevel}". Valid values: ${VALID_CURRENT_EDUCATION_LEVEL.join(
+    //       ", "
+    //     )}`
+    //   );
+    // }
 
-    if (
-      targetDegreeLevel &&
-      !VALID_TARGET_DEGREE_LEVEL.includes(targetDegreeLevel)
-    ) {
-      rowErrors.push(
-        `Invalid Target Degree Level: "${targetDegreeLevel}". Valid values: ${VALID_TARGET_DEGREE_LEVEL.join(
-          ", "
-        )}`
-      );
-    }
+    // if (
+    //   targetDegreeLevel &&
+    //   !VALID_TARGET_DEGREE_LEVEL.includes(targetDegreeLevel)
+    // ) {
+    //   rowErrors.push(
+    //     `Invalid Target Degree Level: "${targetDegreeLevel}". Valid values: ${VALID_TARGET_DEGREE_LEVEL.join(
+    //       ", "
+    //     )}`
+    //   );
+    // }
 
     // Optional but typed validations
     let dateOfBirth: Date | undefined;
@@ -341,6 +342,7 @@ export const validateContactRows = (
         studyDestination: preferredStudyDestination,
         targetDegreeLevel,
         intakeMonth,
+        programOfInterest,
         userId,
         createdBy: userId.toString(),
       });
@@ -353,14 +355,14 @@ export const validateContactRows = (
 const normalizeEmail = (email: string | undefined | null) =>
   email?.trim().toLowerCase() ?? "";
 
-export const deduplicateContactsInDb = async (rows: ContactsLead[]) => {
+export const deduplicateContactsInDb = async (rows: ContactsLead[], partnerId: number) => {
   const key = (v: ContactsLead) => `${normalizeEmail(v.email)}`;
   const existingKeys = new Set<string>();
 
   for (const batch of chunk(rows, 1000)) {
     if (batch.length === 0) continue;
 
-    const found = await findContacts(batch);
+    const found = await findContactsByPartnerId(batch, partnerId);
     console.log("found", found);
 
     for (const f of found) {

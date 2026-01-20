@@ -1,6 +1,9 @@
 SELECT
   c.id AS contact_id,
   c.b2b_partner_id,
+  c.hubspot_owner_id,
+  c.created_at,
+  c.updated_at,
   pi.first_name,
   pi.last_name,
   pi.email,
@@ -11,6 +14,11 @@ SELECT
   ap.current_course_major,
   ap.preferred_study_destination,
   ap.target_universities,
+  ap.intake_year,
+  ap.intake_month,
+  ap.program_of_interest_final,
+  aj.lifecycle_stages,
+  aj.lifecycle_stages_status,
   la.id AS loan_application_id,
   la.application_date,
   la.student_id,
@@ -37,10 +45,13 @@ FROM
               (
                 (
                   (
-                    hs_edumate_contacts c
-                    LEFT JOIN hs_edumate_contacts_personal_information pi ON ((c.id = pi.contact_id))
+                    (
+                      hs_edumate_contacts c
+                      LEFT JOIN hs_edumate_contacts_personal_information pi ON ((c.id = pi.contact_id))
+                    )
+                    LEFT JOIN hs_edumate_contacts_academic_profiles ap ON ((c.id = ap.contact_id))
                   )
-                  LEFT JOIN hs_edumate_contacts_academic_profiles ap ON ((c.id = ap.contact_id))
+                  LEFT JOIN hs_edumate_contacts_application_journey aj ON ((c.id = aj.contact_id))
                 )
                 LEFT JOIN hs_loan_applications la ON ((pi.email = la.student_email))
               )
