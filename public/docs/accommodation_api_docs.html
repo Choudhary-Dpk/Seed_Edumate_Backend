@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accommodation API Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --dark-bg: #0f172a;
+            --dark-surface: #1e293b;
+            --dark-border: #334155;
+            --dark-text: #e2e8f0;
+            --light-bg: #ffffff;
+            --light-surface: #f8fafc;
+            --light-border: #e2e8f0;
+            --light-text: #1e293b;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            background: var(--light-bg);
+            color: var(--light-text);
+            transition: all 0.3s ease;
+        }
+
+        body.dark-mode {
+            background: var(--dark-bg);
+            color: var(--dark-text);
+        }
+
+        /* Login Screen */
+        #login-screen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .login-container {
+            background: white;
+            padding: 3rem;
+            border-radius: 1rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 400px;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-container h1 {
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            font-size: 1.75rem;
+        }
+
+        .login-container p {
+            color: #64748b;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #475569;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 0.875rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .login-btn:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            display: none;
+            font-size: 0.875rem;
+        }
+
+        /* Main Documentation */
+        #documentation {
+            display: none;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .header-subtitle {
+            opacity: 0.9;
+            margin-top: 0.5rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .theme-toggle, .logout-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+        }
+
+        .theme-toggle:hover, .logout-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .info-card {
+            background: var(--light-surface);
+            border: 1px solid var(--light-border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        body.dark-mode .info-card {
+            background: var(--dark-surface);
+            border-color: var(--dark-border);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.7;
+            margin-bottom: 0.25rem;
+        }
+
+        .info-value {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .endpoint-section {
+            margin-bottom: 3rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .endpoint-card {
+            background: var(--light-surface);
+            border: 1px solid var(--light-border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        body.dark-mode .endpoint-card {
+            background: var(--dark-surface);
+            border-color: var(--dark-border);
+        }
+
+        .endpoint-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .endpoint-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .method-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .method-get {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .method-post {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        body.dark-mode .method-get {
+            background: #1e3a8a;
+            color: #bfdbfe;
+        }
+
+        body.dark-mode .method-post {
+            background: #14532d;
+            color: #bbf7d0;
+        }
+
+        .endpoint-path {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .endpoint-description {
+            color: #64748b;
+            margin-bottom: 1rem;
+        }
+
+        body.dark-mode .endpoint-description {
+            color: #94a3b8;
+        }
+
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+            position: relative;
+        }
+
+        .code-block pre {
+            margin: 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .params-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        .params-table th,
+        .params-table td {
+            text-align: left;
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--light-border);
+        }
+
+        body.dark-mode .params-table th,
+        body.dark-mode .params-table td {
+            border-bottom-color: var(--dark-border);
+        }
+
+        .params-table th {
+            background: var(--light-surface);
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        body.dark-mode .params-table th {
+            background: var(--dark-surface);
+        }
+
+        .required-badge {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 0.125rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        body.dark-mode .required-badge {
+            background: #7f1d1d;
+            color: #fecaca;
+        }
+
+        .optional-badge {
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 0.125rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        body.dark-mode .optional-badge {
+            background: #312e81;
+            color: #c7d2fe;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="login-screen">
+        <div class="login-container">
+            <h1>🔐 API Documentation</h1>
+            <p>Enter password to access the documentation</p>
+            <div id="error-message" class="error-message">Invalid password. Please try again.</div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Enter password" required autofocus>
+                </div>
+                <button type="submit" class="login-btn">Access Documentation</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Documentation -->
+    <div id="documentation">
+        <div class="header">
+            <div class="header-content">
+                <div>
+                    <h1>🏠 Accommodation API Documentation</h1>
+                    <p class="header-subtitle">University Living Integration - SEED Global Education</p>
+                </div>
+                <div class="header-actions">
+                    <button class="theme-toggle" onclick="toggleTheme()">🌙 Dark Mode</button>
+                    <button class="logout-btn" onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <!-- Overview -->
+            <div class="info-card">
+                <h2>📋 API Overview</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Base Route</span>
+                        <span class="info-value">/accom</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Authentication</span>
+                        <span class="info-value">API Key (X-API-Key header)</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Total Endpoints</span>
+                        <span class="info-value">9 Endpoints</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Rate Limit</span>
+                        <span class="info-value">300 req/min (UL limit)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reference Data Endpoints -->
+            <div class="endpoint-section">
+                <h2 class="section-title">📚 Reference Data APIs</h2>
+
+                <!-- Get Providers -->
+                <div class="endpoint-card">
+                    <div class="endpoint-header">
+                        <span class="method-badge method-get">GET</span>
+                        <span class="endpoint-path">/accom/providers</span>
+                    </div>
+                    <p class="endpoint-description">Get list of all accommodation providers</p>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre>curl -X GET http://your-server.com/accom/providers \
+  -H "X-API-Key: your-api-key"</pre>
+                    </div>
+                    <p><strong>Response:</strong></p>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre>[
+  {"name": "iQ"},
+  {"name": "Unilodge"},
+  {"name": "Iglu"}
+]</pre>
+                    </div>
+                </div>
+
+                <!-- Get Cities -->
+                <div class="endpoint-card">
+                    <div class="endpoint-header">
+                        <span class="method-badge method-get">GET</span>
+                        <span class="endpoint-path">/accom/cities</span>
+                    </div>
+                    <p class="endpoint-description">Get list of all cities with available accommodations</p>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre>curl -X GET http://your-server.com/accom/cities \
+  -H "X-API-Key: your-api-key"</pre>
+                    </div>
+                </div>
+
+                <!-- Get Universities -->
+                <div class="endpoint-card">
+                    <div class="endpoint-header">
+                        <span class="method-badge method-get">GET</span>
+                        <span class="endpoint-path">/accom/universities</span>
+                    </div>
+                    <p class="endpoint-description">Get list of all universities</p>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre>curl -X GET http://your-server.com/accom/universities \
+  -H "X-API-Key: your-api-key"</pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Property Endpoints -->
+            <div class="endpoint-section">
+                <h2 class="section-title">🏘️ Property APIs</h2>
+
+                <!-- Get Properties -->
+                <div class="endpoint-card">
+                    <div class="endpoint-header">
+                        <span class="method-badge method-get">GET</span>
+                        <span class="endpoint-path">/accom/properties</span>
+                    </div>
+                    <p class="endpoint-description">Get property listings with optional filters</p>
+                    
+                    <p><strong>Query Parameters:</strong></p>
+                    <table class="params-table">
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Type</th>
+                                <th>Required</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>city</code></td>
+                                <td>string</td>
+                                <td><span class="optional-badge">Optional</span></td>
+                                <td>Filter by city name (e.g., "London")</td>
+                            </tr>
+                            <tr>
+                                <td><code>provider</code></td>
+                                <td>string</td>
+                                <td><span class="optional-badge">Optional</span></td>
+                                <td>Filter by provider name (e.g., "iQ")</td>
+                            </tr>
+                            <tr>
+                                <td><code>universityId</code></td>
+                                <td>string</td>
+                                <td><span class="optional-badge">Optional</span></td>
+                                <td>Filter by university ID (24 chars)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre>curl -X GET "http://your-server.com/accom/properties?city=London&provider=iQ" \
+  -H "X-API-Key: your-api-key"</pre>
+                    </div>
+                </div>
+
+                <!-- Get Property Details -->
+                <div class="endpoint-card">
+                    <div class="endpoint-header">
+                        <span class="method-badge method-get">GET</span>
+                        <span class="endpoint-path">/accom/properties/:id</span>
+                    </div>
+                    <p class="endpoint-description">Get detailed property information by ID</p>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre>curl -X GET http://your-server.com/accom/properties/5ae6d814e5504726a69fc78f \
+  -H "X-API-Key: your-api-key"</pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lead Endpoints -->
+            <div class="endpoint-section">
+                <h2 class="section-title">📝 Lead Management APIs</h2>
+
+                <!-- Create Lead -->
+                <div class="endpoint-card">
+                    <div class="endpoint-header">
+                        <span class="method-badge method-post">POST</span>
+                        <span class="endpoint-path">/accom/leads</span>
+                    </div>
+                    <p class="endpoint-description">Create a new accommodation lead</p>
+                    
+                    <p><strong>Request Body Fields:</strong></p>
+                    <table class="params-table">
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Type</th>
+                                <th>Required</th>
+                                <th>Constraints</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>firstName</code></td>
+                                <td>string</td>
+                                <td><span class="required-badge">Required</span></td>
+                                <td>Max 25 characters</td>
+                            </tr>
+                            <tr>
+                                <td><code>lastName</code></td>
+                                <td>string</td>
+                                <td><span class="required-badge">Required</span></td>
+                                <td>Max 25 characters</td>
+                            </tr>
+                            <tr>
+                                <td><code>email</code></td>
+                                <td>string</td>
+                                <td><span class="required-badge">Required</span></td>
+                                <td>Valid email, max 52 chars</td>
+                            </tr>
+                            <tr>
+                                <td><code>contactNo</code></td>
+                                <td>string</td>
+                                <td><span class="required-badge">Required</span></td>
+                                <td>Format: +91-9999999999</td>
+                            </tr>
+                            <tr>
+                                <td><code>dateOfBirth</code></td>
+                                <td>string</td>
+                                <td><span class="required-badge">Required</span></td>
+                                <td>Format: YYYY-MM-DD</td>
+                            </tr>
+                            <tr>
+                                <td><code>budget</code></td>
+                                <td>string</td>
+                                <td><span class="required-badge">Required</span></td>
+                                <td>Format: CURRENCY-AMOUNT</td>
+                            </tr>
+                            <tr>
+                                <td><code>gender</code></td>
+                                <td>string</td>
+                                <td><span class="required-badge">Required</span></td>
+                                <td>Max 6 characters</td>
+                            </tr>
+                            <tr>
+                                <td><code>nationality</code></td>
+                                <td>string</td>
+                                <td><span class="required-badge">Required</span></td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td><code>universityId</code></td>
+                                <td>string</td>
+                                <td><span class="required-badge">Required</span></td>
+                                <td>24 characters</td>
+                            </tr>
+                            <tr>
+                                <td><code>message</code></td>
+                                <td>string</td>
+                                <td><span class="optional-badge">Optional</span></td>
+                                <td>Max 255 characters</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre>curl -X POST http://your-server.com/accom/leads \
+  -H "X-API-Key: your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john.doe@example.com",
+    "contactNo": "+91-9999999999",
+    "dateOfBirth": "2000-01-01",
+    "budget": "INR-10000",
+    "gender": "male",
+    "nationality": "Indian",
+    "universityId": "5c132a7d3ef96e7a40d6a7a7",
+    "message": "Looking for accommodation"
+  }'</pre>
+                    </div>
+                </div>
+
+                <!-- Get Lead Status -->
+                <div class="endpoint-card">
+                    <div class="endpoint-header">
+                        <span class="method-badge method-get">GET</span>
+                        <span class="endpoint-path">/accom/leads/:id</span>
+                    </div>
+                    <p class="endpoint-description">Get lead status by lead ID</p>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre>curl -X GET http://your-server.com/accom/leads/ULINAPI15424178715626 \
+  -H "X-API-Key: your-api-key"</pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Booking Endpoints -->
+            <div class="endpoint-section">
+                <h2 class="section-title">🎫 Booking Management APIs</h2>
+
+                <!-- Create Booking -->
+                <div class="endpoint-card">
+                    <div class="endpoint-header">
+                        <span class="method-badge method-post">POST</span>
+                        <span class="endpoint-path">/accom/bookings</span>
+                    </div>
+                    <p class="endpoint-description">Create a new accommodation booking</p>
+                    <p><em>Note: All fields in personalInfo, universityInfo, and guardianInfo are required</em></p>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre>curl -X POST http://your-server.com/accom/bookings \
+  -H "X-API-Key: your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "propertyId": "5ae6d814e5504726a69fc78f",
+    "price": 467,
+    "tenancy": "17 weeks",
+    "categoryId": "60585055fa85db02d333f748",
+    "roomId": "5ae6d814e5504726a69fc794",
+    "message": "Booking request",
+    "personalInfo": {
+      "firstName": "John",
+      "lastName": "Doe",
+      "email": "john@example.com",
+      "mobile": "+91-9999999999",
+      "dob": "2001-03-20",
+      "gender": "male",
+      "address": "24 Main Street",
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "postcode": "400001",
+      "country": "India",
+      "nationality": "Indian"
+    },
+    "universityInfo": {
+      "universityId": "5c132a7d3ef96e7a40d6a7a7",
+      "courseName": "MBA",
+      "yearOfStudy": "1st Year",
+      "startDate": "2025-01-15",
+      "endDate": "2025-05-30"
+    },
+    "guardianInfo": {
+      "fullName": "Jane Doe",
+      "email": "jane@example.com",
+      "mobile": "+91-8888888888",
+      "relationship": "Mother",
+      "address": "24 Main Street",
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "postcode": "400001",
+      "country": "India",
+      "nationality": "Indian"
+    }
+  }'</pre>
+                    </div>
+                </div>
+
+                <!-- Get Booking Status -->
+                <div class="endpoint-card">
+                    <div class="endpoint-header">
+                        <span class="method-badge method-get">GET</span>
+                        <span class="endpoint-path">/accom/bookings/:id</span>
+                    </div>
+                    <p class="endpoint-description">Get booking details and status by order ID</p>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre>curl -X GET http://your-server.com/accom/bookings/ULINAC08822940981927 \
+  -H "X-API-Key: your-api-key"</pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error Codes -->
+            <div class="info-card">
+                <h2>⚠️ Common Error Codes</h2>
+                <table class="params-table">
+                    <thead>
+                        <tr>
+                            <th>Status Code</th>
+                            <th>Meaning</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>400</strong></td>
+                            <td>Bad Request</td>
+                            <td>Validation errors in request payload</td>
+                        </tr>
+                        <tr>
+                            <td><strong>401</strong></td>
+                            <td>Unauthorized</td>
+                            <td>Invalid or missing API key</td>
+                        </tr>
+                        <tr>
+                            <td><strong>403</strong></td>
+                            <td>Forbidden</td>
+                            <td>Insufficient permissions</td>
+                        </tr>
+                        <tr>
+                            <td><strong>404</strong></td>
+                            <td>Not Found</td>
+                            <td>Resource doesn't exist</td>
+                        </tr>
+                        <tr>
+                            <td><strong>429</strong></td>
+                            <td>Too Many Requests</td>
+                            <td>Rate limit exceeded (300 req/min)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>500</strong></td>
+                            <td>Internal Server Error</td>
+                            <td>Server error</td>
+                        </tr>
+                        <tr>
+                            <td><strong>503</strong></td>
+                            <td>Service Unavailable</td>
+                            <td>University Living API is down</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Password protection
+        const API_PASSWORD = 'edu@acco'; // Change this password
+
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('error-message');
+
+            if (password === API_PASSWORD) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('documentation').style.display = 'block';
+                sessionStorage.setItem('authenticated', 'true');
+            } else {
+                errorMessage.style.display = 'block';
+                setTimeout(() => {
+                    errorMessage.style.display = 'none';
+                }, 3000);
+            }
+        });
+
+        // Check if already authenticated
+        window.addEventListener('load', function() {
+            if (sessionStorage.getItem('authenticated') === 'true') {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('documentation').style.display = 'block';
+            }
+        });
+
+        // Logout
+        function logout() {
+            sessionStorage.removeItem('authenticated');
+            document.getElementById('login-screen').style.display = 'flex';
+            document.getElementById('documentation').style.display = 'none';
+            document.getElementById('password').value = '';
+        }
+
+        // Theme toggle
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const btn = document.querySelector('.theme-toggle');
+            if (document.body.classList.contains('dark-mode')) {
+                btn.textContent = '☀️ Light Mode';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                btn.textContent = '🌙 Dark Mode';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Load saved theme
+        window.addEventListener('load', function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                document.querySelector('.theme-toggle').textContent = '☀️ Light Mode';
+            }
+        });
+
+        // Copy code functionality
+        function copyCode(btn) {
+            const codeBlock = btn.parentElement;
+            const code = codeBlock.querySelector('pre').textContent;
+            
+            navigator.clipboard.writeText(code).then(() => {
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

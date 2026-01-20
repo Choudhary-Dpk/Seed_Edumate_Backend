@@ -419,6 +419,7 @@ async function transformToHubSpotFormat(contact: any): Promise<any> {
 
   return {
     db_id: contact.id || personalInfo.contact_id,
+    b2b_partner_db_id: contact.b2b_partner_id || null,
     email: personalInfo.email || null,
     first_name: personalInfo.first_name || null,
     last_name: personalInfo.last_name || null,
