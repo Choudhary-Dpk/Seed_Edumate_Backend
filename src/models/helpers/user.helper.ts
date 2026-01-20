@@ -108,6 +108,7 @@ export const getUserProfile = async (userId: number) => {
           partner_name: true,
           partner_display_name: true,
           is_commission_applicable: true,
+          logo_url: true,
         },
       },
       roles: {

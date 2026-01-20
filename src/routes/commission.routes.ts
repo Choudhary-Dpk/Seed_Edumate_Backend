@@ -51,10 +51,10 @@ router.get(
 );
 router.get(
   "/pagination",
-  authenticate({
-    method: AuthMethod.API_KEY,
-  }),
-  getCommissionSettlementsListController
+  // authenticate({
+  //   method: AuthMethod.API_KEY,
+  // }),
+  getCommissionSettlementsListController,
 );
 router.get("/lead", getCommissionSettlementsByLead);
 router.post(

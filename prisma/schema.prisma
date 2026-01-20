@@ -293,7 +293,8 @@ model HSB2BPartners {
   source                     String?                                  @default("webportal")
   is_commission_applicable    String?          
   company_id                 String?
-  university_id              String?                       
+  university_id              String?        
+  logo_url                   String?               
   users                      B2BPartnersUsers[]
   deleted_by_user            B2BPartnersUsers?                        @relation("PartnerDeletedBy", fields: [deleted_by], references: [id], onDelete: Cascade)
   business_capabilities      HSB2BPartnersBusinessCapabilities?
