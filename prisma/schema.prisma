@@ -940,6 +940,7 @@ model HSEdumateContacts {
   co_applicant_1_email         String?
   co_applicant_1_mobile_number String?
   email                        String?
+  batch_id                     String?
   hs_createdate                DateTime?
   hs_lastmodifieddate          DateTime?
   hs_merged_object_ids         String?

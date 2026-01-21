@@ -612,189 +612,165 @@ export async function createCSVContacts(
   batchId: string | null = null,
   batchPosition: number = 0
 ) {
-
   return await prisma.$transaction(
     async (tx) => {
-      //  Step 1: Bulk insert main contacts with EMAIL
+      // Generate unique batch ID
+      const currentBatchId = batchId || `batch_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      // Step 1: Insert ALL contacts with batch_id
       await tx.hSEdumateContacts.createMany({
         data: contacts.map((c) => ({
           ...c["mainContact"],
-          email: c["personalInformation"]?.email, //  Set email on main table
+          email: c["personalInformation"]?.email,
           b2b_partner_id: partnerId,
+          batch_id: currentBatchId, // Track this batch
         })),
-        skipDuplicates: true,
       });
 
-      //  Step 2: Fetch inserted contacts by EMAIL (super reliable!)
-      const emails = contacts
-        .map((c) => c["personalInformation"]?.email)
-        .filter((email): email is string => !!email && email.trim() !== "");
-
-      if (emails.length === 0) {
-        throw new Error("No valid emails found in contacts");
-      }
-
+      // Step 2: Fetch ALL contacts from THIS batch only
       const insertedContacts = await tx.hSEdumateContacts.findMany({
         where: {
-          email: { in: emails },
+          batch_id: currentBatchId,
         },
         select: {
           id: true,
           email: true,
         },
+        orderBy: {
+          id: 'asc', // Maintain insertion order
+        },
       });
 
-      //  Step 3: Create email-to-ID mapping
-      const emailToIdMap = new Map(
-        insertedContacts.map((c) => [c.email, c.id])
-      );
+      logger.debug(`Inserted ${insertedContacts.length} contacts in batch ${currentBatchId}`);
 
-      logger.debug(`Mapped ${emailToIdMap.size} contacts by email`);
+      // Step 3: Map contacts to IDs in order
+      const emailToIdMap = new Map<string, number[]>();
+      
+      insertedContacts.forEach((c) => {
+        if (!emailToIdMap.has(c.email!)) {
+          emailToIdMap.set(c.email!, []);
+        }
+        emailToIdMap.get(c.email!)!.push(c.id);
+      });
 
-      //  Step 4: Build data arrays with proper contact_id mapping
-      const personalInfoData = contacts
-        .map((c) => {
-          const email = c["personalInformation"]?.email;
-          const contactId = email ? emailToIdMap.get(email) : null;
-          if (!contactId) return null;
-          return {
+      // Step 4: Build data arrays
+      const personalInfoData: any[] = [];
+      const academicProfileData: any[] = [];
+      const leadAttributionData: any[] = [];
+      const financialInfoData: any[] = [];
+      const loanPreferenceData: any[] = [];
+      const applicationJourneyData: any[] = [];
+      const systemTrackingData: any[] = [];
+
+      contacts.forEach((c) => {
+        const email = c["personalInformation"]?.email;
+        if (!email) return;
+
+        const contactIds = emailToIdMap.get(email);
+        if (!contactIds || contactIds.length === 0) return;
+
+        const contactId = contactIds.shift()!;
+
+        if (c["personalInformation"]) {
+          personalInfoData.push({
             contact_id: contactId,
             ...c["personalInformation"],
-          };
-        })
-        .filter((item): item is NonNullable<typeof item> => item !== null);
+          });
+        }
 
-      const academicProfileData = contacts
-        .map((c) => {
-          const email = c["personalInformation"]?.email;
-          const contactId = email ? emailToIdMap.get(email) : null;
-          if (!contactId) return null;
-          return {
+        if (c["academicProfile"]) {
+          academicProfileData.push({
             contact_id: contactId,
             ...c["academicProfile"],
-          };
-        })
-        .filter((item): item is NonNullable<typeof item> => item !== null);
+          });
+        }
 
-      const leadAttributionData = contacts
-        .map((c) => {
-          const email = c["personalInformation"]?.email;
-          const contactId = email ? emailToIdMap.get(email) : null;
-          if (!contactId) return null;
-          return {
+        if (c["leadAttribution"]) {
+          leadAttributionData.push({
             contact_id: contactId,
             ...c["leadAttribution"],
-          };
-        })
-        .filter((item): item is NonNullable<typeof item> => item !== null);
+          });
+        }
 
-      const financialInfoData = contacts
-        .map((c) => {
-          const email = c["personalInformation"]?.email;
-          const contactId = email ? emailToIdMap.get(email) : null;
-          if (!contactId) return null;
-          return {
+        if (c["financialInfo"]) {
+          financialInfoData.push({
             contact_id: contactId,
             ...c["financialInfo"],
-          };
-        })
-        .filter((item): item is NonNullable<typeof item> => item !== null);
+          });
+        }
 
-      const loanPreferenceData = contacts
-        .map((c) => {
-          const email = c["personalInformation"]?.email;
-          const contactId = email ? emailToIdMap.get(email) : null;
-          if (!contactId) return null;
-          return {
+        if (c["loanPreference"]) {
+          loanPreferenceData.push({
             contact_id: contactId,
             ...c["loanPreference"],
-          };
-        })
-        .filter((item): item is NonNullable<typeof item> => item !== null);
+          });
+        }
 
-      const applicationJourneyData = contacts
-        .map((c) => {
-          const email = c["personalInformation"]?.email;
-          const contactId = email ? emailToIdMap.get(email) : null;
-          if (!contactId) return null;
-          return {
+        if (c["applicationJourney"]) {
+          applicationJourneyData.push({
             contact_id: contactId,
             ...c["applicationJourney"],
-          };
-        })
-        .filter((item): item is NonNullable<typeof item> => item !== null);
+          });
+        }
 
-      const systemTrackingData = contacts
-        .map((c) => {
-          const email = c["personalInformation"]?.email;
-          const contactId = email ? emailToIdMap.get(email) : null;
-          if (!contactId) return null;
-          return {
+        if (c["systemTracking"]) {
+          systemTrackingData.push({
             contact_id: contactId,
             ...c["systemTracking"],
-          };
-        })
-        .filter((item): item is NonNullable<typeof item> => item !== null);
+          });
+        }
+      });
 
-      //  Step 5: Bulk insert all normalized tables
+      // Step 5: Bulk insert normalized tables
       if (personalInfoData.length > 0) {
         await tx.hSEdumateContactsPersonalInformation.createMany({
           data: personalInfoData,
-          skipDuplicates: true,
         });
       }
 
       if (academicProfileData.length > 0) {
         await tx.hSEdumateContactsAcademicProfiles.createMany({
           data: academicProfileData,
-          skipDuplicates: true,
         });
       }
 
       if (leadAttributionData.length > 0) {
         await tx.hSEdumateContactsLeadAttribution.createMany({
           data: leadAttributionData,
-          skipDuplicates: true,
         });
       }
 
       if (financialInfoData.length > 0) {
         await tx.hSEdumateContactsFinancialInfo.createMany({
           data: financialInfoData,
-          skipDuplicates: true,
         });
       }
 
       if (loanPreferenceData.length > 0) {
         await tx.hSEdumateContactsLoanPreferences.createMany({
           data: loanPreferenceData,
-          skipDuplicates: true,
         });
       }
 
       if (applicationJourneyData.length > 0) {
         await tx.hSEdumateContactsApplicationJourney.createMany({
           data: applicationJourneyData,
-          skipDuplicates: true,
         });
       }
 
       if (systemTrackingData.length > 0) {
         await tx.hSEdumateContactsSystemTracking.createMany({
           data: systemTrackingData,
-          skipDuplicates: true,
         });
       }
 
-      const insertedContactIds = Array.from(emailToIdMap.values());
-
       return {
-        count: insertedContactIds.length,
-        insertedContactIds,
+        count: insertedContacts.length,
+        insertedContactIds: insertedContacts.map(c => c.id),
       };
     },
     {
-      timeout: 120000,
+      timeout: 1200000,
     }
   );
 }

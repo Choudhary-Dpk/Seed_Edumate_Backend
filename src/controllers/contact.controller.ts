@@ -698,7 +698,7 @@ export const uploadContactsCSV = async (
 
         //  Manually create outbox entries for this batch
         // (Because createMany doesn't trigger individual create hooks)
-        await createBulkOutboxEntries(batch, batchId, batchIndex * BATCH_SIZE);
+        // await createBulkOutboxEntries(batch, batchId, batchIndex * BATCH_SIZE);
 
         logger.debug(
           `Batch ${batchNumber}: Outbox entries created for sync queue`,
@@ -878,7 +878,7 @@ export const uploadContactsJSON = async (
         );
 
         // Create outbox entries for this batch (for async HubSpot sync)
-        await createBulkOutboxEntries(batch, batchId, batchIndex * BATCH_SIZE);
+        // await createBulkOutboxEntries(batch, batchId, batchIndex * BATCH_SIZE);
 
         logger.debug(
           `Batch ${batchNumber}: Outbox entries created for sync queue`,

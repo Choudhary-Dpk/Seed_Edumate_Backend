@@ -42,7 +42,7 @@ export async function startEdumatePGNotifyWorker() {
 
     pgClient.on("notification", handleNotification);
 
-    startFallbackProcessor();
+    // startFallbackProcessor();
 
     logger.info("[Edumate PG NOTIFY] Worker started successfully");
     logger.info(
