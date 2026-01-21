@@ -5,7 +5,7 @@ import { enumMappingService } from "../enumMapping";
 // Helper function to normalize date strings
 const parseDate = (
   inputDate?: string | Date | null,
-  asDateOnly = false
+  asDateOnly = false,
 ): string | null => {
   if (!inputDate) return null;
   const dateObj = new Date(inputDate);
@@ -178,7 +178,7 @@ export const mapSystemTracking = (data: Record<string, any>) => {
 };
 
 export const mapAllFields = async (
-  input: ContactsLead
+  input: ContactsLead,
 ): Promise<Partial<ContactsLead>> => {
   const mapped: Record<string, any> = {};
   // Currency conversions
@@ -195,13 +195,13 @@ export const mapAllFields = async (
 
   const coApplicantAnnualIncome =
     (input?.baseCurrency || input?.preferredCurrency) &&
-      (input?.baseCurrency || input?.preferredCurrency) != "INR" &&
-      input?.coApplicantAnnualIncome
+    (input?.baseCurrency || input?.preferredCurrency) != "INR" &&
+    input?.coApplicantAnnualIncome
       ? await convertCurrency(
-        Number(input?.coApplicantAnnualIncome),
-        input?.baseCurrency || input?.preferredCurrency || "INR",
-        "INR"
-      )
+          Number(input?.coApplicantAnnualIncome),
+          input?.baseCurrency || input?.preferredCurrency || "INR",
+          "INR",
+        )
       : input?.coApplicantAnnualIncome;
 
   // ===== MAIN CONTACT FIELDS =====
@@ -222,9 +222,9 @@ export const mapAllFields = async (
   ) {
     const mappedOriginalPrincipal = Number(
       input.original_principal ??
-      input.originalPrincipal ??
-      input.loanAmountOrg ??
-      null
+        input.originalPrincipal ??
+        input.loanAmountOrg ??
+        null,
     );
     mapped.original_principal = mappedOriginalPrincipal;
   }
@@ -255,16 +255,16 @@ export const mapAllFields = async (
   if (input.favourite !== undefined) {
     mapped.favourite = Array.isArray(input.favourite)
       ? input.favourite.filter(
-        (id: any) => typeof id === "number" && !isNaN(id)
-      )
+          (id: any) => typeof id === "number" && !isNaN(id),
+        )
       : [];
   }
 
   if (input.interested !== undefined) {
     mapped.interested = Array.isArray(input.interested)
       ? input.interested.filter(
-        (id: any) => typeof id === "number" && !isNaN(id)
-      )
+          (id: any) => typeof id === "number" && !isNaN(id),
+        )
       : [];
   }
 
@@ -292,6 +292,10 @@ export const mapAllFields = async (
   ) {
     mapped.hs_created_by_user_id =
       input.hsCreatedByUserId ?? input.hs_created_by_user_id ?? null;
+  }
+
+  if (input.createdBy !== undefined || input.created_by !== undefined) {
+    mapped.created_by = input.createdBy ?? input.created_by ?? null;
   }
 
   if (input.hsCreatedate !== undefined || input.hs_createdate !== undefined) {
@@ -627,7 +631,10 @@ export const mapAllFields = async (
     input.programOfInterest !== undefined
   ) {
     mapped.program_of_interest_final =
-      input.program_of_interest_final ?? input.program_of_interest ?? input.programOfInterest ?? null;
+      input.program_of_interest_final ??
+      input.program_of_interest ??
+      input.programOfInterest ??
+      null;
   }
 
   if (
@@ -730,7 +737,7 @@ export const mapAllFields = async (
     input.intended_start_date !== undefined
   ) {
     const startDate = input.intendedStartDate ?? input.intended_start_date;
-    (mapped.intended_start_date = startDate), true; // date only
+    ((mapped.intended_start_date = startDate), true); // date only
   }
 
   if (input.intakeMonth !== undefined || input.intake_month !== undefined) {
@@ -743,11 +750,11 @@ export const mapAllFields = async (
 
   // ===== APPLICATION JOURNEY FIELDS =====
   if (input.lifecycle_stages !== undefined) {
-    mapped.lifecycle_stages = input.lifecycle_stages
+    mapped.lifecycle_stages = input.lifecycle_stages;
   }
 
   if (input.lifecycle_stages_status !== undefined) {
-    mapped.lifecycle_stages_status = input.lifecycle_stages_status
+    mapped.lifecycle_stages_status = input.lifecycle_stages_status;
   }
 
   if (
@@ -899,7 +906,7 @@ export const mapAllFields = async (
     input.loan_amount_required !== undefined
   ) {
     mapped.loan_amount_required = Number(
-      input.loanAmount ?? input.loan_amount_required ?? null
+      input.loanAmount ?? input.loan_amount_required ?? null,
     );
   }
 
@@ -998,10 +1005,6 @@ export const mapAllFields = async (
   }
 
   // ===== SYSTEM TRACKING FIELDS =====
-  if (input.createdBy !== undefined || input.created_by !== undefined) {
-    mapped.created_by = input.createdBy ?? input.created_by ?? null;
-  }
-
   if (input.createdDate !== undefined || input.created_date !== undefined) {
     const created = input.createdDate ?? input.created_date;
     mapped.created_date = parseDate(created); // full ISO-8601
@@ -1495,7 +1498,7 @@ export const mapAllFields = async (
       enumTranslations.map((t) => ({
         enumName: t.enumName,
         sourceValue: t.sourceValue,
-      }))
+      })),
     );
 
     // Map translated values back to fields

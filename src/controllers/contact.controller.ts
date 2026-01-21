@@ -50,7 +50,7 @@ import { handleLeadCreation } from "../services/DBServices/loan.services";
 export const createContactsLead = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const id = req.payload?.id || null;
@@ -75,7 +75,8 @@ export const createContactsLead = async (
         tx,
         categorized["mainContact"],
         // null, //  HubSpot ID as null
-        partnerId
+        partnerId,
+        req.body.created_by,
       );
       logger.debug(`Contact created successfully with id: ${contact.id}`);
 
@@ -83,20 +84,20 @@ export const createContactsLead = async (
       const personalInfo = await createEdumatePersonalInformation(
         tx,
         contact.id,
-        categorized["personalInformation"]
+        categorized["personalInformation"],
       );
       logger.debug(
-        `Personal information created successfully for contact: ${contact.id}`
+        `Personal information created successfully for contact: ${contact.id}`,
       );
 
       logger.debug(`Creating academic profile for contact: ${contact.id}`);
       const academicsProfile = await createEdumateAcademicProfile(
         tx,
         contact.id,
-        categorized["academicProfile"]
+        categorized["academicProfile"],
       );
       logger.debug(
-        `Academic profile created successfully for contact: ${contact.id}`
+        `Academic profile created successfully for contact: ${contact.id}`,
       );
 
       if (req.body.b2b_partner_name) {
@@ -104,45 +105,45 @@ export const createContactsLead = async (
         leadAttribution = await createEdumateLeadAttribution(
           tx,
           contact.id,
-          categorized["leadAttribution"]
+          categorized["leadAttribution"],
         );
         logger.debug(
-          `Lead attribution created successfully for contact: ${contact.id}`
+          `Lead attribution created successfully for contact: ${contact.id}`,
         );
       }
 
       logger.debug(
-        `Creating lead application journey for contact: ${contact.id}`
+        `Creating lead application journey for contact: ${contact.id}`,
       );
       await createApplicationJourney(
         tx,
         contact.id,
-        categorized["applicationJourney"]
+        categorized["applicationJourney"],
       );
       logger.debug(
-        `Lead journey created successfully for contact: ${contact.id}`
+        `Lead journey created successfully for contact: ${contact.id}`,
       );
 
       logger.debug(`Creating lead financial info for contact: ${contact.id}`);
       await createFinancialInfo(tx, contact.id, categorized["financialInfo"]);
       logger.debug(
-        `Lead financial info created successfully for contact: ${contact.id}`
+        `Lead financial info created successfully for contact: ${contact.id}`,
       );
 
       logger.debug(`Creating lead loan preference for contact: ${contact.id}`);
       await createLoanPreferences(
         tx,
         contact.id,
-        categorized["loanPreferences"]
+        categorized["loanPreferences"],
       );
       logger.debug(
-        `Lead loan preference created successfully for contact: ${contact.id}`
+        `Lead loan preference created successfully for contact: ${contact.id}`,
       );
 
       logger.debug(`Creating system tracking for contact: ${contact.id}`);
       await createEdumateSystemTracking(tx, contact.id, id);
       logger.debug(
-        `System tracking created successfully for contact: ${contact.id}`
+        `System tracking created successfully for contact: ${contact.id}`,
       );
 
       data = {
@@ -164,14 +165,14 @@ export const createContactsLead = async (
     });
 
     logger.debug(
-      `All contact data created successfully for contactId: ${result.id}`
+      `All contact data created successfully for contactId: ${result.id}`,
     );
 
     sendResponse(
       res,
       200,
       "Contacts Lead created successfully (sync queued)",
-      data
+      data,
     );
   } catch (error) {
     next(error);
@@ -181,7 +182,7 @@ export const createContactsLead = async (
 export const upsertContactsLead = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     // const { id } = req.payload!;
@@ -215,40 +216,40 @@ export const upsertContactsLead = async (
           const contact = await updateEdumateContact(
             tx,
             +leadId,
-            categorized["mainContact"]
+            categorized["mainContact"],
           );
           logger.debug(`Contact updated successfully with id: ${contact.id}`);
 
           logger.debug(
-            `Updating personal information for contact: ${contact.id}`
+            `Updating personal information for contact: ${contact.id}`,
           );
           const personalInfo = await updateEdumatePersonalInformation(
             tx,
             contact.id,
-            categorized["personalInformation"]
+            categorized["personalInformation"],
           );
           logger.debug(
-            `Personal information updated successfully for contact: ${contact.id}`
+            `Personal information updated successfully for contact: ${contact.id}`,
           );
 
           logger.debug(`Updating academic profile for contact: ${contact.id}`);
           const academicsProfile = await updateEdumateAcademicProfile(
             tx,
             contact.id,
-            categorized["academicProfile"]
+            categorized["academicProfile"],
           );
           logger.debug(
-            `Academic profile updated successfully for contact: ${contact.id}`
+            `Academic profile updated successfully for contact: ${contact.id}`,
           );
 
           logger.debug(`Updating lead attribution for contact: ${contact.id}`);
           const leadAttribution = await updateEdumateLeadAttribution(
             tx,
             contact.id,
-            categorized["leadAttribution"]
+            categorized["leadAttribution"],
           );
           logger.debug(
-            `Lead attribution updated successfully for contact: ${contact.id}`
+            `Lead attribution updated successfully for contact: ${contact.id}`,
           );
 
           // populate response data similarly to creation flow
@@ -269,7 +270,7 @@ export const upsertContactsLead = async (
 
           return contact;
         },
-        { timeout: 180000 }
+        { timeout: 180000 },
       );
     } else {
       result = await prisma.$transaction(
@@ -277,83 +278,83 @@ export const upsertContactsLead = async (
           // logger.debug(`Creating edumate contact for userId: ${id}`);
           const contact = await createEdumateContact(
             tx,
-            categorized["mainContact"]
+            categorized["mainContact"],
             // null //  HubSpot ID ab null hai
           );
           logger.debug(`Contact created successfully with id: ${contact.id}`);
 
           logger.debug(
-            `Creating personal information for contact: ${contact.id}`
+            `Creating personal information for contact: ${contact.id}`,
           );
           const personalInfo = await createEdumatePersonalInformation(
             tx,
             contact.id,
-            categorized["personalInformation"]
+            categorized["personalInformation"],
           );
           logger.debug(
-            `Personal information created successfully for contact: ${contact.id}`
+            `Personal information created successfully for contact: ${contact.id}`,
           );
 
           logger.debug(`Creating academic profile for contact: ${contact.id}`);
           const academicsProfile = await createEdumateAcademicProfile(
             tx,
             contact.id,
-            categorized["academicProfile"]
+            categorized["academicProfile"],
           );
           logger.debug(
-            `Academic profile created successfully for contact: ${contact.id}`
+            `Academic profile created successfully for contact: ${contact.id}`,
           );
 
           logger.debug(`Creating lead attribution for contact: ${contact.id}`);
           leadAttribution = await createEdumateLeadAttribution(
             tx,
             contact.id,
-            categorized["leadAttribution"]
+            categorized["leadAttribution"],
           );
           logger.debug(
-            `Lead attribution created successfully for contact: ${contact.id}`
+            `Lead attribution created successfully for contact: ${contact.id}`,
           );
 
           logger.debug(
-            `Creating lead application journey for contact: ${contact.id}`
+            `Creating lead application journey for contact: ${contact.id}`,
           );
           await createApplicationJourney(
             tx,
             contact.id,
-            categorized["applicationJourney"]
+            categorized["applicationJourney"],
           );
           logger.debug(
-            `Lead journey created successfully for contact: ${contact.id}`
+            `Lead journey created successfully for contact: ${contact.id}`,
           );
 
           logger.debug(
-            `Creating lead financial info for contact: ${contact.id}`
+            `Creating lead financial info for contact: ${contact.id}`,
           );
           await createFinancialInfo(
             tx,
             contact.id,
-            categorized["financialInfo"]
+            categorized["financialInfo"],
           );
           logger.debug(
-            `Lead financial info created successfully for contact: ${contact.id}`
+            `Lead financial info created successfully for contact: ${contact.id}`,
           );
 
           logger.debug(
-            `Creating lead loan preference for contact: ${contact.id}`
+            `Creating lead loan preference for contact: ${contact.id}`,
           );
           await createLoanPreferences(
             tx,
             contact.id,
-            categorized["loanPreferences"]
+            categorized["loanPreferences"],
           );
           logger.debug(
-            `Lead loan preference created successfully for contact: ${contact.id}`
+            `Lead loan preference created successfully for contact: ${contact.id}`,
           );
 
           logger.debug(`Creating system tracking for contact: ${contact.id}`);
           await createEdumateSystemTracking(tx, contact.id);
           logger.debug(
-            `System tracking created successfully for contact: ${contact.id}`
+            `System tracking created successfully for contact: ${contact.id}`,
           );
 
           data = {
@@ -375,7 +376,7 @@ export const upsertContactsLead = async (
         },
         {
           timeout: 180000,
-        }
+        },
       );
     }
 
@@ -384,14 +385,14 @@ export const upsertContactsLead = async (
     }
 
     logger.debug(
-      `All contact data created successfully for contactId: ${result.id}`
+      `All contact data created successfully for contactId: ${result.id}`,
     );
 
     sendResponse(
       res,
       200,
       "Contacts Lead created successfully (sync queued)",
-      data
+      data,
     );
   } catch (error) {
     next(error);
@@ -401,7 +402,7 @@ export const upsertContactsLead = async (
 export const deleteContactLead = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { id } = req.payload!;
@@ -420,7 +421,7 @@ export const deleteContactLead = async (
 export const getContactsLeadDetails = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const leadId = req.params.id;
@@ -438,7 +439,7 @@ export const getContactsLeadDetails = async (
 export const editContactsLead = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const id = req.payload?.id || null;
@@ -463,7 +464,7 @@ export const editContactsLead = async (
         tx,
         +leadId,
         categorized["mainContact"],
-        partnerId
+        partnerId,
       );
       logger.debug(`Contact updated successfully with id: ${contact.id}`);
 
@@ -471,20 +472,20 @@ export const editContactsLead = async (
       await updateEdumatePersonalInformation(
         tx,
         contact.id,
-        categorized["personalInformation"]
+        categorized["personalInformation"],
       );
       logger.debug(
-        `Personal information updated successfully for contact: ${contact.id}`
+        `Personal information updated successfully for contact: ${contact.id}`,
       );
 
       logger.debug(`Updating academic profile for contact: ${contact.id}`);
       await updateEdumateAcademicProfile(
         tx,
         contact.id,
-        categorized["academicProfile"]
+        categorized["academicProfile"],
       );
       logger.debug(
-        `Academic profile updated successfully for contact: ${contact.id}`
+        `Academic profile updated successfully for contact: ${contact.id}`,
       );
 
       if (req.body.b2b_partner_name) {
@@ -492,53 +493,53 @@ export const editContactsLead = async (
         await updateEdumateLeadAttribution(
           tx,
           contact.id,
-          categorized["leadAttribution"]
+          categorized["leadAttribution"],
         );
         logger.debug(
-          `Lead attribution updated successfully for contact: ${contact.id}`
+          `Lead attribution updated successfully for contact: ${contact.id}`,
         );
       }
 
       logger.debug(
-        `Updating lead application journey for contact: ${contact.id}`
+        `Updating lead application journey for contact: ${contact.id}`,
       );
       await updateEdumateContactApplicationJourney(
         tx,
         contact.id,
-        categorized["applicationJourney"]
+        categorized["applicationJourney"],
       );
       logger.debug(
-        `Lead journey updated successfully for contact: ${contact.id}`
+        `Lead journey updated successfully for contact: ${contact.id}`,
       );
 
       logger.debug(`Updating lead financial info for contact: ${contact.id}`);
       await updateEdumateContactFinancialInfo(
         tx,
         contact.id,
-        categorized["financialInfo"]
+        categorized["financialInfo"],
       );
       logger.debug(
-        `Lead financial info updated successfully for contact: ${contact.id}`
+        `Lead financial info updated successfully for contact: ${contact.id}`,
       );
 
       logger.debug(`Updating lead loan preference for contact: ${contact.id}`);
       await updateEdumateContactLoanPreference(
         tx,
         contact.id,
-        categorized["loanPreferences"]
+        categorized["loanPreferences"],
       );
       logger.debug(
-        `Lead loan preference updated successfully for contact: ${contact.id}`
+        `Lead loan preference updated successfully for contact: ${contact.id}`,
       );
 
       logger.debug(`Updating system tracking for contact: ${contact.id}`);
       await updateEdumateContactSystemTracking(
         tx,
         contact.id,
-        categorized["systemTracking"]
+        categorized["systemTracking"],
       );
       logger.debug(
-        `System tracking updated successfully for contact: ${contact.id}`
+        `System tracking updated successfully for contact: ${contact.id}`,
       );
 
       return contact;
@@ -554,7 +555,7 @@ export const editContactsLead = async (
 export const downloadContactsTemplate = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const filePath = resolveLeadsCsvPath("contacts.csv");
@@ -570,11 +571,19 @@ export const downloadContactsTemplate = (
 export const uploadContactsCSV = async (
   req: RequestWithPayload<LoginPayload, FileData>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const id = parseInt(req.payload?.id || req.body?.id);
+    console.log("id", id);
     const fileData = req.fileData;
+    let partnerId = null;
+    if (!partnerId && id) {
+      logger.debug(`Fetching partner id from request`);
+      partnerId = (await getPartnerIdByUserId(id)) || null;
+      console.log("partnerId", partnerId);
+      logger.debug(`Partner id fetched successfully`);
+    }
 
     if (!fileData) {
       return sendResponse(res, 400, "Invalid or missing file data");
@@ -605,7 +614,7 @@ export const uploadContactsCSV = async (
       rows,
       total_records,
       id,
-      fileEntity.id!
+      fileEntity.id!,
     );
     logger.debug(`File records history added successfully`);
 
@@ -622,7 +631,7 @@ export const uploadContactsCSV = async (
 
     // 4. Deduplicate against DB
     const { unique: toInsert, duplicates: duplicatesInDb } =
-      await deduplicateContactsInDb(uniqueInFile, 0);
+      await deduplicateContactsInDb(uniqueInFile, partnerId?.b2b_id!);
     console.log("toInsert", toInsert, duplicatesInDb);
 
     // 5. Handle no new records
@@ -645,11 +654,11 @@ export const uploadContactsCSV = async (
     //  6. Generate unique batch ID for this upload
     const batchId = uuidv4();
     logger.debug(
-      `Generated batch ID: ${batchId} for ${toInsert.length} records`
+      `Generated batch ID: ${batchId} for ${toInsert.length} records`,
     );
 
     const mappedRecords = await Promise.all(
-      toInsert.map((contact) => mapAllFields(contact))
+      toInsert.map((contact) => mapAllFields(contact)),
     );
     console.log("mappedRecords", mappedRecords);
 
@@ -658,7 +667,7 @@ export const uploadContactsCSV = async (
     const batches = chunkArray(mappedRecords, BATCH_SIZE);
 
     logger.debug(
-      `Processing ${mappedRecords.length} records in ${batches.length} batches of ${BATCH_SIZE}`
+      `Processing ${mappedRecords.length} records in ${batches.length} batches of ${BATCH_SIZE}`,
     );
 
     let totalInserted = 0;
@@ -669,18 +678,22 @@ export const uploadContactsCSV = async (
       const batch = batches[batchIndex];
       const batchNumber = batchIndex + 1;
       const categorizedRecords = await Promise.all(
-        batch.map((contact) => categorizeByTable(contact))
+        batch.map((contact) => categorizeByTable(contact)),
       );
       console.log("categorizedRecords", categorizedRecords);
       try {
         logger.debug(`Processing batch ${batchNumber}/${batches.length}`);
 
         //  Insert into DB only
-        const result = await createCSVContacts(categorizedRecords, id, null); // No HubSpot results
+        const result = await createCSVContacts(
+          categorizedRecords,
+          partnerId?.b2b_id!,
+          null,
+        ); // No HubSpot results
         totalInserted += result.count;
 
         logger.debug(
-          `Batch ${batchNumber}: ${result.count} records inserted into DB`
+          `Batch ${batchNumber}: ${result.count} records inserted into DB`,
         );
 
         //  Manually create outbox entries for this batch
@@ -688,7 +701,7 @@ export const uploadContactsCSV = async (
         await createBulkOutboxEntries(batch, batchId, batchIndex * BATCH_SIZE);
 
         logger.debug(
-          `Batch ${batchNumber}: Outbox entries created for sync queue`
+          `Batch ${batchNumber}: Outbox entries created for sync queue`,
         );
       } catch (error: any) {
         logger.error(`Batch ${batchNumber}: DB insertion failed`, { error });
@@ -708,7 +721,7 @@ export const uploadContactsCSV = async (
     await updateFileRecord(
       fileUpload.id,
       totalInserted,
-      errors.length + insertionErrors.length
+      errors.length + insertionErrors.length,
     );
     logger.debug(`File upload records updated successfully`);
 
@@ -729,7 +742,6 @@ export const uploadContactsCSV = async (
   }
 };
 
-
 /**
  * Controller to handle bulk contact import via JSON
  * POST /api/contacts/upload-json
@@ -737,7 +749,7 @@ export const uploadContactsCSV = async (
 export const uploadContactsJSON = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const id = parseInt(req.payload?.id || req.body?.id);
@@ -748,7 +760,7 @@ export const uploadContactsJSON = async (
     }
 
     logger.debug(
-      `Processing JSON upload with ${totalRecords} records for userId: ${id}`
+      `Processing JSON upload with ${totalRecords} records for userId: ${id}`,
     );
 
     // 1. Store metadata into FileUpload table (JSON type)
@@ -770,7 +782,7 @@ export const uploadContactsJSON = async (
     // 2. Validate + Normalize rows (reusing CSV validation logic)
     logger.debug(`Validating contact rows`);
     const { validRows, errors } = validateContactRows(transformedContacts, id);
-    
+
     if (validRows.length === 0) {
       logger.warn(`No valid rows found in JSON payload`);
       return sendResponse(res, 400, "No valid contacts found in JSON", {
@@ -779,7 +791,7 @@ export const uploadContactsJSON = async (
     }
 
     logger.debug(
-      `Validation complete: ${validRows.length} valid, ${errors.length} invalid`
+      `Validation complete: ${validRows.length} valid, ${errors.length} invalid`,
     );
 
     // 3. Deduplicate inside payload
@@ -787,7 +799,7 @@ export const uploadContactsJSON = async (
     const { unique: uniqueInFile, duplicates: duplicatesInFile } =
       deduplicateContactsInFile(validRows);
     logger.debug(
-      `In-payload duplicates: ${duplicatesInFile}, unique: ${uniqueInFile.length}`
+      `In-payload duplicates: ${duplicatesInFile}, unique: ${uniqueInFile.length}`,
     );
 
     // 4. Deduplicate against DB
@@ -795,7 +807,7 @@ export const uploadContactsJSON = async (
     const { unique: toInsert, duplicates: duplicatesInDb } =
       await deduplicateContactsInDb(uniqueInFile, partnerId);
     logger.debug(
-      `DB duplicates: ${duplicatesInDb}, records to insert: ${toInsert.length}`
+      `DB duplicates: ${duplicatesInDb}, records to insert: ${toInsert.length}`,
     );
 
     // 5. Handle no new records
@@ -817,13 +829,13 @@ export const uploadContactsJSON = async (
     // 6. Generate unique batch ID for this upload
     const batchId = uuidv4();
     logger.debug(
-      `Generated batch ID: ${batchId} for ${toInsert.length} records`
+      `Generated batch ID: ${batchId} for ${toInsert.length} records`,
     );
 
     // 7. Map fields to database structure
     logger.debug(`Mapping contact fields to database structure`);
     const mappedRecords = await Promise.all(
-      toInsert.map((contact) => mapAllFields(contact))
+      toInsert.map((contact) => mapAllFields(contact)),
     );
     logger.debug(`Mapped ${mappedRecords.length} records successfully`);
 
@@ -832,7 +844,7 @@ export const uploadContactsJSON = async (
     const batches = chunkArray(mappedRecords, BATCH_SIZE);
 
     logger.debug(
-      `Processing ${mappedRecords.length} records in ${batches.length} batches of ${BATCH_SIZE}`
+      `Processing ${mappedRecords.length} records in ${batches.length} batches of ${BATCH_SIZE}`,
     );
 
     let totalInserted = 0;
@@ -845,31 +857,31 @@ export const uploadContactsJSON = async (
 
       // Categorize records for database insertion
       const categorizedRecords = await Promise.all(
-        batch.map((contact) => categorizeByTable(contact))
+        batch.map((contact) => categorizeByTable(contact)),
       );
 
       try {
         logger.debug(
-          `Processing batch ${batchNumber}/${batches.length} (${batch.length} records)`
+          `Processing batch ${batchNumber}/${batches.length} (${batch.length} records)`,
         );
 
         // Insert into DB only (no HubSpot sync during bulk)
-        const result = await createCSVContacts(categorizedRecords, partnerId, null);
+        const result = await createCSVContacts(
+          categorizedRecords,
+          partnerId,
+          null,
+        );
         totalInserted += result.count;
 
         logger.debug(
-          `Batch ${batchNumber}: ${result.count} records inserted into DB`
+          `Batch ${batchNumber}: ${result.count} records inserted into DB`,
         );
 
         // Create outbox entries for this batch (for async HubSpot sync)
-        await createBulkOutboxEntries(
-          batch,
-          batchId,
-          batchIndex * BATCH_SIZE
-        );
+        await createBulkOutboxEntries(batch, batchId, batchIndex * BATCH_SIZE);
 
         logger.debug(
-          `Batch ${batchNumber}: Outbox entries created for sync queue`
+          `Batch ${batchNumber}: Outbox entries created for sync queue`,
         );
       } catch (error: any) {
         logger.error(`Batch ${batchNumber}: DB insertion failed`, { error });
@@ -883,7 +895,7 @@ export const uploadContactsJSON = async (
     }
 
     logger.debug(
-      `All ${batches.length} batches processed. Total inserted: ${totalInserted}`
+      `All ${batches.length} batches processed. Total inserted: ${totalInserted}`,
     );
 
     // 9. Update FileUpload stats
@@ -910,7 +922,7 @@ export const uploadContactsJSON = async (
         batchId: batchId,
         syncStatus: "queued",
         errors: errors.concat(insertionErrors),
-      }
+      },
     );
   } catch (error) {
     logger.error("Error in uploadContactsJSON:", error);
@@ -918,14 +930,13 @@ export const uploadContactsJSON = async (
   }
 };
 
-
 /**
  *  Helper: Create bulk outbox entries for CSV batch
  */
 async function createBulkOutboxEntries(
   contacts: ContactsLead[],
   batchId: string,
-  startPosition: number
+  startPosition: number,
 ): Promise<void> {
   try {
     const outboxEntries = contacts.map((contact, index) => ({
@@ -950,7 +961,7 @@ async function createBulkOutboxEntries(
       .map((c) => c.email)
       .filter(
         (email): email is string =>
-          typeof email === "string" && email.trim() !== ""
+          typeof email === "string" && email.trim() !== "",
       );
     let insertedContacts: Array<any> = [];
     if (emails.length > 0) {
@@ -971,7 +982,7 @@ async function createBulkOutboxEntries(
 
     // Map emails to IDs
     const emailToIdMap = new Map(
-      insertedContacts.map((c) => [c.personal_information?.email, c.id])
+      insertedContacts.map((c) => [c.personal_information?.email, c.id]),
     );
 
     // Update outbox entries with actual IDs
@@ -989,7 +1000,7 @@ async function createBulkOutboxEntries(
     });
 
     logger.debug(
-      `Created ${outboxEntries.length} outbox entries for batch ${batchId}`
+      `Created ${outboxEntries.length} outbox entries for batch ${batchId}`,
     );
   } catch (error) {
     logger.error(`Failed to create bulk outbox entries:`, error);

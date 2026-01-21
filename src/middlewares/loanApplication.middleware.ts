@@ -15,7 +15,7 @@ const upload = multer(10);
 export const validateLoanApplicationPayload = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { email, loanAmountRequested, loanAmountApproved } = req.body;
@@ -24,7 +24,7 @@ export const validateLoanApplicationPayload = async (
       return sendResponse(
         res,
         400,
-        "Loan Amount Requested must be greater than 0"
+        "Loan Amount Requested must be greater than 0",
       );
     }
 
@@ -33,14 +33,14 @@ export const validateLoanApplicationPayload = async (
         return sendResponse(
           res,
           400,
-          "Loan Amount Approved cannot be negative"
+          "Loan Amount Approved cannot be negative",
         );
       }
       if (loanAmountApproved > loanAmountRequested) {
         return sendResponse(
           res,
           400,
-          "Loan Amount Approved cannot be greater than Loan Amount Requested"
+          "Loan Amount Approved cannot be greater than Loan Amount Requested",
         );
       }
     }
@@ -60,7 +60,7 @@ export const validateLoanApplicationPayload = async (
 export const validateUpdateLoanApplication = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { email, loanAmountRequested, loanAmountApproved } = req.body;
@@ -69,7 +69,7 @@ export const validateUpdateLoanApplication = async (
       return sendResponse(
         res,
         400,
-        "Loan Amount Requested must be greater than 0"
+        "Loan Amount Requested must be greater than 0",
       );
     }
 
@@ -78,14 +78,14 @@ export const validateUpdateLoanApplication = async (
         return sendResponse(
           res,
           400,
-          "Loan Amount Approved cannot be negative"
+          "Loan Amount Approved cannot be negative",
         );
       }
       if (loanAmountApproved > loanAmountRequested) {
         return sendResponse(
           res,
           400,
-          "Loan Amount Approved cannot be greater than Loan Amount Requested"
+          "Loan Amount Approved cannot be greater than Loan Amount Requested",
         );
       }
     }
@@ -108,7 +108,7 @@ export const validateAndParseCSVFile =
   async (
     req: RequestWithPayload<LoginPayload, FileData>,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     const id = parseInt(req.payload?.id || req.body?.id);
     try {
@@ -121,7 +121,7 @@ export const validateAndParseCSVFile =
           return sendResponse(
             res,
             413,
-            "File is too large. Max size allowed is 5 MB"
+            "File is too large. Max size allowed is 5 MB",
           );
         }
 
@@ -133,7 +133,7 @@ export const validateAndParseCSVFile =
           return sendResponse(
             res,
             400,
-            "Invalid file type. Only .csv files are allowed"
+            "Invalid file type. Only .csv files are allowed",
           );
         }
 
@@ -167,7 +167,7 @@ export const validateAndParseCSVFile =
 export const validateLoanApplicationById = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const id = req.params.id;
@@ -187,7 +187,7 @@ export const validateLoanApplicationById = async (
 export const validateLoanFields = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { lead_reference_code, student_id, student_email } = req.body;
@@ -199,7 +199,7 @@ export const validateLoanFields = async (
     const existing = await checkLoanApplicationFields(
       lead_reference_code,
       student_id,
-      student_email
+      student_email,
     );
     if (existing) {
       if (
@@ -209,7 +209,7 @@ export const validateLoanFields = async (
         return sendResponse(
           res,
           409,
-          "Lead reference code already exists in the system"
+          "Lead reference code already exists in the system",
         );
       }
 
@@ -217,7 +217,7 @@ export const validateLoanFields = async (
         return sendResponse(
           res,
           409,
-          "Student ID already exists in the system"
+          "Student ID already exists in the system",
         );
       }
 
@@ -225,7 +225,7 @@ export const validateLoanFields = async (
         return sendResponse(
           res,
           409,
-          "Student email already exists in the system"
+          "Student email already exists in the system",
         );
       }
 
@@ -238,7 +238,7 @@ export const validateLoanFields = async (
     return sendResponse(
       res,
       500,
-      "Internal server error during duplicate validation"
+      "Internal server error during duplicate validation",
     );
   }
 };

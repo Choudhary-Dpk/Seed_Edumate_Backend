@@ -246,12 +246,14 @@ export const createEdumateContact = async (
   mainData?: any,
   // hubspotId?: number | null,
   // hsCreatedBy?: number,
-  partnerId?: number | null
+  partnerId?: number | null,
+  createdBy?: number | null,
 ) => {
   const contact = await tx.hSEdumateContacts.create({
     data: {
       ...mainData,
       b2b_partner_id: partnerId,
+      created_by: createdBy?.toString(),
       created_at: new Date(),
     },
   });

@@ -191,7 +191,6 @@ export const categorizeByTable = (mappedFields: Record<string, any>) => {
 
   // System Tracking Fields
   const systemTrackingFields = [
-    "created_by",
     "created_date",
     "last_modified_by",
     "last_modified_date",
