@@ -1016,3 +1016,29 @@ export interface SystemTrackingInput {
   gdpr_consent?: string;
   marketing_consent?: string;
 }
+
+/**
+ * Types for Lead Statistics API
+ */
+
+export interface LeadStatsQuery {
+  partner?: boolean | string;
+}
+
+export interface LifecycleStageCount {
+  [stage: string]: number;
+}
+
+export interface LifecycleStatusCount {
+  [status: string]: number;
+}
+
+export interface LeadStatsResponse {
+  lifecycleStages: LifecycleStageCount;
+  lifecycleStagesStatus: LifecycleStatusCount;
+  totalLeads: number;
+  filteredBy?: {
+    partner: boolean;
+    partnerId?: number;
+  };
+}

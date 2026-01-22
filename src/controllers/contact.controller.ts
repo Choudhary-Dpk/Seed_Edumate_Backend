@@ -42,7 +42,7 @@ import {
   updateFileRecord,
 } from "../models/helpers";
 import { getPartnerIdByUserId } from "../models/helpers/partners.helper";
-import { ContactsLead } from "../types/contact.types";
+import { ContactsLead, LeadStatsResponse, LifecycleStageCount, LifecycleStatusCount } from "../types/contact.types";
 import { mapAllFields } from "../mappers/edumateContact/mapping";
 import { categorizeByTable } from "../services/DBServices/edumateContacts.service";
 import { handleLeadCreation } from "../services/DBServices/loan.services";
@@ -927,6 +927,95 @@ export const uploadContactsJSON = async (
   } catch (error) {
     logger.error("Error in uploadContactsJSON:", error);
     next(error);
+  }
+};
+
+
+/**
+ * Get Lead Statistics
+ * GET /contacts/lead-stats?partner=true/false
+ * 
+ * Returns aggregated counts of leads grouped by:
+ * - lifecycle_stages
+ * - lifecycle_stages_status
+ * 
+ * If partner=true, filters by authenticated user's b2b_partner_id
+ */
+export const getLeadStats = async (
+  req: RequestWithPayload<LoginPayload>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    debugger
+    // Parse partner query parameter (default: false)
+    const partnerParam = req.query.partner;
+    const isPartnerFilter = String(partnerParam).toLowerCase() === "true";
+    const id = parseInt(req.payload?.id || req.body?.id);
+
+    // Build where clause
+    const whereClause: any = {};
+
+    // If partner filter is enabled, filter by b2b_partner_id
+    if (isPartnerFilter) {
+      
+    const partnerId = (await getPartnerIdByUserId(id))!.b2b_id;
+
+      if (!partnerId) {
+        return sendResponse(
+          res,
+          400,
+          "Partner filter requires authentication with b2b_partner_id"
+        );
+      }
+
+      whereClause.b2b_partner_id = partnerId;
+    }
+
+    // Fetch all leads from the view with optional filtering
+    const leads = await prisma.leads_view.findMany({
+      where: whereClause,
+      select: {
+        lifecycle_stages: true,
+        lifecycle_stages_status: true,
+      },
+    });
+
+    // Aggregate counts for lifecycle_stages
+    const lifecycleStages: LifecycleStageCount = {};
+    const lifecycleStagesStatus: LifecycleStatusCount = {};
+
+    leads.forEach((lead) => {
+      // Count lifecycle_stages
+      if (lead.lifecycle_stages) {
+        const stage = lead.lifecycle_stages;
+        lifecycleStages[stage] = (lifecycleStages[stage] || 0) + 1;
+      }
+
+      // Count lifecycle_stages_status
+      if (lead.lifecycle_stages_status) {
+        const status = lead.lifecycle_stages_status;
+        lifecycleStagesStatus[status] = (lifecycleStagesStatus[status] || 0) + 1;
+      }
+    });
+
+    // Build response
+    const response: LeadStatsResponse = {
+      lifecycleStages,
+      lifecycleStagesStatus,
+      totalLeads: leads.length,
+      filteredBy: {
+        partner: isPartnerFilter,
+        ...(isPartnerFilter && { partnerId: whereClause.b2b_partner_id }),
+      },
+    };
+
+    return sendResponse(res, 200, "Lead statistics retrieved successfully", response);
+  } catch (error: any) {
+    console.error("Error in getLeadStats:", error);
+    return sendResponse(res, 500, "Error retrieving lead statistics", {
+      error: error.message,
+    });
   }
 };
 

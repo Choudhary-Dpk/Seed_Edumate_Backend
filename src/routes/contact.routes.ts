@@ -16,6 +16,7 @@ import {
   downloadContactsTemplate,
   editContactsLead,
   getContactsLeadDetails,
+  getLeadStats,
   uploadContactsCSV,
   uploadContactsJSON,
   upsertContactsLead,
@@ -81,6 +82,32 @@ router.get(
   validateReqParams,
   getLeadsViewList
 );
+
+/**
+ * GET /contacts/lead-stats
+ * Get aggregated lead statistics
+ * 
+ * Query Parameters:
+ * - partner: boolean (optional, default: false)
+ *   - If true: Filter by authenticated user's b2b_partner_id
+ *   - If false: Return all leads without partner filtering
+ * 
+ * Returns:
+ * - lifecycleStages: Count grouped by lifecycle_stages
+ * - lifecycleStagesStatus: Count grouped by lifecycle_stages_status
+ * - totalLeads: Total number of leads
+ * - filteredBy: Filter information
+ */
+router.get(
+  "/lead-stats",
+  authenticate({
+    method: AuthMethod.BOTH, // Allow both JWT and API Key
+    allowedRoles: ["Admin", "Manager", "User", "Partner"],
+  }),
+  validateReqParams,
+  getLeadStats
+);
+
 router.post(
   "/upload-csv",
   authenticate({
