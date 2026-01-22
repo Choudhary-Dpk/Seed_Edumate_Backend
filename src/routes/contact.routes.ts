@@ -75,12 +75,12 @@ router.put(
 router.get(
   "/list",
   authenticate({
-    method: AuthMethod.BOTH,
+    method: AuthMethod.JWT,
     allowedRoles: ["Admin", "Manager", "User"],
   }),
   contactsLeadPaginationValidationRules(),
   validateReqParams,
-  getLeadsViewList
+  getLeadsViewList,
 );
 
 /**
