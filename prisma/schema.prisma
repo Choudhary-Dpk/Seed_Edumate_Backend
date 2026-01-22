@@ -937,8 +937,6 @@ model HSEdumateContacts {
   base_currency                String?
   study_destination_currency   String?
   user_selected_currency       String?
-  co_applicant_1_email         String?
-  co_applicant_1_mobile_number String?
   email                        String?
   batch_id                     String?
   hs_createdate                DateTime?
@@ -972,10 +970,6 @@ model HSEdumateContacts {
   exchange_rate_used           Decimal?                              @db.Decimal(16, 4)
   original_principal           Decimal?                              @db.Decimal(16, 4)
   preferred_currency           String?
-  coapplicant_2_email          String?
-  coapplicant_2_mobile_number  String?
-  coapplicant_3_email          String?
-  coapplicant_3_mobile_number  String?
   student                      ContactUsers[]                        @relation("ContactUser")
   commission_settlements       HSCommissionSettlements[]
   b2b_partner                  HSB2BPartners?                        @relation("B2BPartnerContacts", fields: [b2b_partner_id], references: [id], onDelete: Cascade)
@@ -1089,6 +1083,10 @@ model HSEdumateContactsFinancialInfo {
   updated_at                   DateTime          @default(now()) @updatedAt
   co_applicant_1_email         String?
   co_applicant_1_mobile_number String?
+  coapplicant_2_email          String?
+  coapplicant_2_mobile_number  String?
+  coapplicant_3_email          String?
+  coapplicant_3_mobile_number  String?
   contact                      HSEdumateContacts @relation(fields: [contact_id], references: [id], onDelete: Cascade)
 
   @@map("hs_edumate_contacts_financial_info")

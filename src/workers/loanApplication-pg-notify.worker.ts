@@ -516,9 +516,9 @@ function transformLoanToHubSpotFormat(loanApp: any): any {
 
   return {
     db_id: loanApp.id,
-    application_date: loanApp.application_date
-      ? new Date(loanApp.application_date).toISOString().split("T")[0]
-      : null,
+    // application_date: loanApp.application_date
+    //   ? new Date(loanApp.application_date).toISOString().split("T")[0]
+    //   : null,
     lead_reference_code: loanApp.lead_reference_code || null,
     student_id: loanApp.student_id || null,
     student_name: loanApp.student_name || null,
@@ -620,9 +620,9 @@ function transformLoanToHubSpotFormat(loanApp: any): any {
           .toISOString()
           .split("T")[0]
       : null,
-    approval_date: timeline.approval_date
-      ? new Date(timeline.approval_date).toISOString().split("T")[0]
-      : null,
+    // approval_date: timeline.approval_date
+    //   ? new Date(timeline.approval_date).toISOString().split("T")[0]
+    //   : null,
     sanction_letter_date: timeline.sanction_letter_date
       ? new Date(timeline.sanction_letter_date).toISOString().split("T")[0]
       : null,
