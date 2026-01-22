@@ -947,7 +947,6 @@ export const getLeadStats = async (
   next: NextFunction
 ) => {
   try {
-    debugger
     // Parse partner query parameter (default: false)
     const partnerParam = req.query.partner;
     const isPartnerFilter = String(partnerParam).toLowerCase() === "true";
