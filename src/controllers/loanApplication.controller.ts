@@ -582,7 +582,7 @@ export const getLoanApplicationsList = async (
       lender: filtersFromQuery.lender || null,
       loanProduct: filtersFromQuery.loanProduct || null,
       status: filtersFromQuery.status || null,
-      applicationStatus: filtersFromQuery.applicationStatus || null,
+      applicationStatus: filtersFromQuery.applicationStatus || filtersFromQuery.status || null,
     };
 
     console.log("Parsed filters:", filters);

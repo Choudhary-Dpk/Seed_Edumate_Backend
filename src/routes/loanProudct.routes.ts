@@ -45,7 +45,7 @@ router.get(
   authenticate({
     method: AuthMethod.API_KEY,
   }),
-  getLoanProductsListController
+  getLoanProductsListController,
 );
 
 export { router as loanProuductRoutes };

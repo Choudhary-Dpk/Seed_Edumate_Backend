@@ -26,7 +26,7 @@ router.post(
     method: AuthMethod.API_KEY,
   }),
   checkDuplicateB2BPartnerFields,
-  createB2bPartner
+  createB2bPartner,
 );
 router.put(
   "/:id",
@@ -35,7 +35,7 @@ router.put(
   }),
   validateId(),
   validateReqParams,
-  updateB2bPartner
+  updateB2bPartner,
 );
 router.delete(
   "/:id",
@@ -44,7 +44,7 @@ router.delete(
   }),
   validateId(),
   validateReqParams,
-  deletePartner
+  deletePartner,
 );
 router.get(
   "/details/:id",
@@ -53,18 +53,22 @@ router.get(
   }),
   validateId(),
   validateReqParams,
-  getB2bPartnerDetails
+  getB2bPartnerDetails,
 );
 router.get(
   "/pagination",
   authenticate({
     method: AuthMethod.API_KEY,
   }),
-  getB2bPartnersList
+  getB2bPartnersList,
 );
 router.get("/filter", getLeadsByPartnerFieldsController);
-router.put("/pulse/university", authenticate({
-  method: AuthMethod.API_KEY,
-}), upsertUniversityController)
+router.put(
+  "/pulse/university",
+  authenticate({
+    method: AuthMethod.API_KEY,
+  }),
+  upsertUniversityController,
+);
 
 export { router as partnerRoutes };
