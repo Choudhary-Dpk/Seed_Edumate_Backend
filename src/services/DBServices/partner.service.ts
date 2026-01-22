@@ -55,6 +55,7 @@ export const categorizeB2BByTable = (mappedFields: Record<string, any>) => {
     "school_id",
     "short_name",
     "university",
+    "logo_url",
   ];
 
   // Business Capabilities Fields
