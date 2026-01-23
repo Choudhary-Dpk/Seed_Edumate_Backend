@@ -358,7 +358,7 @@ model HSB2BPartnersCommissionStructure {
   tiered_commission_structure String?
   created_at                  DateTime      @default(now())
   updated_at                  DateTime      @default(now()) @updatedAt
-  commission_rate             Int?
+  commission_rate             String?
   partner                     HSB2BPartners @relation(fields: [partner_id], references: [id], onDelete: Cascade)
 
   @@map("hs_b2b_partners_commission_structure")
