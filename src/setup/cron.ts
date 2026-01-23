@@ -5,6 +5,8 @@ import { updatePropertySync } from "../scripts/sync_loan_product_options";
 import { updateExchangeRates } from "../scripts/curreny_update";
 import { emailQueue } from "../utils/queue";
 import prisma from "../config/prisma";
+import logger from "../utils/logger";
+import { generateMonthlyMISReports } from "../services/mis-report.service";
 
 dotenv.config();
 
@@ -141,7 +143,7 @@ async function dbCleanup(): Promise<void> {
 }
 
 // // Task 4: Partner Auto Deactivation (Inactivity Check)
-async function partnerAutoDeactivation(): Promise<void> {
+export async function partnerAutoDeactivation(): Promise<void> {
   const startTime = Date.now();
   log("partner-auto-deactivation", "Starting inactivity check...");
 
@@ -156,7 +158,7 @@ async function partnerAutoDeactivation(): Promise<void> {
       where: {
         is_active: true,
         last_activity_at: {
-          lt: cutoffTime, // Less than cutoff = inactive
+          lt: cutoffTime,
         },
       },
       select: {
@@ -175,9 +177,10 @@ async function partnerAutoDeactivation(): Promise<void> {
 
     for (const partner of inactivePartners) {
       const daysSinceActivity = Math.floor(
-        (Date.now() - partner.last_activity_at.getTime()) / (1000 * 60 * 60 * 24)
+        (Date.now() - partner.last_activity_at.getTime()) /
+          (1000 * 60 * 60 * 24),
       );
-      
+
       log(
         "partner-auto-deactivation",
         `Deactivating partner ${partner.id} (${partner.email}) - Last activity: ${partner.last_activity_at.toISOString()} (${daysSinceActivity} days ago)`,
@@ -204,20 +207,13 @@ async function partnerAutoDeactivation(): Promise<void> {
       });
 
       // Update login history to inactive
-      const lastLogin = await prisma.loginHistory.findFirst({
+      await prisma.loginHistory.findFirst({
         where: {
           b2b_user_id: partner.id,
           user_type: "partner",
         },
         orderBy: { created_at: "desc" },
       });
-
-      if (lastLogin) {
-        await prisma.loginHistory.update({
-          where: { id: lastLogin.id },
-          data: { status: "inactive" },
-        });
-      }
 
       deactivatedCount++;
     }
@@ -237,6 +233,24 @@ async function partnerAutoDeactivation(): Promise<void> {
     log("partner-auto-deactivation", `Error: ${error.message}`);
     sendNotification("Partner Auto-Deactivation", false, duration, error);
     throw error;
+  }
+}
+
+export async function triggerMonthlyMISReportManually() {
+  logger.log("Manually triggering monthly MIS report generation", "");
+
+  try {
+    const result = await generateMonthlyMISReports();
+
+    logger.info("Manual MIS report generation completed", {
+      reports_generated: result.reports_generated,
+      reports_failed: result.reports_failed,
+      total_time_seconds: result.total_processing_time_seconds,
+    });
+
+    return result;
+  } catch (error) {
+    console.error(error);
   }
 }
 
@@ -267,6 +281,14 @@ cron.schedule("0 0 * * *", async () => {
 //     await partnerAutoDeactivation();
 //   } catch (error: any) {
 //     log("partner-auto-deactivation", `Failed: ${error.message}`);
+//   }
+// });
+
+// cron.schedule("0 0 1 * *", async () => {
+//   try {
+//     await triggerMonthlyMISReportManually();
+//   } catch (error: any) {
+//     log("triggerMonthlyMISReportManually", `Failed: ${error.message}`);
 //   }
 // });
 

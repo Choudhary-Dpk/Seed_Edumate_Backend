@@ -24,6 +24,7 @@ import { sendResponse } from "./utils/api";
 import { programOfInterestRoutes } from "./routes/programOfInterest";
 import { accommodationRoutes } from "./routes/accommodation.routes";
 import { docsRoutes } from "./routes/docs.routes";
+import { misReportRoutes } from "./routes/misReport.routes";
 const PORT = process.env.PORT || 3031;
 
 // API Routes
@@ -45,6 +46,7 @@ app.use("/testimonials", testimonialRoutes);
 app.use("/accom", accommodationRoutes);
 app.use("/programs-of-interest", programOfInterestRoutes);
 app.use("/api-docs", docsRoutes);
+app.use("/mis-report", misReportRoutes);
 app.use("/", redirectRoutes);
 
 // 404 handler

@@ -311,6 +311,7 @@ model HSB2BPartners {
   b2b_partner_contacts       HSEdumateContacts[]                      @relation("B2BPartnerContacts")
   loan_applications          HSLoanApplications[]
   invoice                    Invoice[]
+  monthly_mis_reports    HSMonthlyMISReports[]
 
   @@index([partner_name])
   @@index([partner_type])
@@ -2393,6 +2394,58 @@ view leads_view {
   loan_amount_approved        Decimal?  @db.Decimal(16, 4)
   loan_amount_disbursed       Decimal?  @db.Decimal(16, 4)
   processing_fee              Decimal?  @db.Decimal(16, 4)
+}
+
+model HSMonthlyMISReports {
+  id                          Int      @id @default(autoincrement())
+  
+  // Report identification
+  b2b_partner_id              Int
+  report_month                Int      // 1-12
+  report_year                 Int      // 2025, 2026...
+  
+  // Partner info (denormalized for quick access)
+  partner_name                String?
+  partner_hubspot_id          String?
+  
+  // Metric 2: Total Leads
+  total_leads                 Int      @default(0)
+  
+  // Metrics 3 & 4: Applications Initiated
+  applications_initiated      Int      @default(0)
+  total_requested_amount      Decimal  @default(0) @db.Decimal(16, 4)
+  
+  // Metrics 5 & 6: Applications Approved
+  applications_approved       Int      @default(0)
+  total_approved_amount       Decimal  @default(0) @db.Decimal(16, 4)
+  
+  // Metrics 7 & 8: Disbursements
+  disbursements_initiated     Int      @default(0)
+  total_disbursement_amount   Decimal  @default(0) @db.Decimal(16, 4)
+  
+  // Metadata
+  report_generated_at         DateTime @default(now())
+  data_source                 String?  @default("automated_monthly_report")
+  hubspot_api_calls_made      Int?
+  processing_time_seconds     Int?
+  
+  // Error tracking
+  has_errors                  Boolean  @default(false)
+  error_message               String?
+  
+  // Audit fields
+  created_at                  DateTime @default(now())
+  updated_at                  DateTime @default(now()) @updatedAt
+  
+  // Relations
+  partner                     HSB2BPartners @relation(fields: [b2b_partner_id], references: [id], onDelete: Cascade)
+  
+  // Unique constraint: one report per partner per month
+  @@unique([b2b_partner_id, report_month, report_year])
+  @@index([report_year, report_month])
+  @@index([b2b_partner_id])
+  @@index([report_generated_at])
+  @@map("hs_monthly_mis_reports")
 }
 
 enum AuditAction {
