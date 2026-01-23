@@ -34,7 +34,7 @@ export type AdminProtectedPayload = {
   roles?: string[];
 };
 
-export type LoginStatus = "success" | "failed" | "logout" | "inactive";
+export type LoginStatus = "success" | "failed" | "logout";
 
 export type AllowedRoles = "Admin" | "Manager" | "User";
 

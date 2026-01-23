@@ -212,13 +212,6 @@ async function partnerAutoDeactivation(): Promise<void> {
         orderBy: { created_at: "desc" },
       });
 
-      if (lastLogin) {
-        await prisma.loginHistory.update({
-          where: { id: lastLogin.id },
-          data: { status: "inactive" },
-        });
-      }
-
       deactivatedCount++;
     }
 
