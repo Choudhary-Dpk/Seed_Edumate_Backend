@@ -93,7 +93,6 @@ export const categorizeLoanProductByTable = (
     "product_status",
     "last_updated_date",
     "hs_lender_id",
-    "supported_countries",
     "logo_url",
 
     // HubSpot System Fields
@@ -208,6 +207,8 @@ export const categorizeLoanProductByTable = (
     "not_supported_universities",
     "restricted_countries",
     "supported_course_types",
+    "supported_countries",
+    "supported_nationality",
   ];
 
   // Special Features Fields (HSLoanProductsSpecialFeatures)

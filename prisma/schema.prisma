@@ -1519,6 +1519,8 @@ model HSLoanProductsGeographicCoverage {
   not_supported_universities String?
   restricted_countries       String?
   supported_course_types     String?
+  supported_countries        String?
+  supported_nationality        String?
   created_at                 DateTime       @default(now())
   updated_at                 DateTime       @default(now()) @updatedAt
   product                    HSLoanProducts @relation(fields: [product_id], references: [id], onDelete: Cascade)

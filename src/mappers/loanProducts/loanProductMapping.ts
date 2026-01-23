@@ -354,12 +354,6 @@ export const mapAllLoanProductFields = async (
   // =====================================================================
 
   // === MAIN LOAN PRODUCT FIELDS ===
-  if (input.supported_countries !== undefined)
-    mapped.supported_countries =
-      input.supported_countries !== null && input.supported_countries !== ""
-        ? input.supported_countries
-        : null;
-
   if (input.source !== undefined)
     mapped.source =
       input.source !== null && input.source !== "" ? input.source : null;
@@ -821,6 +815,18 @@ export const mapAllLoanProductFields = async (
   }
 
   // === GEOGRAPHIC COVERAGE FIELDS ===
+  if (input.supported_countries !== undefined)
+  mapped.supported_countries =
+    input.supported_countries !== null && input.supported_countries !== ""
+      ? input.supported_countries
+      : null;
+  
+  if (input.supported_nationality !== undefined)
+  mapped.supported_nationality =
+    input.supported_nationality !== null && input.supported_nationality !== ""
+      ? input.supported_nationality
+      : null;
+  
   if (input.course_restrictions !== undefined) {
     mapped.course_restrictions =
       input.course_restrictions !== null && input.course_restrictions !== ""
