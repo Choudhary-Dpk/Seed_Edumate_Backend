@@ -896,7 +896,9 @@ export const fetchLoanProductsList = async (
     filters.course_duration_min !== null ||
     filters.course_duration_max !== null ||
     filters.school_name ||
-    filters.program_name
+    filters.program_name ||
+    filters.supported_countries ||
+    filters.supported_nationality 
   ) {
     where.geographic_coverage = {};
 
