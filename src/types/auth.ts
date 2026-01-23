@@ -12,6 +12,7 @@ export type LoginPayload = {
   passwordSetOn?: Date | null;
   ipDetails?: any;
   deviceDetails?: DeviceInfo;
+  is_active?: boolean;
 };
 
 export type ResetPasswordPayload = {
@@ -33,7 +34,7 @@ export type AdminProtectedPayload = {
   roles?: string[];
 };
 
-export type LoginStatus = "success" | "failed" | "logout";
+export type LoginStatus = "success" | "failed" | "logout" | "inactive";
 
 export type AllowedRoles = "Admin" | "Manager" | "User";
 

@@ -30,7 +30,7 @@ export const saveEmailToken = async (userId: number, emailToken: string) => {
 
 export const saveAdminEmailToken = async (
   userId: number,
-  emailToken: string
+  emailToken: string,
 ) => {
   await prisma.adminTokens.create({
     data: {
@@ -90,7 +90,7 @@ export const useEmailToken = async (userId: number, emailToken: string) => {
 
 export const useAdminEmailToken = async (
   userId: number,
-  emailToken: string
+  emailToken: string,
 ) => {
   await prisma.adminTokens.deleteMany({
     where: {
@@ -118,7 +118,7 @@ export const updatePassword = async (userId: number, passwordHash: string) => {
 
 export const updateAdminPassword = async (
   userId: number,
-  passwordHash: string
+  passwordHash: string,
 ) => {
   const updatedUser = await prisma.adminUsers.updateMany({
     data: {
@@ -185,7 +185,7 @@ export const updateUserLastLoggedIn = async (
   userType: "partner" | "admin",
   ip: string,
   status: LoginStatus,
-  device?: string
+  device?: string,
 ) => {
   const whereClause =
     userType === "admin" ? { admin_user_id: userId } : { b2b_user_id: userId };
@@ -284,7 +284,7 @@ export const storeRefreshToken = async (
   userId: number,
   refreshToken: string,
   ipAddress?: string,
-  deviceInfo?: string
+  deviceInfo?: string,
 ) => {
   await prisma.b2BPartnersSessions.deleteMany({
     where: {
@@ -312,7 +312,7 @@ export const storeAdminRefreshToken = async (
   userId: number,
   refreshToken: string,
   ipAddress?: string,
-  deviceInfo?: string
+  deviceInfo?: string,
 ) => {
   await prisma.adminSessions.deleteMany({
     where: {
@@ -338,7 +338,7 @@ export const storeAdminRefreshToken = async (
 
 export const deleteUserSession = async (
   userId: number,
-  status: LoginStatus
+  status: LoginStatus,
 ) => {
   const lastLogin = await prisma.loginHistory.findFirst({
     where: { b2b_user_id: userId },
@@ -370,7 +370,7 @@ export const deleteUserSession = async (
 
 export const deleteAdminSession = async (
   userId: number,
-  status: LoginStatus
+  status: LoginStatus,
 ) => {
   const lastLogin = await prisma.loginHistory.findFirst({
     where: { admin_user_id: userId },

@@ -584,6 +584,7 @@ model B2BPartnersUsers {
   created_at          DateTime               @default(now()) @map("created_at")
   updated_at          DateTime               @default(now()) @updatedAt @map("updated_at")
   source              String?                @default("webportal")
+  last_activity_at    DateTime               @default(now())
   sessions            B2BPartnersSessions[]  @relation("Session")
   tokens              B2BPartnersTokens[]    @relation("Tokens")
   roles               B2BPartnersUserRoles[] @relation("UserRole")

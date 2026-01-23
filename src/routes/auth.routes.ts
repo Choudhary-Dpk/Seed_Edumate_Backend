@@ -13,6 +13,7 @@ import {
   validateCreateUser,
   validateEmail,
   validateEmailToken,
+  validateInactivity,
   validatePassword,
   validateRefreshToken,
 } from "../middlewares";
@@ -35,7 +36,7 @@ router.post(
   createUserValidationRules(),
   validateReqParams,
   validateCreateUser,
-  createUser
+  createUser,
 );
 router.post(
   "/login",
@@ -44,7 +45,8 @@ router.post(
   validateEmail,
   validatePassword,
   // getUserIpDetails,
-  login
+  validateInactivity,
+  login,
 );
 router.post(
   "/otp",
@@ -52,28 +54,28 @@ router.post(
   validateReqParams,
   validateEmail,
   validatePassword,
-  sendOtp
+  sendOtp,
 );
 router.post(
   "/forgot-password",
   forgotPasswordValidationRules(),
   validateReqParams,
   validateEmail,
-  forgotPassword
+  forgotPassword,
 );
 router.post(
   "/reset-password",
   passwordValidationRules(),
   validateReqParams,
   validateEmailToken,
-  resetPassword
+  resetPassword,
 );
 router.post(
   "/set-password",
   passwordValidationRules(),
   validateReqParams,
   validateEmailToken,
-  setPassword
+  setPassword,
 );
 router.put(
   "/change-password",
@@ -84,7 +86,7 @@ router.put(
     allowedRoles: ["Admin", "Manager", "User"],
   }),
   validateChangePassword,
-  changePassword
+  changePassword,
 );
 router.post(
   "/logout",
@@ -92,7 +94,7 @@ router.post(
     method: AuthMethod.JWT,
     allowedRoles: ["Admin", "Manager", "User"],
   }),
-  logout
+  logout,
 );
 router.post("/token", validateRefreshToken, getAccessToken);
 

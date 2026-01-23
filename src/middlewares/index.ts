@@ -40,7 +40,7 @@ import logger from "../utils/logger";
 export const validateCreateUser = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { email, b2bId, roleId } = req.body;
@@ -70,7 +70,7 @@ export const validateCreateUser = async (
 export const validateCreateAdminUser = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { email } = req.body;
@@ -94,7 +94,7 @@ export const validateCreateAdminUser = async (
 export const validateEmailToken = async (
   req: RequestWithPayload<ResetPasswordPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { emailToken } = req.body as { emailToken?: string };
@@ -139,7 +139,7 @@ export const validateEmailToken = async (
 export const validateEmail = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { email } = req.body;
@@ -157,6 +157,7 @@ export const validateEmail = async (
         ...req.payload,
         id: adminUser.id,
         email: adminUser.email,
+        is_active: adminUser.is_active,
         passwordHash: adminUser.password_hash,
       };
       return next();
@@ -172,6 +173,7 @@ export const validateEmail = async (
         id: partnerUser.id,
         email: partnerUser.email,
         passwordHash: partnerUser.password_hash,
+        is_active: partnerUser.is_active,
       };
       return next();
     }
@@ -190,7 +192,7 @@ export const validateEmail = async (
 export const validateAdminEmail = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const email = req.body.email;
@@ -220,7 +222,7 @@ export const validateAdminEmail = async (
 export const validatePassword = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { passwordHash } = req.payload!;
@@ -248,7 +250,7 @@ export const validatePassword = async (
 export const validateChangePassword = async (
   req: RequestWithPayload<ProtectedPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const passwordHash = req.payload?.passwordHash;
@@ -272,7 +274,7 @@ export const validateChangePassword = async (
 export const getUserIpDetails = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { id, email } = req.payload!;
@@ -320,7 +322,7 @@ export const getUserIpDetails = async (
 export const validateRefreshToken = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { refreshToken } = req.body;
@@ -370,7 +372,7 @@ export const validateRefreshToken = async (
 export const validateAdminRefreshToken = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { refreshToken } = req.body;
@@ -420,7 +422,7 @@ export const validateAdminRefreshToken = async (
 export const validateApiKey = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const clientKey = req.headers["edumate-api-key"];
@@ -433,19 +435,19 @@ export const validateApiKey = (
     return sendResponse(
       res,
       500,
-      error?.message?.toString() || "Internal server error"
+      error?.message?.toString() || "Internal server error",
     );
   }
 };
 
 export const validateModulePermissions = (
   requiredPermissions: AllowedPemissions[],
-  module: string
+  module: string,
 ) => {
   return async (
     req: RequestWithPayload<ProtectedPayload>,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
       const userId = req.payload?.id;
@@ -459,11 +461,11 @@ export const validateModulePermissions = (
       const userPermissions = roles.flatMap((r) =>
         r.role.permissions
           .filter((rp) => rp.permission.module === module)
-          .map((rp) => rp.permission.permission)
+          .map((rp) => rp.permission.permission),
       );
 
       const hasAllPermissions = requiredPermissions.every((p) =>
-        userPermissions.includes(p)
+        userPermissions.includes(p),
       );
 
       if (!hasAllPermissions) {
@@ -475,7 +477,7 @@ export const validateModulePermissions = (
       return sendResponse(
         res,
         500,
-        error?.message?.toString() || "Internal server error"
+        error?.message?.toString() || "Internal server error",
       );
     }
   };
@@ -501,7 +503,7 @@ export const authenticate = (options: AuthOptions = {}) => {
   return async (
     req: RequestWithPayload<ProtectedPayload>,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
       //  Step 1: Extract credentials
@@ -519,7 +521,7 @@ export const authenticate = (options: AuthOptions = {}) => {
           return sendResponse(
             res,
             401,
-            "JWT token is required but not provided"
+            "JWT token is required but not provided",
           );
         }
         authMethod = AuthMethod.JWT;
@@ -538,7 +540,7 @@ export const authenticate = (options: AuthOptions = {}) => {
           return sendResponse(
             res,
             401,
-            "Authentication required. Provide either JWT token or API key"
+            "Authentication required. Provide either JWT token or API key",
           );
         }
       }
@@ -548,7 +550,7 @@ export const authenticate = (options: AuthOptions = {}) => {
         // JWT authentication - full entity with roles, payload, etc.
         const authenticatedEntity = await authenticateWithJWT(
           token!,
-          allowedRoles
+          allowedRoles,
         );
 
         if (!authenticatedEntity) {
@@ -579,7 +581,7 @@ export const authenticate = (options: AuthOptions = {}) => {
       return sendResponse(
         res,
         500,
-        error?.message?.toString() || "Internal server error"
+        error?.message?.toString() || "Internal server error",
       );
     }
   };
@@ -591,7 +593,7 @@ export const authenticate = (options: AuthOptions = {}) => {
  */
 async function authenticateWithJWT(
   token: string,
-  allowedRoles: string[]
+  allowedRoles: string[],
 ): Promise<any | null> {
   try {
     // Decode token with your existing JWT_SECRET
@@ -635,7 +637,7 @@ async function authenticateWithJWT(
 
     //  Fallback for old tokens without portalType (backward compatibility)
     console.warn(
-      "Token without portalType detected, using fallback email lookup"
+      "Token without portalType detected, using fallback email lookup",
     );
 
     // Try admin first
@@ -691,12 +693,12 @@ async function authenticateWithJWT(
  */
 async function validateAdminUser(
   adminUser: any,
-  allowedRoles: string[]
+  allowedRoles: string[],
 ): Promise<any | null> {
   try {
     if (!adminUser.is_active) {
       throw new Error(
-        "Your account has been disabled, please contact system administrator"
+        "Your account has been disabled, please contact system administrator",
       );
     }
 
@@ -726,7 +728,7 @@ async function validateAdminUser(
     // Check allowed roles
     if (allowedRoles.length > 0) {
       const hasAccess = roles.some((role: string) =>
-        allowedRoles.includes(role)
+        allowedRoles.includes(role),
       );
       if (!hasAccess) {
         throw new Error("Access Denied");
@@ -761,12 +763,12 @@ async function validateAdminUser(
  */
 async function validatePartnerUser(
   partnerUser: any,
-  allowedRoles: string[]
+  allowedRoles: string[],
 ): Promise<any | null> {
   try {
     if (!partnerUser.is_active) {
       throw new Error(
-        "Your account has been disabled, please contact system administrator"
+        "Your account has been disabled, please contact system administrator",
       );
     }
 
@@ -800,7 +802,7 @@ async function validatePartnerUser(
     // Check allowed roles
     if (allowedRoles.length > 0) {
       const hasAccess = roles.some((role: string) =>
-        allowedRoles.includes(role)
+        allowedRoles.includes(role),
       );
       if (!hasAccess) {
         throw new Error("Access Denied");
@@ -852,3 +854,31 @@ async function authenticateWithApiKey(apiKey: string): Promise<boolean> {
     return false;
   }
 }
+
+export const validateInactivity = async (
+  req: RequestWithPayload<LoginPayload>,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { id, is_active } = req.payload!;
+
+    if (req.portalType === PortalType.ADMIN) {
+      return next();
+    }
+
+    logger.debug(`Checking inactivity for partner user ${id}`);
+    if (is_active === false) {
+      logger.debug(`Partner user ${id} is marked inactive - blocking login`);
+      return sendResponse(
+        res,
+        401,
+        "Your account has been deactivated. Please contact admin to reactivate your account.",
+      );
+    }
+    next();
+  } catch (error) {
+    logger.error("Error in inactivity validation:", error);
+    return sendResponse(res, 500, "Internal server error");
+  }
+};

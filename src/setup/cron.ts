@@ -4,6 +4,7 @@ import fs from "fs";
 import { updatePropertySync } from "../scripts/sync_loan_product_options";
 import { updateExchangeRates } from "../scripts/curreny_update";
 import { emailQueue } from "../utils/queue";
+import prisma from "../config/prisma";
 
 dotenv.config();
 
@@ -23,7 +24,7 @@ function log(taskName: string, message: string): void {
   const period = day <= 10 ? "01-10" : day <= 20 ? "11-20" : "21-end";
   const date = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(
     2,
-    "0"
+    "0",
   )}`;
   const logFile = `./logs/${taskName}_${date}_${period}.log`;
 
@@ -36,7 +37,7 @@ function sendNotification(
   taskName: string,
   success: boolean,
   duration: number,
-  error?: any
+  error?: any,
 ): void {
   const status = success ? "Success" : "Failed";
   const statusEmoji = success ? "✅" : "❌";
@@ -139,6 +140,106 @@ async function dbCleanup(): Promise<void> {
   }
 }
 
+// // Task 4: Partner Auto Deactivation (Inactivity Check)
+async function partnerAutoDeactivation(): Promise<void> {
+  const startTime = Date.now();
+  log("partner-auto-deactivation", "Starting inactivity check...");
+
+  try {
+    const INACTIVE_AFTER_DAYS = 90; // 3 months = ~90 days
+    const cutoffTime = new Date(
+      Date.now() - INACTIVE_AFTER_DAYS * 24 * 60 * 60 * 1000, // 90 days in milliseconds
+    );
+
+    // ✅ Find partners inactive for > 3 months using last_activity_at
+    const inactivePartners = await prisma.b2BPartnersUsers.findMany({
+      where: {
+        is_active: true,
+        last_activity_at: {
+          lt: cutoffTime, // Less than cutoff = inactive
+        },
+      },
+      select: {
+        id: true,
+        email: true,
+        last_activity_at: true,
+      },
+    });
+
+    log(
+      "partner-auto-deactivation",
+      `Found ${inactivePartners.length} inactive partners (>90 days) to deactivate`,
+    );
+
+    let deactivatedCount = 0;
+
+    for (const partner of inactivePartners) {
+      const daysSinceActivity = Math.floor(
+        (Date.now() - partner.last_activity_at.getTime()) / (1000 * 60 * 60 * 24)
+      );
+      
+      log(
+        "partner-auto-deactivation",
+        `Deactivating partner ${partner.id} (${partner.email}) - Last activity: ${partner.last_activity_at.toISOString()} (${daysSinceActivity} days ago)`,
+      );
+
+      // Deactivate user
+      await prisma.b2BPartnersUsers.update({
+        where: { id: partner.id },
+        data: {
+          is_active: false,
+          updated_at: new Date(),
+        },
+      });
+
+      // Invalidate all active sessions
+      await prisma.b2BPartnersSessions.updateMany({
+        where: {
+          user_id: partner.id,
+          is_valid: true,
+        },
+        data: {
+          is_valid: false,
+        },
+      });
+
+      // Update login history to inactive
+      const lastLogin = await prisma.loginHistory.findFirst({
+        where: {
+          b2b_user_id: partner.id,
+          user_type: "partner",
+        },
+        orderBy: { created_at: "desc" },
+      });
+
+      if (lastLogin) {
+        await prisma.loginHistory.update({
+          where: { id: lastLogin.id },
+          data: { status: "inactive" },
+        });
+      }
+
+      deactivatedCount++;
+    }
+
+    const duration = (Date.now() - startTime) / 1000;
+    log(
+      "partner-auto-deactivation",
+      `Done! Deactivated ${deactivatedCount} partners in ${duration.toFixed(2)}s`,
+    );
+    sendNotification(
+      `Partner Auto-Deactivation - 90 Days (${deactivatedCount} users)`,
+      true,
+      duration,
+    );
+  } catch (error: any) {
+    const duration = (Date.now() - startTime) / 1000;
+    log("partner-auto-deactivation", `Error: ${error.message}`);
+    sendNotification("Partner Auto-Deactivation", false, duration, error);
+    throw error;
+  }
+}
+
 // ==================================================
 // SCHEDULES
 // ==================================================
@@ -160,6 +261,14 @@ cron.schedule("0 0 * * *", async () => {
     log("currency-update", `Failed: ${error.message}`);
   }
 });
+
+// cron.schedule("* * * * *", async () => {
+//   try {
+//     await partnerAutoDeactivation();
+//   } catch (error: any) {
+//     log("partner-auto-deactivation", `Failed: ${error.message}`);
+//   }
+// });
 
 log("manager", "Cron manager started");
 

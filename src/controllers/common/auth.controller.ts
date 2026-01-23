@@ -39,11 +39,12 @@ import {
   getAdminRole,
   getUserRole,
 } from "../../models/helpers/partners.helper";
+import prisma from "../../config/prisma";
 
 export const login = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { email, id, ipDetails, deviceDetails } = req.payload!;
@@ -58,24 +59,43 @@ export const login = async (
 
     //  Store refresh token based on portal type
     logger.debug(
-      `Storing refresh token in database for portal: ${req.portalType}`
+      `Storing refresh token in database for portal: ${req.portalType}`,
     );
     if (req.portalType === PortalType.ADMIN) {
       await storeAdminRefreshToken(
         id,
         refreshToken,
         ipDetails,
-        deviceDetails?.device
+        deviceDetails?.device,
       );
     } else if (req.portalType === PortalType.PARTNER) {
       await storeRefreshToken(
         id,
         refreshToken,
         ipDetails,
-        deviceDetails?.device
+        deviceDetails?.device,
       );
     }
     logger.debug(`Refresh token stored successfully`);
+
+    if (req.portalType === PortalType.PARTNER) {
+      logger.debug(
+        `Reactivating partner user ${id} and updating last activity`,
+      );
+
+      try {
+        await prisma.b2BPartnersUsers.update({
+          where: { id },
+          data: {
+            is_active: true,
+            last_activity_at: new Date(),
+            updated_at: new Date(),
+          },
+        });
+      } catch (error) {
+        logger.error(`Failed to update partner user ${id}:`, error);
+      }
+    }
 
     //  Update login history based on portal type
     logger.debug(`Updating login history for userId: ${id}`);
@@ -85,13 +105,13 @@ export const login = async (
       userType,
       ipDetails,
       "success",
-      deviceDetails?.device
+      deviceDetails?.device,
     );
     logger.debug(`User login history updated successfully`);
 
     //  Fetch role based on portal type
     logger.debug(
-      `Fetching role of userId: ${id} for portal: ${req.portalType}`
+      `Fetching role of userId: ${id} for portal: ${req.portalType}`,
     );
     const role =
       req.portalType === PortalType.ADMIN
@@ -113,7 +133,7 @@ export const login = async (
 export const sendOtp = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { email, id, name } = req.payload!;
@@ -138,11 +158,11 @@ export const sendOtp = async (
 
     emailTemplate = emailTemplate.replace(
       /{%currentYear%}/,
-      moment().format("YYYY")
+      moment().format("YYYY"),
     );
     emailTemplate = emailTemplate.replace(
       /{%name%}/g,
-      name!.charAt(0).toUpperCase() + name!.slice(1)
+      name!.charAt(0).toUpperCase() + name!.slice(1),
     );
     const html = emailTemplate.replace(`{%otp%}`, otp);
     const subject = "EDUMATE - One time password";
@@ -171,13 +191,13 @@ export const sendOtp = async (
 export const forgotPassword = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { email, id, name } = req.payload!;
 
     logger.debug(
-      `Generating emailToken for userId: ${id}, portal: ${req.portalType}`
+      `Generating emailToken for userId: ${id}, portal: ${req.portalType}`,
     );
     const emailToken = await generateEmailToken(30);
     logger.debug(`Email token generated successfully`);
@@ -202,14 +222,14 @@ export const forgotPassword = async (
     content = content.replace(/{%currentYear%}/, moment().format("YYYY"));
     content = content.replace(
       /{%name%}/g,
-      name ? name.charAt(0).toUpperCase() + name.slice(1) : "User"
+      name ? name.charAt(0).toUpperCase() + name.slice(1) : "User",
     );
     const html = content.replace("{%reset-password-url%}", redirectUri);
     const subject = "Forgot Password";
 
     //  Revoke previous tokens based on portal type
     logger.debug(
-      `Revoking previous email tokens for portal: ${req.portalType}`
+      `Revoking previous email tokens for portal: ${req.portalType}`,
     );
     if (req.portalType === PortalType.ADMIN) {
       await revokePreviousAdminEmailTokens(id);
@@ -249,14 +269,14 @@ export const forgotPassword = async (
 export const resetPassword = async (
   req: RequestWithPayload<ResetPasswordPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { emailToken, password } = req.body;
     const { id, email } = req.payload!;
 
     logger.debug(
-      `Using emailToken: ${emailToken} for userId: ${id}, portal: ${req.portalType}`
+      `Using emailToken: ${emailToken} for userId: ${id}, portal: ${req.portalType}`,
     );
 
     //  Delete token based on portal type
@@ -273,7 +293,7 @@ export const resetPassword = async (
 
     //  Update password based on portal type
     logger.debug(
-      `Updating password for userId: ${id}, portal: ${req.portalType}`
+      `Updating password for userId: ${id}, portal: ${req.portalType}`,
     );
     if (req.portalType === PortalType.ADMIN) {
       await updateAdminPassword(id, hashedPassword);
@@ -309,14 +329,14 @@ export const resetPassword = async (
 export const setPassword = async (
   req: RequestWithPayload<ResetPasswordPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { emailToken, password } = req.body;
     const { id, email } = req.payload!;
 
     logger.debug(
-      `Using emailToken for userId: ${id}, portal: ${req.portalType}`
+      `Using emailToken for userId: ${id}, portal: ${req.portalType}`,
     );
 
     //  Delete token based on portal type
@@ -333,7 +353,7 @@ export const setPassword = async (
 
     //  Update password based on portal type
     logger.debug(
-      `Updating password for userId: ${id}, portal: ${req.portalType}`
+      `Updating password for userId: ${id}, portal: ${req.portalType}`,
     );
     if (req.portalType === PortalType.ADMIN) {
       await updateAdminPassword(id, hashedPassword);
@@ -361,7 +381,7 @@ export const setPassword = async (
 export const logout = async (
   req: RequestWithPayload<ProtectedPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { id } = req.payload!;
@@ -379,7 +399,7 @@ export const logout = async (
 export const getAccessToken = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { id, email } = req.payload!;
