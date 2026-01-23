@@ -401,6 +401,7 @@ export const getLoanProductsListController = async (
       product_status: filtersFromQuery.product_status || null,
       partner_name: filtersFromQuery.partner_name || null,
       supported_countries: filtersFromQuery.supported_countries || null,
+      supported_nationality : filtersFromQuery.supported_nationality  || null,
 
       // Financial filters
       interest_rate: filtersFromQuery.interest_rate
