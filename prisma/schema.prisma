@@ -17,6 +17,7 @@ model AdminUsers {
   created_at          DateTime             @default(now())
   updated_at          DateTime             @default(now()) @updatedAt
   phone               String?
+  logo_url            String?
   admin_sessions      AdminSessions[]      @relation("AdminSessions")
   admin_tokens        AdminTokens[]        @relation("AdminTokens")
   admin_user_roles    AdminUserRoles[]     @relation("AdminRole")

@@ -9,7 +9,7 @@ import { getAdminUserProfile } from "../../../models/helpers/user.helper";
 export const logoutAdmin = async (
   req: RequestWithPayload<ProtectedPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { id } = req.payload!;
@@ -27,17 +27,37 @@ export const logoutAdmin = async (
 export const getAdminProfile = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { id } = req.payload!;
 
     const profile = await getAdminUserProfile(id);
+    console.log("profile", profile);
     if (!profile) {
       return sendResponse(res, 404, "Profile not found");
     }
 
-    sendResponse(res, 200, "Profile fetched successfully", profile);
+    const result = {
+      id: profile.id,
+      full_name: profile.full_name,
+      email: profile.email,
+      is_active: profile.is_active,
+      b2b_partner: {
+        logo_url: profile.logo_url ?? null,
+      },
+      roles:
+        profile.roles?.map((r: any) => ({
+          role: {
+            id: r.id,
+            role: r.role,
+            display_name: r.display_name,
+            description: r.description,
+          },
+        })) ?? [],
+    };
+
+    sendResponse(res, 200, "Profile fetched successfully", result);
   } catch (error) {
     next(error);
   }

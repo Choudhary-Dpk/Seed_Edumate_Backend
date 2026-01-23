@@ -279,7 +279,6 @@ export type LoanProductFilters = {
   product_category?: string | null;
   product_status?: string | null;
   partner_name?: string | null;
-  supported_countries?: string | null;
 
   // Financial filters
   interest_rate?: number | null;
@@ -300,6 +299,8 @@ export type LoanProductFilters = {
   restricted_countries?: string | null;
   course_duration_min?: number | null;
   course_duration_max?: number | null;
+  supported_nationality?: string | null;
+  supported_countries?: string | null;
 
   // Intake period filters
   intake_month?: string | null;

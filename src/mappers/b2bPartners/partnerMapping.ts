@@ -1,31 +1,37 @@
 import { enumMappingService } from "../enumMapping";
 
 export const mapAllB2BPartnerFields = async (
-  input: Record<string, any>
+  input: Record<string, any>,
 ): Promise<Record<string, any>> => {
   const mapped: Record<string, any> = {};
   // ===== MAIN PARTNER FIELDS =====
-    if (input.logo_url !== undefined) {
+  if (input.logo_url !== undefined) {
     mapped.logo_url =
-      input.logo_url !== null &&
-        input.logo_url !== ""
-        ? input.logo_url
-        : null;
+      input.logo_url !== null && input.logo_url !== "" ? input.logo_url : null;
   }
+  
   if (input.company_id !== undefined || input.hs_company_id !== undefined) {
     mapped.company_id =
-      (input.company_id !== undefined && input.company_id !== null && input.company_id !== "")
+      input.company_id !== undefined &&
+      input.company_id !== null &&
+      input.company_id !== ""
         ? input.company_id
-        : (input.hs_company_id !== undefined && input.hs_company_id !== null && input.hs_company_id !== "")
+        : input.hs_company_id !== undefined &&
+            input.hs_company_id !== null &&
+            input.hs_company_id !== ""
           ? input.hs_company_id
           : null;
   }
 
   if (input.university_id !== undefined || input.school_id !== undefined) {
     mapped.university_id =
-      (input.university_id !== undefined && input.university_id !== null && input.university_id !== "")
+      input.university_id !== undefined &&
+      input.university_id !== null &&
+      input.university_id !== ""
         ? input.university_id
-        : (input.school_id !== undefined && input.school_id !== null && input.school_id !== "")
+        : input.school_id !== undefined &&
+            input.school_id !== null &&
+            input.school_id !== ""
           ? input.school_id
           : null;
   }
@@ -71,20 +77,31 @@ export const mapAllB2BPartnerFields = async (
         ? input.pan_number
         : null;
 
-  if (input.partner_display_name !== undefined || input.short_name !== undefined) {
+  if (
+    input.partner_display_name !== undefined ||
+    input.short_name !== undefined
+  ) {
     mapped.partner_display_name =
-      (input.partner_display_name !== undefined && input.partner_display_name !== null && input.partner_display_name !== "")
+      input.partner_display_name !== undefined &&
+      input.partner_display_name !== null &&
+      input.partner_display_name !== ""
         ? input.partner_display_name
-        : (input.short_name !== undefined && input.short_name !== null && input.short_name !== "")
+        : input.short_name !== undefined &&
+            input.short_name !== null &&
+            input.short_name !== ""
           ? input.short_name
           : null;
   }
 
   if (input.partner_name !== undefined || input.university !== undefined) {
     mapped.partner_name =
-      (input.partner_name !== undefined && input.partner_name !== null && input.partner_name !== "")
+      input.partner_name !== undefined &&
+      input.partner_name !== null &&
+      input.partner_name !== ""
         ? input.partner_name
-        : (input.university !== undefined && input.university !== null && input.university !== "")
+        : input.university !== undefined &&
+            input.university !== null &&
+            input.university !== ""
           ? input.university
           : null;
   }
@@ -164,28 +181,28 @@ export const mapAllB2BPartnerFields = async (
   if (input.hs_object_source_detail_1 !== undefined)
     mapped.hs_object_source_detail_1 =
       input.hs_object_source_detail_1 !== null &&
-        input.hs_object_source_detail_1 !== ""
+      input.hs_object_source_detail_1 !== ""
         ? input.hs_object_source_detail_1
         : null;
 
   if (input.hs_object_source_detail_2 !== undefined)
     mapped.hs_object_source_detail_2 =
       input.hs_object_source_detail_2 !== null &&
-        input.hs_object_source_detail_2 !== ""
+      input.hs_object_source_detail_2 !== ""
         ? input.hs_object_source_detail_2
         : null;
 
   if (input.hs_object_source_detail_3 !== undefined)
     mapped.hs_object_source_detail_3 =
       input.hs_object_source_detail_3 !== null &&
-        input.hs_object_source_detail_3 !== ""
+      input.hs_object_source_detail_3 !== ""
         ? input.hs_object_source_detail_3
         : null;
 
   if (input.hs_object_source_label !== undefined)
     mapped.hs_object_source_label =
       input.hs_object_source_label !== null &&
-        input.hs_object_source_label !== ""
+      input.hs_object_source_label !== ""
         ? input.hs_object_source_label
         : null;
 
@@ -204,7 +221,7 @@ export const mapAllB2BPartnerFields = async (
   if (input.hubspot_owner_assigneddate !== undefined)
     mapped.hubspot_owner_assigneddate =
       input.hubspot_owner_assigneddate !== null &&
-        input.hubspot_owner_assigneddate !== ""
+      input.hubspot_owner_assigneddate !== ""
         ? input.hubspot_owner_assigneddate
         : null;
 
@@ -224,14 +241,14 @@ export const mapAllB2BPartnerFields = async (
   if (input.student_capacity_monthly !== undefined)
     mapped.student_capacity_monthly =
       input.student_capacity_monthly !== null &&
-        input.student_capacity_monthly !== ""
+      input.student_capacity_monthly !== ""
         ? input.student_capacity_monthly
         : null;
 
   if (input.student_capacity_yearly !== undefined)
     mapped.student_capacity_yearly =
       input.student_capacity_yearly !== null &&
-        input.student_capacity_yearly !== ""
+      input.student_capacity_yearly !== ""
         ? input.student_capacity_yearly
         : null;
 
@@ -311,7 +328,7 @@ export const mapAllB2BPartnerFields = async (
   if (input.fixed_commission_amount !== undefined)
     mapped.fixed_commission_amount =
       input.fixed_commission_amount !== null &&
-        input.fixed_commission_amount !== ""
+      input.fixed_commission_amount !== ""
         ? input.fixed_commission_amount
         : null;
 
@@ -364,7 +381,7 @@ export const mapAllB2BPartnerFields = async (
   if (input.tiered_commission_structure !== undefined)
     mapped.tiered_commission_structure =
       input.tiered_commission_structure !== null &&
-        input.tiered_commission_structure !== ""
+      input.tiered_commission_structure !== ""
         ? input.tiered_commission_structure
         : null;
 
@@ -378,7 +395,7 @@ export const mapAllB2BPartnerFields = async (
   if (input.background_verification_status !== undefined)
     mapped.background_verification_status =
       input.background_verification_status !== null &&
-        input.background_verification_status !== ""
+      input.background_verification_status !== ""
         ? input.background_verification_status
         : null;
 
@@ -398,68 +415,86 @@ export const mapAllB2BPartnerFields = async (
   if (input.accounts_contact_email !== undefined)
     mapped.accounts_contact_email =
       input.accounts_contact_email !== null &&
-        input.accounts_contact_email !== ""
+      input.accounts_contact_email !== ""
         ? input.accounts_contact_email
         : null;
 
   if (input.accounts_contact_person !== undefined)
     mapped.accounts_contact_person =
       input.accounts_contact_person !== null &&
-        input.accounts_contact_person !== ""
+      input.accounts_contact_person !== ""
         ? input.accounts_contact_person
         : null;
 
   if (input.accounts_contact_phone !== undefined)
     mapped.accounts_contact_phone =
       input.accounts_contact_phone !== null &&
-        input.accounts_contact_phone !== ""
+      input.accounts_contact_phone !== ""
         ? input.accounts_contact_phone
         : null;
 
   if (input.marketing_contact_email !== undefined)
     mapped.marketing_contact_email =
       input.marketing_contact_email !== null &&
-        input.marketing_contact_email !== ""
+      input.marketing_contact_email !== ""
         ? input.marketing_contact_email
         : null;
 
   if (input.marketing_contact_person !== undefined)
     mapped.marketing_contact_person =
       input.marketing_contact_person !== null &&
-        input.marketing_contact_person !== ""
+      input.marketing_contact_person !== ""
         ? input.marketing_contact_person
         : null;
 
   if (input.marketing_contact_phone !== undefined)
     mapped.marketing_contact_phone =
       input.marketing_contact_phone !== null &&
-        input.marketing_contact_phone !== ""
+      input.marketing_contact_phone !== ""
         ? input.marketing_contact_phone
         : null;
 
-  if (input.primary_contact_designation !== undefined || input.designation !== undefined) {
+  if (
+    input.primary_contact_designation !== undefined ||
+    input.designation !== undefined
+  ) {
     mapped.primary_contact_designation =
-      (input.primary_contact_designation !== undefined && input.primary_contact_designation !== null && input.primary_contact_designation !== "")
+      input.primary_contact_designation !== undefined &&
+      input.primary_contact_designation !== null &&
+      input.primary_contact_designation !== ""
         ? input.primary_contact_designation
-        : (input.designation !== undefined && input.designation !== null && input.designation !== "")
+        : input.designation !== undefined &&
+            input.designation !== null &&
+            input.designation !== ""
           ? input.designation
           : null;
   }
 
   if (input.primary_contact_email !== undefined || input.email !== undefined) {
     mapped.primary_contact_email =
-      (input.primary_contact_email !== undefined && input.primary_contact_email !== null && input.primary_contact_email !== "")
+      input.primary_contact_email !== undefined &&
+      input.primary_contact_email !== null &&
+      input.primary_contact_email !== ""
         ? input.primary_contact_email
-        : (input.email !== undefined && input.email !== null && input.email !== "")
+        : input.email !== undefined &&
+            input.email !== null &&
+            input.email !== ""
           ? input.email
           : null;
   }
 
-  if (input.primary_contact_person !== undefined || input.client_name !== undefined) {
+  if (
+    input.primary_contact_person !== undefined ||
+    input.client_name !== undefined
+  ) {
     mapped.primary_contact_person =
-      (input.primary_contact_person !== undefined && input.primary_contact_person !== null && input.primary_contact_person !== "")
+      input.primary_contact_person !== undefined &&
+      input.primary_contact_person !== null &&
+      input.primary_contact_person !== ""
         ? input.primary_contact_person
-        : (input.client_name !== undefined && input.client_name !== null && input.client_name !== "")
+        : input.client_name !== undefined &&
+            input.client_name !== null &&
+            input.client_name !== ""
           ? input.client_name
           : null;
   }
@@ -473,21 +508,21 @@ export const mapAllB2BPartnerFields = async (
   if (input.secondary_contact_email !== undefined)
     mapped.secondary_contact_email =
       input.secondary_contact_email !== null &&
-        input.secondary_contact_email !== ""
+      input.secondary_contact_email !== ""
         ? input.secondary_contact_email
         : null;
 
   if (input.secondary_contact_person !== undefined)
     mapped.secondary_contact_person =
       input.secondary_contact_person !== null &&
-        input.secondary_contact_person !== ""
+      input.secondary_contact_person !== ""
         ? input.secondary_contact_person
         : null;
 
   if (input.secondary_contact_phone !== undefined)
     mapped.secondary_contact_phone =
       input.secondary_contact_phone !== null &&
-        input.secondary_contact_phone !== ""
+      input.secondary_contact_phone !== ""
         ? input.secondary_contact_phone
         : null;
 
@@ -495,14 +530,14 @@ export const mapAllB2BPartnerFields = async (
   if (input.average_monthly_commission !== undefined)
     mapped.average_monthly_commission =
       input.average_monthly_commission !== null &&
-        input.average_monthly_commission !== ""
+      input.average_monthly_commission !== ""
         ? input.average_monthly_commission
         : null;
 
   if (input.current_month_commission !== undefined)
     mapped.current_month_commission =
       input.current_month_commission !== null &&
-        input.current_month_commission !== ""
+      input.current_month_commission !== ""
         ? input.current_month_commission
         : null;
 
@@ -533,7 +568,7 @@ export const mapAllB2BPartnerFields = async (
   if (input.outstanding_commission !== undefined)
     mapped.outstanding_commission =
       input.outstanding_commission !== null &&
-        input.outstanding_commission !== ""
+      input.outstanding_commission !== ""
         ? input.outstanding_commission
         : null;
 
@@ -546,7 +581,7 @@ export const mapAllB2BPartnerFields = async (
   if (input.total_commission_earned !== undefined)
     mapped.total_commission_earned =
       input.total_commission_earned !== null &&
-        input.total_commission_earned !== ""
+      input.total_commission_earned !== ""
         ? input.total_commission_earned
         : null;
 
@@ -572,7 +607,7 @@ export const mapAllB2BPartnerFields = async (
   if (input.lead_submission_method !== undefined)
     mapped.lead_submission_method =
       input.lead_submission_method !== null &&
-        input.lead_submission_method !== ""
+      input.lead_submission_method !== ""
         ? input.lead_submission_method
         : null;
 
@@ -604,7 +639,7 @@ export const mapAllB2BPartnerFields = async (
   if (input.brand_usage_guidelines !== undefined)
     mapped.brand_usage_guidelines =
       input.brand_usage_guidelines !== null &&
-        input.brand_usage_guidelines !== ""
+      input.brand_usage_guidelines !== ""
         ? input.brand_usage_guidelines
         : null;
 
@@ -623,7 +658,7 @@ export const mapAllB2BPartnerFields = async (
   if (input.digital_presence_rating !== undefined)
     mapped.digital_presence_rating =
       input.digital_presence_rating !== null &&
-        input.digital_presence_rating !== ""
+      input.digital_presence_rating !== ""
         ? input.digital_presence_rating
         : null;
 
@@ -636,21 +671,21 @@ export const mapAllB2BPartnerFields = async (
   if (input.marketing_materials_provided !== undefined)
     mapped.marketing_materials_provided =
       input.marketing_materials_provided !== null &&
-        input.marketing_materials_provided !== ""
+      input.marketing_materials_provided !== ""
         ? input.marketing_materials_provided
         : null;
 
   if (input.promotional_activities !== undefined)
     mapped.promotional_activities =
       input.promotional_activities !== null &&
-        input.promotional_activities !== ""
+      input.promotional_activities !== ""
         ? input.promotional_activities
         : null;
 
   if (input.social_media_followers !== undefined)
     mapped.social_media_followers =
       input.social_media_followers !== null &&
-        input.social_media_followers !== ""
+      input.social_media_followers !== ""
         ? input.social_media_followers
         : null;
 
@@ -670,7 +705,7 @@ export const mapAllB2BPartnerFields = async (
   if (input.partnership_start_date !== undefined)
     mapped.partnership_start_date =
       input.partnership_start_date !== null &&
-        input.partnership_start_date !== ""
+      input.partnership_start_date !== ""
         ? input.partnership_start_date
         : null;
 
@@ -684,7 +719,7 @@ export const mapAllB2BPartnerFields = async (
   if (input.application_conversion_rate !== undefined)
     mapped.application_conversion_rate =
       input.application_conversion_rate !== null &&
-        input.application_conversion_rate !== ""
+      input.application_conversion_rate !== ""
         ? input.application_conversion_rate
         : null;
 
@@ -697,14 +732,14 @@ export const mapAllB2BPartnerFields = async (
   if (input.approval_conversion_rate !== undefined)
     mapped.approval_conversion_rate =
       input.approval_conversion_rate !== null &&
-        input.approval_conversion_rate !== ""
+      input.approval_conversion_rate !== ""
         ? input.approval_conversion_rate
         : null;
 
   if (input.average_lead_quality_score !== undefined)
     mapped.average_lead_quality_score =
       input.average_lead_quality_score !== null &&
-        input.average_lead_quality_score !== ""
+      input.average_lead_quality_score !== ""
         ? input.average_lead_quality_score
         : null;
 
@@ -735,7 +770,7 @@ export const mapAllB2BPartnerFields = async (
   if (input.leads_converted_to_applications !== undefined)
     mapped.leads_converted_to_applications =
       input.leads_converted_to_applications !== null &&
-        input.leads_converted_to_applications !== ""
+      input.leads_converted_to_applications !== ""
         ? input.leads_converted_to_applications
         : null;
 
@@ -754,14 +789,14 @@ export const mapAllB2BPartnerFields = async (
   if (input.qualified_leads_provided !== undefined)
     mapped.qualified_leads_provided =
       input.qualified_leads_provided !== null &&
-        input.qualified_leads_provided !== ""
+      input.qualified_leads_provided !== ""
         ? input.qualified_leads_provided
         : null;
 
   if (input.seasonal_performance_pattern !== undefined)
     mapped.seasonal_performance_pattern =
       input.seasonal_performance_pattern !== null &&
-        input.seasonal_performance_pattern !== ""
+      input.seasonal_performance_pattern !== ""
         ? input.seasonal_performance_pattern
         : null;
 
@@ -774,7 +809,7 @@ export const mapAllB2BPartnerFields = async (
   if (input.total_loan_value_generated !== undefined)
     mapped.total_loan_value_generated =
       input.total_loan_value_generated !== null &&
-        input.total_loan_value_generated !== ""
+      input.total_loan_value_generated !== ""
         ? input.total_loan_value_generated
         : null;
 
@@ -782,14 +817,14 @@ export const mapAllB2BPartnerFields = async (
   if (input.assigned_account_manager !== undefined)
     mapped.assigned_account_manager =
       input.assigned_account_manager !== null &&
-        input.assigned_account_manager !== ""
+      input.assigned_account_manager !== ""
         ? input.assigned_account_manager
         : null;
 
   if (input.communication_frequency !== undefined)
     mapped.communication_frequency =
       input.communication_frequency !== null &&
-        input.communication_frequency !== ""
+      input.communication_frequency !== ""
         ? input.communication_frequency
         : null;
 
@@ -808,7 +843,7 @@ export const mapAllB2BPartnerFields = async (
   if (input.joint_marketing_activities !== undefined)
     mapped.joint_marketing_activities =
       input.joint_marketing_activities !== null &&
-        input.joint_marketing_activities !== ""
+      input.joint_marketing_activities !== ""
         ? input.joint_marketing_activities
         : null;
 
@@ -898,7 +933,7 @@ export const mapAllB2BPartnerFields = async (
   if (input.portal_access_provided !== undefined)
     mapped.portal_access_provided =
       input.portal_access_provided !== null &&
-        input.portal_access_provided !== ""
+      input.portal_access_provided !== ""
         ? input.portal_access_provided
         : null;
 
@@ -1313,7 +1348,7 @@ export const mapAllB2BPartnerFields = async (
       enumTranslations.map((t) => ({
         enumName: t.enumName,
         sourceValue: t.sourceValue,
-      }))
+      })),
     );
 
     // Map translated values back to fields

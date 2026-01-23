@@ -17,7 +17,7 @@ export const createLoanProduct = async (tx: any, mainData: any) => {
 export const createLoanProductSystemTracking = async (
   tx: any,
   productId: number,
-  systemTrackingData: any
+  systemTrackingData: any,
 ) => {
   const systemTracking = await tx.hSLoanProductsSystemTracking.create({
     data: {
@@ -32,7 +32,7 @@ export const createLoanProductSystemTracking = async (
 export const createLoanProductCompetitiveAnalytics = async (
   tx: any,
   productId: number,
-  competitiveData: any
+  competitiveData: any,
 ) => {
   const competitive = await tx.hSLoanProductsCompetitiveAnalytics.create({
     data: {
@@ -47,7 +47,7 @@ export const createLoanProductCompetitiveAnalytics = async (
 export const createLoanProductEligibilityCriteria = async (
   tx: any,
   productId: number,
-  criteriaData: any
+  criteriaData: any,
 ) => {
   const criteria = await tx.hSLoanProductsEligibilityCriteria.create({
     data: {
@@ -62,7 +62,7 @@ export const createLoanProductEligibilityCriteria = async (
 export const createLoanProductCollateralSecurity = async (
   tx: any,
   productId: number,
-  collateralData: any
+  collateralData: any,
 ) => {
   const collateral = await tx.hSLoanProductsCollateralAndSecurity.create({
     data: {
@@ -77,7 +77,7 @@ export const createLoanProductCollateralSecurity = async (
 export const createLoanProductRepaymentTerms = async (
   tx: any,
   productId: number,
-  repaymentData: any
+  repaymentData: any,
 ) => {
   const repayment = await tx.hSLoanProductsRepaymentTerms.create({
     data: {
@@ -92,7 +92,7 @@ export const createLoanProductRepaymentTerms = async (
 export const createLoanProductApplicationProcessing = async (
   tx: any,
   productId: number,
-  processingData: any
+  processingData: any,
 ) => {
   const processing = await tx.hSLoanProductsApplicationAndProcessing.create({
     data: {
@@ -107,7 +107,7 @@ export const createLoanProductApplicationProcessing = async (
 export const createLoanProductGeographicCoverage = async (
   tx: any,
   productId: number,
-  geographicData: any
+  geographicData: any,
 ) => {
   const geographic = await tx.hSLoanProductsGeographicCoverage.create({
     data: {
@@ -122,7 +122,7 @@ export const createLoanProductGeographicCoverage = async (
 export const createLoanProductSpecialFeatures = async (
   tx: any,
   productId: number,
-  featuresData: any
+  featuresData: any,
 ) => {
   const features = await tx.hSLoanProductsSpecialFeatures.create({
     data: {
@@ -137,7 +137,7 @@ export const createLoanProductSpecialFeatures = async (
 export const createLoanProductPerformanceMetrics = async (
   tx: any,
   productId: number,
-  metricsData: any
+  metricsData: any,
 ) => {
   const metrics = await tx.hSLoanProductsPerformanceMetrics.create({
     data: {
@@ -152,7 +152,7 @@ export const createLoanProductPerformanceMetrics = async (
 export const createLoanProductSystemIntegration = async (
   tx: any,
   productId: number,
-  integrationData: any
+  integrationData: any,
 ) => {
   const integration = await tx.hSLoanProductsSystemIntegration.create({
     data: {
@@ -167,7 +167,7 @@ export const createLoanProductSystemIntegration = async (
 export const createLoanProductFinancialTerms = async (
   tx: any,
   productId: number,
-  financialData: any
+  financialData: any,
 ) => {
   const financial = await tx.hSLoanProductsFinancialTerms.create({
     data: {
@@ -182,7 +182,7 @@ export const createLoanProductFinancialTerms = async (
 export const updateLoanProduct = async (
   tx: any,
   productId: number,
-  mainData: any
+  mainData: any,
 ) => {
   const product = await tx.hSLoanProducts.update({
     where: {
@@ -200,7 +200,7 @@ export const updateLoanProduct = async (
 export const updateLoanProductSystemTracking = async (
   tx: any,
   productId: number,
-  systemTrackingData: any
+  systemTrackingData: any,
 ) => {
   if (!systemTrackingData || Object.keys(systemTrackingData).length === 0) {
     return null;
@@ -223,7 +223,7 @@ export const updateLoanProductSystemTracking = async (
 export const updateLoanProductCompetitiveAnalytics = async (
   tx: any,
   productId: number,
-  competitiveData: any
+  competitiveData: any,
 ) => {
   if (!competitiveData || Object.keys(competitiveData).length === 0) {
     return null;
@@ -245,7 +245,7 @@ export const updateLoanProductCompetitiveAnalytics = async (
 export const updateLoanProductEligibilityCriteria = async (
   tx: any,
   criteriaId: number,
-  criteriaData: any
+  criteriaData: any,
 ) => {
   if (!criteriaData || Object.keys(criteriaData).length === 0) {
     return null;
@@ -267,7 +267,7 @@ export const updateLoanProductEligibilityCriteria = async (
 export const updateLoanProductCollateralSecurity = async (
   tx: any,
   productId: number,
-  collateralData: any
+  collateralData: any,
 ) => {
   if (!collateralData || Object.keys(collateralData).length === 0) {
     return null;
@@ -289,7 +289,7 @@ export const updateLoanProductCollateralSecurity = async (
 export const updateLoanProductRepaymentTerms = async (
   tx: any,
   productId: number,
-  repaymentData: any
+  repaymentData: any,
 ) => {
   if (!repaymentData || Object.keys(repaymentData).length === 0) {
     return null;
@@ -311,7 +311,7 @@ export const updateLoanProductRepaymentTerms = async (
 export const updateLoanProductApplicationProcessing = async (
   tx: any,
   productId: number,
-  processingData: any
+  processingData: any,
 ) => {
   if (!processingData || Object.keys(processingData).length === 0) {
     return null;
@@ -333,7 +333,7 @@ export const updateLoanProductApplicationProcessing = async (
 export const updateLoanProductGeographicCoverage = async (
   tx: any,
   productId: number,
-  geographicData: any
+  geographicData: any,
 ) => {
   if (!geographicData || Object.keys(geographicData).length === 0) {
     return null;
@@ -355,7 +355,7 @@ export const updateLoanProductGeographicCoverage = async (
 export const updateLoanProductSpecialFeatures = async (
   tx: any,
   productId: number,
-  featuresData: any
+  featuresData: any,
 ) => {
   if (!featuresData || Object.keys(featuresData).length === 0) {
     return null;
@@ -377,7 +377,7 @@ export const updateLoanProductSpecialFeatures = async (
 export const updateLoanProductPerformanceMetrics = async (
   tx: any,
   productId: number,
-  metricsData: any
+  metricsData: any,
 ) => {
   if (!metricsData || Object.keys(metricsData).length === 0) {
     return null;
@@ -399,7 +399,7 @@ export const updateLoanProductPerformanceMetrics = async (
 export const updateLoanProductSystemIntegration = async (
   tx: any,
   productId: number,
-  integrationData: any
+  integrationData: any,
 ) => {
   if (!integrationData || Object.keys(integrationData).length === 0) {
     return null;
@@ -421,7 +421,7 @@ export const updateLoanProductSystemIntegration = async (
 export const updateLoanProductFinancialTerms = async (
   tx: any,
   productId: number,
-  financialData: any
+  financialData: any,
 ) => {
   if (!financialData || Object.keys(financialData).length === 0) {
     return null;
@@ -493,7 +493,7 @@ export const fetchLoanProductsList = async (
   sortKey: string | null,
   sortDir: "asc" | "desc" | null,
   search: string | null,
-  filters: LoanProductFilters
+  filters: LoanProductFilters,
 ) => {
   const where: Prisma.HSLoanProductsWhereInput = {
     is_active: true,
@@ -541,13 +541,6 @@ export const fetchLoanProductsList = async (
   if (filters.partner_name) {
     where.partner_name = {
       contains: filters.partner_name,
-      mode: "insensitive",
-    };
-  }
-
-  if (filters.supported_countries) {
-    where.supported_countries = {
-      equals: filters.supported_countries,
       mode: "insensitive",
     };
   }
@@ -973,6 +966,20 @@ export const fetchLoanProductsList = async (
         },
       ];
     }
+
+    if (filters.supported_countries) {
+      where.geographic_coverage.supported_countries = {
+        equals: filters.supported_countries,
+        mode: "insensitive",
+      };
+    }
+
+    if (filters.supported_nationality) {
+      where.geographic_coverage.supported_nationality = {
+        equals: filters.supported_nationality,
+        mode: "insensitive",
+      };
+    }
   }
 
   // Collateral and security filters
@@ -1161,12 +1168,20 @@ export const fetchLoanProductsList = async (
   if (sortKey === "max_loan_amount") {
     filteredRows = filteredRows.sort((a, b) => {
       // Get max amount from both secured and unsecured, pick the higher one
-      const aSecured = Number(a.financial_terms?.maximum_loan_amount_secured || 0);
-      const aUnsecured = Number(a.financial_terms?.maximum_loan_amount_unsecured || 0);
+      const aSecured = Number(
+        a.financial_terms?.maximum_loan_amount_secured || 0,
+      );
+      const aUnsecured = Number(
+        a.financial_terms?.maximum_loan_amount_unsecured || 0,
+      );
       const aMax = Math.max(aSecured, aUnsecured);
 
-      const bSecured = Number(b.financial_terms?.maximum_loan_amount_secured || 0);
-      const bUnsecured = Number(b.financial_terms?.maximum_loan_amount_unsecured || 0);
+      const bSecured = Number(
+        b.financial_terms?.maximum_loan_amount_secured || 0,
+      );
+      const bUnsecured = Number(
+        b.financial_terms?.maximum_loan_amount_unsecured || 0,
+      );
       const bMax = Math.max(bSecured, bUnsecured);
 
       // Sort based on direction
@@ -1184,7 +1199,7 @@ export const fetchLoanProductsList = async (
 export const checkLoanProductFields = async (
   lender_id?: number,
   product_display_name?: string,
-  hs_object_id?: string
+  hs_object_id?: string,
 ) => {
   const conditions: any[] = [];
 

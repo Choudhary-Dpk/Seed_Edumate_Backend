@@ -139,6 +139,7 @@ export const getAdminUserProfile = async (userId: number) => {
       full_name: true,
       email: true,
       is_active: true,
+      logo_url: true,
       admin_user_roles: {
         select: {
           role: {
