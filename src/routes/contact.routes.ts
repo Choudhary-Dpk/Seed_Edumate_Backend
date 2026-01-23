@@ -75,7 +75,7 @@ router.put(
 router.get(
   "/list",
   authenticate({
-    method: AuthMethod.JWT,
+    method: AuthMethod.BOTH,
     allowedRoles: ["Admin", "Manager", "User"],
   }),
   contactsLeadPaginationValidationRules(),
