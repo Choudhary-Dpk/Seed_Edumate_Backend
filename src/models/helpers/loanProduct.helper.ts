@@ -979,7 +979,7 @@ export const fetchLoanProductsList = async (
 
     if (filters.supported_nationality) {
       where.geographic_coverage.supported_nationality = {
-        equals: filters.supported_nationality,
+        contains: filters.supported_nationality,
         mode: "insensitive",
       };
     }
