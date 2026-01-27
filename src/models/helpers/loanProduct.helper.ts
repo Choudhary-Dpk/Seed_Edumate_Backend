@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import prisma from "../../config/prisma";
 import { LoanProductFilters } from "../../types/loanProduct.types";
+import logger from "../../utils/logger";
 
 export const createLoanProduct = async (tx: any, mainData: any) => {
   const product = await tx.hSLoanProducts.create({
@@ -898,7 +899,7 @@ export const fetchLoanProductsList = async (
     filters.school_name ||
     filters.program_name ||
     filters.supported_countries ||
-    filters.supported_nationality 
+    filters.supported_nationality
   ) {
     where.geographic_coverage = {};
 
@@ -1113,6 +1114,9 @@ export const fetchLoanProductsList = async (
     }
   }
 
+  console.log("🔍 FILTERS RECEIVED:", JSON.stringify(filters, null, 2));
+  console.log("🔍 WHERE CLAUSE:", JSON.stringify(where, null, 2));
+
   const [rows, count] = await Promise.all([
     prisma.hSLoanProducts.findMany({
       where,
@@ -1142,6 +1146,12 @@ export const fetchLoanProductsList = async (
     }),
     prisma.hSLoanProducts.count({ where }),
   ]);
+
+  console.log("FOUND RECORDS:", count);
+  console.log(
+    "RECORD IDs:",
+    rows.map((r) => r.id),
+  );
 
   // ✅ POST-FETCH FILTERING for string fields that store numeric values
   let filteredRows = rows;
