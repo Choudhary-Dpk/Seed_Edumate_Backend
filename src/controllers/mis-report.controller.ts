@@ -1,16 +1,14 @@
-// src/controllers/mis-report.controller.ts
-
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { Decimal } from "@prisma/client/runtime/library";
 import prisma from "../config/prisma";
 import {
-  generateMonthlyMISReports,
   generatePartnerMISReport,
   getMonthlyReport,
   getMonthlyReportsForAllPartners,
 } from "../services/mis-report.service";
 import { logger } from "../utils/logger";
 import { triggerMonthlyMISReportManually } from "../setup/cron";
+import { sendResponse } from "../utils/api";
 
 // Extend Express Request type to include custom properties
 declare global {
@@ -25,7 +23,11 @@ declare global {
  * Generate monthly MIS reports for all active partners
  * @route POST /api/mis-reports/generate
  */
-export const generateAllReports = async (req: Request, res: Response) => {
+export const generateAllReports = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
   try {
     logger.info("Manual MIS report generation triggered via API", {
       user: req.user || "system",
@@ -36,34 +38,28 @@ export const generateAllReports = async (req: Request, res: Response) => {
 
     // Handle undefined result
     if (!result) {
-      return res.status(500).json({
-        success: false,
-        message: "Failed to generate monthly MIS reports",
-        error: "Report generation returned no result",
-      });
+      sendResponse(
+        res,
+        500,
+        "Failed to generate monthly MIS reports - no result returned",
+        null,
+        [{ error: "Report generation returned no result" }],
+      );
+      return;
     }
 
-    res.status(200).json({
-      success: true,
-      message: "Monthly MIS reports generated successfully",
-      data: {
-        reports_generated: result.reports_generated,
-        reports_failed: result.reports_failed,
-        total_processing_time_seconds: result.total_processing_time_seconds,
-        errors: result.errors,
-      },
+    sendResponse(res, 200, "Monthly MIS reports generated successfully", {
+      reports_generated: result.reports_generated,
+      reports_failed: result.reports_failed,
+      total_processing_time_seconds: result.total_processing_time_seconds,
+      errors: result.errors,
     });
   } catch (error) {
     logger.error("Error in manual MIS report generation API", {
       error: error instanceof Error ? error.message : "Unknown error",
       stack: error instanceof Error ? error.stack : undefined,
     });
-
-    res.status(500).json({
-      success: false,
-      message: "Failed to generate monthly MIS reports",
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
+    next(error);
   }
 };
 
@@ -71,7 +67,11 @@ export const generateAllReports = async (req: Request, res: Response) => {
  * Generate MIS report for a specific partner and month
  * @route POST /api/mis-reports/generate/:partnerId/:year/:month
  */
-export const generatePartnerReport = async (req: Request, res: Response) => {
+export const generatePartnerReport = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
   try {
     const partnerId = parseInt(req.params.partnerId);
     const year = parseInt(req.params.year);
@@ -85,20 +85,27 @@ export const generatePartnerReport = async (req: Request, res: Response) => {
       month < 1 ||
       month > 12
     ) {
-      return res.status(400).json({
-        success: false,
-        message:
-          "Invalid parameters. Provide valid partnerId, year, and month (1-12)",
-      });
+      sendResponse(
+        res,
+        400,
+        "Invalid parameters. Provide valid partnerId, year, and month (1-12)",
+        null,
+        [{ field: "params", message: "Invalid parameters" }],
+      );
+      return;
     }
 
     // Validate year range
     const currentYear = new Date().getFullYear();
     if (year < 2020 || year > currentYear + 1) {
-      return res.status(400).json({
-        success: false,
-        message: `Invalid year. Must be between 2020 and ${currentYear + 1}`,
-      });
+      sendResponse(
+        res,
+        400,
+        `Invalid year. Must be between 2020 and ${currentYear + 1}`,
+        null,
+        [{ field: "year", message: "Invalid year range" }],
+      );
+      return;
     }
 
     // Get partner details
@@ -114,17 +121,19 @@ export const generatePartnerReport = async (req: Request, res: Response) => {
     });
 
     if (!partner) {
-      return res.status(404).json({
-        success: false,
-        message: "Partner not found",
-      });
+      sendResponse(res, 404, "Partner not found");
+      return;
     }
 
     if (partner.is_deleted) {
-      return res.status(400).json({
-        success: false,
-        message: "Cannot generate report for deleted partner",
-      });
+      sendResponse(
+        res,
+        400,
+        "Cannot generate report for deleted partner",
+        null,
+        [{ field: "partnerId", message: "Partner is deleted" }],
+      );
+      return;
     }
 
     logger.info("Generating MIS report for specific partner", {
@@ -140,7 +149,7 @@ export const generatePartnerReport = async (req: Request, res: Response) => {
       partner.partner_name || "Unknown",
       partner.hs_object_id,
       month,
-      year
+      year,
     );
 
     // Store the report with proper Decimal conversion
@@ -157,11 +166,17 @@ export const generatePartnerReport = async (req: Request, res: Response) => {
         partner_hubspot_id: report.partner_hubspot_id,
         total_leads: report.metrics.total_leads,
         applications_initiated: report.metrics.applications_initiated,
-        total_requested_amount: new Decimal(report.metrics.total_requested_amount),
+        total_requested_amount: new Decimal(
+          report.metrics.total_requested_amount,
+        ),
         applications_approved: report.metrics.applications_approved,
-        total_approved_amount: new Decimal(report.metrics.total_approved_amount),
+        total_approved_amount: new Decimal(
+          report.metrics.total_approved_amount,
+        ),
         disbursements_initiated: report.metrics.disbursements_initiated,
-        total_disbursement_amount: new Decimal(report.metrics.total_disbursement_amount),
+        total_disbursement_amount: new Decimal(
+          report.metrics.total_disbursement_amount,
+        ),
         hubspot_api_calls_made: report.hubspot_api_calls_made,
         processing_time_seconds: report.processing_time_seconds,
         has_errors: false,
@@ -176,11 +191,17 @@ export const generatePartnerReport = async (req: Request, res: Response) => {
         partner_hubspot_id: report.partner_hubspot_id,
         total_leads: report.metrics.total_leads,
         applications_initiated: report.metrics.applications_initiated,
-        total_requested_amount: new Decimal(report.metrics.total_requested_amount),
+        total_requested_amount: new Decimal(
+          report.metrics.total_requested_amount,
+        ),
         applications_approved: report.metrics.applications_approved,
-        total_approved_amount: new Decimal(report.metrics.total_approved_amount),
+        total_approved_amount: new Decimal(
+          report.metrics.total_approved_amount,
+        ),
         disbursements_initiated: report.metrics.disbursements_initiated,
-        total_disbursement_amount: new Decimal(report.metrics.total_disbursement_amount),
+        total_disbursement_amount: new Decimal(
+          report.metrics.total_disbursement_amount,
+        ),
         hubspot_api_calls_made: report.hubspot_api_calls_made,
         processing_time_seconds: report.processing_time_seconds,
         has_errors: false,
@@ -193,11 +214,7 @@ export const generatePartnerReport = async (req: Request, res: Response) => {
       year,
     });
 
-    res.status(200).json({
-      success: true,
-      message: "MIS report generated successfully",
-      data: report,
-    });
+    sendResponse(res, 200, "MIS report generated successfully", report);
   } catch (error) {
     logger.error("Error generating specific partner MIS report", {
       partner_id: req.params.partnerId,
@@ -206,12 +223,7 @@ export const generatePartnerReport = async (req: Request, res: Response) => {
       error: error instanceof Error ? error.message : "Unknown error",
       stack: error instanceof Error ? error.stack : undefined,
     });
-
-    res.status(500).json({
-      success: false,
-      message: "Failed to generate MIS report",
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
+    next(error);
   }
 };
 
@@ -219,7 +231,11 @@ export const generatePartnerReport = async (req: Request, res: Response) => {
  * Get existing MIS report for a specific partner and month
  * @route GET /api/mis-reports/:partnerId/:year/:month
  */
-export const getPartnerReport = async (req: Request, res: Response) => {
+export const getPartnerReport = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
   try {
     const partnerId = parseInt(req.params.partnerId);
     const year = parseInt(req.params.year);
@@ -233,10 +249,14 @@ export const getPartnerReport = async (req: Request, res: Response) => {
       month < 1 ||
       month > 12
     ) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid parameters. Provide valid partnerId, year, and month (1-12)",
-      });
+      sendResponse(
+        res,
+        400,
+        "Invalid parameters. Provide valid partnerId, year, and month (1-12)",
+        null,
+        [{ field: "params", message: "Invalid parameters" }],
+      );
+      return;
     }
 
     logger.debug("Retrieving MIS report", {
@@ -248,17 +268,18 @@ export const getPartnerReport = async (req: Request, res: Response) => {
     const report = await getMonthlyReport(partnerId, month, year);
 
     if (!report) {
-      return res.status(404).json({
-        success: false,
-        message: "Report not found for the specified partner and month",
-        suggestion: `Generate report using POST /api/mis-reports/generate/${partnerId}/${year}/${month}`,
-      });
+      sendResponse(
+        res,
+        404,
+        "Report not found for the specified partner and month",
+        {
+          suggestion: `Generate report using POST /api/mis-reports/generate/${partnerId}/${year}/${month}`,
+        },
+      );
+      return;
     }
 
-    res.status(200).json({
-      success: true,
-      data: report,
-    });
+    sendResponse(res, 200, "Report retrieved successfully", report);
   } catch (error) {
     logger.error("Error retrieving MIS report", {
       partner_id: req.params.partnerId,
@@ -266,12 +287,7 @@ export const getPartnerReport = async (req: Request, res: Response) => {
       year: req.params.year,
       error: error instanceof Error ? error.message : "Unknown error",
     });
-
-    res.status(500).json({
-      success: false,
-      message: "Failed to retrieve MIS report",
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
+    next(error);
   }
 };
 
@@ -279,17 +295,25 @@ export const getPartnerReport = async (req: Request, res: Response) => {
  * Get all MIS reports for a specific month (all partners)
  * @route GET /api/mis-reports/:year/:month
  */
-export const getAllReportsForMonth = async (req: Request, res: Response) => {
+export const getAllReportsForMonth = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
   try {
     const year = parseInt(req.params.year);
     const month = parseInt(req.params.month);
 
     // Validation
     if (isNaN(year) || isNaN(month) || month < 1 || month > 12) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid parameters. Provide valid year and month (1-12)",
-      });
+      sendResponse(
+        res,
+        400,
+        "Invalid parameters. Provide valid year and month (1-12)",
+        null,
+        [{ field: "params", message: "Invalid parameters" }],
+      );
+      return;
     }
 
     logger.debug("Retrieving all MIS reports for month", {
@@ -316,37 +340,36 @@ export const getAllReportsForMonth = async (req: Request, res: Response) => {
       total_leads: reports.reduce((sum, r) => sum + r.total_leads, 0),
       total_applications: reports.reduce(
         (sum, r) => sum + r.applications_initiated,
-        0
+        0,
       ),
       total_approvals: reports.reduce(
         (sum, r) => sum + r.applications_approved,
-        0
+        0,
       ),
       total_disbursements: reports.reduce(
         (sum, r) => sum + r.disbursements_initiated,
-        0
+        0,
       ),
       total_requested_amount: reports.reduce(
         (sum, r) => sum + toNumber(r.total_requested_amount),
-        0
+        0,
       ),
       total_approved_amount: reports.reduce(
         (sum, r) => sum + toNumber(r.total_approved_amount),
-        0
+        0,
       ),
       total_disbursement_amount: reports.reduce(
         (sum, r) => sum + toNumber(r.total_disbursement_amount),
-        0
+        0,
       ),
     };
 
-    res.status(200).json({
-      success: true,
+    sendResponse(res, 200, "Reports retrieved successfully", {
       month,
       year,
       count: reports.length,
       summary,
-      data: reports,
+      reports,
     });
   } catch (error) {
     logger.error("Error retrieving monthly reports", {
@@ -354,12 +377,7 @@ export const getAllReportsForMonth = async (req: Request, res: Response) => {
       year: req.params.year,
       error: error instanceof Error ? error.message : "Unknown error",
     });
-
-    res.status(500).json({
-      success: false,
-      message: "Failed to retrieve monthly reports",
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
+    next(error);
   }
 };
 
@@ -367,16 +385,22 @@ export const getAllReportsForMonth = async (req: Request, res: Response) => {
  * Get all reports for a specific partner (all months)
  * @route GET /api/mis-reports/partner/:partnerId
  */
-export const getPartnerAllReports = async (req: Request, res: Response) => {
+export const getPartnerAllReports = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
   try {
     const partnerId = parseInt(req.params.partnerId);
-    const year = req.query.year ? parseInt(req.query.year as string) : undefined;
+    const year = req.query.year
+      ? parseInt(req.query.year as string)
+      : undefined;
 
     if (isNaN(partnerId)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid partner ID",
-      });
+      sendResponse(res, 400, "Invalid partner ID", null, [
+        { field: "partnerId", message: "Invalid partner ID" },
+      ]);
+      return;
     }
 
     logger.debug("Retrieving all reports for partner", {
@@ -398,30 +422,22 @@ export const getPartnerAllReports = async (req: Request, res: Response) => {
     });
 
     if (reports.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No reports found for this partner",
-      });
+      sendResponse(res, 404, "No reports found for this partner");
+      return;
     }
 
-    res.status(200).json({
-      success: true,
+    sendResponse(res, 200, "Reports retrieved successfully", {
       partner_id: partnerId,
       partner_name: reports[0].partner_name,
       count: reports.length,
-      data: reports,
+      reports,
     });
   } catch (error) {
     logger.error("Error retrieving partner reports", {
       partner_id: req.params.partnerId,
       error: error instanceof Error ? error.message : "Unknown error",
     });
-
-    res.status(500).json({
-      success: false,
-      message: "Failed to retrieve partner reports",
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
+    next(error);
   }
 };
 
@@ -429,7 +445,11 @@ export const getPartnerAllReports = async (req: Request, res: Response) => {
  * Get MIS report statistics
  * @route GET /api/mis-reports/stats
  */
-export const getReportStats = async (req: Request, res: Response) => {
+export const getReportStats = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
   try {
     logger.debug("Retrieving MIS report statistics");
 
@@ -466,20 +486,12 @@ export const getReportStats = async (req: Request, res: Response) => {
       latest_reports: latestReports,
     };
 
-    res.status(200).json({
-      success: true,
-      data: stats,
-    });
+    sendResponse(res, 200, "Statistics retrieved successfully", stats);
   } catch (error) {
     logger.error("Error retrieving report statistics", {
       error: error instanceof Error ? error.message : "Unknown error",
     });
-
-    res.status(500).json({
-      success: false,
-      message: "Failed to retrieve report statistics",
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
+    next(error);
   }
 };
 
@@ -487,7 +499,11 @@ export const getReportStats = async (req: Request, res: Response) => {
  * Delete a specific MIS report
  * @route DELETE /api/mis-reports/:partnerId/:year/:month
  */
-export const deleteReport = async (req: Request, res: Response) => {
+export const deleteReport = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
   try {
     const partnerId = parseInt(req.params.partnerId);
     const year = parseInt(req.params.year);
@@ -500,10 +516,10 @@ export const deleteReport = async (req: Request, res: Response) => {
       month < 1 ||
       month > 12
     ) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid parameters",
-      });
+      sendResponse(res, 400, "Invalid parameters", null, [
+        { field: "params", message: "Invalid parameters" },
+      ]);
+      return;
     }
 
     logger.info("Deleting MIS report", {
@@ -523,21 +539,15 @@ export const deleteReport = async (req: Request, res: Response) => {
       },
     });
 
-    res.status(200).json({
-      success: true,
-      message: "Report deleted successfully",
-      data: {
-        partner_id: deletedReport.b2b_partner_id,
-        month: deletedReport.report_month,
-        year: deletedReport.report_year,
-      },
+    sendResponse(res, 200, "Report deleted successfully", {
+      partner_id: deletedReport.b2b_partner_id,
+      month: deletedReport.report_month,
+      year: deletedReport.report_year,
     });
   } catch (error: any) {
     if (error.code === "P2025") {
-      return res.status(404).json({
-        success: false,
-        message: "Report not found",
-      });
+      sendResponse(res, 404, "Report not found");
+      return;
     }
 
     logger.error("Error deleting MIS report", {
@@ -546,11 +556,6 @@ export const deleteReport = async (req: Request, res: Response) => {
       year: req.params.year,
       error: error instanceof Error ? error.message : "Unknown error",
     });
-
-    res.status(500).json({
-      success: false,
-      message: "Failed to delete report",
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
+    next(error);
   }
 };

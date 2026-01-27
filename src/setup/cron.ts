@@ -237,7 +237,7 @@ export async function partnerAutoDeactivation(): Promise<void> {
 }
 
 export async function triggerMonthlyMISReportManually() {
-  logger.log("Manually triggering monthly MIS report generation", "");
+  logger.info("Manually triggering monthly MIS report generation");
 
   try {
     const result = await generateMonthlyMISReports();
@@ -250,7 +250,8 @@ export async function triggerMonthlyMISReportManually() {
 
     return result;
   } catch (error) {
-    console.error(error);
+    logger.error("Manual MIS report generation failed", { error });
+    throw error;
   }
 }
 
