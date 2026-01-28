@@ -14,10 +14,7 @@ dotenv.config();
 if (!fs.existsSync("./logs")) fs.mkdirSync("./logs");
 
 // Email recipients for notifications
-const NOTIFICATION_EMAILS = [
-  "deepak@seedglobaleducation.com",
-  "riyaz@seedglobaleducation.com",
-];
+const NOTIFICATION_EMAILS = ["deepak@seedglobaleducation.com"];
 
 // Simple logger with 10-day rotation
 function log(taskName: string, message: string): void {

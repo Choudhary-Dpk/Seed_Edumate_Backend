@@ -190,10 +190,7 @@ type LogFunction = (taskName: string, message: string) => void;
 let isRunning = false;
 
 // Email recipients
-const NOTIFICATION_EMAILS = [
-  "deepak@seedglobaleducation.com",
-  "riyaz@seedglobaleducation.com",
-];
+const NOTIFICATION_EMAILS = ["deepak@seedglobaleducation.com"];
 
 // Send email notification
 function sendNotification(
@@ -201,7 +198,7 @@ function sendNotification(
   totalSuccess: number,
   totalErrors: number,
   duration: number,
-  error?: any
+  error?: any,
 ): void {
   const status = success ? "Success" : "Failed";
   const statusEmoji = success ? "✅" : "❌";
@@ -258,7 +255,7 @@ function sendNotification(
 // Process currency batch
 const processCurrencyBatch = async (
   baseCurrency: string,
-  logger?: LogFunction
+  logger?: LogFunction,
 ) => {
   const logMsg = (msg: string) => {
     if (logger) logger("currency-update", msg);
@@ -267,7 +264,7 @@ const processCurrencyBatch = async (
   try {
     const response: any = await axios.get(
       `${BASE_URL}/${API_KEY}/latest/${baseCurrency}`,
-      { timeout: 10000 }
+      { timeout: 10000 },
     );
 
     if (
