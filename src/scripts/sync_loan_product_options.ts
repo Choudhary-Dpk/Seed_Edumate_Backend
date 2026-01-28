@@ -20,7 +20,7 @@ if (
 ) {
   console.error("Error: Missing required environment variables");
   console.error(
-    "Required: HUBSPOT_ACCESS_TOKEN, HUBSPOT_BASE_URL, HUBSPOT_LOAN_PRODUCTS_OBJECT_TYPE, HUBSPOT_EDUMATE_CONTACT_OBJECT_TYPE"
+    "Required: HUBSPOT_ACCESS_TOKEN, HUBSPOT_BASE_URL, HUBSPOT_LOAN_PRODUCTS_OBJECT_TYPE, HUBSPOT_EDUMATE_CONTACT_OBJECT_TYPE",
   );
   process.exit(1);
 }
@@ -41,17 +41,14 @@ interface PropertyOption {
 type LogFunction = (taskName: string, message: string) => void;
 
 // Email recipients
-const NOTIFICATION_EMAILS = [
-  "deepak@seedglobaleducation.com",
-  "riyaz@seedglobaleducation.com",
-];
+const NOTIFICATION_EMAILS = ["deepak@seedglobaleducation.com"];
 
 // Send email notification
 function sendNotification(
   success: boolean,
   productsCount: number,
   duration: number,
-  error?: any
+  error?: any,
 ): void {
   const status = success ? "Success" : "Failed";
   const statusEmoji = success ? "✅" : "❌";
@@ -134,7 +131,7 @@ async function fetchLoanProducts(logger?: LogFunction): Promise<Product[]> {
           "Content-Type": "application/json",
         },
         params,
-      }
+      },
     );
 
     const products = response.data.results || [];
@@ -144,7 +141,7 @@ async function fetchLoanProducts(logger?: LogFunction): Promise<Product[]> {
     hasMore = !!after;
 
     logMsg(
-      `✓ Fetched ${products.length} products (Total: ${allProducts.length})`
+      `✓ Fetched ${products.length} products (Total: ${allProducts.length})`,
     );
   }
 
@@ -159,7 +156,7 @@ async function fetchLoanProducts(logger?: LogFunction): Promise<Product[]> {
 // Update property on Edumate Contact object
 async function updateMultiCheckboxProperty(
   products: Product[],
-  logger?: LogFunction
+  logger?: LogFunction,
 ): Promise<any> {
   const logMsg = (msg: string) => {
     if (logger) logger("property-update", msg);
@@ -167,7 +164,7 @@ async function updateMultiCheckboxProperty(
 
   logMsg("Updating multi-checkbox property on Edumate Contact object...");
   logMsg(
-    `Target object: ${EDUMATE_CONTACT_OBJECT}, Property: ${EDUMATE_CONTACT_PROPERTY}`
+    `Target object: ${EDUMATE_CONTACT_OBJECT}, Property: ${EDUMATE_CONTACT_PROPERTY}`,
   );
 
   const options: PropertyOption[] = products.map((product, index) => ({
@@ -192,7 +189,7 @@ async function updateMultiCheckboxProperty(
           Authorization: `Bearer ${HUBSPOT_ACCESS_TOKEN}`,
           "Content-Type": "application/json",
         },
-      }
+      },
     );
 
     logMsg("✓ Property updated successfully");
@@ -212,7 +209,7 @@ async function updateMultiCheckboxProperty(
             Authorization: `Bearer ${HUBSPOT_ACCESS_TOKEN}`,
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       logMsg("✓ Property created successfully");

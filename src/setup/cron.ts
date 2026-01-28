@@ -14,10 +14,7 @@ dotenv.config();
 if (!fs.existsSync("./logs")) fs.mkdirSync("./logs");
 
 // Email recipients for notifications
-const NOTIFICATION_EMAILS = [
-  "deepak@seedglobaleducation.com",
-  "riyaz@seedglobaleducation.com",
-];
+const NOTIFICATION_EMAILS = ["deepak@seedglobaleducation.com"];
 
 // Simple logger with 10-day rotation
 function log(taskName: string, message: string): void {
@@ -237,7 +234,7 @@ export async function partnerAutoDeactivation(): Promise<void> {
 }
 
 export async function triggerMonthlyMISReportManually() {
-  logger.log("Manually triggering monthly MIS report generation", "");
+  logger.info("Manually triggering monthly MIS report generation");
 
   try {
     const result = await generateMonthlyMISReports();
@@ -250,7 +247,8 @@ export async function triggerMonthlyMISReportManually() {
 
     return result;
   } catch (error) {
-    console.error(error);
+    logger.error("Manual MIS report generation failed", { error });
+    throw error;
   }
 }
 
