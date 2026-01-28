@@ -732,7 +732,7 @@ model HSLoanApplicationsCommissionRecords {
   gst_rate                      Decimal?           @db.Decimal(16, 4)
   tds_applicable                String?
   tds_rate                      Decimal?           @db.Decimal(16, 4)
-  commission_rate               Int?
+  commission_rate               String?
   application                   HSLoanApplications @relation(fields: [application_id], references: [id], onDelete: Cascade)
 
   @@map("hs_loan_applications_commission_records")

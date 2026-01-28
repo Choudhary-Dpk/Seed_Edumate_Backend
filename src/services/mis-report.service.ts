@@ -361,7 +361,7 @@ const getDisbursements = async (
         {
           filters: [
             {
-              propertyName: "associations.company",
+              propertyName: "b2b_partner_id",
               operator: "EQ",
               value: partnerHubSpotId,
             },
