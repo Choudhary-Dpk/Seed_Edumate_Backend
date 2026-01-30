@@ -9,6 +9,12 @@ interface EmailTask {
   cc?: string;
   bcc?: string;
   retry: number;
+  attachments?: Array<{
+    filename: string;
+    path?: string;  
+    content?: Buffer | string;
+    contentType?: string;
+  }>;
 }
 
 const emailQueue = queue(async (task: EmailTask) => {
