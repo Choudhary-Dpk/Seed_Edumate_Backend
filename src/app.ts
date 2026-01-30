@@ -25,6 +25,7 @@ import { programOfInterestRoutes } from "./routes/programOfInterest";
 import { accommodationRoutes } from "./routes/accommodation.routes";
 import { docsRoutes } from "./routes/docs.routes";
 import { misReportRoutes } from "./routes/misReport.routes";
+import { dashboardRoutes } from "./routes/dashboard.routes";
 const PORT = process.env.PORT || 3031;
 
 // API Routes
@@ -47,6 +48,7 @@ app.use("/accom", accommodationRoutes);
 app.use("/programs-of-interest", programOfInterestRoutes);
 app.use("/api-docs", docsRoutes);
 app.use("/mis-report", misReportRoutes);
+app.use("/admin/dashboard", dashboardRoutes);
 app.use("/", redirectRoutes);
 
 // 404 handler
@@ -63,5 +65,5 @@ app.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`);
   await checkPrismaConnection();
   //  Start background workers
-  await startWorkers();
+  // await startWorkers();
 });
