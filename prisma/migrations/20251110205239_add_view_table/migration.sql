@@ -10,6 +10,7 @@ SELECT
   pi.last_name,
   pi.email,
   pi.phone_number,
+  pi.gender
   
   -- Academic Profile
   ap.admission_status,

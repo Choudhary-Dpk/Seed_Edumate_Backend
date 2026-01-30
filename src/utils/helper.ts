@@ -269,7 +269,7 @@ export const validateContactRows = (
     const dateOfBirthRaw = r["Date of Birth"];
     const preferredStudyDestination = r["Preferred Study Destination"]
       ?.toString()
-      .trim();
+      .trim()
     const targetDegreeLevel = r["Target Degree Level"]?.toString().trim();
     const intakeMonth = r["Intake Month"]?.toString().trim();
     const admissionStatus = r["Admission Status"]?.toString().trim();

@@ -361,6 +361,7 @@ export const getLeadViewList = async (
     lender: string | null;
     loanProduct: string | null;
     status: string | null;
+    intake_year?: string | null;
   },
 ) => {
   const where: any = {};
@@ -389,6 +390,10 @@ export const getLeadViewList = async (
 
   if (filters.loanProduct) {
     where.loan_product_name = filters.loanProduct;
+  }
+
+  if (filters.intake_year) {
+    where.intake_year = filters.intake_year;
   }
 
   let orderBy: any = { application_date: "desc" };

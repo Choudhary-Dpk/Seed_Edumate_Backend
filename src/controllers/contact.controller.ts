@@ -42,7 +42,12 @@ import {
   updateFileRecord,
 } from "../models/helpers";
 import { getPartnerIdByUserId } from "../models/helpers/partners.helper";
-import { ContactsLead, LeadStatsResponse, LifecycleStageCount, LifecycleStatusCount } from "../types/contact.types";
+import {
+  ContactsLead,
+  LeadStatsResponse,
+  LifecycleStageCount,
+  LifecycleStatusCount,
+} from "../types/contact.types";
 import { mapAllFields } from "../mappers/edumateContact/mapping";
 import { categorizeByTable } from "../services/DBServices/edumateContacts.service";
 import { handleLeadCreation } from "../services/DBServices/loan.services";
@@ -929,21 +934,20 @@ export const uploadContactsJSON = async (
   }
 };
 
-
 /**
  * Get Lead Statistics
  * GET /contacts/lead-stats?partner=true/false
- * 
+ *
  * Returns aggregated counts of leads grouped by:
  * - lifecycle_stages
  * - lifecycle_stages_status
- * 
+ *
  * If partner=true, filters by authenticated user's b2b_partner_id
  */
 export const getLeadStats = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     // Parse partner query parameter (default: false)
@@ -956,14 +960,13 @@ export const getLeadStats = async (
 
     // If partner filter is enabled, filter by b2b_partner_id
     if (isPartnerFilter) {
-      
-    const partnerId = (await getPartnerIdByUserId(id))!.b2b_id;
+      const partnerId = (await getPartnerIdByUserId(id))!.b2b_id;
 
       if (!partnerId) {
         return sendResponse(
           res,
           400,
-          "Partner filter requires authentication with b2b_partner_id"
+          "Partner filter requires authentication with b2b_partner_id",
         );
       }
 
@@ -993,7 +996,8 @@ export const getLeadStats = async (
       // Count lifecycle_stages_status
       if (lead.lifecycle_stages_status) {
         const status = lead.lifecycle_stages_status;
-        lifecycleStagesStatus[status] = (lifecycleStagesStatus[status] || 0) + 1;
+        lifecycleStagesStatus[status] =
+          (lifecycleStagesStatus[status] || 0) + 1;
       }
     });
 
@@ -1008,7 +1012,12 @@ export const getLeadStats = async (
       },
     };
 
-    return sendResponse(res, 200, "Lead statistics retrieved successfully", response);
+    return sendResponse(
+      res,
+      200,
+      "Lead statistics retrieved successfully",
+      response,
+    );
   } catch (error: any) {
     console.error("Error in getLeadStats:", error);
     return sendResponse(res, 500, "Error retrieving lead statistics", {
@@ -1098,7 +1107,7 @@ async function createBulkOutboxEntries(
 export const getLeadsViewList = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const size = Number(req.query.size) || 10;
@@ -1114,6 +1123,7 @@ export const getLeadsViewList = async (
         lender?: string;
         loanProduct?: string;
         status?: string;
+        intake_year?: string;
       }) || {};
 
     const filters = {
@@ -1121,13 +1131,14 @@ export const getLeadsViewList = async (
       lender: filtersFromQuery.lender || null,
       loanProduct: filtersFromQuery.loanProduct || null,
       status: filtersFromQuery.status || null,
+      intake_year: filtersFromQuery.intake_year || null,
     };
 
     const offset = size * (page - 1);
 
     logger.debug(
       `Fetching leads view list with pagination and filters`,
-      filters
+      filters,
     );
     const list = await getLeadViewList(
       size,
@@ -1135,7 +1146,7 @@ export const getLeadsViewList = async (
       sortKey,
       sortDir,
       search,
-      filters
+      filters,
     );
     logger.debug(`Leads view list fetched successfully`);
 

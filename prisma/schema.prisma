@@ -292,8 +292,8 @@ model HSB2BPartners {
   hs_updated_by_user_id      Int?
   is_commission_applicable   String?
   company_id                 String?
-  university_id              String?        
-  logo_url                   String?               
+  university_id              String?
+  logo_url                   String?
   users                      B2BPartnersUsers[]
   deleted_by_user            B2BPartnersUsers?                        @relation("PartnerDeletedBy", fields: [deleted_by], references: [id], onDelete: Cascade)
   business_capabilities      HSB2BPartnersBusinessCapabilities?
@@ -310,8 +310,8 @@ model HSB2BPartners {
   commission_settlements     HSCommissionSettlements[]
   b2b_partner_contacts       HSEdumateContacts[]                      @relation("B2BPartnerContacts")
   loan_applications          HSLoanApplications[]
+  monthly_mis_reports        HSMonthlyMISReports[]
   invoice                    Invoice[]
-  monthly_mis_reports    HSMonthlyMISReports[]
 
   @@index([partner_name])
   @@index([partner_type])
@@ -932,61 +932,61 @@ model EmailHistory {
 }
 
 model HSEdumateContacts {
-  id                           Int                                   @id @default(autoincrement())
-  b2b_partner_id               Int?
-  deleted_by_id                Int?
-  seed_contact                 String?
-  course_type                  String?
-  base_currency                String?
-  study_destination_currency   String?
-  user_selected_currency       String?
-  email                        String?
-  batch_id                     String?
-  hs_createdate                DateTime?
-  hs_lastmodifieddate          DateTime?
-  hs_merged_object_ids         String?
-  hs_object_id                 String?                               @unique
-  hs_object_source_detail_1    String?
-  hs_object_source_detail_2    String?
-  hs_object_source_detail_3    String?
-  hs_object_source_label       String?
-  hs_shared_team_ids           String?
-  hs_shared_user_ids           String?
-  hubspot_owner_assigneddate   DateTime?
-  hubspot_owner_id             String?
-  hubspot_team_id              String?
-  is_active                    Boolean                               @default(true)
-  is_deleted                   Boolean                               @default(false)
-  created_by                   String?
-  created_at                   DateTime                              @default(now())
-  updated_by                   String?
-  updated_at                   DateTime                              @default(now()) @updatedAt
-  deleted_by                   String?
-  deleted_on                   DateTime?
-  source                       String?                               @default("webportal")
-  hs_b2b_partner_id            String?
-  hs_created_by_user_id        Int?
-  hs_updated_by_user_id        Int?
-  favourite                    Int[]                                 @default([])
-  interested                   Int[]                                 @default([])
-  conversion_timestamp         String?
-  exchange_rate_used           Decimal?                              @db.Decimal(16, 4)
-  original_principal           Decimal?                              @db.Decimal(16, 4)
-  preferred_currency           String?
-  student                      ContactUsers[]                        @relation("ContactUser")
-  commission_settlements       HSCommissionSettlements[]
-  b2b_partner                  HSB2BPartners?                        @relation("B2BPartnerContacts", fields: [b2b_partner_id], references: [id], onDelete: Cascade)
-  academic_profile             HSEdumateContactsAcademicProfiles?
-  application_journey          HSEdumateContactsApplicationJourney?
-  financial_Info               HSEdumateContactsFinancialInfo?
-  lead_attribution             HSEdumateContactsLeadAttribution?
-  loan_preference              HSEdumateContactsLoanPreferences?
-  personal_information         HSEdumateContactsPersonalInformation?
-  system_tracking              HSEdumateContactsSystemTracking?
-  loan_applications            HSLoanApplications[]                  @relation("ContactLoanApplications")
-  invoice                      Invoice[]
-  eligibility_lead             MktEligibilityCheckerLeads?
-  emi_lead                     MktEmiCalculatorLeads?
+  id                         Int                                   @id @default(autoincrement())
+  b2b_partner_id             Int?
+  deleted_by_id              Int?
+  seed_contact               String?
+  course_type                String?
+  base_currency              String?
+  study_destination_currency String?
+  user_selected_currency     String?
+  hs_createdate              DateTime?
+  hs_lastmodifieddate        DateTime?
+  hs_merged_object_ids       String?
+  hs_object_id               String?                               @unique
+  hs_object_source_detail_1  String?
+  hs_object_source_detail_2  String?
+  hs_object_source_detail_3  String?
+  hs_object_source_label     String?
+  hs_shared_team_ids         String?
+  hs_shared_user_ids         String?
+  hubspot_owner_assigneddate DateTime?
+  hubspot_owner_id           String?
+  hubspot_team_id            String?
+  is_active                  Boolean                               @default(true)
+  is_deleted                 Boolean                               @default(false)
+  created_by                 String?
+  created_at                 DateTime                              @default(now())
+  updated_by                 String?
+  updated_at                 DateTime                              @default(now()) @updatedAt
+  deleted_by                 String?
+  deleted_on                 DateTime?
+  source                     String?                               @default("webportal")
+  hs_b2b_partner_id          String?
+  hs_created_by_user_id      Int?
+  hs_updated_by_user_id      Int?
+  favourite                  Int[]                                 @default([])
+  interested                 Int[]                                 @default([])
+  conversion_timestamp       String?
+  exchange_rate_used         Decimal?                              @db.Decimal(16, 4)
+  original_principal         Decimal?                              @db.Decimal(16, 4)
+  preferred_currency         String?
+  batch_id                   String?
+  email                      String?
+  student                    ContactUsers[]                        @relation("ContactUser")
+  commission_settlements     HSCommissionSettlements[]
+  b2b_partner                HSB2BPartners?                        @relation("B2BPartnerContacts", fields: [b2b_partner_id], references: [id], onDelete: Cascade)
+  academic_profile           HSEdumateContactsAcademicProfiles?
+  application_journey        HSEdumateContactsApplicationJourney?
+  financial_Info             HSEdumateContactsFinancialInfo?
+  lead_attribution           HSEdumateContactsLeadAttribution?
+  loan_preference            HSEdumateContactsLoanPreferences?
+  personal_information       HSEdumateContactsPersonalInformation?
+  system_tracking            HSEdumateContactsSystemTracking?
+  loan_applications          HSLoanApplications[]                  @relation("ContactLoanApplications")
+  invoice                    Invoice[]
+  eligibility_lead           MktEligibilityCheckerLeads?
+  emi_lead                   MktEmiCalculatorLeads?
 
   @@index([hs_object_id])
   @@index([seed_contact])
@@ -1522,10 +1522,10 @@ model HSLoanProductsGeographicCoverage {
   not_supported_universities String?
   restricted_countries       String?
   supported_course_types     String?
-  supported_countries        String?
-  supported_nationality        String?
   created_at                 DateTime       @default(now())
   updated_at                 DateTime       @default(now()) @updatedAt
+  supported_countries        String?
+  supported_nationality      String?
   product                    HSLoanProducts @relation(fields: [product_id], references: [id], onDelete: Cascade)
 
   @@map("hs_loan_products_geographic_coverage")
@@ -2357,26 +2357,93 @@ model FProgramOfInterest {
   @@map("f_program_of_interest")
 }
 
+model HSMonthlyMISReports {
+  id                        Int           @id @default(autoincrement())
+  b2b_partner_id            Int
+  report_month              Int
+  report_year               Int
+  partner_name              String?
+  partner_hubspot_id        String?
+  total_leads               Int           @default(0)
+  applications_initiated    Int           @default(0)
+  total_requested_amount    Decimal       @default(0) @db.Decimal(16, 4)
+  applications_approved     Int           @default(0)
+  total_approved_amount     Decimal       @default(0) @db.Decimal(16, 4)
+  disbursements_initiated   Int           @default(0)
+  total_disbursement_amount Decimal       @default(0) @db.Decimal(16, 4)
+  report_generated_at       DateTime      @default(now())
+  data_source               String?       @default("automated_monthly_report")
+  hubspot_api_calls_made    Int?
+  processing_time_seconds   Int?
+  has_errors                Boolean       @default(false)
+  error_message             String?
+  created_at                DateTime      @default(now())
+  updated_at                DateTime      @default(now()) @updatedAt
+  partner                   HSB2BPartners @relation(fields: [b2b_partner_id], references: [id], onDelete: Cascade)
+
+  @@unique([b2b_partner_id, report_month, report_year])
+  @@index([report_year, report_month])
+  @@index([b2b_partner_id])
+  @@index([report_generated_at])
+  @@map("hs_monthly_mis_reports")
+}
+
+model DashboardEmailTemplate {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(100)
+  subject   String   @db.VarChar(200)
+  body      String
+  variables Json?
+  createdBy Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("dashboard_email_templates")
+}
+
+model DashboardEmailLog {
+  id          Int      @id @default(autoincrement())
+  partnerId   Int?
+  partnerName String?  @db.VarChar(255)
+  recipient   String   @db.VarChar(255)
+  subject     String   @db.VarChar(255)
+  status      String   @db.VarChar(50)
+  sentBy      Int
+  sentByName  String?  @db.VarChar(255)
+  filters     Json?
+  sentAt      DateTime @default(now())
+  errorMsg    String?
+  metadata    Json?
+
+  @@index([partnerId])
+  @@index([status])
+  @@index([sentAt])
+  @@map("dashboard_email_logs")
+}
+
 view leads_view {
   contact_id                  Int?
   b2b_partner_id              Int?
   hubspot_owner_id            String?
   created_at                  DateTime?
   updated_at                  DateTime?
+  course_type                 String?
   first_name                  String?
   last_name                   String?
   email                       String?
   phone_number                String?
+  gender                      String?
   admission_status            String?
   current_education_level     String?
   current_institution         String?
   current_course_major        String?
   preferred_study_destination String?
+  target_degree_level         String?
   target_universities         String?
   intake_year                 String?
   intake_month                String?
   program_of_interest_final   String?
-  lifecycle_stages            String?  
+  lifecycle_stages            String?
   lifecycle_stages_status     String?
   loan_application_id         Int?
   application_date            DateTime?
@@ -2394,91 +2461,6 @@ view leads_view {
   loan_amount_approved        Decimal?  @db.Decimal(16, 4)
   loan_amount_disbursed       Decimal?  @db.Decimal(16, 4)
   processing_fee              Decimal?  @db.Decimal(16, 4)
-}
-
-model HSMonthlyMISReports {
-  id                          Int      @id @default(autoincrement())
-  
-  // Report identification
-  b2b_partner_id              Int
-  report_month                Int      // 1-12
-  report_year                 Int      // 2025, 2026...
-  
-  // Partner info (denormalized for quick access)
-  partner_name                String?
-  partner_hubspot_id          String?
-  
-  // Metric 2: Total Leads
-  total_leads                 Int      @default(0)
-  
-  // Metrics 3 & 4: Applications Initiated
-  applications_initiated      Int      @default(0)
-  total_requested_amount      Decimal  @default(0) @db.Decimal(16, 4)
-  
-  // Metrics 5 & 6: Applications Approved
-  applications_approved       Int      @default(0)
-  total_approved_amount       Decimal  @default(0) @db.Decimal(16, 4)
-  
-  // Metrics 7 & 8: Disbursements
-  disbursements_initiated     Int      @default(0)
-  total_disbursement_amount   Decimal  @default(0) @db.Decimal(16, 4)
-  
-  // Metadata
-  report_generated_at         DateTime @default(now())
-  data_source                 String?  @default("automated_monthly_report")
-  hubspot_api_calls_made      Int?
-  processing_time_seconds     Int?
-  
-  // Error tracking
-  has_errors                  Boolean  @default(false)
-  error_message               String?
-  
-  // Audit fields
-  created_at                  DateTime @default(now())
-  updated_at                  DateTime @default(now()) @updatedAt
-  
-  // Relations
-  partner                     HSB2BPartners @relation(fields: [b2b_partner_id], references: [id], onDelete: Cascade)
-  
-  // Unique constraint: one report per partner per month
-  @@unique([b2b_partner_id, report_month, report_year])
-  @@index([report_year, report_month])
-  @@index([b2b_partner_id])
-  @@index([report_generated_at])
-  @@map("hs_monthly_mis_reports")
-}
-
-model DashboardEmailTemplate {
-  id        Int      @id @default(autoincrement())
-  name      String   @db.VarChar(100)
-  subject   String   @db.VarChar(200)
-  body      String   @db.Text
-  variables Json?    // Store available variables
-  createdBy Int?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  @@map("dashboard_email_templates")
-}
-
-model DashboardEmailLog {
-  id          Int      @id @default(autoincrement())
-  partnerId   Int?
-  partnerName String?  @db.VarChar(255)
-  recipient   String   @db.VarChar(255)
-  subject     String   @db.VarChar(255)
-  status      String   @db.VarChar(50)
-  sentBy      Int
-  sentByName  String?  @db.VarChar(255)
-  filters     Json?
-  metadata    Json?    // Store { emailSource: 'auto' | 'manual', autoEmail: string }
-  sentAt      DateTime @default(now())
-  errorMsg    String?  @db.Text
-  
-  @@index([partnerId])
-  @@index([status])
-  @@index([sentAt])
-  @@map("dashboard_email_logs")
 }
 
 enum AuditAction {
