@@ -311,7 +311,6 @@ async function handleB2BPartnerDelete(hsObjectId: string): Promise<void> {
 }
 
 async function transformToHubSpotFormat(partner: any): Promise<any> {
-    console.log("partner aaya aisa", partner)
     const businessCapabilities = partner.business_capabilities || {};
     const commissionStructure = partner.commission_structure || {};
     const compliance = partner.compliance || {};

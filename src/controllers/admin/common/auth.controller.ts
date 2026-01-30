@@ -33,7 +33,6 @@ export const getAdminProfile = async (
     const { id } = req.payload!;
 
     const profile = await getAdminUserProfile(id);
-    console.log("profile", profile);
     if (!profile) {
       return sendResponse(res, 404, "Profile not found");
     }

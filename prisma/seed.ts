@@ -43,7 +43,6 @@ interface AdminRoleData {
 }
 
 const seedAdminRoles = async () => {
-  console.log("Starting admin roles seeding...");
   let successCount = 0;
 
   for (const roleData of adminRolesData as AdminRoleData[]) {
@@ -61,26 +60,18 @@ const seedAdminRoles = async () => {
         },
       });
       successCount++;
-      console.log(
-        ` Seeded admin role: ${roleData.role} - ${roleData.display_name}`
-      );
     } catch (error) {
       console.error(
-        `❌ Error seeding admin role ${roleData.role}:`,
-        (error as Error).message
+        `Error seeding admin role ${roleData.role}:`,
+        (error as Error).message,
       );
     }
   }
-
-  console.log(
-    `\n📊 Admin Roles Seeding Summary: ${successCount}/${adminRolesData.length}\n`
-  );
 };
 
 const seedAdminUser = async () => {
-  console.log("Starting admin user seeding...");
   try {
-    const adminEmail = "edumate@yopmail.com";
+    const adminEmail = "tech@edumateglobal.com";
     const hashedPassword = await hashPassword("Admin@1234");
 
     const adminUser = await prisma.adminUsers.upsert({
@@ -98,10 +89,6 @@ const seedAdminUser = async () => {
       },
     });
 
-    console.log(
-      ` Admin user created: ${adminUser.email} (${adminUser.full_name})`
-    );
-
     // Fetch super_admin role
     const superAdminRole = await prisma.adminRoles.findUnique({
       where: { role: "Admin" },
@@ -109,7 +96,7 @@ const seedAdminUser = async () => {
 
     if (!superAdminRole) {
       console.error(
-        "❌ Super admin role not found. Ensure roles are seeded first."
+        "Super admin role not found. Ensure roles are seeded first.",
       );
       return;
     }
@@ -128,15 +115,12 @@ const seedAdminUser = async () => {
         role_id: superAdminRole.id,
       },
     });
-
-    console.log(` Assigned super_admin role to ${adminUser.email}\n`);
   } catch (error) {
-    console.error(`❌ Error seeding admin user:`, (error as Error).message);
+    console.error(`Error seeding admin user:`, (error as Error).message);
   }
 };
 
 const seedCurrencies = async () => {
-  console.log("Starting currency seeding...");
   let successCount = 0;
   let errorCount = 0;
 
@@ -177,24 +161,17 @@ const seedCurrencies = async () => {
         },
       });
       successCount++;
-      console.log(` Seeded ${currency.code} - ${currency.name}`);
     } catch (error) {
       errorCount++;
       console.error(
         `❌ Error seeding ${currency.code}:`,
-        (error as Error).message
+        (error as Error).message,
       );
     }
   }
-
-  console.log("\n📊 Currency Seeding Summary:");
-  console.log(`   Total currencies: ${currencyData.length}`);
-  console.log(`   Successfully seeded: ${successCount}`);
-  console.log(`   Errors: ${errorCount}\n`);
 };
 
 const seedRoles = async () => {
-  console.log("Starting B2B partner roles seeding...");
   let successCount = 0;
   let errorCount = 0;
 
@@ -213,33 +190,23 @@ const seedRoles = async () => {
         },
       });
       successCount++;
-      console.log(
-        ` Seeded B2B role: ${roleData.role} - ${roleData.display_name}`
-      );
     } catch (error) {
       errorCount++;
       console.error(
-        `❌ Error seeding B2B role ${roleData.role}:`,
-        (error as Error).message
+        `Error seeding B2B role ${roleData.role}:`,
+        (error as Error).message,
       );
     }
   }
-
-  console.log("\n📊 B2B Partner Roles Seeding Summary:");
-  console.log(`   Total roles: ${rolesData.length}`);
-  console.log(`   Successfully seeded: ${successCount}`);
-  console.log(`   Errors: ${errorCount}\n`);
 };
 
 const seedLenderEnumMappings = async () => {
-  console.log("Starting Lender Enum Mappings seeding...");
   let successCount = 0;
   let errorCount = 0;
 
   const hubspotObjectType = "2-46227053";
 
   try {
-    console.log("\n Seeding Lender Category...");
     const lenderCategoryEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -292,9 +259,7 @@ const seedLenderEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Lender Category seeded (3 values)");
 
-    console.log("\n Seeding Lender Type...");
     const lenderTypeEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -371,9 +336,7 @@ const seedLenderEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Lender Type seeded (6 values)");
 
-    console.log("\n Seeding Co-signer Requirements...");
     const coSignerEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -426,9 +389,7 @@ const seedLenderEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Co-signer Requirements seeded (3 values)");
 
-    console.log("\n Seeding Collateral Requirements...");
     const collateralEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -513,9 +474,7 @@ const seedLenderEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Collateral Requirements seeded (7 values)");
 
-    console.log("\n Seeding Supported Course Types...");
     const courseTypesEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -600,9 +559,7 @@ const seedLenderEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Supported Course Types seeded (7 values)");
 
-    console.log("\n Seeding Supported Destinations...");
     const destinationsEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -711,9 +668,7 @@ const seedLenderEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Supported Destinations seeded (10 values)");
 
-    console.log("\n📦 Seeding API Connectivity Status...");
     const apiStatusEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -774,9 +729,7 @@ const seedLenderEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("API Connectivity Status seeded (4 values)");
 
-    console.log("\n Seeding Digital Integration Level...");
     const integrationLevelEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -837,9 +790,7 @@ const seedLenderEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Digital Integration Level seeded (4 values)");
 
-    console.log("\n Seeding Holiday Processing...");
     const holidayProcessingEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -892,9 +843,7 @@ const seedLenderEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("\n Holiday Processing seeded (3 values)");
 
-    console.log("\n Seeding Repayment Options...");
     const repaymentOptionsEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -955,9 +904,7 @@ const seedLenderEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Repayment Options seeded (4 values)");
 
-    console.log("\n Seeding Partnership Status...");
     const partnershipStatusEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -1034,9 +981,7 @@ const seedLenderEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Partnership Status seeded (6 values)");
 
-    console.log("\n Seeding Payout Terms...");
     const payoutTermsEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -1097,9 +1042,7 @@ const seedLenderEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Payout Terms seeded (4 values)");
 
-    console.log("\n Seeding Data Source...");
     const dataSourceEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -1168,9 +1111,7 @@ const seedLenderEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Data Source seeded (5 values)");
 
-    console.log("\n Seeding Lender Record Status...");
     const recordStatusEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -1231,9 +1172,7 @@ const seedLenderEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Lender Record Status seeded (4 values)");
 
-    console.log("\n Seeding Performance Rating...");
     const performanceRatingEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -1294,32 +1233,6 @@ const seedLenderEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Performance Rating seeded (4 values)");
-
-    console.log("\n" + "=".repeat(60));
-    console.log("📊 LENDER ENUM MAPPINGS SEEDING SUMMARY");
-    console.log("=".repeat(60));
-    console.log(`Successfully seeded: ${successCount}/15 enum mappings`);
-    console.log(`Errors: ${errorCount}`);
-    console.log("=".repeat(60));
-
-    console.log("\n ENUM VALUES COUNT:");
-    console.log("   1. Lender Category: 3 values");
-    console.log("   2. Lender Type: 6 values");
-    console.log("   3. Co-signer Requirements: 3 values");
-    console.log("   4. Collateral Requirements: 7 values");
-    console.log("   5. Supported Course Types: 7 values");
-    console.log("   6. Supported Destinations: 10 values");
-    console.log("   7. API Connectivity Status: 4 values");
-    console.log("   8. Digital Integration Level: 4 values");
-    console.log("   9. Holiday Processing: 3 values");
-    console.log("   10. Repayment Options: 4 values");
-    console.log("   11. Partnership Status: 6 values");
-    console.log("   12. Payout Terms: 4 values");
-    console.log("   13. Data Source: 3 values");
-    console.log("   14. Lender Record Status: 4 values");
-    console.log("   15. Performance Rating: 4 values");
-    console.log("   TOTAL: 72 enum values");
   } catch (error) {
     errorCount++;
     console.error("Error during seeding:", error);
@@ -1328,14 +1241,12 @@ const seedLenderEnumMappings = async () => {
 };
 
 const seedCommissionEnumMappings = async () => {
-  console.log("Starting Commission Enum Mappings seeding...");
   let successCount = 0;
   let errorCount = 0;
 
   const hubspotObjectType = "2-46470694";
 
   try {
-    console.log("\nSeeding Settlement Period...");
     const settlementPeriodEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -1396,9 +1307,7 @@ const seedCommissionEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Settlement Period seeded (4 values)");
 
-    console.log("\nSeeding Settlement Month...");
     const settlementMonthEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -1523,9 +1432,7 @@ const seedCommissionEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Settlement Month seeded (12 values)");
 
-    console.log("\nSeeding Settlement Status...");
     const settlementStatusEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -1602,9 +1509,7 @@ const seedCommissionEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Settlement Status seeded (6 values)");
 
-    console.log("\nSeeding Verification Status...");
     const verificationStatusEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -1665,9 +1570,7 @@ const seedCommissionEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Verification Status seeded (4 values)");
 
-    console.log("\nSeeding Commission Data Source...");
     const dataSourceEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -1728,9 +1631,7 @@ const seedCommissionEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Commission Data Source seeded (4 values)");
 
-    console.log("\nSeeding Integration Status...");
     const integrationStatusEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -1791,9 +1692,7 @@ const seedCommissionEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Integration Status seeded (4 values)");
 
-    console.log("\nSeeding Settlement Record Status...");
     const settlementRecordStatusEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -1846,9 +1745,7 @@ const seedCommissionEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Settlement Record Status seeded (3 values)");
 
-    console.log("\nSeeding System Generated...");
     const systemGeneratedEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -1893,9 +1790,7 @@ const seedCommissionEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("System Generated seeded (2 values)");
 
-    console.log("\nSeeding Disbursement Trigger...");
     const disbursementTriggerEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -1956,9 +1851,7 @@ const seedCommissionEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Disbursement Trigger seeded (4 values)");
 
-    console.log("\nSeeding Transaction Types...");
     const transactionTypesEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -2027,9 +1920,7 @@ const seedCommissionEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Transaction Types seeded (5 values)");
 
-    console.log("\nSeeding Commission Model...");
     const commissionModelEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -2090,9 +1981,7 @@ const seedCommissionEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Commission Model seeded (4 values)");
 
-    console.log("\nSeeding Acknowledgment Status...");
     const acknowledgmentStatusEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -2145,9 +2034,7 @@ const seedCommissionEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Acknowledgment Status seeded (3 values)");
 
-    console.log("\nSeeding Notification Method...");
     const notificationMethodEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -2216,9 +2103,7 @@ const seedCommissionEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Notification Method seeded (5 values)");
 
-    console.log("\nSeeding Partner Notification Sent...");
     const partnerNotificationSentEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -2271,9 +2156,7 @@ const seedCommissionEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Partner Notification Sent seeded (3 values)");
 
-    console.log("\nSeeding Payment Method...");
     const paymentMethodEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -2342,9 +2225,7 @@ const seedCommissionEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Payment Method seeded (5 values)");
 
-    console.log("\nSeeding Payment Status...");
     const paymentStatusEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -2421,9 +2302,7 @@ const seedCommissionEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Payment Status seeded (6 values)");
 
-    console.log("\nSeeding Invoice Status...");
     const invoiceStatusEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -2500,9 +2379,7 @@ const seedCommissionEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Invoice Status seeded (5 values)");
 
-    console.log("\nSeeding SLA Breach...");
     const slaBreachEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -2547,9 +2424,7 @@ const seedCommissionEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("SLA Breach seeded (2 values)");
 
-    console.log("\nSeeding Tax Certificate Required...");
     const taxCertificateRequiredEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -2602,9 +2477,7 @@ const seedCommissionEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Tax Certificate Required seeded (3 values)");
 
-    console.log("\nSeeding Hold Reason...");
     const holdReasonEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -2681,9 +2554,7 @@ const seedCommissionEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Hold Reason seeded (6 values)");
 
-    console.log("\nSeeding Reconciliation Status...");
     const reconciliationStatusEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -2752,39 +2623,6 @@ const seedCommissionEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Reconciliation Status seeded (5 values)");
-
-    console.log("\n" + "=".repeat(60));
-    console.log("COMMISSION ENUM MAPPINGS SEEDING SUMMARY");
-    console.log("=".repeat(60));
-    console.log(`Successfully seeded: ${successCount}/21 enum mappings`);
-    console.log(`Errors: ${errorCount}`);
-    console.log("=".repeat(60));
-
-    console.log("\nENUM VALUES COUNT:");
-    console.log("   1. Settlement Period: 4 values");
-    console.log("   2. Settlement Month: 12 values");
-    console.log("   3. Settlement Status: 6 values");
-    console.log("   4. Verification Status: 4 values");
-    console.log("   5. Commission Data Source: 4 values");
-    console.log("   6. Integration Status: 4 values");
-    console.log("   7. Settlement Record Status: 3 values");
-    console.log("   8. System Generated: 2 values");
-    console.log("   9. Disbursement Trigger: 4 values");
-    console.log("   10. Transaction Types: 5 values");
-    console.log("   11. Commission Model: 4 values");
-    console.log("   12. Acknowledgment Status: 3 values");
-    console.log("   13. Notification Method: 5 values");
-    console.log("   14. Partner Notification Sent: 3 values");
-    console.log("   15. Payment Method: 5 values");
-    console.log("   16. Payment Status: 6 values");
-    console.log("   17. Invoice Status: 5 values");
-    console.log("   18. SLA Breach: 2 values");
-    console.log("   19. Tax Certificate Required: 3 values");
-    console.log("   20. Hold Reason: 6 values");
-    console.log("   21. Reconciliation Status: 5 values");
-    console.log("   " + "-".repeat(30));
-    console.log("   TOTAL: 95 commission enum values");
   } catch (error) {
     errorCount++;
     console.error("Error during commission enum seeding:", error);
@@ -2793,7 +2631,6 @@ const seedCommissionEnumMappings = async () => {
 };
 
 const seedPartnerEnumMappings = async () => {
-  console.log("Starting Partner Enum Mappings seeding...");
   let successCount = 0;
   let errorCount = 0;
 
@@ -2845,7 +2682,6 @@ const seedPartnerEnumMappings = async () => {
     });
     successCount++;
 
-    console.log("\nSeeding Business Type...");
     const businessTypeEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -2930,9 +2766,7 @@ const seedPartnerEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Business Type seeded (7 values)");
 
-    console.log("\nSeeding Partner Type...");
     const partnerTypeEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -3057,9 +2891,7 @@ const seedPartnerEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Partner Type seeded (11 values)");
 
-    console.log("\nSeeding Target Courses...");
     const targetCoursesEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -3160,9 +2992,7 @@ const seedPartnerEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Target Courses seeded (9 values)");
 
-    console.log("\nSeeding Target Destinations...");
     const targetDestinationsEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -3271,9 +3101,7 @@ const seedPartnerEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Target Destinations seeded (10 values)");
 
-    console.log("\nSeeding Commission Model...");
     const commissionModelEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -3342,9 +3170,7 @@ const seedPartnerEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Commission Model seeded (5 values)");
 
-    console.log("\nSeeding Commission Type...");
     const commissionTypeEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -3405,9 +3231,7 @@ const seedPartnerEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Commission Type seeded (4 values)");
 
-    console.log("\nSeeding GST Applicable...");
     const gstApplicableEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -3452,9 +3276,7 @@ const seedPartnerEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("GST Applicable seeded (2 values)");
 
-    console.log("\nSeeding Payment Frequency...");
     const paymentFrequencyEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -3515,9 +3337,7 @@ const seedPartnerEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Payment Frequency seeded (4 values)");
 
-    console.log("\nSeeding Payment Method...");
     const paymentMethodEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -3586,9 +3406,7 @@ const seedPartnerEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Payment Method seeded (5 values)");
 
-    console.log("\nSeeding Payment Terms...");
     const paymentTermsEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -3657,9 +3475,7 @@ const seedPartnerEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Payment Terms seeded (5 values)");
 
-    console.log("\nSeeding TDS Applicable...");
     const tdsApplicableEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -3704,9 +3520,7 @@ const seedPartnerEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("TDS Applicable seeded (2 values)");
 
-    console.log("\nSeeding Background Verification Status...");
     const bgVerificationStatusEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -3767,9 +3581,7 @@ const seedPartnerEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Background Verification Status seeded (4 values)");
 
-    console.log("\nSeeding KYC Status...");
     const kycStatusEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -3830,9 +3642,7 @@ const seedPartnerEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("KYC Status seeded (4 values)");
 
-    console.log("\nSeeding Payment Status...");
     const paymentStatusEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -3893,9 +3703,7 @@ const seedPartnerEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Payment Status seeded (4 values)");
 
-    console.log("\nSeeding Lead Submission Method...");
     const leadSubmissionMethodEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -3972,9 +3780,7 @@ const seedPartnerEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Lead Submission Method seeded (6 values)");
 
-    console.log("\nSeeding Lead Tracking Method...");
     const leadTrackingMethodEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -4043,9 +3849,7 @@ const seedPartnerEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Lead Tracking Method seeded (5 values)");
 
-    console.log("\nSeeding Co-Marketing Approval...");
     const coMarketingApprovalEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -4098,9 +3902,7 @@ const seedPartnerEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Co-Marketing Approval seeded (3 values)");
 
-    console.log("\nSeeding Content Collaboration...");
     const contentCollaborationEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -4153,9 +3955,7 @@ const seedPartnerEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Content Collaboration seeded (3 values)");
 
-    console.log("\nSeeding Marketing Materials Provided...");
     const marketingMaterialsEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -4224,9 +4024,7 @@ const seedPartnerEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Marketing Materials Provided seeded (5 values)");
 
-    console.log("\nSeeding Agreement Type...");
     const agreementTypeEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -4287,9 +4085,7 @@ const seedPartnerEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Agreement Type seeded (4 values)");
 
-    console.log("\nSeeding Partnership Status...");
     const partnershipStatusEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -4374,9 +4170,7 @@ const seedPartnerEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Partnership Status seeded (7 values)");
 
-    console.log("\nSeeding Best Performing Month...");
     const bestPerformingMonthEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -4501,9 +4295,7 @@ const seedPartnerEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Best Performing Month seeded (12 values)");
 
-    console.log("\nSeeding Communication Frequency...");
     const communicationFrequencyEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -4580,9 +4372,7 @@ const seedPartnerEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Communication Frequency seeded (6 values)");
 
-    console.log("\nSeeding Relationship Status...");
     const relationshipStatusEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -4667,9 +4457,7 @@ const seedPartnerEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Relationship Status seeded (7 values)");
 
-    console.log("\nSeeding Training Completed...");
     const trainingCompletedEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -4714,9 +4502,7 @@ const seedPartnerEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Training Completed seeded (2 values)");
 
-    console.log("\nSeeding API Access Provided...");
     const apiAccessProvidedEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -4769,9 +4555,7 @@ const seedPartnerEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("API Access Provided seeded (3 values)");
 
-    console.log("\nSeeding Data Source...");
     const dataSourceEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -4832,9 +4616,7 @@ const seedPartnerEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Data Source seeded (4 values)");
 
-    console.log("\nSeeding Integration Status...");
     const integrationStatusEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -4895,9 +4677,7 @@ const seedPartnerEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Integration Status seeded (4 values)");
 
-    console.log("\nSeeding Partner Record Status...");
     const partnerRecordStatusEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -4966,9 +4746,7 @@ const seedPartnerEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Partner Record Status seeded (5 values)");
 
-    console.log("\nSeeding Portal Access Provided...");
     const portalAccessProvidedEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -5021,48 +4799,6 @@ const seedPartnerEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log("Portal Access Provided seeded (3 values)");
-
-    console.log("\n" + "=".repeat(60));
-    console.log("PARTNER ENUM MAPPINGS SEEDING SUMMARY");
-    console.log("=".repeat(60));
-    console.log(`Successfully seeded: ${successCount}/30 enum mappings`);
-    console.log(`Errors: ${errorCount}`);
-    console.log("=".repeat(60));
-
-    console.log("\nENUM VALUES COUNT:");
-    console.log("   1. Business Type: 7 values");
-    console.log("   2. Partner Type: 11 values");
-    console.log("   3. Target Courses: 9 values");
-    console.log("   4. Target Destinations: 10 values");
-    console.log("   5. Commission Model: 5 values");
-    console.log("   6. Commission Type: 4 values");
-    console.log("   7. GST Applicable: 2 values");
-    console.log("   8. Payment Frequency: 4 values");
-    console.log("   9. Payment Method: 5 values");
-    console.log("   10. Payment Terms: 5 values");
-    console.log("   11. TDS Applicable: 2 values");
-    console.log("   12. Background Verification Status: 4 values");
-    console.log("   13. KYC Status: 4 values");
-    console.log("   14. Payment Status: 4 values");
-    console.log("   15. Lead Submission Method: 6 values");
-    console.log("   16. Lead Tracking Method: 5 values");
-    console.log("   17. Co-Marketing Approval: 3 values");
-    console.log("   18. Content Collaboration: 3 values");
-    console.log("   19. Marketing Materials Provided: 5 values");
-    console.log("   20. Agreement Type: 4 values");
-    console.log("   21. Partnership Status: 7 values");
-    console.log("   22. Best Performing Month: 12 values");
-    console.log("   23. Communication Frequency: 6 values");
-    console.log("   24. Relationship Status: 7 values");
-    console.log("   25. Training Completed: 2 values");
-    console.log("   26. API Access Provided: 3 values");
-    console.log("   27. Data Source: 4 values");
-    console.log("   28. Integration Status: 4 values");
-    console.log("   29. Partner Record Status: 5 values");
-    console.log("   30. Portal Access Provided: 3 values");
-    console.log("   " + "-".repeat(30));
-    console.log("   TOTAL: 156 partner enum values");
   } catch (error) {
     errorCount++;
     console.error("Error during partner enum seeding:", error);
@@ -5071,7 +4807,6 @@ const seedPartnerEnumMappings = async () => {
 };
 
 const seedEdumateContactEnumMappings = async () => {
-  console.log("Starting Edumate Contact Enum Mappings seeding...");
   let successCount = 0;
   let errorCount = 0;
 
@@ -5081,7 +4816,6 @@ const seedEdumateContactEnumMappings = async () => {
     // ==================== ACADEMIC INFORMATION GROUP ====================
 
     // ===== 1. ADMISSION STATUS =====
-    console.log("\n📚 Seeding Admission Status...");
     const admissionStatusEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -5158,10 +4892,8 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Admission Status seeded (6 values)");
 
     // ===== 2. CURRENT EDUCATION LEVEL =====
-    console.log("\n📚 Seeding Current Education Level...");
     const currentEducationLevelEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -5222,10 +4954,8 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Current Education Level seeded (4 values)");
 
     // ===== 3. INTENDED START TERM =====
-    console.log("\n📚 Seeding Intended Start Term...");
     const intendedStartTermEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -5286,10 +5016,8 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Intended Start Term seeded (4 values)");
 
     // ===== 4. PREFERRED STUDY DESTINATION =====
-    console.log("\n🌍 Seeding Preferred Study Destination...");
     const preferredStudyDestinationEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -5438,10 +5166,8 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Preferred Study Destination seeded (15 values)");
 
     // ===== 5. TARGET DEGREE LEVEL =====
-    console.log("\n🎓 Seeding Target Degree Level...");
     const targetDegreeLevelEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -5502,12 +5228,10 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Target Degree Level seeded (4 values)");
 
     // ==================== APPLICATION JOURNEY GROUP ====================
 
     // ===== 6. CURRENT STATUS DISPOSITION =====
-    console.log("\n📞 Seeding Current Status Disposition...");
     const currentStatusDispositionEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -5584,10 +5308,8 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Current Status Disposition seeded (6 values)");
 
     // ===== 7. CURRENT STATUS DISPOSITION REASON =====
-    console.log("\n📝 Seeding Current Status Disposition Reason...");
     const dispositionReasonEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -5648,10 +5370,8 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Current Status Disposition Reason seeded (4 values)");
 
     // ===== 8. PRIORITY LEVEL =====
-    console.log("\n⭐ Seeding Priority Level...");
     const priorityLevelEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -5704,12 +5424,10 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Priority Level seeded (3 values)");
 
     // ==================== EDUMATE CONTACTS INFORMATION GROUP ====================
 
     // ===== 9. COURSE TYPE =====
-    console.log("\n📖 Seeding Course Type...");
     const courseTypeEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -5762,12 +5480,10 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Course Type seeded (3 values)");
 
     // ==================== FINANCIAL INFORMATION GROUP ====================
 
     // ===== 10. CO-APPLICANT 1 OCCUPATION =====
-    console.log("\n💼 Seeding Co-applicant 1 Occupation...");
     const coApplicant1OccupationEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -5828,10 +5544,8 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Co-applicant 1 Occupation seeded (4 values)");
 
     // ===== 11. CO-APPLICANT 1 RELATIONSHIP =====
-    console.log("\n👨‍👩‍👧 Seeding Co-applicant 1 Relationship...");
     const coApplicant1RelationshipEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -5932,10 +5646,8 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Co-applicant 1 Relationship seeded (9 values)");
 
     // ===== 12. CO-APPLICANT 2 OCCUPATION =====
-    console.log("\n💼 Seeding Co-applicant 2 Occupation...");
     const coApplicant2OccupationEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -5996,10 +5708,8 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Co-applicant 2 Occupation seeded (4 values)");
 
     // ===== 13. CO-APPLICANT 2 RELATIONSHIP =====
-    console.log("\n👨‍👩‍👧 Seeding Co-applicant 2 Relationship...");
     const coApplicant2RelationshipEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -6100,10 +5810,8 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Co-applicant 2 Relationship seeded (9 values)");
 
     // ===== 14. CO-APPLICANT 3 OCCUPATION =====
-    console.log("\n💼 Seeding Co-applicant 3 Occupation...");
     const coApplicant3OccupationEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -6164,10 +5872,8 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Co-applicant 3 Occupation seeded (4 values)");
 
     // ===== 15. CO-APPLICANT 3 RELATIONSHIP =====
-    console.log("\n👨‍👩‍👧 Seeding Co-applicant 3 Relationship...");
     const coApplicant3RelationshipEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -6268,10 +5974,8 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Co-applicant 3 Relationship seeded (9 values)");
 
     // ===== 16. COLLATERAL 2 AVAILABLE =====
-    console.log("\n🏦 Seeding Collateral 2 Available...");
     const collateral2AvailableEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -6316,10 +6020,8 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Collateral 2 Available seeded (2 values)");
 
     // ===== 17. COLLATERAL 2 TYPE =====
-    console.log("\n🏦 Seeding Collateral 2 Type...");
     const collateral2TypeEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -6380,10 +6082,8 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Collateral 2 Type seeded (4 values)");
 
     // ===== 18. COLLATERAL AVAILABLE =====
-    console.log("\n🏦 Seeding Collateral Available...");
     const collateralAvailableEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -6428,10 +6128,8 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Collateral Available seeded (2 values)");
 
     // ===== 19. COLLATERAL TYPE =====
-    console.log("\n🏦 Seeding Collateral Type...");
     const collateralTypeEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -6492,10 +6190,8 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Collateral Type seeded (4 values)");
 
     // ===== 20. CURRENCY =====
-    console.log("\n💰 Seeding Currency...");
     const currencyEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -6580,12 +6276,10 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Currency seeded (7 values)");
 
     // ==================== LEAD ATTRIBUTION GROUP ====================
 
     // ===== 21. LEAD SOURCE =====
-    console.log("\n📢 Seeding Lead Source...");
     const leadSourceEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -6678,10 +6372,8 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Lead Source seeded (8 values)");
 
     // ===== 22. PARTNER COMMISSION APPLICABLE =====
-    console.log("\n💵 Seeding Partner Commission Applicable...");
     const partnerCommissionEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -6726,12 +6418,10 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Partner Commission Applicable seeded (2 values)");
 
     // ==================== LOAN PREFERENCES GROUP ====================
 
     // ===== 23. LOAN TYPE PREFERENCE =====
-    console.log("\n💳 Seeding Loan Type Preference...");
     const loanTypePreferenceEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -6792,10 +6482,8 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Loan Type Preference seeded (4 values)");
 
     // ===== 24. REPAYMENT TYPE PREFERENCE =====
-    console.log("\n💳 Seeding Repayment Type Preference...");
     const repaymentTypePreferenceEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -6856,12 +6544,10 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Repayment Type Preference seeded (4 values)");
 
     // ==================== PERSONAL INFORMATION GROUP ====================
 
     // ===== 25. GENDER =====
-    console.log("\n👤 Seeding Gender...");
     const genderEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -6922,10 +6608,8 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Gender seeded (4 values)");
 
     // ===== 26. NATIONALITY =====
-    console.log("\n🌏 Seeding Nationality...");
     const nationalityEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -7394,12 +7078,10 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Nationality seeded (55 common values - expand as needed)");
 
     // ==================== SYSTEM TRACKING GROUP ====================
 
     // ===== 27. DATA SOURCE =====
-    console.log("\n📊 Seeding Data Source...");
     const dataSourceEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -7468,10 +7150,8 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Data Source seeded (5 values)");
 
     // ===== 28. GDPR CONSENT =====
-    console.log("\n🔒 Seeding GDPR Consent...");
     const gdprConsentEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -7524,10 +7204,8 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" GDPR Consent seeded (3 values)");
 
     // ===== 29. MARKETING CONSENT =====
-    console.log("\n📧 Seeding Marketing Consent...");
     const marketingConsentEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -7572,9 +7250,7 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Marketing Consent seeded (2 values)");
 
-    console.log("\n📋 Seeding Student Record Status...");
     const studentRecordStatusEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -7635,73 +7311,14 @@ const seedEdumateContactEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Student Record Status seeded (4 values)");
-
-    console.log("\n" + "=".repeat(80));
-    console.log("📊 EDUMATE CONTACT ENUM MAPPINGS SEEDING SUMMARY");
-    console.log("=".repeat(80));
-    console.log(` Successfully seeded: ${successCount}/30 enum mappings`);
-    console.log(`❌ Errors: ${errorCount}`);
-    console.log("=".repeat(80));
-
-    console.log("\n📋 ENUM VALUES COUNT:");
-    console.log("   ACADEMIC INFORMATION GROUP:");
-    console.log("   1. Admission Status: 6 values");
-    console.log("   2. Current Education Level: 4 values");
-    console.log("   3. Intended Start Term: 4 values");
-    console.log("   4. Preferred Study Destination: 15 values");
-    console.log("   5. Target Degree Level: 4 values");
-
-    console.log("\n   APPLICATION JOURNEY GROUP:");
-    console.log("   6. Current Status Disposition: 6 values");
-    console.log("   7. Current Status Disposition Reason: 4 values");
-    console.log("   8. Priority Level: 3 values");
-
-    console.log("\n   EDUMATE CONTACTS INFORMATION GROUP:");
-    console.log("   9. Course Type: 3 values");
-
-    console.log("\n   FINANCIAL INFORMATION GROUP:");
-    console.log("   10. Co-applicant 1 Occupation: 4 values");
-    console.log("   11. Co-applicant 1 Relationship: 9 values");
-    console.log("   12. Co-applicant 2 Occupation: 4 values");
-    console.log("   13. Co-applicant 2 Relationship: 9 values");
-    console.log("   14. Co-applicant 3 Occupation: 4 values");
-    console.log("   15. Co-applicant 3 Relationship: 9 values");
-    console.log("   16. Collateral 2 Available: 2 values");
-    console.log("   17. Collateral 2 Type: 4 values");
-    console.log("   18. Collateral Available: 2 values");
-    console.log("   19. Collateral Type: 4 values");
-    console.log("   20. Currency: 7 values");
-
-    console.log("\n   LEAD ATTRIBUTION GROUP:");
-    console.log("   21. Lead Source: 8 values");
-    console.log("   22. Partner Commission Applicable: 2 values");
-
-    console.log("\n   LOAN PREFERENCES GROUP:");
-    console.log("   23. Loan Type Preference: 4 values");
-    console.log("   24. Repayment Type Preference: 4 values");
-
-    console.log("\n   PERSONAL INFORMATION GROUP:");
-    console.log("   25. Gender: 4 values");
-    console.log("   26. Nationality: 55 values (expand as needed)");
-
-    console.log("\n   SYSTEM TRACKING GROUP:");
-    console.log("   27. Data Source: 5 values");
-    console.log("   28. GDPR Consent: 3 values");
-    console.log("   29. Marketing Consent: 2 values");
-    console.log("   30. Student Record Status: 4 values");
-
-    console.log("\n   📈 TOTAL: ~200+ enum values");
-    console.log("=".repeat(80));
   } catch (error) {
     errorCount++;
-    console.error("❌ Error during seeding:", error);
+    console.error("Error during seeding:", error);
     throw error;
   }
 };
 
 const seedLoanApplicationEnumMappings = async () => {
-  console.log("Starting Loan Application Enum Mappings seeding...");
   let successCount = 0;
   let errorCount = 0;
 
@@ -7709,7 +7326,6 @@ const seedLoanApplicationEnumMappings = async () => {
 
   try {
     // ===== 1. ADMISSION STATUS =====
-    console.log("\n📚 Seeding Admission Status...");
     const admissionStatusEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -7786,10 +7402,8 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Admission Status seeded (7 values)");
 
     // ===== 2. COURSE LEVEL =====
-    console.log("\n🎓 Seeding Course Level...");
     const courseLevelEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -7850,10 +7464,8 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Course Level seeded (4 values)");
 
     // ===== 3. I20 CAS RECEIVED =====
-    console.log("\n📄 Seeding I20 CAS Received...");
     const i20CasReceivedEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -7914,10 +7526,8 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" I20 CAS Received seeded (4 values)");
 
     // ===== 4. VISA STATUS =====
-    console.log("\n🛂 Seeding Visa Status...");
     const visaStatusEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -7986,12 +7596,10 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Visa Status seeded (5 values)");
 
     // ==================== APPLICATION STATUS GROUP ====================
 
     // ===== 5. APPLICATION STATUS =====
-    console.log("\n📋 Seeding Application Status...");
     const applicationStatusEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -8092,10 +7700,8 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Application Status seeded (9 values)");
 
     // ===== 6. PRIORITY LEVEL =====
-    console.log("\n⭐ Seeding Priority Level...");
     const priorityLevelEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -8156,12 +7762,10 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Priority Level seeded (4 values)");
 
     // ==================== COMMISSION & SETTLEMENT GROUP ====================
 
     // ===== 7. COMMISSION CALCULATION BASE =====
-    console.log("\n💰 Seeding Commission Calculation Base...");
     const commissionCalculationBaseEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -8214,10 +7818,8 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Commission Calculation Base seeded (3 values)");
 
     // ===== 8. COMMISSION STATUS =====
-    console.log("\n💵 Seeding Commission Status...");
     const commissionStatusEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -8294,10 +7896,8 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Commission Status seeded (6 values)");
 
     // ===== 9. PARTNER COMMISSION APPLICABLE =====
-    console.log("\n🤝 Seeding Partner Commission Applicable...");
     const partnerCommissionApplicableEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -8342,12 +7942,10 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Partner Commission Applicable seeded (2 values)");
 
     // ==================== COMMUNICATION GROUP ====================
 
     // ===== 10. COMMUNICATION PREFERENCE =====
-    console.log("\n📞 Seeding Communication Preference...");
     const communicationPreferenceEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -8416,10 +8014,8 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Communication Preference seeded (5 values)");
 
     // ===== 11. COMPLAINT RAISED =====
-    console.log("\n⚠️ Seeding Complaint Raised...");
     const complaintRaisedEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -8464,10 +8060,8 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Complaint Raised seeded (2 values)");
 
     // ===== 12. FOLLOW UP FREQUENCY =====
-    console.log("\n🔄 Seeding Follow Up Frequency...");
     const followUpFrequencyEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -8536,12 +8130,10 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Follow Up Frequency seeded (5 values)");
 
     // ==================== LENDER INFORMATION GROUP ====================
 
     // ===== 13. CO-SIGNER REQUIRED =====
-    console.log("\n✍️ Seeding Co-signer Required...");
     const coSignerRequiredEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -8586,10 +8178,8 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Co-signer Required seeded (2 values)");
 
     // ===== 14. COLLATERAL REQUIRED =====
-    console.log("\n🏦 Seeding Collateral Required...");
     const collateralRequiredEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -8634,10 +8224,8 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Collateral Required seeded (2 values)");
 
     // ===== 15. INTEREST RATE TYPE =====
-    console.log("\n📊 Seeding Interest Rate Type...");
     const interestRateTypeEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -8690,10 +8278,8 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Interest Rate Type seeded (3 values)");
 
     // ===== 16. LOAN PRODUCT TYPE =====
-    console.log("\n💳 Seeding Loan Product Type...");
     const loanProductTypeEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -8746,12 +8332,10 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Loan Product Type seeded (3 values)");
 
     // ==================== LOAN APPLICATIONS INFORMATION GROUP ====================
 
     // ===== 17. APPLICATION SOURCE =====
-    console.log("\n📢 Seeding Application Source...");
     const applicationSourceEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -8820,12 +8404,10 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Application Source seeded (5 values)");
 
     // ==================== PROCESSING TIMELINE GROUP ====================
 
     // ===== 18. DELAY REASON =====
-    console.log("\n⏱️ Seeding Delay Reason...");
     const delayReasonEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -8878,10 +8460,8 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Delay Reason seeded (3 values)");
 
     // ===== 19. SLA BREACH =====
-    console.log("\n🚨 Seeding SLA Breach...");
     const slaBreachEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -8926,12 +8506,10 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" SLA Breach seeded (2 values)");
 
     // ==================== REJECTION & ISSUES GROUP ====================
 
     // ===== 20. APPEAL OUTCOME =====
-    console.log("\n⚖️ Seeding Appeal Outcome...");
     const appealOutcomeEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -8992,10 +8570,8 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Appeal Outcome seeded (4 values)");
 
     // ===== 21. APPEAL SUBMITTED =====
-    console.log("\n📝 Seeding Appeal Submitted...");
     const appealSubmittedEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -9048,10 +8624,8 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Appeal Submitted seeded (3 values)");
 
     // ===== 22. REJECTION REASON =====
-    console.log("\n❌ Seeding Rejection Reason...");
     const rejectionReasonEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -9144,12 +8718,10 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Rejection Reason seeded (8 values)");
 
     // ==================== SYSTEM TRACKING GROUP ====================
 
     // ===== 23. APPLICATION RECORD STATUS =====
-    console.log("\n📋 Seeding Application Record Status...");
     const applicationRecordStatusEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -9210,10 +8782,8 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Application Record Status seeded (4 values)");
 
     // ===== 24. APPLICATION SOURCE SYSTEM =====
-    console.log("\n💻 Seeding Application Source System...");
     const applicationSourceSystemEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -9282,10 +8852,8 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Application Source System seeded (5 values)");
 
     // ===== 25. INTEGRATION STATUS =====
-    console.log("\n🔄 Seeding Integration Status...");
     const integrationStatusEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -9346,62 +8914,6 @@ const seedLoanApplicationEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Integration Status seeded (4 values)");
-
-    console.log("\n" + "=".repeat(80));
-    console.log("📊 LOAN APPLICATION ENUM MAPPINGS SEEDING SUMMARY");
-    console.log("=".repeat(80));
-    console.log(` Successfully seeded: ${successCount}/25 enum mappings`);
-    console.log(`❌ Errors: ${errorCount}`);
-    console.log("=".repeat(80));
-
-    console.log("\n📋 ENUM VALUES COUNT BY GROUP:");
-
-    console.log("\n   ACADEMIC DETAILS:");
-    console.log("   1. Admission Status: 7 values");
-    console.log("   2. Course Level: 6 values");
-    console.log("   3. I20 CAS Received: 4 values");
-    console.log("   4. Visa Status: 5 values");
-
-    console.log("\n   APPLICATION STATUS:");
-    console.log("   5. Application Status: 9 values");
-    console.log("   6. Priority Level: 4 values");
-
-    console.log("\n   COMMISSION & SETTLEMENT:");
-    console.log("   7. Commission Calculation Base: 3 values");
-    console.log("   8. Commission Status: 6 values");
-    console.log("   9. Partner Commission Applicable: 2 values");
-
-    console.log("\n   COMMUNICATION:");
-    console.log("   10. Communication Preference: 5 values");
-    console.log("   11. Complaint Raised: 2 values");
-    console.log("   12. Follow Up Frequency: 5 values");
-
-    console.log("\n   LENDER INFORMATION:");
-    console.log("   13. Co-signer Required: 2 values");
-    console.log("   14. Collateral Required: 2 values");
-    console.log("   15. Interest Rate Type: 3 values");
-    console.log("   16. Loan Product Type: 3 values");
-
-    console.log("\n   LOAN APPLICATIONS INFORMATION:");
-    console.log("   17. Application Source: 5 values");
-
-    console.log("\n   PROCESSING TIMELINE:");
-    console.log("   18. Delay Reason: 3 values");
-    console.log("   19. SLA Breach: 2 values");
-
-    console.log("\n   REJECTION & ISSUES:");
-    console.log("   20. Appeal Outcome: 4 values");
-    console.log("   21. Appeal Submitted: 3 values");
-    console.log("   22. Rejection Reason: 8 values");
-
-    console.log("\n   SYSTEM TRACKING:");
-    console.log("   23. Application Record Status: 4 values");
-    console.log("   24. Application Source System: 5 values");
-    console.log("   25. Integration Status: 4 values");
-
-    console.log("\n   📈 TOTAL: 106 enum values across 25 mappings");
-    console.log("=".repeat(80));
   } catch (error) {
     errorCount++;
     console.error("❌ Error during seeding:", error);
@@ -9410,7 +8922,6 @@ const seedLoanApplicationEnumMappings = async () => {
 };
 
 const seedLoanProductEnumMappings = async () => {
-  console.log("Starting Loan Product Enum Mappings seeding...");
   let successCount = 0;
   let errorCount = 0;
 
@@ -9418,7 +8929,6 @@ const seedLoanProductEnumMappings = async () => {
 
   try {
     // ===== 1. PRODUCT TYPE =====
-    console.log("\n📦 Seeding Product Type...");
     const productTypeEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -9495,10 +9005,8 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Product Type seeded (6 values)");
 
     // ===== 2. PRODUCT CATEGORY =====
-    console.log("\n📚 Seeding Product Category...");
     const productCategoryEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -9559,10 +9067,8 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Product Category seeded (4 values)");
 
     // ===== 3. PRODUCT STATUS =====
-    console.log("\n⚡ Seeding Product Status...");
     const productStatusEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -9631,12 +9137,10 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Product Status seeded (5 values)");
 
     // ==================== APPLICATION & PROCESSING ====================
 
     // ===== 4. APPLICATION MODE =====
-    console.log("\n💻 Seeding Application Mode...");
     const applicationModeEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -9705,10 +9209,8 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Application Mode seeded (5 values)");
 
     // ===== 5. DISBURSEMENT PROCESS =====
-    console.log("\n💰 Seeding Disbursement Process...");
     const disbursementProcessEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -9777,12 +9279,10 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Disbursement Process seeded (5 values)");
 
     // ==================== COLLATERAL & SECURITY ====================
 
     // ===== 6. COLLATERAL REQUIRED =====
-    console.log("\n🏦 Seeding Collateral Required...");
     const collateralRequiredEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -9843,10 +9343,8 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Collateral Required seeded (4 values)");
 
     // ===== 7. COLLATERAL TYPES ACCEPTED =====
-    console.log("\n🏠 Seeding Collateral Types Accepted...");
     const collateralTypesEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -9907,10 +9405,8 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Collateral Types Accepted seeded (4 values)");
 
     // ===== 8. GUARANTOR REQUIRED =====
-    console.log("\n✍️ Seeding Guarantor Required...");
     const guarantorRequiredEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -9971,10 +9467,8 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Guarantor Required seeded (4 values)");
 
     // ===== 9. INSURANCE REQUIRED =====
-    console.log("\n🛡️ Seeding Insurance Required...");
     const insuranceRequiredEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -10035,10 +9529,8 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Insurance Required seeded (4 values)");
 
     // ===== 10. THIRD PARTY GUARANTEE ACCEPTED =====
-    console.log("\n🤝 Seeding Third Party Guarantee Accepted...");
     const thirdPartyGuaranteeEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -10091,12 +9583,9 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Third Party Guarantee Accepted seeded (3 values)");
-
     // ==================== COMPETITIVE ANALYSIS ====================
 
     // ===== 11. MARKET POSITIONING =====
-    console.log("\n📊 Seeding Market Positioning...");
     const marketPositioningEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -10165,10 +9654,8 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Market Positioning seeded (5 values)");
 
     // ===== 12. PRICING STRATEGY =====
-    console.log("\n💵 Seeding Pricing Strategy...");
     const pricingStrategyEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -10229,12 +9716,10 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Pricing Strategy seeded (4 values)");
 
     // ==================== ELIGIBILITY CRITERIA ====================
 
     // ===== 13. CO-APPLICANT RELATIONSHIP =====
-    console.log("\n👥 Seeding Co-applicant Relationship...");
     const coApplicantRelationshipEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -10311,10 +9796,8 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Co-applicant Relationship seeded (6 values)");
 
     // ===== 14. CO-APPLICANT REQUIRED =====
-    console.log("\n👤 Seeding Co-applicant Required...");
     const coApplicantRequiredEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -10367,10 +9850,8 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Co-applicant Required seeded (3 values)");
 
     // ===== 15. ENTRANCE EXAM REQUIRED =====
-    console.log("\n📝 Seeding Entrance Exam Required...");
     const entranceExamRequiredEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -10471,10 +9952,8 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Entrance Exam Required seeded (9 values)");
 
     // ===== 16. NATIONALITY RESTRICTIONS =====
-    console.log("\n🌍 Seeding Nationality Restrictions...");
     const nationalityRestrictionsEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -10519,10 +9998,8 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Nationality Restrictions seeded (2 values)");
 
     // ===== 17. RESIDENCY REQUIREMENTS =====
-    console.log("\n🏡 Seeding Residency Requirements...");
     const residencyRequirementsEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -10567,10 +10044,8 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Residency Requirements seeded (2 values)");
 
     // ===== 18. TARGET SEGMENT =====
-    console.log("\n🎯 Seeding Target Segment...");
     const targetSegmentEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -10647,12 +10122,10 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Target Segment seeded (4 values)");
 
     // ==================== FINANCIAL TERMS ====================
 
     // ===== 19. INTEREST RATE TYPE =====
-    console.log("\n📊 Seeding Interest Rate Type...");
     const loanProductInterestRateTypeEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -10713,10 +10186,8 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Interest Rate Type seeded (4 values)");
 
     // ===== 20. PROCESSING FEE TYPE =====
-    console.log("\n💳 Seeding Processing Fee Type...");
     const processingFeeTypeEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -10769,12 +10240,10 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Processing Fee Type seeded (3 values)");
 
     // ==================== GEOGRAPHIC COVERAGE ====================
 
     // ===== 21. SUPPORTED COURSE TYPES =====
-    console.log("\n📖 Seeding Supported Course Types...");
     const loanProductSupportedCourseTypesEnum = await prisma.enumMapping.upsert(
       {
         where: {
@@ -10796,7 +10265,7 @@ const seedLoanProductEnumMappings = async () => {
           isActive: true,
           description: "Types of courses supported by loan product",
         },
-      }
+      },
     );
 
     await prisma.enumValue.createMany({
@@ -10861,12 +10330,10 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Supported Course Types seeded (7 values)");
 
     // ==================== REPAYMENT TERMS ====================
 
     // ===== 22. MORATORIUM TYPE =====
-    console.log("\n⏸️ Seeding Moratorium Type...");
     const moratoriumTypeEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -10927,10 +10394,8 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Moratorium Type seeded (4 values)");
 
     // ===== 23. PART PAYMENT ALLOWED =====
-    console.log("\n💸 Seeding Part Payment Allowed...");
     const partPaymentAllowedEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -10983,10 +10448,8 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Part Payment Allowed seeded (3 values)");
 
     // ===== 24. PREPAYMENT ALLOWED =====
-    console.log("\n💰 Seeding Prepayment Allowed...");
     const prepaymentAllowedEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -11039,10 +10502,8 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Prepayment Allowed seeded (3 values)");
 
     // ===== 25. REPAYMENT FREQUENCY =====
-    console.log("\n📅 Seeding Repayment Frequency...");
     const repaymentFrequencyEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -11111,12 +10572,10 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Repayment Frequency seeded (5 values)");
 
     // ==================== SPECIAL FEATURES ====================
 
     // ===== 26. CUSTOMER SUPPORT FEATURES =====
-    console.log("\n📞 Seeding Customer Support Features...");
     const customerSupportFeaturesEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -11185,10 +10644,8 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Customer Support Features seeded (5 values)");
 
     // ===== 27. DIGITAL FEATURES =====
-    console.log("\n📱 Seeding Digital Features...");
     const digitalFeaturesEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -11265,10 +10722,8 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Digital Features seeded (6 values)");
 
     // ===== 28. FLEXIBLE REPAYMENT OPTIONS =====
-    console.log("\n🔄 Seeding Flexible Repayment Options...");
     const flexibleRepaymentOptionsEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -11337,10 +10792,8 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Flexible Repayment Options seeded (5 values)");
 
     // ===== 29. TAX BENEFITS AVAILABLE =====
-    console.log("\n💼 Seeding Tax Benefits Available...");
     const taxBenefitsAvailableEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -11385,12 +10838,10 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Tax Benefits Available seeded (3 values)");
 
     // ==================== SYSTEM INTEGRATION ====================
 
     // ===== 30. API AVAILABILITY =====
-    console.log("\n🔌 Seeding API Availability...");
     const apiAvailabilityEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -11451,10 +10902,8 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" API Availability seeded (4 values)");
 
     // ===== 31. DATA FORMAT =====
-    console.log("\n📄 Seeding Data Format...");
     const dataFormatEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -11523,10 +10972,8 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Data Format seeded (5 values)");
 
     // ===== 32. INTEGRATION COMPLEXITY =====
-    console.log("\n⚙️ Seeding Integration Complexity...");
     const integrationComplexityEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -11587,10 +11034,8 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Integration Complexity seeded (4 values)");
 
     // ===== 33. SANDBOX ENVIRONMENT =====
-    console.log("\n🧪 Seeding Sandbox Environment...");
     const sandboxEnvironmentEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -11643,10 +11088,8 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Sandbox Environment seeded (3 values)");
 
     // ===== 34. WEBHOOK SUPPORT =====
-    console.log("\n🪝 Seeding Webhook Support...");
     const webhookSupportEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -11699,12 +11142,10 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Webhook Support seeded (3 values)");
 
     // ==================== SYSTEM TRACKING ====================
 
     // ===== 35. PRODUCT RECORD STATUS =====
-    console.log("\n📝 Seeding Product Record Status...");
     const productRecordStatusEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -11765,10 +11206,8 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Product Record Status seeded (4 values)");
 
     // ===== 36. REVIEW FREQUENCY =====
-    console.log("\n🔍 Seeding Review Frequency...");
     const reviewFrequencyEnum = await prisma.enumMapping.upsert({
       where: {
         enumName_version: {
@@ -11829,81 +11268,9 @@ const seedLoanProductEnumMappings = async () => {
       skipDuplicates: true,
     });
     successCount++;
-    console.log(" Review Frequency seeded (4 values)");
-
-    // ==================== SEEDING SUMMARY ====================
-    console.log("\n" + "=".repeat(80));
-    console.log("📊 LOAN PRODUCT ENUM MAPPINGS SEEDING SUMMARY");
-    console.log("=".repeat(80));
-    console.log(` Successfully seeded: ${successCount}/36 enum mappings`);
-    console.log(`❌ Errors: ${errorCount}`);
-    console.log("=".repeat(80));
-
-    console.log("\n📋 ENUM VALUES COUNT BY GROUP:");
-
-    console.log("\n   MAIN TABLE (LOAN PRODUCTS INFORMATION):");
-    console.log("   1. Product Type: 6 values");
-    console.log("   2. Product Category: 4 values");
-    console.log("   3. Product Status: 5 values");
-
-    console.log("\n   APPLICATION & PROCESSING:");
-    console.log("   4. Application Mode: 5 values");
-    console.log("   5. Disbursement Process: 5 values");
-
-    console.log("\n   COLLATERAL & SECURITY:");
-    console.log("   6. Collateral Required: 4 values");
-    console.log("   7. Collateral Types Accepted: 4 values");
-    console.log("   8. Guarantor Required: 4 values");
-    console.log("   9. Insurance Required: 4 values");
-    console.log("   10. Third Party Guarantee Accepted: 3 values");
-
-    console.log("\n   COMPETITIVE ANALYSIS:");
-    console.log("   11. Market Positioning: 5 values");
-    console.log("   12. Pricing Strategy: 4 values");
-
-    console.log("\n   ELIGIBILITY CRITERIA:");
-    console.log("   13. Co-applicant Relationship: 6 values");
-    console.log("   14. Co-applicant Required: 3 values");
-    console.log("   15. Entrance Exam Required: 9 values");
-    console.log("   16. Nationality Restrictions: 2 values");
-    console.log("   17. Residency Requirements: 2 values");
-    console.log("   18. Target Segment: 9 values");
-
-    console.log("\n   FINANCIAL TERMS:");
-    console.log("   19. Interest Rate Type: 4 values");
-    console.log("   20. Processing Fee Type: 3 values");
-
-    console.log("\n   GEOGRAPHIC COVERAGE:");
-    console.log("   21. Supported Course Types: 7 values");
-
-    console.log("\n   REPAYMENT TERMS:");
-    console.log("   22. Moratorium Type: 4 values");
-    console.log("   23. Part Payment Allowed: 3 values");
-    console.log("   24. Prepayment Allowed: 3 values");
-    console.log("   25. Repayment Frequency: 5 values");
-
-    console.log("\n   SPECIAL FEATURES:");
-    console.log("   26. Customer Support Features: 5 values");
-    console.log("   27. Digital Features: 6 values");
-    console.log("   28. Flexible Repayment Options: 5 values");
-    console.log("   29. Tax Benefits Available: 3 values");
-
-    console.log("\n   SYSTEM INTEGRATION:");
-    console.log("   30. API Availability: 4 values");
-    console.log("   31. Data Format: 5 values");
-    console.log("   32. Integration Complexity: 4 values");
-    console.log("   33. Sandbox Environment: 3 values");
-    console.log("   34. Webhook Support: 3 values");
-
-    console.log("\n   SYSTEM TRACKING:");
-    console.log("   35. Product Record Status: 4 values");
-    console.log("   36. Review Frequency: 4 values");
-
-    console.log("\n   📈 TOTAL: 159 enum values across 36 mappings");
-    console.log("=".repeat(80));
   } catch (error) {
     errorCount++;
-    console.error("❌ Error during seeding:", error);
+    console.error("Error during seeding:", error);
     throw error;
   }
 };

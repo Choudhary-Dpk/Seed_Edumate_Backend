@@ -21,7 +21,6 @@ import {
   createLoanApplicationSystemTracking,
   deleteLoanApplication,
   fetchLoanApplicationsList,
-  getLeadViewList,
   getLoanApplication,
   getLoanList,
   updateLoanApplication,
@@ -41,7 +40,7 @@ import {
 export const createLoanApplicationsController = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const userId = req.payload!.id;
@@ -62,147 +61,147 @@ export const createLoanApplicationsController = async (
         const application = await createLoanApplication(
           tx,
           categorized["mainLoanApplication"],
-          userId!
+          userId!,
         );
         logger.debug(
-          `Loan application created successfully with id: ${application.id}`
+          `Loan application created successfully with id: ${application.id}`,
         );
 
         logger.debug(
-          `Creating academic details for application: ${application.id}`
+          `Creating academic details for application: ${application.id}`,
         );
         const academicDetails = await createLoanApplicationAcademicDetails(
           tx,
           application.id,
-          categorized["academicDetails"]
+          categorized["academicDetails"],
         );
         logger.debug(
-          `Academic details created successfully for application: ${application.id}`
+          `Academic details created successfully for application: ${application.id}`,
         );
 
         logger.debug(
-          `Creating financial requirements for application: ${application.id}`
+          `Creating financial requirements for application: ${application.id}`,
         );
         const financialRequirements =
           await createLoanApplicationFinancialRequirements(
             tx,
             application.id,
-            categorized["financialRequirements"]
+            categorized["financialRequirements"],
           );
         logger.debug(
-          `Financial requirements created successfully for application: ${application.id}`
+          `Financial requirements created successfully for application: ${application.id}`,
         );
 
         logger.debug(
-          `Creating application status for application: ${application.id}`
+          `Creating application status for application: ${application.id}`,
         );
         const applicationStatus = await createLoanApplicationStatus(
           tx,
           application.id,
-          categorized["applicationStatus"]
+          categorized["applicationStatus"],
         );
         logger.debug(
-          `Application status created successfully for application: ${application.id}`
+          `Application status created successfully for application: ${application.id}`,
         );
 
         logger.debug(
-          `Creating lender information for application: ${application.id}`
+          `Creating lender information for application: ${application.id}`,
         );
         const lenderInformation = await createLoanApplicationLenderInformation(
           tx,
           application.id,
-          categorized["lenderInformation"]
+          categorized["lenderInformation"],
         );
         logger.debug(
-          `Lender information created successfully for application: ${application.id}`
+          `Lender information created successfully for application: ${application.id}`,
         );
 
         logger.debug(
-          `Creating document management for application: ${application.id}`
+          `Creating document management for application: ${application.id}`,
         );
         const documentManagement =
           await createLoanApplicationDocumentManagement(
             tx,
             application.id,
-            categorized["documentManagement"]
+            categorized["documentManagement"],
           );
         logger.debug(
-          `Document management created successfully for application: ${application.id}`
+          `Document management created successfully for application: ${application.id}`,
         );
 
         logger.debug(
-          `Creating processing timeline for application: ${application.id}`
+          `Creating processing timeline for application: ${application.id}`,
         );
         const processingTimeline =
           await createLoanApplicationProcessingTimeline(
             tx,
             application.id,
-            categorized["processingTimeline"]
+            categorized["processingTimeline"],
           );
         logger.debug(
-          `Processing timeline created successfully for application: ${application.id}`
+          `Processing timeline created successfully for application: ${application.id}`,
         );
 
         logger.debug(
-          `Creating rejection details for application: ${application.id}`
+          `Creating rejection details for application: ${application.id}`,
         );
         const rejectionDetails = await createLoanApplicationRejectionDetails(
           tx,
           application.id,
-          categorized["rejectionDetails"]
+          categorized["rejectionDetails"],
         );
         logger.debug(
-          `Rejection details created successfully for application: ${application.id}`
+          `Rejection details created successfully for application: ${application.id}`,
         );
 
         logger.debug(
-          `Creating communication preferences for application: ${application.id}`
+          `Creating communication preferences for application: ${application.id}`,
         );
         const communicationPreferences =
           await createLoanApplicationCommunicationPreferences(
             tx,
             application.id,
-            categorized["communicationPreferences"]
+            categorized["communicationPreferences"],
           );
         logger.debug(
-          `Communication preferences created successfully for application: ${application.id}`
+          `Communication preferences created successfully for application: ${application.id}`,
         );
 
         logger.debug(
-          `Creating system tracking for application: ${application.id}`
+          `Creating system tracking for application: ${application.id}`,
         );
         const systemTracking = await createLoanApplicationSystemTracking(
           tx,
           application.id,
           categorized["systemTracking"],
-          userId!
+          userId!,
         );
         logger.debug(
-          `System tracking created successfully for application: ${application.id}`
+          `System tracking created successfully for application: ${application.id}`,
         );
 
         logger.debug(
-          `Creating commission record for application: ${application.id}`
+          `Creating commission record for application: ${application.id}`,
         );
         const commissionRecord = await createLoanApplicationCommissionRecord(
           tx,
           application.id,
-          categorized["commissionRecords"]
+          categorized["commissionRecords"],
         );
         logger.debug(
-          `Commission record created successfully for application: ${application.id}`
+          `Commission record created successfully for application: ${application.id}`,
         );
 
         logger.debug(
-          `Creating additional service for application: ${application.id}`
+          `Creating additional service for application: ${application.id}`,
         );
         const additionalService = await createLoanApplicationAdditionalService(
           tx,
           application.id,
-          categorized["additionalServices"]
+          categorized["additionalServices"],
         );
         logger.debug(
-          `Additional service created successfully for application: ${application.id}`
+          `Additional service created successfully for application: ${application.id}`,
         );
 
         data = {
@@ -249,12 +248,12 @@ export const createLoanApplicationsController = async (
 
       {
         timeout: 180000,
-      }
+      },
     );
 
     logger.debug(
       `Loan application creation transaction completed successfully`,
-      result.id
+      result.id,
     );
 
     sendResponse(res, 201, "Loan application created successfully", data);
@@ -267,14 +266,14 @@ export const createLoanApplicationsController = async (
 export const deleteLoanApplicationController = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const userId = req.payload!.id;
     const applicationId = req.params.id;
 
     logger.debug(
-      `Deleting loan application with id: ${applicationId} by userId: ${userId}`
+      `Deleting loan application with id: ${applicationId} by userId: ${userId}`,
     );
     await deleteLoanApplication(+applicationId, userId);
     logger.debug(`Loan application deleted successfully`);
@@ -289,7 +288,7 @@ export const deleteLoanApplicationController = async (
 export const updateLoanApplicationController = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     // const userId = req.payload!.id;
@@ -309,116 +308,116 @@ export const updateLoanApplicationController = async (
       const application = await updateLoanApplication(
         tx,
         applicationId,
-        categorized["mainLoanApplication"]
+        categorized["mainLoanApplication"],
       );
       logger.debug(
-        `Loan application updated successfully with id: ${applicationId}`
+        `Loan application updated successfully with id: ${applicationId}`,
       );
 
       logger.debug(
-        `Updating academic details for application: ${applicationId}`
+        `Updating academic details for application: ${applicationId}`,
       );
       await updateLoanApplicationAcademicDetails(
         tx,
         applicationId,
-        categorized["academicDetails"]
+        categorized["academicDetails"],
       );
 
       logger.debug(
-        `Updating financial requirements for application: ${applicationId}`
+        `Updating financial requirements for application: ${applicationId}`,
       );
       await updateLoanApplicationFinancialRequirements(
         tx,
         applicationId,
-        categorized["financialRequirements"]
+        categorized["financialRequirements"],
       );
 
       logger.debug(
-        `Updating application status for application: ${applicationId}`
+        `Updating application status for application: ${applicationId}`,
       );
       await updateLoanApplicationStatus(
         tx,
         applicationId,
-        categorized["applicationStatus"]
+        categorized["applicationStatus"],
       );
 
       logger.debug(
-        `Updating lender information for application: ${applicationId}`
+        `Updating lender information for application: ${applicationId}`,
       );
       await updateLoanApplicationLenderInformation(
         tx,
         applicationId,
-        categorized["lenderInformation"]
+        categorized["lenderInformation"],
       );
 
       logger.debug(
-        `Updating document management for application: ${applicationId}`
+        `Updating document management for application: ${applicationId}`,
       );
       await updateLoanApplicationDocumentManagement(
         tx,
         applicationId,
-        categorized["documentManagement"]
+        categorized["documentManagement"],
       );
 
       logger.debug(
-        `Updating processing timeline for application: ${applicationId}`
+        `Updating processing timeline for application: ${applicationId}`,
       );
       await updateLoanApplicationProcessingTimeline(
         tx,
         applicationId,
-        categorized["processingTimeline"]
+        categorized["processingTimeline"],
       );
 
       logger.debug(
-        `Updating rejection details for application: ${applicationId}`
+        `Updating rejection details for application: ${applicationId}`,
       );
       await updateLoanApplicationRejectionDetails(
         tx,
         applicationId,
-        categorized["rejectionDetails"]
+        categorized["rejectionDetails"],
       );
 
       logger.debug(
-        `Updating communication preferences for application: ${applicationId}`
+        `Updating communication preferences for application: ${applicationId}`,
       );
       await updateLoanApplicationCommunicationPreferences(
         tx,
         applicationId,
-        categorized["communicationPreferences"]
+        categorized["communicationPreferences"],
       );
 
       logger.debug(
-        `Updating system tracking for application: ${applicationId}`
+        `Updating system tracking for application: ${applicationId}`,
       );
       await updateLoanApplicationSystemTracking(
         tx,
         applicationId,
-        categorized["systemTracking"]
+        categorized["systemTracking"],
         // userId
       );
 
       logger.debug(
-        `Updating commission record for application: ${application.id}`
+        `Updating commission record for application: ${application.id}`,
       );
       await updateLoanApplicationCommissionRecord(
         tx,
         application.id,
-        categorized["commissionRecords"]
+        categorized["commissionRecords"],
       );
       logger.debug(
-        `Commission record updated successfully for application: ${application.id}`
+        `Commission record updated successfully for application: ${application.id}`,
       );
 
       logger.debug(
-        `Updating additional service for application: ${applicationId}`
+        `Updating additional service for application: ${applicationId}`,
       );
       await updateLoanApplicationAdditionalService(
         tx,
         application.id,
-        categorized["additionalServices"]
+        categorized["additionalServices"],
       );
       logger.debug(
-        `Additional service updated successfully for application: ${applicationId}`
+        `Additional service updated successfully for application: ${applicationId}`,
       );
 
       return application;
@@ -434,7 +433,7 @@ export const updateLoanApplicationController = async (
 export const getLoanApplicationDetailsController = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const applicationId = parseInt(req.params.id);
@@ -447,7 +446,7 @@ export const getLoanApplicationDetailsController = async (
       res,
       200,
       "Loan application details fetched successfully",
-      applicationDetails
+      applicationDetails,
     );
   } catch (error) {
     logger.error(`Error fetching loan application details: ${error}`);
@@ -458,7 +457,7 @@ export const getLoanApplicationDetailsController = async (
 export const getLoanApplicationsListController = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const userId = req.payload!.id;
@@ -472,7 +471,7 @@ export const getLoanApplicationsListController = async (
     const offset = (page - 1) * size;
 
     logger.debug(
-      `Fetching loan applications list with page: ${page}, size: ${size}, sortKey: ${sortKey}, sortDir: ${sortDir}, search: ${search}`
+      `Fetching loan applications list with page: ${page}, size: ${size}, sortKey: ${sortKey}, sortDir: ${sortDir}, search: ${search}`,
     );
     const { rows, count } = await fetchLoanApplicationsList(
       size,
@@ -480,10 +479,10 @@ export const getLoanApplicationsListController = async (
       sortKey,
       sortDir,
       search,
-      filterByUser ? userId : undefined
+      filterByUser ? userId : undefined,
     );
     logger.debug(
-      `Loan applications list fetched successfully. Count: ${count}`
+      `Loan applications list fetched successfully. Count: ${count}`,
     );
 
     sendResponse(res, 200, "Loan applications list fetched successfully", {
@@ -498,69 +497,13 @@ export const getLoanApplicationsListController = async (
   }
 };
 
-export const getLeadsViewList = async (
-  req: RequestWithPayload<LoginPayload>,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const size = Number(req.query.size) || 10;
-    const page = Number(req.query.page) || 1;
-    const search = (req.query.search as string) || null;
-    const sortKey = (req.query.sortKey as string) || null;
-    const sortDir = (req.query.sortDir as "asc" | "desc") || null;
-
-    // Extract filters from query params
-    const filtersFromQuery =
-      (req.query.filters as {
-        partner?: string;
-        lender?: string;
-        loanProduct?: string;
-        status?: string;
-      }) || {};
-
-    const filters = {
-      partner: filtersFromQuery.partner || null,
-      lender: filtersFromQuery.lender || null,
-      loanProduct: filtersFromQuery.loanProduct || null,
-      status: filtersFromQuery.status || null,
-    };
-
-    const offset = size * (page - 1);
-
-    logger.debug(
-      `Fetching leads view list with pagination and filters`,
-      filters
-    );
-    const list = await getLeadViewList(
-      size,
-      offset,
-      sortKey,
-      sortDir,
-      search,
-      filters
-    );
-    logger.debug(`Leads view list fetched successfully`);
-
-    sendResponse(res, 200, "Leads list fetched successfully", {
-      total: list.count,
-      page,
-      size,
-      data: list.rows,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
 export const getLoanApplicationsList = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { id } = req.payload!;
-    console.log("req.query", req.query);
     const size = Number(req.query.size) || 10;
     const page = Number(req.query.page) || 1;
     const search = (req.query.search as string) || null;
@@ -582,10 +525,9 @@ export const getLoanApplicationsList = async (
       lender: filtersFromQuery.lender || null,
       loanProduct: filtersFromQuery.loanProduct || null,
       status: filtersFromQuery.status || null,
-      applicationStatus: filtersFromQuery.applicationStatus || filtersFromQuery.status || null,
+      applicationStatus:
+        filtersFromQuery.applicationStatus || filtersFromQuery.status || null,
     };
-
-    console.log("Parsed filters:", filters);
 
     const offset = size * (page - 1);
 
@@ -596,7 +538,7 @@ export const getLoanApplicationsList = async (
       sortKey,
       sortDir,
       search,
-      filters
+      filters,
     );
     logger.debug(`Leads list fetched successfully`);
 

@@ -92,15 +92,11 @@ async function setupEdumateTriggers() {
   });
 
   try {
-    console.log("[Edumate Setup] Connecting to database...");
     await client.connect();
 
-    console.log("[Edumate Setup] Creating notify function and triggers...");
     await client.query(sql);
 
     console.log("[Edumate Setup] Successfully created:");
-    console.log("   - notify_edumate_sync() function");
-    console.log("   - Listening on 'edumate_sync_channel'");
   } catch (error) {
     console.error("[Edumate Setup] Error:", error.message);
     process.exit(1);

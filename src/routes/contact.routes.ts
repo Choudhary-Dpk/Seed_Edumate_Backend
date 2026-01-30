@@ -20,9 +20,9 @@ import {
   uploadContactsCSV,
   uploadContactsJSON,
   upsertContactsLead,
+  getLeadsViewList,
 } from "../controllers/contact.controller";
 import { validateAndParseCSVFile } from "../middlewares/loanApplication.middleware";
-import { getLeadsViewList } from "../controllers/loanApplication.controller";
 import { AuthMethod } from "../types/auth";
 
 const router = Router();
@@ -35,7 +35,7 @@ router.post(
   }),
   validateReqParams,
   validateContactsLeadPayload,
-  createContactsLead
+  createContactsLead,
 );
 
 router.post("/upsert", upsertContactsLead);
@@ -49,7 +49,7 @@ router.delete(
   validateId(),
   validateReqParams,
   validateContactLeadById,
-  deleteContactLead
+  deleteContactLead,
 );
 router.get(
   "/details/:id",
@@ -60,7 +60,7 @@ router.get(
   validateId(),
   validateReqParams,
   validateContactLeadById,
-  getContactsLeadDetails
+  getContactsLeadDetails,
 );
 router.put(
   "/:id",
@@ -70,7 +70,7 @@ router.put(
   }),
   validateReqParams,
   validateContactLeadById,
-  editContactsLead
+  editContactsLead,
 );
 router.get(
   "/list",
@@ -86,12 +86,12 @@ router.get(
 /**
  * GET /contacts/lead-stats
  * Get aggregated lead statistics
- * 
+ *
  * Query Parameters:
  * - partner: boolean (optional, default: false)
  *   - If true: Filter by authenticated user's b2b_partner_id
  *   - If false: Return all leads without partner filtering
- * 
+ *
  * Returns:
  * - lifecycleStages: Count grouped by lifecycle_stages
  * - lifecycleStagesStatus: Count grouped by lifecycle_stages_status
@@ -105,7 +105,7 @@ router.get(
     allowedRoles: ["Admin", "Manager", "User", "Partner"],
   }),
   validateReqParams,
-  getLeadStats
+  getLeadStats,
 );
 
 router.post(
@@ -115,7 +115,7 @@ router.post(
     allowedRoles: ["Admin", "Manager", "User"],
   }),
   validateAndParseCSVFile("CSV"),
-  uploadContactsCSV
+  uploadContactsCSV,
 );
 // Bulk upload contacts via JSON payload
 router.post(
@@ -125,7 +125,7 @@ router.post(
     allowedRoles: ["Admin", "Manager", "User"],
   }),
   validateContactsJSONPayload,
-  uploadContactsJSON
+  uploadContactsJSON,
 );
 router.get("/template", downloadContactsTemplate);
 

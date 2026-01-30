@@ -117,15 +117,11 @@ async function setupCommissionTriggers() {
   });
 
   try {
-    console.log("[Commission Setup] Connecting to database...");
     await client.connect();
 
-    console.log("[Commission Setup] Creating notify function and triggers...");
     await client.query(sql);
 
     console.log("[Commission Setup] Successfully created:");
-    console.log("   - notify_commission_sync() function");
-    console.log("   - Listening on 'commission_sync_channel'");
   } catch (error) {
     console.error("[Commission Setup] Error:", error.message);
     process.exit(1);

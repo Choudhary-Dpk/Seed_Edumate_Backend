@@ -46,6 +46,7 @@ import { ContactsLead, LeadStatsResponse, LifecycleStageCount, LifecycleStatusCo
 import { mapAllFields } from "../mappers/edumateContact/mapping";
 import { categorizeByTable } from "../services/DBServices/edumateContacts.service";
 import { handleLeadCreation } from "../services/DBServices/loan.services";
+import { getLeadViewList } from "../models/helpers/loanApplication.helper";
 
 export const createContactsLead = async (
   req: RequestWithPayload<LoginPayload>,
@@ -575,13 +576,11 @@ export const uploadContactsCSV = async (
 ) => {
   try {
     const id = parseInt(req.payload?.id || req.body?.id);
-    console.log("id", id);
     const fileData = req.fileData;
     let partnerId = null;
     if (!partnerId && id) {
       logger.debug(`Fetching partner id from request`);
       partnerId = (await getPartnerIdByUserId(id)) || null;
-      console.log("partnerId", partnerId);
       logger.debug(`Partner id fetched successfully`);
     }
 
@@ -1095,3 +1094,58 @@ async function createBulkOutboxEntries(
     throw error;
   }
 }
+
+export const getLeadsViewList = async (
+  req: RequestWithPayload<LoginPayload>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const size = Number(req.query.size) || 10;
+    const page = Number(req.query.page) || 1;
+    const search = (req.query.search as string) || null;
+    const sortKey = (req.query.sortKey as string) || null;
+    const sortDir = (req.query.sortDir as "asc" | "desc") || null;
+
+    // Extract filters from query params
+    const filtersFromQuery =
+      (req.query.filters as {
+        partner?: string;
+        lender?: string;
+        loanProduct?: string;
+        status?: string;
+      }) || {};
+
+    const filters = {
+      partner: filtersFromQuery.partner || null,
+      lender: filtersFromQuery.lender || null,
+      loanProduct: filtersFromQuery.loanProduct || null,
+      status: filtersFromQuery.status || null,
+    };
+
+    const offset = size * (page - 1);
+
+    logger.debug(
+      `Fetching leads view list with pagination and filters`,
+      filters
+    );
+    const list = await getLeadViewList(
+      size,
+      offset,
+      sortKey,
+      sortDir,
+      search,
+      filters
+    );
+    logger.debug(`Leads view list fetched successfully`);
+
+    sendResponse(res, 200, "Leads list fetched successfully", {
+      total: list.count,
+      page,
+      size,
+      data: list.rows,
+    });
+  } catch (error) {
+    next(error);
+  }
+};

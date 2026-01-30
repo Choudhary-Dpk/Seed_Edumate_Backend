@@ -20,22 +20,22 @@ async function setupAllTriggers() {
     // Setup Edumate Triggers
     console.log("Setting up Edumate Contact triggers...");
     await setupEdumateSQL();
-    console.log("✓ Edumate triggers created\n");
+    console.log("Edumate triggers created\n");
 
     // Setup Commission Triggers
     console.log("Setting up Commission Settlement triggers...");
     await setupCommissionSQL();
-    console.log("   ✓ Commission triggers created\n");
+    console.log("Commission triggers created\n");
 
     // Setup Loan Triggers
     console.log("Setting up Loan Application triggers...");
     await setupLoanSQL();
-    console.log("✓ Loan triggers created\n");
+    console.log("Loan triggers created\n");
 
     // Setup B2B Partners
     console.log("Setting up B2B Partners triggers...");
     await setupPartnersSQL();
-    console.log("✓ B2B Partners triggers created\n");
+    console.log("B2B Partners triggers created\n");
 
     console.log(" All triggers setup completed successfully!\n");
   } catch (error) {

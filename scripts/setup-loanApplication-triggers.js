@@ -112,15 +112,11 @@ async function setupLoanTriggers() {
   });
 
   try {
-    console.log("[Loan Setup] Connecting to database...");
     await client.connect();
 
-    console.log("[Loan Setup] Creating notify function and triggers...");
     await client.query(sql);
 
     console.log("[Loan Setup] Successfully created:");
-    console.log("   - notify_loan_sync() function");
-    console.log("   - Listening on 'loan_sync_channel'");
   } catch (error) {
     console.error("[Loan Setup] Error:", error.message);
     process.exit(1);

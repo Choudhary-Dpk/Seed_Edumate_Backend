@@ -112,16 +112,11 @@ async function setupB2BPartnersTriggers() {
     });
 
     try {
-        console.log("[B2B Partners Setup] Connecting to database...");
         await client.connect();
 
-        console.log("[B2B Partners Setup] Creating notify function and triggers...");
         await client.query(sql);
 
         console.log("[B2B Partners Setup] Successfully created:");
-        console.log("   - notify_b2b_partner_sync() function");
-        console.log("   - Listening on 'b2b_partner_sync_channel'");
-        console.log("   - 12 triggers for all B2B partner tables");
     } catch (error) {
         console.error("[B2B Partners Setup] Error:", error.message);
         process.exit(1);
