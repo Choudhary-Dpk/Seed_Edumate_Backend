@@ -2,7 +2,10 @@ import crypto from "crypto";
 import { Row, ValidationResult } from "../types/leads.types";
 import { findLeads } from "../models/helpers/loanApplication.helper";
 import { parse } from "csv-parse";
-import { findContacts, findContactsByPartnerId } from "../models/helpers/contact.helper";
+import {
+  findContacts,
+  findContactsByPartnerId,
+} from "../models/helpers/contact.helper";
 import { ContactsLead, ContactsValidationResult } from "../types/contact.types";
 
 // Helper function for consistent 2-decimal rounding
@@ -16,7 +19,7 @@ export const generateRequestIdFromPayload = (payload: any) => {
 };
 
 export const deduplicateInFile = (
-  rows: Row[]
+  rows: Row[],
 ): { unique: Row[]; duplicates: number } => {
   const key = (v: Row) =>
     `${v.email}|${v.loanAmountRequested}|${v.loanTenureYears}`;
@@ -41,12 +44,12 @@ export const deduplicateInFile = (
 // Split into chunks for DB queries
 const chunk = <T>(arr: T[], size: number): T[][] => {
   return Array.from({ length: Math.ceil(arr.length / size) }, (_, i) =>
-    arr.slice(i * size, i * size + size)
+    arr.slice(i * size, i * size + size),
   );
 };
 
 export const deduplicateInDb = async (
-  rows: Row[]
+  rows: Row[],
 ): Promise<{ unique: Row[]; duplicates: number }> => {
   const key = (v: Row) =>
     `${v.email}|${v.loanAmountRequested}|${v.loanTenureYears}`;
@@ -65,7 +68,7 @@ export const deduplicateInDb = async (
       const loanTenureYears = f.lender_information?.loan_tenure_years ?? 0;
 
       existingKeys.add(
-        `${f.student_email}|${loanAmountRequested}|${loanTenureYears}`
+        `${f.student_email}|${loanAmountRequested}|${loanTenureYears}`,
       );
     }
   }
@@ -153,8 +156,8 @@ export const validateRows = (rows: any[], userId: number): ValidationResult => {
     } else if (!allowedStatuses.includes(applicationStatus)) {
       rowErrors.push(
         `Invalid Application Status: "${applicationStatus}". Must be one of [${allowedStatuses.join(
-          ", "
-        )}]`
+          ", ",
+        )}]`,
       );
     }
 
@@ -244,7 +247,7 @@ const VALID_TARGET_DEGREE_LEVEL = [
 
 export const validateContactRows = (
   rows: any[],
-  userId: number
+  userId: number,
 ): ContactsValidationResult => {
   const validRows: ContactsLead[] = [];
   const errors: { row: number; reason: string }[] = [];
@@ -319,7 +322,7 @@ export const validateContactRows = (
         rowErrors.push("Invalid Date of Birth");
       } else {
         dateOfBirth = new Date(
-          Date.UTC(parsed.getFullYear(), parsed.getMonth(), parsed.getDate())
+          Date.UTC(parsed.getFullYear(), parsed.getMonth(), parsed.getDate()),
         );
       }
     }
@@ -355,7 +358,10 @@ export const validateContactRows = (
 const normalizeEmail = (email: string | undefined | null) =>
   email?.trim().toLowerCase() ?? "";
 
-export const deduplicateContactsInDb = async (rows: ContactsLead[], partnerId: number) => {
+export const deduplicateContactsInDb = async (
+  rows: ContactsLead[],
+  partnerId: number,
+) => {
   const key = (v: ContactsLead) => `${normalizeEmail(v.email)}`;
   const existingKeys = new Set<string>();
 
@@ -363,22 +369,19 @@ export const deduplicateContactsInDb = async (rows: ContactsLead[], partnerId: n
     if (batch.length === 0) continue;
 
     const found = await findContactsByPartnerId(batch, partnerId);
-    console.log("found", found);
 
     for (const f of found) {
       existingKeys.add(`${normalizeEmail(f.email)}`);
     }
   }
-  console.log("existingKeys", existingKeys);
   const unique = rows.filter((v) => !existingKeys.has(key(v)));
-  console.log("uniquey", unique);
   const duplicates = rows.length - unique.length;
 
   return { unique, duplicates };
 };
 
 export const deduplicateContactsInFile = (
-  rows: ContactsLead[]
+  rows: ContactsLead[],
 ): { unique: ContactsLead[]; duplicates: number } => {
   // Use email + phone as unique identifier
   const key = (v: ContactsLead) => `${v.email}|${v.phone}`;
@@ -402,7 +405,7 @@ export const deduplicateContactsInFile = (
 
 export const transformRow = <T extends { contactId: number }>(
   row: T,
-  mapping: Record<string, (row: T) => any>
+  mapping: Record<string, (row: T) => any>,
 ) => {
   const obj: Record<string, any> = { contact_id: row.contactId };
   for (const [field, fn] of Object.entries(mapping)) {

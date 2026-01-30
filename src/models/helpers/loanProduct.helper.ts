@@ -1114,9 +1114,6 @@ export const fetchLoanProductsList = async (
     }
   }
 
-  console.log("🔍 FILTERS RECEIVED:", JSON.stringify(filters, null, 2));
-  console.log("🔍 WHERE CLAUSE:", JSON.stringify(where, null, 2));
-
   const [rows, count] = await Promise.all([
     prisma.hSLoanProducts.findMany({
       where,

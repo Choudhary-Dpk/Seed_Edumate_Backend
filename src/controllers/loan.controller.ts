@@ -122,11 +122,6 @@ export const getInstitutionCosts = async (
       return;
     }
 
-    console.log("Extracting institution costs for:", {
-      institution_name,
-      study_level,
-    });
-
     // Call the external API
     const result = await extractInstitutionCosts({
       institution_name,
@@ -175,11 +170,6 @@ export const getInstitutionProgram = async (
       return;
     }
 
-    console.log("Extracting program details for:", {
-      institution_name,
-      program_name,
-    });
-
     // Call the external API
     const result = await extractProgramDetails({
       institution_name: institution_name.trim(),
@@ -206,8 +196,6 @@ export const generateRepaymentScheduleAndEmail = async (
 ): Promise<void> => {
   try {
     const payload: RepaymentScheduleRequest = req?.body || {};
-    console.log("payload", payload);
-
     // Extract fields with backward compatibility
     const {
       principal,

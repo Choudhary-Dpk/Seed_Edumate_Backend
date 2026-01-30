@@ -162,8 +162,6 @@ export const validateSettlementIds = async (
       },
     });
 
-    console.log("Found settlements:", existingSettlements.length);
-
     // Check if all IDs exist
     if (existingSettlements.length !== settlementIdsArray.length) {
       const foundIds = existingSettlements.map((s) => s.id);

@@ -15,8 +15,8 @@ import {
 } from "../middlewares/commission.middleware";
 import multer from "../setup/multer";
 import { getB2bPartnersList } from "../controllers/partner.controller";
-import { getLeadsViewList } from "../controllers/loanApplication.controller";
 import { AuthMethod } from "../types/auth";
+import { getLeadsViewList } from "../controllers/contact.controller";
 export const invoiceUpload = multer(10, ["application/pdf", "pdf"]);
 const router = Router();
 
@@ -26,28 +26,28 @@ router.post(
     method: AuthMethod.API_KEY,
   }),
   checkDuplicateCommissionSettlementFields,
-  createCommissionSettlementController
+  createCommissionSettlementController,
 );
 router.put(
   "/:id",
   authenticate({
     method: AuthMethod.API_KEY,
   }),
-  updateCommissionSettlementController
+  updateCommissionSettlementController,
 );
 router.delete(
   "/:id",
   authenticate({
     method: AuthMethod.API_KEY,
   }),
-  deleteCommissionSettlementController
+  deleteCommissionSettlementController,
 );
 router.get(
   "/details/:id",
   authenticate({
     method: AuthMethod.API_KEY,
   }),
-  getCommissionSettlementDetails
+  getCommissionSettlementDetails,
 );
 router.get(
   "/pagination",
@@ -61,7 +61,7 @@ router.post(
   "/upload-invoice",
   invoiceUpload.single("file"),
   validateSettlementIds,
-  uploadInvoiceController
+  uploadInvoiceController,
 );
 router.get("/partners", getB2bPartnersList);
 router.get("/leads", getLeadsViewList);
