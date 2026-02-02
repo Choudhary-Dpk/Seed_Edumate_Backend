@@ -27,6 +27,7 @@ import {
   updateEdumateContactFinancialInfo,
   updateEdumateContactSystemTracking,
   getEdumateContactByPhone,
+  getLeadViewList,
 } from "../models/helpers/contact.helper";
 import { resolveLeadsCsvPath } from "../utils/leads";
 import { FileData } from "../types/leads.types";
@@ -51,7 +52,6 @@ import {
 import { mapAllFields } from "../mappers/edumateContact/mapping";
 import { categorizeByTable } from "../services/DBServices/edumateContacts.service";
 import { handleLeadCreation } from "../services/DBServices/loan.services";
-import { getLeadViewList } from "../models/helpers/loanApplication.helper";
 
 export const createContactsLead = async (
   req: RequestWithPayload<LoginPayload>,
@@ -470,7 +470,7 @@ export const editContactsLead = async (
         tx,
         +leadId,
         categorized["mainContact"],
-        partnerId,
+        partnerId?.b2b_id,
       );
       logger.debug(`Contact updated successfully with id: ${contact.id}`);
 
@@ -1124,6 +1124,9 @@ export const getLeadsViewList = async (
         loanProduct?: string;
         status?: string;
         intake_year?: string;
+        lifecycle_stage?: string;
+        lifecycle_status?: string;
+        hubspot_owner_id?: string;
       }) || {};
 
     const filters = {
@@ -1132,6 +1135,9 @@ export const getLeadsViewList = async (
       loanProduct: filtersFromQuery.loanProduct || null,
       status: filtersFromQuery.status || null,
       intake_year: filtersFromQuery.intake_year || null,
+      lifecycle_stage: filtersFromQuery.lifecycle_stage || null,
+      lifecycle_status: filtersFromQuery.lifecycle_status || null,
+      hubspot_owner_id: filtersFromQuery.hubspot_owner_id || null,
     };
 
     const offset = size * (page - 1);

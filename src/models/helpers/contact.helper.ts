@@ -16,7 +16,7 @@ import logger from "../../utils/logger";
 export const createEdumatePersonalInformation = async (
   tx: any,
   contactId: number,
-  personalData: any
+  personalData: any,
 ) => {
   const personalInfo = await tx.hSEdumateContactsPersonalInformation.create({
     data: {
@@ -32,7 +32,7 @@ export const createEdumatePersonalInformation = async (
 export const createEdumateAcademicProfile = async (
   tx: any,
   contactId: number,
-  academicsData: any
+  academicsData: any,
 ) => {
   const academicProfile = await tx.hSEdumateContactsAcademicProfiles.create({
     data: {
@@ -48,7 +48,7 @@ export const createEdumateAcademicProfile = async (
 export const createEdumateLeadAttribution = async (
   tx: any,
   contactId: number,
-  leadData: any
+  leadData: any,
 ) => {
   const leadAttribution = await tx.hSEdumateContactsLeadAttribution.create({
     data: {
@@ -64,7 +64,7 @@ export const createEdumateLeadAttribution = async (
 export const createApplicationJourney = async (
   tx: any,
   contactId: number,
-  journeyData: any
+  journeyData: any,
 ) => {
   const journeyDetails = await tx.hSEdumateContactsApplicationJourney.create({
     data: {
@@ -80,7 +80,7 @@ export const createApplicationJourney = async (
 export const createFinancialInfo = async (
   tx: any,
   contactId: number,
-  journeyData: any
+  journeyData: any,
 ) => {
   const financialInfo = await tx.hSEdumateContactsFinancialInfo.create({
     data: {
@@ -96,7 +96,7 @@ export const createFinancialInfo = async (
 export const createLoanPreferences = async (
   tx: any,
   contactId: number,
-  loanPreference: any
+  loanPreference: any,
 ) => {
   const loanPreferenceData = await tx.hSEdumateContactsLoanPreferences.create({
     data: {
@@ -112,7 +112,7 @@ export const createLoanPreferences = async (
 export const createEdumateSystemTracking = async (
   tx: any,
   contactId: number,
-  userId?: number | null
+  userId?: number | null,
 ) => {
   return tx.hSEdumateContactsSystemTracking.create({
     data: {
@@ -181,7 +181,7 @@ export const getEdumateContactByPhone = async (phone: string) => {
 
 export const getEdumateContactByEmailAndPartnerId = async (
   email: string,
-  partnerId: number
+  partnerId: number,
 ) => {
   const contact = await prisma.hSEdumateContacts.findFirst({
     include: {
@@ -210,7 +210,7 @@ export const getEdumateContactByEmailAndPartnerId = async (
 
 export const getEdumateContactByPhoneAndPartnerId = async (
   phone: string,
-  partnerId: number
+  partnerId: number,
 ) => {
   const contact = await prisma.hSEdumateContacts.findFirst({
     include: {
@@ -328,7 +328,7 @@ export const updateEdumateContact = async (
   tx: any,
   contactId: number,
   mainData?: any,
-  partnerId?: number
+  partnerId?: number,
 ) => {
   const contact = await tx.hSEdumateContacts.update({
     where: { id: contactId },
@@ -345,7 +345,7 @@ export const updateEdumateContact = async (
 export const updateEdumatePersonalInformation = async (
   tx: any,
   contactId: number,
-  personalData?: any
+  personalData?: any,
 ) => {
   const personalInfo = await tx.hSEdumateContactsPersonalInformation.update({
     where: { contact_id: contactId },
@@ -361,7 +361,7 @@ export const updateEdumatePersonalInformation = async (
 export const updateEdumateAcademicProfile = async (
   tx: any,
   contactId: number,
-  academicsData?: any
+  academicsData?: any,
 ) => {
   const academicProfile = await tx.hSEdumateContactsAcademicProfiles.update({
     where: { contact_id: contactId },
@@ -377,7 +377,7 @@ export const updateEdumateAcademicProfile = async (
 export const updateEdumateLeadAttribution = async (
   tx: any,
   contactId: number,
-  leadData?: any
+  leadData?: any,
 ) => {
   const leadAttribution = await tx.hSEdumateContactsLeadAttribution.update({
     where: { contact_id: contactId },
@@ -393,7 +393,7 @@ export const updateEdumateLeadAttribution = async (
 export const updateEdumateContactApplicationJourney = async (
   tx: any,
   contactId: number,
-  journeyData?: any
+  journeyData?: any,
 ) => {
   const data = await tx.hSEdumateContactsApplicationJourney.update({
     where: { contact_id: contactId },
@@ -409,7 +409,7 @@ export const updateEdumateContactApplicationJourney = async (
 export const updateEdumateContactFinancialInfo = async (
   tx: any,
   contactId: number,
-  financialInfo?: any
+  financialInfo?: any,
 ) => {
   const data = await tx.hSEdumateContactsFinancialInfo.update({
     where: { contact_id: contactId },
@@ -425,7 +425,7 @@ export const updateEdumateContactFinancialInfo = async (
 export const updateEdumateContactLoanPreference = async (
   tx: any,
   contactId: number,
-  loanPreference?: any
+  loanPreference?: any,
 ) => {
   if (!loanPreference || Object.keys(loanPreference).length === 0) {
     return null;
@@ -456,7 +456,7 @@ export const updateEdumateContactLoanPreference = async (
 export const updateEdumateContactSystemTracking = async (
   tx: any,
   contactId: number,
-  systemTrackingData?: any
+  systemTrackingData?: any,
 ) => {
   const data = await tx.hSEdumateContactsSystemTracking.update({
     where: { contact_id: contactId },
@@ -479,7 +479,7 @@ export const fetchContactsLeadList = async (
   filters: {
     partner: string | null;
     status: string | null;
-  }
+  },
 ) => {
   const where: Prisma.HSEdumateContactsWhereInput = {
     is_deleted: false,
@@ -584,7 +584,7 @@ export const findContacts = async (batch: any[]) => {
 
 export const findContactsByPartnerId = async (
   batch: any[],
-  partnerId: number
+  partnerId: number,
 ) => {
   const contacts = await prisma.hSEdumateContactsPersonalInformation.findMany({
     where: {
@@ -610,13 +610,15 @@ export async function createCSVContacts(
   partnerId: number,
   hubspotResults: any[] | null,
   batchId: string | null = null,
-  batchPosition: number = 0
+  batchPosition: number = 0,
 ) {
   return await prisma.$transaction(
     async (tx) => {
       // Generate unique batch ID
-      const currentBatchId = batchId || `batch_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      
+      const currentBatchId =
+        batchId ||
+        `batch_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
       // Step 1: Insert ALL contacts with batch_id
       await tx.hSEdumateContacts.createMany({
         data: contacts.map((c) => ({
@@ -637,15 +639,17 @@ export async function createCSVContacts(
           email: true,
         },
         orderBy: {
-          id: 'asc', // Maintain insertion order
+          id: "asc", // Maintain insertion order
         },
       });
 
-      logger.debug(`Inserted ${insertedContacts.length} contacts in batch ${currentBatchId}`);
+      logger.debug(
+        `Inserted ${insertedContacts.length} contacts in batch ${currentBatchId}`,
+      );
 
       // Step 3: Map contacts to IDs in order
       const emailToIdMap = new Map<string, number[]>();
-      
+
       insertedContacts.forEach((c) => {
         if (!emailToIdMap.has(c.email!)) {
           emailToIdMap.set(c.email!, []);
@@ -766,18 +770,18 @@ export async function createCSVContacts(
 
       return {
         count: insertedContacts.length,
-        insertedContactIds: insertedContacts.map(c => c.id),
+        insertedContactIds: insertedContacts.map((c) => c.id),
       };
     },
     {
       timeout: 1200000,
-    }
+    },
   );
 }
 
 export const updateEdumateContactsHubspotTracking = async (
   hubspotResults: HubspotResult[],
-  userId: number
+  userId: number,
 ) => {
   await prisma.$transaction(async (tx) => {
     for (const hs of hubspotResults) {
@@ -810,4 +814,123 @@ export const updateEdumateContactsHubspotTracking = async (
       }
     }
   });
+};
+
+export const getLeadViewList = async (
+  limit: number,
+  offset: number,
+  sortKey: string | null,
+  sortDir: "asc" | "desc" | null,
+  search: string | null,
+  filters: {
+    partner: string | null;
+    lender: string | null;
+    loanProduct: string | null;
+    status: string | null;
+    intake_year?: string | null;
+    lifecycle_stage: string | null;
+    lifecycle_status: string | null;
+    hubspot_owner_id: string | null;
+  },
+) => {
+  const where: any = {};
+
+  // Add search filter
+  if (search) {
+    where.OR = [
+      { email: { contains: search, mode: "insensitive" } },
+      { first_name: { contains: search, mode: "insensitive" } },
+      { last_name: { contains: search, mode: "insensitive" } },
+    ];
+  }
+
+  // Apply filters
+  if (filters.partner) {
+    where.b2b_partner_id = Number(filters.partner);
+  }
+
+  if (filters.status) {
+    where.admission_status = filters.status;
+  }
+
+  if (filters.lender) {
+    where.primary_lender_name = filters.lender;
+  }
+
+  if (filters.loanProduct) {
+    where.loan_product_name = filters.loanProduct;
+  }
+
+  if (filters.intake_year) {
+    where.intake_year = filters.intake_year;
+  }
+
+  if (filters.lifecycle_stage) {
+    const stages = filters.lifecycle_stage.split(",").map((s) => s.trim());
+    if (stages.length === 1) {
+      where.lifecycle_stages = stages[0];
+    } else {
+      where.lifecycle_stages = { in: stages };
+    }
+  }
+
+  if (filters.lifecycle_status) {
+    const statuses = filters.lifecycle_status.split(",").map((s) => s.trim());
+    if (statuses.length === 1) {
+      where.lifecycle_stages_status = statuses[0];
+    } else {
+      where.lifecycle_stages_status = { in: statuses };
+    }
+  }
+
+  if (filters.hubspot_owner_id) {
+    if (filters.hubspot_owner_id === "true") {
+      where.hubspot_owner_id = { not: null };
+    } else if (filters.hubspot_owner_id === "false") {
+      where.hubspot_owner_id = null;
+    }
+  }
+
+  let orderBy: any = { application_date: "desc" };
+  if (sortKey) {
+    switch (sortKey) {
+      case "id":
+        orderBy = { contact_id: sortDir || "desc" };
+        break;
+      case "name":
+        orderBy = { first_name: sortDir || "desc" };
+        break;
+      case "email":
+        orderBy = { email: sortDir || "desc" };
+        break;
+      case "status":
+        orderBy = { status: sortDir || "desc" };
+        break;
+      case "loanAmountRequested":
+        orderBy = { loan_amount_requested: sortDir || "desc" };
+        break;
+      case "loanAmountApproved":
+        orderBy = { loan_amount_approved: sortDir || "desc" };
+        break;
+      case "commissionAmount":
+        orderBy = { commission_amount: sortDir || "desc" };
+        break;
+      default:
+        orderBy = { application_date: "desc" };
+    }
+  }
+
+  const [rows, count] = await Promise.all([
+    prisma.leads_view.findMany({
+      where,
+      skip: offset,
+      take: limit,
+      orderBy,
+    }),
+    prisma.leads_view.count({
+      where,
+    }),
+  ]);
+
+  return { rows, count };
 };

@@ -2433,6 +2433,7 @@ view leads_view {
   email                       String?
   phone_number                String?
   gender                      String?
+  date_of_birth               DateTime?
   admission_status            String?
   current_education_level     String?
   current_institution         String?

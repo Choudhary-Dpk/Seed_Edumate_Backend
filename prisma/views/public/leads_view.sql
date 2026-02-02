@@ -1,3 +1,5 @@
+DROP VIEW IF EXISTS public.leads_view CASCADE;
+CREATE VIEW public.leads_view AS
 SELECT
   c.id AS contact_id,
   c.b2b_partner_id,
@@ -10,6 +12,7 @@ SELECT
   pi.email,
   pi.phone_number,
   pi.gender,
+  pi.date_of_birth,
   ap.admission_status,
   ap.current_education_level,
   ap.current_institution,
