@@ -35,10 +35,6 @@ import {
 import { mapAllFields } from "../../mappers/edumateContact/mapping";
 import { categorizeByTable } from "../../services/DBServices/edumateContacts.service";
 import prisma from "../../config/prisma";
-import { emailQueue } from "../../utils/queue";
-import { getEmailTemplate } from "../../models/helpers";
-import moment from "moment";
-import { logEmailHistory } from "../../models/helpers/email.helper";
 
 export const studentSignupController = async (
   req: Request,

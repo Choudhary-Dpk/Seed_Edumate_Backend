@@ -106,17 +106,15 @@ export const createContactsLead = async (
         `Academic profile created successfully for contact: ${contact.id}`,
       );
 
-      if (req.body.b2b_partner_name) {
-        logger.debug(`Creating lead attribution for contact: ${contact.id}`);
-        leadAttribution = await createEdumateLeadAttribution(
-          tx,
-          contact.id,
-          categorized["leadAttribution"],
-        );
-        logger.debug(
-          `Lead attribution created successfully for contact: ${contact.id}`,
-        );
-      }
+      logger.debug(`Creating lead attribution for contact: ${contact.id}`);
+      leadAttribution = await createEdumateLeadAttribution(
+        tx,
+        contact.id,
+        categorized["leadAttribution"],
+      );
+      logger.debug(
+        `Lead attribution created successfully for contact: ${contact.id}`,
+      );
 
       logger.debug(
         `Creating lead application journey for contact: ${contact.id}`,
