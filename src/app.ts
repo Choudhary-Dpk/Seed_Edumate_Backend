@@ -65,5 +65,5 @@ app.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`);
   await checkPrismaConnection();
   //  Start background workers
-  // await startWorkers();
+  await startWorkers();
 });
