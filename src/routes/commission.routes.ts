@@ -51,9 +51,10 @@ router.get(
 );
 router.get(
   "/pagination",
-  // authenticate({
-  //   method: AuthMethod.API_KEY,
-  // }),
+  authenticate({
+    method: AuthMethod.BOTH,
+    allowedRoles: ["Admin", "Manager", "User"],
+  }),
   getCommissionSettlementsListController,
 );
 router.get("/lead", getCommissionSettlementsByLead);

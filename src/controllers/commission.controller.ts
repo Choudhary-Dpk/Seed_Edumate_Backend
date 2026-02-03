@@ -44,6 +44,7 @@ import {
 } from "../models/helpers/commission.helper";
 import { getContactLeadById } from "../models/helpers/contact.helper";
 import { BACKEND_URL, FRONTEND_URL } from "../setup/secrets";
+import { getPartnerIdByUserId } from "../models/helpers/partners.helper";
 
 export const createCommissionSettlementController = async (
   req: RequestWithPayload<LoginPayload>,
@@ -406,17 +407,32 @@ export const getCommissionSettlementsListController = async (
     const sortKey = (req.query.sortKey as string) || null;
     const sortDir = (req.query.sortDir as "asc" | "desc") || null;
     const search = (req.query.search as string) || null;
+    const id = parseInt(req.payload?.id || req.body?.id);
+
+    let partnerId = null;
+    // If partner filter is enabled, filter by b2b_partner_id
+    if (id) {
+      partnerId = (await getPartnerIdByUserId(id))!.b2b_id;
+
+      if (!partnerId) {
+        return sendResponse(
+          res,
+          400,
+          "Partner filter requires authentication with b2b_partner_id",
+        );
+      }
+    }
 
     const offset = (page - 1) * size;
 
     const filtersFromQuery =
       (req.query.filters as {
-        partner?: string;
+        partner?: number;
         lead?: string;
       }) || {};
 
     const filters = {
-      partner: filtersFromQuery.partner || null,
+      partner: partnerId ||filtersFromQuery.partner || null,
       lead: filtersFromQuery.lead || null,
     };
 

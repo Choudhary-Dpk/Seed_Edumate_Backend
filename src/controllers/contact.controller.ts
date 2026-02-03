@@ -956,6 +956,14 @@ export const getLeadStats = async (
     // Build where clause
     const whereClause: any = {};
 
+    if (!id) {
+      return sendResponse(
+        res,
+        400,
+        "Partner filter requires authentication with b2b_partner_id",
+      );
+    }
+
     // If partner filter is enabled, filter by b2b_partner_id
     if (isPartnerFilter) {
       const partnerId = (await getPartnerIdByUserId(id))!.b2b_id;

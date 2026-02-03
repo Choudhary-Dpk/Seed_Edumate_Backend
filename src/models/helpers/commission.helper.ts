@@ -345,7 +345,7 @@ export const fetchCommissionSettlementsList = async (
   sortDir: "asc" | "desc" | null,
   search: string | null,
   filters?: {
-    partner: string | null;
+    partner: number | null;
     lead: string | null;
   }
 ) => {
