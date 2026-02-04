@@ -26,6 +26,7 @@ import { accommodationRoutes } from "./routes/accommodation.routes";
 import { docsRoutes } from "./routes/docs.routes";
 import { misReportRoutes } from "./routes/misReport.routes";
 import { dashboardRoutes } from "./routes/dashboard.routes";
+import { startEmailQueueWorker } from "./workers/email-queue-worker";
 const PORT = process.env.PORT || 3031;
 
 // API Routes
@@ -66,4 +67,7 @@ app.listen(PORT, async () => {
   await checkPrismaConnection();
   //  Start background workers
   await startWorkers();
+
+  // Start email worker on app startup
+  startEmailQueueWorker();
 });

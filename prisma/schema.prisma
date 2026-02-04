@@ -2401,24 +2401,82 @@ model DashboardEmailTemplate {
   @@map("dashboard_email_templates")
 }
 
+model EmailQueue {
+  id            Int              @id @default(autoincrement())
+  
+  // Email content
+  to            String
+  subject       String
+  html          String           @db.Text
+  text          String?          @db.Text
+  from          String?
+  cc            String?
+  bcc           String?
+  
+  // Attachments stored as JSON
+  // Format: [{ filename: string, content: base64, contentType: string }]
+  attachments   Json?
+  
+  // Metadata for tracking
+  metadata      Json?
+  
+  // Queue management
+  status        EmailQueueStatus @default(PENDING)
+  priority      Int              @default(0)
+  
+  // Retry logic
+  attempts      Int              @default(0)
+  max_attempts  Int              @default(3)
+  
+  // Scheduling
+  scheduled_at  DateTime         @default(now())
+  
+  // Tracking
+  last_error    String?          @db.Text
+  sent_at       DateTime?
+  created_at    DateTime         @default(now())
+  updated_at    DateTime         @updatedAt
+  
+  // Indexes for performance
+  @@index([status, scheduled_at])
+  @@index([status, priority])
+  @@index([created_at])
+  @@map("email_queue")
+}
+
+enum EmailQueueStatus {
+  PENDING
+  PROCESSING
+  SENT
+  FAILED
+  DEAD_LETTER
+  
+  @@map("email_queue_status")
+}
+
+// Also add this to DashboardEmailLog if not already present
+// This links email logs to queue items
 model DashboardEmailLog {
   id          Int      @id @default(autoincrement())
-  partnerId   Int?
-  partnerName String?  @db.VarChar(255)
-  recipient   String   @db.VarChar(255)
-  subject     String   @db.VarChar(255)
-  status      String   @db.VarChar(50)
-  sentBy      Int
-  sentByName  String?  @db.VarChar(255)
+  partnerId   Int?     @map("partner_id")
+  partnerName String?  @map("partner_name")
+  recipient   String
+  subject     String
+  status      String   @default("pending")
+  sentBy      Int      @map("sent_by")
+  sentByName  String?  @map("sent_by_name")
   filters     Json?
-  sentAt      DateTime @default(now())
-  errorMsg    String?
   metadata    Json?
+  sentAt      DateTime? @map("sent_at")
+  errorMsg    String?   @map("error_msg") @db.Text
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
 
   @@index([partnerId])
   @@index([status])
   @@index([sentAt])
-  @@map("dashboard_email_logs")
+  @@index([createdAt])
+  @@map("dashboard_email_log")
 }
 
 view leads_view {
