@@ -28,10 +28,16 @@ interface SendMailOptions {
   from?: string,
   cc?: string;
   bcc?: string;
+  attachments?: Array<{
+    filename: string;
+    path?: string;
+    content?: Buffer | string;
+    contentType?: string;
+  }>;
 }
 
 const sendMail = async (options: SendMailOptions) => {
-  const { to, subject, html, from, cc, bcc } = options;
+  const { to, subject, html, from, cc, bcc, attachments } = options;
 
   const mailOptions = {
     from: from || DEFAULT_FROM_EMAIL,
@@ -40,6 +46,7 @@ const sendMail = async (options: SendMailOptions) => {
     html: html,
     ...(cc && { cc }),
     ...(bcc && { bcc }),
+    ...(attachments && { attachments }),
   };
 
   console.log("Sending email with options:", {

@@ -1,5 +1,3 @@
-// src/types/dashboard-email.types.ts
-
 import { DashboardFilters } from "./dashboard.types";
 
 export interface SendDashboardEmailRequest {
@@ -7,8 +5,19 @@ export interface SendDashboardEmailRequest {
   recipientEmail: string;
   subject: string;
   message?: string;
-  pdfBase64: string;
   filters: DashboardFilters;
+  
+  // Either PDF or HTML content (or both)
+  pdfBase64?: string;      // For PDF attachment (existing)
+  htmlContent?: string;    // For HTML-only reports (new)
+  
+  emailSource?: "auto" | "manual";
+}
+
+export interface BulkEmailRecipient {
+  partnerId: number;
+  email: string;
+  emailSource: "auto" | "manual";
 }
 
 export interface SendBulkDashboardEmailRequest {
@@ -19,19 +28,25 @@ export interface SendBulkDashboardEmailRequest {
   filters: DashboardFilters;
 }
 
-export interface BulkEmailRecipient {
-  partnerId: number;
-  email: string;
-  emailSource: "auto" | "manual";
+export interface EmailTemplate {
+  id: number;
+  name: string;
+  subject: string;
+  body: string;
+  variables?: Record<string, string>;
+  createdBy?: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export interface EmailPreviewRequest {
-  partnerId: number;
-  templateId?: number;
-  filters: DashboardFilters;
+export interface CreateEmailTemplateRequest {
+  name: string;
+  subject: string;
+  body: string;
+  variables?: Record<string, string>;
 }
 
-export interface DashboardEmailLog {
+export interface EmailLogEntry {
   id: number;
   partnerId?: number;
   partnerName?: string;
@@ -42,36 +57,31 @@ export interface DashboardEmailLog {
   sentByName?: string;
   filters?: DashboardFilters;
   metadata?: {
-    emailSource: "auto" | "manual";
+    emailSource?: "auto" | "manual";
     autoEmail?: string;
+    reportType?: "dashboard_pdf" | "monthly_report";
   };
   sentAt: Date;
   errorMsg?: string;
 }
 
-export interface DashboardEmailTemplate {
-  id: number;
-  name: string;
-  subject: string;
-  body: string;
-  variables?: Record<string, any>;
-  createdBy?: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
+export interface DashboardEmailLog extends EmailLogEntry {}
 
-export interface EmailHistoryFilters {
+export interface EmailHistoryQuery {
+  page?: number;
+  limit?: number;
   partnerId?: number;
   status?: string;
   startDate?: string;
   endDate?: string;
-  page?: number;
-  limit?: number;
 }
 
-export interface EmailHistoryResponse {
-  data: DashboardEmailLog[];
-  total: number;
-  page: number;
-  limit: number;
+export interface EmailHistoryFilters extends EmailHistoryQuery {}
+
+export interface PartnerWithEmail {
+  id: number;
+  partner_name: string;
+  partner_display_name?: string;
+  email?: string;
+  hasEmail: boolean;
 }

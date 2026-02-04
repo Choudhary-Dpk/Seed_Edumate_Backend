@@ -1,5 +1,6 @@
 import { queue } from "async";
 import sendMail from "./mail";
+import { de } from "zod/v4/locales/index.cjs";
 
 interface EmailTask {
   to: string;
@@ -19,7 +20,7 @@ interface EmailTask {
 
 const emailQueue = queue(async (task: EmailTask) => {
   try {
-    const { to, subject, html, from, cc, bcc } = task;
+    const { to, subject, html, from, cc, bcc, attachments } = task;
 
     console.log("Processing email task:", {
       to,
@@ -36,6 +37,7 @@ const emailQueue = queue(async (task: EmailTask) => {
       from,
       cc,
       bcc,
+      attachments,
     });
 
     console.log("Email sent successfully via queue");

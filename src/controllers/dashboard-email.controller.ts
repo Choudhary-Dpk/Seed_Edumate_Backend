@@ -1,129 +1,135 @@
 // src/controllers/dashboard-email.controller.ts
 
-import { Request, Response, NextFunction } from "express";
-import { DashboardEmailService } from "../services/dashboard-email.service";
-import { sendResponse } from "../utils/api";
-import logger from "../utils/logger";
-import {
-  SendDashboardEmailRequest,
-  SendBulkDashboardEmailRequest,
-  EmailHistoryFilters,
-} from "../types/dashboard-email.types";
+import { Request, Response } from "express";
+import * as DashboardEmailService from "../services/dashboard-email.service";
+import { SendDashboardEmailRequest, SendBulkDashboardEmailRequest, EmailHistoryQuery } from "../types/dashboard-email.types";
 
 /**
  * Send dashboard email to single partner
+ * Supports both PDF attachments and HTML-only reports
  */
-export const sendDashboardEmail = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const sendDashboardEmail = async (req: Request, res: Response) => {
   try {
-    const requestData: SendDashboardEmailRequest = req.body;
-    const adminUser = (req as any).user; // From auth middleware
+    const {
+      partnerId,
+      recipientEmail,
+      subject,
+      message,
+      pdfBase64,
+      htmlContent,  // NEW: HTML content support
+      filters,
+      emailSource = "manual",
+    } = req.body as SendDashboardEmailRequest;
 
-    // Validate required fields
-    if (!requestData.recipientEmail) {
-      return sendResponse(res, 400, "Recipient email is required");
+    // Validation
+    if (!recipientEmail || !subject) {
+      return res.status(400).json({
+        success: false,
+        message: "recipientEmail and subject are required",
+      });
     }
 
-    if (!requestData.subject) {
-      return sendResponse(res, 400, "Subject is required");
+    // Must have either PDF or HTML
+    if (!pdfBase64 && !htmlContent) {
+      return res.status(400).json({
+        success: false,
+        message: "Either pdfBase64 or htmlContent must be provided",
+      });
     }
 
-    if (!requestData.pdfBase64) {
-      return sendResponse(res, 400, "PDF attachment is required");
-    }
-
-    if (!requestData.filters) {
-      return sendResponse(res, 400, "Dashboard filters are required");
-    }
+    // Get admin user from request
+    const adminUser = {
+      id: req.user?.id || 0,
+      full_name: req.user?.full_name || "Admin",
+    };
 
     // Send email
     const result = await DashboardEmailService.sendDashboardEmail(
-      requestData,
+      {
+        partnerId,
+        recipientEmail,
+        subject,
+        message,
+        pdfBase64,
+        htmlContent,  // Pass HTML content
+        filters,
+        emailSource,
+      },
       adminUser
     );
 
-    return sendResponse(res, 200, result.message, result.data);
+    return res.json(result);
   } catch (error: any) {
-    logger.error("Send dashboard email error", {
-      error: error.message,
-      stack: error.stack,
+    console.error("Error sending dashboard email:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to send email",
     });
-    next(error);
   }
 };
 
 /**
  * Send bulk dashboard emails
  */
-export const sendBulkDashboardEmails = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const sendBulkDashboardEmails = async (req: Request, res: Response) => {
   try {
-    const requestData: SendBulkDashboardEmailRequest = req.body;
-    const adminUser = (req as any).user; // From auth middleware
+    const requestData = req.body as SendBulkDashboardEmailRequest;
 
-    // Validate required fields
+    // Validation
     if (!requestData.recipients || requestData.recipients.length === 0) {
-      return sendResponse(res, 400, "Recipients list is required");
+      return res.status(400).json({
+        success: false,
+        message: "recipients array is required and must not be empty",
+      });
     }
 
-    if (!requestData.subject) {
-      return sendResponse(res, 400, "Subject is required");
-    }
+    // Get admin user from request
+    const adminUser = {
+      id: req.user?.id || 0,
+      full_name: req.user?.full_name || "Admin",
+    };
 
-    if (!requestData.filters) {
-      return sendResponse(res, 400, "Dashboard filters are required");
-    }
-
-    // Send emails
+    // Send bulk emails
     const result = await DashboardEmailService.sendBulkDashboardEmails(
       requestData,
       adminUser
     );
 
-    return sendResponse(res, 200, result.message, result.data);
+    return res.json(result);
   } catch (error: any) {
-    logger.error("Send bulk dashboard emails error", {
-      error: error.message,
-      stack: error.stack,
+    console.error("Error sending bulk dashboard emails:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to send bulk emails",
     });
-    next(error);
   }
 };
 
 /**
  * Get email history
  */
-export const getEmailHistory = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const getEmailHistory = async (req: Request, res: Response) => {
   try {
-    const filters: EmailHistoryFilters = {
-      partnerId: req.query.partnerId
-        ? parseInt(req.query.partnerId as string)
-        : undefined,
-      status: req.query.status as string,
-      startDate: req.query.startDate as string,
-      endDate: req.query.endDate as string,
+    const filters: EmailHistoryQuery = {
+      partnerId: req.query.partnerId ? parseInt(req.query.partnerId as string) : undefined,
+      status: req.query.status as string | undefined,
+      startDate: req.query.startDate as string | undefined,
+      endDate: req.query.endDate as string | undefined,
       page: req.query.page ? parseInt(req.query.page as string) : 1,
       limit: req.query.limit ? parseInt(req.query.limit as string) : 20,
     };
 
     const result = await DashboardEmailService.getEmailHistory(filters);
 
-    return sendResponse(res, 200, "Email history retrieved successfully", result);
-  } catch (error: any) {
-    logger.error("Get email history error", {
-      error: error.message,
-      stack: error.stack,
+    return res.json({
+      success: true,
+      data: result,
     });
-    next(error);
+  } catch (error: any) {
+    console.error("Error getting email history:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to get email history",
+    });
   }
 };
