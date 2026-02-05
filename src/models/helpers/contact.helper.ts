@@ -197,7 +197,7 @@ export const getEdumateContactByEmailAndPartnerId = async (
       academic_profile: true,
     },
     where: {
-      b2b_partner_id: partnerId,
+      ...(partnerId && { b2b_partner_id: partnerId }),
       personal_information: {
         email: email,
         is_deleted: false,
@@ -230,7 +230,7 @@ export const getEdumateContactByPhoneAndPartnerId = async (
       lead_attribution: true,
     },
     where: {
-      b2b_partner_id: partnerId,
+      ...(partnerId && { b2b_partner_id: partnerId }),
       personal_information: {
         phone_number: phone,
         is_deleted: false,
@@ -614,7 +614,6 @@ export async function createCSVContacts(
 ) {
   return await prisma.$transaction(
     async (tx) => {
-      // Generate unique batch ID
       const currentBatchId =
         batchId ||
         `batch_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -625,7 +624,7 @@ export async function createCSVContacts(
           ...c["mainContact"],
           email: c["personalInformation"]?.email,
           b2b_partner_id: partnerId,
-          batch_id: currentBatchId, // Track this batch
+          batch_id: currentBatchId,
         })),
       });
 
@@ -639,7 +638,7 @@ export async function createCSVContacts(
           email: true,
         },
         orderBy: {
-          id: "asc", // Maintain insertion order
+          id: "asc",
         },
       });
 
@@ -657,7 +656,7 @@ export async function createCSVContacts(
         emailToIdMap.get(c.email!)!.push(c.id);
       });
 
-      // Step 4: Build data arrays
+      // Step 4: Build data arrays — ALWAYS create entries for all tables
       const personalInfoData: any[] = [];
       const academicProfileData: any[] = [];
       const leadAttributionData: any[] = [];
@@ -675,98 +674,77 @@ export async function createCSVContacts(
 
         const contactId = contactIds.shift()!;
 
-        if (c["personalInformation"]) {
-          personalInfoData.push({
-            contact_id: contactId,
-            ...c["personalInformation"],
-          });
-        }
+        // Always create personal info
+        personalInfoData.push({
+          contact_id: contactId,
+          ...(c["personalInformation"] || {}),
+        });
 
-        if (c["academicProfile"]) {
-          academicProfileData.push({
-            contact_id: contactId,
-            ...c["academicProfile"],
-          });
-        }
+        // Always create academic profile (with data if available, empty if not)
+        academicProfileData.push({
+          contact_id: contactId,
+          ...(c["academicProfile"] || {}),
+        });
 
-        if (c["leadAttribution"]) {
-          leadAttributionData.push({
-            contact_id: contactId,
-            ...c["leadAttribution"],
-          });
-        }
+        // Always create lead attribution
+        leadAttributionData.push({
+          contact_id: contactId,
+          ...(c["leadAttribution"] || {}),
+        });
 
-        if (c["financialInfo"]) {
-          financialInfoData.push({
-            contact_id: contactId,
-            ...c["financialInfo"],
-          });
-        }
+        // Always create financial info
+        financialInfoData.push({
+          contact_id: contactId,
+          ...(c["financialInfo"] || {}),
+        });
 
-        if (c["loanPreference"]) {
-          loanPreferenceData.push({
-            contact_id: contactId,
-            ...c["loanPreference"],
-          });
-        }
+        // Always create loan preference
+        loanPreferenceData.push({
+          contact_id: contactId,
+          ...(c["loanPreference"] || {}),
+        });
 
-        if (c["applicationJourney"]) {
-          applicationJourneyData.push({
-            contact_id: contactId,
-            ...c["applicationJourney"],
-          });
-        }
+        // Always create application journey
+        applicationJourneyData.push({
+          contact_id: contactId,
+          ...(c["applicationJourney"] || {}),
+        });
 
-        if (c["systemTracking"]) {
-          systemTrackingData.push({
-            contact_id: contactId,
-            ...c["systemTracking"],
-          });
-        }
+        // Always create system tracking
+        systemTrackingData.push({
+          contact_id: contactId,
+          ...(c["systemTracking"] || {}),
+        });
       });
 
-      // Step 5: Bulk insert normalized tables
-      if (personalInfoData.length > 0) {
-        await tx.hSEdumateContactsPersonalInformation.createMany({
-          data: personalInfoData,
-        });
-      }
+      // Step 5: Bulk insert all normalized tables (no conditional checks)
+      await tx.hSEdumateContactsPersonalInformation.createMany({
+        data: personalInfoData,
+      });
 
-      if (academicProfileData.length > 0) {
-        await tx.hSEdumateContactsAcademicProfiles.createMany({
-          data: academicProfileData,
-        });
-      }
+      await tx.hSEdumateContactsAcademicProfiles.createMany({
+        data: academicProfileData,
+      });
 
-      if (leadAttributionData.length > 0) {
-        await tx.hSEdumateContactsLeadAttribution.createMany({
-          data: leadAttributionData,
-        });
-      }
+      await tx.hSEdumateContactsLeadAttribution.createMany({
+        data: leadAttributionData,
+      });
 
-      if (financialInfoData.length > 0) {
-        await tx.hSEdumateContactsFinancialInfo.createMany({
-          data: financialInfoData,
-        });
-      }
+      await tx.hSEdumateContactsFinancialInfo.createMany({
+        data: financialInfoData,
+      });
 
-      if (loanPreferenceData.length > 0) {
-        await tx.hSEdumateContactsLoanPreferences.createMany({
-          data: loanPreferenceData,
-        });
-      }
+      await tx.hSEdumateContactsLoanPreferences.createMany({
+        data: loanPreferenceData,
+      });
 
-      if (applicationJourneyData.length > 0) {
-        await tx.hSEdumateContactsApplicationJourney.createMany({
-          data: applicationJourneyData,
-        });
-      }
+      await tx.hSEdumateContactsApplicationJourney.createMany({
+        data: applicationJourneyData,
+      });
 
-      if (systemTrackingData.length > 0) {
-        await tx.hSEdumateContactsSystemTracking.createMany({
-          data: systemTrackingData,
-        });
-      }
+      await tx.hSEdumateContactsSystemTracking.createMany({
+        data: systemTrackingData,
+      });
 
       return {
         count: insertedContacts.length,
