@@ -1,6 +1,14 @@
 import dotenv from "dotenv";
 import axios from "axios";
-import { emailQueue } from "../utils/queue";
+
+// ✅ NEW: Import unified email services
+import { queueEmail } from "../services/email-queue.service";
+import { 
+  EmailType, 
+  EmailCategory, 
+  SenderType 
+} from "../services/email-log.service";
+import logger from "../utils/logger";
 
 dotenv.config();
 
@@ -43,13 +51,23 @@ type LogFunction = (taskName: string, message: string) => void;
 // Email recipients
 const NOTIFICATION_EMAILS = ["deepak@seedglobaleducation.com"];
 
-// Send email notification
-function sendNotification(
+/**
+ * ✅ UPDATED: Send email notification using unified email system
+ * 
+ * Changes:
+ * - Uses queueEmail() instead of emailQueue.push()
+ * - Uses EmailType.SYSTEM_ALERT
+ * - Uses EmailCategory.SYSTEM
+ * - Uses SenderType.CRON
+ * - Async function with proper error handling
+ * - Enhanced metadata
+ */
+async function sendNotification(
   success: boolean,
   productsCount: number,
   duration: number,
   error?: any,
-): void {
+): Promise<void> {
   const status = success ? "Success" : "Failed";
   const statusEmoji = success ? "✅" : "❌";
   const subject = `[Cron Job] HubSpot Property Sync - ${statusEmoji} ${status}`;
@@ -92,13 +110,35 @@ function sendNotification(
 </body>
 </html>`;
 
-  for (const email of NOTIFICATION_EMAILS) {
-    emailQueue.push({
-      to: email,
-      subject: subject,
-      html: html,
-      retry: 0,
+  try {
+    // ✅ NEW: Use unified email queue service
+    for (const email of NOTIFICATION_EMAILS) {
+      await queueEmail({
+        to: email,
+        subject,
+        html,
+        email_type: EmailType.SYSTEM_ALERT,
+        category: EmailCategory.SYSTEM,
+        sent_by_type: SenderType.CRON,
+        metadata: {
+          task: "hubspot_property_sync",
+          success,
+          productsCount,
+          duration,
+          property: EDUMATE_CONTACT_PROPERTY,
+          object: EDUMATE_CONTACT_OBJECT,
+          error: error?.message,
+          timestamp: new Date().toISOString(),
+        },
+      });
+    }
+    
+    logger.debug(`HubSpot sync notification emails queued`);
+  } catch (emailError) {
+    logger.error(`Failed to queue HubSpot sync notification`, {
+      error: emailError instanceof Error ? emailError.message : "Unknown error",
     });
+    // Don't throw - notification failure shouldn't break the sync
   }
 }
 
@@ -238,7 +278,7 @@ export async function updatePropertySync(logger?: LogFunction): Promise<void> {
     if (products.length === 0) {
       logMsg("⚠ No loan products found. Exiting.");
       const duration = (Date.now() - startTime) / 1000;
-      sendNotification(true, 0, duration);
+      await sendNotification(true, 0, duration);
       return;
     }
 
@@ -256,14 +296,14 @@ export async function updatePropertySync(logger?: LogFunction): Promise<void> {
     logMsg(`Total products synced: ${products.length}`);
 
     // Send success notification
-    sendNotification(true, products.length, duration);
+    await sendNotification(true, products.length, duration);
   } catch (error: any) {
     const duration = (Date.now() - startTime) / 1000;
     logMsg("=== Update Failed ===");
     logMsg(error.response?.data || error.message);
 
     // Send failure notification
-    sendNotification(false, 0, duration, error);
+    await sendNotification(false, 0, duration, error);
     throw error;
   }
 }

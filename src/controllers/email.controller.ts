@@ -1,21 +1,33 @@
 import { NextFunction, Request, Response } from "express";
 import { validationResult } from "express-validator";
-import {
-  EmailOptions,
-  sendLoanEligibilityResultEmail,
-  sendPasswordResetEmail,
-} from "../services/email.service";
 import { EmailData, SendEmailRequest } from "../types/email.types";
 import { PortalType } from "../types/auth";
 import logger from "../utils/logger";
 import { sendResponse } from "../utils/api";
-import { emailQueue } from "../utils/queue";
 import { getEmailTemplate } from "../models/helpers";
-import { logEmailHistory } from "../models/helpers/email.helper";
 import moment from "moment";
 import { FRONTEND_URL } from "../setup/secrets";
 import { generateEmailToken } from "../utils/auth";
+import { generateLoanApplicationEmail } from "../utils/email templates/loanEligibilityResult";
 
+// ✅ FIXED: Correct import paths for unified email services
+import { queueEmail } from "../services/email-queue.service";
+import { 
+  EmailType, 
+  EmailCategory, 
+  SenderType,
+  mapLegacyTypeToEmailType,
+  inferCategoryFromType 
+} from "../services/email-log.service";
+
+/**
+ * ✅ UPDATED: Send loan eligibility result email
+ * 
+ * Changes:
+ * - No longer uses deprecated email.service.ts
+ * - Uses unified queueEmail() system
+ * - Proper email type and category
+ */
 export const sendLoanEligibilityResult = async (
   req: Request,
   res: Response,
@@ -25,7 +37,29 @@ export const sendLoanEligibilityResult = async (
     const payload: EmailData = req.body;
     const recipientMail = payload?.personalInfo?.email;
 
-    await sendLoanEligibilityResultEmail(recipientMail, payload);
+    if (!recipientMail) {
+      return sendResponse(res, 400, "Recipient email is required");
+    }
+
+    // Generate email HTML using existing template
+    const emailHTML = generateLoanApplicationEmail(payload);
+
+    // ✅ NEW: Use unified email queue system
+    await queueEmail({
+      to: recipientMail,
+      subject: "Welcome!",
+      html: emailHTML,
+      text: `Welcome! Thank you for joining our platform. We're excited to have you on board!`,
+      email_type: EmailType.LOAN_ELIGIBILITY,
+      category: EmailCategory.LOAN,
+      sent_by_type: SenderType.SYSTEM,
+      metadata: {
+        applicationData: {
+          personalInfo: payload.personalInfo,
+          // Don't store entire payload - just key info
+        },
+      },
+    });
 
     sendResponse(
       res,
@@ -37,6 +71,14 @@ export const sendLoanEligibilityResult = async (
   }
 };
 
+/**
+ * ✅ UPDATED: Send password reset email
+ * 
+ * Changes:
+ * - No longer uses deprecated email.service.ts
+ * - Uses unified queueEmail() system
+ * - Proper email type and category
+ */
 export const sendPasswordReset = async (
   req: Request,
   res: Response,
@@ -45,7 +87,31 @@ export const sendPasswordReset = async (
   try {
     const { email, resetLink } = req.body;
 
-    await sendPasswordResetEmail(email, resetLink);
+    if (!email || !resetLink) {
+      return sendResponse(res, 400, "Email and resetLink are required");
+    }
+
+    const html = `
+      <h1>Password Reset</h1>
+      <p>Click the link below to reset your password:</p>
+      <a href="${resetLink}">Reset Password</a>
+      <p>This link will expire in 1 hour.</p>
+    `;
+    const text = `Password Reset: ${resetLink} (expires in 1 hour)`;
+
+    // ✅ NEW: Use unified email queue system
+    await queueEmail({
+      to: email,
+      subject: "Password Reset Request",
+      html,
+      text,
+      email_type: EmailType.RESET_PASSWORD,
+      category: EmailCategory.TRANSACTIONAL,
+      sent_by_type: SenderType.SYSTEM,
+      metadata: {
+        resetLink,
+      },
+    });
 
     sendResponse(
       res,
@@ -58,12 +124,15 @@ export const sendPasswordReset = async (
 };
 
 /**
- * Universal Email Controller - Final Version
- * - Takes name directly from req.body
- * - Generates reset URLs internally based on emailType
- * - Handles all email types with proper variable replacement
+ * Universal Email Controller - UPDATED with Unified Email System
+ * 
+ * Changes:
+ * - Uses queueEmail() instead of emailQueue.push()
+ * - Uses type-safe EmailType enum
+ * - Automatic email logging via queue service
+ * - Better sender tracking
+ * - Metadata support
  */
-
 export const sendEmailController = async (
   req: Request<{}, {}, SendEmailRequest>,
   res: Response,
@@ -171,82 +240,64 @@ export const sendEmailController = async (
     const html = content;
     logger.debug("Template variables replaced successfully");
 
-    const emailOptions: EmailOptions = {
-      to,
+    // ✅ NEW: Map legacy email type to new EmailType enum
+    const mappedEmailType = mapLegacyTypeToEmailType(emailType);
+    const category = inferCategoryFromType(mappedEmailType);
+
+    logger.debug("Mapped email type", {
+      legacyType: emailType,
+      mappedType: mappedEmailType,
+      category,
+    });
+
+    // ✅ NEW: Prepare recipients (handle arrays)
+    const recipients = Array.isArray(to) ? to.join(",") : to;
+    const ccList = Array.isArray(cc) ? cc.join(",") : cc;
+    const bccList = Array.isArray(bcc) ? bcc.join(",") : bcc;
+
+    logger.debug(`Queueing ${emailType} email`, {
+      to: recipients,
+      cc: ccList,
+      bcc: bccList,
+    });
+
+    // ✅ NEW: Use unified email queue service
+    const result = await queueEmail({
+      to: recipients,
       subject,
       html,
       from,
-      cc,
-      bcc,
-      attachments,
-    };
-
-    logger.debug("EmailOptions prepared", {
-      to: Array.isArray(emailOptions.to)
-        ? emailOptions.to.join(", ")
-        : emailOptions.to,
-      subject: emailOptions.subject,
-      hasAttachments:
-        !!emailOptions.attachments && emailOptions.attachments.length > 0,
+      cc: ccList,
+      bcc: bccList,
+      email_type: mappedEmailType,
+      category,
+      sent_by_user_id: userId,
+      sent_by_name: name,
+      sent_by_type: SenderType.API, // Universal endpoint = API
+      metadata: {
+        portalType,
+        otp,
+        emailType, // Store original type for reference
+      },
     });
 
-    logger.debug(`Adding ${emailType} email to queue`, {
-      to: Array.isArray(emailOptions.to)
-        ? emailOptions.to.join(", ")
-        : emailOptions.to,
-    });
-
-    emailQueue.push({
-      to: Array.isArray(emailOptions.to)
-        ? emailOptions.to.join(", ")
-        : emailOptions.to,
-      subject: emailOptions.subject,
-      html: emailOptions.html!,
-      from: emailOptions.from,
-      cc: Array.isArray(emailOptions.cc)
-        ? emailOptions.cc.join(", ")
-        : emailOptions.cc,
-      bcc: Array.isArray(emailOptions.bcc)
-        ? emailOptions.bcc.join(", ")
-        : emailOptions.bcc,
-      retry: 0,
-    });
-
-    logger.debug("Email added to queue successfully");
-
-    if (userId || to) {
-      logger.debug(`Saving email history`);
-      await logEmailHistory({
-        to: Array.isArray(emailOptions.to)
-          ? emailOptions.to.join(", ")
-          : emailOptions.to,
-        cc: Array.isArray(emailOptions.cc)
-          ? emailOptions.cc?.join(", ")
-          : emailOptions.cc,
-        bcc: Array.isArray(emailOptions.bcc)
-          ? emailOptions.bcc?.join(", ")
-          : emailOptions.bcc,
-        subject: emailOptions.subject,
-        type: emailType,
-      });
-      logger.debug("Email history saved successfully");
-    }
-
-    logger.info(`${emailType} email sent successfully`, {
-      to: Array.isArray(emailOptions.to)
-        ? emailOptions.to.join(", ")
-        : emailOptions.to,
+    logger.info(`${emailType} email queued successfully`, {
+      emailLogId: result.emailLog.id,
+      queueItemId: result.queueItem.id,
+      to: recipients,
       userId,
-      subject: emailOptions.subject,
+      subject,
     });
 
-    return sendResponse(res, 200, "Email sent successfully", {
+    return sendResponse(res, 200, "Email queued successfully", {
       emailType,
-      to: emailOptions.to,
-      subject: emailOptions.subject,
+      to: recipients,
+      subject,
+      emailLogId: result.emailLog.id,
+      queueItemId: result.queueItem.id,
     });
   } catch (error: any) {
-    logger.error("Failed to send email", {
+    logger.error("Failed to queue email", {
       error: error.message,
       stack: error.stack,
     });

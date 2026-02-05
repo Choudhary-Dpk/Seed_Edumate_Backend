@@ -2,10 +2,9 @@ import { NextFunction, Request, Response } from "express";
 import moment from "moment";
 import { getEmailTemplate } from "../../models/helpers";
 import {
-    revokePreviousAdminEmailTokens,
+  revokePreviousAdminEmailTokens,
   saveAdminEmailToken,
 } from "../../models/helpers/auth";
-import { logEmailHistory } from "../../models/helpers/email.helper";
 import {
   createAdmin,
   assignAdminRole,
@@ -14,7 +13,14 @@ import { FRONTEND_URL } from "../../setup/secrets";
 import { sendResponse } from "../../utils/api";
 import { generateEmailToken } from "../../utils/auth";
 import logger from "../../utils/logger";
-import { emailQueue } from "../../utils/queue";
+
+// ✅ NEW: Import unified email services
+import { queueEmail } from "../../services/email-queue.service";
+import { 
+  EmailType, 
+  EmailCategory, 
+  SenderType 
+} from "../../services/email-log.service";
 
 export const createAdminController = async (
   req: Request,
@@ -63,15 +69,26 @@ export const createAdminController = async (
     await saveAdminEmailToken(user.id, emailToken);
     logger.debug(`Email token saved successfully`);
 
-    logger.debug(`Saving email history`);
-    await logEmailHistory({
+    // ✅ NEW: Use unified email queue service
+    logger.debug(`Queueing email for userId: ${user.id}`);
+    await queueEmail({
       to: email,
       subject,
-      type: "Set Password",
+      html,
+      email_type: EmailType.SET_PASSWORD,
+      category: EmailCategory.TRANSACTIONAL,
+      sent_by_user_id: req.user?.id, // If available from auth middleware
+      sent_by_name: req.user?.full_name, // If available from auth middleware
+      sent_by_type: SenderType.ADMIN,
+      reference_type: "user",
+      reference_id: user.id,
+      metadata: {
+        action: "admin_creation",
+        createdBy: req.user?.id,
+        expiry,
+      },
     });
-    logger.debug(`Email history saved successfully`);
-
-    emailQueue.push({ to: email, subject, html, retry: 0 });
+    logger.debug(`Email queued successfully`);
 
     sendResponse(res, 201, "Admin created successfully");
   } catch (error) {

@@ -4,7 +4,13 @@ import {
   EXCHANGE_RATE_API_KEY,
   EXCHANGE_RATE_BASE_URL,
 } from "../setup/secrets";
-import { emailQueue } from "../utils/queue";
+import { queueEmail } from "../services/email-queue.service";
+import { 
+  EmailType, 
+  EmailCategory, 
+  SenderType 
+} from "../services/email-log.service";
+import logger from "../utils/logger";
 
 dotenv.config();
 
@@ -192,14 +198,24 @@ let isRunning = false;
 // Email recipients
 const NOTIFICATION_EMAILS = ["deepak@seedglobaleducation.com"];
 
-// Send email notification
-function sendNotification(
+/**
+ * ✅ UPDATED: Send email notification using unified email system
+ * 
+ * Changes:
+ * - Uses queueEmail() instead of emailQueue.push()
+ * - Uses EmailType.SYSTEM_ALERT
+ * - Uses EmailCategory.SYSTEM
+ * - Uses SenderType.CRON
+ * - Async function with proper error handling
+ * - Enhanced metadata
+ */
+async function sendNotification(
   success: boolean,
   totalSuccess: number,
   totalErrors: number,
   duration: number,
   error?: any,
-): void {
+): Promise<void> {
   const status = success ? "Success" : "Failed";
   const statusEmoji = success ? "✅" : "❌";
   const subject = `[Cron Job] Currency Exchange Update - ${statusEmoji} ${status}`;
@@ -242,13 +258,35 @@ function sendNotification(
 </body>
 </html>`;
 
-  for (const email of NOTIFICATION_EMAILS) {
-    emailQueue.push({
-      to: email,
-      subject: subject,
-      html: html,
-      retry: 0,
+  try {
+    // ✅ NEW: Use unified email queue service
+    for (const email of NOTIFICATION_EMAILS) {
+      await queueEmail({
+        to: email,
+        subject,
+        html,
+        email_type: EmailType.SYSTEM_ALERT,
+        category: EmailCategory.SYSTEM,
+        sent_by_type: SenderType.CRON,
+        metadata: {
+          task: "currency_update",
+          success,
+          totalSuccess,
+          totalErrors,
+          duration,
+          totalCurrencies: CURRENCIES.length,
+          error: error?.message,
+          timestamp: new Date().toISOString(),
+        },
+      });
+    }
+    
+    logger.debug(`Currency update notification emails queued`);
+  } catch (emailError) {
+    logger.error(`Failed to queue currency update notification`, {
+      error: emailError instanceof Error ? emailError.message : "Unknown error",
     });
+    // Don't throw - notification failure shouldn't break the update
   }
 }
 
@@ -336,13 +374,13 @@ export async function updateExchangeRates(logger?: LogFunction): Promise<void> {
     logMsg(`Success: ${totalSuccess} | Errors: ${totalErrors}`);
 
     // Send success notification
-    sendNotification(true, totalSuccess, totalErrors, duration);
+    await sendNotification(true, totalSuccess, totalErrors, duration);
   } catch (error: any) {
     const duration = (Date.now() - startTime) / 1000;
     logMsg("Currency update failed: " + error.message);
 
     // Send failure notification
-    sendNotification(false, totalSuccess, totalErrors, duration, error);
+    await sendNotification(false, totalSuccess, totalErrors, duration, error);
     throw error;
   } finally {
     isRunning = false;

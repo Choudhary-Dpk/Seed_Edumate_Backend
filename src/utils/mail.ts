@@ -1,69 +1,69 @@
-import { createTransport } from "nodemailer";
-import SMTPTransport from "nodemailer/lib/smtp-transport";
-import {
-  DEFAULT_FROM_EMAIL,
-  EMAIL_PASS,
-  EMAIL_USER,
-  SMTP_HOST,
-  SMTP_PORT,
-} from "../setup/secrets";
+// import { createTransport } from "nodemailer";
+// import SMTPTransport from "nodemailer/lib/smtp-transport";
+// import {
+//   DEFAULT_FROM_EMAIL,
+//   EMAIL_PASS,
+//   EMAIL_USER,
+//   SMTP_HOST,
+//   SMTP_PORT,
+// } from "../setup/secrets";
 
-const transporter = createTransport({
-  host: SMTP_HOST,
-  port: SMTP_PORT,
-  secure: false,
-  auth: {
-    user: EMAIL_USER,
-    pass: EMAIL_PASS,
-  },
-  tls: {
-    rejectUnauthorized: false,
-  },
-} as SMTPTransport.Options);
+// const transporter = createTransport({
+//   host: SMTP_HOST,
+//   port: SMTP_PORT,
+//   secure: false,
+//   auth: {
+//     user: EMAIL_USER,
+//     pass: EMAIL_PASS,
+//   },
+//   tls: {
+//     rejectUnauthorized: false,
+//   },
+// } as SMTPTransport.Options);
 
-interface SendMailOptions {
-  to: string;
-  subject: string;
-  html: string;
-  from?: string,
-  cc?: string;
-  bcc?: string;
-  attachments?: Array<{
-    filename: string;
-    path?: string;
-    content?: Buffer | string;
-    contentType?: string;
-  }>;
-}
+// interface SendMailOptions {
+//   to: string;
+//   subject: string;
+//   html: string;
+//   from?: string,
+//   cc?: string;
+//   bcc?: string;
+//   attachments?: Array<{
+//     filename: string;
+//     path?: string;
+//     content?: Buffer | string;
+//     contentType?: string;
+//   }>;
+// }
 
-const sendMail = async (options: SendMailOptions) => {
-  const { to, subject, html, from, cc, bcc, attachments } = options;
+// const sendMail = async (options: SendMailOptions) => {
+//   const { to, subject, html, from, cc, bcc, attachments } = options;
 
-  const mailOptions = {
-    from: from || DEFAULT_FROM_EMAIL,
-    to: to,
-    subject: subject,
-    html: html,
-    ...(cc && { cc }),
-    ...(bcc && { bcc }),
-    ...(attachments && { attachments }),
-  };
+//   const mailOptions = {
+//     from: from || DEFAULT_FROM_EMAIL,
+//     to: to,
+//     subject: subject,
+//     html: html,
+//     ...(cc && { cc }),
+//     ...(bcc && { bcc }),
+//     ...(attachments && { attachments }),
+//   };
 
-  console.log("Sending email with options:", {
-    to,
-    cc: cc || "none",
-    bcc: bcc || "none",
-    subject,
-  });
+//   console.log("Sending email with options:", {
+//     to,
+//     cc: cc || "none",
+//     bcc: bcc || "none",
+//     subject,
+//   });
 
-  const info = await transporter.sendMail(mailOptions);
+//   const info = await transporter.sendMail(mailOptions);
 
-  console.log("Email sent successfully:", {
-    messageId: info.messageId,
-    response: info.response,
-  });
+//   console.log("Email sent successfully:", {
+//     messageId: info.messageId,
+//     response: info.response,
+//   });
 
-  return info;
-};
+//   return info;
+// };
 
-export default sendMail;
+// export default sendMail;

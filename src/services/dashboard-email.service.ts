@@ -1,17 +1,4 @@
-// src/services/dashboard-email.service.ts
-/**
- * Dashboard Email Service (UPDATED & FIXED)
- * 
- * Changes:
- * 1. Uses unified email service
- * 2. Uses database-backed email queue
- * 3. Fixed N+1 queries with batch operations
- * 4. Added transaction support for consistency
- * 5. FIXED: Prisma JSON type handling (null -> undefined)
- */
-
 import prisma from "../config/prisma";
-import { Prisma } from "@prisma/client";
 import {
   SendDashboardEmailRequest,
   SendBulkDashboardEmailRequest,
@@ -20,6 +7,14 @@ import {
 } from "../types/dashboard-email.types";
 import logger from "../utils/logger";
 import { validateSingleEmail } from "./unified-email.service";
+
+// ✅ NEW: Import unified email services
+import { queueEmail } from "./email-queue.service";
+import { 
+  EmailType, 
+  EmailCategory, 
+  SenderType 
+} from "./email-log.service";
 
 /**
  * Generate HTML email template for dashboard report
@@ -130,13 +125,14 @@ export async function getPartnerDetails(partnerId: number) {
 }
 
 /**
- * Send dashboard email to single partner (UPDATED & FIXED)
+ * ✅ UPDATED: Send dashboard email to single partner
  * 
  * Changes:
- * - Uses database-backed email queue
- * - Wrapped in transaction for consistency
- * - Better error handling
- * - FIXED: Prisma JSON type handling
+ * - Uses queueEmail() instead of manual Prisma operations
+ * - Automatically creates entry in email_log (via queueEmail)
+ * - Automatic transaction handling
+ * - No more dashboardEmailLog table
+ * - Type-safe enums
  */
 export async function sendDashboardEmail(
   request: SendDashboardEmailRequest,
@@ -150,6 +146,7 @@ export async function sendDashboardEmail(
     pdfBase64,
     htmlContent,
     filters,
+    emailSource = "manual",
   } = request;
 
   // Validate: Must have either PDF or HTML
@@ -176,130 +173,93 @@ export async function sendDashboardEmail(
 
   // Determine email source
   const autoEmail = partner?.contact_info?.primary_contact_email;
-  const emailSource = autoEmail === recipientEmail ? "auto" : "manual";
+  const actualEmailSource = autoEmail === recipientEmail ? "auto" : emailSource;
 
-  // ✅ TRANSACTION: Email log + queue insertion must be atomic
-  const result = await prisma.$transaction(async (tx) => {
-    
-    // Step 1: Create email log
-    const emailLog = await tx.dashboardEmailLog.create({
-      data: {
-        partnerId: partner?.id,
-        partnerName,
-        recipient: recipientEmail,
-        subject,
-        status: "pending",
-        sentBy: adminUser?.id || 0,
-        sentByName: adminUser?.full_name || "Admin",
-        filters: filters as any,
-        metadata: {
-          emailSource,
-          autoEmail: autoEmail || null,
-          reportType: htmlContent ? "monthly_report" : "dashboard_pdf",
+  // Prepare email HTML
+  const emailHtml = htmlContent || generateDashboardEmailHtml(
+    partnerName,
+    message,
+    adminUser?.full_name || "Admin"
+  );
+
+  // Prepare attachments
+  const attachments = pdfBase64
+    ? [
+        {
+          filename: `${partnerName.replace(/[^a-z0-9]/gi, "_")}_Dashboard_Report.pdf`,
+          content: pdfBase64, // Keep as base64 string
+          contentType: "application/pdf"
         },
+      ]
+    : [];
+
+  // ✅ NEW: Determine email type based on content
+  const emailType = htmlContent ? EmailType.MONTHLY_REPORT : EmailType.DASHBOARD_REPORT;
+
+  try {
+    // ✅ NEW: Use unified queueEmail service
+    // This automatically:
+    // - Creates entry in email_log table
+    // - Creates entry in email_queue table
+    // - Links them together
+    // - Does everything in a transaction
+    const result = await queueEmail({
+      to: recipientEmail,
+      subject,
+      html: emailHtml,
+      attachments, // queueEmail handles attachment conversion
+      email_type: emailType,
+      category: EmailCategory.DASHBOARD,
+      sent_by_user_id: adminUser.id,
+      sent_by_name: adminUser.full_name || "Admin",
+      sent_by_type: SenderType.ADMIN,
+      reference_type: partner ? "partner" : undefined,
+      reference_id: partner?.id,
+      metadata: {
+        emailSource: actualEmailSource,
+        autoEmail: autoEmail || null,
+        reportType: htmlContent ? "monthly_report" : "dashboard_pdf",
+        partnerName,
+        filters: filters || null,
       },
+      priority: 0,
     });
 
-    // Step 2: Prepare email HTML
-    const emailHtml = htmlContent || generateDashboardEmailHtml(
-      partnerName,
-      message,
-      adminUser?.full_name || "Admin"
-    );
-
-    // Step 3: Prepare attachments
-    const attachments = pdfBase64
-      ? [
-          {
-            filename: `${partnerName.replace(/[^a-z0-9]/gi, "_")}_Dashboard_Report.pdf`,
-            content: Buffer.from(pdfBase64, "base64"),
-            contentType: "application/pdf"
-          },
-        ]
-      : [];
-
-    // Step 4: Prepare data for queue (FIXED: proper type handling)
-    // ⚠️ FIX: Use undefined instead of null for optional JSON fields
-    const attachmentsData = attachments.length > 0 
-      ? attachments.map(att => ({
-          filename: att.filename,
-          content: att.content.toString('base64'),
-          contentType: att.contentType
-        }))
-      : undefined;  // ← Changed from null to undefined
-
-    const metadataData = {
-      type: 'dashboard_email',
-      emailLogId: emailLog.id,
-      partnerId: partner?.id,
-      emailSource
-    };
-
-    // Step 5: Add to email queue (within transaction)
-    const queueItem = await tx.emailQueue.create({
-      data: {
-        to: recipientEmail,
-        subject,
-        html: emailHtml,
-        // ✅ FIXED: Cast to Prisma.InputJsonValue
-        attachments: attachmentsData as Prisma.InputJsonValue | undefined,
-        metadata: metadataData as Prisma.InputJsonValue,
-        status: 'PENDING',
-        priority: 0
-      }
-    });
-
-    // Step 6: Update email log with queue reference
-    await tx.dashboardEmailLog.update({
-      where: { id: emailLog.id },
-      data: {
-        metadata: {
-          ...emailLog.metadata as any,
-          queueItemId: queueItem.id
-        }
-      }
-    });
-
-    logger.info("Dashboard email queued with transaction", {
-      emailLogId: emailLog.id,
-      queueItemId: queueItem.id,
+    logger.info("Dashboard email queued via unified system", {
+      emailLogId: result.emailLog.id,
+      queueItemId: result.queueItem.id,
       recipient: recipientEmail,
       partnerId,
       reportType: htmlContent ? "monthly_report" : "dashboard_pdf",
     });
 
     return {
-      emailLog,
-      queueItem
+      success: true,
+      message: `Email queued successfully to ${recipientEmail}`,
+      data: {
+        emailLogId: result.emailLog.id,
+        queueItemId: result.queueItem.id,
+        emailSource: actualEmailSource,
+        recipientEmail,
+      },
     };
-
-  }, {
-    timeout: 10000, // 10 second timeout
-    maxWait: 5000,  // Max 5 seconds waiting for connection
-  });
-
-  return {
-    success: true,
-    message: `Email queued successfully to ${recipientEmail}`,
-    data: {
-      emailId: result.emailLog.id,
-      queueId: result.queueItem.id,
-      emailSource,
+  } catch (error) {
+    logger.error("Failed to queue dashboard email", {
+      error: error instanceof Error ? error.message : "Unknown error",
+      partnerId,
       recipientEmail,
-    },
-  };
+    });
+    throw error;
+  }
 }
 
 /**
- * Send bulk dashboard emails (UPDATED & FIXED)
+ * ✅ UPDATED: Send bulk dashboard emails
  * 
  * Changes:
- * - ✅ FIXED N+1 QUERIES: Batch fetch all partners in one query
- * - ✅ FIXED N+1 QUERIES: Batch create email logs
- * - ✅ FIXED N+1 QUERIES: Batch create queue items
- * - Wrapped in transaction for consistency
- * - Better error handling with partial failure support
- * - FIXED: Prisma JSON type handling
+ * - Uses queueEmail() in loop instead of manual Prisma batch operations
+ * - Each email logged individually to email_log
+ * - Simplified code with better error handling
  */
 export async function sendBulkDashboardEmails(
   request: SendBulkDashboardEmailRequest,
@@ -316,7 +276,7 @@ export async function sendBulkDashboardEmails(
     throw new Error("Recipients array is required and must not be empty");
   }
 
-  // ✅ FIX N+1: Batch fetch ALL partners in ONE query
+  // Batch fetch all partners in one query
   const partnerIds = recipients.map(r => r.partnerId);
   
   const partners = await prisma.hSB2BPartners.findMany({
@@ -336,166 +296,266 @@ export async function sendBulkDashboardEmails(
     partners.map(p => [p.id, p])
   );
 
-  // Prepare all email data (no DB calls in loop)
-  const emailsToQueue = recipients
-    .map(recipient => {
+  // Process emails
+  const results: any[] = [];
+  let successCount = 0;
+  let failedCount = 0;
+
+  for (const recipient of recipients) {
+    try {
       const partner = partnerMap.get(recipient.partnerId);
       
       if (!partner) {
         logger.warn('Partner not found for bulk email', { 
           partnerId: recipient.partnerId 
         });
-        return null;
+        failedCount++;
+        results.push({
+          partnerId: recipient.partnerId,
+          email: recipient.email,
+          status: 'failed',
+          error: 'Partner not found',
+        });
+        continue;
       }
 
       const partnerName = partner.partner_display_name || partner.partner_name || '';
       
-      return {
-        partnerId: partner.id,
+      const emailHtml = generateDashboardEmailHtml(
         partnerName,
-        recipient: recipient.email,
-        emailHtml: generateDashboardEmailHtml(
-          partnerName,
-          message,
-          adminUser.full_name || "Admin"
-        ),
+        message,
+        adminUser.full_name || "Admin"
+      );
+
+      // ✅ NEW: Use queueEmail for each recipient
+      const result = await queueEmail({
+        to: recipient.email,
+        subject,
+        html: emailHtml,
+        email_type: EmailType.DASHBOARD_REPORT,
+        category: EmailCategory.DASHBOARD,
+        sent_by_user_id: adminUser.id,
+        sent_by_name: adminUser.full_name || "Admin",
+        sent_by_type: SenderType.ADMIN,
+        reference_type: "partner",
+        reference_id: partner.id,
         metadata: {
           emailSource: recipient.emailSource,
-          autoEmail: partner.contact_info?.primary_contact_email || null
-        }
-      };
-    })
-    .filter(Boolean) as any[];
+          autoEmail: partner.contact_info?.primary_contact_email || null,
+          reportType: "bulk_dashboard",
+          partnerName,
+          filters: filters || null,
+        },
+        priority: 0,
+      });
 
-  // ✅ TRANSACTION: All logs + queue items must be atomic
-  const result = await prisma.$transaction(async (tx) => {
-    
-    // ✅ FIX N+1: Batch create ALL email logs in transaction
-    // Using individual creates in loop because createMany doesn't return IDs
-    const createdLogs = await Promise.all(
-      emailsToQueue.map(email => 
-        tx.dashboardEmailLog.create({
-          data: {
-            partnerId: email.partnerId,
-            partnerName: email.partnerName,
-            recipient: email.recipient,
-            subject,
-            status: 'pending',
-            sentBy: adminUser.id,
-            sentByName: adminUser.full_name || 'Admin',
-            filters: filters as any,
-            metadata: email.metadata
-          }
-        })
-      )
-    );
+      successCount++;
+      results.push({
+        partnerId: partner.id,
+        partnerName,
+        email: recipient.email,
+        status: 'queued',
+        emailLogId: result.emailLog.id,
+        queueItemId: result.queueItem.id,
+      });
 
-    // ✅ FIX N+1: Batch create ALL queue items (FIXED: proper type handling)
-    const createdQueueItems = await Promise.all(
-      emailsToQueue.map((email, index) => {
-        // ⚠️ FIX: Prepare metadata before Prisma operation
-        const queueMetadata = {
-          type: 'bulk_dashboard_email',
-          emailLogId: createdLogs[index].id,
-          partnerId: email.partnerId,
-          emailSource: email.metadata.emailSource
-        };
-        
-        return tx.emailQueue.create({
-          data: {
-            to: email.recipient,
-            subject,
-            html: email.emailHtml,
-            // ✅ FIXED: Cast to Prisma.InputJsonValue
-            metadata: queueMetadata as Prisma.InputJsonValue,
-            status: 'PENDING',
-            priority: 0
-          }
-        });
-      })
-    );
+    } catch (error) {
+      failedCount++;
+      results.push({
+        partnerId: recipient.partnerId,
+        email: recipient.email,
+        status: 'failed',
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
+      
+      logger.error("Failed to queue bulk dashboard email", {
+        partnerId: recipient.partnerId,
+        email: recipient.email,
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  }
 
-    return {
-      emailLogs: createdLogs,
-      queueItems: createdQueueItems
-    };
-
-  }, {
-    timeout: 30000, // 30 seconds for bulk operations
-    maxWait: 10000,
-  });
-
-  logger.info("Bulk dashboard emails queued with transaction", {
-    total: result.emailLogs.length,
+  logger.info("Bulk dashboard emails processed", {
+    total: recipients.length,
+    success: successCount,
+    failed: failedCount,
     adminUser: adminUser.id
   });
 
   return {
-    success: true,
-    message: `${result.emailLogs.length} emails queued successfully`,
+    success: failedCount === 0,
+    message: `${successCount} emails queued successfully${failedCount > 0 ? `, ${failedCount} failed` : ''}`,
     data: {
-      sent: result.emailLogs.length,
-      failed: 0,
-      results: result.emailLogs.map((log, i) => ({
-        partnerId: log.partnerId,
-        partnerName: log.partnerName,
-        email: log.recipient,
-        status: 'queued',
-        emailLogId: log.id,
-        queueItemId: result.queueItems[i].id
-      }))
+      sent: successCount,
+      failed: failedCount,
+      results,
     }
   };
 }
 
 /**
- * Get email history with filters
- * (Unchanged - reused as-is)
+ * ✅ UPDATED: Get email history
+ * 
+ * Changes:
+ * - Now queries email_log table instead of dashboardEmailLog
+ * - Filters by category = DASHBOARD
+ * - Returns unified email log format
  */
 export async function getEmailHistory(
   filters: EmailHistoryFilters
 ): Promise<{
-  data: DashboardEmailLog[];
+  data: any[];
   total: number;
   page: number;
   limit: number;
 }> {
   const { partnerId, status, startDate, endDate, page = 1, limit = 20 } = filters;
 
-  const where: any = {};
+  const where: any = {
+    category: EmailCategory.DASHBOARD, // ✅ Filter by dashboard emails only
+  };
 
   if (partnerId) {
-    where.partnerId = partnerId;
+    where.reference_type = "partner";
+    where.reference_id = partnerId;
   }
 
   if (status) {
-    where.status = status;
+    // Map old status strings to new EmailLogStatus enum
+    const statusMap: any = {
+      'pending': 'pending',
+      'queued': 'queued',
+      'sent': 'sent',
+      'failed': 'failed',
+    };
+    where.status = statusMap[status.toLowerCase()] || status;
   }
 
   if (startDate || endDate) {
-    where.sentAt = {};
+    where.created_at = {};
     if (startDate) {
-      where.sentAt.gte = new Date(startDate);
+      where.created_at.gte = new Date(startDate);
     }
     if (endDate) {
-      where.sentAt.lte = new Date(endDate);
+      where.created_at.lte = new Date(endDate);
     }
   }
 
   const [data, total] = await Promise.all([
-    prisma.dashboardEmailLog.findMany({
+    prisma.emailLog.findMany({
       where,
-      orderBy: { sentAt: "desc" },
+      orderBy: { created_at: "desc" },
       skip: (page - 1) * limit,
       take: limit,
+      include: {
+        queue_item: {
+          select: {
+            id: true,
+            status: true,
+            sent_at: true,
+          }
+        }
+      }
     }),
-    prisma.dashboardEmailLog.count({ where }),
+    prisma.emailLog.count({ where }),
   ]);
 
+  // Transform to match old DashboardEmailLog format for backward compatibility
+  const transformedData = data.map(log => ({
+    id: log.id,
+    partnerId: log.reference_type === 'partner' ? log.reference_id : null,
+    partnerName: (log.metadata as any)?.partnerName || 'Unknown',
+    recipient: log.recipient,
+    subject: log.subject,
+    status: log.status,
+    sentBy: log.sent_by_user_id,
+    sentByName: log.sent_by_name,
+    sentAt: log.sent_at,
+    createdAt: log.created_at,
+    metadata: log.metadata,
+    filters: (log.metadata as any)?.filters || null,
+  }));
+
   return {
-    data: data as any,
+    data: transformedData,
     total,
     page,
     limit,
+  };
+}
+
+/**
+ * ✅ NEW: Get dashboard email analytics
+ * 
+ * Provides statistics specifically for dashboard emails
+ */
+export async function getDashboardEmailAnalytics(filters?: {
+  startDate?: Date;
+  endDate?: Date;
+  partnerId?: number;
+}): Promise<{
+  total: number;
+  sent: number;
+  failed: number;
+  pending: number;
+  delivery_rate: number;
+  by_partner: any[];
+}> {
+  const where: any = {
+    category: EmailCategory.DASHBOARD,
+  };
+
+  if (filters?.partnerId) {
+    where.reference_type = "partner";
+    where.reference_id = filters.partnerId;
+  }
+
+  if (filters?.startDate || filters?.endDate) {
+    where.created_at = {};
+    if (filters.startDate) where.created_at.gte = filters.startDate;
+    if (filters.endDate) where.created_at.lte = filters.endDate;
+  }
+
+  const [total, sent, failed, pending, byPartner] = await Promise.all([
+    // Total dashboard emails
+    prisma.emailLog.count({ where }),
+    
+    // Sent emails
+    prisma.emailLog.count({ 
+      where: { ...where, status: 'sent' } 
+    }),
+    
+    // Failed emails
+    prisma.emailLog.count({ 
+      where: { ...where, status: 'failed' } 
+    }),
+    
+    // Pending emails
+    prisma.emailLog.count({ 
+      where: { ...where, status: { in: ['pending', 'queued'] } } 
+    }),
+    
+    // Group by partner (using reference_id)
+    prisma.emailLog.groupBy({
+      by: ["reference_id"],
+      where: { ...where, reference_type: "partner" },
+      _count: true,
+    }),
+  ]);
+
+  // Calculate delivery rate
+  const delivery_rate = total > 0 ? (sent / total) * 100 : 0;
+
+  return {
+    total,
+    sent,
+    failed,
+    pending,
+    delivery_rate: Math.round(delivery_rate * 100) / 100,
+    by_partner: byPartner.map(item => ({
+      partnerId: item.reference_id,
+      count: item._count,
+    })),
   };
 }

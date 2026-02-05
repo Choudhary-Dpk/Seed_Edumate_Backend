@@ -3,10 +3,15 @@ import cron from "node-cron";
 import fs from "fs";
 import { updatePropertySync } from "../scripts/sync_loan_product_options";
 import { updateExchangeRates } from "../scripts/curreny_update";
-import { emailQueue } from "../utils/queue";
 import prisma from "../config/prisma";
 import logger from "../utils/logger";
 import { generateMonthlyMISReports } from "../services/mis-report.service";
+import { queueEmail } from "../services/email-queue.service";
+import { 
+  EmailType, 
+  EmailCategory, 
+  SenderType 
+} from "../services/email-log.service";
 
 dotenv.config();
 
@@ -31,13 +36,22 @@ function log(taskName: string, message: string): void {
   fs.appendFileSync(logFile, `[${timestamp}] ${message}\n`);
 }
 
-// Send email notification
-function sendNotification(
+/**
+ * ✅ UPDATED: Send email notification using unified email system
+ * 
+ * Changes:
+ * - Uses queueEmail() instead of emailQueue.push()
+ * - Uses EmailType.CRON_NOTIFICATION
+ * - Uses EmailCategory.SYSTEM
+ * - Uses SenderType.CRON
+ * - Async function with proper error handling
+ */
+async function sendNotification(
   taskName: string,
   success: boolean,
   duration: number,
   error?: any,
-): void {
+): Promise<void> {
   const status = success ? "Success" : "Failed";
   const statusEmoji = success ? "✅" : "❌";
   const subject = `[Cron Job] ${taskName} - ${statusEmoji} ${status}`;
@@ -70,13 +84,33 @@ function sendNotification(
 </body>
 </html>`;
 
-  for (const email of NOTIFICATION_EMAILS) {
-    emailQueue.push({
-      to: email,
-      subject: subject,
-      html: html,
-      retry: 0,
+  try {
+    // ✅ NEW: Use unified email queue service
+    for (const email of NOTIFICATION_EMAILS) {
+      await queueEmail({
+        to: email,
+        subject,
+        html,
+        email_type: EmailType.CRON_NOTIFICATION,
+        category: EmailCategory.SYSTEM,
+        sent_by_type: SenderType.CRON,
+        metadata: {
+          taskName,
+          success,
+          duration,
+          error: error?.message,
+          timestamp: new Date().toISOString(),
+        },
+      });
+    }
+    
+    logger.debug(`Cron notification emails queued for ${taskName}`);
+  } catch (emailError) {
+    logger.error(`Failed to queue cron notification email`, {
+      taskName,
+      error: emailError instanceof Error ? emailError.message : "Unknown error",
     });
+    // Don't throw - notification failure shouldn't break the cron job
   }
 }
 
@@ -90,14 +124,14 @@ async function propertyUpdate(): Promise<void> {
   log("property-update", "Starting...");
 
   try {
-    await updatePropertySync();
+    await updatePropertySync(log);
     const duration = (Date.now() - startTime) / 1000;
     log("property-update", "Done!");
-    sendNotification("HubSpot Property Update", true, duration);
+    await sendNotification("HubSpot Property Update", true, duration);
   } catch (error: any) {
     const duration = (Date.now() - startTime) / 1000;
     log("property-update", `Error: ${error.message}`);
-    sendNotification("HubSpot Property Update", false, duration, error);
+    await sendNotification("HubSpot Property Update", false, duration, error);
     throw error;
   }
 }
@@ -108,14 +142,14 @@ async function currencyUpdate(): Promise<void> {
   log("currency-update", "Starting...");
 
   try {
-    await updateExchangeRates();
+    await updateExchangeRates(log);
     const duration = (Date.now() - startTime) / 1000;
     log("currency-update", "Done!");
-    sendNotification("Currency Exchange Update", true, duration);
+    await sendNotification("Currency Exchange Update", true, duration);
   } catch (error: any) {
     const duration = (Date.now() - startTime) / 1000;
     log("currency-update", `Error: ${error.message}`);
-    sendNotification("Currency Exchange Update", false, duration, error);
+    await sendNotification("Currency Exchange Update", false, duration, error);
     throw error;
   }
 }
@@ -130,11 +164,11 @@ async function dbCleanup(): Promise<void> {
 
     const duration = (Date.now() - startTime) / 1000;
     log("db-cleanup", "Done!");
-    sendNotification("Database Cleanup", true, duration);
+    await sendNotification("Database Cleanup", true, duration);
   } catch (error: any) {
     const duration = (Date.now() - startTime) / 1000;
     log("db-cleanup", `Error: ${error.message}`);
-    sendNotification("Database Cleanup", false, duration, error);
+    await sendNotification("Database Cleanup", false, duration, error);
     throw error;
   }
 }
@@ -220,7 +254,7 @@ export async function partnerAutoDeactivation(): Promise<void> {
       "partner-auto-deactivation",
       `Done! Deactivated ${deactivatedCount} partners in ${duration.toFixed(2)}s`,
     );
-    sendNotification(
+    await sendNotification(
       `Partner Auto-Deactivation - 90 Days (${deactivatedCount} users)`,
       true,
       duration,
@@ -228,7 +262,7 @@ export async function partnerAutoDeactivation(): Promise<void> {
   } catch (error: any) {
     const duration = (Date.now() - startTime) / 1000;
     log("partner-auto-deactivation", `Error: ${error.message}`);
-    sendNotification("Partner Auto-Deactivation", false, duration, error);
+    await sendNotification("Partner Auto-Deactivation", false, duration, error);
     throw error;
   }
 }

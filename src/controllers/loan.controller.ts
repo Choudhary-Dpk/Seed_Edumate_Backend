@@ -5,7 +5,6 @@ import {
   calculateStandardEMI,
 } from "../services/schedule.service";
 import { generatePDF } from "../services/pdf.service";
-import { sendRepaymentScheduleEmail } from "../services/email.service";
 import {
   RepaymentScheduleResponse,
   RepaymentScheduleRequest,
@@ -21,6 +20,11 @@ import {
 import { sendResponse } from "../utils/api";
 import { generateRequestIdFromPayload } from "../utils/helper";
 import logger from "../utils/logger";
+import { generateEMIRepaymentScheduleEmail } from "../utils/email templates/repaymentScheduleDetails";
+
+// ✅ NEW: Import unified email services instead of deprecated email.service.ts
+import { queueEmail } from "../services/email-queue.service";
+import { EmailType, EmailCategory, SenderType } from "../services/email-log.service";
 
 export const checkLoanEligibility = async (
   req: Request,
@@ -187,7 +191,13 @@ export const getInstitutionProgram = async (
 const processedRequests = new Map<string, RepaymentScheduleResponse>();
 
 /**
- * Enhanced generateRepaymentScheduleAndEmail with strategy support and backward compatibility
+ * ✅ UPDATED: Enhanced generateRepaymentScheduleAndEmail
+ * 
+ * Changes:
+ * - No longer uses deprecated email.service.ts
+ * - Uses unified queueEmail() system
+ * - Proper email type (REPAYMENT_SCHEDULE)
+ * - Better error handling
  */
 export const generateRepaymentScheduleAndEmail = async (
   req: Request,
@@ -318,37 +328,47 @@ export const generateRepaymentScheduleAndEmail = async (
             )} optimization.`
           : message;
 
-        // Send with PDF if available
-        if (pdfBuffer && pdfFileName) {
-          await sendRepaymentScheduleEmail({
-            name,
-            email,
+        // Generate HTML email template
+        const htmlMessage = generateEMIRepaymentScheduleEmail(name);
+
+        // Prepare attachments if PDF is available
+        const attachments = pdfBuffer && pdfFileName
+          ? [
+              {
+                filename: pdfFileName,
+                content: pdfBuffer.toString('base64'),
+                contentType: "application/pdf",
+              },
+            ]
+          : [];
+
+        // ✅ NEW: Use unified email queue system
+        await queueEmail({
+          to: email,
+          subject: emailSubject,
+          html: htmlMessage,
+          text: emailMessage,
+          attachments: attachments.length > 0 ? attachments : undefined,
+          email_type: EmailType.REPAYMENT_SCHEDULE,
+          category: EmailCategory.LOAN,
+          sent_by_type: SenderType.SYSTEM,
+          metadata: {
             fromName,
-            subject: emailSubject,
-            message: emailMessage,
-            pdfBuffer,
-            pdfFileName,
-          });
-          logger.debug(
-            `Email with PDF sent to: ${email} | PDF: ${pdfFileName} (${pdfBuffer.length} bytes)`
-          );
-        } else {
-          // Send without PDF if generation failed
-          await sendRepaymentScheduleEmail({
-            name,
-            email,
-            fromName,
-            subject: emailSubject,
-            message: `${emailMessage}\n\nNote: PDF generation encountered an issue. Please find your loan calculation details in the response.`,
-            pdfBuffer: undefined as any,
-            pdfFileName: undefined as any,
-          });
-          logger.debug(
-            `Email without PDF sent to: ${email} | Reason: ${
-              pdfError || "PDF not generated"
-            }`
-          );
-        }
+            requestId,
+            principal,
+            annualRate,
+            tenureYears,
+            strategyType: strategyType || null,
+            hasPdfAttachment: !!pdfBuffer,
+            customerName: name,
+          },
+        });
+
+        logger.debug(
+          `Email queued successfully: ${email} | PDF: ${pdfFileName || "none"} ${
+            pdfBuffer ? `(${pdfBuffer.length} bytes)` : ""
+          }`
+        );
 
         emailResponse = {
           to: email,
@@ -358,15 +378,16 @@ export const generateRepaymentScheduleAndEmail = async (
         };
 
         logger.debug(
-          `Email delivery confirmed: ${email} at ${emailResponse.sentAt}`
+          `Email queued for delivery: ${email} at ${emailResponse.sentAt}`
         );
       } catch (error) {
         logger.error(
-          `Email sending failed for: ${email} - ${
+          `Email queueing failed for: ${email} - ${
             error instanceof Error ? error.message : String(error)
           }`
         );
-        next(error);
+        // Don't fail the entire request if email fails
+        // Just log the error and continue
       }
     }
 
@@ -430,6 +451,7 @@ export const generateRepaymentScheduleAndEmail = async (
     next(error);
   }
 };
+
 /**
  * Helper function to get user-friendly strategy names
  */

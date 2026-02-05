@@ -31,15 +31,21 @@ import {
   generateRefreshToken,
 } from "../../utils/auth";
 import { getEmailTemplate } from "../../models/helpers";
-import { emailQueue } from "../../utils/queue";
 import moment from "moment";
 import { FRONTEND_URL } from "../../setup/secrets";
-import { logEmailHistory } from "../../models/helpers/email.helper";
 import {
   getAdminRole,
   getUserRole,
 } from "../../models/helpers/partners.helper";
 import prisma from "../../config/prisma";
+
+// ✅ NEW: Import unified email services
+import { queueEmail } from "../../services/email-queue.service";
+import { 
+  EmailType, 
+  EmailCategory, 
+  SenderType 
+} from "../../services/email-log.service";
 
 export const login = async (
   req: RequestWithPayload<LoginPayload>,
@@ -167,15 +173,24 @@ export const sendOtp = async (
     const html = emailTemplate.replace(`{%otp%}`, otp);
     const subject = "EDUMATE - One time password";
 
-    logger.debug(`Saving email history`);
-    await logEmailHistory({
+    // ✅ NEW: Use unified email queue service
+    logger.debug(`Queueing OTP email for userId: ${id}`);
+    await queueEmail({
       to: email,
       subject,
-      type: "OTP",
+      html,
+      email_type: EmailType.OTP,
+      category: EmailCategory.TRANSACTIONAL,
+      sent_by_type: SenderType.SYSTEM,
+      reference_type: "user",
+      reference_id: id,
+      metadata: {
+        otp,
+        userName: name,
+        otpExpiry: "10 minutes",
+      },
     });
-    logger.debug(`Email history saved successfully`);
-
-    emailQueue.push({ to: email, subject, html, retry: 0 });
+    logger.debug(`OTP email queued successfully`);
 
     sendResponse(res, 200, "Otp sent successfully");
   } catch (error) {
@@ -247,16 +262,24 @@ export const forgotPassword = async (
     }
     logger.debug(`Email token saved successfully`);
 
-    logger.debug(`Saving email history`);
-    await logEmailHistory({
+    // ✅ NEW: Use unified email queue service
+    logger.debug(`Queueing forgot password email for userId: ${id}`);
+    await queueEmail({
       to: email,
       subject,
-      type: "Forgot Password",
+      html,
+      email_type: EmailType.FORGOT_PASSWORD,
+      category: EmailCategory.TRANSACTIONAL,
+      sent_by_type: SenderType.SYSTEM,
+      reference_type: "user",
+      reference_id: id,
+      metadata: {
+        portalType: req.portalType,
+        expiry,
+        resetUrl: redirectUri,
+      },
     });
-    logger.debug(`Email history saved successfully`);
-
-    // Add to email queue
-    emailQueue.push({ to: email, subject: subject, html: html, retry: 0 });
+    logger.debug(`Forgot password email queued successfully`);
 
     sendResponse(res, 200, "Forgot password request sent successfully", {
       portalType: req.portalType, // Optional: inform frontend which portal
@@ -302,13 +325,26 @@ export const resetPassword = async (
     }
     logger.debug(`Password updated successfully`);
 
-    logger.debug(`Saving email history`);
-    await logEmailHistory({
+    // ✅ OPTIONAL: Send password changed confirmation email
+    // Uncomment if you want confirmation emails
+    /*
+    logger.debug(`Queueing password reset confirmation email`);
+    await queueEmail({
       to: email,
-      subject: "Reset Password",
-      type: "Reset Password",
+      subject: "Password Reset Successful",
+      html: "<p>Your password has been reset successfully. If you did not make this change, please contact support immediately.</p>",
+      email_type: EmailType.PASSWORD_CHANGED,
+      category: EmailCategory.TRANSACTIONAL,
+      sent_by_type: SenderType.SYSTEM,
+      reference_type: "user",
+      reference_id: id,
+      metadata: {
+        portalType: req.portalType,
+        resetDate: new Date().toISOString(),
+      },
     });
-    logger.debug(`Email history saved successfully`);
+    logger.debug(`Password reset confirmation email queued`);
+    */
 
     sendResponse(res, 200, "Password reset successfully", {
       portalType: req.portalType, // Optional: inform frontend
@@ -362,13 +398,8 @@ export const setPassword = async (
     }
     logger.debug(`Password updated successfully`);
 
-    logger.debug(`Saving email history`);
-    await logEmailHistory({
-      to: email,
-      subject: "Set Password",
-      type: "Set Password",
-    });
-    logger.debug(`Email history saved successfully`);
+    // ✅ No confirmation email for set password (first time setup)
+    // Users just set their password and can log in
 
     sendResponse(res, 200, "Password set successfully", {
       portalType: req.portalType, // Optional: inform frontend

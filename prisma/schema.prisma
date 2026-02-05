@@ -917,7 +917,7 @@ model EmailTypes {
 
 model EmailHistory {
   id            Int        @id @default(autoincrement())
-  reciepient    String     @map("reciepient")
+  recipient     String     @map("recipient")
   cc            String?    @map("cc")
   bcc           String?    @map("bcc")
   email_type_id Int        @map("email_type_id")
@@ -2437,6 +2437,9 @@ model EmailQueue {
   created_at    DateTime         @default(now())
   updated_at    DateTime         @updatedAt
   
+  // Relationship to EmailLog
+  email_logs    EmailLog[]
+  
   // Indexes for performance
   @@index([status, scheduled_at])
   @@index([status, priority])
@@ -2452,31 +2455,6 @@ enum EmailQueueStatus {
   DEAD_LETTER
   
   @@map("email_queue_status")
-}
-
-// Also add this to DashboardEmailLog if not already present
-// This links email logs to queue items
-model DashboardEmailLog {
-  id          Int      @id @default(autoincrement())
-  partnerId   Int?     @map("partner_id")
-  partnerName String?  @map("partner_name")
-  recipient   String
-  subject     String
-  status      String   @default("pending")
-  sentBy      Int      @map("sent_by")
-  sentByName  String?  @map("sent_by_name")
-  filters     Json?
-  metadata    Json?
-  sentAt      DateTime? @map("sent_at")
-  errorMsg    String?   @map("error_msg") @db.Text
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
-
-  @@index([partnerId])
-  @@index([status])
-  @@index([sentAt])
-  @@index([createdAt])
-  @@map("dashboard_email_log")
 }
 
 view leads_view {
@@ -3121,4 +3099,117 @@ enum StudentRecordStatus {
   MERGED    @map("Merged")
 
   @@map("student_record_status")
+}
+
+// ============================================================================
+// UNIFIED EMAIL SYSTEM - Added for production-ready email logging
+// ============================================================================
+
+model EmailLog {
+  id               Int              @id @default(autoincrement())
+  
+  // Core email fields
+  recipient        String           @map("recipient")
+  cc               String?          @map("cc")
+  bcc              String?          @map("bcc")
+  from             String?          @map("from")
+  subject          String           @map("subject")
+  
+  // Email classification
+  email_type       EmailType        @map("email_type")
+  category         EmailCategory    @map("category")
+  
+  // Sender tracking
+  sent_by_user_id  Int?             @map("sent_by_user_id")
+  sent_by_name     String?          @map("sent_by_name")
+  sent_by_type     SenderType?      @map("sent_by_type")
+  
+  // Reference tracking
+  reference_type   String?          @map("reference_type")
+  reference_id     Int?             @map("reference_id")
+  
+  // Content metadata
+  has_attachment   Boolean          @default(false) @map("has_attachment")
+  attachment_count Int?             @map("attachment_count")
+  
+  // Status & queue tracking
+  status           EmailLogStatus   @default(PENDING) @map("status")
+  queue_item_id    Int?             @unique @map("queue_item_id")
+  
+  // Error tracking
+  error_message    String?          @db.Text @map("error_message")
+  attempts         Int              @default(0) @map("attempts")
+  
+  // Timestamps
+  created_at       DateTime         @default(now()) @map("created_at")
+  sent_at          DateTime?        @map("sent_at")
+  failed_at        DateTime?        @map("failed_at")
+  
+  // Flexible metadata
+  metadata         Json?            @map("metadata")
+  
+  // Relationships
+  queue_item       EmailQueue?      @relation(fields: [queue_item_id], references: [id], onDelete: SetNull)
+  
+  // Indexes
+  @@index([email_type, category])
+  @@index([sent_by_user_id, sent_by_type])
+  @@index([reference_type, reference_id])
+  @@index([status, created_at])
+  @@index([sent_at])
+  @@index([queue_item_id])
+  
+  @@map("email_log")
+}
+
+enum EmailCategory {
+  TRANSACTIONAL  @map("Transactional")
+  DASHBOARD      @map("Dashboard")
+  SYSTEM         @map("System")
+  MARKETING      @map("Marketing")
+  NOTIFICATION   @map("Notification")
+  LOAN           @map("Loan")
+  
+  @@map("email_category")
+}
+
+enum EmailType {
+  OTP                    @map("Otp")
+  FORGOT_PASSWORD        @map("Forgot Password")
+  SET_PASSWORD           @map("Set Password")
+  RESET_PASSWORD         @map("Reset Password")
+  EMAIL_VERIFICATION     @map("Email Verification")
+  PASSWORD_CHANGED       @map("Password Changed")
+  DASHBOARD_REPORT       @map("Dashboard Report")
+  MONTHLY_REPORT         @map("Monthly Report")
+  LOAN_ELIGIBILITY       @map("Loan Eligibility Result")
+  REPAYMENT_SCHEDULE     @map("Repayment Schedule Email")
+  CRON_NOTIFICATION      @map("Cron Notification")
+  SYSTEM_ALERT           @map("System Alert")
+  SHOW_INTEREST          @map("Show Interest")
+  WELCOME                @map("Welcome")
+  UNKNOWN                @map("Unknown")
+  
+  @@map("email_type")
+}
+
+enum EmailLogStatus {
+  PENDING    @map("pending")
+  QUEUED     @map("queued")
+  SENT       @map("sent")
+  FAILED     @map("failed")
+  BOUNCED    @map("bounced")
+  REJECTED   @map("rejected")
+  
+  @@map("email_log_status")
+}
+
+enum SenderType {
+  ADMIN      @map("admin")
+  PARTNER    @map("partner")
+  SYSTEM     @map("system")
+  API        @map("api")
+  CRON       @map("cron")
+  
+  @@map("sender_type")
 }
