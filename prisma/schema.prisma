@@ -1489,7 +1489,7 @@ model HSLoanProductsFinancialTerms {
   administrative_charges            Decimal?       @db.Decimal(16, 4)
   interest_rate_type                String?
   legal_charges                     Decimal?       @db.Decimal(16, 4)
-  currency                           String?
+  currency                           String?       @default("INR")
   loan_to_value_ratio               String?
   margin_money_percentage           Decimal?       @db.Decimal(16, 4)
   maximum_loan_amount_secured       Decimal?       @db.Decimal(16, 4)
