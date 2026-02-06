@@ -4,7 +4,7 @@ import prisma from "../../config/prisma";
 export const updateCommissionSettlement = async (
   tx: any,
   settlementId: number,
-  mainData: any
+  mainData: any,
 ) => {
   const settlement = await tx.hSCommissionSettlements.update({
     where: {
@@ -22,7 +22,7 @@ export const updateCommissionSettlement = async (
 export const updateCommissionSettlementStatus = async (
   tx: any,
   settlementId: number,
-  statusData: any
+  statusData: any,
 ) => {
   if (!statusData || Object.keys(statusData).length === 0) {
     return null;
@@ -44,7 +44,7 @@ export const updateCommissionSettlementStatus = async (
 export const updateCommissionSettlementSystemTracking = async (
   tx: any,
   settlementId: number,
-  systemTrackingData: any
+  systemTrackingData: any,
 ) => {
   if (!systemTrackingData || Object.keys(systemTrackingData).length === 0) {
     return null;
@@ -67,7 +67,7 @@ export const updateCommissionSettlementSystemTracking = async (
 export const updateCommissionSettlementTransactionDetails = async (
   tx: any,
   settlementId: number,
-  transactionData: any
+  transactionData: any,
 ) => {
   if (!transactionData || Object.keys(transactionData).length === 0) {
     return null;
@@ -82,7 +82,7 @@ export const updateCommissionSettlementTransactionDetails = async (
         ...transactionData,
         updated_at: new Date(),
       },
-    }
+    },
   );
 
   return transaction;
@@ -91,7 +91,7 @@ export const updateCommissionSettlementTransactionDetails = async (
 export const updateCommissionSettlementCalculation = async (
   tx: any,
   settlementId: number,
-  calculationData: any
+  calculationData: any,
 ) => {
   if (!calculationData || Object.keys(calculationData).length === 0) {
     return null;
@@ -114,7 +114,7 @@ export const updateCommissionSettlementCalculation = async (
 export const updateCommissionSettlementCommunication = async (
   tx: any,
   settlementId: number,
-  communicationData: any
+  communicationData: any,
 ) => {
   if (!communicationData || Object.keys(communicationData).length === 0) {
     return null;
@@ -136,7 +136,7 @@ export const updateCommissionSettlementCommunication = async (
 export const updateCommissionSettlementLoanDetails = async (
   tx: any,
   settlementId: number,
-  loanData: any
+  loanData: any,
 ) => {
   if (!loanData || Object.keys(loanData).length === 0) {
     return null;
@@ -158,7 +158,7 @@ export const updateCommissionSettlementLoanDetails = async (
 export const updateCommissionSettlementPaymentProcessing = async (
   tx: any,
   settlementId: number,
-  paymentData: any
+  paymentData: any,
 ) => {
   if (!paymentData || Object.keys(paymentData).length === 0) {
     return null;
@@ -180,7 +180,7 @@ export const updateCommissionSettlementPaymentProcessing = async (
 export const updateCommissionSettlementTaxDeductions = async (
   tx: any,
   settlementId: number,
-  taxData: any
+  taxData: any,
 ) => {
   if (!taxData || Object.keys(taxData).length === 0) {
     return null;
@@ -202,7 +202,7 @@ export const updateCommissionSettlementTaxDeductions = async (
 export const updateCommissionSettlementDocumentation = async (
   tx: any,
   settlementId: number,
-  documentData: any
+  documentData: any,
 ) => {
   if (!documentData || Object.keys(documentData).length === 0) {
     return null;
@@ -224,7 +224,7 @@ export const updateCommissionSettlementDocumentation = async (
 export const updateCommissionSettlementHoldDisputes = async (
   tx: any,
   settlementId: number,
-  holdData: any
+  holdData: any,
 ) => {
   if (!holdData || Object.keys(holdData).length === 0) {
     return null;
@@ -246,7 +246,7 @@ export const updateCommissionSettlementHoldDisputes = async (
 export const updateCommissionSettlementReconciliation = async (
   tx: any,
   settlementId: number,
-  reconciliationData: any
+  reconciliationData: any,
 ) => {
   if (!reconciliationData || Object.keys(reconciliationData).length === 0) {
     return null;
@@ -261,7 +261,7 @@ export const updateCommissionSettlementReconciliation = async (
         ...reconciliationData,
         updated_at: new Date(),
       },
-    }
+    },
   );
 
   return reconciliation;
@@ -270,7 +270,7 @@ export const updateCommissionSettlementReconciliation = async (
 export const updateCommissionSettlementPerformanceAnalytics = async (
   tx: any,
   settlementId: number,
-  performanceData: any
+  performanceData: any,
 ) => {
   if (!performanceData || Object.keys(performanceData).length === 0) {
     return null;
@@ -347,7 +347,11 @@ export const fetchCommissionSettlementsList = async (
   filters?: {
     partner: number | null;
     lead: string | null;
-  }
+    invoiceStatus: string | null;
+    paymentStatus: string | null;
+    startDate: string | null;
+    endDate: string | null;
+  },
 ) => {
   const where: Prisma.HSCommissionSettlementsWhereInput = {
     is_active: true,
@@ -367,13 +371,49 @@ export const fetchCommissionSettlementsList = async (
   };
 
   // Apply partner filter
-  if (filters && filters.partner) {
+  if (filters?.partner) {
     where.b2b_partner_id = Number(filters.partner);
   }
 
   // Apply lead filter
-  if (filters && filters.lead) {
+  if (filters?.lead) {
     where.lead_reference_id = Number(filters.lead);
+  }
+
+  // Apply invoice status filter (in documentation table)
+  if (filters?.invoiceStatus) {
+    where.documentaion = {
+      invoice_status: filters.invoiceStatus,
+    };
+  }
+
+  // Apply payment status filter (in payment_details table)
+  if (filters?.paymentStatus) {
+    where.payment_details = {
+      payment_status: filters.paymentStatus,
+    };
+  }
+
+  // Apply date range filter on settlement_date
+  if (filters?.startDate || filters?.endDate) {
+    const dateFilter: any = {};
+
+    if (filters.startDate) {
+      dateFilter.gte = new Date(filters.startDate);
+    }
+
+    if (filters.endDate) {
+      const endDate = new Date(filters.endDate);
+      endDate.setDate(endDate.getDate() + 1);
+      dateFilter.lte = endDate;
+    }
+
+    // Use OR to match either settlement_date or created_at
+    where.OR = [
+      ...(where.OR || []),
+      { settlement_date: dateFilter },
+      { created_at: dateFilter },
+    ];
   }
 
   let orderBy: any = { created_at: "desc" };
@@ -393,6 +433,9 @@ export const fetchCommissionSettlementsList = async (
         break;
       case "settlement_year":
         orderBy = { settlement_year: sortDir || "desc" };
+        break;
+      case "settlement_date":
+        orderBy = { settlement_date: sortDir || "desc" };
         break;
       case "created_at":
         orderBy = { created_at: sortDir || "desc" };
@@ -444,7 +487,7 @@ export const fetchCommissionSettlementsList = async (
 export const checkCommissionSettlementFields = async (
   student_id?: string,
   settlement_reference_number?: string,
-  hs_object_id?: string
+  hs_object_id?: string,
 ) => {
   const conditions: any[] = [];
 

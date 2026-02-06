@@ -313,10 +313,25 @@ export const validateContactRows = (
     //   );
     // }
 
-    // Optional but typed validations
     let dateOfBirth: Date | undefined;
     if (dateOfBirthRaw) {
-      const parsed = new Date(dateOfBirthRaw);
+      let parsed: Date;
+      const raw =
+        typeof dateOfBirthRaw === "string"
+          ? dateOfBirthRaw.trim()
+          : dateOfBirthRaw;
+
+      if (
+        typeof raw === "number" ||
+        (typeof raw === "string" && /^\d+(\.\d+)?$/.test(raw))
+      ) {
+        // Excel serial number (as number or string like "46212.0001157407")
+        const serialNum = typeof raw === "number" ? raw : parseFloat(raw);
+        const excelEpoch = new Date(Date.UTC(1899, 11, 30));
+        parsed = new Date(excelEpoch.getTime() + serialNum * 86400000);
+      } else {
+        parsed = new Date(raw);
+      }
 
       if (isNaN(parsed.getTime())) {
         rowErrors.push("Invalid Date of Birth");
@@ -326,6 +341,7 @@ export const validateContactRows = (
         );
       }
     }
+
     // Collect errors or push valid row
     if (rowErrors.length > 0) {
       rowErrors.forEach((reason) => errors.push({ row: rowNo, reason }));

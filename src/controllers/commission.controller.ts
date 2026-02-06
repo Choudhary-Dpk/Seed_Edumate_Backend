@@ -410,7 +410,6 @@ export const getCommissionSettlementsListController = async (
     const id = parseInt(req.payload?.id || req.body?.id);
 
     let partnerId = null;
-    // If partner filter is enabled, filter by b2b_partner_id
     if (id) {
       partnerId = (await getPartnerIdByUserId(id))!.b2b_id;
 
@@ -429,15 +428,23 @@ export const getCommissionSettlementsListController = async (
       (req.query.filters as {
         partner?: number;
         lead?: string;
+        invoiceStatus?: string;
+        paymentStatus?: string;
+        startDate?: string;
+        endDate?: string;
       }) || {};
 
     const filters = {
-      partner: partnerId ||filtersFromQuery.partner || null,
+      partner: partnerId || filtersFromQuery.partner || null,
       lead: filtersFromQuery.lead || null,
+      invoiceStatus: filtersFromQuery.invoiceStatus || null,
+      paymentStatus: filtersFromQuery.paymentStatus || null,
+      startDate: filtersFromQuery.startDate || null,
+      endDate: filtersFromQuery.endDate || null,
     };
 
     logger.debug(
-      `Fetching commission settlements list with page: ${page}, size: ${size}, sortKey: ${sortKey}, sortDir: ${sortDir}, search: ${search}`
+      `Fetching commission settlements list with page: ${page}, size: ${size}, sortKey: ${sortKey}, sortDir: ${sortDir}, search: ${search}, filters: ${JSON.stringify(filters)}`
     );
     const { rows, count } = await fetchCommissionSettlementsList(
       size,
