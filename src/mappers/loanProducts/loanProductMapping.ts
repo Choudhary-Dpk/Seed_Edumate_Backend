@@ -273,6 +273,13 @@ export const mapAllLoanProductFields = async (
     });
   }
 
+  if (input.currency && input.currency !== "") {
+    mapped.currency =
+      input.currency !== null && input.currency !== ""
+        ? input.currency
+        : null;
+  }
+
   // === SYSTEM INTEGRATION ENUMS (5) ===
   if (input.api_availability && input.api_availability !== "") {
     enumTranslations.push({

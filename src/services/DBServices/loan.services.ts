@@ -254,6 +254,7 @@ export const categorizeLoanProductByTable = (
     "interest_rate_range_min_unsecured",
     "interest_rate_type",
     "legal_charges",
+    "currency",
     "loan_to_value_ratio",
     "margin_money_percentage",
     "maximum_loan_amount_secured",
