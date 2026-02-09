@@ -252,9 +252,9 @@ export const mapAllFields = async (
       input.source !== null && input.source !== "" ? input.source : null;
   }
 
-  if (input.favourite !== undefined) {
-    mapped.favourite = Array.isArray(input.favourite)
-      ? input.favourite.filter(
+  if (input.concent !== undefined) {
+    mapped.concent = Array.isArray(input.concent)
+      ? input.concent.filter(
           (id: any) => typeof id === "number" && !isNaN(id),
         )
       : [];

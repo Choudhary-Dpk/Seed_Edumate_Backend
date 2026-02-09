@@ -103,7 +103,7 @@ model ContactUsers {
   full_name             String?
   phone                 String?            @unique
   is_active             Boolean            @default(true)
-  favourite             Int[]              @default([])
+  concent               Int[]              @default([])
   interested            Int[]              @default([])
   source                String?            @default("webportal")
   created_at            DateTime           @default(now())
@@ -965,7 +965,7 @@ model HSEdumateContacts {
   hs_b2b_partner_id          String?
   hs_created_by_user_id      Int?
   hs_updated_by_user_id      Int?
-  favourite                  Int[]                                 @default([])
+  concent                    Int[]                                 @default([])
   interested                 Int[]                                 @default([])
   conversion_timestamp       String?
   exchange_rate_used         Decimal?                              @db.Decimal(16, 4)

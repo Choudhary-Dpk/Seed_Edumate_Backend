@@ -31,7 +31,7 @@ export const createStudentUser = async (
         phone: phone, // Update phone
         full_name: fullName, // Update full name
         contact_id: contactId, // Update contact_id
-        // Don't overwrite favourite and interested arrays
+        // Don't overwrite concent and interested arrays
       },
     });
   }
@@ -45,7 +45,7 @@ export const createStudentUser = async (
       contact_id: contactId,
       source: "webportal",
       password_hash: null, // because signup without password (OTP login)
-      favourite: [],
+      concent: [],
       interested: [],
     },
   });
@@ -64,7 +64,7 @@ export const findStudentByPhoneNumber = async (phone_number: string) => {
       full_name: true,
       phone: true,
       is_active: true,
-      favourite: true,
+      concent: true,
       interested: true,
       source: true,
       created_at: true,
@@ -101,7 +101,7 @@ export const findStudentByPhoneNumber = async (phone_number: string) => {
       source: true,
       created_at: true,
       updated_at: true,
-      favourite: true,
+      concent: true,
       interested: true,
       academic_profile: true,
       application_journey: true,
@@ -178,7 +178,7 @@ export const getStudentProfileById = async (student_id: number) => {
       full_name: true,
       phone: true,
       is_active: true,
-      favourite: true,
+      concent: true,
       interested: true,
       source: true,
       created_at: true,
@@ -220,7 +220,7 @@ export const getStudentProfileById = async (student_id: number) => {
       source: true,
       created_at: true,
       updated_at: true,
-      favourite: true,
+      concent: true,
       interested: true,
       personal_information: {
         select: {
@@ -303,7 +303,7 @@ export const getStudentForUpdate = async (student_id: number) => {
     select: {
       id: true,
       contact_id: true,
-      favourite: true,
+      concent: true,
       interested: true,
       is_active: true,
     },
@@ -325,22 +325,22 @@ export const getStudentForUpdate = async (student_id: number) => {
   return {
     id: student.id,
     contact_id: student.contact_id as number, // Type assertion since we checked above
-    favourite: student.favourite,
+    concent: student.concent,
     interested: student.interested,
     is_active: student.is_active,
   };
 };
 
-// Update student favourite and interested
+// Update student concent and interested
 export const updateStudentFavouriteInterested = async (
   student_id: number,
-  favourite?: number[],
+  concent?: number[],
   interested?: number[]
 ) => {
   const updateData: any = {};
 
-  if (favourite !== undefined) {
-    updateData.favourite = favourite;
+  if (concent !== undefined) {
+    updateData.concent = concent;
   }
 
   if (interested !== undefined) {
@@ -361,7 +361,7 @@ export const updateStudentFavouriteInterested = async (
       full_name: true,
       phone: true,
       is_active: true,
-      favourite: true,
+      concent: true,
       interested: true,
       source: true,
       created_at: true,
@@ -387,7 +387,7 @@ export const getUpdatedStudentProfile = async (
       full_name: true,
       phone: true,
       is_active: true,
-      favourite: true,
+      concent: true,
       interested: true,
       source: true,
       created_at: true,
@@ -414,7 +414,7 @@ export const getUpdatedStudentProfile = async (
       source: true,
       created_at: true,
       updated_at: true,
-      favourite: true,
+      concent: true,
       interested: true,
       // ✅ Added all missing relations
       academic_profile: true,
@@ -476,14 +476,14 @@ export const getUpdatedStudentProfile = async (
   };
 };
 
-// Update ContactUsers fields (email, full_name, phone, favourite, interested)
+// Update ContactUsers fields (email, full_name, phone, concent, interested)
 export const updateContactUser = async (
   student_id: number,
   updateData: {
     email?: string;
     full_name?: string;
     phone?: string;
-    favourite?: number[];
+    concent?: number[];
     interested?: number[];
   }
 ) => {
@@ -501,8 +501,8 @@ export const updateContactUser = async (
     data.phone = updateData.phone;
   }
 
-  if (updateData.favourite !== undefined) {
-    data.favourite = updateData.favourite;
+  if (updateData.concent !== undefined) {
+    data.concent = updateData.concent;
   }
 
   if (updateData.interested !== undefined) {
@@ -523,7 +523,7 @@ export const updateContactUser = async (
       full_name: true,
       phone: true,
       is_active: true,
-      favourite: true,
+      concent: true,
       interested: true,
       source: true,
       created_at: true,

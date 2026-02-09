@@ -187,7 +187,7 @@ export const studentSignupController = async (
         source: true,
         created_at: true,
         updated_at: true,
-        favourite: true,
+        concent: true,
         interested: true,
         academic_profile: true,
         application_journey: true,
@@ -351,16 +351,16 @@ export const updateStudentController = async (
 
     // Validate loan product IDs if provided
     let validationResults: {
-      favourite: { valid: number[]; invalid: number[] };
+      concent: { valid: number[]; invalid: number[] };
       interested: { valid: number[]; invalid: number[] };
     } = {
-      favourite: { valid: [], invalid: [] },
+      concent: { valid: [], invalid: [] },
       interested: { valid: [], invalid: [] },
     };
 
-    if (updateData.favourite && updateData.favourite.length > 0) {
-      validationResults.favourite = await validateLoanProductIds(
-        updateData.favourite
+    if (updateData.concent && updateData.concent.length > 0) {
+      validationResults.concent = await validateLoanProductIds(
+        updateData.concent
       );
     }
 
@@ -372,14 +372,14 @@ export const updateStudentController = async (
 
     // Check if there are any invalid IDs
     const hasInvalidIds =
-      validationResults.favourite.invalid.length > 0 ||
+      validationResults.concent.invalid.length > 0 ||
       validationResults.interested.invalid.length > 0;
 
     if (hasInvalidIds) {
       const errorMessage = [];
-      if (validationResults.favourite.invalid.length > 0) {
+      if (validationResults.concent.invalid.length > 0) {
         errorMessage.push(
-          `Invalid favourite loan product IDs: ${validationResults.favourite.invalid.join(
+          `Invalid concent loan product IDs: ${validationResults.concent.invalid.join(
             ", "
           )}`
         );
@@ -407,11 +407,11 @@ export const updateStudentController = async (
     if (updateData.phone !== undefined) {
       contactUserUpdateData.phone = updateData.phone;
     }
-    if (updateData.favourite !== undefined) {
-      contactUserUpdateData.favourite =
-        validationResults.favourite.valid.length > 0
-          ? validationResults.favourite.valid
-          : updateData.favourite;
+    if (updateData.concent !== undefined) {
+      contactUserUpdateData.concent =
+        validationResults.concent.valid.length > 0
+          ? validationResults.concent.valid
+          : updateData.concent;
     }
     if (updateData.interested !== undefined) {
       contactUserUpdateData.interested =
@@ -424,12 +424,12 @@ export const updateStudentController = async (
       categorized.mainContact = {};
     }
 
-    // Add favourite to mainContact for HSEdumateContacts update
-    if (updateData.favourite !== undefined) {
-      (categorized.mainContact as any).favourite =
-        validationResults.favourite.valid.length > 0
-          ? validationResults.favourite.valid
-          : updateData.favourite;
+    // Add concent to mainContact for HSEdumateContacts update
+    if (updateData.concent !== undefined) {
+      (categorized.mainContact as any).concent =
+        validationResults.concent.valid.length > 0
+          ? validationResults.concent.valid
+          : updateData.concent;
     }
 
     // Add interested to mainContact for HSEdumateContacts update
@@ -442,13 +442,13 @@ export const updateStudentController = async (
 
     // Use transaction for atomic updates
     await prisma.$transaction(async (tx) => {
-      // Update ContactUsers table (email, full_name, phone, favourite, interested)
+      // Update ContactUsers table (email, full_name, phone, concent, interested)
       if (Object.keys(contactUserUpdateData).length > 0) {
         await updateContactUser(studentId, contactUserUpdateData);
       }
 
       // Update edumate contact tables using categorized data
-      // NOTE: This will now include favourite and interested fields
+      // NOTE: This will now include concent and interested fields
       if (
         categorized.mainContact &&
         Object.keys(categorized.mainContact).length > 0

@@ -109,7 +109,9 @@ export const parsePeriodPreset = (period: string): DateRange => {
 /**
  * Get month list from date range
  */
-const getMonthsInRange = (dateRange: DateRange): Array<{ month: number; year: number }> => {
+const getMonthsInRange = (
+  dateRange: DateRange,
+): Array<{ month: number; year: number }> => {
   const months: Array<{ month: number; year: number }> = [];
   let currentDate = new Date(dateRange.startYear, dateRange.startMonth - 1, 1);
   const endDate = new Date(dateRange.endYear, dateRange.endMonth - 1, 1);
@@ -138,7 +140,7 @@ const calculateGrowth = (current: number, previous: number): number => {
  */
 const getComparisonPeriod = (
   dateRange: DateRange,
-  compareMode: string
+  compareMode: string,
 ): DateRange | null => {
   if (!compareMode || compareMode === "none") return null;
 
@@ -148,9 +150,17 @@ const getComparisonPeriod = (
   switch (compareMode) {
     case "previous": {
       // Compare with previous period of same length
-      const startDate = new Date(dateRange.startYear, dateRange.startMonth - 1 - periodLength, 1);
-      const endDate = new Date(dateRange.startYear, dateRange.startMonth - 2, 1);
-      
+      const startDate = new Date(
+        dateRange.startYear,
+        dateRange.startMonth - 1 - periodLength,
+        1,
+      );
+      const endDate = new Date(
+        dateRange.startYear,
+        dateRange.startMonth - 2,
+        1,
+      );
+
       return {
         startMonth: startDate.getMonth() + 1,
         startYear: startDate.getFullYear(),
@@ -179,7 +189,7 @@ const getComparisonPeriod = (
  */
 const fetchMetricsForRange = async (
   dateRange: DateRange,
-  partnerId?: number
+  partnerId?: number,
 ): Promise<{
   leads: number;
   applications: number;
@@ -191,7 +201,7 @@ const fetchMetricsForRange = async (
   partners_count: number;
 }> => {
   const months = getMonthsInRange(dateRange);
-  
+
   const whereClause: any = {
     has_errors: false,
     OR: months.map(({ month, year }) => ({
@@ -210,16 +220,34 @@ const fetchMetricsForRange = async (
 
   // Aggregate metrics
   const leads = reports.reduce((sum, r) => sum + r.total_leads, 0);
-  const applications = reports.reduce((sum, r) => sum + r.applications_initiated, 0);
-  const approvals = reports.reduce((sum, r) => sum + r.applications_approved, 0);
-  const disbursements = reports.reduce((sum, r) => sum + r.disbursements_initiated, 0);
-  const requested_amount = reports.reduce((sum, r) => sum + toNumber(r.total_requested_amount), 0);
-  const approved_amount = reports.reduce((sum, r) => sum + toNumber(r.total_approved_amount), 0);
-  const disbursed_amount = reports.reduce((sum, r) => sum + toNumber(r.total_disbursement_amount), 0);
+  const applications = reports.reduce(
+    (sum, r) => sum + r.applications_initiated,
+    0,
+  );
+  const approvals = reports.reduce(
+    (sum, r) => sum + r.applications_approved,
+    0,
+  );
+  const disbursements = reports.reduce(
+    (sum, r) => sum + r.disbursements_initiated,
+    0,
+  );
+  const requested_amount = reports.reduce(
+    (sum, r) => sum + toNumber(r.total_requested_amount),
+    0,
+  );
+  const approved_amount = reports.reduce(
+    (sum, r) => sum + toNumber(r.total_approved_amount),
+    0,
+  );
+  const disbursed_amount = reports.reduce(
+    (sum, r) => sum + toNumber(r.total_disbursement_amount),
+    0,
+  );
 
   // Count unique partners
-  const uniquePartners = new Set(reports.map(r => r.b2b_partner_id));
-  
+  const uniquePartners = new Set(reports.map((r) => r.b2b_partner_id));
+
   return {
     leads,
     applications,
@@ -247,7 +275,7 @@ export const getKeyMetrics = async (filters: {
 
     // Determine date range
     let dateRange: DateRange;
-    
+
     if (filters.period) {
       dateRange = parsePeriodPreset(filters.period);
     } else if (filters.month && filters.year) {
@@ -269,12 +297,21 @@ export const getKeyMetrics = async (filters: {
     }
 
     // Fetch current period metrics
-    const currentMetrics = await fetchMetricsForRange(dateRange, filters.partnerId);
+    const currentMetrics = await fetchMetricsForRange(
+      dateRange,
+      filters.partnerId,
+    );
 
     // Calculate conversion rate
-    const conversionRate = currentMetrics.applications > 0
-      ? Number(((currentMetrics.approvals / currentMetrics.applications) * 100).toFixed(2))
-      : 0;
+    const conversionRate =
+      currentMetrics.applications > 0
+        ? Number(
+            (
+              (currentMetrics.approvals / currentMetrics.applications) *
+              100
+            ).toFixed(2),
+          )
+        : 0;
 
     // Get total partners count (not filtered by date)
     const totalPartnersCount = await prisma.hSB2BPartners.count({
@@ -307,12 +344,22 @@ export const getKeyMetrics = async (filters: {
     // Add comparison if requested
     if (filters.compare && filters.compare !== "none") {
       const comparisonPeriod = getComparisonPeriod(dateRange, filters.compare);
-      
+
       if (comparisonPeriod) {
-        const comparisonMetrics = await fetchMetricsForRange(comparisonPeriod, filters.partnerId);
-        const comparisonConversionRate = comparisonMetrics.applications > 0
-          ? Number(((comparisonMetrics.approvals / comparisonMetrics.applications) * 100).toFixed(2))
-          : 0;
+        const comparisonMetrics = await fetchMetricsForRange(
+          comparisonPeriod,
+          filters.partnerId,
+        );
+        const comparisonConversionRate =
+          comparisonMetrics.applications > 0
+            ? Number(
+                (
+                  (comparisonMetrics.approvals /
+                    comparisonMetrics.applications) *
+                  100
+                ).toFixed(2),
+              )
+            : 0;
 
         result.comparison = {
           period: {
@@ -329,14 +376,37 @@ export const getKeyMetrics = async (filters: {
             conversion_rate: comparisonConversionRate,
           },
           growth: {
-            leads: calculateGrowth(currentMetrics.leads, comparisonMetrics.leads),
-            applications: calculateGrowth(currentMetrics.applications, comparisonMetrics.applications),
-            approvals: calculateGrowth(currentMetrics.approvals, comparisonMetrics.approvals),
-            disbursements: calculateGrowth(currentMetrics.disbursements, comparisonMetrics.disbursements),
-            requested_amount: calculateGrowth(currentMetrics.requested_amount, comparisonMetrics.requested_amount),
-            approved_amount: calculateGrowth(currentMetrics.approved_amount, comparisonMetrics.approved_amount),
-            disbursed_amount: calculateGrowth(currentMetrics.disbursed_amount, comparisonMetrics.disbursed_amount),
-            conversion_rate: Number((conversionRate - comparisonConversionRate).toFixed(2)),
+            leads: calculateGrowth(
+              currentMetrics.leads,
+              comparisonMetrics.leads,
+            ),
+            applications: calculateGrowth(
+              currentMetrics.applications,
+              comparisonMetrics.applications,
+            ),
+            approvals: calculateGrowth(
+              currentMetrics.approvals,
+              comparisonMetrics.approvals,
+            ),
+            disbursements: calculateGrowth(
+              currentMetrics.disbursements,
+              comparisonMetrics.disbursements,
+            ),
+            requested_amount: calculateGrowth(
+              currentMetrics.requested_amount,
+              comparisonMetrics.requested_amount,
+            ),
+            approved_amount: calculateGrowth(
+              currentMetrics.approved_amount,
+              comparisonMetrics.approved_amount,
+            ),
+            disbursed_amount: calculateGrowth(
+              currentMetrics.disbursed_amount,
+              comparisonMetrics.disbursed_amount,
+            ),
+            conversion_rate: Number(
+              (conversionRate - comparisonConversionRate).toFixed(2),
+            ),
           },
         };
       }
@@ -369,12 +439,12 @@ export const getTopPartners = async (filters: {
 }) => {
   try {
     const limit = filters.limit || 10;
-    
+
     logger.debug("Fetching top partners with filters", filters);
 
     // Determine date range
     let dateRange: DateRange;
-    
+
     if (filters.period) {
       dateRange = parsePeriodPreset(filters.period);
     } else if (filters.month && filters.year) {
@@ -395,7 +465,7 @@ export const getTopPartners = async (filters: {
     }
 
     const months = getMonthsInRange(dateRange);
-    
+
     const whereClause: any = {
       has_errors: false,
       OR: months.map(({ month, year }) => ({
@@ -429,10 +499,10 @@ export const getTopPartners = async (filters: {
 
     // Aggregate by partner if multiple months
     const partnerMap = new Map();
-    
-    reports.forEach(report => {
+
+    reports.forEach((report) => {
       const partnerId = report.b2b_partner_id;
-      
+
       if (!partnerMap.has(partnerId)) {
         partnerMap.set(partnerId, {
           partner_id: partnerId,
@@ -446,7 +516,7 @@ export const getTopPartners = async (filters: {
           total_disbursement_amount: 0,
         });
       }
-      
+
       const partner = partnerMap.get(partnerId);
       partner.total_leads += report.total_leads;
       partner.applications_initiated += report.applications_initiated;
@@ -454,15 +524,24 @@ export const getTopPartners = async (filters: {
       partner.disbursements_initiated += report.disbursements_initiated;
       partner.total_requested_amount += toNumber(report.total_requested_amount);
       partner.total_approved_amount += toNumber(report.total_approved_amount);
-      partner.total_disbursement_amount += toNumber(report.total_disbursement_amount);
+      partner.total_disbursement_amount += toNumber(
+        report.total_disbursement_amount,
+      );
     });
 
     // Convert to array and calculate conversion rate
-    const partnersArray = Array.from(partnerMap.values()).map(partner => ({
+    const partnersArray = Array.from(partnerMap.values()).map((partner) => ({
       ...partner,
-      conversion_rate: partner.applications_initiated > 0
-        ? Number(((partner.applications_approved / partner.applications_initiated) * 100).toFixed(2))
-        : 0,
+      conversion_rate:
+        partner.applications_initiated > 0
+          ? Number(
+              (
+                (partner.applications_approved /
+                  partner.applications_initiated) *
+                100
+              ).toFixed(2),
+            )
+          : 0,
     }));
 
     // Sort by requested field
@@ -506,12 +585,19 @@ export const getMonthlyTrends = async (filters: {
 }) => {
   try {
     const monthsCount = filters.months || 6;
-    
-    logger.debug("Fetching monthly trends", { months: monthsCount, partnerId: filters.partnerId });
+
+    logger.debug("Fetching monthly trends", {
+      months: monthsCount,
+      partnerId: filters.partnerId,
+    });
 
     const now = new Date();
-    const startDate = new Date(now.getFullYear(), now.getMonth() - monthsCount + 1, 1);
-    
+    const startDate = new Date(
+      now.getFullYear(),
+      now.getMonth() - monthsCount + 1,
+      1,
+    );
+
     const dateRange: DateRange = {
       startMonth: startDate.getMonth() + 1,
       startYear: startDate.getFullYear(),
@@ -520,7 +606,7 @@ export const getMonthlyTrends = async (filters: {
     };
 
     const months = getMonthsInRange(dateRange);
-    
+
     // Fetch reports for all months
     const whereClause: any = {
       has_errors: false,
@@ -541,25 +627,46 @@ export const getMonthlyTrends = async (filters: {
     // Aggregate by month
     const monthlyData = months.map(({ month, year }) => {
       const monthReports = reports.filter(
-        r => r.report_month === month && r.report_year === year
+        (r) => r.report_month === month && r.report_year === year,
       );
 
       const leads = monthReports.reduce((sum, r) => sum + r.total_leads, 0);
-      const applications = monthReports.reduce((sum, r) => sum + r.applications_initiated, 0);
-      const approvals = monthReports.reduce((sum, r) => sum + r.applications_approved, 0);
-      const disbursements = monthReports.reduce((sum, r) => sum + r.disbursements_initiated, 0);
-      const requested_amount = monthReports.reduce((sum, r) => sum + toNumber(r.total_requested_amount), 0);
-      const approved_amount = monthReports.reduce((sum, r) => sum + toNumber(r.total_approved_amount), 0);
-      const disbursed_amount = monthReports.reduce((sum, r) => sum + toNumber(r.total_disbursement_amount), 0);
+      const applications = monthReports.reduce(
+        (sum, r) => sum + r.applications_initiated,
+        0,
+      );
+      const approvals = monthReports.reduce(
+        (sum, r) => sum + r.applications_approved,
+        0,
+      );
+      const disbursements = monthReports.reduce(
+        (sum, r) => sum + r.disbursements_initiated,
+        0,
+      );
+      const requested_amount = monthReports.reduce(
+        (sum, r) => sum + toNumber(r.total_requested_amount),
+        0,
+      );
+      const approved_amount = monthReports.reduce(
+        (sum, r) => sum + toNumber(r.total_approved_amount),
+        0,
+      );
+      const disbursed_amount = monthReports.reduce(
+        (sum, r) => sum + toNumber(r.total_disbursement_amount),
+        0,
+      );
 
-      const conversionRate = applications > 0
-        ? Number(((approvals / applications) * 100).toFixed(2))
-        : 0;
+      const conversionRate =
+        applications > 0
+          ? Number(((approvals / applications) * 100).toFixed(2))
+          : 0;
 
       return {
         month,
         year,
-        month_name: new Date(year, month - 1).toLocaleString("default", { month: "long" }),
+        month_name: new Date(year, month - 1).toLocaleString("default", {
+          month: "long",
+        }),
         leads,
         applications,
         approvals,
@@ -572,7 +679,9 @@ export const getMonthlyTrends = async (filters: {
       };
     });
 
-    logger.info("Monthly trends fetched successfully", { months_count: monthlyData.length });
+    logger.info("Monthly trends fetched successfully", {
+      months_count: monthlyData.length,
+    });
 
     return monthlyData;
   } catch (error) {
@@ -586,9 +695,7 @@ export const getMonthlyTrends = async (filters: {
 /**
  * Get pipeline status breakdown (Phase 2)
  */
-export const getPipelineStatus = async (filters: {
-  partnerId?: number;
-}) => {
+export const getPipelineStatus = async (filters: { partnerId?: number }) => {
   try {
     logger.debug("Fetching pipeline status", filters);
 
@@ -639,7 +746,7 @@ export const getPipelineStatus = async (filters: {
           ...whereClause,
           loan_application_status: {
             application_status: "rejected",
-          }
+          },
         },
       }),
     ]);
@@ -649,37 +756,51 @@ export const getPipelineStatus = async (filters: {
         status: "pending",
         label: "Pending Review",
         count: pendingApplications,
-        percentage: totalApplications > 0 
-          ? Number(((pendingApplications / totalApplications) * 100).toFixed(2))
-          : 0,
+        percentage:
+          totalApplications > 0
+            ? Number(
+                ((pendingApplications / totalApplications) * 100).toFixed(2),
+              )
+            : 0,
       },
       {
         status: "approved",
         label: "Approved (Awaiting Disbursement)",
         count: approvedApplications,
-        percentage: totalApplications > 0 
-          ? Number(((approvedApplications / totalApplications) * 100).toFixed(2))
-          : 0,
+        percentage:
+          totalApplications > 0
+            ? Number(
+                ((approvedApplications / totalApplications) * 100).toFixed(2),
+              )
+            : 0,
       },
       {
         status: "disbursed",
         label: "Disbursed",
         count: disbursedApplications,
-        percentage: totalApplications > 0 
-          ? Number(((disbursedApplications / totalApplications) * 100).toFixed(2))
-          : 0,
+        percentage:
+          totalApplications > 0
+            ? Number(
+                ((disbursedApplications / totalApplications) * 100).toFixed(2),
+              )
+            : 0,
       },
       {
         status: "rejected",
         label: "Rejected",
         count: rejectedApplications,
-        percentage: totalApplications > 0 
-          ? Number(((rejectedApplications / totalApplications) * 100).toFixed(2))
-          : 0,
+        percentage:
+          totalApplications > 0
+            ? Number(
+                ((rejectedApplications / totalApplications) * 100).toFixed(2),
+              )
+            : 0,
       },
     ];
 
-    logger.info("Pipeline status fetched successfully", { total: totalApplications });
+    logger.info("Pipeline status fetched successfully", {
+      total: totalApplications,
+    });
 
     return {
       total_applications: totalApplications,
@@ -711,7 +832,9 @@ export const getPartnerActivityStatus = async () => {
       inactivePartnersThisMonth,
     ] = await Promise.all([
       prisma.hSB2BPartners.count({ where: { is_deleted: false } }),
-      prisma.hSB2BPartners.count({ where: { is_active: true, is_deleted: false } }),
+      prisma.hSB2BPartners.count({
+        where: { is_active: true, is_deleted: false },
+      }),
       prisma.hSMonthlyMISReports.count({
         where: { report_month: month, report_year: year, has_errors: false },
       }),
@@ -732,9 +855,14 @@ export const getPartnerActivityStatus = async () => {
       inactive_partners: totalPartners - activePartners,
       partners_with_activity_this_month: partnersWithReportsThisMonth,
       partners_with_zero_performance: inactivePartnersThisMonth,
-      activity_rate: activePartners > 0
-        ? Number(((partnersWithReportsThisMonth / activePartners) * 100).toFixed(2))
-        : 0,
+      activity_rate:
+        activePartners > 0
+          ? Number(
+              ((partnersWithReportsThisMonth / activePartners) * 100).toFixed(
+                2,
+              ),
+            )
+          : 0,
     };
   } catch (error) {
     logger.error("Error fetching partner activity status", {

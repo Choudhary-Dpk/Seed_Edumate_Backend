@@ -402,9 +402,9 @@ async function transformToHubSpotFormat(contact: any): Promise<any> {
     contact.interested || []
   );
 
-  // Map favourite loan product IDs to HubSpot object IDs (if you need this field too)
+  // Map concent loan product IDs to HubSpot object IDs (if you need this field too)
   const favouriteLoanProductsHsIds = await mapLoanProductIdsToHsObjectIds(
-    contact.favourite || []
+    contact.concent || []
   );
 
   logger.debug(
@@ -412,7 +412,7 @@ async function transformToHubSpotFormat(contact: any): Promise<any> {
     {
       interested_db_ids: contact.interested,
       interested_hs_ids_formatted: interestedLoanProductsHsIds,
-      favourite_db_ids: contact.favourite,
+      favourite_db_ids: contact.concent,
       favourite_hs_ids_formatted: favouriteLoanProductsHsIds,
     }
   );
