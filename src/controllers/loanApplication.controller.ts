@@ -301,6 +301,85 @@ export const updateLoanApplicationController = async (
     const categorized = categorizeLoanApplicationByTable(mappedFields);
     console.log("categorized", categorized);
 
+    // ============================================
+    // FINANCIAL VALIDATION BEFORE UPDATE
+    // ============================================
+    const financialUpdate = categorized["financialRequirements"] || {};
+    const statusUpdate = categorized["applicationStatus"] || {};
+
+    const hasFinancialUpdate =
+      financialUpdate.loan_amount_approved !== undefined ||
+      financialUpdate.last_loan_amount_disbursed !== undefined;
+
+    if (hasFinancialUpdate) {
+      // Fetch current financial data from DB
+      const currentFinancials =
+        await prisma.hSLoanApplicationsFinancialRequirements.findUnique({
+          where: { application_id: applicationId },
+          select: {
+            loan_amount_requested: true,
+            loan_amount_approved: true,
+            loan_amount_disbursed: true,
+            last_loan_amount_disbursed: true,
+          },
+        });
+
+      if (!currentFinancials) {
+        return sendResponse(
+          res,
+          404,
+          "Financial requirements not found for this application",
+        );
+      }
+
+      // Determine effective values (use incoming update value if present, otherwise DB value)
+      const effectiveApproved =
+        financialUpdate.loan_amount_approved !== undefined
+          ? parseFloat(financialUpdate.loan_amount_approved)
+          : parseFloat(currentFinancials.loan_amount_approved?.toString() || "0");
+
+      const effectiveRequested = parseFloat(
+        currentFinancials.loan_amount_requested?.toString() || "0",
+      );
+
+      const effectiveLastDisbursed =
+        financialUpdate.last_loan_amount_disbursed !== undefined
+          ? parseFloat(financialUpdate.last_loan_amount_disbursed)
+          : parseFloat(
+              currentFinancials.last_loan_amount_disbursed?.toString() || "0",
+            );
+
+      const existingDisbursed = parseFloat(
+        currentFinancials.loan_amount_disbursed?.toString() || "0",
+      );
+
+      // Rule 1: Loan Amount Approved must not exceed Loan Amount Requested
+      if (
+        financialUpdate.loan_amount_approved !== undefined &&
+        effectiveRequested > 0 &&
+        effectiveApproved > effectiveRequested
+      ) {
+        return sendResponse(
+          res,
+          400,
+          `Loan Amount Approved (${effectiveApproved}) cannot be greater than Loan Amount Requested (${effectiveRequested})`,
+        );
+      }
+
+      // Rule 2: Last Loan Amount Disbursed + Loan Amount Disbursed must not exceed Loan Amount Approved
+      if (financialUpdate.last_loan_amount_disbursed !== undefined) {
+        const totalDisbursed = effectiveLastDisbursed + existingDisbursed;
+
+        if (effectiveApproved > 0 && totalDisbursed > effectiveApproved) {
+          return sendResponse(
+            res,
+            400,
+            `Last Loan Amount Disbursed (${effectiveLastDisbursed}) + Loan Amount Disbursed (${existingDisbursed}) = ${totalDisbursed} cannot be greater than Loan Amount Approved (${effectiveApproved})`,
+          );
+        }
+      }
+    }
+
     let data: any = {};
 
     await prisma.$transaction(async (tx: any) => {

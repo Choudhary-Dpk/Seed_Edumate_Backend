@@ -388,6 +388,9 @@ function transformLoanToHubSpotFormat(loanApp: any): any {
     loan_amount_disbursed: financialReq.loan_amount_disbursed
       ? parseFloat(financialReq.loan_amount_disbursed)
       : null,
+    last_loan_amount_disbursed: financialReq.last_loan_amount_disbursed
+      ? parseFloat(financialReq.last_loan_amount_disbursed)
+      : null,
     tuition_fee: financialReq.tuition_fee
       ? parseFloat(financialReq.tuition_fee)
       : null,

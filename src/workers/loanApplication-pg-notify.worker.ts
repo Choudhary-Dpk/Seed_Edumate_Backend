@@ -49,7 +49,7 @@ export async function startLoanPGNotifyWorker() {
 
     logger.info("[Loan PG NOTIFY] Worker started successfully");
     logger.info(
-      `[Loan PG NOTIFY] Config: concurrency=${CONCURRENCY}, rate=${RATE_LIMIT}/s`
+      `[Loan PG NOTIFY] Config: concurrency=${CONCURRENCY}, rate=${RATE_LIMIT}/s`,
     );
   } catch (error) {
     logger.error("[Loan PG NOTIFY] Failed to start worker:", error);
@@ -97,20 +97,20 @@ async function handleNotification(msg: any) {
           applicationId,
           data.operation,
           data.hs_object_id,
-          syncKey
+          syncKey,
         );
       }, DEBOUNCE_DELAY);
 
       loanPendingUpdates.set(syncKey, timeout);
       logger.debug(
-        `[Loan PG NOTIFY] Debouncing ${syncKey} for ${DEBOUNCE_DELAY}ms`
+        `[Loan PG NOTIFY] Debouncing ${syncKey} for ${DEBOUNCE_DELAY}ms`,
       );
     } else {
       await queueLoanSync(
         applicationId,
         data.operation,
         data.hs_object_id,
-        syncKey
+        syncKey,
       );
     }
   } catch (error) {
@@ -122,7 +122,7 @@ async function queueLoanSync(
   applicationId: number,
   operation: string,
   hsObjectId: string | null,
-  syncKey: string
+  syncKey: string,
 ) {
   loanSyncQueue.add(async () => {
     loanOngoingSync.add(syncKey);
@@ -131,7 +131,7 @@ async function queueLoanSync(
     let outboxEntry = await findOrCreateOutboxEntry(
       applicationId,
       operation,
-      hsObjectId
+      hsObjectId,
     );
 
     try {
@@ -142,7 +142,7 @@ async function queueLoanSync(
       const result = await processLoanSync(
         applicationId,
         operation,
-        hsObjectId
+        hsObjectId,
       );
 
       // Mark as COMPLETED on success
@@ -156,7 +156,7 @@ async function queueLoanSync(
       await markAsFailed(
         outboxEntry.id,
         error.message,
-        outboxEntry.attempts + 1
+        outboxEntry.attempts + 1,
       );
     } finally {
       loanOngoingSync.delete(syncKey);
@@ -164,17 +164,17 @@ async function queueLoanSync(
   });
 
   logger.debug(
-    `[Loan PG NOTIFY] Queued ${syncKey} (Queue: ${loanSyncQueue.size}, Active: ${loanSyncQueue.pending})`
+    `[Loan PG NOTIFY] Queued ${syncKey} (Queue: ${loanSyncQueue.size}, Active: ${loanSyncQueue.pending})`,
   );
 }
 
 async function processLoanSync(
   applicationId: number,
   operation: string,
-  hsObjectId: string | null
+  hsObjectId: string | null,
 ): Promise<{ hubspotId?: string } | void> {
   logger.info(
-    `[Loan PG NOTIFY] Processing ${operation} for application #${applicationId}`
+    `[Loan PG NOTIFY] Processing ${operation} for application #${applicationId}`,
   );
 
   switch (operation) {
@@ -224,7 +224,7 @@ async function handleLoanCreate(applicationId: number): Promise<string> {
   // If loan has hs_object_id (came from HubSpot), UPDATE instead
   if (loanApplication.hs_object_id) {
     logger.info(
-      `[Loan PG NOTIFY] Application #${applicationId} already has HubSpot ID: ${loanApplication.hs_object_id}, updating with db_id`
+      `[Loan PG NOTIFY] Application #${applicationId} already has HubSpot ID: ${loanApplication.hs_object_id}, updating with db_id`,
     );
 
     const hubspotPayload = transformLoanToHubSpotFormat(loanApplication);
@@ -232,12 +232,12 @@ async function handleLoanCreate(applicationId: number): Promise<string> {
     try {
       await updateLoanApplication(loanApplication.hs_object_id, hubspotPayload);
       logger.info(
-        `[Loan PG NOTIFY] Updated HubSpot loan ${loanApplication.hs_object_id} with db_id: ${applicationId}`
+        `[Loan PG NOTIFY] Updated HubSpot loan ${loanApplication.hs_object_id} with db_id: ${applicationId}`,
       );
     } catch (error: any) {
       logger.error(
         `[Loan PG NOTIFY] Failed to update HubSpot with db_id:`,
-        error
+        error,
       );
     }
 
@@ -315,7 +315,7 @@ async function handleLoanCreate(applicationId: number): Promise<string> {
     edumateContactHsObjectId,
     b2bPartnerHsObjectId,
     lenderHsObjectId,
-    loanProductHsObjectId
+    loanProductHsObjectId,
   );
 
   if (!result || !result.id) {
@@ -331,7 +331,7 @@ async function handleLoanCreate(applicationId: number): Promise<string> {
   });
 
   logger.info(
-    `[Loan PG NOTIFY] Created loan application #${applicationId} in HubSpot: ${result.id}`
+    `[Loan PG NOTIFY] Created loan application #${applicationId} in HubSpot: ${result.id}`,
   );
 
   return result.id;
@@ -363,7 +363,7 @@ async function handleLoanUpdate(applicationId: number): Promise<string> {
 
   if (!hubspotId) {
     logger.warn(
-      `[Loan PG NOTIFY] No HubSpot ID for loan ${applicationId}, creating new entry`
+      `[Loan PG NOTIFY] No HubSpot ID for loan ${applicationId}, creating new entry`,
     );
     const newId = await handleLoanCreate(applicationId);
     return newId;
@@ -374,12 +374,12 @@ async function handleLoanUpdate(applicationId: number): Promise<string> {
   try {
     await updateLoanApplication(hubspotId, hubspotPayload);
     logger.info(
-      `[Loan PG NOTIFY] Updated loan application #${applicationId} in HubSpot: ${hubspotId}`
+      `[Loan PG NOTIFY] Updated loan application #${applicationId} in HubSpot: ${hubspotId}`,
     );
   } catch (error: any) {
     if (error?.response?.status === 404) {
       logger.warn(
-        `[Loan PG NOTIFY] HubSpot loan ${hubspotId} not found (404), creating new`
+        `[Loan PG NOTIFY] HubSpot loan ${hubspotId} not found (404), creating new`,
       );
       const newId = await handleLoanCreate(applicationId);
       return newId;
@@ -394,14 +394,14 @@ async function handleLoanUpdate(applicationId: number): Promise<string> {
 async function handleLoanDelete(hsObjectId: string): Promise<void> {
   await deleteLoanApplication(hsObjectId);
   logger.info(
-    `[Loan PG NOTIFY] Deleted loan application from HubSpot: ${hsObjectId}`
+    `[Loan PG NOTIFY] Deleted loan application from HubSpot: ${hsObjectId}`,
   );
 }
 
 async function findOrCreateOutboxEntry(
   applicationId: number,
   operation: string,
-  hsObjectId: string | null
+  hsObjectId: string | null,
 ): Promise<any> {
   const existingEntry = await prisma.syncOutbox.findFirst({
     where: {
@@ -417,13 +417,13 @@ async function findOrCreateOutboxEntry(
 
   if (existingEntry) {
     logger.debug(
-      `[Loan PG NOTIFY] Found existing outbox entry for loan #${applicationId}`
+      `[Loan PG NOTIFY] Found existing outbox entry for loan #${applicationId}`,
     );
     return existingEntry;
   }
 
   logger.warn(
-    `[Loan PG NOTIFY] No outbox entry found for loan #${applicationId}, creating new`
+    `[Loan PG NOTIFY] No outbox entry found for loan #${applicationId}, creating new`,
   );
 
   const newEntry = await prisma.syncOutbox.create({
@@ -457,7 +457,7 @@ async function markAsProcessing(outboxId: string): Promise<any> {
 
 async function markAsCompleted(
   outboxId: string,
-  hubspotId: string | null
+  hubspotId: string | null,
 ): Promise<void> {
   await prisma.syncOutbox.update({
     where: { id: outboxId },
@@ -470,14 +470,14 @@ async function markAsCompleted(
   });
 
   logger.debug(
-    `[Loan PG NOTIFY] Marked outbox #${outboxId} as COMPLETED (HubSpot ID: ${hubspotId})`
+    `[Loan PG NOTIFY] Marked outbox #${outboxId} as COMPLETED (HubSpot ID: ${hubspotId})`,
   );
 }
 
 async function markAsFailed(
   outboxId: string,
   errorMessage: string,
-  currentAttempts: number
+  currentAttempts: number,
 ): Promise<void> {
   const isFinalAttempt = currentAttempts >= MAX_RETRIES;
 
@@ -492,11 +492,11 @@ async function markAsFailed(
 
   if (isFinalAttempt) {
     logger.error(
-      `[Loan PG NOTIFY] Marked outbox #${outboxId} as FAILED after ${MAX_RETRIES} attempts`
+      `[Loan PG NOTIFY] Marked outbox #${outboxId} as FAILED after ${MAX_RETRIES} attempts`,
     );
   } else {
     logger.debug(
-      `[Loan PG NOTIFY] Marked outbox #${outboxId} as PENDING for retry (attempt ${currentAttempts}/${MAX_RETRIES})`
+      `[Loan PG NOTIFY] Marked outbox #${outboxId} as PENDING for retry (attempt ${currentAttempts}/${MAX_RETRIES})`,
     );
   }
 }
@@ -551,6 +551,9 @@ function transformLoanToHubSpotFormat(loanApp: any): any {
       : null,
     loan_amount_disbursed: financialReq.loan_amount_disbursed
       ? parseFloat(financialReq.loan_amount_disbursed)
+      : null,
+    last_loan_amount_disbursed: financialReq.last_loan_amount_disbursed
+      ? parseFloat(financialReq.last_loan_amount_disbursed)
       : null,
     tuition_fee: financialReq.tuition_fee
       ? parseFloat(financialReq.tuition_fee)
@@ -712,7 +715,7 @@ function startFallbackProcessor() {
       if (pendingItems.length === 0) return;
 
       logger.info(
-        `[Loan PG NOTIFY] Processing ${pendingItems.length} items from fallback queue`
+        `[Loan PG NOTIFY] Processing ${pendingItems.length} items from fallback queue`,
       );
 
       for (const item of pendingItems) {
@@ -740,7 +743,7 @@ async function processRetry(item: any): Promise<void> {
     const result = await processLoanSync(
       item.entity_id,
       item.operation,
-      item.payload?.hs_object_id
+      item.payload?.hs_object_id,
     );
 
     await prisma.syncOutbox.update({
@@ -754,7 +757,7 @@ async function processRetry(item: any): Promise<void> {
     });
 
     logger.info(
-      `[Loan PG NOTIFY] Retry succeeded for loan application #${item.entity_id}`
+      `[Loan PG NOTIFY] Retry succeeded for loan application #${item.entity_id}`,
     );
   } catch (error: any) {
     const newAttempts = item.attempts + 1;
@@ -771,7 +774,7 @@ async function processRetry(item: any): Promise<void> {
 
     if (isFinalAttempt) {
       logger.error(
-        `[Loan PG NOTIFY] Retry exhausted for loan application #${item.entity_id} after ${MAX_RETRIES} attempts`
+        `[Loan PG NOTIFY] Retry exhausted for loan application #${item.entity_id} after ${MAX_RETRIES} attempts`,
       );
     }
   }
@@ -783,7 +786,7 @@ async function processRetry(item: any): Promise<void> {
 // Updated graceful shutdown - don't close the shared connection
 process.on("SIGTERM", async () => {
   logger.info(
-    "[Loan PG NOTIFY] SIGTERM received, closing worker gracefully..."
+    "[Loan PG NOTIFY] SIGTERM received, closing worker gracefully...",
   );
   await loanSyncQueue.onIdle();
   // Connection will be closed centrally by pg-notify-client

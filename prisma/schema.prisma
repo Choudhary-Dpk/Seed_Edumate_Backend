@@ -777,6 +777,7 @@ model HSLoanApplicationsFinancialRequirements {
   living_expenses        Decimal?           @db.Decimal(16, 4)
   loan_amount_approved   Decimal?           @db.Decimal(16, 4)
   loan_amount_disbursed  Decimal?           @db.Decimal(16, 4)
+  last_loan_amount_disbursed  Decimal?      @db.Decimal(16, 4)
   loan_amount_requested  Decimal?           @db.Decimal(16, 4)
   other_expenses         Decimal?           @db.Decimal(16, 4)
   scholarship_amount     Decimal?           @db.Decimal(16, 4)

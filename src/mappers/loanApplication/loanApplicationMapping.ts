@@ -340,6 +340,12 @@ export const mapAllLoanApplicationFields = async (
       input.loan_amount_disbursed !== null && input.loan_amount_disbursed !== ""
         ? input.loan_amount_disbursed
         : null;
+  
+    if (input.last_loan_amount_disbursed !== undefined)
+    mapped.last_loan_amount_disbursed =
+      input.last_loan_amount_disbursed !== null && input.last_loan_amount_disbursed !== ""
+        ? input.last_loan_amount_disbursed
+        : null;
 
   if (input.tuition_fee !== undefined)
     mapped.tuition_fee =

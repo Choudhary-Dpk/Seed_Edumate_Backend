@@ -1,5 +1,5 @@
 export const categorizeLoanApplicationByTable = (
-  mappedFields: Record<string, any>
+  mappedFields: Record<string, any>,
 ) => {
   const categorized: Record<string, Record<string, any>> = {};
   // ==================== MAIN TABLE: hs_loan_applications ====================
@@ -71,6 +71,7 @@ export const categorizeLoanApplicationByTable = (
     "living_expenses",
     "loan_amount_approved",
     "loan_amount_disbursed",
+    "last_loan_amount_disbursed",
     "loan_amount_requested",
     "other_expenses",
     "scholarship_amount",
