@@ -3,6 +3,7 @@ import { authenticate } from "../middlewares";
 import {
   createCommissionSettlementController,
   deleteCommissionSettlementController,
+  deleteInvoiceController,
   getCommissionSettlementDetails,
   getCommissionSettlementsByLead,
   getCommissionSettlementsListController,
@@ -36,7 +37,7 @@ router.put(
   updateCommissionSettlementController,
 );
 router.delete(
-  "/:id",
+  "/delete/:id",
   authenticate({
     method: AuthMethod.API_KEY,
   }),
@@ -66,5 +67,13 @@ router.post(
 );
 router.get("/partners", getB2bPartnersList);
 router.get("/leads", getLeadsViewList);
+router.delete(
+  "/delete-invoice",
+  authenticate({
+    method: AuthMethod.BOTH,
+    allowedRoles: ["Admin", "Manager", "User"],
+  }),
+  deleteInvoiceController,
+);
 
 export { router as commissionRoutes };

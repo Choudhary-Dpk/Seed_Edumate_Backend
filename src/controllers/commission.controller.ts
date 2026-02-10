@@ -45,11 +45,12 @@ import {
 import { getContactLeadById } from "../models/helpers/contact.helper";
 import { BACKEND_URL, FRONTEND_URL } from "../setup/secrets";
 import { getPartnerIdByUserId } from "../models/helpers/partners.helper";
+import { deleteFromS3, uploadToS3 } from "../utils/s3bucket";
 
 export const createCommissionSettlementController = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.body.settlement_reference_number) {
@@ -71,114 +72,114 @@ export const createCommissionSettlementController = async (
         logger.debug(`Creating commission settlement`);
         const settlement = await createCommissionSettlement(
           tx,
-          categorized["mainSettlement"]
+          categorized["mainSettlement"],
         );
         logger.debug(
-          `Commission settlement created successfully with id: ${settlement.id}`
+          `Commission settlement created successfully with id: ${settlement.id}`,
         );
 
         logger.debug(
-          `Creating settlement status for settlement: ${settlement.id}`
+          `Creating settlement status for settlement: ${settlement.id}`,
         );
         const settlementStatus = await createCommissionSettlementStatus(
           tx,
           settlement.id,
-          categorized["settlementStatus"]
+          categorized["settlementStatus"],
         );
 
         logger.debug(
-          `Creating system tracking for settlement: ${settlement.id}`
+          `Creating system tracking for settlement: ${settlement.id}`,
         );
         const systemTracking = await createCommissionSettlementSystemTracking(
           tx,
           settlement.id,
-          categorized["systemTracking"]
+          categorized["systemTracking"],
         );
 
         logger.debug(
-          `Creating transaction details for settlement: ${settlement.id}`
+          `Creating transaction details for settlement: ${settlement.id}`,
         );
         const transactionDetails =
           await createCommissionSettlementTransactionDetails(
             tx,
             settlement.id,
-            categorized["transactionDetails"]
+            categorized["transactionDetails"],
           );
 
         logger.debug(
-          `Creating commission calculation for settlement: ${settlement.id}`
+          `Creating commission calculation for settlement: ${settlement.id}`,
         );
         const commissionCalculation =
           await createCommissionSettlementCalculation(
             tx,
             settlement.id,
-            categorized["commissionCalculation"]
+            categorized["commissionCalculation"],
           );
 
         logger.debug(`Creating communication for settlement: ${settlement.id}`);
         const communication = await createCommissionSettlementCommunication(
           tx,
           settlement.id,
-          categorized["communication"]
+          categorized["communication"],
         );
 
         logger.debug(`Creating loan details for settlement: ${settlement.id}`);
         const loanDetails = await createCommissionSettlementLoanDetails(
           tx,
           settlement.id,
-          categorized["loanDetails"]
+          categorized["loanDetails"],
         );
 
         logger.debug(
-          `Creating payment processing for settlement: ${settlement.id}`
+          `Creating payment processing for settlement: ${settlement.id}`,
         );
         const paymentProcessing =
           await createCommissionSettlementPaymentProcessing(
             tx,
             settlement.id,
-            categorized["paymentProcessing"]
+            categorized["paymentProcessing"],
           );
 
         logger.debug(
-          `Creating tax deductions for settlement: ${settlement.id}`
+          `Creating tax deductions for settlement: ${settlement.id}`,
         );
         const taxDeductions = await createCommissionSettlementTaxDeductions(
           tx,
           settlement.id,
-          categorized["taxDeductions"]
+          categorized["taxDeductions"],
         );
 
         logger.debug(`Creating documentation for settlement: ${settlement.id}`);
         const documentation = await createCommissionSettlementDocumentation(
           tx,
           settlement.id,
-          categorized["documentation"]
+          categorized["documentation"],
         );
 
         logger.debug(`Creating hold disputes for settlement: ${settlement.id}`);
         const holdDisputes = await createCommissionSettlementHoldDisputes(
           tx,
           settlement.id,
-          categorized["holdDisputes"]
+          categorized["holdDisputes"],
         );
 
         logger.debug(
-          `Creating reconciliation for settlement: ${settlement.id}`
+          `Creating reconciliation for settlement: ${settlement.id}`,
         );
         const reconciliation = await createCommissionSettlementReconciliation(
           tx,
           settlement.id,
-          categorized["reconciliation"]
+          categorized["reconciliation"],
         );
 
         logger.debug(
-          `Creating performance analytics for settlement: ${settlement.id}`
+          `Creating performance analytics for settlement: ${settlement.id}`,
         );
         const performanceAnalytics =
           await createCommissionSettlementPerformanceAnalytics(
             tx,
             settlement.id,
-            categorized["performanceAnalytics"]
+            categorized["performanceAnalytics"],
           );
 
         data = {
@@ -199,12 +200,12 @@ export const createCommissionSettlementController = async (
 
         return settlement;
       },
-      { timeout: 180000 }
+      { timeout: 180000 },
     );
 
     logger.debug(
       `Commission settlement creation transaction completed successfully`,
-      result.id
+      result.id,
     );
 
     sendResponse(res, 201, "Commission settlement created successfully", data);
@@ -217,7 +218,7 @@ export const createCommissionSettlementController = async (
 export const updateCommissionSettlementController = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const settlementId = parseInt(req.params.id);
@@ -237,111 +238,111 @@ export const updateCommissionSettlementController = async (
       const settlement = await updateCommissionSettlement(
         tx,
         settlementId,
-        categorized["mainSettlement"]
+        categorized["mainSettlement"],
       );
       logger.debug(
-        `Commission settlement updated successfully with id: ${settlementId}`
+        `Commission settlement updated successfully with id: ${settlementId}`,
       );
 
       logger.debug(
-        `Updating settlement status for settlement: ${settlementId}`
+        `Updating settlement status for settlement: ${settlementId}`,
       );
       await updateCommissionSettlementStatus(
         tx,
         settlementId,
-        categorized["settlementStatus"]
+        categorized["settlementStatus"],
       );
 
       logger.debug(`Updating system tracking for settlement: ${settlementId}`);
       await updateCommissionSettlementSystemTracking(
         tx,
         settlementId,
-        categorized["systemTracking"]
+        categorized["systemTracking"],
       );
 
       logger.debug(
-        `Updating transaction details for settlement: ${settlementId}`
+        `Updating transaction details for settlement: ${settlementId}`,
       );
       await updateCommissionSettlementTransactionDetails(
         tx,
         settlementId,
-        categorized["transactionDetails"]
+        categorized["transactionDetails"],
       );
 
       logger.debug(
-        `Updating commission calculation for settlement: ${settlementId}`
+        `Updating commission calculation for settlement: ${settlementId}`,
       );
       await updateCommissionSettlementCalculation(
         tx,
         settlementId,
-        categorized["commissionCalculation"]
+        categorized["commissionCalculation"],
       );
 
       logger.debug(`Updating communication for settlement: ${settlementId}`);
       await updateCommissionSettlementCommunication(
         tx,
         settlementId,
-        categorized["communication"]
+        categorized["communication"],
       );
 
       logger.debug(`Updating loan details for settlement: ${settlementId}`);
       await updateCommissionSettlementLoanDetails(
         tx,
         settlementId,
-        categorized["loanDetails"]
+        categorized["loanDetails"],
       );
 
       logger.debug(
-        `Updating payment processing for settlement: ${settlementId}`
+        `Updating payment processing for settlement: ${settlementId}`,
       );
       await updateCommissionSettlementPaymentProcessing(
         tx,
         settlementId,
-        categorized["paymentProcessing"]
+        categorized["paymentProcessing"],
       );
 
       logger.debug(`Updating tax deductions for settlement: ${settlementId}`);
       await updateCommissionSettlementTaxDeductions(
         tx,
         settlementId,
-        categorized["taxDeductions"]
+        categorized["taxDeductions"],
       );
 
       logger.debug(`Updating documentation for settlement: ${settlementId}`);
       await updateCommissionSettlementDocumentation(
         tx,
         settlementId,
-        categorized["documentation"]
+        categorized["documentation"],
       );
 
       logger.debug(`Updating hold disputes for settlement: ${settlementId}`);
       await updateCommissionSettlementHoldDisputes(
         tx,
         settlementId,
-        categorized["holdDisputes"]
+        categorized["holdDisputes"],
       );
 
       logger.debug(`Updating reconciliation for settlement: ${settlementId}`);
       await updateCommissionSettlementReconciliation(
         tx,
         settlementId,
-        categorized["reconciliation"]
+        categorized["reconciliation"],
       );
 
       logger.debug(
-        `Updating performance analytics for settlement: ${settlementId}`
+        `Updating performance analytics for settlement: ${settlementId}`,
       );
       await updateCommissionSettlementPerformanceAnalytics(
         tx,
         settlementId,
-        categorized["performanceAnalytics"]
+        categorized["performanceAnalytics"],
       );
 
       return settlement;
     });
 
     logger.debug(
-      `Commission settlement update transaction completed successfully`
+      `Commission settlement update transaction completed successfully`,
     );
 
     sendResponse(res, 200, "Commission settlement updated successfully");
@@ -354,7 +355,7 @@ export const updateCommissionSettlementController = async (
 export const deleteCommissionSettlementController = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const settlementId = parseInt(req.params.id);
@@ -373,13 +374,13 @@ export const deleteCommissionSettlementController = async (
 export const getCommissionSettlementDetails = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const settlementId = parseInt(req.params.id);
 
     logger.debug(
-      `Fetching commission settlement details for id: ${settlementId}`
+      `Fetching commission settlement details for id: ${settlementId}`,
     );
     const settlementDetails = await getCommissionSettlement(settlementId);
     logger.debug(`Commission settlement details fetched successfully`);
@@ -388,7 +389,7 @@ export const getCommissionSettlementDetails = async (
       res,
       200,
       "Commission settlement details fetched successfully",
-      settlementDetails
+      settlementDetails,
     );
   } catch (error) {
     logger.error(`Error fetching commission settlement details: ${error}`);
@@ -399,7 +400,7 @@ export const getCommissionSettlementDetails = async (
 export const getCommissionSettlementsListController = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const size = parseInt(req.query.size as string) || 10;
@@ -444,7 +445,7 @@ export const getCommissionSettlementsListController = async (
     };
 
     logger.debug(
-      `Fetching commission settlements list with page: ${page}, size: ${size}, sortKey: ${sortKey}, sortDir: ${sortDir}, search: ${search}, filters: ${JSON.stringify(filters)}`
+      `Fetching commission settlements list with page: ${page}, size: ${size}, sortKey: ${sortKey}, sortDir: ${sortDir}, search: ${search}, filters: ${JSON.stringify(filters)}`,
     );
     const { rows, count } = await fetchCommissionSettlementsList(
       size,
@@ -452,10 +453,10 @@ export const getCommissionSettlementsListController = async (
       sortKey,
       sortDir,
       search,
-      filters
+      filters,
     );
     logger.debug(
-      `Commission settlements list fetched successfully. Count: ${count}`
+      `Commission settlements list fetched successfully. Count: ${count}`,
     );
 
     sendResponse(res, 200, "Commission settlements list fetched successfully", {
@@ -473,7 +474,7 @@ export const getCommissionSettlementsListController = async (
 export const getCommissionSettlementsByLead = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const leadId = parseInt(req.query.leadId as string);
@@ -487,7 +488,7 @@ export const getCommissionSettlementsByLead = async (
     }
 
     logger.debug(
-      `Fetching commission settlements details for leadId: ${leadId}`
+      `Fetching commission settlements details for leadId: ${leadId}`,
     );
     const response = await fetchCommissionSettlementsByLead(leadId);
     logger.debug(`Commission settlements details fetched successfully`);
@@ -496,7 +497,7 @@ export const getCommissionSettlementsByLead = async (
       res,
       200,
       "Commission settlements details fetched successfully",
-      response
+      response,
     );
   } catch (error) {
     logger.error(`Error fetching commission settlements list: ${error}`);
@@ -507,11 +508,12 @@ export const getCommissionSettlementsByLead = async (
 export const uploadInvoiceController = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { status = "pending", date } = req.body;
     const file = req.file;
+
     // Check if file is uploaded
     if (!file) {
       return sendResponse(res, 400, "Invoice file is required");
@@ -530,31 +532,18 @@ export const uploadInvoiceController = async (
       return sum + parseFloat(grossAmount.toString());
     }, 0);
 
-    // Since you're using memory storage, save file to disk
-    const uploadDir = path.join(process.cwd(), "uploads", "invoices");
+    // Upload to S3 instead of local disk
+    const {
+      key,
+      url: fileUrl,
+      fileName,
+    } = await uploadToS3(file.buffer, file.originalname, "invoices");
 
-    // Create directory if doesn't exist
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-
-    // Generate unique filename
-    const timestamp = Date.now();
-    const uniqueSuffix = Math.round(Math.random() * 1e9);
-    const fileExt = path.extname(file.originalname);
-    const fileName = `invoice-${timestamp}-${uniqueSuffix}${fileExt}`;
-    const filePath = path.join(uploadDir, fileName);
-
-    // Write buffer to file
-    fs.writeFileSync(filePath, file.buffer);
-
-    // Generate file URL
-    const fileUrl = `${BACKEND_URL}/uploads/invoices/${fileName}`;
-    // Create invoice record - extract data from first settlement
+    // Create invoice record
     const invoice = await prisma.invoice.create({
       data: {
-        file: fileName,
-        url: fileUrl,
+        file: fileName, // filename
+        url: fileUrl, // Store full S3 URL
         status: status,
         date: date ? new Date(date) : new Date(),
         commission_settlement_ids: settlementIds.join(","),
@@ -581,9 +570,7 @@ export const uploadInvoiceController = async (
       settlements.map(async (settlement: any) => {
         const settlementAmount = req.body.invoice_amount;
 
-        // Check if documentation record exists for this settlement
         if (settlement.documentaion) {
-          // Update existing documentation
           return await prisma.hSCommissionSettlementsDocumentation.update({
             where: { settlement_id: settlement.id },
             data: {
@@ -591,16 +578,15 @@ export const uploadInvoiceController = async (
               invoice_date: req.body.invoice_date
                 ? new Date(req.body.invoice_date)
                 : invoice.date
-                ? new Date(invoice.date)
-                : null,
+                  ? new Date(invoice.date)
+                  : null,
               invoice_amount: settlementAmount,
               invoice_status: "Received",
-              invoice_url: fileUrl,
+              invoice_url: fileUrl, // S3 URL
               invoice_required: "Yes",
             },
           });
         } else {
-          // Create new documentation record
           return await prisma.hSCommissionSettlementsDocumentation.create({
             data: {
               settlement_id: settlement.id,
@@ -608,16 +594,16 @@ export const uploadInvoiceController = async (
               invoice_date: req.body.invoice_date
                 ? new Date(req.body.invoice_date)
                 : invoice.date
-                ? new Date(invoice.date)
-                : null,
+                  ? new Date(invoice.date)
+                  : null,
               invoice_amount: settlementAmount,
               invoice_status: status,
-              invoice_url: fileUrl,
+              invoice_url: fileUrl, // S3 URL
               invoice_required: "Yes",
             },
           });
         }
-      })
+      }),
     );
 
     return sendResponse(
@@ -641,9 +627,69 @@ export const uploadInvoiceController = async (
           lender_id: invoice.lender_id,
         },
         updated_settlements: documentationUpdates.length,
-      }
+      },
     );
   } catch (error: any) {
     console.error("Error uploading invoice:", error);
+    return sendResponse(res, 500, "Error uploading invoice");
+  }
+};
+
+export const deleteInvoiceController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { invoice_url } = req.body;
+
+    if (!invoice_url) {
+      return sendResponse(res, 400, "Invoice URL is required");
+    }
+
+    // Find the invoice by URL (the only link between Invoice table and Documentation table)
+    const invoice = await prisma.invoice.findFirst({
+      where: { url: invoice_url },
+    });
+
+    if (!invoice) {
+      return sendResponse(res, 404, "Invoice not found");
+    }
+
+    // Step 1: Delete file from S3
+    if (invoice.file) {
+      try {
+        await deleteFromS3(invoice.file); // invoice.file = S3 key like "invoices/invoice-123.pdf"
+      } catch (s3Error: any) {
+        console.error("Error deleting file from S3:", s3Error);
+        // Continue with DB cleanup even if S3 delete fails
+      }
+    }
+
+    // Step 2: Clear invoice data from ALL documentation records pointing to this invoice URL
+    await prisma.hSCommissionSettlementsDocumentation.updateMany({
+      where: {
+        invoice_url: invoice_url,
+      },
+      data: {
+        invoice_number: null,
+        invoice_date: null,
+        invoice_amount: null,
+        invoice_status: null,
+        invoice_url: null,
+      },
+    });
+
+    // Step 3: Delete the invoice record from database
+    await prisma.invoice.delete({
+      where: { id: invoice.id },
+    });
+
+    return sendResponse(res, 200, "Invoice deleted successfully", {
+      deleted_invoice_id: invoice.id,
+    });
+  } catch (error: any) {
+    console.error("Error deleting invoice:", error);
+    return sendResponse(res, 500, "Error deleting invoice");
   }
 };
