@@ -67,7 +67,7 @@ router.put(
   "/change-password",
   authenticate({
     method: AuthMethod.JWT,
-    allowedRoles: ["Admin"],
+    allowedRoles: ["super_admin", "Admin", "commission_reviewer", "commission_approver", "commission_viewer"],
   }),
   changePasswordValidationRules(),
   validateReqParams,
@@ -78,7 +78,7 @@ router.post(
   "/logout",
   authenticate({
     method: AuthMethod.JWT,
-    allowedRoles: ["Admin"],
+    allowedRoles: ["super_admin", "Admin", "commission_reviewer", "commission_approver", "commission_viewer"],
   }),
   logoutAdmin
 );
@@ -86,7 +86,7 @@ router.get(
   "/profile",
   authenticate({
     method: AuthMethod.JWT,
-    allowedRoles: ["Admin"],
+    allowedRoles: ["super_admin", "Admin", "commission_reviewer", "commission_approver", "commission_viewer"],
   }),
   getAdminProfile
 );
