@@ -12,37 +12,37 @@ export interface CreateEmailLogOptions {
   subject: string;
   email_type: EmailType;
   category: EmailCategory;
-  
+
   // Optional core fields
   cc?: string;
   bcc?: string;
   from?: string;
-  
+
   // Sender tracking
   sent_by_user_id?: number;
   sent_by_name?: string;
   sent_by_type?: SenderType;
-  
+
   // Reference tracking (what is this email about?)
-  reference_type?: string;  // "partner", "loan_application", "user"
+  reference_type?: string; // "partner", "loan_application", "user"
   reference_id?: number;
-  
+
   // Content metadata
   has_attachment?: boolean;
   attachment_count?: number;
-  
+
   // Status & queue
   status?: EmailLogStatus;
   queue_item_id?: number;
-  
+
   // Error tracking
   error_message?: string;
   attempts?: number;
-  
+
   // Timestamps
   sent_at?: Date;
   failed_at?: Date;
-  
+
   // Flexible metadata (type-specific data)
   metadata?: any;
 }
@@ -52,29 +52,29 @@ export interface CreateEmailLogOptions {
 // ============================================================================
 
 export enum EmailCategory {
-  TRANSACTIONAL = "TRANSACTIONAL",  
-  DASHBOARD = "DASHBOARD",           
-  SYSTEM = "SYSTEM",                
-  MARKETING = "MARKETING",          
-  NOTIFICATION = "NOTIFICATION",    
-  LOAN = "LOAN",                    
+  TRANSACTIONAL = "TRANSACTIONAL",
+  DASHBOARD = "DASHBOARD",
+  SYSTEM = "SYSTEM",
+  MARKETING = "MARKETING",
+  NOTIFICATION = "NOTIFICATION",
+  LOAN = "LOAN",
 }
 
 export enum EmailLogStatus {
-  PENDING = "PENDING",              
-  QUEUED = "QUEUED",                
-  SENT = "SENT",                    
-  FAILED = "FAILED",                
-  BOUNCED = "BOUNCED",              
-  REJECTED = "REJECTED",            
+  PENDING = "PENDING",
+  QUEUED = "QUEUED",
+  SENT = "SENT",
+  FAILED = "FAILED",
+  BOUNCED = "BOUNCED",
+  REJECTED = "REJECTED",
 }
 
 export enum SenderType {
-  ADMIN = "ADMIN",                  
-  PARTNER = "PARTNER",              
-  SYSTEM = "SYSTEM",                
-  API = "API",                      
-  CRON = "CRON",                    
+  ADMIN = "ADMIN",
+  PARTNER = "PARTNER",
+  SYSTEM = "SYSTEM",
+  API = "API",
+  CRON = "CRON",
 }
 
 export enum EmailType {
@@ -93,6 +93,8 @@ export enum EmailType {
   SHOW_INTEREST = "SHOW_INTEREST",
   WELCOME = "WELCOME",
   UNKNOWN = "UNKNOWN",
+  COMMISSION_FINANCE_NOTIFY = "COMMISSION_FINANCE_NOTIFY",
+  COMMISSION_PARTNER_NOTIFY = "COMMISSION_PARTNER_NOTIFY",
 }
 
 // ============================================================================
@@ -101,15 +103,15 @@ export enum EmailType {
 
 /**
  * Create email log entry
- * 
+ *
  * This is the PRIMARY function for logging ALL emails
  * Use this everywhere instead of direct database inserts
- * 
+ *
  * @param options - Email log configuration
  * @returns Created email log record
  */
 export async function createEmailLog(
-  options: CreateEmailLogOptions
+  options: CreateEmailLogOptions,
 ): Promise<any> {
   try {
     const emailLog = await prisma.emailLog.create({
@@ -120,36 +122,36 @@ export async function createEmailLog(
         bcc: options.bcc,
         from: options.from,
         subject: options.subject,
-        
+
         // Classification
         email_type: options.email_type as any,
         category: options.category as any,
-        
+
         // Sender tracking
         sent_by_user_id: options.sent_by_user_id,
         sent_by_name: options.sent_by_name,
         sent_by_type: options.sent_by_type as any,
-        
+
         // Reference tracking
         reference_type: options.reference_type,
         reference_id: options.reference_id,
-        
+
         // Content metadata
         has_attachment: options.has_attachment || false,
         attachment_count: options.attachment_count || 0,
-        
+
         // Status & queue
         status: (options.status || EmailLogStatus.PENDING) as any,
         queue_item_id: options.queue_item_id,
-        
+
         // Error tracking
         error_message: options.error_message,
         attempts: options.attempts || 0,
-        
+
         // Timestamps
         sent_at: options.sent_at,
         failed_at: options.failed_at,
-        
+
         // Metadata
         metadata: options.metadata as Prisma.InputJsonValue,
       },
@@ -177,12 +179,12 @@ export async function createEmailLog(
 
 /**
  * Update email log status
- * 
+ *
  * Called when:
  * - Email is successfully sent (QUEUED → SENT)
  * - Email fails to send (QUEUED → FAILED)
  * - Email bounces (SENT → BOUNCED)
- * 
+ *
  * @param id - Email log ID
  * @param status - New status
  * @param options - Additional update fields
@@ -196,7 +198,7 @@ export async function updateEmailLogStatus(
     failed_at?: Date;
     error_message?: string;
     attempts?: number;
-  }
+  },
 ): Promise<any> {
   try {
     const updateData: any = {
@@ -249,13 +251,13 @@ export async function updateEmailLogStatus(
 
 /**
  * Get email logs with filters
- * 
+ *
  * Useful for:
  * - Analytics dashboards
  * - Debugging email issues
  * - Audit trails
  * - Reporting
- * 
+ *
  * @param filters - Query filters
  * @returns Array of email logs
  */
@@ -347,9 +349,9 @@ export async function getEmailLogs(filters: {
 
 /**
  * Get email analytics
- * 
+ *
  * Returns aggregated statistics for email monitoring
- * 
+ *
  * @param filters - Date range filters
  * @returns Email analytics summary
  */
@@ -377,44 +379,53 @@ export async function getEmailAnalytics(filters: {
   }
 
   try {
-    const [total, sent, failed, pending, queued, byCategory, byType, bySenderType] = await Promise.all([
+    const [
+      total,
+      sent,
+      failed,
+      pending,
+      queued,
+      byCategory,
+      byType,
+      bySenderType,
+    ] = await Promise.all([
       // Total emails
       prisma.emailLog.count({ where }),
-      
+
       // Sent emails
-      prisma.emailLog.count({ 
-        where: { ...where, status: EmailLogStatus.SENT as any } 
+      prisma.emailLog.count({
+        where: { ...where, status: EmailLogStatus.SENT as any },
       }),
-      
+
       // Failed emails
-      prisma.emailLog.count({ 
-        where: { ...where, status: EmailLogStatus.FAILED as any } 
+      prisma.emailLog.count({
+        where: { ...where, status: EmailLogStatus.FAILED as any },
       }),
-      
+
       // Pending emails
-      prisma.emailLog.count({ 
-        where: { ...where, status: EmailLogStatus.PENDING as any } 
+      prisma.emailLog.count({
+        where: { ...where, status: EmailLogStatus.PENDING as any },
       }),
-      
+
       // Queued emails
-      prisma.emailLog.count({ 
-        where: { ...where, status: EmailLogStatus.QUEUED as any } 
+      prisma.emailLog.count({
+        where: { ...where, status: EmailLogStatus.QUEUED as any },
       }),
-      
+
       // Group by category
       prisma.emailLog.groupBy({
         by: ["category"],
         where,
         _count: true,
       }),
-      
+
       // Group by type
       prisma.emailLog.groupBy({
         by: ["email_type"],
         where,
         _count: true,
       }),
-      
+
       // Group by sender type
       prisma.emailLog.groupBy({
         by: ["sent_by_type"],
@@ -452,10 +463,10 @@ export async function getEmailAnalytics(filters: {
 
 /**
  * Legacy logEmailHistory function
- * 
+ *
  * Maintains backward compatibility with old code
  * Maps old API to new unified logging
- * 
+ *
  * @deprecated Use createEmailLog() directly instead
  */
 export async function logEmailHistory(options: {
@@ -465,9 +476,12 @@ export async function logEmailHistory(options: {
   subject: string;
   type: string;
 }): Promise<any> {
-  logger.warn("DEPRECATED: logEmailHistory() called. Use createEmailLog() instead.", {
-    type: options.type,
-  });
+  logger.warn(
+    "DEPRECATED: logEmailHistory() called. Use createEmailLog() instead.",
+    {
+      type: options.type,
+    },
+  );
 
   // Map old "type" string to new EmailType enum
   const emailType = mapLegacyTypeToEmailType(options.type);
@@ -486,13 +500,13 @@ export async function logEmailHistory(options: {
 
 /**
  * Map legacy email type strings to new enum
- * 
+ *
  * Handles variations and typos in old type strings
  */
 function mapLegacyTypeToEmailType(legacyType: string): EmailType {
   const mapping: Record<string, EmailType> = {
-    "Otp": EmailType.OTP,
-    "OTP": EmailType.OTP,
+    Otp: EmailType.OTP,
+    OTP: EmailType.OTP,
     "Forgot Password": EmailType.FORGOT_PASSWORD,
     "Set Password": EmailType.SET_PASSWORD,
     "Reset Password": EmailType.RESET_PASSWORD,
@@ -505,9 +519,11 @@ function mapLegacyTypeToEmailType(legacyType: string): EmailType {
     "Repayment Schedule Email": EmailType.REPAYMENT_SCHEDULE,
     "Repayment Schedule": EmailType.REPAYMENT_SCHEDULE,
     "Show Interest": EmailType.SHOW_INTEREST,
-    "Welcome": EmailType.WELCOME,
+    Welcome: EmailType.WELCOME,
     "Cron Notification": EmailType.CRON_NOTIFICATION,
     "System Alert": EmailType.SYSTEM_ALERT,
+    "Commission Finance Notify": EmailType.COMMISSION_FINANCE_NOTIFY,
+    "Commission Partner Notify": EmailType.COMMISSION_PARTNER_NOTIFY,
   };
 
   return mapping[legacyType] || EmailType.UNKNOWN;
@@ -515,7 +531,7 @@ function mapLegacyTypeToEmailType(legacyType: string): EmailType {
 
 /**
  * Infer email category from email type
- * 
+ *
  * Provides reasonable defaults for categorization
  */
 function inferCategoryFromType(emailType: EmailType): EmailCategory {
@@ -535,6 +551,8 @@ function inferCategoryFromType(emailType: EmailType): EmailCategory {
     [EmailType.SHOW_INTEREST]: EmailCategory.MARKETING,
     [EmailType.WELCOME]: EmailCategory.TRANSACTIONAL,
     [EmailType.UNKNOWN]: EmailCategory.SYSTEM,
+    [EmailType.COMMISSION_FINANCE_NOTIFY]: EmailCategory.NOTIFICATION,
+    [EmailType.COMMISSION_PARTNER_NOTIFY]: EmailCategory.NOTIFICATION,
   };
 
   return categoryMap[emailType] || EmailCategory.SYSTEM;
@@ -544,7 +562,4 @@ function inferCategoryFromType(emailType: EmailType): EmailCategory {
 // EXPORTS
 // ============================================================================
 
-export {
-  mapLegacyTypeToEmailType,
-  inferCategoryFromType,
-};
+export { mapLegacyTypeToEmailType, inferCategoryFromType };

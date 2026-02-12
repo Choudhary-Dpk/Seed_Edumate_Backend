@@ -7,6 +7,7 @@ import {
   updateCommissionSettlementsApplication,
   deleteCommissionSettlement,
 } from "../services/hubspot-commission-settlements.service";
+import { notifyPartnerForSettlement } from "../services/EmailNotifications/commission.notification.service";
 
 const MAX_RETRIES = 5;
 const DEBOUNCE_DELAY = 5000;
@@ -107,6 +108,21 @@ async function handleNotification(msg: any) {
         `[Commission PG NOTIFY] Debouncing ${syncKey} for ${DEBOUNCE_DELAY}ms`
       );
     } else {
+      // ═══════════════════════════════════════════════════════════════
+      // PHASE 2: Notify Partner when a new commission settlement is created
+      // Non-blocking: fires and forgets, won't affect HubSpot sync
+      // ═══════════════════════════════════════════════════════════════
+      if (data.operation === "INSERT") {
+        notifyPartnerForSettlement(settlementId, {
+          name: "System",
+          type: "system",
+        }).catch((err) =>
+          logger.warn(
+            `[Commission PG NOTIFY] Partner notification failed for settlement #${settlementId}: ${err.message}`
+          )
+        );
+      }
+
       await queueCommissionSync(
         settlementId,
         data.operation,
