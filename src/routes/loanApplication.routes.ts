@@ -16,7 +16,7 @@ router.post(
   "/",
   authenticate({
     method: AuthMethod.JWT,
-    allowedRoles: ["Admin", "Manager", "User"],
+    allowedRoles: ["Admin", "Manager", "User", "super_admin", "Admin", "commission_reviewer", "commission_approver", "commission_viewer"],
   }),
   createLoanApplicationsController
 );
@@ -24,7 +24,7 @@ router.put(
   "/:id",
   authenticate({
     method: AuthMethod.JWT,
-    allowedRoles: ["Admin", "Manager", "User"],
+    allowedRoles: ["Admin", "Manager", "User", "super_admin", "Admin", "commission_reviewer", "commission_approver", "commission_viewer"],
   }),
   updateLoanApplicationController
 );
@@ -39,7 +39,7 @@ router.delete(
   "/:id",
   authenticate({
     method: AuthMethod.JWT,
-    allowedRoles: ["Admin", "Manager", "User"],
+    allowedRoles: ["Admin", "Manager", "User", "super_admin", "Admin", "commission_reviewer", "commission_approver", "commission_viewer"],
   }),
   deleteLoanApplicationController
 );
@@ -47,7 +47,7 @@ router.get(
   "/details/:id",
   authenticate({
     method: AuthMethod.JWT,
-    allowedRoles: ["Admin", "Manager", "User"],
+    allowedRoles: ["Admin", "Manager", "User", "super_admin", "Admin", "commission_reviewer", "commission_approver", "commission_viewer"],
   }),
   getLoanApplicationDetailsController
 );
@@ -55,7 +55,7 @@ router.get(
   "/pagination",
   authenticate({
     method: AuthMethod.JWT,
-    allowedRoles: ["Admin", "Manager", "User"],
+    allowedRoles: ["Admin", "Manager", "User", "super_admin", "Admin", "commission_reviewer", "commission_approver", "commission_viewer"],
   }),
   getLoanApplicationsListController
 );
@@ -63,7 +63,7 @@ router.get(
   "/list",
   authenticate({
     method: AuthMethod.JWT,
-    allowedRoles: ["Admin", "Manager", "User"],
+    allowedRoles: ["Admin", "Manager", "User", "super_admin", "Admin", "commission_reviewer", "commission_approver", "commission_viewer"],
   }),
   getLoanApplicationsList
 );

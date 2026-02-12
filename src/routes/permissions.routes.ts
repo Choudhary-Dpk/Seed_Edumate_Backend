@@ -9,7 +9,7 @@ router.get(
   "/",
   authenticate({
     method: AuthMethod.JWT,
-    allowedRoles: ["Admin", "Manager", "User"],
+    allowedRoles: ["Admin", "Manager", "User", "super_admin", "Admin", "commission_reviewer", "commission_approver", "commission_viewer"],
   }),
   getPermissions
 );

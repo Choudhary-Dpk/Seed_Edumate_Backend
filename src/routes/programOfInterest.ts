@@ -47,7 +47,7 @@ router.get(
   "/",
   authenticate({
     method: AuthMethod.BOTH,
-    allowedRoles: ["Admin", "Manager", "User"],
+    allowedRoles: ["Admin", "Manager", "User", "super_admin", "Admin", "commission_reviewer", "commission_approver", "commission_viewer"],
   }),
   validateReqParams,
   getAllProgramsOfInterest
@@ -61,7 +61,7 @@ router.get(
   "/count",
   authenticate({
     method: AuthMethod.BOTH,
-    allowedRoles: ["Admin", "Manager", "User"],
+    allowedRoles: ["Admin", "Manager", "User", "super_admin", "Admin", "commission_reviewer", "commission_approver", "commission_viewer"],
   }),
   validateReqParams,
   getProgramsCount
@@ -75,7 +75,7 @@ router.get(
   "/:hs_program_id",
   authenticate({
     method: AuthMethod.BOTH,
-    allowedRoles: ["Admin", "Manager", "User"],
+    allowedRoles: ["Admin", "Manager", "User", "super_admin", "Admin", "commission_reviewer", "commission_approver", "commission_viewer"],
   }),
   validateReqParams,
   getProgramOfInterestById

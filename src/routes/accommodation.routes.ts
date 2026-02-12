@@ -46,7 +46,7 @@ router.get(
   "/providers",
   authenticate({
     method: AuthMethod.API_KEY,
-    allowedRoles: ["Admin", "Manager", "User"],
+    allowedRoles: ["Admin", "Manager", "User", "super_admin", "Admin", "commission_reviewer", "commission_approver", "commission_viewer"],
   }),
   validateReqParams,
   getProviders
@@ -62,7 +62,7 @@ router.get(
   "/cities",
   authenticate({
     method: AuthMethod.API_KEY,
-    allowedRoles: ["Admin", "Manager", "User"],
+    allowedRoles: ["Admin", "Manager", "User", "super_admin", "Admin", "commission_reviewer", "commission_approver", "commission_viewer"],
   }),
   validateReqParams,
   getCities
@@ -78,7 +78,7 @@ router.get(
   "/universities",
   authenticate({
     method: AuthMethod.API_KEY,
-    allowedRoles: ["Admin", "Manager", "User"],
+    allowedRoles: ["Admin", "Manager", "User", "super_admin", "Admin", "commission_reviewer", "commission_approver", "commission_viewer"],
   }),
   validateReqParams,
   getUniversities
@@ -103,7 +103,7 @@ router.get(
   "/properties",
   authenticate({
     method: AuthMethod.API_KEY,
-    allowedRoles: ["Admin", "Manager", "User"],
+    allowedRoles: ["Admin", "Manager", "User", "super_admin", "Admin", "commission_reviewer", "commission_approver", "commission_viewer"],
   }),
   validateReqParams,
   getProperties
@@ -122,7 +122,7 @@ router.get(
   "/properties/:id",
   authenticate({
     method: AuthMethod.API_KEY,
-    allowedRoles: ["Admin", "Manager", "User"],
+    allowedRoles: ["Admin", "Manager", "User", "super_admin", "Admin", "commission_reviewer", "commission_approver", "commission_viewer"],
   }),
   validatePropertyId,
   validateReqParams,
@@ -157,7 +157,7 @@ router.post(
   "/leads",
   authenticate({
     method: AuthMethod.API_KEY,
-    allowedRoles: ["Admin", "Manager", "User"],
+    allowedRoles: ["Admin", "Manager", "User", "super_admin", "Admin", "commission_reviewer", "commission_approver", "commission_viewer"],
   }),
   validateCreateLeadPayload,
   validateReqParams,
@@ -177,7 +177,7 @@ router.get(
   "/leads/:id",
   authenticate({
     method: AuthMethod.API_KEY,
-    allowedRoles: ["Admin", "Manager", "User"],
+    allowedRoles: ["Admin", "Manager", "User", "super_admin", "Admin", "commission_reviewer", "commission_approver", "commission_viewer"],
   }),
   validateLeadId,
   validateReqParams,
@@ -241,7 +241,7 @@ router.post(
   "/bookings",
   authenticate({
     method: AuthMethod.API_KEY,
-    allowedRoles: ["Admin", "Manager", "User"],
+    allowedRoles: ["Admin", "Manager", "User", "super_admin", "Admin", "commission_reviewer", "commission_approver", "commission_viewer"],
   }),
   validateCreateBookingPayload,
   validateReqParams,
@@ -261,7 +261,7 @@ router.get(
   "/bookings/:id",
   authenticate({
     method: AuthMethod.API_KEY,
-    allowedRoles: ["Admin", "Manager", "User"],
+    allowedRoles: ["Admin", "Manager", "User", "super_admin", "Admin", "commission_reviewer", "commission_approver", "commission_viewer"],
   }),
   validateOrderId,
   validateReqParams,

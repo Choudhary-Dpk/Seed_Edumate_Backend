@@ -31,7 +31,7 @@ router.post(
   "/",
   authenticate({
     method: AuthMethod.BOTH,
-    allowedRoles: ["Admin", "Manager", "User"],
+    allowedRoles: ["Admin", "Manager", "User", "super_admin", "Admin", "commission_reviewer", "commission_approver", "commission_viewer"],
   }),
   validateReqParams,
   validateContactsLeadPayload,
@@ -44,7 +44,7 @@ router.delete(
   "/:id",
   authenticate({
     method: AuthMethod.BOTH,
-    allowedRoles: ["Admin", "Manager", "User"],
+    allowedRoles: ["Admin", "Manager", "User", "super_admin", "Admin", "commission_reviewer", "commission_approver", "commission_viewer"],
   }),
   validateId(),
   validateReqParams,
@@ -55,7 +55,7 @@ router.get(
   "/details/:id",
   authenticate({
     method: AuthMethod.BOTH,
-    allowedRoles: ["Admin", "Manager", "User"],
+    allowedRoles: ["Admin", "Manager", "User", "super_admin", "Admin", "commission_reviewer", "commission_approver", "commission_viewer"],
   }),
   validateId(),
   validateReqParams,
@@ -66,7 +66,7 @@ router.put(
   "/:id",
   authenticate({
     method: AuthMethod.BOTH,
-    allowedRoles: ["Admin", "Manager", "User"],
+    allowedRoles: ["Admin", "Manager", "User", "super_admin", "Admin", "commission_reviewer", "commission_approver", "commission_viewer"],
   }),
   validateReqParams,
   validateContactLeadById,
@@ -76,7 +76,7 @@ router.get(
   "/list",
   authenticate({
     method: AuthMethod.BOTH,
-    allowedRoles: ["Admin", "Manager", "User"],
+    allowedRoles: ["Admin", "Manager", "User", "super_admin", "Admin", "commission_reviewer", "commission_approver", "commission_viewer"],
   }),
   contactsLeadPaginationValidationRules(),
   validateReqParams,
@@ -112,7 +112,7 @@ router.post(
   "/upload-csv",
   authenticate({
     method: AuthMethod.BOTH,
-    allowedRoles: ["Admin", "Manager", "User"],
+    allowedRoles: ["Admin", "Manager", "User", "super_admin", "Admin", "commission_reviewer", "commission_approver", "commission_viewer"],
   }),
   validateAndParseCSVFile("CSV"),
   uploadContactsCSV,
@@ -122,7 +122,7 @@ router.post(
   "/bulk-import",
   authenticate({
     method: AuthMethod.BOTH,
-    allowedRoles: ["Admin", "Manager", "User"],
+    allowedRoles: ["Admin", "Manager", "User", "super_admin", "Admin", "commission_reviewer", "commission_approver", "commission_viewer"],
   }),
   validateContactsJSONPayload,
   uploadContactsJSON,

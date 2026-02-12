@@ -83,7 +83,7 @@ router.put(
   validateReqParams,
   authenticate({
     method: AuthMethod.JWT,
-    allowedRoles: ["Admin", "Manager", "User"],
+    allowedRoles: ["Admin", "Manager", "User", "super_admin", "Admin", "commission_reviewer", "commission_approver", "commission_viewer"],
   }),
   validateChangePassword,
   changePassword,
@@ -92,7 +92,7 @@ router.post(
   "/logout",
   authenticate({
     method: AuthMethod.JWT,
-    allowedRoles: ["Admin", "Manager", "User"],
+    allowedRoles: ["Admin", "Manager", "User", "super_admin", "Admin", "commission_reviewer", "commission_approver", "commission_viewer"],
   }),
   logout,
 );
