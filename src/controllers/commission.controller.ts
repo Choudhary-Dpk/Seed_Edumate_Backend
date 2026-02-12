@@ -152,7 +152,10 @@ export const createCommissionSettlementController = async (
         const documentation = await createCommissionSettlementDocumentation(
           tx,
           settlement.id,
-          categorized["documentation"]
+          {
+            ...categorized["documentation"],
+            invoice_status: categorized["documentation"]?.invoice_status || "Pending",
+          }
         );
 
         logger.debug(`Creating hold disputes for settlement: ${settlement.id}`);

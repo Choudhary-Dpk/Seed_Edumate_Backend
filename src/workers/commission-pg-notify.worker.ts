@@ -118,9 +118,24 @@ async function handleNotification(msg: any) {
           type: "system",
         }).catch((err) =>
           logger.warn(
-            `[Commission PG NOTIFY] Partner notification failed for settlement #${settlementId}: ${err.message}`
-          )
+            `[Commission PG NOTIFY] Partner notification failed for settlement #${settlementId}: ${err.message}`,
+          ),
         );
+
+        // Set default invoice_status = "Pending" if not already set
+        prisma.hSCommissionSettlementsDocumentation
+          .updateMany({
+            where: {
+              settlement_id: settlementId,
+              OR: [{ invoice_status: null }, { invoice_status: "" }],
+            },
+            data: { invoice_status: "Pending" },
+          })
+          .catch((err: any) =>
+            logger.warn(
+              `[Commission PG NOTIFY] Failed to set default invoice_status for settlement #${settlementId}: ${err.message}`,
+            ),
+          );
       }
 
       await queueCommissionSync(
