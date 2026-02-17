@@ -12,12 +12,19 @@ import {
   acceptSettlementController,
   raiseObjectionController,
   resolveDisputeController,
+  l1ApproveController,
+  l1RejectController,
+  l2ApproveController,
+  l2RejectController,
+  getApprovalTimelineController,
+  getInvoiceFileController,
 } from "../controllers/commission.controller";
 import {
   checkDuplicateCommissionSettlementFields,
   validateSettlementIds,
   validateSettlementOwnership,
   validateSettlementStatus,
+  validateApprovalRole,
 } from "../middlewares/commission.middleware";
 import multer from "../setup/multer";
 import { getB2bPartnersList } from "../controllers/partner.controller";
@@ -125,6 +132,84 @@ router.patch(
   }),
   validateSettlementStatus(["Disputed"], "settlement_status"),
   resolveDisputeController,
+);
+
+// ── Phase 4: L1 Approve (Finance/Ops reviewer) ──
+router.patch(
+  "/:id/l1-approve",
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin", "Manager", "super_admin", "commission_reviewer"],
+  }),
+  validateSettlementStatus(["Pending Approval"], "settlement_status"),
+  l1ApproveController,
+);
+
+// ── Phase 4: L1 Reject (Finance/Ops reviewer) ──
+router.patch(
+  "/:id/l1-reject",
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin", "Manager", "super_admin", "commission_reviewer"],
+  }),
+  validateSettlementStatus(["Pending Approval"], "settlement_status"),
+  l1RejectController,
+);
+
+// ── Phase 4: L2 Approve (Business Head) ──
+router.patch(
+  "/:id/l2-approve",
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin", "super_admin", "commission_approver"],
+  }),
+  validateSettlementStatus(["L1 Approved"], "settlement_status"),
+  l2ApproveController,
+);
+
+// ── Phase 4: L2 Reject (Business Head) ──
+router.patch(
+  "/:id/l2-reject",
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: ["Admin", "super_admin", "commission_approver"],
+  }),
+  validateSettlementStatus(["L1 Approved"], "settlement_status"),
+  l2RejectController,
+);
+
+// ── Phase 4: Get Approval Timeline ──
+router.get(
+  "/:id/timeline",
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: [
+      "Admin",
+      "Manager",
+      "super_admin",
+      "commission_reviewer",
+      "commission_approver",
+      "commission_viewer",
+    ],
+  }),
+  getApprovalTimelineController,
+);
+
+// ── Phase 4: Serve Invoice File (production-safe) ──
+router.get(
+  "/:id/invoice-file",
+  authenticate({
+    method: AuthMethod.JWT,
+    allowedRoles: [
+      "Admin",
+      "Manager",
+      "super_admin",
+      "commission_reviewer",
+      "commission_approver",
+      "commission_viewer",
+    ],
+  }),
+  getInvoiceFileController,
 );
 
 router.get("/partners", getB2bPartnersList);

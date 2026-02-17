@@ -13,12 +13,14 @@ export const createCommissionSettlement = async (tx: any, mainData: any) => {
 export const createCommissionSettlementStatus = async (
   tx: any,
   settlementId: number,
-  statusData: any
+  statusData: any,
 ) => {
   const status = await tx.hSCommissionSettlementsSettlementStatus.create({
     data: {
       settlement_id: settlementId,
       ...statusData,
+      verification_status: statusData?.verification_status || "Pending",
+      settlement_status: statusData?.settlement_status || "Calculated",
     },
   });
 
@@ -28,7 +30,7 @@ export const createCommissionSettlementStatus = async (
 export const createCommissionSettlementSystemTracking = async (
   tx: any,
   settlementId: number,
-  systemTrackingData: any
+  systemTrackingData: any,
 ) => {
   const systemTracking = await tx.hSCommissionSettlementsSystemTracking.create({
     data: {
@@ -43,16 +45,15 @@ export const createCommissionSettlementSystemTracking = async (
 export const createCommissionSettlementTransactionDetails = async (
   tx: any,
   settlementId: number,
-  transactionData: any
+  transactionData: any,
 ) => {
-
   const transaction = await tx.hSCommissionSettlementsTransactionDetails.create(
     {
       data: {
         settlement_id: settlementId,
         ...transactionData,
       },
-    }
+    },
   );
 
   return transaction;
@@ -61,7 +62,7 @@ export const createCommissionSettlementTransactionDetails = async (
 export const createCommissionSettlementCalculation = async (
   tx: any,
   settlementId: number,
-  calculationData: any
+  calculationData: any,
 ) => {
   const calculation =
     await tx.hSCommissionSettlementsCommissionCalculation.create({
@@ -77,7 +78,7 @@ export const createCommissionSettlementCalculation = async (
 export const createCommissionSettlementCommunication = async (
   tx: any,
   settlementId: number,
-  communicationData: any
+  communicationData: any,
 ) => {
   const communication = await tx.hSCommissionSettlementsCommunication.create({
     data: {
@@ -92,7 +93,7 @@ export const createCommissionSettlementCommunication = async (
 export const createCommissionSettlementLoanDetails = async (
   tx: any,
   settlementId: number,
-  loanData: any
+  loanData: any,
 ) => {
   const loanDetails = await tx.hSCommissionSettlementsLoanDetails.create({
     data: {
@@ -107,7 +108,7 @@ export const createCommissionSettlementLoanDetails = async (
 export const createCommissionSettlementPaymentProcessing = async (
   tx: any,
   settlementId: number,
-  paymentData: any
+  paymentData: any,
 ) => {
   const payment = await tx.hSCommissionSettlementsPaymentProcessing.create({
     data: {
@@ -122,7 +123,7 @@ export const createCommissionSettlementPaymentProcessing = async (
 export const createCommissionSettlementTaxDeductions = async (
   tx: any,
   settlementId: number,
-  taxData: any
+  taxData: any,
 ) => {
   const tax = await tx.hSCommissionSettlementsTaxAndDeductions.create({
     data: {
@@ -137,12 +138,13 @@ export const createCommissionSettlementTaxDeductions = async (
 export const createCommissionSettlementDocumentation = async (
   tx: any,
   settlementId: number,
-  documentData: any
+  documentData: any,
 ) => {
   const documentation = await tx.hSCommissionSettlementsDocumentation.create({
     data: {
       settlement_id: settlementId,
       ...documentData,
+      invoice_status: documentData?.invoice_status || "Pending",
     },
   });
 
@@ -152,7 +154,7 @@ export const createCommissionSettlementDocumentation = async (
 export const createCommissionSettlementHoldDisputes = async (
   tx: any,
   settlementId: number,
-  holdData: any
+  holdData: any,
 ) => {
   const hold = await tx.hSCommissionSettlementsHoldAndDisputes.create({
     data: {
@@ -167,7 +169,7 @@ export const createCommissionSettlementHoldDisputes = async (
 export const createCommissionSettlementReconciliation = async (
   tx: any,
   settlementId: number,
-  reconciliationData: any
+  reconciliationData: any,
 ) => {
   const reconciliation = await tx.hSCommissionSettlementsReconciliations.create(
     {
@@ -175,7 +177,7 @@ export const createCommissionSettlementReconciliation = async (
         settlement_id: settlementId,
         ...reconciliationData,
       },
-    }
+    },
   );
 
   return reconciliation;
@@ -184,7 +186,7 @@ export const createCommissionSettlementReconciliation = async (
 export const createCommissionSettlementPerformanceAnalytics = async (
   tx: any,
   settlementId: number,
-  performanceData: any
+  performanceData: any,
 ) => {
   const performance =
     await tx.hSCommissionSettlementsPerformanceAnalytics.create({

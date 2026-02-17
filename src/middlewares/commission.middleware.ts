@@ -7,7 +7,7 @@ import logger from "../utils/logger";
 export const checkDuplicateCommissionSettlementFields = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { student_id, settlement_reference_number, hs_object_id } = req.body;
@@ -21,7 +21,7 @@ export const checkDuplicateCommissionSettlementFields = async (
     const existing = await checkCommissionSettlementFields(
       student_id,
       settlement_reference_number,
-      hs_object_id
+      hs_object_id,
     );
 
     if (existing) {
@@ -29,7 +29,7 @@ export const checkDuplicateCommissionSettlementFields = async (
         return sendResponse(
           res,
           409,
-          "This student ID already has a commission settlement"
+          "This student ID already has a commission settlement",
         );
       }
 
@@ -40,7 +40,7 @@ export const checkDuplicateCommissionSettlementFields = async (
         return sendResponse(
           res,
           409,
-          "Settlement reference number already exists in the system"
+          "Settlement reference number already exists in the system",
         );
       }
 
@@ -48,7 +48,7 @@ export const checkDuplicateCommissionSettlementFields = async (
         return sendResponse(
           res,
           409,
-          "HubSpot object ID already exists in the system"
+          "HubSpot object ID already exists in the system",
         );
       }
 
@@ -56,7 +56,7 @@ export const checkDuplicateCommissionSettlementFields = async (
         return sendResponse(
           res,
           409,
-          "A settlement already exists for this partner and student for the specified period"
+          "A settlement already exists for this partner and student for the specified period",
         );
       }
 
@@ -67,7 +67,7 @@ export const checkDuplicateCommissionSettlementFields = async (
   } catch (error) {
     console.error(
       "Error in duplicate commission settlement field check middleware:",
-      error
+      error,
     );
   }
 };
@@ -75,7 +75,7 @@ export const checkDuplicateCommissionSettlementFields = async (
 export const validateSettlementIds = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     let commission_settlement_ids = req.body.commission_settlement_ids;
@@ -94,7 +94,7 @@ export const validateSettlementIds = async (
         return sendResponse(
           res,
           400,
-          "Invalid commission settlement IDs format - must be valid JSON array"
+          "Invalid commission settlement IDs format - must be valid JSON array",
         );
       }
     }
@@ -104,7 +104,7 @@ export const validateSettlementIds = async (
       return sendResponse(
         res,
         400,
-        "Commission settlement IDs must be an array"
+        "Commission settlement IDs must be an array",
       );
     }
 
@@ -112,7 +112,7 @@ export const validateSettlementIds = async (
       return sendResponse(
         res,
         400,
-        "Commission settlement IDs array cannot be empty"
+        "Commission settlement IDs array cannot be empty",
       );
     }
 
@@ -136,7 +136,7 @@ export const validateSettlementIds = async (
       return sendResponse(
         res,
         400,
-        "Commission settlement IDs must contain valid numbers"
+        "Commission settlement IDs must contain valid numbers",
       );
     }
 
@@ -144,7 +144,7 @@ export const validateSettlementIds = async (
       return sendResponse(
         res,
         400,
-        "All commission settlement IDs must be valid numbers"
+        "All commission settlement IDs must be valid numbers",
       );
     }
 
@@ -168,20 +168,20 @@ export const validateSettlementIds = async (
     if (existingSettlements.length !== settlementIdsArray.length) {
       const foundIds = existingSettlements.map((s) => s.id);
       const missingIds = settlementIdsArray.filter(
-        (id) => !foundIds.includes(id)
+        (id) => !foundIds.includes(id),
       );
 
       return sendResponse(
         res,
         404,
         "Some commission settlement IDs do not exist or are inactive/deleted",
-        { missingIds, foundIds }
+        { missingIds, foundIds },
       );
     }
 
     // PHASE 3: Block invoice upload unless partner has accepted (verified) the settlement
     const unverifiedSettlements = existingSettlements.filter(
-      (s) => s.status_history?.verification_status !== "Verified"
+      (s) => s.status_history?.verification_status !== "Verified",
     );
 
     if (unverifiedSettlements.length > 0) {
@@ -190,7 +190,7 @@ export const validateSettlementIds = async (
         res,
         400,
         "Invoice upload is only allowed after accepting the settlement. Please accept the settlement first.",
-        { unverifiedIds }
+        { unverifiedIds },
       );
     }
 
@@ -214,7 +214,7 @@ export const validateSettlementIds = async (
 export const validateSettlementOwnership = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const settlementId = parseInt(req.params.id);
@@ -292,7 +292,7 @@ export const validateSettlementOwnership = async (
  */
 export const validateSettlementStatus = (
   allowedStatuses: string[],
-  statusField: "settlement_status" | "verification_status"
+  statusField: "settlement_status" | "verification_status",
 ) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -315,7 +315,11 @@ export const validateSettlementStatus = (
             calculation_details: true,
             loan_details: true,
             b2b_partner: {
-              select: { id: true, partner_name: true, partner_display_name: true },
+              select: {
+                id: true,
+                partner_name: true,
+                partner_display_name: true,
+              },
             },
           },
         });
@@ -349,7 +353,7 @@ export const validateSettlementStatus = (
         return sendResponse(
           res,
           400,
-          `Action not allowed. Current ${statusField} is '${currentStatus || "null"}'. Allowed: ${allowedStatuses.join(", ")}`
+          `Action not allowed. Current ${statusField} is '${currentStatus || "null"}'. Allowed: ${allowedStatuses.join(", ")}`,
         );
       }
 
@@ -361,6 +365,60 @@ export const validateSettlementStatus = (
         statusField,
       });
       return sendResponse(res, 500, "Error validating settlement status");
+    }
+  };
+};
+
+// ============================================================================
+// PHASE 4: Approval Role Guard
+// ============================================================================
+
+/**
+ * Validates that the authenticated user has the required approval role.
+ *
+ * @param allowedRoles - Roles that can perform the action
+ *
+ * @example
+ *   // Only L1 reviewers or admins
+ *   validateApprovalRole(["commission_reviewer", "Admin", "super_admin"])
+ *
+ *   // Only L2 approvers or admins
+ *   validateApprovalRole(["commission_approver", "Admin", "super_admin"])
+ */
+export const validateApprovalRole = (allowedRoles: string[]) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const user = (req as any).user;
+
+      if (!user) {
+        return sendResponse(res, 401, "Authentication required");
+      }
+
+      const userRole = user?.role || user?.userRole || "";
+      const hasRole = allowedRoles.some(
+        (role) => role.toLowerCase() === userRole.toLowerCase(),
+      );
+
+      if (!hasRole) {
+        logger.warn("[Commission Middleware] Approval role check failed", {
+          userId: user.id,
+          userRole,
+          allowedRoles,
+          action: req.path,
+        });
+        return sendResponse(
+          res,
+          403,
+          `You don't have permission to perform this action. Required role: ${allowedRoles.join(" or ")}`,
+        );
+      }
+
+      next();
+    } catch (error: any) {
+      logger.error("[Commission Middleware] Approval role validation error", {
+        error: error.message,
+      });
+      return sendResponse(res, 500, "Error validating approval role");
     }
   };
 };

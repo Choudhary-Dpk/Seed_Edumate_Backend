@@ -8,9 +8,15 @@ import { EmailType, EmailCategory, SenderType } from "../email-log.service";
 // CONSTANTS
 // ============================================================================
 
-const FINANCE_EMAIL = process.env.COMMISSION_FINANCE_EMAIL || "riyaz@seedglobaleducation.com";
+const FINANCE_EMAIL =
+  process.env.COMMISSION_FINANCE_EMAIL || "riyaz@seedglobaleducation.com";
 const BDM_EMAIL = process.env.COMMISSION_BDM_EMAIL || "tech@edumateglobal.com";
-const PORTAL_BASE_URL = process.env.FRONTEND_URL || "https://portal.edumateglobal.com";
+const OPS_EMAIL =
+  process.env.COMMISSION_OPS_EMAIL || "riyaz@seedglobaleducation.com";
+const L2_APPROVER_EMAIL =
+  process.env.COMMISSION_L2_APPROVER_EMAIL || "riyaz@seedglobaleducation.com";
+const PORTAL_BASE_URL =
+  process.env.FRONTEND_URL || "https://portal.edumateglobal.com";
 const COMPANY_NAME = "Edumate Global";
 const CURRENT_YEAR = moment().format("YYYY");
 
@@ -23,16 +29,12 @@ export type CommissionNotificationType =
   | "PARTNER_COMMISSION_CREATED" // Phase 2: Commission entry → Partner
   | "PARTNER_OBJECTION_RAISED" // Phase 3: Partner raises objection → Admin/Ops
   | "ADMIN_DISPUTE_RESOLVED" // Phase 3: Admin resolves dispute → Partner
-  | "INVOICE_SUBMITTED"; // Phase 3: Invoice submitted → Finance
-// Future types (just uncomment and add config when ready):
-// | "L1_APPROVED"                   // Phase 4: L1 approved → L2 Business Head
-// | "L1_REJECTED"                   // Phase 4: L1 rejected → Partner + Ops
-// | "L2_APPROVED"                   // Phase 4: L2 approved → Finance (for payout)
-// | "L2_REJECTED_TO_L1"             // Phase 4: L2 rejected → L1
-// | "L2_REJECTED_TO_PARTNER"        // Phase 4: L2 rejected → Partner + Ops
-// | "PAYOUT_COMPLETED"              // Phase 5: UTR captured → Partner
-// | "PAYOUT_FAILED"                 // Phase 5: Payment failed → Finance + Ops
-// | "REMINDER_PARTNER_REVIEW"       // Phase 6: Reminder → Partner
+  | "INVOICE_SUBMITTED" // Phase 3: Invoice submitted → Finance
+  | "L1_APPROVED" // Phase 4: L1 approved → L2 Business Head
+  | "L1_REJECTED" // Phase 4: L1 rejected → Partner
+  | "L2_APPROVED" // Phase 4: L2 approved → Partner + Finance
+  | "L2_REJECTED_TO_L1" // Phase 4: L2 rejected → L1
+  | "L2_REJECTED_TO_PARTNER"; // Phase 4: L2 rejected → Partner
 // | "REMINDER_APPROVER_SLA"         // Phase 6: Reminder → Approver
 // | "ESCALATION_BUSINESS_HEAD"      // Phase 6: Escalation → Business Head
 
@@ -97,6 +99,13 @@ export interface CommissionNotificationData {
   invoiceAmount?: number | null;
   invoiceUrl?: string | null;
   settlementsCount?: number;
+
+  // ── Phase 4: Approval workflow ──
+  approverName?: string | null;
+  approverNotes?: string | null;
+  rejectionReason?: string | null;
+  rejectedBy?: string | null;
+  rejectTo?: "l1" | "partner";
 
   // ── Overrides (optional) ──
   overrideRecipient?: string;
@@ -444,11 +453,217 @@ const NOTIFICATION_CONFIGS: Record<
       }
     },
   },
-};
 
-// ============================================================================
-// SINGLE MAIN FUNCTION — This is ALL you ever call from anywhere
-// ============================================================================
+  // ===================== PHASE 4: APPROVAL WORKFLOW =====================
+
+  L1_APPROVED: {
+    emailType: EmailType.COMMISSION_L1_APPROVED_NOTIFY,
+    category: EmailCategory.NOTIFICATION,
+    referenceType: "commission_settlement",
+    priority: 3,
+
+    getRecipient: async (data) => ({
+      to: data.overrideRecipient || L2_APPROVER_EMAIL,
+      cc: data.overrideCc || [BDM_EMAIL],
+    }),
+
+    getSubject: (data) =>
+      data.overrideSubject ||
+      `✅ L1 Approved — ${data.studentName || "Student"} | ${data.partnerName || "Partner"}`,
+
+    getHtml: (data) =>
+      buildApprovalEmailTemplate({
+        action: "L1 Approved",
+        actionColor: "#27AE60",
+        studentName: data.studentName || "N/A",
+        partnerName: data.partnerName || "N/A",
+        settlementRef: data.settlementRefNumber || "N/A",
+        performedBy: data.approverName || "Reviewer",
+        notes: data.approverNotes || null,
+        message:
+          "This settlement has been approved at L1 and is now pending L2 (Business Head) approval.",
+        nextAction: "Please review and provide final approval.",
+      }),
+
+    getReferenceId: (data) => data.settlementId,
+    afterSend: async (data, recipientEmail) => {
+      if (!data.settlementId) return;
+      await updateCommunicationLog(
+        data.settlementId,
+        `L1 approved notification sent to ${recipientEmail}`,
+      );
+    },
+  },
+
+  L1_REJECTED: {
+    emailType: EmailType.COMMISSION_L1_REJECTED_NOTIFY,
+    category: EmailCategory.NOTIFICATION,
+    referenceType: "commission_settlement",
+    priority: 2,
+
+    getRecipient: async (data) => {
+      const partnerEmail = await getPartnerEmailByB2BId(data.partnerB2BId);
+      return {
+        to: data.overrideRecipient || partnerEmail || FINANCE_EMAIL,
+        cc: data.overrideCc || [OPS_EMAIL],
+      };
+    },
+
+    getSubject: (data) =>
+      data.overrideSubject ||
+      `❌ Invoice Rejected — ${data.studentName || "Student"} | Review Required`,
+
+    getHtml: (data) =>
+      buildApprovalEmailTemplate({
+        action: "Invoice Rejected (L1)",
+        actionColor: "#E74C3C",
+        studentName: data.studentName || "N/A",
+        partnerName: data.partnerName || "N/A",
+        settlementRef: data.settlementRefNumber || "N/A",
+        performedBy: data.rejectedBy || "Reviewer",
+        notes: data.rejectionReason || null,
+        message:
+          "Your invoice has been rejected. Please review the reason below and re-upload a corrected invoice.",
+        nextAction:
+          "Please log into the partner portal to re-upload your invoice.",
+      }),
+
+    getReferenceId: (data) => data.settlementId,
+    afterSend: async (data, recipientEmail) => {
+      if (!data.settlementId) return;
+      await updateCommunicationLog(
+        data.settlementId,
+        `L1 rejected notification sent to ${recipientEmail}`,
+      );
+    },
+  },
+
+  L2_APPROVED: {
+    emailType: EmailType.COMMISSION_L2_APPROVED_NOTIFY,
+    category: EmailCategory.NOTIFICATION,
+    referenceType: "commission_settlement",
+    priority: 2,
+
+    getRecipient: async (data) => {
+      const partnerEmail = await getPartnerEmailByB2BId(data.partnerB2BId);
+      return {
+        to: data.overrideRecipient || partnerEmail || FINANCE_EMAIL,
+        cc: data.overrideCc || [FINANCE_EMAIL, BDM_EMAIL],
+      };
+    },
+
+    getSubject: (data) =>
+      data.overrideSubject ||
+      `✅ Commission Approved — ${data.studentName || "Student"} | ${data.partnerName || "Partner"} | Ready for Payout`,
+
+    getHtml: (data) =>
+      buildApprovalEmailTemplate({
+        action: "Commission Approved (Final)",
+        actionColor: "#27AE60",
+        studentName: data.studentName || "N/A",
+        partnerName: data.partnerName || "N/A",
+        settlementRef: data.settlementRefNumber || "N/A",
+        performedBy: data.approverName || "Approver",
+        notes: data.approverNotes || null,
+        message:
+          "Your commission has been fully approved and is now ready for payout processing.",
+        nextAction:
+          "Payout will be initiated shortly. You will receive a notification once payment is completed.",
+      }),
+
+    getReferenceId: (data) => data.settlementId,
+    afterSend: async (data, recipientEmail) => {
+      if (!data.settlementId) return;
+      await updateCommunicationLog(
+        data.settlementId,
+        `L2 approved notification sent to ${recipientEmail}`,
+      );
+    },
+  },
+
+  L2_REJECTED_TO_L1: {
+    emailType: EmailType.COMMISSION_L2_REJECTED_TO_L1_NOTIFY,
+    category: EmailCategory.NOTIFICATION,
+    referenceType: "commission_settlement",
+    priority: 3,
+
+    getRecipient: async (data) => ({
+      to: data.overrideRecipient || FINANCE_EMAIL,
+      cc: data.overrideCc || [OPS_EMAIL],
+    }),
+
+    getSubject: (data) =>
+      data.overrideSubject ||
+      `🔄 Sent Back for Re-review — ${data.studentName || "Student"} | ${data.partnerName || "Partner"}`,
+
+    getHtml: (data) =>
+      buildApprovalEmailTemplate({
+        action: "Sent Back to L1",
+        actionColor: "#F39C12",
+        studentName: data.studentName || "N/A",
+        partnerName: data.partnerName || "N/A",
+        settlementRef: data.settlementRefNumber || "N/A",
+        performedBy: data.rejectedBy || "Approver",
+        notes: data.rejectionReason || null,
+        message:
+          "This settlement has been sent back for L1 re-review by the Business Head.",
+        nextAction:
+          "Please re-review this settlement and take appropriate action.",
+      }),
+
+    getReferenceId: (data) => data.settlementId,
+    afterSend: async (data, recipientEmail) => {
+      if (!data.settlementId) return;
+      await updateCommunicationLog(
+        data.settlementId,
+        `L2 rejected-to-L1 notification sent to ${recipientEmail}`,
+      );
+    },
+  },
+
+  L2_REJECTED_TO_PARTNER: {
+    emailType: EmailType.COMMISSION_L2_REJECTED_TO_PARTNER_NOTIFY,
+    category: EmailCategory.NOTIFICATION,
+    referenceType: "commission_settlement",
+    priority: 2,
+
+    getRecipient: async (data) => {
+      const partnerEmail = await getPartnerEmailByB2BId(data.partnerB2BId);
+      return {
+        to: data.overrideRecipient || partnerEmail || FINANCE_EMAIL,
+        cc: data.overrideCc || [OPS_EMAIL],
+      };
+    },
+
+    getSubject: (data) =>
+      data.overrideSubject ||
+      `❌ Commission Rejected — ${data.studentName || "Student"} | Action Required`,
+
+    getHtml: (data) =>
+      buildApprovalEmailTemplate({
+        action: "Commission Rejected (L2)",
+        actionColor: "#E74C3C",
+        studentName: data.studentName || "N/A",
+        partnerName: data.partnerName || "N/A",
+        settlementRef: data.settlementRefNumber || "N/A",
+        performedBy: data.rejectedBy || "Approver",
+        notes: data.rejectionReason || null,
+        message:
+          "Your commission has been rejected by the Business Head. Please review the reason and re-upload a corrected invoice.",
+        nextAction:
+          "Please log into the partner portal to re-upload your invoice.",
+      }),
+
+    getReferenceId: (data) => data.settlementId,
+    afterSend: async (data, recipientEmail) => {
+      if (!data.settlementId) return;
+      await updateCommunicationLog(
+        data.settlementId,
+        `L2 rejected-to-partner notification sent to ${recipientEmail}`,
+      );
+    },
+  },
+};
 
 /**
  * Send a commission-related notification email.
@@ -1169,11 +1384,114 @@ function buildInvoiceSubmittedTemplate(
 
 function esc(str?: string | null): string {
   if (!str) return "";
-  const map: Record<string, string> = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" };
+  const map: Record<string, string> = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;",
+  };
   return str.replace(/[&<>"']/g, (c) => map[c] || c);
 }
 
 function row(label: string, value?: string | null, mono = false): string {
   if (!value) return "";
   return `<tr><td width="180" style="padding:6px 0;color:#7F8C8D;font-size:13px;vertical-align:top;">${label}</td><td style="padding:6px 0;color:#2C3E50;font-size:13px;${mono ? "font-family:monospace;" : ""}">${esc(value)}</td></tr>`;
+}
+// ============================================================================
+// PHASE 4: HELPER FUNCTIONS
+// ============================================================================
+
+async function getPartnerEmailByB2BId(b2bId?: number): Promise<string | null> {
+  if (!b2bId) return null;
+  try {
+    const partnerUser = await prisma.b2BPartnersUsers.findFirst({
+      where: { b2b_id: b2bId, is_active: true },
+      select: { email: true },
+    });
+    return partnerUser?.email || null;
+  } catch {
+    return null;
+  }
+}
+
+async function updateCommunicationLog(
+  settlementId: number,
+  message: string,
+): Promise<void> {
+  try {
+    await prisma.hSCommissionSettlementsCommunication.upsert({
+      where: { settlement_id: settlementId },
+      update: {
+        last_communication_date: new Date(),
+        email_sent_count: { increment: 1 },
+        communication_log: `[${moment().format("YYYY-MM-DD HH:mm")}] ${message}`,
+      },
+      create: {
+        settlement_id: settlementId,
+        notification_date: new Date(),
+        notification_method: "Email",
+        last_communication_date: new Date(),
+        email_sent_count: 1,
+        sms_sent_count: 0,
+        communication_log: `[${moment().format("YYYY-MM-DD HH:mm")}] ${message}`,
+      },
+    });
+  } catch (err: any) {
+    logger.warn("Failed to update communication log", {
+      error: err.message,
+      settlementId,
+    });
+  }
+}
+
+function buildApprovalEmailTemplate(params: {
+  action: string;
+  actionColor: string;
+  studentName: string;
+  partnerName: string;
+  settlementRef: string;
+  performedBy: string;
+  notes: string | null;
+  message: string;
+  nextAction: string;
+}): string {
+  const {
+    action,
+    actionColor,
+    studentName,
+    partnerName,
+    settlementRef,
+    performedBy,
+    notes,
+    message,
+    nextAction,
+  } = params;
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#F5F6FA;font-family:'Segoe UI',Roboto,Arial,sans-serif;">
+  <div style="max-width:600px;margin:0 auto;padding:24px;">
+    <div style="background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
+      <div style="background:${actionColor};padding:24px 32px;">
+        <h1 style="margin:0;color:#fff;font-size:20px;">${esc(action)}</h1>
+        <p style="margin:8px 0 0;color:rgba(255,255,255,0.85);font-size:14px;">Commission Settlement Update</p>
+      </div>
+      <div style="padding:32px;">
+        <p style="font-size:15px;color:#2C3E50;line-height:1.6;margin:0 0 20px;">${esc(message)}</p>
+        <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;">
+          ${row("Student", studentName)}
+          ${row("Partner", partnerName)}
+          ${row("Reference", settlementRef, true)}
+          ${row("Action By", performedBy)}
+          ${notes ? row("Reason / Notes", notes) : ""}
+        </table>
+        <div style="background:#F0F9FF;border-left:4px solid #3498DB;padding:16px;border-radius:0 8px 8px 0;margin-top:20px;">
+          <p style="margin:0;font-size:13px;color:#2C3E50;"><strong>Next Step:</strong> ${esc(nextAction)}</p>
+        </div>
+      </div>
+      <div style="padding:16px 32px;background:#F8F9FA;border-top:1px solid #E5E8EB;text-align:center;">
+        <p style="margin:0;font-size:11px;color:#95A5A6;">Edumate Global Commission System</p>
+      </div>
+    </div>
+  </div>
+</body></html>`;
 }

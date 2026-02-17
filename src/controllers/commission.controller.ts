@@ -45,13 +45,12 @@ import {
   fetchCommissionSettlementsByLead,
 } from "../models/helpers/commission.helper";
 import { getContactLeadById } from "../models/helpers/contact.helper";
-import { BACKEND_URL } from "../setup/secrets";
+import { BACKEND_URL, FRONTEND_URL } from "../setup/secrets";
 import { getPartnerIdByUserId } from "../models/helpers/partners.helper";
 import {
   sendCommissionNotification,
   notifyFinanceForInvoice,
 } from "../services/EmailNotifications/commission.notification.service";
-import { buildSystemInvoiceHTML } from "../utils/helper";
 
 export const createCommissionSettlementController = async (
   req: RequestWithPayload<LoginPayload>,
@@ -90,7 +89,11 @@ export const createCommissionSettlementController = async (
         const settlementStatus = await createCommissionSettlementStatus(
           tx,
           settlement.id,
-          categorized["settlementStatus"],
+          {
+            ...categorized["settlementStatus"],
+            verification_status:
+              categorized["settlementStatus"]?.verification_status || "Pending",
+          },
         );
 
         logger.debug(
@@ -1440,3 +1443,787 @@ export const generateInvoiceController = async (
     return sendResponse(res, 500, "Failed to generate invoice");
   }
 };
+
+// ============================================================================
+// HELPER: Build System Invoice HTML Template
+// ============================================================================
+
+// ============================================================================
+// PHASE 4: L1 Approve (Finance/Ops reviewer approves)
+// ============================================================================
+
+export const l1ApproveController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const settlementId = parseInt(req.params.id);
+    const { notes } = req.body;
+    const settlement = (req as any).settlement;
+    const user = (req as any).user;
+
+    const statusBefore = settlement.status_history?.settlement_status || null;
+
+    await prisma.$transaction(async (tx) => {
+      // Race condition guard
+      const current =
+        await tx.hSCommissionSettlementsSettlementStatus.findUnique({
+          where: { settlement_id: settlementId },
+        });
+      if (!current || current.settlement_status !== "Pending Approval") {
+        throw new Error("ALREADY_PROCESSED");
+      }
+
+      await tx.hSCommissionSettlementsSettlementStatus.update({
+        where: { settlement_id: settlementId },
+        data: { settlement_status: "L1 Approved" },
+      });
+
+      await tx.commissionDisputeLog.create({
+        data: {
+          settlement_id: settlementId,
+          action: "L1_APPROVED",
+          performed_by_user_id: user?.id || null,
+          performed_by_name: user?.fullName || null,
+          performed_by_email: user?.email || null,
+          performed_by_type: "admin",
+          reason: notes || null,
+          settlement_status_before: statusBefore,
+          settlement_status_after: "L1 Approved",
+          verification_status_before:
+            settlement.status_history?.verification_status,
+          verification_status_after:
+            settlement.status_history?.verification_status,
+        },
+      });
+    });
+
+    // Notification (non-blocking)
+    const partnerName =
+      settlement.b2b_partner?.partner_display_name ||
+      settlement.b2b_partner?.partner_name ||
+      settlement.partner_name ||
+      "Partner";
+
+    sendCommissionNotification("L1_APPROVED", {
+      settlementId,
+      settlementRefNumber: settlement.settlement_reference_number,
+      partnerB2BId: settlement.b2b_partner_id || undefined,
+      partnerName,
+      studentName: settlement.student_name,
+      lenderName: settlement.loan_details?.lender_name,
+      loanAmountDisbursed: settlement.loan_details?.loan_amount_disbursed
+        ? Number(settlement.loan_details.loan_amount_disbursed)
+        : null,
+      grossCommissionAmount: settlement.calculation_details
+        ?.gross_commission_amount
+        ? Number(settlement.calculation_details.gross_commission_amount)
+        : null,
+      approverName: user?.fullName || user?.email || "Reviewer",
+      approverNotes: notes || null,
+      triggeredBy: {
+        userId: user?.id,
+        name: user?.fullName || user?.email,
+        type: "admin",
+      },
+    }).catch((err: any) =>
+      logger.warn("[Commission] L1 approve notification failed", {
+        error: err.message,
+      }),
+    );
+
+    logger.info("[Commission] L1 Approved", {
+      settlementId,
+      approvedBy: user?.fullName || user?.email,
+    });
+
+    return sendResponse(res, 200, "Settlement approved at L1", {
+      settlementId,
+      settlement_status: "L1 Approved",
+    });
+  } catch (error: any) {
+    if (error.message === "ALREADY_PROCESSED") {
+      return sendResponse(
+        res,
+        409,
+        "This settlement has already been processed. Please refresh.",
+      );
+    }
+    logger.error("[Commission] L1 approve failed", {
+      error: error.message,
+      settlementId: req.params.id,
+    });
+    return sendResponse(res, 500, "Failed to approve at L1");
+  }
+};
+
+// ============================================================================
+// PHASE 4: L1 Reject (Finance/Ops reviewer rejects → back to partner)
+// ============================================================================
+
+export const l1RejectController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const settlementId = parseInt(req.params.id);
+    const { reason } = req.body;
+    const settlement = (req as any).settlement;
+    const user = (req as any).user;
+
+    if (!reason || !reason.trim()) {
+      return sendResponse(res, 400, "Rejection reason is required");
+    }
+
+    const statusBefore = settlement.status_history?.settlement_status || null;
+
+    await prisma.$transaction(async (tx) => {
+      const current =
+        await tx.hSCommissionSettlementsSettlementStatus.findUnique({
+          where: { settlement_id: settlementId },
+        });
+      if (!current || current.settlement_status !== "Pending Approval") {
+        throw new Error("ALREADY_PROCESSED");
+      }
+
+      await tx.hSCommissionSettlementsSettlementStatus.update({
+        where: { settlement_id: settlementId },
+        data: { settlement_status: "L1 Rejected" },
+      });
+
+      // Clear invoice so partner can re-upload
+      await tx.hSCommissionSettlementsDocumentation.updateMany({
+        where: { settlement_id: settlementId },
+        data: {
+          invoice_number: null,
+          invoice_date: null,
+          invoice_amount: null,
+          invoice_status: "Rejected",
+          invoice_url: null,
+        },
+      });
+
+      await tx.commissionDisputeLog.create({
+        data: {
+          settlement_id: settlementId,
+          action: "L1_REJECTED",
+          performed_by_user_id: user?.id || null,
+          performed_by_name: user?.fullName || null,
+          performed_by_email: user?.email || null,
+          performed_by_type: "admin",
+          reason: reason.trim(),
+          settlement_status_before: statusBefore,
+          settlement_status_after: "L1 Rejected",
+          verification_status_before:
+            settlement.status_history?.verification_status,
+          verification_status_after:
+            settlement.status_history?.verification_status,
+        },
+      });
+    });
+
+    // Notify partner
+    const partnerName =
+      settlement.b2b_partner?.partner_display_name ||
+      settlement.b2b_partner?.partner_name ||
+      settlement.partner_name ||
+      "Partner";
+
+    sendCommissionNotification("L1_REJECTED", {
+      settlementId,
+      settlementRefNumber: settlement.settlement_reference_number,
+      partnerB2BId: settlement.b2b_partner_id || undefined,
+      partnerName,
+      studentName: settlement.student_name,
+      rejectionReason: reason.trim(),
+      rejectedBy: user?.fullName || user?.email || "Reviewer",
+      triggeredBy: {
+        userId: user?.id,
+        name: user?.fullName || user?.email,
+        type: "admin",
+      },
+    }).catch((err: any) =>
+      logger.warn("[Commission] L1 reject notification failed", {
+        error: err.message,
+      }),
+    );
+
+    logger.info("[Commission] L1 Rejected", {
+      settlementId,
+      rejectedBy: user?.fullName,
+      reason: reason.trim(),
+    });
+
+    return sendResponse(
+      res,
+      200,
+      "Settlement rejected at L1. Partner will be notified to re-upload.",
+      {
+        settlementId,
+        settlement_status: "L1 Rejected",
+      },
+    );
+  } catch (error: any) {
+    if (error.message === "ALREADY_PROCESSED") {
+      return sendResponse(
+        res,
+        409,
+        "This settlement has already been processed. Please refresh.",
+      );
+    }
+    logger.error("[Commission] L1 reject failed", {
+      error: error.message,
+      settlementId: req.params.id,
+    });
+    return sendResponse(res, 500, "Failed to reject at L1");
+  }
+};
+
+// ============================================================================
+// PHASE 4: L2 Approve (Business Head final approval)
+// ============================================================================
+
+export const l2ApproveController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const settlementId = parseInt(req.params.id);
+    const { notes } = req.body;
+    const settlement = (req as any).settlement;
+    const user = (req as any).user;
+
+    const statusBefore = settlement.status_history?.settlement_status || null;
+
+    await prisma.$transaction(async (tx) => {
+      const current =
+        await tx.hSCommissionSettlementsSettlementStatus.findUnique({
+          where: { settlement_id: settlementId },
+        });
+      if (!current || current.settlement_status !== "L1 Approved") {
+        throw new Error("ALREADY_PROCESSED");
+      }
+
+      await tx.hSCommissionSettlementsSettlementStatus.update({
+        where: { settlement_id: settlementId },
+        data: { settlement_status: "Approved" },
+      });
+
+      await tx.commissionDisputeLog.create({
+        data: {
+          settlement_id: settlementId,
+          action: "L2_APPROVED",
+          performed_by_user_id: user?.id || null,
+          performed_by_name: user?.fullName || null,
+          performed_by_email: user?.email || null,
+          performed_by_type: "admin",
+          reason: notes || null,
+          settlement_status_before: statusBefore,
+          settlement_status_after: "Approved",
+          verification_status_before:
+            settlement.status_history?.verification_status,
+          verification_status_after:
+            settlement.status_history?.verification_status,
+        },
+      });
+    });
+
+    // Notify partner — approved & ready for payout
+    const partnerName =
+      settlement.b2b_partner?.partner_display_name ||
+      settlement.b2b_partner?.partner_name ||
+      settlement.partner_name ||
+      "Partner";
+
+    sendCommissionNotification("L2_APPROVED", {
+      settlementId,
+      settlementRefNumber: settlement.settlement_reference_number,
+      partnerB2BId: settlement.b2b_partner_id || undefined,
+      partnerName,
+      studentName: settlement.student_name,
+      grossCommissionAmount: settlement.calculation_details
+        ?.gross_commission_amount
+        ? Number(settlement.calculation_details.gross_commission_amount)
+        : null,
+      approverName: user?.fullName || user?.email || "Approver",
+      approverNotes: notes || null,
+      triggeredBy: {
+        userId: user?.id,
+        name: user?.fullName || user?.email,
+        type: "admin",
+      },
+    }).catch((err: any) =>
+      logger.warn("[Commission] L2 approve notification failed", {
+        error: err.message,
+      }),
+    );
+
+    logger.info("[Commission] L2 Approved (Final)", {
+      settlementId,
+      approvedBy: user?.fullName || user?.email,
+    });
+
+    return sendResponse(
+      res,
+      200,
+      "Settlement approved (final). Ready for payout.",
+      {
+        settlementId,
+        settlement_status: "Approved",
+      },
+    );
+  } catch (error: any) {
+    if (error.message === "ALREADY_PROCESSED") {
+      return sendResponse(
+        res,
+        409,
+        "This settlement has already been processed. Please refresh.",
+      );
+    }
+    logger.error("[Commission] L2 approve failed", {
+      error: error.message,
+      settlementId: req.params.id,
+    });
+    return sendResponse(res, 500, "Failed to approve at L2");
+  }
+};
+
+// ============================================================================
+// PHASE 4: L2 Reject (Business Head rejects → to L1 or Partner)
+// ============================================================================
+
+export const l2RejectController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const settlementId = parseInt(req.params.id);
+    const { reason, reject_to } = req.body;
+    const settlement = (req as any).settlement;
+    const user = (req as any).user;
+
+    if (!reason || !reason.trim()) {
+      return sendResponse(res, 400, "Rejection reason is required");
+    }
+    if (!reject_to || !["l1", "partner"].includes(reject_to)) {
+      return sendResponse(res, 400, "reject_to must be 'l1' or 'partner'");
+    }
+
+    const statusBefore = settlement.status_history?.settlement_status || null;
+    const newStatus = reject_to === "l1" ? "Pending Approval" : "L2 Rejected";
+
+    await prisma.$transaction(async (tx) => {
+      const current =
+        await tx.hSCommissionSettlementsSettlementStatus.findUnique({
+          where: { settlement_id: settlementId },
+        });
+      if (!current || current.settlement_status !== "L1 Approved") {
+        throw new Error("ALREADY_PROCESSED");
+      }
+
+      await tx.hSCommissionSettlementsSettlementStatus.update({
+        where: { settlement_id: settlementId },
+        data: { settlement_status: newStatus },
+      });
+
+      // If rejecting back to partner, clear invoice
+      if (reject_to === "partner") {
+        await tx.hSCommissionSettlementsDocumentation.updateMany({
+          where: { settlement_id: settlementId },
+          data: {
+            invoice_number: null,
+            invoice_date: null,
+            invoice_amount: null,
+            invoice_status: "Rejected",
+            invoice_url: null,
+          },
+        });
+      }
+
+      await tx.commissionDisputeLog.create({
+        data: {
+          settlement_id: settlementId,
+          action:
+            reject_to === "l1" ? "L2_REJECTED_TO_L1" : "L2_REJECTED_TO_PARTNER",
+          performed_by_user_id: user?.id || null,
+          performed_by_name: user?.fullName || null,
+          performed_by_email: user?.email || null,
+          performed_by_type: "admin",
+          reason: reason.trim(),
+          settlement_status_before: statusBefore,
+          settlement_status_after: newStatus,
+          verification_status_before:
+            settlement.status_history?.verification_status,
+          verification_status_after:
+            settlement.status_history?.verification_status,
+        },
+      });
+    });
+
+    // Notification
+    const partnerName =
+      settlement.b2b_partner?.partner_display_name ||
+      settlement.b2b_partner?.partner_name ||
+      settlement.partner_name ||
+      "Partner";
+
+    const notificationType =
+      reject_to === "l1" ? "L2_REJECTED_TO_L1" : "L2_REJECTED_TO_PARTNER";
+
+    sendCommissionNotification(notificationType as any, {
+      settlementId,
+      settlementRefNumber: settlement.settlement_reference_number,
+      partnerB2BId: settlement.b2b_partner_id || undefined,
+      partnerName,
+      studentName: settlement.student_name,
+      rejectionReason: reason.trim(),
+      rejectedBy: user?.fullName || user?.email || "Approver",
+      rejectTo: reject_to,
+      triggeredBy: {
+        userId: user?.id,
+        name: user?.fullName || user?.email,
+        type: "admin",
+      },
+    }).catch((err: any) =>
+      logger.warn("[Commission] L2 reject notification failed", {
+        error: err.message,
+      }),
+    );
+
+    const msg =
+      reject_to === "l1"
+        ? "Sent back to L1 for re-review."
+        : "Rejected. Partner will be notified to re-upload.";
+
+    logger.info("[Commission] L2 Rejected", {
+      settlementId,
+      rejectTo: reject_to,
+      rejectedBy: user?.fullName,
+    });
+
+    return sendResponse(res, 200, msg, {
+      settlementId,
+      settlement_status: newStatus,
+      reject_to,
+    });
+  } catch (error: any) {
+    if (error.message === "ALREADY_PROCESSED") {
+      return sendResponse(
+        res,
+        409,
+        "This settlement has already been processed. Please refresh.",
+      );
+    }
+    logger.error("[Commission] L2 reject failed", {
+      error: error.message,
+      settlementId: req.params.id,
+    });
+    return sendResponse(res, 500, "Failed to reject at L2");
+  }
+};
+
+// ============================================================================
+// PHASE 4: Get Approval Timeline / Audit Trail
+// ============================================================================
+
+export const getApprovalTimelineController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const settlementId = parseInt(req.params.id);
+    if (isNaN(settlementId)) {
+      return sendResponse(res, 400, "Invalid settlement ID");
+    }
+
+    const logs = await prisma.commissionDisputeLog.findMany({
+      where: { settlement_id: settlementId },
+      orderBy: { created_at: "asc" },
+      select: {
+        id: true,
+        action: true,
+        performed_by_name: true,
+        performed_by_email: true,
+        performed_by_type: true,
+        reason: true,
+        resolution: true,
+        settlement_status_before: true,
+        settlement_status_after: true,
+        created_at: true,
+      },
+    });
+
+    return sendResponse(res, 200, "Approval timeline fetched", {
+      timeline: logs,
+    });
+  } catch (error: any) {
+    logger.error("[Commission] Get timeline failed", {
+      error: error.message,
+      settlementId: req.params.id,
+    });
+    return sendResponse(res, 500, "Failed to fetch approval timeline");
+  }
+};
+
+// ============================================================================
+// PHASE 4: Serve Invoice File (production-safe — no CORS / URL issues)
+// ============================================================================
+
+export const getInvoiceFileController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const settlementId = parseInt(req.params.id);
+    if (isNaN(settlementId)) {
+      return sendResponse(res, 400, "Invalid settlement ID");
+    }
+
+    const doc = await prisma.hSCommissionSettlementsDocumentation.findUnique({
+      where: { settlement_id: settlementId },
+      select: { invoice_url: true, invoice_number: true },
+    });
+
+    if (!doc?.invoice_url) {
+      return sendResponse(res, 404, "No invoice found for this settlement");
+    }
+
+    // Extract filename from URL (handles both full URLs and relative paths)
+    let fileName: string;
+    try {
+      const parsed = new URL(doc.invoice_url);
+      fileName = path.basename(parsed.pathname);
+    } catch {
+      fileName = path.basename(doc.invoice_url);
+    }
+
+    const filePath = path.join(process.cwd(), "uploads", "invoices", fileName);
+
+    if (!fs.existsSync(filePath)) {
+      logger.warn("[Commission] Invoice file not found on disk", {
+        filePath,
+        settlementId,
+      });
+      return sendResponse(res, 404, "Invoice file not found on server");
+    }
+
+    // Determine content type
+    const ext = path.extname(fileName).toLowerCase();
+    const contentTypes: Record<string, string> = {
+      ".pdf": "application/pdf",
+      ".jpg": "image/jpeg",
+      ".jpeg": "image/jpeg",
+      ".png": "image/png",
+      ".gif": "image/gif",
+      ".webp": "image/webp",
+    };
+    const contentType = contentTypes[ext] || "application/octet-stream";
+
+    res.setHeader("Content-Type", contentType);
+    res.setHeader(
+      "Content-Disposition",
+      `inline; filename="${doc.invoice_number || fileName}${ext === ".pdf" ? "" : ext}"`,
+    );
+
+    const fileStream = fs.createReadStream(filePath);
+    fileStream.pipe(res);
+  } catch (error: any) {
+    logger.error("[Commission] Get invoice file failed", {
+      error: error.message,
+      settlementId: req.params.id,
+    });
+    return sendResponse(res, 500, "Failed to serve invoice file");
+  }
+};
+
+function buildSystemInvoiceHTML(data: {
+  invoiceNumber: string;
+  invoiceDate: string;
+  partnerName: string;
+  partnerGst: string;
+  partnerPan: string;
+  partnerAddress: string;
+  lineItems: Array<{
+    sno: number;
+    studentName: string;
+    lenderName: string;
+    loanAmount: number;
+    commissionRate: number;
+    grossAmount: number;
+    gstAmount: number;
+    tdsAmount: number;
+    netPayable: number;
+    refNumber: string;
+    university: string;
+    course: string;
+  }>;
+  subtotal: number;
+  totalGst: number;
+  totalTds: number;
+  totalDeductions: number;
+  netPayableTotal: number;
+  settlementsCount: number;
+}): string {
+  const fmt = (num: number) =>
+    new Intl.NumberFormat("en-IN", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(num);
+
+  const rows = data.lineItems
+    .map(
+      (item) => `
+    <tr>
+      <td style="padding:10px 12px;border-bottom:1px solid #E5E8EB;font-size:13px;color:#2C3E50;text-align:center;">${item.sno}</td>
+      <td style="padding:10px 12px;border-bottom:1px solid #E5E8EB;font-size:13px;">
+        <div style="font-weight:600;color:#2C3E50;">${item.studentName}</div>
+        <div style="font-size:11px;color:#7F8C8D;margin-top:2px;">${item.refNumber}</div>
+        ${item.university ? `<div style="font-size:11px;color:#95A5A6;">${item.university}${item.course ? ` — ${item.course}` : ""}</div>` : ""}
+      </td>
+      <td style="padding:10px 12px;border-bottom:1px solid #E5E8EB;font-size:13px;color:#2C3E50;">${item.lenderName}</td>
+      <td style="padding:10px 12px;border-bottom:1px solid #E5E8EB;font-size:13px;color:#2C3E50;text-align:right;">₹${fmt(item.loanAmount)}</td>
+      <td style="padding:10px 12px;border-bottom:1px solid #E5E8EB;font-size:13px;color:#2C3E50;text-align:center;">${item.commissionRate}%</td>
+      <td style="padding:10px 12px;border-bottom:1px solid #E5E8EB;font-size:13px;color:#2C3E50;text-align:right;font-weight:600;">₹${fmt(item.grossAmount)}</td>
+    </tr>
+  `,
+    )
+    .join("");
+
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Commission Invoice ${data.invoiceNumber}</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Roboto, Arial, sans-serif; color: #2C3E50; background: #fff; }
+    @page { margin: 0; }
+  </style>
+</head>
+<body>
+  <div style="max-width:800px;margin:0 auto;padding:30px;">
+
+    <!-- Header -->
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:30px;">
+      <tr>
+        <td>
+          <h1 style="font-size:28px;font-weight:700;color:#1B4F72;margin:0;">COMMISSION INVOICE</h1>
+          <p style="font-size:13px;color:#7F8C8D;margin-top:4px;">Edumate Global Financial Services</p>
+        </td>
+        <td style="text-align:right;">
+          <div style="background:#1B4F72;color:#fff;padding:12px 20px;border-radius:8px;display:inline-block;">
+            <div style="font-size:11px;opacity:0.8;text-transform:uppercase;letter-spacing:1px;">Invoice No.</div>
+            <div style="font-size:18px;font-weight:700;margin-top:2px;">${data.invoiceNumber}</div>
+          </div>
+        </td>
+      </tr>
+    </table>
+
+    <!-- Invoice Meta & Partner Info -->
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+      <tr>
+        <td width="50%" style="vertical-align:top;">
+          <div style="background:#F8F9FA;border:1px solid #E5E8EB;border-radius:8px;padding:16px;">
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#7F8C8D;margin-bottom:8px;font-weight:600;">Bill To</div>
+            <div style="font-size:16px;font-weight:700;color:#1B4F72;margin-bottom:6px;">${data.partnerName}</div>
+            ${data.partnerGst ? `<div style="font-size:12px;color:#555;margin-bottom:3px;"><strong>GSTIN:</strong> ${data.partnerGst}</div>` : ""}
+            ${data.partnerPan ? `<div style="font-size:12px;color:#555;margin-bottom:3px;"><strong>PAN:</strong> ${data.partnerPan}</div>` : ""}
+            ${data.partnerAddress ? `<div style="font-size:12px;color:#7F8C8D;margin-top:6px;">${data.partnerAddress}</div>` : ""}
+          </div>
+        </td>
+        <td width="50%" style="vertical-align:top;padding-left:16px;">
+          <div style="background:#F8F9FA;border:1px solid #E5E8EB;border-radius:8px;padding:16px;">
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#7F8C8D;margin-bottom:8px;font-weight:600;">Invoice Details</div>
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr><td style="font-size:12px;color:#7F8C8D;padding:3px 0;">Date</td><td style="font-size:12px;font-weight:600;color:#2C3E50;text-align:right;">${data.invoiceDate}</td></tr>
+              <tr><td style="font-size:12px;color:#7F8C8D;padding:3px 0;">Settlements</td><td style="font-size:12px;font-weight:600;color:#2C3E50;text-align:right;">${data.settlementsCount}</td></tr>
+              <tr><td style="font-size:12px;color:#7F8C8D;padding:3px 0;">Status</td><td style="text-align:right;"><span style="font-size:11px;font-weight:600;background:#FEF3C7;color:#92400E;padding:2px 8px;border-radius:4px;">Pending Approval</span></td></tr>
+            </table>
+          </div>
+        </td>
+      </tr>
+    </table>
+
+    <!-- Line Items Table -->
+    <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #E5E8EB;border-radius:8px;overflow:hidden;margin-bottom:24px;">
+      <thead>
+        <tr style="background:#1B4F72;">
+          <th style="padding:12px;font-size:11px;font-weight:600;color:#fff;text-transform:uppercase;letter-spacing:0.5px;text-align:center;width:40px;">#</th>
+          <th style="padding:12px;font-size:11px;font-weight:600;color:#fff;text-transform:uppercase;letter-spacing:0.5px;text-align:left;">Student / Reference</th>
+          <th style="padding:12px;font-size:11px;font-weight:600;color:#fff;text-transform:uppercase;letter-spacing:0.5px;text-align:left;">Lender</th>
+          <th style="padding:12px;font-size:11px;font-weight:600;color:#fff;text-transform:uppercase;letter-spacing:0.5px;text-align:right;">Loan Disbursed</th>
+          <th style="padding:12px;font-size:11px;font-weight:600;color:#fff;text-transform:uppercase;letter-spacing:0.5px;text-align:center;">Rate</th>
+          <th style="padding:12px;font-size:11px;font-weight:600;color:#fff;text-transform:uppercase;letter-spacing:0.5px;text-align:right;">Gross Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows}
+      </tbody>
+    </table>
+
+    <!-- Summary Table -->
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:30px;">
+      <tr>
+        <td width="55%"></td>
+        <td width="45%">
+          <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #E5E8EB;border-radius:8px;overflow:hidden;">
+            <tr style="background:#F8F9FA;">
+              <td style="padding:10px 16px;font-size:13px;color:#555;">Subtotal (Gross Commission)</td>
+              <td style="padding:10px 16px;font-size:13px;font-weight:600;color:#2C3E50;text-align:right;">₹${fmt(data.subtotal)}</td>
+            </tr>
+            ${
+              data.totalGst > 0
+                ? `
+            <tr>
+              <td style="padding:10px 16px;font-size:13px;color:#555;">GST</td>
+              <td style="padding:10px 16px;font-size:13px;color:#27AE60;text-align:right;">+ ₹${fmt(data.totalGst)}</td>
+            </tr>
+            `
+                : ""
+            }
+            ${
+              data.totalTds > 0
+                ? `
+            <tr>
+              <td style="padding:10px 16px;font-size:13px;color:#555;">TDS Deducted</td>
+              <td style="padding:10px 16px;font-size:13px;color:#E74C3C;text-align:right;">− ₹${fmt(data.totalTds)}</td>
+            </tr>
+            `
+                : ""
+            }
+            ${
+              data.totalDeductions > data.totalTds
+                ? `
+            <tr>
+              <td style="padding:10px 16px;font-size:13px;color:#555;">Other Deductions</td>
+              <td style="padding:10px 16px;font-size:13px;color:#E74C3C;text-align:right;">− ₹${fmt(data.totalDeductions - data.totalTds)}</td>
+            </tr>
+            `
+                : ""
+            }
+            <tr style="background:#1B4F72;">
+              <td style="padding:14px 16px;font-size:14px;font-weight:700;color:#fff;">Net Payable</td>
+              <td style="padding:14px 16px;font-size:18px;font-weight:700;color:#fff;text-align:right;">₹${fmt(data.netPayableTotal)}</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+
+    <!-- Footer -->
+    <div style="border-top:2px solid #E5E8EB;padding-top:16px;text-align:center;">
+      <p style="font-size:11px;color:#95A5A6;">This is a system-generated invoice from Edumate Global Commission System — ${moment().format("YYYY")}</p>
+      <p style="font-size:11px;color:#BDC3C7;margin-top:4px;">Invoice generated on ${data.invoiceDate}</p>
+    </div>
+  </div>
+</body>
+</html>`;
+}
