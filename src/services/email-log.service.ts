@@ -95,6 +95,9 @@ export enum EmailType {
   UNKNOWN = "UNKNOWN",
   COMMISSION_FINANCE_NOTIFY = "COMMISSION_FINANCE_NOTIFY",
   COMMISSION_PARTNER_NOTIFY = "COMMISSION_PARTNER_NOTIFY",
+  COMMISSION_OBJECTION_NOTIFY = "COMMISSION_OBJECTION_NOTIFY",
+  COMMISSION_DISPUTE_RESOLVED_NOTIFY = "COMMISSION_DISPUTE_RESOLVED_NOTIFY",
+  COMMISSION_INVOICE_SUBMITTED_NOTIFY = "COMMISSION_INVOICE_SUBMITTED_NOTIFY",
 }
 
 // ============================================================================
@@ -524,6 +527,11 @@ function mapLegacyTypeToEmailType(legacyType: string): EmailType {
     "System Alert": EmailType.SYSTEM_ALERT,
     "Commission Finance Notify": EmailType.COMMISSION_FINANCE_NOTIFY,
     "Commission Partner Notify": EmailType.COMMISSION_PARTNER_NOTIFY,
+    "Commission Objection Notify": EmailType.COMMISSION_OBJECTION_NOTIFY,
+    "Commission Dispute Resolved Notify":
+      EmailType.COMMISSION_DISPUTE_RESOLVED_NOTIFY,
+    "Commission Invoice Submitted Notify":
+      EmailType.COMMISSION_INVOICE_SUBMITTED_NOTIFY,
   };
 
   return mapping[legacyType] || EmailType.UNKNOWN;
@@ -553,6 +561,9 @@ function inferCategoryFromType(emailType: EmailType): EmailCategory {
     [EmailType.UNKNOWN]: EmailCategory.SYSTEM,
     [EmailType.COMMISSION_FINANCE_NOTIFY]: EmailCategory.NOTIFICATION,
     [EmailType.COMMISSION_PARTNER_NOTIFY]: EmailCategory.NOTIFICATION,
+    [EmailType.COMMISSION_OBJECTION_NOTIFY]: EmailCategory.NOTIFICATION,
+    [EmailType.COMMISSION_DISPUTE_RESOLVED_NOTIFY]: EmailCategory.NOTIFICATION,
+    [EmailType.COMMISSION_INVOICE_SUBMITTED_NOTIFY]: EmailCategory.NOTIFICATION,
   };
 
   return categoryMap[emailType] || EmailCategory.SYSTEM;

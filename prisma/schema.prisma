@@ -1864,6 +1864,7 @@ model HSCommissionSettlements {
   communication               HSCommissionSettlementsCommunication?
   documentaion                HSCommissionSettlementsDocumentation?
   hold_dispute                HSCommissionSettlementsHoldAndDisputes?
+  dispute_logs                CommissionDisputeLog[]
   loan_details                HSCommissionSettlementsLoanDetails?
   payment_details             HSCommissionSettlementsPaymentProcessing?
   performance_metrics         HSCommissionSettlementsPerformanceAnalytics?
@@ -1986,6 +1987,29 @@ model HSCommissionSettlementsHoldAndDisputes {
   settlement               HSCommissionSettlements @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
 
   @@map("hs_commission_settlements_hold_and_disputes")
+}
+
+model CommissionDisputeLog {
+  id                         Int                     @id @default(autoincrement())
+  settlement_id              Int
+  action                     String
+  performed_by_user_id       Int?
+  performed_by_name          String?
+  performed_by_email         String?
+  performed_by_type          String?
+  reason                     String?                 @db.Text
+  resolution                 String?                 @db.Text
+  settlement_status_before   String?
+  settlement_status_after    String?
+  verification_status_before String?
+  verification_status_after  String?
+  created_at                 DateTime                @default(now())
+  settlement                 HSCommissionSettlements  @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
+
+  @@index([settlement_id])
+  @@index([created_at])
+  @@index([action])
+  @@map("commission_dispute_logs")
 }
 
 model HSCommissionSettlementsLoanDetails {
@@ -3148,6 +3172,9 @@ enum EmailType {
   UNKNOWN                   @map("Unknown")
   COMMISSION_FINANCE_NOTIFY
   COMMISSION_PARTNER_NOTIFY
+  COMMISSION_OBJECTION_NOTIFY         
+  COMMISSION_DISPUTE_RESOLVED_NOTIFY 
+  COMMISSION_INVOICE_SUBMITTED_NOTIFY
 
   @@map("email_type")
 }

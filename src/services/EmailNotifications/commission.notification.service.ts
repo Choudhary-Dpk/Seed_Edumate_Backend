@@ -19,22 +19,22 @@ const CURRENT_YEAR = moment().format("YYYY");
 // ============================================================================
 
 export type CommissionNotificationType =
-  | "FINANCE_PARTNER_ONBOARDED"       // Phase 1: New partner → Finance
-  | "PARTNER_COMMISSION_CREATED";      // Phase 2: Commission entry → Partner
-  // Future types (just uncomment and add config when ready):
-  // | "PARTNER_OBJECTION_RAISED"      // Phase 3: Partner raises objection → Admin/Ops
-  // | "ADMIN_DISPUTE_RESOLVED"        // Phase 3: Admin resolves dispute → Partner
-  // | "INVOICE_SUBMITTED"             // Phase 3: Invoice submitted → L1 Finance
-  // | "L1_APPROVED"                   // Phase 4: L1 approved → L2 Business Head
-  // | "L1_REJECTED"                   // Phase 4: L1 rejected → Partner + Ops
-  // | "L2_APPROVED"                   // Phase 4: L2 approved → Finance (for payout)
-  // | "L2_REJECTED_TO_L1"             // Phase 4: L2 rejected → L1
-  // | "L2_REJECTED_TO_PARTNER"        // Phase 4: L2 rejected → Partner + Ops
-  // | "PAYOUT_COMPLETED"              // Phase 5: UTR captured → Partner
-  // | "PAYOUT_FAILED"                 // Phase 5: Payment failed → Finance + Ops
-  // | "REMINDER_PARTNER_REVIEW"       // Phase 6: Reminder → Partner
-  // | "REMINDER_APPROVER_SLA"         // Phase 6: Reminder → Approver
-  // | "ESCALATION_BUSINESS_HEAD"      // Phase 6: Escalation → Business Head
+  | "FINANCE_PARTNER_ONBOARDED" // Phase 1: New partner → Finance
+  | "PARTNER_COMMISSION_CREATED" // Phase 2: Commission entry → Partner
+  | "PARTNER_OBJECTION_RAISED" // Phase 3: Partner raises objection → Admin/Ops
+  | "ADMIN_DISPUTE_RESOLVED" // Phase 3: Admin resolves dispute → Partner
+  | "INVOICE_SUBMITTED"; // Phase 3: Invoice submitted → Finance
+// Future types (just uncomment and add config when ready):
+// | "L1_APPROVED"                   // Phase 4: L1 approved → L2 Business Head
+// | "L1_REJECTED"                   // Phase 4: L1 rejected → Partner + Ops
+// | "L2_APPROVED"                   // Phase 4: L2 approved → Finance (for payout)
+// | "L2_REJECTED_TO_L1"             // Phase 4: L2 rejected → L1
+// | "L2_REJECTED_TO_PARTNER"        // Phase 4: L2 rejected → Partner + Ops
+// | "PAYOUT_COMPLETED"              // Phase 5: UTR captured → Partner
+// | "PAYOUT_FAILED"                 // Phase 5: Payment failed → Finance + Ops
+// | "REMINDER_PARTNER_REVIEW"       // Phase 6: Reminder → Partner
+// | "REMINDER_APPROVER_SLA"         // Phase 6: Reminder → Approver
+// | "ESCALATION_BUSINESS_HEAD"      // Phase 6: Escalation → Business Head
 
 // ============================================================================
 // NOTIFICATION DATA — Single flexible interface for all types
@@ -86,6 +86,18 @@ export interface CommissionNotificationData {
   commissionRate?: number | null;
   grossCommissionAmount?: number | null;
 
+  // ── Phase 3: Objection / Dispute ──
+  objectionReason?: string | null;
+  disputeResolution?: string | null;
+  disputeResolvedBy?: string | null;
+
+  // ── Phase 3: Invoice ──
+  invoiceNumber?: string | null;
+  invoiceDate?: Date | null;
+  invoiceAmount?: number | null;
+  invoiceUrl?: string | null;
+  settlementsCount?: number;
+
   // ── Overrides (optional) ──
   overrideRecipient?: string;
   overrideCc?: string[];
@@ -119,13 +131,21 @@ interface NotificationConfig {
     recipientUserId?: number;
   }>;
   getSubject: (data: CommissionNotificationData) => string;
-  getHtml: (data: CommissionNotificationData, recipientName?: string | null) => string;
+  getHtml: (
+    data: CommissionNotificationData,
+    recipientName?: string | null,
+  ) => string;
   getReferenceId: (data: CommissionNotificationData) => number | undefined;
-  afterSend?: (data: CommissionNotificationData, recipientEmail: string) => Promise<void>;
+  afterSend?: (
+    data: CommissionNotificationData,
+    recipientEmail: string,
+  ) => Promise<void>;
 }
 
-const NOTIFICATION_CONFIGS: Record<CommissionNotificationType, NotificationConfig> = {
-
+const NOTIFICATION_CONFIGS: Record<
+  CommissionNotificationType,
+  NotificationConfig
+> = {
   // ──────────────────────────────────────────────────────────────────────────
   // PHASE 1: Notify Finance — New Partner Onboarded
   // ──────────────────────────────────────────────────────────────────────────
@@ -213,7 +233,7 @@ const NOTIFICATION_CONFIGS: Record<CommissionNotificationType, NotificationConfi
           where: { settlement_id: data.settlementId },
           update: {
             notification_date: new Date(),
-            notification_method: "EMAIL",
+            notification_method: "Email",
             partner_notification_sent: "Yes",
             last_communication_date: new Date(),
             email_sent_count: { increment: 1 },
@@ -222,7 +242,7 @@ const NOTIFICATION_CONFIGS: Record<CommissionNotificationType, NotificationConfi
           create: {
             settlement_id: data.settlementId,
             notification_date: new Date(),
-            notification_method: "EMAIL",
+            notification_method: "Email",
             partner_notification_sent: "Yes",
             last_communication_date: new Date(),
             email_sent_count: 1,
@@ -235,6 +255,192 @@ const NOTIFICATION_CONFIGS: Record<CommissionNotificationType, NotificationConfi
           error: err.message,
           settlementId: data.settlementId,
         });
+      }
+    },
+  },
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // PHASE 3: Notify Finance — Partner Raised Objection
+  // ──────────────────────────────────────────────────────────────────────────
+  PARTNER_OBJECTION_RAISED: {
+    emailType: EmailType.COMMISSION_OBJECTION_NOTIFY,
+    category: EmailCategory.NOTIFICATION,
+    referenceType: "commission_settlement",
+    priority: 2,
+
+    getRecipient: async (data) => ({
+      to: data.overrideRecipient || FINANCE_EMAIL,
+      cc: data.overrideCc || [BDM_EMAIL],
+    }),
+
+    getSubject: (data) =>
+      data.overrideSubject ||
+      `⚠️ Objection Raised — ${data.studentName || "Student"} | ${data.partnerName || "Partner"} | ${data.settlementRefNumber || "N/A"}`,
+
+    getHtml: (data) => buildObjectionRaisedTemplate(data),
+
+    getReferenceId: (data) => data.settlementId,
+
+    afterSend: async (data, recipientEmail) => {
+      if (!data.settlementId) return;
+      try {
+        await prisma.hSCommissionSettlementsCommunication.upsert({
+          where: { settlement_id: data.settlementId },
+          update: {
+            last_communication_date: new Date(),
+            email_sent_count: { increment: 1 },
+            communication_log: `[${moment().format("YYYY-MM-DD HH:mm")}] Objection notification sent to ${recipientEmail}`,
+          },
+          create: {
+            settlement_id: data.settlementId,
+            notification_date: new Date(),
+            notification_method: "Email",
+            last_communication_date: new Date(),
+            email_sent_count: 1,
+            sms_sent_count: 0,
+            communication_log: `[${moment().format("YYYY-MM-DD HH:mm")}] Objection notification sent to ${recipientEmail}`,
+          },
+        });
+      } catch (err: any) {
+        logger.warn(
+          "Failed to update settlement communication after objection",
+          {
+            error: err.message,
+            settlementId: data.settlementId,
+          },
+        );
+      }
+    },
+  },
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // PHASE 3: Notify Partner — Admin Resolved Dispute
+  // ──────────────────────────────────────────────────────────────────────────
+  ADMIN_DISPUTE_RESOLVED: {
+    emailType: EmailType.COMMISSION_DISPUTE_RESOLVED_NOTIFY,
+    category: EmailCategory.NOTIFICATION,
+    referenceType: "commission_settlement",
+    priority: 3,
+
+    getRecipient: async (data) => {
+      if (data.overrideRecipient) {
+        return { to: data.overrideRecipient, cc: data.overrideCc };
+      }
+
+      const b2bId = data.partnerB2BId || data.partnerId;
+      if (!b2bId) throw new Error("partnerB2BId or partnerId is required");
+
+      const partnerUsers = await prisma.b2BPartnersUsers.findMany({
+        where: { b2b_id: b2bId, is_active: true },
+        select: { id: true, email: true, full_name: true },
+      });
+
+      if (!partnerUsers.length) {
+        throw new Error(`No active users found for partner B2B ID ${b2bId}`);
+      }
+
+      const primary = partnerUsers[0];
+      return {
+        to: primary.email,
+        recipientUserId: primary.id,
+      };
+    },
+
+    getSubject: (data) =>
+      data.overrideSubject ||
+      `✅ Dispute Resolved — ${data.studentName || "Student"} | Review Updated Entry on Portal`,
+
+    getHtml: (data, recipientName) =>
+      buildDisputeResolvedTemplate(data, recipientName),
+
+    getReferenceId: (data) => data.settlementId,
+
+    afterSend: async (data, recipientEmail) => {
+      if (!data.settlementId) return;
+      try {
+        await prisma.hSCommissionSettlementsCommunication.upsert({
+          where: { settlement_id: data.settlementId },
+          update: {
+            last_communication_date: new Date(),
+            email_sent_count: { increment: 1 },
+            communication_log: `[${moment().format("YYYY-MM-DD HH:mm")}] Dispute resolved notification sent to ${recipientEmail}`,
+          },
+          create: {
+            settlement_id: data.settlementId,
+            notification_date: new Date(),
+            notification_method: "Email",
+            last_communication_date: new Date(),
+            email_sent_count: 1,
+            sms_sent_count: 0,
+            communication_log: `[${moment().format("YYYY-MM-DD HH:mm")}] Dispute resolved notification sent to ${recipientEmail}`,
+          },
+        });
+      } catch (err: any) {
+        logger.warn(
+          "Failed to update settlement communication after dispute resolution",
+          {
+            error: err.message,
+            settlementId: data.settlementId,
+          },
+        );
+      }
+    },
+  },
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // PHASE 3: Notify Finance — Invoice Submitted by Partner
+  // ──────────────────────────────────────────────────────────────────────────
+  INVOICE_SUBMITTED: {
+    emailType: EmailType.COMMISSION_INVOICE_SUBMITTED_NOTIFY,
+    category: EmailCategory.NOTIFICATION,
+    referenceType: "commission_settlement",
+    priority: 3,
+
+    getRecipient: async (data) => ({
+      to: data.overrideRecipient || FINANCE_EMAIL,
+      cc: data.overrideCc || [BDM_EMAIL],
+    }),
+
+    getSubject: (data) => {
+      const count = data.settlementsCount || 1;
+      return (
+        data.overrideSubject ||
+        `📄 Invoice Submitted — ${data.partnerName || "Partner"} | ${data.invoiceNumber || "N/A"} | ${count} Settlement(s)`
+      );
+    },
+
+    getHtml: (data) => buildInvoiceSubmittedTemplate(data),
+
+    getReferenceId: (data) => data.settlementId,
+
+    afterSend: async (data, recipientEmail) => {
+      if (!data.settlementId) return;
+      try {
+        await prisma.hSCommissionSettlementsCommunication.upsert({
+          where: { settlement_id: data.settlementId },
+          update: {
+            last_communication_date: new Date(),
+            email_sent_count: { increment: 1 },
+            communication_log: `[${moment().format("YYYY-MM-DD HH:mm")}] Invoice submitted notification sent to ${recipientEmail}`,
+          },
+          create: {
+            settlement_id: data.settlementId,
+            notification_date: new Date(),
+            notification_method: "Email",
+            last_communication_date: new Date(),
+            email_sent_count: 1,
+            sms_sent_count: 0,
+            communication_log: `[${moment().format("YYYY-MM-DD HH:mm")}] Invoice submitted notification sent to ${recipientEmail}`,
+          },
+        });
+      } catch (err: any) {
+        logger.warn(
+          "Failed to update settlement communication after invoice submission",
+          {
+            error: err.message,
+            settlementId: data.settlementId,
+          },
+        );
       }
     },
   },
@@ -269,7 +475,7 @@ const NOTIFICATION_CONFIGS: Record<CommissionNotificationType, NotificationConfi
  */
 export async function sendCommissionNotification(
   type: CommissionNotificationType,
-  data: CommissionNotificationData
+  data: CommissionNotificationData,
 ): Promise<CommissionNotificationResult> {
   const config = NOTIFICATION_CONFIGS[type];
 
@@ -316,8 +522,8 @@ export async function sendCommissionNotification(
         data.triggeredBy?.type === "admin"
           ? SenderType.ADMIN
           : data.triggeredBy?.type === "partner"
-          ? SenderType.PARTNER
-          : SenderType.SYSTEM,
+            ? SenderType.PARTNER
+            : SenderType.SYSTEM,
       reference_type: config.referenceType,
       reference_id: config.getReferenceId(data),
       metadata: {
@@ -337,7 +543,7 @@ export async function sendCommissionNotification(
       config.afterSend(data, to).catch((err) =>
         logger.warn(`[Commission Notification] afterSend failed for ${type}`, {
           error: err.message,
-        })
+        }),
       );
     }
 
@@ -354,7 +560,8 @@ export async function sendCommissionNotification(
       recipientEmail: to,
     };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
     logger.error(`[Commission Notification] Failed to send ${type}`, {
       error: errorMessage,
       partnerId: data.partnerId || data.partnerB2BId,
@@ -375,7 +582,7 @@ export async function sendCommissionNotification(
  */
 export async function notifyPartnerForSettlement(
   settlementId: number,
-  triggeredBy?: { userId?: number; name?: string; type?: "system" | "admin" }
+  triggeredBy?: { userId?: number; name?: string; type?: "system" | "admin" },
 ): Promise<CommissionNotificationResult> {
   try {
     const settlement = await prisma.hSCommissionSettlements.findUnique({
@@ -389,9 +596,13 @@ export async function notifyPartnerForSettlement(
       },
     });
 
-    if (!settlement) return { success: false, error: `Settlement ${settlementId} not found` };
+    if (!settlement)
+      return { success: false, error: `Settlement ${settlementId} not found` };
     if (!settlement.b2b_partner_id || !settlement.b2b_partner) {
-      return { success: false, error: `Settlement ${settlementId} has no linked partner` };
+      return {
+        success: false,
+        error: `Settlement ${settlementId} has no linked partner`,
+      };
     }
 
     return sendCommissionNotification("PARTNER_COMMISSION_CREATED", {
@@ -417,7 +628,8 @@ export async function notifyPartnerForSettlement(
       commissionRate: settlement.calculation_details?.commission_rate_applied
         ? Number(settlement.calculation_details.commission_rate_applied)
         : null,
-      grossCommissionAmount: settlement.calculation_details?.gross_commission_amount
+      grossCommissionAmount: settlement.calculation_details
+        ?.gross_commission_amount
         ? Number(settlement.calculation_details.gross_commission_amount)
         : null,
       settlementMonth: settlement.settlement_month,
@@ -427,7 +639,95 @@ export async function notifyPartnerForSettlement(
     });
   } catch (error) {
     const msg = error instanceof Error ? error.message : "Unknown error";
-    logger.error("Failed to notify partner for settlement", { error: msg, settlementId });
+    logger.error("Failed to notify partner for settlement", {
+      error: msg,
+      settlementId,
+    });
+    return { success: false, error: msg };
+  }
+}
+
+// ============================================================================
+// CONVENIENCE: Notify Finance when invoice is submitted
+// ============================================================================
+
+/**
+ * Send invoice submission notification to finance.
+ * Use from uploadInvoiceController after successful upload.
+ */
+export async function notifyFinanceForInvoice(
+  settlementIds: number[],
+  invoiceData: {
+    invoiceNumber?: string;
+    invoiceDate?: Date;
+    invoiceAmount?: number;
+    invoiceUrl?: string;
+  },
+  partnerData: {
+    partnerB2BId?: number;
+    partnerName?: string;
+  },
+  triggeredBy?: {
+    userId?: number;
+    name?: string;
+    type?: "system" | "admin" | "partner";
+  },
+): Promise<CommissionNotificationResult> {
+  try {
+    // Use first settlement as the primary reference
+    const firstSettlement = await prisma.hSCommissionSettlements.findUnique({
+      where: { id: settlementIds[0] },
+      include: {
+        b2b_partner: {
+          select: { id: true, partner_name: true, partner_display_name: true },
+        },
+        loan_details: true,
+        calculation_details: true,
+      },
+    });
+
+    if (!firstSettlement) {
+      return {
+        success: false,
+        error: `Settlement ${settlementIds[0]} not found`,
+      };
+    }
+
+    const partnerName =
+      partnerData.partnerName ||
+      firstSettlement.b2b_partner?.partner_display_name ||
+      firstSettlement.b2b_partner?.partner_name ||
+      firstSettlement.partner_name ||
+      "Partner";
+
+    return sendCommissionNotification("INVOICE_SUBMITTED", {
+      settlementId: firstSettlement.id,
+      settlementRefNumber: firstSettlement.settlement_reference_number,
+      partnerB2BId:
+        partnerData.partnerB2BId || firstSettlement.b2b_partner_id || undefined,
+      partnerName,
+      studentName: firstSettlement.student_name,
+      lenderName: firstSettlement.loan_details?.lender_name,
+      loanAmountDisbursed: firstSettlement.loan_details?.loan_amount_disbursed
+        ? Number(firstSettlement.loan_details.loan_amount_disbursed)
+        : null,
+      grossCommissionAmount: firstSettlement.calculation_details
+        ?.gross_commission_amount
+        ? Number(firstSettlement.calculation_details.gross_commission_amount)
+        : null,
+      invoiceNumber: invoiceData.invoiceNumber,
+      invoiceDate: invoiceData.invoiceDate,
+      invoiceAmount: invoiceData.invoiceAmount,
+      invoiceUrl: invoiceData.invoiceUrl,
+      settlementsCount: settlementIds.length,
+      triggeredBy,
+    });
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : "Unknown error";
+    logger.error("Failed to notify finance for invoice", {
+      error: msg,
+      settlementIds,
+    });
     return { success: false, error: msg };
   }
 }
@@ -436,7 +736,9 @@ export async function notifyPartnerForSettlement(
 // EMAIL TEMPLATES
 // ============================================================================
 
-function buildFinanceNotificationTemplate(data: CommissionNotificationData): string {
+function buildFinanceNotificationTemplate(
+  data: CommissionNotificationData,
+): string {
   const partnerPortalUrl = `${PORTAL_BASE_URL}/admin/partners/${data.partnerId}`;
   const onboardedDate = data.onboardedAt
     ? moment(data.onboardedAt).format("DD MMM YYYY, hh:mm A")
@@ -505,7 +807,7 @@ function buildFinanceNotificationTemplate(data: CommissionNotificationData): str
 
 function buildPartnerCommissionTemplate(
   data: CommissionNotificationData,
-  recipientName?: string | null
+  recipientName?: string | null,
 ): string {
   const portalUrl = `${PORTAL_BASE_URL}/partners/commissions`;
   const greeting = recipientName
@@ -516,8 +818,7 @@ function buildPartnerCommissionTemplate(
     v != null ? `₹${Number(v).toLocaleString("en-IN")}` : "—";
   const fmtDate = (d: Date | null | undefined) =>
     d ? moment(d).format("DD MMM YYYY") : "—";
-  const fmtPct = (v: number | null | undefined) =>
-    v != null ? `${v}%` : "—";
+  const fmtPct = (v: number | null | undefined) => (v != null ? `${v}%` : "—");
 
   return `
 <!DOCTYPE html>
@@ -580,14 +881,18 @@ function buildPartnerCommissionTemplate(
               </table>
 
               <!-- Commission Highlight -->
-              ${data.grossCommissionAmount != null ? `
+              ${
+                data.grossCommissionAmount != null
+                  ? `
               <table width="100%" cellpadding="0" cellspacing="0" style="background:linear-gradient(135deg,#EBF8FF 0%,#DBEAFE 100%);border:1px solid #93C5FD;border-radius:8px;margin-bottom:20px;">
                 <tr><td align="center" style="padding:20px;">
                   <p style="margin:0 0 4px;color:#1E40AF;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Estimated Commission</p>
                   <p style="margin:0;color:#1E3A5F;font-size:28px;font-weight:700;">${fmtCurrency(data.grossCommissionAmount)}</p>
                   ${data.commissionRate != null ? `<p style="margin:4px 0 0;color:#3B82F6;font-size:12px;">@ ${fmtPct(data.commissionRate)} commission rate</p>` : ""}
                 </td></tr>
-              </table>` : ""}
+              </table>`
+                  : ""
+              }
 
               <!-- Next Steps -->
               <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#FFF7ED;border:1px solid #FDBA74;border-radius:8px;margin-bottom:20px;">
@@ -616,6 +921,238 @@ function buildPartnerCommissionTemplate(
           <tr>
             <td style="background-color:#F8F9FA;padding:18px 32px;border-top:1px solid #E5E8EB;">
               <p style="margin:0;color:#7F8C8D;font-size:11px;text-align:center;">This is an automated notification from ${COMPANY_NAME}.<br/>For support, reach out to your account manager or email support@edumateglobal.com<br/>© ${CURRENT_YEAR} ${COMPANY_NAME}. All rights reserved.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
+// ── Phase 3: Objection Raised Template ──────────────────────────────────────
+
+function buildObjectionRaisedTemplate(
+  data: CommissionNotificationData,
+): string {
+  const adminUrl = `${PORTAL_BASE_URL}/admin/commissions`;
+  const fmtCurrency = (v: number | null | undefined) =>
+    v != null ? `₹${Number(v).toLocaleString("en-IN")}` : "N/A";
+
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Objection Raised</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f4f6f9;font-family:'Segoe UI',Roboto,Arial,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6f9;padding:30px 0;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
+          <!-- Header -->
+          <tr>
+            <td style="background:linear-gradient(135deg,#E74C3C 0%,#C0392B 100%);padding:28px 32px;">
+              <h1 style="color:#ffffff;font-size:20px;font-weight:600;margin:0;">⚠️ Objection Raised on Commission Settlement</h1>
+              <p style="color:rgba(255,255,255,0.85);font-size:13px;margin:8px 0 0;">${moment().format("DD MMM YYYY, hh:mm A")}</p>
+            </td>
+          </tr>
+          <!-- Body -->
+          <tr>
+            <td style="padding:28px 32px;">
+              <p style="color:#2C3E50;font-size:14px;line-height:1.6;margin:0 0 20px;">A partner has raised an objection on a commission settlement entry. Please review and resolve.</p>
+
+              <!-- Settlement Info -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;">
+                ${row("Partner", data.partnerName)}
+                ${row("Student", data.studentName)}
+                ${row("Reference #", data.settlementRefNumber, true)}
+                ${row("Loan Disbursed", fmtCurrency(data.loanAmountDisbursed))}
+                ${row("Commission Amount", fmtCurrency(data.grossCommissionAmount))}
+                ${row("Settlement Period", data.settlementMonth && data.settlementYear ? `${data.settlementMonth} ${data.settlementYear}` : null)}
+              </table>
+
+              <!-- Objection Reason Box -->
+              <div style="background-color:#FDEDEC;border-left:4px solid #E74C3C;padding:16px 20px;border-radius:0 8px 8px 0;margin-bottom:24px;">
+                <p style="color:#922B21;font-size:12px;font-weight:600;text-transform:uppercase;margin:0 0 8px;">Objection Reason</p>
+                <p style="color:#2C3E50;font-size:14px;line-height:1.6;margin:0;">${esc(data.objectionReason || "No reason provided")}</p>
+              </div>
+
+              <p style="color:#7F8C8D;font-size:13px;margin-bottom:24px;">Please review the objection and resolve it through the admin panel.</p>
+
+              <!-- CTA -->
+              <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;">
+                <tr>
+                  <td style="background:linear-gradient(135deg,#E74C3C,#C0392B);border-radius:8px;">
+                    <a href="${adminUrl}" target="_blank" style="display:inline-block;padding:14px 32px;color:#ffffff;text-decoration:none;font-size:14px;font-weight:600;">Review on Admin Panel →</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td style="background-color:#F8F9FA;padding:20px 32px;border-top:1px solid #E5E8EB;">
+              <p style="color:#95A5A6;font-size:11px;margin:0;text-align:center;">This is an automated notification from ${COMPANY_NAME} Commission System · ${CURRENT_YEAR}</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
+// ── Phase 3: Dispute Resolved Template ──────────────────────────────────────
+
+function buildDisputeResolvedTemplate(
+  data: CommissionNotificationData,
+  recipientName?: string | null,
+): string {
+  const portalUrl = `${PORTAL_BASE_URL}/partners/commissions`;
+  const greeting = recipientName
+    ? recipientName.charAt(0).toUpperCase() + recipientName.slice(1)
+    : "Partner";
+
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dispute Resolved</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f4f6f9;font-family:'Segoe UI',Roboto,Arial,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6f9;padding:30px 0;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
+          <!-- Header -->
+          <tr>
+            <td style="background:linear-gradient(135deg,#2980B9 0%,#3498DB 100%);padding:28px 32px;">
+              <h1 style="color:#ffffff;font-size:20px;font-weight:600;margin:0;">✅ Dispute Resolved</h1>
+              <p style="color:rgba(255,255,255,0.85);font-size:13px;margin:8px 0 0;">${moment().format("DD MMM YYYY, hh:mm A")}</p>
+            </td>
+          </tr>
+          <!-- Body -->
+          <tr>
+            <td style="padding:28px 32px;">
+              <p style="color:#2C3E50;font-size:14px;line-height:1.6;margin:0 0 20px;">Hi ${esc(greeting)},</p>
+              <p style="color:#2C3E50;font-size:14px;line-height:1.6;margin:0 0 20px;">Your objection on a commission settlement has been reviewed and resolved. Please log in to verify the updated entry.</p>
+
+              <!-- Settlement Info -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;">
+                ${row("Student", data.studentName)}
+                ${row("Reference #", data.settlementRefNumber, true)}
+                ${row("Resolved By", data.disputeResolvedBy)}
+              </table>
+
+              <!-- Resolution Box -->
+              <div style="background-color:#EBF5FB;border-left:4px solid #2980B9;padding:16px 20px;border-radius:0 8px 8px 0;margin-bottom:24px;">
+                <p style="color:#1A5276;font-size:12px;font-weight:600;text-transform:uppercase;margin:0 0 8px;">Resolution</p>
+                <p style="color:#2C3E50;font-size:14px;line-height:1.6;margin:0;">${esc(data.disputeResolution || "Dispute has been resolved")}</p>
+              </div>
+
+              <p style="color:#7F8C8D;font-size:13px;margin-bottom:24px;">Please review the updated entry and accept if everything looks correct, or raise another objection if needed.</p>
+
+              <!-- CTA -->
+              <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;">
+                <tr>
+                  <td style="background:linear-gradient(135deg,#27AE60,#2ECC71);border-radius:8px;">
+                    <a href="${portalUrl}" target="_blank" style="display:inline-block;padding:14px 32px;color:#ffffff;text-decoration:none;font-size:14px;font-weight:600;">Review on Portal →</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td style="background-color:#F8F9FA;padding:20px 32px;border-top:1px solid #E5E8EB;">
+              <p style="color:#95A5A6;font-size:11px;margin:0;text-align:center;">This is an automated notification from ${COMPANY_NAME} Commission System · ${CURRENT_YEAR}</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
+// ── Phase 3: Invoice Submitted Template ─────────────────────────────────────
+
+function buildInvoiceSubmittedTemplate(
+  data: CommissionNotificationData,
+): string {
+  const adminUrl = `${PORTAL_BASE_URL}/admin/commissions`;
+  const fmtCurrency = (v: number | null | undefined) =>
+    v != null ? `₹${Number(v).toLocaleString("en-IN")}` : "N/A";
+  const fmtDate = (d: Date | null | undefined) =>
+    d ? moment(d).format("DD MMM YYYY") : "N/A";
+
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Invoice Submitted</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f4f6f9;font-family:'Segoe UI',Roboto,Arial,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6f9;padding:30px 0;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
+          <!-- Header -->
+          <tr>
+            <td style="background:linear-gradient(135deg,#E67E22 0%,#F39C12 100%);padding:28px 32px;">
+              <h1 style="color:#ffffff;font-size:20px;font-weight:600;margin:0;">📄 Invoice Received from Partner</h1>
+              <p style="color:rgba(255,255,255,0.85);font-size:13px;margin:8px 0 0;">${moment().format("DD MMM YYYY, hh:mm A")}</p>
+            </td>
+          </tr>
+          <!-- Body -->
+          <tr>
+            <td style="padding:28px 32px;">
+              <p style="color:#2C3E50;font-size:14px;line-height:1.6;margin:0 0 20px;">A partner has submitted an invoice for commission settlement. Please review and proceed with the approval process.</p>
+
+              <!-- Invoice Details -->
+              <div style="background-color:#FEF5E7;border-left:4px solid #E67E22;padding:16px 20px;border-radius:0 8px 8px 0;margin-bottom:20px;">
+                <p style="color:#935116;font-size:12px;font-weight:600;text-transform:uppercase;margin:0 0 12px;">Invoice Details</p>
+                <table width="100%" cellpadding="0" cellspacing="0">
+                  ${row("Invoice Number", data.invoiceNumber, true)}
+                  ${row("Invoice Date", fmtDate(data.invoiceDate))}
+                  ${row("Invoice Amount", fmtCurrency(data.invoiceAmount))}
+                  ${row("Settlements Covered", data.settlementsCount ? `${data.settlementsCount} settlement(s)` : "1")}
+                </table>
+              </div>
+
+              <!-- Partner Info -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+                ${row("Partner", data.partnerName)}
+                ${row("Student", data.studentName)}
+                ${row("Reference #", data.settlementRefNumber, true)}
+              </table>
+
+              <p style="color:#7F8C8D;font-size:13px;margin-bottom:24px;">The settlement status has been updated to "Pending Approval". Please proceed with the review.</p>
+
+              <!-- CTA -->
+              <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;">
+                <tr>
+                  <td style="background:linear-gradient(135deg,#E67E22,#F39C12);border-radius:8px;">
+                    <a href="${adminUrl}" target="_blank" style="display:inline-block;padding:14px 32px;color:#ffffff;text-decoration:none;font-size:14px;font-weight:600;">Review Invoice →</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td style="background-color:#F8F9FA;padding:20px 32px;border-top:1px solid #E5E8EB;">
+              <p style="color:#95A5A6;font-size:11px;margin:0;text-align:center;">This is an automated notification from ${COMPANY_NAME} Commission System · ${CURRENT_YEAR}</p>
             </td>
           </tr>
         </table>
