@@ -153,7 +153,6 @@ export interface HubSpotB2BPartner {
     bank_account_number: number;
     bank_branch: string;
     bank_name: string;
-    beneficiary_name: string;
     bonus_structure: string;
     commission_model: string;
     commission_rate: number;
