@@ -1952,7 +1952,7 @@ model HSCommissionSettlementsDocumentation {
   invoice_number           String?
   invoice_date             DateTime?
   invoice_amount           Decimal?                @db.Decimal(16, 4)
-  invoice_status           String?
+  invoice_status           String?                 @default("Pending")
   invoice_url              String?
   tax_certificate_required String?
   tax_certificate_url      String?
@@ -2087,10 +2087,10 @@ model HSCommissionSettlementsReconciliations {
 model HSCommissionSettlementsSettlementStatus {
   id                  Int                     @id @default(autoincrement())
   settlement_id       Int                     @unique
-  settlement_status   String?
+  settlement_status   String?                 @default("Calculated")
   calculation_date    DateTime?
   calculated_by       String?
-  verification_status String?
+  verification_status String?                 @default("Pending")
   verification_date   DateTime?
   created_at          DateTime                @default(now())
   updated_at          DateTime                @default(now()) @updatedAt
