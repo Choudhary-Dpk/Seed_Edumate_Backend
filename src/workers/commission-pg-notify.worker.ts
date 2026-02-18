@@ -417,26 +417,25 @@ function transformCommissionSettlementsToHubSpotFormat(
   const transaction = commissionSettlement.transaction || {};
 
   return {
-    lead_reference_id: commissionSettlement.lead_reference_id || null,
-    settlement_id: commissionSettlement.settlement_id || null,
-    product_id: commissionSettlement.product_id || null,
+    lead_reference_id: commissionSettlement.lead_reference_id || "",
+    settlement_id: commissionSettlement.settlement_id || "",
     settlement_reference_number:
-      commissionSettlement.settlement_reference_number || null,
+      commissionSettlement.settlement_reference_number || "",
     settlement_date: commissionSettlement.settlement_date
       ? new Date(commissionSettlement.settlement_date)
           .toISOString()
           .split("T")[0]
       : null,
-    settlement_month: commissionSettlement.settlement_month || null,
-    settlement_period: commissionSettlement.settlement_period || null,
-    settlement_year: commissionSettlement.settlement_year || null,
-    verified_by: commissionSettlement.verified_by || null,
+    settlement_month: commissionSettlement.settlement_month || "",
+    settlement_period: commissionSettlement.settlement_period || "",
+    settlement_year: commissionSettlement.settlement_year || "",
+    verified_by: commissionSettlement.verified_by || "",
 
-    commission_model: calculation.commission_model || null,
+    commission_model: calculation.commission_model || "",
     commission_rate_applied: calculation.commission_rate_applied
       ? parseFloat(calculation.commission_rate_applied)
       : null,
-    commission_tier_applied: calculation.commission_tier_applied || null,
+    commission_tier_applied: calculation.commission_tier_applied || "",
     gross_commission_amount: calculation.gross_commission_amount
       ? parseFloat(calculation.gross_commission_amount)
       : null,
@@ -455,26 +454,26 @@ function transformCommissionSettlementsToHubSpotFormat(
     adjustment_amount: calculation.adjustment_amount
       ? parseFloat(calculation.adjustment_amount)
       : null,
-    adjustment_reason: calculation.adjustment_reason || null,
+    adjustment_reason: calculation.adjustment_reason || "",
     total_gross_amount: calculation.total_gross_amount
       ? parseFloat(calculation.total_gross_amount)
       : null,
 
-    gst_applicable: taxDeductions.gst_applicable || null,
+    gst_applicable: taxDeductions.gst_applicable || "",
     gst_rate_applied: taxDeductions.gst_rate_applied
       ? parseFloat(taxDeductions.gst_rate_applied)
       : null,
     gst_amount: taxDeductions.gst_amount
       ? parseFloat(taxDeductions.gst_amount)
       : null,
-    tds_applicable: taxDeductions.tds_applicable || null,
+    tds_applicable: taxDeductions.tds_applicable || "",
     tds_rate_applied: taxDeductions.tds_rate_applied
       ? parseFloat(taxDeductions.tds_rate_applied)
       : null,
     tds_amount: taxDeductions.tds_amount
       ? parseFloat(taxDeductions.tds_amount)
       : null,
-    tds_certificate_number: taxDeductions.tds_certificate_number || null,
+    tds_certificate_number: taxDeductions.tds_certificate_number || "",
     service_tax_amount: taxDeductions.service_tax_amount
       ? parseFloat(taxDeductions.service_tax_amount)
       : null,
@@ -482,7 +481,7 @@ function transformCommissionSettlementsToHubSpotFormat(
       ? parseFloat(taxDeductions.other_deductions)
       : null,
     other_deductions_description:
-      taxDeductions.other_deductions_description || null,
+      taxDeductions.other_deductions_description || "",
     total_deductions: taxDeductions.total_deductions
       ? parseFloat(taxDeductions.total_deductions)
       : null,
@@ -496,13 +495,13 @@ function transformCommissionSettlementsToHubSpotFormat(
     loan_disbursement_date: loanDetails.loan_disbursement_date
       ? new Date(loanDetails.loan_disbursement_date).toISOString().split("T")[0]
       : null,
-    course_name: loanDetails.course_name || null,
-    university_name: loanDetails.university_name || null,
+    course_name: loanDetails.course_name || "",
+    university_name: loanDetails.university_name || "",
     student_destination_country:
-      loanDetails.student_destination_country || null,
+      loanDetails.student_destination_country || "",
 
-    payment_method: paymentDetails.payment_method || null,
-    payment_status: paymentDetails.payment_status || null,
+    payment_method: paymentDetails.payment_method || "",
+    payment_status: paymentDetails.payment_status || "",
     payment_initiation_date: paymentDetails.payment_initiation_date
       ? new Date(paymentDetails.payment_initiation_date)
           .toISOString()
@@ -513,70 +512,69 @@ function transformCommissionSettlementsToHubSpotFormat(
           .toISOString()
           .split("T")[0]
       : null,
-    payment_reference_number: paymentDetails.payment_reference_number || null,
-    payment_gateway_reference: paymentDetails.payment_gateway_reference || null,
-    bank_transaction_id: paymentDetails.bank_transaction_id || null,
-    beneficiary_name: paymentDetails.beneficiary_name || null,
+    payment_reference_number: paymentDetails.payment_reference_number || "",
+    payment_gateway_reference: paymentDetails.payment_gateway_reference || "",
+    bank_transaction_id: paymentDetails.bank_transaction_id || "",
     beneficiary_account_number:
-      paymentDetails.beneficiary_account_number || null,
-    beneficiary_bank_name: paymentDetails.beneficiary_bank_name || null,
-    beneficiary_ifsc_code: paymentDetails.beneficiary_ifsc_code || null,
-    payment_failure_reason: paymentDetails.payment_failure_reason || null,
-    retry_attempt_count: paymentDetails.retry_attempt_count || null,
+      paymentDetails.beneficiary_account_number || "",
+    beneficiary_bank_name: paymentDetails.beneficiary_bank_name || "",
+    beneficiary_ifsc_code: paymentDetails.beneficiary_ifsc_code || "",
+    payment_failure_reason: paymentDetails.payment_failure_reason || "",
+    retry_attempt_count: paymentDetails.retry_attempt_count || "",
     last_retry_date: paymentDetails.last_retry_date
       ? new Date(paymentDetails.last_retry_date).toISOString().split("T")[0]
       : null,
 
     settlement_status:
-      mapSettlementStatusForHubSpot(statusHistory.settlement_status) || null,
+      mapSettlementStatusForHubSpot(statusHistory.settlement_status) || "",
     calculation_date: statusHistory.calculation_date
       ? new Date(statusHistory.calculation_date).toISOString().split("T")[0]
       : null,
-    calculated_by: statusHistory.calculated_by || null,
-    verification_status: statusHistory.verification_status || null,
+    calculated_by: statusHistory.calculated_by || "",
+    verification_status: statusHistory.verification_status || "",
     verification_date: statusHistory.verification_date
       ? new Date(statusHistory.verification_date).toISOString().split("T")[0]
       : null,
 
-    invoice_required: documentation.invoice_required || null,
-    invoice_number: documentation.invoice_number || null,
+    invoice_required: documentation.invoice_required || "",
+    invoice_number: documentation.invoice_number || "",
     invoice_date: documentation.invoice_date
       ? new Date(documentation.invoice_date).toISOString().split("T")[0]
       : null,
     invoice_amount: documentation.invoice_amount
       ? parseFloat(documentation.invoice_amount)
       : null,
-    invoice_status: documentation.invoice_status || null,
-    invoice_url: documentation.invoice_url || null,
-    tax_certificate_required: documentation.tax_certificate_required || null,
-    tax_certificate_url: documentation.tax_certificate_url || null,
-    agreement_reference: documentation.agreement_reference || null,
-    payment_terms_applied: documentation.payment_terms_applied || null,
-    supporting_documents: documentation.supporting_documents || null,
+    invoice_status: documentation.invoice_status || "",
+    invoice_url: documentation.invoice_url || "",
+    tax_certificate_required: documentation.tax_certificate_required || "",
+    tax_certificate_url: documentation.tax_certificate_url || "",
+    agreement_reference: documentation.agreement_reference || "",
+    payment_terms_applied: documentation.payment_terms_applied || "",
+    supporting_documents: documentation.supporting_documents || "",
 
-    on_hold: holdDispute.on_hold || null,
-    hold_reason: holdDispute.hold_reason || null,
+    on_hold: holdDispute.on_hold || "",
+    hold_reason: holdDispute.hold_reason || "",
     hold_date: holdDispute.hold_date
       ? new Date(holdDispute.hold_date).toISOString().split("T")[0]
       : null,
-    hold_initiated_by: holdDispute.hold_initiated_by || null,
+    hold_initiated_by: holdDispute.hold_initiated_by || "",
     hold_release_date: holdDispute.hold_release_date
       ? new Date(holdDispute.hold_release_date).toISOString().split("T")[0]
       : null,
-    hold_release_approved_by: holdDispute.hold_release_approved_by || null,
-    dispute_raised: holdDispute.dispute_raised || null,
+    hold_release_approved_by: holdDispute.hold_release_approved_by || "",
+    dispute_raised: holdDispute.dispute_raised || "",
     dispute_date: holdDispute.dispute_date
       ? new Date(holdDispute.dispute_date).toISOString().split("T")[0]
       : null,
-    dispute_raised_by: holdDispute.dispute_raised_by || null,
-    dispute_description: holdDispute.dispute_description || null,
-    dispute_resolution: holdDispute.dispute_resolution || null,
+    dispute_raised_by: holdDispute.dispute_raised_by || "",
+    dispute_description: holdDispute.dispute_description || "",
+    dispute_resolution: holdDispute.dispute_resolution || "",
     dispute_resolution_date: holdDispute.dispute_resolution_date
       ? new Date(holdDispute.dispute_resolution_date)
           .toISOString()
           .split("T")[0]
       : null,
-    dispute_resolved_by: holdDispute.dispute_resolved_by || null,
+    dispute_resolved_by: holdDispute.dispute_resolved_by || "",
 
     notification_date: communication.notification_date
       ? new Date(communication.notification_date).toISOString().split("T")[0]
@@ -584,8 +582,8 @@ function transformCommissionSettlementsToHubSpotFormat(
     notification_method:
       mapNotificationMethodForHubSpot(communication.notification_method) ||
       null,
-    partner_notification_sent: communication.partner_notification_sent || null,
-    acknowledgment_received: communication.acknowledgment_received || null,
+    partner_notification_sent: communication.partner_notification_sent || "",
+    acknowledgment_received: communication.acknowledgment_received || "",
     acknowledgment_date: communication.acknowledgment_date
       ? new Date(communication.acknowledgment_date).toISOString().split("T")[0]
       : null,
@@ -594,54 +592,53 @@ function transformCommissionSettlementsToHubSpotFormat(
           .toISOString()
           .split("T")[0]
       : null,
-    communication_log: communication.communication_log || null,
-    email_sent_count: communication.email_sent_count || null,
-    sms_sent_count: communication.sms_sent_count || null,
+    communication_log: communication.communication_log || "",
+    email_sent_count: communication.email_sent_count || "",
+    sms_sent_count: communication.sms_sent_count || "",
 
-    reconciliation_status: reconciliation.reconciliation_status || null,
+    reconciliation_status: reconciliation.reconciliation_status || "",
     reconciliation_date: reconciliation.reconciliation_date
       ? new Date(reconciliation.reconciliation_date).toISOString().split("T")[0]
       : null,
-    reconciled_by: reconciliation.reconciled_by || null,
-    bank_statement_reference: reconciliation.bank_statement_reference || null,
+    reconciled_by: reconciliation.reconciled_by || "",
+    bank_statement_reference: reconciliation.bank_statement_reference || "",
     discrepancy_amount: reconciliation.discrepancy_amount
       ? parseFloat(reconciliation.discrepancy_amount)
       : null,
-    discrepancy_reason: reconciliation.discrepancy_reason || null,
-    reconciliation_notes: reconciliation.reconciliation_notes || null,
+    discrepancy_reason: reconciliation.discrepancy_reason || "",
+    reconciliation_notes: reconciliation.reconciliation_notes || "",
 
-    processing_time_days: performanceMetrics.processing_time_days || null,
-    payment_delay_days: performanceMetrics.payment_delay_days || null,
-    sla_breach: performanceMetrics.sla_breach || null,
-    sla_breach_reason: performanceMetrics.sla_breach_reason || null,
+    processing_time_days: performanceMetrics.processing_time_days || "",
+    payment_delay_days: performanceMetrics.payment_delay_days || "",
+    sla_breach: performanceMetrics.sla_breach || "",
+    sla_breach_reason: performanceMetrics.sla_breach_reason || "",
     partner_satisfaction_rating: performanceMetrics.partner_satisfaction_rating
       ? parseFloat(performanceMetrics.partner_satisfaction_rating)
       : null,
 
-    transaction_type: transaction.transaction_type || null,
-    transaction_sub_type: transaction.transaction_sub_type || null,
-    disbursement_trigger: transaction.disbursement_trigger || null,
-    batch_payment_id: transaction.batch_payment_id || null,
-    original_transaction_id: transaction.original_transaction_id || null,
-    related_settlement_id: transaction.related_settlement_id || null,
+    transaction_type: transaction.transaction_type || "",
+    transaction_sub_type: transaction.transaction_sub_type || "",
+    disbursement_trigger: transaction.disbursement_trigger || "",
+    batch_payment_id: transaction.batch_payment_id || "",
+    original_transaction_id: transaction.original_transaction_id || "",
+    related_settlement_id: transaction.related_settlement_id || "",
 
-    settlement_record_status: systemTracking.settlement_record_status || null,
-    data_source: systemTracking.data_source || null,
-    integration_status: systemTracking.integration_status || null,
-    system_generated: systemTracking.system_generated || null,
-    created_by_user: systemTracking.created_by_user || null,
+    settlement_record_status: systemTracking.settlement_record_status || "",
+    data_source: systemTracking.data_source || "",
+    integration_status: systemTracking.integration_status || "",
+    system_generated: systemTracking.system_generated || "",
     created_date: systemTracking.created_date
       ? new Date(systemTracking.created_date).toISOString().split("T")[0]
       : null,
-    last_modified_by: systemTracking.last_modified_by || null,
+    last_modified_by: systemTracking.last_modified_by || "",
     last_modified_date: systemTracking.last_modified_date
       ? new Date(systemTracking.last_modified_date).toISOString().split("T")[0]
       : null,
-    version_number: systemTracking.version_number || null,
-    audit_trail: systemTracking.audit_trail || null,
-    change_log: systemTracking.change_log || null,
-    notes: systemTracking.notes || null,
-    internal_notes: systemTracking.internal_notes || null,
+    version_number: systemTracking.version_number || "",
+    audit_trail: systemTracking.audit_trail || "",
+    change_log: systemTracking.change_log || "",
+    notes: systemTracking.notes || "",
+    internal_notes: systemTracking.internal_notes || "",
 
     ...(commissionSettlement.hs_object_id && {}),
   };
