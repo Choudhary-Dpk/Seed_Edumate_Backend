@@ -685,6 +685,33 @@ export const uploadInvoiceController = async (
       ),
     );
 
+    // ── Timeline entry for each settlement ──
+    await Promise.all(
+      settlements.map((settlement: any) =>
+        prisma.commissionDisputeLog.create({
+          data: {
+            settlement_id: settlement.id,
+            action: "INVOICE_UPLOADED",
+            performed_by_user_id: (req as any).user?.id || null,
+            performed_by_name:
+              (req as any).user?.fullName ||
+              (req as any).user?.email ||
+              "Partner",
+            performed_by_email: (req as any).user?.email || null,
+            performed_by_type: "partner",
+            reason: `Invoice ${invoiceNumber} uploaded`,
+            settlement_status_before:
+              settlement.status_history?.settlement_status || null,
+            settlement_status_after: "Pending Approval",
+            verification_status_before:
+              settlement.status_history?.verification_status || null,
+            verification_status_after:
+              settlement.status_history?.verification_status || null,
+          },
+        }),
+      ),
+    );
+
     // ── Phase 3: Notify Finance about invoice submission (non-blocking) ──
     notifyFinanceForInvoice(
       settlementIds,
@@ -769,6 +796,28 @@ export const acceptSettlementController = async (
         data: {
           verification_status: "Verified",
           verification_date: new Date(),
+        },
+      });
+
+      // Timeline entry
+      await tx.commissionDisputeLog.create({
+        data: {
+          settlement_id: settlementId,
+          action: "PARTNER_ACCEPTED",
+          performed_by_user_id: (req as any).user?.id || null,
+          performed_by_name:
+            (req as any).user?.fullName ||
+            (req as any).user?.email ||
+            "Partner",
+          performed_by_email: (req as any).user?.email || null,
+          performed_by_type: "partner",
+          reason: null,
+          settlement_status_before:
+            settlement.status_history?.settlement_status || null,
+          settlement_status_after:
+            settlement.status_history?.settlement_status || null,
+          verification_status_before: "Pending",
+          verification_status_after: "Verified",
         },
       });
     });
@@ -1712,6 +1761,11 @@ export const l2ApproveController = async (
         data: { settlement_status: "Approved" },
       });
 
+      await tx.hSCommissionSettlementsDocumentation.update({
+        where: { settlement_id: settlementId },
+        data: { invoice_status: "Approved" },
+      });
+
       await tx.commissionDisputeLog.create({
         data: {
           settlement_id: settlementId,
@@ -1958,9 +2012,34 @@ export const getApprovalTimelineController = async (
       },
     });
 
-    return sendResponse(res, 200, "Approval timeline fetched", {
-      timeline: logs,
+    // Fetch settlement creation date to show as first timeline entry
+    const settlement = await prisma.hSCommissionSettlements.findUnique({
+      where: { id: settlementId },
+      select: { created_at: true },
     });
+
+    const timeline = [
+      // First entry: settlement creation
+      ...(settlement?.created_at
+        ? [
+            {
+              id: 0,
+              action: "SETTLEMENT_CREATED",
+              performed_by_name: "System",
+              performed_by_email: null,
+              performed_by_type: "system",
+              reason: null,
+              resolution: null,
+              settlement_status_before: null,
+              settlement_status_after: "Calculated",
+              created_at: settlement.created_at,
+            },
+          ]
+        : []),
+      ...logs,
+    ];
+
+    return sendResponse(res, 200, "Approval timeline fetched", { timeline });
   } catch (error: any) {
     logger.error("[Commission] Get timeline failed", {
       error: error.message,
