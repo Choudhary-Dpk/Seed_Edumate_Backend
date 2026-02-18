@@ -557,7 +557,6 @@ function transformCommissionSettlementsToHubSpotFormat(
     data_source: systemTracking.data_source || "",
     integration_status: systemTracking.integration_status || "",
     system_generated: systemTracking.system_generated || "",
-    created_by_user: systemTracking.created_by_user || "",
     created_date: systemTracking.created_date
       ? new Date(systemTracking.created_date).toISOString().split("T")[0]
       : null,
