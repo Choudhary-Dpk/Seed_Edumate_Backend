@@ -102,7 +102,7 @@ router.get(
   "/lead-stats",
   authenticate({
     method: AuthMethod.BOTH, // Allow both JWT and API Key
-    allowedRoles: ["Admin", "Manager", "User", "Partner"],
+    allowedRoles: ["Admin", "Manager", "User", "Partner", "super_admin", "Admin", "commission_reviewer", "commission_approver", "commission_viewer"],
   }),
   validateReqParams,
   getLeadStats,
