@@ -469,7 +469,7 @@ const NOTIFICATION_CONFIGS: Record<
 
     getSubject: (data) =>
       data.overrideSubject ||
-      `✅ L1 Approved — ${data.studentName || "Student"} | ${data.partnerName || "Partner"}`,
+      `L1 Approved — ${data.studentName || "Student"} | ${data.partnerName || "Partner"}`,
 
     getHtml: (data) =>
       buildApprovalEmailTemplate({
@@ -554,7 +554,7 @@ const NOTIFICATION_CONFIGS: Record<
 
     getSubject: (data) =>
       data.overrideSubject ||
-      `✅ Commission Approved — ${data.studentName || "Student"} | ${data.partnerName || "Partner"} | Ready for Payout`,
+      `Commission Approved — ${data.studentName || "Student"} | ${data.partnerName || "Partner"} | Ready for Payout`,
 
     getHtml: (data) =>
       buildApprovalEmailTemplate({

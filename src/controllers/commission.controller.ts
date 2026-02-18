@@ -2145,7 +2145,7 @@ function buildSystemInvoiceHTML(data: {
             <table width="100%" cellpadding="0" cellspacing="0">
               <tr><td style="font-size:12px;color:#7F8C8D;padding:3px 0;">Date</td><td style="font-size:12px;font-weight:600;color:#2C3E50;text-align:right;">${data.invoiceDate}</td></tr>
               <tr><td style="font-size:12px;color:#7F8C8D;padding:3px 0;">Settlements</td><td style="font-size:12px;font-weight:600;color:#2C3E50;text-align:right;">${data.settlementsCount}</td></tr>
-              <tr><td style="font-size:12px;color:#7F8C8D;padding:3px 0;">Status</td><td style="text-align:right;"><span style="font-size:11px;font-weight:600;background:#FEF3C7;color:#92400E;padding:2px 8px;border-radius:4px;">Pending Approval</span></td></tr>
+
             </table>
           </div>
         </td>
