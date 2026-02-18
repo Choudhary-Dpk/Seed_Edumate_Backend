@@ -497,7 +497,6 @@ function transformCommissionSettlementsToHubSpotFormat(
     payment_reference_number: paymentDetails.payment_reference_number || null,
     payment_gateway_reference: paymentDetails.payment_gateway_reference || null,
     bank_transaction_id: paymentDetails.bank_transaction_id || null,
-    beneficiary_name: paymentDetails.beneficiary_name || null,
     beneficiary_account_number:
       paymentDetails.beneficiary_account_number || null,
     beneficiary_bank_name: paymentDetails.beneficiary_bank_name || null,

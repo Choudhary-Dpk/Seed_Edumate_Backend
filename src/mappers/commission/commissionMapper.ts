@@ -588,11 +588,6 @@ export const mapAllCommissionSettlementFields = async (
         : null;
 
   // PAYMENT PROCESSING FIELDS
-  if (input.beneficiary_name !== undefined)
-    mapped.beneficiary_name =
-      input.beneficiary_name !== null && input.beneficiary_name !== ""
-        ? input.beneficiary_name
-        : null;
   if (input.beneficiary_account_number !== undefined)
     mapped.beneficiary_account_number =
       input.beneficiary_account_number !== null &&
