@@ -76,7 +76,7 @@ export const addFileRecord = async (
   rows: Row,
   total_records: number,
   uploadedBy: number,
-  fileId: number
+  fileId: number,
 ) => {
   const fileUpload = await prisma.fileUploads.create({
     data: {
@@ -96,7 +96,7 @@ export const addFileRecord = async (
 export const updateFileRecord = async (
   fileId: number,
   processedRecords: number,
-  failedRecords: number
+  failedRecords: number,
 ) => {
   await prisma.fileUploads.update({
     where: { id: fileId },

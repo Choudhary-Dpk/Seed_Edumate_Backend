@@ -121,7 +121,6 @@ export const categorizeCommissionSettlementByTable = (
 
   // Payment Processing Fields
   const paymentProcessingFields = [
-    "beneficiary_name",
     "beneficiary_account_number",
     "beneficiary_bank_name",
     "beneficiary_ifsc_code",

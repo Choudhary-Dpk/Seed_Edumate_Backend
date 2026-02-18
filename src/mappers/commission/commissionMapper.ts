@@ -1,7 +1,7 @@
 import { enumMappingService } from "../enumMapping";
 
 export const mapAllCommissionSettlementFields = async (
-  input: Record<string, any>
+  input: Record<string, any>,
 ): Promise<Record<string, any>> => {
   const mapped: Record<string, any> = {};
 
@@ -588,11 +588,6 @@ export const mapAllCommissionSettlementFields = async (
         : null;
 
   // PAYMENT PROCESSING FIELDS
-  if (input.beneficiary_name !== undefined)
-    mapped.beneficiary_name =
-      input.beneficiary_name !== null && input.beneficiary_name !== ""
-        ? input.beneficiary_name
-        : null;
   if (input.beneficiary_account_number !== undefined)
     mapped.beneficiary_account_number =
       input.beneficiary_account_number !== null &&
@@ -984,9 +979,8 @@ export const mapAllCommissionSettlementFields = async (
 
   // Batch translate all enum values in one go
   if (enumTranslations.length > 0) {
-    const translatedEnums = await enumMappingService.translateBatch(
-      enumTranslations
-    );
+    const translatedEnums =
+      await enumMappingService.translateBatch(enumTranslations);
 
     // Map translated values back
     enumTranslations.forEach((translation) => {
@@ -1039,5 +1033,12 @@ export const mapAllCommissionSettlementFields = async (
     });
   }
 
+  if (!mapped.settlement_status) {
+    mapped.settlement_status = "Calculated";
+  }
+  if (!mapped.verification_status) {
+    mapped.verification_status = "Pending";
+  }
+  console.log("mapped", mapped);
   return mapped;
 };

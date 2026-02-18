@@ -349,6 +349,8 @@ export const fetchCommissionSettlementsList = async (
     lead: string | null;
     invoiceStatus: string | null;
     paymentStatus: string | null;
+    settlementStatus: string | null;
+    verificationStatus: string | null;
     startDate: string | null;
     endDate: string | null;
   },
@@ -394,7 +396,23 @@ export const fetchCommissionSettlementsList = async (
     };
   }
 
-  // Apply date range filter on settlement_date
+  // Apply settlement status filter (in status_history table)
+  if (filters?.settlementStatus) {
+    where.status_history = {
+      ...((where.status_history as any) || {}),
+      settlement_status: filters.settlementStatus,
+    };
+  }
+
+  // Apply verification status filter (in status_history table)
+  if (filters?.verificationStatus) {
+    where.status_history = {
+      ...((where.status_history as any) || {}),
+      verification_status: filters.verificationStatus,
+    };
+  }
+
+  // Apply date range filter on created_at (always populated, AND logic with search)
   if (filters?.startDate || filters?.endDate) {
     const dateFilter: any = {};
 
@@ -408,12 +426,7 @@ export const fetchCommissionSettlementsList = async (
       dateFilter.lte = endDate;
     }
 
-    // Use OR to match either settlement_date or created_at
-    where.OR = [
-      ...(where.OR || []),
-      { settlement_date: dateFilter },
-      { created_at: dateFilter },
-    ];
+    where.created_at = dateFilter;
   }
 
   let orderBy: any = { created_at: "desc" };

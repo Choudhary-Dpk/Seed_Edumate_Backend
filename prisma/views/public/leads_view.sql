@@ -1,5 +1,3 @@
-DROP VIEW IF EXISTS public.leads_view CASCADE;
-CREATE VIEW public.leads_view AS
 SELECT
   c.id AS contact_id,
   c.b2b_partner_id,

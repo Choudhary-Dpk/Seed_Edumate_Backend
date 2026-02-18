@@ -103,13 +103,13 @@ model ContactUsers {
   full_name             String?
   phone                 String?            @unique
   is_active             Boolean            @default(true)
-  concent               Int[]              @default([])
   interested            Int[]              @default([])
   source                String?            @default("webportal")
   created_at            DateTime           @default(now())
   updated_at            DateTime           @default(now()) @updatedAt
   first_name            String?
   last_name             String?
+  concent               Int[]              @default([])
   contact_sessions      ContactSessions[]  @relation("ContactSessions")
   contact_tokens        ContactTokens[]    @relation("ContactTokens")
   contact               HSEdumateContacts? @relation("ContactUser", fields: [contact_id], references: [id], onDelete: Cascade)
@@ -771,23 +771,23 @@ model HSLoanApplicationsDocumentManagement {
 }
 
 model HSLoanApplicationsFinancialRequirements {
-  id                     Int                @id @default(autoincrement())
-  application_id         Int                @unique
-  insurance_cost         Decimal?           @db.Decimal(16, 4)
-  living_expenses        Decimal?           @db.Decimal(16, 4)
-  loan_amount_approved   Decimal?           @db.Decimal(16, 4)
-  loan_amount_disbursed  Decimal?           @db.Decimal(16, 4)
-  last_loan_amount_disbursed  Decimal?      @db.Decimal(16, 4)
-  loan_amount_requested  Decimal?           @db.Decimal(16, 4)
-  other_expenses         Decimal?           @db.Decimal(16, 4)
-  scholarship_amount     Decimal?           @db.Decimal(16, 4)
-  self_funding_amount    Decimal?           @db.Decimal(16, 4)
-  total_funding_required Decimal?           @db.Decimal(16, 4)
-  travel_expenses        Decimal?           @db.Decimal(16, 4)
-  tuition_fee            Decimal?           @db.Decimal(16, 4)
-  created_at             DateTime           @default(now())
-  updated_at             DateTime           @default(now()) @updatedAt
-  application            HSLoanApplications @relation(fields: [application_id], references: [id], onDelete: Cascade)
+  id                         Int                @id @default(autoincrement())
+  application_id             Int                @unique
+  insurance_cost             Decimal?           @db.Decimal(16, 4)
+  living_expenses            Decimal?           @db.Decimal(16, 4)
+  loan_amount_approved       Decimal?           @db.Decimal(16, 4)
+  loan_amount_disbursed      Decimal?           @db.Decimal(16, 4)
+  loan_amount_requested      Decimal?           @db.Decimal(16, 4)
+  other_expenses             Decimal?           @db.Decimal(16, 4)
+  scholarship_amount         Decimal?           @db.Decimal(16, 4)
+  self_funding_amount        Decimal?           @db.Decimal(16, 4)
+  total_funding_required     Decimal?           @db.Decimal(16, 4)
+  travel_expenses            Decimal?           @db.Decimal(16, 4)
+  tuition_fee                Decimal?           @db.Decimal(16, 4)
+  created_at                 DateTime           @default(now())
+  updated_at                 DateTime           @default(now()) @updatedAt
+  last_loan_amount_disbursed Decimal?           @db.Decimal(16, 4)
+  application                HSLoanApplications @relation(fields: [application_id], references: [id], onDelete: Cascade)
 
   @@map("hs_loan_applications_financial_requirements")
 }
@@ -906,30 +906,14 @@ model FileEntities {
 }
 
 model EmailTypes {
-  id            Int            @id @default(autoincrement())
-  subject       String         @unique @map("subject")
-  type          String         @map("type")
-  created_at    DateTime       @default(now()) @map("created_at")
-  email_history EmailHistory[]
+  id            Int             @id @default(autoincrement())
+  subject       String          @unique @map("subject")
+  type          String          @map("type")
+  created_at    DateTime        @default(now()) @map("created_at")
+  email_history email_history[]
 
   @@index([subject, type])
   @@map("email_types")
-}
-
-model EmailHistory {
-  id            Int        @id @default(autoincrement())
-  recipient     String     @map("recipient")
-  cc            String?    @map("cc")
-  bcc           String?    @map("bcc")
-  email_type_id Int        @map("email_type_id")
-  sent_at       DateTime?  @map("sent_at")
-  created_at    DateTime   @default(now()) @map("created_at")
-  subject       String?    @map("subject")
-  email_type    EmailTypes @relation(fields: [email_type_id], references: [id], onDelete: Cascade)
-
-  @@index([email_type_id])
-  @@index([sent_at])
-  @@map("email_history")
 }
 
 model HSEdumateContacts {
@@ -966,7 +950,6 @@ model HSEdumateContacts {
   hs_b2b_partner_id          String?
   hs_created_by_user_id      Int?
   hs_updated_by_user_id      Int?
-  concent                    Int[]                                 @default([])
   interested                 Int[]                                 @default([])
   conversion_timestamp       String?
   exchange_rate_used         Decimal?                              @db.Decimal(16, 4)
@@ -974,6 +957,7 @@ model HSEdumateContacts {
   preferred_currency         String?
   batch_id                   String?
   email                      String?
+  concent                    Int[]                                 @default([])
   student                    ContactUsers[]                        @relation("ContactUser")
   commission_settlements     HSCommissionSettlements[]
   b2b_partner                HSB2BPartners?                        @relation("B2BPartnerContacts", fields: [b2b_partner_id], references: [id], onDelete: Cascade)
@@ -1490,7 +1474,6 @@ model HSLoanProductsFinancialTerms {
   administrative_charges            Decimal?       @db.Decimal(16, 4)
   interest_rate_type                String?
   legal_charges                     Decimal?       @db.Decimal(16, 4)
-  currency                           String?       @default("INR")
   loan_to_value_ratio               String?
   margin_money_percentage           Decimal?       @db.Decimal(16, 4)
   maximum_loan_amount_secured       Decimal?       @db.Decimal(16, 4)
@@ -1510,6 +1493,7 @@ model HSLoanProductsFinancialTerms {
   interest_rate_range_max_unsecured Decimal?       @db.Decimal(16, 4)
   interest_rate_range_min_secured   Decimal?       @db.Decimal(16, 4)
   interest_rate_range_min_unsecured Decimal?       @db.Decimal(16, 4)
+  currency                          String?        @default("INR")
   product                           HSLoanProducts @relation(fields: [product_id], references: [id], onDelete: Cascade)
 
   @@map("hs_loan_products_financial_terms")
@@ -1880,6 +1864,7 @@ model HSCommissionSettlements {
   communication               HSCommissionSettlementsCommunication?
   documentaion                HSCommissionSettlementsDocumentation?
   hold_dispute                HSCommissionSettlementsHoldAndDisputes?
+  dispute_logs                CommissionDisputeLog[]
   loan_details                HSCommissionSettlementsLoanDetails?
   payment_details             HSCommissionSettlementsPaymentProcessing?
   performance_metrics         HSCommissionSettlementsPerformanceAnalytics?
@@ -1967,7 +1952,7 @@ model HSCommissionSettlementsDocumentation {
   invoice_number           String?
   invoice_date             DateTime?
   invoice_amount           Decimal?                @db.Decimal(16, 4)
-  invoice_status           String?
+  invoice_status           String?                 @default("Pending")
   invoice_url              String?
   tax_certificate_required String?
   tax_certificate_url      String?
@@ -2002,6 +1987,29 @@ model HSCommissionSettlementsHoldAndDisputes {
   settlement               HSCommissionSettlements @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
 
   @@map("hs_commission_settlements_hold_and_disputes")
+}
+
+model CommissionDisputeLog {
+  id                         Int                     @id @default(autoincrement())
+  settlement_id              Int
+  action                     String
+  performed_by_user_id       Int?
+  performed_by_name          String?
+  performed_by_email         String?
+  performed_by_type          String?
+  reason                     String?                 @db.Text
+  resolution                 String?                 @db.Text
+  settlement_status_before   String?
+  settlement_status_after    String?
+  verification_status_before String?
+  verification_status_after  String?
+  created_at                 DateTime                @default(now())
+  settlement                 HSCommissionSettlements  @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
+
+  @@index([settlement_id])
+  @@index([created_at])
+  @@index([action])
+  @@map("commission_dispute_logs")
 }
 
 model HSCommissionSettlementsLoanDetails {
@@ -2079,10 +2087,10 @@ model HSCommissionSettlementsReconciliations {
 model HSCommissionSettlementsSettlementStatus {
   id                  Int                     @id @default(autoincrement())
   settlement_id       Int                     @unique
-  settlement_status   String?
+  settlement_status   String?                 @default("Calculated")
   calculation_date    DateTime?
   calculated_by       String?
-  verification_status String?
+  verification_status String?                 @default("Pending")
   verification_date   DateTime?
   created_at          DateTime                @default(now())
   updated_at          DateTime                @default(now()) @updatedAt
@@ -2403,59 +2411,81 @@ model DashboardEmailTemplate {
 }
 
 model EmailQueue {
-  id            Int              @id @default(autoincrement())
-  
-  // Email content
-  to            String
-  subject       String
-  html          String           @db.Text
-  text          String?          @db.Text
-  from          String?
-  cc            String?
-  bcc           String?
-  
-  // Attachments stored as JSON
-  // Format: [{ filename: string, content: base64, contentType: string }]
-  attachments   Json?
-  
-  // Metadata for tracking
-  metadata      Json?
-  
-  // Queue management
-  status        EmailQueueStatus @default(PENDING)
-  priority      Int              @default(0)
-  
-  // Retry logic
-  attempts      Int              @default(0)
-  max_attempts  Int              @default(3)
-  
-  // Scheduling
-  scheduled_at  DateTime         @default(now())
-  
-  // Tracking
-  last_error    String?          @db.Text
-  sent_at       DateTime?
-  created_at    DateTime         @default(now())
-  updated_at    DateTime         @updatedAt
-  
-  // Relationship to EmailLog
-  email_logs    EmailLog[]
-  
-  // Indexes for performance
+  id           Int              @id @default(autoincrement())
+  to           String
+  subject      String
+  html         String
+  text         String?
+  from         String?
+  cc           String?
+  bcc          String?
+  status       EmailQueueStatus @default(PENDING)
+  priority     Int              @default(0)
+  attempts     Int              @default(0)
+  max_attempts Int              @default(3)
+  scheduled_at DateTime         @default(now())
+  last_error   String?
+  sent_at      DateTime?
+  created_at   DateTime         @default(now())
+  updated_at   DateTime         @updatedAt
+  attachments  Json?
+  metadata     Json?
+  email_logs   EmailLog?
+
   @@index([status, scheduled_at])
   @@index([status, priority])
   @@index([created_at])
   @@map("email_queue")
 }
 
-enum EmailQueueStatus {
-  PENDING
-  PROCESSING
-  SENT
-  FAILED
-  DEAD_LETTER
-  
-  @@map("email_queue_status")
+model EmailLog {
+  id               Int            @id @default(autoincrement())
+  recipient        String         @map("recipient")
+  cc               String?        @map("cc")
+  bcc              String?        @map("bcc")
+  from             String?        @map("from")
+  subject          String         @map("subject")
+  email_type       EmailType      @map("email_type")
+  category         EmailCategory  @map("category")
+  sent_by_user_id  Int?           @map("sent_by_user_id")
+  sent_by_name     String?        @map("sent_by_name")
+  sent_by_type     SenderType?    @map("sent_by_type")
+  reference_type   String?        @map("reference_type")
+  reference_id     Int?           @map("reference_id")
+  has_attachment   Boolean        @default(false) @map("has_attachment")
+  attachment_count Int?           @map("attachment_count")
+  status           EmailLogStatus @default(PENDING) @map("status")
+  queue_item_id    Int?           @unique @map("queue_item_id")
+  error_message    String?        @map("error_message")
+  attempts         Int            @default(0) @map("attempts")
+  created_at       DateTime       @default(now()) @map("created_at")
+  sent_at          DateTime?      @map("sent_at")
+  failed_at        DateTime?      @map("failed_at")
+  metadata         Json?          @map("metadata")
+  queue_item       EmailQueue?    @relation(fields: [queue_item_id], references: [id])
+
+  @@index([email_type, category])
+  @@index([sent_by_user_id, sent_by_type])
+  @@index([reference_type, reference_id])
+  @@index([status, created_at])
+  @@index([sent_at])
+  @@index([queue_item_id])
+  @@map("email_log")
+}
+
+model email_history {
+  id            Int        @id @default(autoincrement())
+  cc            String?
+  bcc           String?
+  email_type_id Int
+  sent_at       DateTime?
+  created_at    DateTime   @default(now())
+  subject       String?
+  recipient     String
+  email_types   EmailTypes @relation(fields: [email_type_id], references: [id], onDelete: Cascade)
+
+  @@index([email_type_id])
+  @@index([sent_at])
 }
 
 view leads_view {
@@ -2499,6 +2529,16 @@ view leads_view {
   loan_amount_approved        Decimal?  @db.Decimal(16, 4)
   loan_amount_disbursed       Decimal?  @db.Decimal(16, 4)
   processing_fee              Decimal?  @db.Decimal(16, 4)
+}
+
+enum EmailQueueStatus {
+  PENDING
+  PROCESSING
+  SENT
+  FAILED
+  DEAD_LETTER
+
+  @@map("email_queue_status")
 }
 
 enum AuditAction {
@@ -3102,115 +3142,64 @@ enum StudentRecordStatus {
   @@map("student_record_status")
 }
 
-// ============================================================================
-// UNIFIED EMAIL SYSTEM - Added for production-ready email logging
-// ============================================================================
-
-model EmailLog {
-  id               Int              @id @default(autoincrement())
-  
-  // Core email fields
-  recipient        String           @map("recipient")
-  cc               String?          @map("cc")
-  bcc              String?          @map("bcc")
-  from             String?          @map("from")
-  subject          String           @map("subject")
-  
-  // Email classification
-  email_type       EmailType        @map("email_type")
-  category         EmailCategory    @map("category")
-  
-  // Sender tracking
-  sent_by_user_id  Int?             @map("sent_by_user_id")
-  sent_by_name     String?          @map("sent_by_name")
-  sent_by_type     SenderType?      @map("sent_by_type")
-  
-  // Reference tracking
-  reference_type   String?          @map("reference_type")
-  reference_id     Int?             @map("reference_id")
-  
-  // Content metadata
-  has_attachment   Boolean          @default(false) @map("has_attachment")
-  attachment_count Int?             @map("attachment_count")
-  
-  // Status & queue tracking
-  status           EmailLogStatus   @default(PENDING) @map("status")
-  queue_item_id    Int?             @unique @map("queue_item_id")
-  
-  // Error tracking
-  error_message    String?          @db.Text @map("error_message")
-  attempts         Int              @default(0) @map("attempts")
-  
-  // Timestamps
-  created_at       DateTime         @default(now()) @map("created_at")
-  sent_at          DateTime?        @map("sent_at")
-  failed_at        DateTime?        @map("failed_at")
-  
-  // Flexible metadata
-  metadata         Json?            @map("metadata")
-  
-  // Relationships
-  queue_item       EmailQueue?      @relation(fields: [queue_item_id], references: [id], onDelete: SetNull)
-  
-  // Indexes
-  @@index([email_type, category])
-  @@index([sent_by_user_id, sent_by_type])
-  @@index([reference_type, reference_id])
-  @@index([status, created_at])
-  @@index([sent_at])
-  @@index([queue_item_id])
-  
-  @@map("email_log")
-}
-
 enum EmailCategory {
-  TRANSACTIONAL  @map("Transactional")
-  DASHBOARD      @map("Dashboard")
-  SYSTEM         @map("System")
-  MARKETING      @map("Marketing")
-  NOTIFICATION   @map("Notification")
-  LOAN           @map("Loan")
-  
+  TRANSACTIONAL @map("Transactional")
+  DASHBOARD     @map("Dashboard")
+  SYSTEM        @map("System")
+  MARKETING     @map("Marketing")
+  NOTIFICATION  @map("Notification")
+  LOAN          @map("Loan")
+
   @@map("email_category")
 }
 
 enum EmailType {
-  OTP                    @map("Otp")
-  FORGOT_PASSWORD        @map("Forgot Password")
-  SET_PASSWORD           @map("Set Password")
-  RESET_PASSWORD         @map("Reset Password")
-  EMAIL_VERIFICATION     @map("Email Verification")
-  PASSWORD_CHANGED       @map("Password Changed")
-  DASHBOARD_REPORT       @map("Dashboard Report")
-  MONTHLY_REPORT         @map("Monthly Report")
-  LOAN_ELIGIBILITY       @map("Loan Eligibility Result")
-  REPAYMENT_SCHEDULE     @map("Repayment Schedule Email")
-  CRON_NOTIFICATION      @map("Cron Notification")
-  SYSTEM_ALERT           @map("System Alert")
-  SHOW_INTEREST          @map("Show Interest")
-  WELCOME                @map("Welcome")
-  UNKNOWN                @map("Unknown")
-  
+  OTP                       @map("Otp")
+  FORGOT_PASSWORD           @map("Forgot Password")
+  SET_PASSWORD              @map("Set Password")
+  RESET_PASSWORD            @map("Reset Password")
+  EMAIL_VERIFICATION        @map("Email Verification")
+  PASSWORD_CHANGED          @map("Password Changed")
+  DASHBOARD_REPORT          @map("Dashboard Report")
+  MONTHLY_REPORT            @map("Monthly Report")
+  LOAN_ELIGIBILITY          @map("Loan Eligibility Result")
+  REPAYMENT_SCHEDULE        @map("Repayment Schedule Email")
+  CRON_NOTIFICATION         @map("Cron Notification")
+  SYSTEM_ALERT              @map("System Alert")
+  SHOW_INTEREST             @map("Show Interest")
+  WELCOME                   @map("Welcome")
+  UNKNOWN                   @map("Unknown")
+  COMMISSION_FINANCE_NOTIFY
+  COMMISSION_PARTNER_NOTIFY
+  COMMISSION_OBJECTION_NOTIFY         
+  COMMISSION_DISPUTE_RESOLVED_NOTIFY 
+  COMMISSION_INVOICE_SUBMITTED_NOTIFY
+  COMMISSION_L1_APPROVED_NOTIFY          
+  COMMISSION_L1_REJECTED_NOTIFY         
+  COMMISSION_L2_APPROVED_NOTIFY       
+  COMMISSION_L2_REJECTED_TO_L1_NOTIFY
+  COMMISSION_L2_REJECTED_TO_PARTNER_NOTIFY
+
   @@map("email_type")
 }
 
 enum EmailLogStatus {
-  PENDING    @map("pending")
-  QUEUED     @map("queued")
-  SENT       @map("sent")
-  FAILED     @map("failed")
-  BOUNCED    @map("bounced")
-  REJECTED   @map("rejected")
-  
+  PENDING  @map("pending")
+  QUEUED   @map("queued")
+  SENT     @map("sent")
+  FAILED   @map("failed")
+  BOUNCED  @map("bounced")
+  REJECTED @map("rejected")
+
   @@map("email_log_status")
 }
 
 enum SenderType {
-  ADMIN      @map("admin")
-  PARTNER    @map("partner")
-  SYSTEM     @map("system")
-  API        @map("api")
-  CRON       @map("cron")
-  
+  ADMIN   @map("admin")
+  PARTNER @map("partner")
+  SYSTEM  @map("system")
+  API     @map("api")
+  CRON    @map("cron")
+
   @@map("sender_type")
 }

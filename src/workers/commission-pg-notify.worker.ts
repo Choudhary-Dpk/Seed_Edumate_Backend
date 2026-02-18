@@ -7,6 +7,7 @@ import {
   updateCommissionSettlementsApplication,
   deleteCommissionSettlement,
 } from "../services/hubspot-commission-settlements.service";
+import { notifyPartnerForSettlement } from "../services/EmailNotifications/commission.notification.service";
 
 const MAX_RETRIES = 5;
 const DEBOUNCE_DELAY = 5000;
@@ -49,7 +50,7 @@ export async function startCommissionPGNotifyWorker() {
 
     logger.info("[Commission PG NOTIFY] Worker started successfully");
     logger.info(
-      `[Commission PG NOTIFY] Config: concurrency=${CONCURRENCY}, rate=${RATE_LIMIT}/s`
+      `[Commission PG NOTIFY] Config: concurrency=${CONCURRENCY}, rate=${RATE_LIMIT}/s`,
     );
   } catch (error) {
     logger.error("[Commission PG NOTIFY] Failed to start worker:", error);
@@ -82,7 +83,7 @@ async function handleNotification(msg: any) {
 
     if (ongoingSync.has(syncKey)) {
       logger.debug(
-        `[Commission PG NOTIFY] Already processing ${syncKey}, skipping`
+        `[Commission PG NOTIFY] Already processing ${syncKey}, skipping`,
       );
       return;
     }
@@ -98,26 +99,56 @@ async function handleNotification(msg: any) {
           settlementId,
           data.operation,
           data.hs_object_id,
-          syncKey
+          syncKey,
         );
       }, DEBOUNCE_DELAY);
 
       pendingUpdates.set(syncKey, timeout);
       logger.debug(
-        `[Commission PG NOTIFY] Debouncing ${syncKey} for ${DEBOUNCE_DELAY}ms`
+        `[Commission PG NOTIFY] Debouncing ${syncKey} for ${DEBOUNCE_DELAY}ms`,
       );
     } else {
+      // ═══════════════════════════════════════════════════════════════
+      // PHASE 2: Notify Partner when a new commission settlement is created
+      // Non-blocking: fires and forgets, won't affect HubSpot sync
+      // ═══════════════════════════════════════════════════════════════
+      if (data.operation === "INSERT") {
+        notifyPartnerForSettlement(settlementId, {
+          name: "System",
+          type: "system",
+        }).catch((err) =>
+          logger.warn(
+            `[Commission PG NOTIFY] Partner notification failed for settlement #${settlementId}: ${err.message}`,
+          ),
+        );
+
+        // Set default invoice_status = "Pending" if not already set
+        prisma.hSCommissionSettlementsDocumentation
+          .updateMany({
+            where: {
+              settlement_id: settlementId,
+              OR: [{ invoice_status: null }, { invoice_status: "" }],
+            },
+            data: { invoice_status: "Pending" },
+          })
+          .catch((err: any) =>
+            logger.warn(
+              `[Commission PG NOTIFY] Failed to set default invoice_status for settlement #${settlementId}: ${err.message}`,
+            ),
+          );
+      }
+
       await queueCommissionSync(
         settlementId,
         data.operation,
         data.hs_object_id,
-        syncKey
+        syncKey,
       );
     }
   } catch (error) {
     logger.error(
       "[Commission PG NOTIFY] Failed to handle notification:",
-      error
+      error,
     );
   }
 }
@@ -126,7 +157,7 @@ async function queueCommissionSync(
   settlementId: number,
   operation: string,
   hsObjectId: string | null,
-  syncKey: string
+  syncKey: string,
 ) {
   commissionSyncQueue.add(async () => {
     ongoingSync.add(syncKey);
@@ -134,7 +165,7 @@ async function queueCommissionSync(
     let outboxEntry = await findOrCreateOutboxEntry(
       settlementId,
       operation,
-      hsObjectId
+      hsObjectId,
     );
 
     try {
@@ -143,7 +174,7 @@ async function queueCommissionSync(
       const result = await processCommissionSync(
         settlementId,
         operation,
-        hsObjectId
+        hsObjectId,
       );
 
       await markAsCompleted(outboxEntry.id, result?.hubspotId || hsObjectId);
@@ -155,7 +186,7 @@ async function queueCommissionSync(
       await markAsFailed(
         outboxEntry.id,
         error.message,
-        outboxEntry.attempts + 1
+        outboxEntry.attempts + 1,
       );
     } finally {
       ongoingSync.delete(syncKey);
@@ -163,17 +194,17 @@ async function queueCommissionSync(
   });
 
   logger.debug(
-    `[Commission PG NOTIFY] Queued ${syncKey} (Queue: ${commissionSyncQueue.size}, Active: ${commissionSyncQueue.pending})`
+    `[Commission PG NOTIFY] Queued ${syncKey} (Queue: ${commissionSyncQueue.size}, Active: ${commissionSyncQueue.pending})`,
   );
 }
 
 async function processCommissionSync(
   settlementId: number,
   operation: string,
-  hsObjectId: string | null
+  hsObjectId: string | null,
 ): Promise<{ hubspotId?: string } | void> {
   logger.info(
-    `[Commission PG NOTIFY] Processing ${operation} for settlement #${settlementId}`
+    `[Commission PG NOTIFY] Processing ${operation} for settlement #${settlementId}`,
   );
 
   switch (operation) {
@@ -222,7 +253,7 @@ async function handleCommissionCreate(settlementId: number): Promise<string> {
 
   if (settlement.hs_object_id) {
     logger.info(
-      `[Commission PG NOTIFY] Settlement #${settlementId} already has HubSpot ID: ${settlement.hs_object_id}, updating with db_id`
+      `[Commission PG NOTIFY] Settlement #${settlementId} already has HubSpot ID: ${settlement.hs_object_id}, updating with db_id`,
     );
 
     const hubspotPayload =
@@ -231,15 +262,15 @@ async function handleCommissionCreate(settlementId: number): Promise<string> {
     try {
       await updateCommissionSettlementsApplication(
         settlement.hs_object_id,
-        hubspotPayload
+        hubspotPayload,
       );
       logger.info(
-        `[Commission PG NOTIFY] Updated HubSpot settlement ${settlement.hs_object_id} with settlement_id: ${settlementId}`
+        `[Commission PG NOTIFY] Updated HubSpot settlement ${settlement.hs_object_id} with settlement_id: ${settlementId}`,
       );
     } catch (error: any) {
       logger.error(
         `[Commission PG NOTIFY] Failed to update HubSpot with settlement_id:`,
-        error
+        error,
       );
     }
 
@@ -264,7 +295,7 @@ async function handleCommissionCreate(settlementId: number): Promise<string> {
   });
 
   logger.info(
-    `[Commission PG NOTIFY] Created settlement #${settlementId} in HubSpot: ${result.id}`
+    `[Commission PG NOTIFY] Created settlement #${settlementId} in HubSpot: ${result.id}`,
   );
 
   return result.id;
@@ -297,7 +328,7 @@ async function handleCommissionUpdate(settlementId: number): Promise<string> {
 
   if (!hubspotId) {
     logger.warn(
-      `[Commission PG NOTIFY] No HubSpot ID for settlement ${settlementId}, creating new entry`
+      `[Commission PG NOTIFY] No HubSpot ID for settlement ${settlementId}, creating new entry`,
     );
     const newId = await handleCommissionCreate(settlementId);
     return newId;
@@ -309,12 +340,12 @@ async function handleCommissionUpdate(settlementId: number): Promise<string> {
   try {
     await updateCommissionSettlementsApplication(hubspotId, hubspotPayload);
     logger.info(
-      `[Commission PG NOTIFY] Updated settlement #${settlementId} in HubSpot: ${hubspotId}`
+      `[Commission PG NOTIFY] Updated settlement #${settlementId} in HubSpot: ${hubspotId}`,
     );
   } catch (error: any) {
     if (error?.response?.status === 404) {
       logger.warn(
-        `[Commission PG NOTIFY] HubSpot settlement ${hubspotId} not found (404), creating new`
+        `[Commission PG NOTIFY] HubSpot settlement ${hubspotId} not found (404), creating new`,
       );
       const newId = await handleCommissionCreate(settlementId);
       return newId;
@@ -329,12 +360,48 @@ async function handleCommissionUpdate(settlementId: number): Promise<string> {
 async function handleCommissionDelete(hsObjectId: string): Promise<void> {
   await deleteCommissionSettlement(hsObjectId);
   logger.info(
-    `[Commission PG NOTIFY] Deleted settlement from HubSpot: ${hsObjectId}`
+    `[Commission PG NOTIFY] Deleted settlement from HubSpot: ${hsObjectId}`,
   );
 }
 
+// ============================================================================
+// HubSpot Property Value Mapping
+// Maps internal status values to HubSpot-compatible enum values
+// HubSpot allowed: [Pending Calculation, Calculated, Pending Approval, Approved,
+//                   Payment Initiated, Paid, On Hold, Rejected, Cancelled, Disputed]
+// ============================================================================
+
+function mapSettlementStatusForHubSpot(
+  status: string | null | undefined,
+): string | null {
+  if (!status) return null;
+  const mapping: Record<string, string> = {
+    "L1 Approved": "Pending Approval", // Awaiting L2 final approval
+    "L1 Rejected": "Rejected",
+    "L2 Rejected": "Rejected",
+    // "Approved" already exists in HubSpot
+    // All other statuses pass through as-is
+  };
+  return mapping[status] || status;
+}
+
+function mapNotificationMethodForHubSpot(
+  method: string | null | undefined,
+): string | null {
+  if (!method) return null;
+  const mapping: Record<string, string> = {
+    EMAIL: "Email",
+    email: "Email",
+    SMS: "SMS",
+    sms: "SMS",
+    WHATSAPP: "WhatsApp",
+    whatsapp: "WhatsApp",
+  };
+  return mapping[method] || method;
+}
+
 function transformCommissionSettlementsToHubSpotFormat(
-  commissionSettlement: any
+  commissionSettlement: any,
 ): any {
   const calculation = commissionSettlement.calculation_details || {};
   const communication = commissionSettlement.communication || {};
@@ -458,7 +525,8 @@ function transformCommissionSettlementsToHubSpotFormat(
       ? new Date(paymentDetails.last_retry_date).toISOString().split("T")[0]
       : null,
 
-    settlement_status: statusHistory.settlement_status || "",
+    settlement_status:
+      mapSettlementStatusForHubSpot(statusHistory.settlement_status) || "",
     calculation_date: statusHistory.calculation_date
       ? new Date(statusHistory.calculation_date).toISOString().split("T")[0]
       : null,
@@ -511,7 +579,9 @@ function transformCommissionSettlementsToHubSpotFormat(
     notification_date: communication.notification_date
       ? new Date(communication.notification_date).toISOString().split("T")[0]
       : null,
-    notification_method: communication.notification_method || "",
+    notification_method:
+      mapNotificationMethodForHubSpot(communication.notification_method) ||
+      null,
     partner_notification_sent: communication.partner_notification_sent || "",
     acknowledgment_received: communication.acknowledgment_received || "",
     acknowledgment_date: communication.acknowledgment_date
@@ -577,7 +647,7 @@ function transformCommissionSettlementsToHubSpotFormat(
 async function findOrCreateOutboxEntry(
   settlementId: number,
   operation: string,
-  hsObjectId: string | null
+  hsObjectId: string | null,
 ): Promise<any> {
   const existingEntry = await prisma.syncOutbox.findFirst({
     where: {
@@ -593,13 +663,13 @@ async function findOrCreateOutboxEntry(
 
   if (existingEntry) {
     logger.debug(
-      `[Commission PG NOTIFY] Found existing outbox entry for settlement #${settlementId}`
+      `[Commission PG NOTIFY] Found existing outbox entry for settlement #${settlementId}`,
     );
     return existingEntry;
   }
 
   logger.warn(
-    `[Commission PG NOTIFY] No outbox entry found for settlement #${settlementId}, creating new`
+    `[Commission PG NOTIFY] No outbox entry found for settlement #${settlementId}, creating new`,
   );
 
   const newEntry = await prisma.syncOutbox.create({
@@ -628,14 +698,14 @@ async function markAsProcessing(outboxId: string): Promise<any> {
   });
 
   logger.debug(
-    `[Commission PG NOTIFY] Marked outbox #${outboxId} as PROCESSING`
+    `[Commission PG NOTIFY] Marked outbox #${outboxId} as PROCESSING`,
   );
   return updated;
 }
 
 async function markAsCompleted(
   outboxId: string,
-  hubspotId: string | null
+  hubspotId: string | null,
 ): Promise<void> {
   await prisma.syncOutbox.update({
     where: { id: outboxId },
@@ -648,14 +718,14 @@ async function markAsCompleted(
   });
 
   logger.debug(
-    `[Commission PG NOTIFY] Marked outbox #${outboxId} as COMPLETED (HubSpot ID: ${hubspotId})`
+    `[Commission PG NOTIFY] Marked outbox #${outboxId} as COMPLETED (HubSpot ID: ${hubspotId})`,
   );
 }
 
 async function markAsFailed(
   outboxId: string,
   errorMessage: string,
-  currentAttempts: number
+  currentAttempts: number,
 ): Promise<void> {
   const isFinalAttempt = currentAttempts >= MAX_RETRIES;
 
@@ -670,11 +740,11 @@ async function markAsFailed(
 
   if (isFinalAttempt) {
     logger.error(
-      `[Commission PG NOTIFY] Marked outbox #${outboxId} as FAILED after ${MAX_RETRIES} attempts`
+      `[Commission PG NOTIFY] Marked outbox #${outboxId} as FAILED after ${MAX_RETRIES} attempts`,
     );
   } else {
     logger.debug(
-      `[Commission PG NOTIFY] Marked outbox #${outboxId} as PENDING for retry (attempt ${currentAttempts}/${MAX_RETRIES})`
+      `[Commission PG NOTIFY] Marked outbox #${outboxId} as PENDING for retry (attempt ${currentAttempts}/${MAX_RETRIES})`,
     );
   }
 }
@@ -695,7 +765,7 @@ function startFallbackProcessor() {
       if (pendingItems.length === 0) return;
 
       logger.info(
-        `[Commission PG NOTIFY] Processing ${pendingItems.length} items from fallback queue`
+        `[Commission PG NOTIFY] Processing ${pendingItems.length} items from fallback queue`,
       );
 
       for (const item of pendingItems) {
@@ -723,7 +793,7 @@ async function processRetry(item: any): Promise<void> {
     const result = await processCommissionSync(
       item.entity_id,
       item.operation,
-      item.payload?.hs_object_id
+      item.payload?.hs_object_id,
     );
 
     await prisma.syncOutbox.update({
@@ -737,7 +807,7 @@ async function processRetry(item: any): Promise<void> {
     });
 
     logger.info(
-      `[Commission PG NOTIFY] Retry succeeded for settlement #${item.entity_id}`
+      `[Commission PG NOTIFY] Retry succeeded for settlement #${item.entity_id}`,
     );
   } catch (error: any) {
     const newAttempts = item.attempts + 1;
@@ -754,7 +824,7 @@ async function processRetry(item: any): Promise<void> {
 
     if (isFinalAttempt) {
       logger.error(
-        `[Commission PG NOTIFY] Retry exhausted for settlement #${item.entity_id} after ${MAX_RETRIES} attempts`
+        `[Commission PG NOTIFY] Retry exhausted for settlement #${item.entity_id} after ${MAX_RETRIES} attempts`,
       );
     }
   }
@@ -766,7 +836,7 @@ async function processRetry(item: any): Promise<void> {
 // Updated graceful shutdown - don't close the shared connection
 process.on("SIGTERM", async () => {
   logger.info(
-    "[Commission PG NOTIFY] SIGTERM received, closing worker gracefully..."
+    "[Commission PG NOTIFY] SIGTERM received, closing worker gracefully...",
   );
   await commissionSyncQueue.onIdle();
   // Connection will be closed centrally by pg-notify-client
@@ -775,7 +845,7 @@ process.on("SIGTERM", async () => {
 
 process.on("SIGINT", async () => {
   logger.info(
-    "[Commission PG NOTIFY] SIGINT received, closing worker gracefully..."
+    "[Commission PG NOTIFY] SIGINT received, closing worker gracefully...",
   );
   await commissionSyncQueue.onIdle();
   // Connection will be closed centrally by pg-notify-client
