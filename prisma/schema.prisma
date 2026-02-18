@@ -2039,6 +2039,7 @@ model HSCommissionSettlementsPaymentProcessing {
   payment_reference_number   String?
   payment_gateway_reference  String?
   bank_transaction_id        String?
+  beneficiary_name           String?
   beneficiary_account_number String?
   beneficiary_bank_name      String?
   beneficiary_ifsc_code      String?
