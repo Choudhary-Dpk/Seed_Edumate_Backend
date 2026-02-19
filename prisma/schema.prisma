@@ -703,7 +703,7 @@ model HSLoanApplicationsAdditionalServices {
 model HSLoanApplicationsStatus {
   id                 Int                @id @default(autoincrement())
   application_id     Int                @unique
-  application_status String?
+  application_status String?            @default("Created")
   application_notes  String?
   internal_notes     String?
   priority_level     String?
