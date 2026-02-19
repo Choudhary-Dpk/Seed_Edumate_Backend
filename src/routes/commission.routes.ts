@@ -71,6 +71,7 @@ router.get(
       "Manager",
       "User",
       "super_admin",
+      "Admin",
       "commission_reviewer",
       "commission_approver",
       "commission_viewer",
@@ -195,8 +196,17 @@ router.get(
 );
 
 // ── Phase 4: Serve Invoice File (production-safe) ──
+// Supports ?token=JWT for iframe embedding (Chrome PDF viewer needs direct URL for title)
+const extractQueryToken = (req: any, _res: any, next: any) => {
+  if (req.query.token && !req.headers.authorization) {
+    req.headers.authorization = `Bearer ${req.query.token}`;
+  }
+  next();
+};
+
 router.get(
   "/:id/invoice-file",
+  extractQueryToken,
   authenticate({
     method: AuthMethod.JWT,
     allowedRoles: [

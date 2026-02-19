@@ -152,7 +152,6 @@ router.get(
       "Manager",
       "User",
       "super_admin",
-      "Admin",
       "commission_reviewer",
       "commission_approver",
       "commission_viewer",
