@@ -128,7 +128,7 @@ router.patch(
   "/:id/resolve-dispute",
   authenticate({
     method: AuthMethod.JWT,
-    allowedRoles: ["Admin", "Manager", "super_admin"],
+    allowedRoles: ["Admin", "Manager", "super_admin", "commission_reviewer"],
   }),
   validateSettlementStatus(["Disputed"], "settlement_status"),
   resolveDisputeController,
@@ -139,7 +139,15 @@ router.patch(
   "/:id/l1-approve",
   authenticate({
     method: AuthMethod.JWT,
-    allowedRoles: ["Admin", "Manager", "super_admin", "commission_reviewer"],
+    allowedRoles: [
+      "Admin",
+      "Manager",
+      "User",
+      "super_admin",
+      "commission_reviewer",
+      "commission_approver",
+      "commission_viewer",
+    ],
   }),
   validateSettlementStatus(["Pending Approval"], "settlement_status"),
   l1ApproveController,
@@ -150,7 +158,15 @@ router.patch(
   "/:id/l1-reject",
   authenticate({
     method: AuthMethod.JWT,
-    allowedRoles: ["Admin", "Manager", "super_admin", "commission_reviewer"],
+    allowedRoles: [
+      "Admin",
+      "Manager",
+      "User",
+      "super_admin",
+      "commission_reviewer",
+      "commission_approver",
+      "commission_viewer",
+    ],
   }),
   validateSettlementStatus(["Pending Approval"], "settlement_status"),
   l1RejectController,
@@ -161,7 +177,15 @@ router.patch(
   "/:id/l2-approve",
   authenticate({
     method: AuthMethod.JWT,
-    allowedRoles: ["Admin", "super_admin", "commission_approver"],
+    allowedRoles: [
+      "Admin",
+      "Manager",
+      "User",
+      "super_admin",
+      "commission_reviewer",
+      "commission_approver",
+      "commission_viewer",
+    ],
   }),
   validateSettlementStatus(["L1 Approved"], "settlement_status"),
   l2ApproveController,
@@ -172,9 +196,20 @@ router.patch(
   "/:id/l2-reject",
   authenticate({
     method: AuthMethod.JWT,
-    allowedRoles: ["Admin", "super_admin", "commission_approver"],
+    allowedRoles: [
+      "Admin",
+      "Manager",
+      "User",
+      "super_admin",
+      "commission_reviewer",
+      "commission_approver",
+      "commission_viewer",
+    ],
   }),
-  validateSettlementStatus(["L1 Approved"], "settlement_status"),
+  validateSettlementStatus(
+    ["L1 Approved", "Pending Approval"],
+    "settlement_status",
+  ),
   l2RejectController,
 );
 

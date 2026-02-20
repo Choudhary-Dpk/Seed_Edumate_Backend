@@ -1548,6 +1548,11 @@ export const l1ApproveController = async (
       });
     });
 
+    await prisma.hSCommissionSettlementsSettlementStatus.update({
+      where: { settlement_id: settlementId },
+      data: { settlement_status: "L1 Approved" },
+    });
+
     // Notification (non-blocking)
     const partnerName =
       settlement.b2b_partner?.partner_display_name ||
@@ -1884,7 +1889,7 @@ export const l2RejectController = async (
         data: { settlement_status: newStatus },
       });
 
-      // If rejecting back to partner, clear invoice
+      // If rejecting back to partner, clear invoice so they can re-upload
       if (reject_to === "partner") {
         await tx.hSCommissionSettlementsDocumentation.updateMany({
           where: { settlement_id: settlementId },
