@@ -1,7 +1,27 @@
 [
   {
+    "role": "super_admin",
+    "display_name": "Super Admin",
+    "description": "Full access to all modules"
+  },
+  {
     "role": "Admin",
     "display_name": "Administrator",
     "description": "Has full access to all modules"
+  },
+  {
+    "role": "commission_reviewer",
+    "display_name": "Commission Reviewer",
+    "description": "L1 — Invoice verification, payment initiation"
+  },
+  {
+    "role": "commission_approver",
+    "display_name": "Commission Approver",
+    "description": "L2 — Final business approval"
+  },
+  {
+    "role": "commission_viewer",
+    "display_name": "Commission Viewer",
+    "description": "BDM — Read-only, notification recipient"
   }
 ]
