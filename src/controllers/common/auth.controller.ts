@@ -38,8 +38,6 @@ import {
   getUserRole,
 } from "../../models/helpers/partners.helper";
 import prisma from "../../config/prisma";
-
-// ✅ NEW: Import unified email services
 import { queueEmail } from "../../services/email-queue.service";
 import { 
   EmailType, 

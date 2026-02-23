@@ -44,7 +44,6 @@ export const studentSignupController = async (
   try {
     const { email, formType, phoneNumber, full_name } = req.body;
     let data: any = {};
-    let leadAttribution: any;
 
     // 1. Map fields to internal structure
     const mappedFields = await mapAllFields(req.body);

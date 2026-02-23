@@ -13,8 +13,6 @@ import { FRONTEND_URL } from "../../setup/secrets";
 import { sendResponse } from "../../utils/api";
 import { generateEmailToken } from "../../utils/auth";
 import logger from "../../utils/logger";
-
-// ✅ NEW: Import unified email services
 import { queueEmail } from "../../services/email-queue.service";
 import { 
   EmailType, 
