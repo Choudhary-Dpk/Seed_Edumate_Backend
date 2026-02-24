@@ -22,14 +22,17 @@ import { generateRequestIdFromPayload } from "../utils/helper";
 import logger from "../utils/logger";
 import { generateEMIRepaymentScheduleEmail } from "../utils/email templates/repaymentScheduleDetails";
 
-// ✅ NEW: Import unified email services instead of deprecated email.service.ts
 import { queueEmail } from "../services/email-queue.service";
-import { EmailType, EmailCategory, SenderType } from "../services/email-log.service";
+import {
+  EmailType,
+  EmailCategory,
+  SenderType,
+} from "../services/email-log.service";
 
 export const checkLoanEligibility = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   try {
     const payload = req?.body || {};
@@ -39,7 +42,7 @@ export const checkLoanEligibility = async (
       return sendResponse(
         res,
         200,
-        "Thank you for showing interest, our team will reach out to you to understand your needs better"
+        "Thank you for showing interest, our team will reach out to you to understand your needs better",
       );
     }
 
@@ -57,7 +60,7 @@ export const checkLoanEligibility = async (
 export const getConvertedCurrency = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const amountParam = req.query.amount as string;
@@ -68,7 +71,7 @@ export const getConvertedCurrency = async (
       return sendResponse(
         res,
         400,
-        "Missing required query params: amount, from, to"
+        "Missing required query params: amount, from, to",
       );
     }
 
@@ -93,7 +96,7 @@ export const getConvertedCurrency = async (
 export const getInstitutionCosts = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   try {
     const payload: ExtractCostsRequest = req?.body || {};
@@ -105,7 +108,7 @@ export const getInstitutionCosts = async (
       sendResponse(
         res,
         400,
-        "Missing required fields: institution_name, study_level"
+        "Missing required fields: institution_name, study_level",
       );
       return;
     }
@@ -121,7 +124,7 @@ export const getInstitutionCosts = async (
       sendResponse(
         res,
         400,
-        `Invalid study_level. Must be one of: ${validStudyLevels.join(", ")}`
+        `Invalid study_level. Must be one of: ${validStudyLevels.join(", ")}`,
       );
       return;
     }
@@ -146,7 +149,7 @@ export const getInstitutionCosts = async (
 export const getInstitutionProgram = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   try {
     const payload: ExtractProgramRequest = req?.body || {};
@@ -158,7 +161,7 @@ export const getInstitutionProgram = async (
       sendResponse(
         res,
         400,
-        "Missing required fields: institution_name, program_name"
+        "Missing required fields: institution_name, program_name",
       );
       return;
     }
@@ -191,8 +194,8 @@ export const getInstitutionProgram = async (
 const processedRequests = new Map<string, RepaymentScheduleResponse>();
 
 /**
- * ✅ UPDATED: Enhanced generateRepaymentScheduleAndEmail
- * 
+ *  UPDATED: Enhanced generateRepaymentScheduleAndEmail
+ *
  * Changes:
  * - No longer uses deprecated email.service.ts
  * - Uses unified queueEmail() system
@@ -202,7 +205,7 @@ const processedRequests = new Map<string, RepaymentScheduleResponse>();
 export const generateRepaymentScheduleAndEmail = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   try {
     const payload: RepaymentScheduleRequest = req?.body || {};
@@ -229,7 +232,7 @@ export const generateRepaymentScheduleAndEmail = async (
       sendResponse(
         res,
         400,
-        "Missing required fields: principal, annualRate, tenureYears, name, email"
+        "Missing required fields: principal, annualRate, tenureYears, name, email",
       );
       return;
     }
@@ -244,7 +247,7 @@ export const generateRepaymentScheduleAndEmail = async (
         res,
         200,
         "Repayment schedule already processed",
-        cachedResponse
+        cachedResponse,
       );
     }
 
@@ -257,26 +260,26 @@ export const generateRepaymentScheduleAndEmail = async (
         annualRate,
         tenureYears,
         strategyType,
-        strategyConfig
+        strategyConfig,
       );
     } else if (emi) {
       calculationResult = calculateRepaymentSchedule(
         principal,
         annualRate,
         tenureYears,
-        emi
+        emi,
       );
     } else {
       const standardEMI = calculateStandardEMI(
         principal,
         annualRate,
-        tenureYears
+        tenureYears,
       );
       calculationResult = calculateRepaymentSchedule(
         principal,
         annualRate,
         tenureYears,
-        standardEMI
+        standardEMI,
       );
     }
 
@@ -304,7 +307,7 @@ export const generateRepaymentScheduleAndEmail = async (
       pdfBase64 = pdfBuffer.toString("base64");
 
       logger.debug(
-        `PDF generated successfully, size: ${pdfBuffer.length} bytes, file: ${pdfFileName}`
+        `PDF generated successfully, size: ${pdfBuffer.length} bytes, file: ${pdfFileName}`,
       );
     } catch (error) {
       console.error("PDF generation failed, continuing without PDF:", error);
@@ -324,7 +327,7 @@ export const generateRepaymentScheduleAndEmail = async (
 
         const emailMessage = strategyType
           ? `${message}\n\nThis schedule includes your ${getStrategyDisplayName(
-              strategyType
+              strategyType,
             )} optimization.`
           : message;
 
@@ -332,17 +335,18 @@ export const generateRepaymentScheduleAndEmail = async (
         const htmlMessage = generateEMIRepaymentScheduleEmail(name);
 
         // Prepare attachments if PDF is available
-        const attachments = pdfBuffer && pdfFileName
-          ? [
-              {
-                filename: pdfFileName,
-                content: pdfBuffer.toString('base64'),
-                contentType: "application/pdf",
-              },
-            ]
-          : [];
+        const attachments =
+          pdfBuffer && pdfFileName
+            ? [
+                {
+                  filename: pdfFileName,
+                  content: pdfBuffer.toString("base64"),
+                  contentType: "application/pdf",
+                },
+              ]
+            : [];
 
-        // ✅ NEW: Use unified email queue system
+        //  NEW: Use unified email queue system
         await queueEmail({
           to: email,
           subject: emailSubject,
@@ -367,7 +371,7 @@ export const generateRepaymentScheduleAndEmail = async (
         logger.debug(
           `Email queued successfully: ${email} | PDF: ${pdfFileName || "none"} ${
             pdfBuffer ? `(${pdfBuffer.length} bytes)` : ""
-          }`
+          }`,
         );
 
         emailResponse = {
@@ -378,13 +382,13 @@ export const generateRepaymentScheduleAndEmail = async (
         };
 
         logger.debug(
-          `Email queued for delivery: ${email} at ${emailResponse.sentAt}`
+          `Email queued for delivery: ${email} at ${emailResponse.sentAt}`,
         );
       } catch (error) {
         logger.error(
           `Email queueing failed for: ${email} - ${
             error instanceof Error ? error.message : String(error)
-          }`
+          }`,
         );
         // Don't fail the entire request if email fails
         // Just log the error and continue
@@ -430,7 +434,7 @@ export const generateRepaymentScheduleAndEmail = async (
     logger.info(
       `✓ Repayment schedule generated for ${email} | RequestID: ${requestId} | Strategy: ${
         strategyType || "standard"
-      } | PDF: ${!!pdfBuffer ? "✓" : "✗"}${pdfError ? ` (${pdfError})` : ""}`
+      } | PDF: ${!!pdfBuffer ? "✓" : "✗"}${pdfError ? ` (${pdfError})` : ""}`,
     );
 
     // Always return success if calculation succeeded
@@ -440,13 +444,13 @@ export const generateRepaymentScheduleAndEmail = async (
       `Repayment schedule generated successfully${
         strategyType ? ` with ${getStrategyDisplayName(strategyType)}` : ""
       }${pdfError ? " (PDF generation failed)" : ""}`,
-      response
+      response,
     );
   } catch (error) {
     logger.error(
       `✗ Error in generateRepaymentScheduleAndEmail: ${
         error instanceof Error ? error.message : String(error)
-      }`
+      }`,
     );
     next(error);
   }

@@ -410,12 +410,12 @@ const NOTIFICATION_CONFIGS: Record<
 
     getSubject: (data) =>
       data.overrideSubject ||
-      `✅ L1 Approved — ${data.partnerName || "Partner"} | ${data.settlementRefNumber || "N/A"} | Awaiting L2 Approval`,
+      ` L1 Approved — ${data.partnerName || "Partner"} | ${data.settlementRefNumber || "N/A"} | Awaiting L2 Approval`,
 
     getHtml: (data, cfg) =>
       buildGenericApprovalTemplate(data, cfg, {
         headerColor: "#27AE60,#2ECC71",
-        icon: "✅",
+        icon: "",
         title: "L1 Verification Complete — Awaiting Your Approval",
         subtitle: `Approved by ${data.approverName || "L1 Reviewer"}`,
         bodyText:
@@ -700,12 +700,12 @@ const NOTIFICATION_CONFIGS: Record<
 
     getSubject: (data) =>
       data.overrideSubject ||
-      `✅ Dispute Resolved — ${data.studentName || "Student"} | ${data.partnerName || "Partner"} | ${data.settlementRefNumber || "N/A"}`,
+      ` Dispute Resolved — ${data.studentName || "Student"} | ${data.partnerName || "Partner"} | ${data.settlementRefNumber || "N/A"}`,
 
     getHtml: (data, cfg) =>
       buildGenericApprovalTemplate(data, cfg, {
         headerColor: "#059669,#10B981",
-        icon: "✅",
+        icon: "",
         title: "Dispute Resolved",
         subtitle: data.disputeResolution
           ? `Resolution: ${data.disputeResolution}`

@@ -52,7 +52,7 @@ export const createAdminController = async (
     content = content.replace(/{%currentYear%}/, moment().format("YYYY"));
     content = content.replace(
       /{%name%}/g,
-      fullName.charAt(0).toUpperCase() + fullName.slice(1)
+      fullName.charAt(0).toUpperCase() + fullName.slice(1),
     );
     const html = content.replace("{%set-password-url%}", redirectUri);
     const subject = "Set Password";
@@ -60,14 +60,14 @@ export const createAdminController = async (
     logger.debug(`Revoking previous email tokens`);
     await revokePreviousAdminEmailTokens(user.id);
     logger.debug(
-      `Previous email tokens revoked successfully for userId: ${user.id}`
+      `Previous email tokens revoked successfully for userId: ${user.id}`,
     );
 
     logger.debug(`Saving email token for userId: ${user.id}`);
     await saveAdminEmailToken(user.id, emailToken);
     logger.debug(`Email token saved successfully`);
 
-    // ✅ NEW: Use unified email queue service
+    //  NEW: Use unified email queue service
     logger.debug(`Queueing email for userId: ${user.id}`);
     await queueEmail({
       to: email,

@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import axios from "axios";
 
-// ✅ NEW: Import unified email services
+//  NEW: Import unified email services
 import { queueEmail } from "../services/email-queue.service";
 import { 
   EmailType, 
@@ -52,7 +52,7 @@ type LogFunction = (taskName: string, message: string) => void;
 const NOTIFICATION_EMAILS = ["deepak@seedglobaleducation.com"];
 
 /**
- * ✅ UPDATED: Send email notification using unified email system
+ *  UPDATED: Send email notification using unified email system
  * 
  * Changes:
  * - Uses queueEmail() instead of emailQueue.push()
@@ -69,7 +69,7 @@ async function sendNotification(
   error?: any,
 ): Promise<void> {
   const status = success ? "Success" : "Failed";
-  const statusEmoji = success ? "✅" : "❌";
+  const statusEmoji = success ? "" : "❌";
   const subject = `[Cron Job] HubSpot Property Sync - ${statusEmoji} ${status}`;
 
   const html = `
@@ -111,7 +111,7 @@ async function sendNotification(
 </html>`;
 
   try {
-    // ✅ NEW: Use unified email queue service
+    //  NEW: Use unified email queue service
     for (const email of NOTIFICATION_EMAILS) {
       await queueEmail({
         to: email,

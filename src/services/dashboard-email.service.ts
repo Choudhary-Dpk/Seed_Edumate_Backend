@@ -8,7 +8,7 @@ import {
 import logger from "../utils/logger";
 import { validateSingleEmail } from "./unified-email.service";
 
-// ✅ NEW: Import unified email services
+//  NEW: Import unified email services
 import { queueEmail } from "./email-queue.service";
 import { 
   EmailType, 
@@ -125,7 +125,7 @@ export async function getPartnerDetails(partnerId: number) {
 }
 
 /**
- * ✅ UPDATED: Send dashboard email to single partner
+ *  UPDATED: Send dashboard email to single partner
  * 
  * Changes:
  * - Uses queueEmail() instead of manual Prisma operations
@@ -193,11 +193,11 @@ export async function sendDashboardEmail(
       ]
     : [];
 
-  // ✅ NEW: Determine email type based on content
+  //  NEW: Determine email type based on content
   const emailType = htmlContent ? EmailType.MONTHLY_REPORT : EmailType.DASHBOARD_REPORT;
 
   try {
-    // ✅ NEW: Use unified queueEmail service
+    //  NEW: Use unified queueEmail service
     // This automatically:
     // - Creates entry in email_log table
     // - Creates entry in email_queue table
@@ -254,7 +254,7 @@ export async function sendDashboardEmail(
 }
 
 /**
- * ✅ UPDATED: Send bulk dashboard emails
+ *  UPDATED: Send bulk dashboard emails
  * 
  * Changes:
  * - Uses queueEmail() in loop instead of manual Prisma batch operations
@@ -327,7 +327,7 @@ export async function sendBulkDashboardEmails(
         adminUser.full_name || "Admin"
       );
 
-      // ✅ NEW: Use queueEmail for each recipient
+      //  NEW: Use queueEmail for each recipient
       const result = await queueEmail({
         to: recipient.email,
         subject,
@@ -395,7 +395,7 @@ export async function sendBulkDashboardEmails(
 }
 
 /**
- * ✅ UPDATED: Get email history
+ *  UPDATED: Get email history
  * 
  * Changes:
  * - Now queries email_log table instead of dashboardEmailLog
@@ -413,7 +413,7 @@ export async function getEmailHistory(
   const { partnerId, status, startDate, endDate, page = 1, limit = 20 } = filters;
 
   const where: any = {
-    category: EmailCategory.DASHBOARD, // ✅ Filter by dashboard emails only
+    category: EmailCategory.DASHBOARD, //  Filter by dashboard emails only
   };
 
   if (partnerId) {
@@ -486,7 +486,7 @@ export async function getEmailHistory(
 }
 
 /**
- * ✅ NEW: Get dashboard email analytics
+ *  NEW: Get dashboard email analytics
  * 
  * Provides statistics specifically for dashboard emails
  */

@@ -3,7 +3,11 @@ import prisma from "../config/prisma";
 import { getInstance, registerChannel } from "../config/pg-notify-client";
 import logger from "../utils/logger";
 import { mapEnumValue } from "../constants/enumMappingDbToHs";
-import { createHubspotPartner, deleteHubspotPartner, updateHubspotPartner } from "../services/hubspotClient.service";
+import {
+  createHubspotPartner,
+  deleteHubspotPartner,
+  updateHubspotPartner,
+} from "../services/hubspotClient.service";
 import { sendCommissionNotification } from "../services/EmailNotifications/commission.notification.service";
 
 const MAX_RETRIES = 5;
@@ -862,17 +866,17 @@ async function notifyFinanceForNewPartner(partnerId: number): Promise<void> {
 }
 
 process.on("SIGTERM", async () => {
-    logger.info(
-        "[B2B Partner PG NOTIFY] SIGTERM received, closing worker gracefully..."
-    );
-    await b2bPartnerSyncQueue.onIdle();
-    process.exit(0);
+  logger.info(
+    "[B2B Partner PG NOTIFY] SIGTERM received, closing worker gracefully...",
+  );
+  await b2bPartnerSyncQueue.onIdle();
+  process.exit(0);
 });
 
 process.on("SIGINT", async () => {
-    logger.info(
-        "[B2B Partner PG NOTIFY] SIGINT received, closing worker gracefully..."
-    );
-    await b2bPartnerSyncQueue.onIdle();
-    process.exit(0);
+  logger.info(
+    "[B2B Partner PG NOTIFY] SIGINT received, closing worker gracefully...",
+  );
+  await b2bPartnerSyncQueue.onIdle();
+  process.exit(0);
 });

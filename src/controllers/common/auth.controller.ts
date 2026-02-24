@@ -171,7 +171,7 @@ export const sendOtp = async (
     const html = emailTemplate.replace(`{%otp%}`, otp);
     const subject = "EDUMATE - One time password";
 
-    // ✅ NEW: Use unified email queue service
+    //  NEW: Use unified email queue service
     logger.debug(`Queueing OTP email for userId: ${id}`);
     await queueEmail({
       to: email,
@@ -260,7 +260,7 @@ export const forgotPassword = async (
     }
     logger.debug(`Email token saved successfully`);
 
-    // ✅ NEW: Use unified email queue service
+    //  NEW: Use unified email queue service
     logger.debug(`Queueing forgot password email for userId: ${id}`);
     await queueEmail({
       to: email,
@@ -323,7 +323,7 @@ export const resetPassword = async (
     }
     logger.debug(`Password updated successfully`);
 
-    // ✅ OPTIONAL: Send password changed confirmation email
+    //  OPTIONAL: Send password changed confirmation email
     // Uncomment if you want confirmation emails
     /*
     logger.debug(`Queueing password reset confirmation email`);
@@ -396,7 +396,7 @@ export const setPassword = async (
     }
     logger.debug(`Password updated successfully`);
 
-    // ✅ No confirmation email for set password (first time setup)
+    //  No confirmation email for set password (first time setup)
     // Users just set their password and can log in
 
     sendResponse(res, 200, "Password set successfully", {

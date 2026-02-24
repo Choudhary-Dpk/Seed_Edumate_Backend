@@ -1,16 +1,6 @@
 import { Prisma } from "@prisma/client";
 import prisma from "../../config/prisma";
-import {
-  admissionStatusMap,
-  ContactsLead,
-  courseTypeMap,
-  currentEducationLevelMap,
-  genderMap,
-  preferredStudyDestinationMap,
-  targetDegreeLevelMap,
-} from "../../types/contact.types";
 import { HubspotResult } from "../../types";
-import { getPartnerIdByUserId } from "./partners.helper";
 import logger from "../../utils/logger";
 
 export const createEdumatePersonalInformation = async (

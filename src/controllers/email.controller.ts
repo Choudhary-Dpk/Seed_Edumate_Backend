@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-import { validationResult } from "express-validator";
 import { EmailData, SendEmailRequest } from "../types/email.types";
 import { PortalType } from "../types/auth";
 import logger from "../utils/logger";
@@ -9,20 +8,18 @@ import moment from "moment";
 import { FRONTEND_URL } from "../setup/secrets";
 import { generateEmailToken } from "../utils/auth";
 import { generateLoanApplicationEmail } from "../utils/email templates/loanEligibilityResult";
-
-// ✅ FIXED: Correct import paths for unified email services
 import { queueEmail } from "../services/email-queue.service";
-import { 
-  EmailType, 
-  EmailCategory, 
+import {
+  EmailType,
+  EmailCategory,
   SenderType,
   mapLegacyTypeToEmailType,
-  inferCategoryFromType 
+  inferCategoryFromType,
 } from "../services/email-log.service";
 
 /**
- * ✅ UPDATED: Send loan eligibility result email
- * 
+ *  UPDATED: Send loan eligibility result email
+ *
  * Changes:
  * - No longer uses deprecated email.service.ts
  * - Uses unified queueEmail() system
@@ -31,7 +28,7 @@ import {
 export const sendLoanEligibilityResult = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const payload: EmailData = req.body;
@@ -44,7 +41,7 @@ export const sendLoanEligibilityResult = async (
     // Generate email HTML using existing template
     const emailHTML = generateLoanApplicationEmail(payload);
 
-    // ✅ NEW: Use unified email queue system
+    //  NEW: Use unified email queue system
     await queueEmail({
       to: recipientMail,
       subject: "Welcome!",
@@ -64,7 +61,7 @@ export const sendLoanEligibilityResult = async (
     sendResponse(
       res,
       200,
-      `Welcome email sent successfully to ${recipientMail}`
+      `Welcome email sent successfully to ${recipientMail}`,
     );
   } catch (error) {
     next(error);
@@ -72,8 +69,8 @@ export const sendLoanEligibilityResult = async (
 };
 
 /**
- * ✅ UPDATED: Send password reset email
- * 
+ *  UPDATED: Send password reset email
+ *
  * Changes:
  * - No longer uses deprecated email.service.ts
  * - Uses unified queueEmail() system
@@ -82,7 +79,7 @@ export const sendLoanEligibilityResult = async (
 export const sendPasswordReset = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { email, resetLink } = req.body;
@@ -99,7 +96,7 @@ export const sendPasswordReset = async (
     `;
     const text = `Password Reset: ${resetLink} (expires in 1 hour)`;
 
-    // ✅ NEW: Use unified email queue system
+    //  NEW: Use unified email queue system
     await queueEmail({
       to: email,
       subject: "Password Reset Request",
@@ -116,7 +113,7 @@ export const sendPasswordReset = async (
     sendResponse(
       res,
       200,
-      `Password reset email sent successfully to ${email}`
+      `Password reset email sent successfully to ${email}`,
     );
   } catch (error) {
     next(error);
@@ -125,7 +122,7 @@ export const sendPasswordReset = async (
 
 /**
  * Universal Email Controller - UPDATED with Unified Email System
- * 
+ *
  * Changes:
  * - Uses queueEmail() instead of emailQueue.push()
  * - Uses type-safe EmailType enum
@@ -136,7 +133,7 @@ export const sendPasswordReset = async (
 export const sendEmailController = async (
   req: Request<{}, {}, SendEmailRequest>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const {
@@ -232,7 +229,7 @@ export const sendEmailController = async (
       default:
         // For any other email type, just use name replacement (already done above)
         logger.debug(
-          `Using default variable replacement for emailType: ${emailType}`
+          `Using default variable replacement for emailType: ${emailType}`,
         );
         break;
     }
@@ -240,7 +237,7 @@ export const sendEmailController = async (
     const html = content;
     logger.debug("Template variables replaced successfully");
 
-    // ✅ NEW: Map legacy email type to new EmailType enum
+    //  NEW: Map legacy email type to new EmailType enum
     const mappedEmailType = mapLegacyTypeToEmailType(emailType);
     const category = inferCategoryFromType(mappedEmailType);
 
@@ -250,7 +247,7 @@ export const sendEmailController = async (
       category,
     });
 
-    // ✅ NEW: Prepare recipients (handle arrays)
+    //  NEW: Prepare recipients (handle arrays)
     const recipients = Array.isArray(to) ? to.join(",") : to;
     const ccList = Array.isArray(cc) ? cc.join(",") : cc;
     const bccList = Array.isArray(bcc) ? bcc.join(",") : bcc;
@@ -261,7 +258,7 @@ export const sendEmailController = async (
       bcc: bccList,
     });
 
-    // ✅ NEW: Use unified email queue service
+    //  NEW: Use unified email queue service
     const result = await queueEmail({
       to: recipients,
       subject,

@@ -1,8 +1,10 @@
-// src/controllers/dashboard-email.controller.ts
-
 import { Request, Response } from "express";
 import * as DashboardEmailService from "../services/dashboard-email.service";
-import { SendDashboardEmailRequest, SendBulkDashboardEmailRequest, EmailHistoryQuery } from "../types/dashboard-email.types";
+import {
+  SendDashboardEmailRequest,
+  SendBulkDashboardEmailRequest,
+  EmailHistoryQuery,
+} from "../types/dashboard-email.types";
 
 /**
  * Send dashboard email to single partner
@@ -16,7 +18,7 @@ export const sendDashboardEmail = async (req: Request, res: Response) => {
       subject,
       message,
       pdfBase64,
-      htmlContent,  // NEW: HTML content support
+      htmlContent, // NEW: HTML content support
       filters,
       emailSource = "manual",
     } = req.body as SendDashboardEmailRequest;
@@ -51,11 +53,11 @@ export const sendDashboardEmail = async (req: Request, res: Response) => {
         subject,
         message,
         pdfBase64,
-        htmlContent,  // Pass HTML content
+        htmlContent, // Pass HTML content
         filters,
         emailSource,
       },
-      adminUser
+      adminUser,
     );
 
     return res.json(result);
@@ -92,7 +94,7 @@ export const sendBulkDashboardEmails = async (req: Request, res: Response) => {
     // Send bulk emails
     const result = await DashboardEmailService.sendBulkDashboardEmails(
       requestData,
-      adminUser
+      adminUser,
     );
 
     return res.json(result);
@@ -111,7 +113,9 @@ export const sendBulkDashboardEmails = async (req: Request, res: Response) => {
 export const getEmailHistory = async (req: Request, res: Response) => {
   try {
     const filters: EmailHistoryQuery = {
-      partnerId: req.query.partnerId ? parseInt(req.query.partnerId as string) : undefined,
+      partnerId: req.query.partnerId
+        ? parseInt(req.query.partnerId as string)
+        : undefined,
       status: req.query.status as string | undefined,
       startDate: req.query.startDate as string | undefined,
       endDate: req.query.endDate as string | undefined,

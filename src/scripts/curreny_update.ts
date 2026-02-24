@@ -199,7 +199,7 @@ let isRunning = false;
 const NOTIFICATION_EMAILS = ["deepak@seedglobaleducation.com"];
 
 /**
- * ✅ UPDATED: Send email notification using unified email system
+ *  UPDATED: Send email notification using unified email system
  * 
  * Changes:
  * - Uses queueEmail() instead of emailQueue.push()
@@ -217,7 +217,7 @@ async function sendNotification(
   error?: any,
 ): Promise<void> {
   const status = success ? "Success" : "Failed";
-  const statusEmoji = success ? "✅" : "❌";
+  const statusEmoji = success ? "" : "❌";
   const subject = `[Cron Job] Currency Exchange Update - ${statusEmoji} ${status}`;
 
   const html = `
@@ -246,7 +246,7 @@ async function sendNotification(
   </div>
   <div class="stats">
     <h3>Statistics</h3>
-    <p><strong>✅ Successful Pairs:</strong> ${totalSuccess}</p>
+    <p><strong> Successful Pairs:</strong> ${totalSuccess}</p>
     <p><strong>❌ Failed Pairs:</strong> ${totalErrors}</p>
     <p><strong>📊 Total Currencies:</strong> ${CURRENCIES.length}</p>
     ${
@@ -259,7 +259,7 @@ async function sendNotification(
 </html>`;
 
   try {
-    // ✅ NEW: Use unified email queue service
+    //  NEW: Use unified email queue service
     for (const email of NOTIFICATION_EMAILS) {
       await queueEmail({
         to: email,
