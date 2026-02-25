@@ -128,7 +128,13 @@ router.patch(
   "/:id/resolve-dispute",
   authenticate({
     method: AuthMethod.JWT,
-    allowedRoles: ["Admin", "Manager", "super_admin", "commission_reviewer"],
+    allowedRoles: [
+      "Admin",
+      "Manager",
+      "super_admin",
+      "commission_approver",
+      "commission_reviewer",
+    ],
   }),
   validateSettlementStatus(["Disputed"], "settlement_status"),
   resolveDisputeController,

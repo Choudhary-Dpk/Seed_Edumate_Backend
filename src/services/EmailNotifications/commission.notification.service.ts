@@ -19,15 +19,15 @@ const CURRENT_YEAR = moment().format("YYYY");
 //
 // All recipients resolved from admin_users by role:
 //   commission_reviewer  (L1) → Finance, Invoice, L1 notifications
-//   commission_approver  (L2) → L2 approval notifications
+//   commission_approver  (L2) → L2 approval + Objection notifications ← CHANGED
 //   commission_viewer   (BDM) → Read-only CC notifications
-//   Admin / super_admin       → Objection, escalation notifications
+//   Admin / super_admin       → Escalation notifications
 // ============================================================================
 
 export type CommissionNotificationType =
   | "FINANCE_PARTNER_ONBOARDED" // Phase 1: New partner → L1 (commission_reviewer)
   | "PARTNER_COMMISSION_CREATED" // Phase 2: Commission entry → Partner (b2b_partners_users)
-  | "PARTNER_OBJECTION_RAISED" // Phase 3: Objection → Admin/super_admin
+  | "PARTNER_OBJECTION_RAISED" // Phase 3: Objection → L2 (commission_approver) ← CHANGED
   | "INVOICE_SUBMITTED" // Phase 3: Invoice submitted → L1 (commission_reviewer)
   | "L1_APPROVED" // Phase 4: L1 approved → L2 (commission_approver)
   | "L1_REJECTED" // Phase 4: L1 rejected → Partner + BDM (commission_viewer)
@@ -35,23 +35,17 @@ export type CommissionNotificationType =
   | "L2_REJECTED_TO_L1" // Phase 4: L2 rejected → L1 (commission_reviewer) for re-review
   | "L2_REJECTED_TO_PARTNER" // Phase 4: L2 rejected → Partner (re-upload invoice)
   | "ADMIN_DISPUTE_RESOLVED"; // Phase 3: Admin resolves dispute → Partner
-// Future:
-// | "PAYOUT_COMPLETED"             // Phase 5: UTR captured → Partner
-// | "PAYOUT_FAILED"                // Phase 5: Payment failed → L1 + Admin
 
 // ============================================================================
 // NOTIFICATION DATA
 // ============================================================================
 
 export interface CommissionNotificationData {
-  // ── Who triggered this ──
   triggeredBy?: {
     userId?: number;
     name?: string;
     type?: "system" | "admin" | "partner";
   };
-
-  // ── Partner info ──
   partnerId?: number;
   partnerB2BId?: number;
   partnerName?: string;
@@ -66,15 +60,11 @@ export interface CommissionNotificationData {
   contactEmail?: string | null;
   contactPhone?: string | null;
   onboardedAt?: Date;
-
-  // ── Settlement / Commission info ──
   settlementId?: number;
   settlementRefNumber?: string | null;
   settlementMonth?: string | null;
   settlementYear?: number | null;
   settlementDate?: Date | null;
-
-  // ── Student & Loan details ──
   studentName?: string | null;
   studentId?: string | null;
   lenderName?: string | null;
@@ -84,17 +74,11 @@ export interface CommissionNotificationData {
   universityName?: string | null;
   courseName?: string | null;
   destinationCountry?: string | null;
-
-  // ── Commission calculation ──
   commissionRate?: number | null;
   grossCommissionAmount?: number | null;
-
-  // ── Phase 3: Objection / Dispute ──
   objectionReason?: string;
   disputeResolution?: string;
   disputeResolvedBy?: string;
-
-  // ── Phase 4: Approval / Rejection ──
   rejectionReason?: string;
   approverName?: string;
   approverNotes?: string | null;
@@ -104,8 +88,6 @@ export interface CommissionNotificationData {
   invoiceAmount?: number | null;
   invoiceDate?: Date;
   invoiceUrl?: string;
-
-  // ── Overrides (always take priority over everything) ──
   overrideRecipient?: string;
   overrideCc?: string[];
   overrideSubject?: string;
@@ -135,11 +117,7 @@ interface NotificationConfig {
   getRecipient: (
     data: CommissionNotificationData,
     cfg: ResolvedNotificationConfig,
-  ) => Promise<{
-    to: string;
-    cc?: string[];
-    recipientUserId?: number;
-  }>;
+  ) => Promise<{ to: string; cc?: string[]; recipientUserId?: number }>;
   getSubject: (data: CommissionNotificationData) => string;
   getHtml: (
     data: CommissionNotificationData,
@@ -236,7 +214,6 @@ const NOTIFICATION_CONFIGS: Record<
       if (data.overrideRecipient) {
         return { to: data.overrideRecipient, cc: data.overrideCc };
       }
-
       const b2bId = data.partnerB2BId || data.partnerId;
       if (!b2bId) throw new Error("partnerB2BId or partnerId is required");
 
@@ -245,13 +222,11 @@ const NOTIFICATION_CONFIGS: Record<
         select: { id: true, email: true, full_name: true },
       });
 
-      if (!partnerUsers.length) {
+      if (!partnerUsers.length)
         throw new Error(`No active users found for partner B2B ID ${b2bId}`);
-      }
 
       const primary = partnerUsers[0];
       const cc = partnerUsers.slice(1).map((u) => u.email);
-
       return {
         to: primary.email,
         cc: cc.length > 0 ? cc : undefined,
@@ -307,8 +282,15 @@ const NOTIFICATION_CONFIGS: Record<
   },
 
   // ──────────────────────────────────────────────────────────────────────────
-  // PHASE 3: Notify Admin — Partner Raises Objection
-  // Recipient: Admin → super_admin → ENV
+  // PHASE 3: Notify L2 Admin — Partner Raises Objection/Dispute
+  //
+  // *** CHANGED ***
+  // BEFORE: cfg.objectionNotifyEmail || cfg.financeEmail  (L1 / Admin)
+  // AFTER : cfg.l2ApproverEmail                           (L2 commission_approver)
+  //
+  // When a partner raises a dispute, it goes directly to the L2 business head
+  // who has authority to resolve it. L1 is CC'd via cfg.l2ApproverCcEmails
+  // if configured in notification-recipients.service.
   // ──────────────────────────────────────────────────────────────────────────
   PARTNER_OBJECTION_RAISED: {
     emailType: EmailType.COMMISSION_FINANCE_NOTIFY,
@@ -320,10 +302,16 @@ const NOTIFICATION_CONFIGS: Record<
       if (data.overrideRecipient) {
         return { to: data.overrideRecipient, cc: data.overrideCc };
       }
-      const to = cfg.objectionNotifyEmail || cfg.financeEmail;
+
+      // ── CHANGED: was cfg.objectionNotifyEmail || cfg.financeEmail ──
+      // ── NOW    : cfg.l2ApproverEmail (commission_approver role)    ──
+      const to = cfg.l2ApproverEmail;
       const cc =
         data.overrideCc ||
-        (cfg.objectionCcEmails.length > 0 ? cfg.objectionCcEmails : undefined);
+        (cfg.l2ApproverCcEmails.length > 0
+          ? cfg.l2ApproverCcEmails
+          : undefined);
+
       return { to, cc };
     },
 
@@ -334,7 +322,7 @@ const NOTIFICATION_CONFIGS: Record<
     getHtml: (data, cfg) => buildObjectionNotificationTemplate(data, cfg),
     getReferenceId: (data) => data.settlementId,
     afterSend: (data, email) =>
-      updateSettlementCommunication(data, email, "Objection notification"),
+      updateSettlementCommunication(data, email, "Objection notification (L2)"),
   },
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -347,9 +335,8 @@ const NOTIFICATION_CONFIGS: Record<
     priority: 3,
 
     getRecipient: async (data, cfg) => {
-      if (data.overrideRecipient) {
+      if (data.overrideRecipient)
         return { to: data.overrideRecipient, cc: data.overrideCc };
-      }
       return {
         to: cfg.l1ApproverEmail,
         cc:
@@ -393,19 +380,13 @@ const NOTIFICATION_CONFIGS: Record<
     priority: 2,
 
     getRecipient: async (data, cfg) => {
-      if (data.overrideRecipient) {
+      if (data.overrideRecipient)
         return { to: data.overrideRecipient, cc: data.overrideCc };
-      }
-      // Send to L2 approver, CC L1 + BDMs
       const cc = [
         ...cfg.l2ApproverCcEmails,
         ...(cfg.bdmEmails.length > 0 ? cfg.bdmEmails : []),
       ].filter(Boolean);
-
-      return {
-        to: cfg.l2ApproverEmail,
-        cc: cc.length > 0 ? cc : undefined,
-      };
+      return { to: cfg.l2ApproverEmail, cc: cc.length > 0 ? cc : undefined };
     },
 
     getSubject: (data) =>
@@ -441,11 +422,9 @@ const NOTIFICATION_CONFIGS: Record<
     priority: 2,
 
     getRecipient: async (data, cfg) => {
-      if (data.overrideRecipient) {
+      if (data.overrideRecipient)
         return { to: data.overrideRecipient, cc: data.overrideCc };
-      }
 
-      // Send to partner, CC BDMs
       const b2bId = data.partnerB2BId || data.partnerId;
       if (!b2bId)
         throw new Error(
@@ -456,16 +435,13 @@ const NOTIFICATION_CONFIGS: Record<
         where: { b2b_id: b2bId, is_active: true },
         select: { id: true, email: true },
       });
-
-      if (!partnerUsers.length) {
+      if (!partnerUsers.length)
         throw new Error(`No active users found for partner B2B ID ${b2bId}`);
-      }
 
       const cc = [
         ...partnerUsers.slice(1).map((u) => u.email),
         ...cfg.bdmEmails,
       ].filter(Boolean);
-
       return {
         to: partnerUsers[0].email,
         cc: cc.length > 0 ? cc : undefined,
@@ -508,16 +484,10 @@ const NOTIFICATION_CONFIGS: Record<
     priority: 1,
 
     getRecipient: async (data, cfg) => {
-      if (data.overrideRecipient) {
+      if (data.overrideRecipient)
         return { to: data.overrideRecipient, cc: data.overrideCc };
-      }
-      // Send to L1 reviewer for payment processing, CC BDMs
       const cc = [...cfg.l1ApproverCcEmails, ...cfg.bdmEmails].filter(Boolean);
-
-      return {
-        to: cfg.l1ApproverEmail,
-        cc: cc.length > 0 ? cc : undefined,
-      };
+      return { to: cfg.l1ApproverEmail, cc: cc.length > 0 ? cc : undefined };
     },
 
     getSubject: (data) =>
@@ -553,9 +523,8 @@ const NOTIFICATION_CONFIGS: Record<
     priority: 2,
 
     getRecipient: async (data, cfg) => {
-      if (data.overrideRecipient) {
+      if (data.overrideRecipient)
         return { to: data.overrideRecipient, cc: data.overrideCc };
-      }
       return {
         to: cfg.l1ApproverEmail,
         cc:
@@ -600,9 +569,8 @@ const NOTIFICATION_CONFIGS: Record<
     priority: 2,
 
     getRecipient: async (data, cfg) => {
-      if (data.overrideRecipient) {
+      if (data.overrideRecipient)
         return { to: data.overrideRecipient, cc: data.overrideCc };
-      }
 
       const b2bId = data.partnerB2BId || data.partnerId;
       if (!b2bId)
@@ -614,16 +582,13 @@ const NOTIFICATION_CONFIGS: Record<
         where: { b2b_id: b2bId, is_active: true },
         select: { id: true, email: true },
       });
-
-      if (!partnerUsers.length) {
+      if (!partnerUsers.length)
         throw new Error(`No active users found for partner B2B ID ${b2bId}`);
-      }
 
       const cc = [
         ...partnerUsers.slice(1).map((u) => u.email),
         ...cfg.bdmEmails,
       ].filter(Boolean);
-
       return {
         to: partnerUsers[0].email,
         cc: cc.length > 0 ? cc : undefined,
@@ -667,9 +632,8 @@ const NOTIFICATION_CONFIGS: Record<
     priority: 3,
 
     getRecipient: async (data, cfg) => {
-      if (data.overrideRecipient) {
+      if (data.overrideRecipient)
         return { to: data.overrideRecipient, cc: data.overrideCc };
-      }
 
       const b2bId = data.partnerB2BId || data.partnerId;
       if (!b2bId)
@@ -681,16 +645,13 @@ const NOTIFICATION_CONFIGS: Record<
         where: { b2b_id: b2bId, is_active: true },
         select: { id: true, email: true },
       });
-
-      if (!partnerUsers.length) {
+      if (!partnerUsers.length)
         throw new Error(`No active users found for partner B2B ID ${b2bId}`);
-      }
 
       const cc = [
         ...partnerUsers.slice(1).map((u) => u.email),
         ...cfg.bdmEmails,
       ].filter(Boolean);
-
       return {
         to: partnerUsers[0].email,
         cc: cc.length > 0 ? cc : undefined,
@@ -745,13 +706,9 @@ export async function sendCommissionNotification(
       settlementId: data.settlementId,
     });
 
-    // ── Step 1: Resolve recipients from admin_users by role (cached 5 min) ──
     const cfg = await resolveNotificationConfig();
-
-    // ── Step 2: Get recipient for this notification type ──
     const { to, cc, recipientUserId } = await config.getRecipient(data, cfg);
 
-    // ── Step 3: Get recipient name for greeting ──
     let recipientName: string | null = null;
     if (recipientUserId) {
       const user = await prisma.b2BPartnersUsers.findUnique({
@@ -761,11 +718,9 @@ export async function sendCommissionNotification(
       recipientName = user?.full_name || null;
     }
 
-    // ── Step 4: Build subject & HTML ──
     const subject = config.getSubject(data);
     const html = config.getHtml(data, cfg, recipientName);
 
-    // ── Step 5: Queue the email ──
     const { emailLog, queueItem } = await queueEmail({
       to,
       cc,
@@ -796,13 +751,15 @@ export async function sendCommissionNotification(
       },
     });
 
-    // ── Step 6: Post-send actions (non-blocking) ──
     if (config.afterSend) {
-      config.afterSend(data, to).catch((err) =>
-        logger.warn(`[Commission Notification] afterSend failed for ${type}`, {
-          error: err.message,
-        }),
-      );
+      config
+        .afterSend(data, to)
+        .catch((err) =>
+          logger.warn(
+            `[Commission Notification] afterSend failed for ${type}`,
+            { error: err.message },
+          ),
+        );
     }
 
     logger.info(`[Commission Notification] ${type} queued successfully`, {
@@ -825,7 +782,6 @@ export async function sendCommissionNotification(
       partnerId: data.partnerId || data.partnerB2BId,
       settlementId: data.settlementId,
     });
-
     return { success: false, error: errorMessage };
   }
 }
@@ -905,18 +861,6 @@ export async function notifyPartnerForSettlement(
 // CONVENIENCE: Notify finance (L1) when invoice is submitted
 // ============================================================================
 
-/**
- * Send invoice submitted notification to L1 reviewer (commission_reviewer).
- * Supports both single settlement and batch (array of IDs).
- *
- * Controller call signature:
- *   notifyFinanceForInvoice(
- *     settlementIds,                    // number | number[]
- *     { invoiceNumber, invoiceDate, invoiceAmount, invoiceUrl },
- *     { partnerB2BId, partnerName },
- *     { userId, name, type }
- *   )
- */
 export async function notifyFinanceForInvoice(
   settlementIds: number | number[],
   invoiceData?: {
@@ -925,10 +869,7 @@ export async function notifyFinanceForInvoice(
     invoiceAmount?: number;
     invoiceUrl?: string;
   },
-  partnerData?: {
-    partnerB2BId?: number;
-    partnerName?: string;
-  },
+  partnerData?: { partnerB2BId?: number; partnerName?: string },
   triggeredBy?: {
     userId?: number;
     name?: string;
@@ -936,12 +877,10 @@ export async function notifyFinanceForInvoice(
   },
 ): Promise<CommissionNotificationResult> {
   try {
-    // Normalize to array
     const ids = Array.isArray(settlementIds) ? settlementIds : [settlementIds];
     if (ids.length === 0)
       return { success: false, error: "No settlement IDs provided" };
 
-    // Fetch first settlement for context
     const settlement = await prisma.hSCommissionSettlements.findUnique({
       where: { id: ids[0] },
       include: {
@@ -1018,49 +957,32 @@ function buildFinanceNotificationTemplate(
     ? moment(data.onboardedAt).format("DD MMM YYYY, hh:mm A")
     : moment().format("DD MMM YYYY, hh:mm A");
 
-  return `
-<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /></head>
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/></head>
 <body style="margin:0;padding:0;background-color:#f4f6f9;font-family:'Segoe UI',Roboto,Arial,sans-serif;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6f9;padding:30px 0;">
-    <tr><td align="center">
-      <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
-        <tr><td style="background:linear-gradient(135deg,#1B4F72 0%,#2E86C1 100%);padding:28px 32px;">
-          <h1 style="margin:0;color:#ffffff;font-size:20px;font-weight:600;">🔔 New Partner Onboarded</h1>
-          <p style="margin:6px 0 0;color:#D6EAF8;font-size:13px;">Action Required: Upload Bank Details in HubSpot</p>
-        </td></tr>
-        <tr><td style="padding:28px 32px;">
-          <p style="margin:0 0 18px;color:#2C3E50;font-size:14px;line-height:1.6;">Hi Finance Team,</p>
-          <p style="margin:0 0 20px;color:#2C3E50;font-size:14px;line-height:1.6;">A new B2B partner has been onboarded on the platform. Please review their details and ensure bank information is uploaded in HubSpot for future commission payouts.</p>
-          <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#F8F9FA;border:1px solid #E5E8EB;border-radius:8px;margin-bottom:20px;">
-            <tr><td style="padding:18px 20px;">
-              <h3 style="margin:0 0 14px;color:#1B4F72;font-size:15px;font-weight:600;border-bottom:1px solid #E5E8EB;padding-bottom:10px;">Partner Details</h3>
-              <table width="100%" cellpadding="0" cellspacing="0">
-                <tr><td width="180" style="padding:6px 0;color:#7F8C8D;font-size:13px;">Partner Name</td><td style="padding:6px 0;color:#2C3E50;font-size:13px;font-weight:600;">${esc(data.partnerName)}</td></tr>
-                ${row("Partner Type", data.partnerType)}
-                ${row("Business Type", data.businessType)}
-                ${row("GST Number", data.gstNumber)}
-                ${row("PAN Number", data.panNumber)}
-                ${row("City", data.city)}
-                ${row("State", data.state)}
-                ${row("Country", data.country)}
-                ${row("Commission Applicable", data.isCommissionApplicable)}
-                ${row("Contact Email", data.contactEmail)}
-                ${row("Contact Phone", data.contactPhone)}
-                <tr><td style="padding:6px 0;color:#7F8C8D;font-size:13px;">Onboarded At</td><td style="padding:6px 0;color:#2C3E50;font-size:13px;">${onboardedDate}</td></tr>
-              </table>
-            </td></tr>
-          </table>
-          <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:8px 0 16px;">
-            <a href="${partnerPortalUrl}" target="_blank" style="display:inline-block;padding:12px 32px;background:linear-gradient(135deg,#1B4F72 0%,#2E86C1 100%);color:#ffffff;text-decoration:none;border-radius:8px;font-size:14px;font-weight:600;">View Partner Details →</a>
-          </td></tr></table>
-        </td></tr>
-        ${footerRow(cfg)}
-      </table>
-    </td></tr>
-  </table>
-</body></html>`;
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6f9;padding:30px 0;">
+<tr><td align="center">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
+<tr><td style="background:linear-gradient(135deg,#1B4F72 0%,#2E86C1 100%);padding:28px 32px;">
+  <h1 style="margin:0;color:#ffffff;font-size:20px;font-weight:600;">🔔 New Partner Onboarded</h1>
+  <p style="margin:6px 0 0;color:#D6EAF8;font-size:13px;">Action Required: Upload Bank Details in HubSpot</p>
+</td></tr>
+<tr><td style="padding:28px 32px;">
+  <p style="margin:0 0 18px;color:#2C3E50;font-size:14px;line-height:1.6;">Hi Finance Team,</p>
+  <p style="margin:0 0 20px;color:#2C3E50;font-size:14px;line-height:1.6;">A new B2B partner has been onboarded. Please review their details and ensure bank information is uploaded in HubSpot for future commission payouts.</p>
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#F8F9FA;border:1px solid #E5E8EB;border-radius:8px;margin-bottom:20px;"><tr><td style="padding:18px 20px;">
+    <h3 style="margin:0 0 14px;color:#1B4F72;font-size:15px;font-weight:600;border-bottom:1px solid #E5E8EB;padding-bottom:10px;">Partner Details</h3>
+    <table width="100%" cellpadding="0" cellspacing="0">
+      <tr><td width="180" style="padding:6px 0;color:#7F8C8D;font-size:13px;">Partner Name</td><td style="padding:6px 0;color:#2C3E50;font-size:13px;font-weight:600;">${esc(data.partnerName)}</td></tr>
+      ${row("Partner Type", data.partnerType)}${row("Business Type", data.businessType)}${row("GST Number", data.gstNumber)}${row("PAN Number", data.panNumber)}${row("City", data.city)}${row("State", data.state)}${row("Country", data.country)}${row("Commission Applicable", data.isCommissionApplicable)}${row("Contact Email", data.contactEmail)}${row("Contact Phone", data.contactPhone)}
+      <tr><td style="padding:6px 0;color:#7F8C8D;font-size:13px;">Onboarded At</td><td style="padding:6px 0;color:#2C3E50;font-size:13px;">${onboardedDate}</td></tr>
+    </table>
+  </td></tr></table>
+  <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:8px 0 16px;">
+    <a href="${partnerPortalUrl}" target="_blank" style="display:inline-block;padding:12px 32px;background:linear-gradient(135deg,#1B4F72 0%,#2E86C1 100%);color:#ffffff;text-decoration:none;border-radius:8px;font-size:14px;font-weight:600;">View Partner Details →</a>
+  </td></tr></table>
+</td></tr>
+${footerRow(cfg)}
+</table></td></tr></table></body></html>`;
 }
 
 function buildPartnerCommissionTemplate(
@@ -1072,85 +994,65 @@ function buildPartnerCommissionTemplate(
   const greeting = recipientName
     ? recipientName.charAt(0).toUpperCase() + recipientName.slice(1)
     : "Partner";
-
   const fmtCurrency = (v: number | null | undefined) =>
     v != null ? `₹${Number(v).toLocaleString("en-IN")}` : "—";
   const fmtDate = (d: Date | null | undefined) =>
     d ? moment(d).format("DD MMM YYYY") : "—";
   const fmtPct = (v: number | null | undefined) => (v != null ? `${v}%` : "—");
 
-  return `
-<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /></head>
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/></head>
 <body style="margin:0;padding:0;background-color:#f4f6f9;font-family:'Segoe UI',Roboto,Arial,sans-serif;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6f9;padding:30px 0;">
-    <tr><td align="center">
-      <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
-        <tr><td style="background:linear-gradient(135deg,#27AE60 0%,#2ECC71 100%);padding:28px 32px;">
-          <h1 style="margin:0;color:#ffffff;font-size:20px;font-weight:600;">💰 New Commission Entry</h1>
-          <p style="margin:6px 0 0;color:#D5F5E3;font-size:13px;">A new disbursement entry is available for your review</p>
-        </td></tr>
-        <tr><td style="padding:28px 32px;">
-          <p style="margin:0 0 18px;color:#2C3E50;font-size:14px;line-height:1.6;">Hi ${esc(greeting)},</p>
-          <p style="margin:0 0 20px;color:#2C3E50;font-size:14px;line-height:1.6;">A new commission settlement entry has been created for your review. Please log in to the partner portal to verify the details and proceed accordingly.</p>
-          <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#F0FFF4;border:1px solid #C6F6D5;border-radius:8px;margin-bottom:16px;">
-            <tr><td style="padding:18px 20px;">
-              <h3 style="margin:0 0 14px;color:#276749;font-size:15px;font-weight:600;border-bottom:1px solid #C6F6D5;padding-bottom:10px;">Settlement Summary</h3>
-              <table width="100%" cellpadding="0" cellspacing="0">
-                ${row("Reference Number", data.settlementRefNumber, true)}
-                ${data.settlementMonth && data.settlementYear ? `<tr><td width="180" style="padding:6px 0;color:#718096;font-size:13px;">Settlement Period</td><td style="padding:6px 0;color:#2D3748;font-size:13px;">${esc(data.settlementMonth)} ${data.settlementYear}</td></tr>` : ""}
-                ${data.settlementDate ? `<tr><td style="padding:6px 0;color:#718096;font-size:13px;">Settlement Date</td><td style="padding:6px 0;color:#2D3748;font-size:13px;">${fmtDate(data.settlementDate)}</td></tr>` : ""}
-              </table>
-            </td></tr>
-          </table>
-          <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#F8F9FA;border:1px solid #E5E8EB;border-radius:8px;margin-bottom:16px;">
-            <tr><td style="padding:18px 20px;">
-              <h3 style="margin:0 0 14px;color:#1B4F72;font-size:15px;font-weight:600;border-bottom:1px solid #E5E8EB;padding-bottom:10px;">Disbursement Details</h3>
-              <table width="100%" cellpadding="0" cellspacing="0">
-                <tr><td width="180" style="padding:6px 0;color:#7F8C8D;font-size:13px;">Student Name</td><td style="padding:6px 0;color:#2C3E50;font-size:13px;font-weight:600;">${esc(data.studentName || "—")}</td></tr>
-                ${row("Student ID", data.studentId)}
-                ${row("Lender", data.lenderName)}
-                ${row("Loan Product", data.loanProductName)}
-                <tr><td style="padding:6px 0;color:#7F8C8D;font-size:13px;">Disbursed Amount</td><td style="padding:6px 0;color:#2C3E50;font-size:14px;font-weight:700;">${fmtCurrency(data.loanAmountDisbursed)}</td></tr>
-                <tr><td style="padding:6px 0;color:#7F8C8D;font-size:13px;">Disbursement Date</td><td style="padding:6px 0;color:#2C3E50;font-size:13px;">${fmtDate(data.disbursementDate)}</td></tr>
-                ${row("University", data.universityName)}
-                ${row("Course", data.courseName)}
-                ${row("Destination", data.destinationCountry)}
-              </table>
-            </td></tr>
-          </table>
-          ${
-            data.grossCommissionAmount != null
-              ? `
-          <table width="100%" cellpadding="0" cellspacing="0" style="background:linear-gradient(135deg,#EBF8FF 0%,#DBEAFE 100%);border:1px solid #93C5FD;border-radius:8px;margin-bottom:20px;">
-            <tr><td align="center" style="padding:20px;">
-              <p style="margin:0 0 4px;color:#1E40AF;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Estimated Commission</p>
-              <p style="margin:0;color:#1E3A5F;font-size:28px;font-weight:700;">${fmtCurrency(data.grossCommissionAmount)}</p>
-              ${data.commissionRate != null ? `<p style="margin:4px 0 0;color:#3B82F6;font-size:12px;">@ ${fmtPct(data.commissionRate)} commission rate</p>` : ""}
-            </td></tr>
-          </table>`
-              : ""
-          }
-          <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#FFF7ED;border:1px solid #FDBA74;border-radius:8px;margin-bottom:20px;">
-            <tr><td style="padding:16px 20px;">
-              <h4 style="margin:0 0 8px;color:#9A3412;font-size:14px;">📋 What to do next</h4>
-              <ol style="margin:0;padding:0 0 0 18px;color:#9A3412;font-size:13px;line-height:1.8;">
-                <li>Log in to the partner portal</li>
-                <li>Review the disbursement entry (student name, amount, date)</li>
-                <li>Approve or raise an objection if any discrepancy found</li>
-              </ol>
-            </td></tr>
-          </table>
-          <p style="margin:16px 0 0;color:#7F8C8D;font-size:12px;text-align:center;line-height:1.5;">If you believe this entry is incorrect, you can raise an objection directly from the portal with a reason.</p>
-        </td></tr>
-        <tr><td style="background-color:#F8F9FA;padding:18px 32px;border-top:1px solid #E5E8EB;">
-          <p style="margin:0;color:#7F8C8D;font-size:11px;text-align:center;">This is an automated notification from ${esc(cfg.companyName)}.<br/>For support, reach out to your account manager or email ${esc(cfg.supportEmail)}<br/>© ${CURRENT_YEAR} ${esc(cfg.companyName)}. All rights reserved.</p>
-        </td></tr>
-      </table>
-    </td></tr>
-  </table>
-</body></html>`;
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6f9;padding:30px 0;"><tr><td align="center">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
+<tr><td style="background:linear-gradient(135deg,#27AE60 0%,#2ECC71 100%);padding:28px 32px;">
+  <h1 style="margin:0;color:#ffffff;font-size:20px;font-weight:600;">💰 New Commission Entry</h1>
+  <p style="margin:6px 0 0;color:#D5F5E3;font-size:13px;">A new disbursement entry is available for your review</p>
+</td></tr>
+<tr><td style="padding:28px 32px;">
+  <p style="margin:0 0 18px;color:#2C3E50;font-size:14px;line-height:1.6;">Hi ${esc(greeting)},</p>
+  <p style="margin:0 0 20px;color:#2C3E50;font-size:14px;line-height:1.6;">A new commission settlement entry has been created for your review. Please log in to the partner portal to verify the details and proceed accordingly.</p>
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#F0FFF4;border:1px solid #C6F6D5;border-radius:8px;margin-bottom:16px;"><tr><td style="padding:18px 20px;">
+    <h3 style="margin:0 0 14px;color:#276749;font-size:15px;font-weight:600;border-bottom:1px solid #C6F6D5;padding-bottom:10px;">Settlement Summary</h3>
+    <table width="100%" cellpadding="0" cellspacing="0">
+      ${row("Reference Number", data.settlementRefNumber, true)}
+      ${data.settlementMonth && data.settlementYear ? `<tr><td width="180" style="padding:6px 0;color:#718096;font-size:13px;">Settlement Period</td><td style="padding:6px 0;color:#2D3748;font-size:13px;">${esc(data.settlementMonth)} ${data.settlementYear}</td></tr>` : ""}
+      ${data.settlementDate ? `<tr><td style="padding:6px 0;color:#718096;font-size:13px;">Settlement Date</td><td style="padding:6px 0;color:#2D3748;font-size:13px;">${fmtDate(data.settlementDate)}</td></tr>` : ""}
+    </table>
+  </td></tr></table>
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#F8F9FA;border:1px solid #E5E8EB;border-radius:8px;margin-bottom:16px;"><tr><td style="padding:18px 20px;">
+    <h3 style="margin:0 0 14px;color:#1B4F72;font-size:15px;font-weight:600;border-bottom:1px solid #E5E8EB;padding-bottom:10px;">Disbursement Details</h3>
+    <table width="100%" cellpadding="0" cellspacing="0">
+      <tr><td width="180" style="padding:6px 0;color:#7F8C8D;font-size:13px;">Student Name</td><td style="padding:6px 0;color:#2C3E50;font-size:13px;font-weight:600;">${esc(data.studentName || "—")}</td></tr>
+      ${row("Student ID", data.studentId)}${row("Lender", data.lenderName)}${row("Loan Product", data.loanProductName)}
+      <tr><td style="padding:6px 0;color:#7F8C8D;font-size:13px;">Disbursed Amount</td><td style="padding:6px 0;color:#2C3E50;font-size:14px;font-weight:700;">${fmtCurrency(data.loanAmountDisbursed)}</td></tr>
+      <tr><td style="padding:6px 0;color:#7F8C8D;font-size:13px;">Disbursement Date</td><td style="padding:6px 0;color:#2C3E50;font-size:13px;">${fmtDate(data.disbursementDate)}</td></tr>
+      ${row("University", data.universityName)}${row("Course", data.courseName)}${row("Destination", data.destinationCountry)}
+    </table>
+  </td></tr></table>
+  ${
+    data.grossCommissionAmount != null
+      ? `
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:linear-gradient(135deg,#EBF8FF 0%,#DBEAFE 100%);border:1px solid #93C5FD;border-radius:8px;margin-bottom:20px;"><tr><td align="center" style="padding:20px;">
+    <p style="margin:0 0 4px;color:#1E40AF;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Estimated Commission</p>
+    <p style="margin:0;color:#1E3A5F;font-size:28px;font-weight:700;">${fmtCurrency(data.grossCommissionAmount)}</p>
+    ${data.commissionRate != null ? `<p style="margin:4px 0 0;color:#3B82F6;font-size:12px;">@ ${fmtPct(data.commissionRate)} commission rate</p>` : ""}
+  </td></tr></table>`
+      : ""
+  }
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#FFF7ED;border:1px solid #FDBA74;border-radius:8px;margin-bottom:20px;"><tr><td style="padding:16px 20px;">
+    <h4 style="margin:0 0 8px;color:#9A3412;font-size:14px;">📋 What to do next</h4>
+    <ol style="margin:0;padding:0 0 0 18px;color:#9A3412;font-size:13px;line-height:1.8;">
+      <li>Log in to the partner portal</li><li>Review the disbursement entry (student name, amount, date)</li><li>Approve or raise an objection if any discrepancy found</li>
+    </ol>
+  </td></tr></table>
+  <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:8px 0 16px;">
+    <a href="${portalUrl}" target="_blank" style="display:inline-block;padding:12px 32px;background:linear-gradient(135deg,#27AE60 0%,#2ECC71 100%);color:#ffffff;text-decoration:none;border-radius:8px;font-size:14px;font-weight:600;">Review on Partner Portal →</a>
+  </td></tr></table>
+</td></tr>
+<tr><td style="background-color:#F8F9FA;padding:18px 32px;border-top:1px solid #E5E8EB;">
+  <p style="margin:0;color:#7F8C8D;font-size:11px;text-align:center;">This is an automated notification from ${esc(cfg.companyName)}.<br/>For support, reach out to your account manager or email ${esc(cfg.supportEmail)}<br/>© ${CURRENT_YEAR} ${esc(cfg.companyName)}. All rights reserved.</p>
+</td></tr>
+</table></td></tr></table></body></html>`;
 }
 
 function buildObjectionNotificationTemplate(
@@ -1161,56 +1063,48 @@ function buildObjectionNotificationTemplate(
   const fmtCurrency = (v: number | null | undefined) =>
     v != null ? `₹${Number(v).toLocaleString("en-IN")}` : "—";
 
-  return `
-<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /></head>
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/></head>
 <body style="margin:0;padding:0;background-color:#f4f6f9;font-family:'Segoe UI',Roboto,Arial,sans-serif;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6f9;padding:30px 0;">
-    <tr><td align="center">
-      <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
-        <tr><td style="background:linear-gradient(135deg,#DC2626 0%,#EF4444 100%);padding:28px 32px;">
-          <h1 style="margin:0;color:#ffffff;font-size:20px;font-weight:600;">⚠️ Objection Raised</h1>
-          <p style="margin:6px 0 0;color:#FEE2E2;font-size:13px;">A partner has disputed a commission settlement entry</p>
-        </td></tr>
-        <tr><td style="padding:28px 32px;">
-          <p style="margin:0 0 18px;color:#2C3E50;font-size:14px;line-height:1.6;">Hi Team,</p>
-          <p style="margin:0 0 20px;color:#2C3E50;font-size:14px;line-height:1.6;">A partner has raised an objection on a commission settlement. Please review the details and take appropriate action.</p>
-          <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#FEF2F2;border:1px solid #FECACA;border-radius:8px;margin-bottom:16px;">
-            <tr><td style="padding:18px 20px;">
-              <h3 style="margin:0 0 14px;color:#991B1B;font-size:15px;font-weight:600;border-bottom:1px solid #FECACA;padding-bottom:10px;">Settlement Details</h3>
-              <table width="100%" cellpadding="0" cellspacing="0">
-                ${row("Reference", data.settlementRefNumber, true)}
-                <tr><td width="180" style="padding:6px 0;color:#7F8C8D;font-size:13px;">Partner</td><td style="padding:6px 0;color:#2C3E50;font-size:13px;font-weight:600;">${esc(data.partnerName || "—")}</td></tr>
-                <tr><td style="padding:6px 0;color:#7F8C8D;font-size:13px;">Student</td><td style="padding:6px 0;color:#2C3E50;font-size:13px;">${esc(data.studentName || "—")}</td></tr>
-                ${row("Lender", data.lenderName)}
-                <tr><td style="padding:6px 0;color:#7F8C8D;font-size:13px;">Disbursed Amount</td><td style="padding:6px 0;color:#2C3E50;font-size:14px;font-weight:700;">${fmtCurrency(data.loanAmountDisbursed)}</td></tr>
-                <tr><td style="padding:6px 0;color:#7F8C8D;font-size:13px;">Commission Amount</td><td style="padding:6px 0;color:#2C3E50;font-size:14px;font-weight:700;">${fmtCurrency(data.grossCommissionAmount)}</td></tr>
-              </table>
-            </td></tr>
-          </table>
-          ${
-            data.objectionReason
-              ? `
-          <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#FFF7ED;border:1px solid #FDBA74;border-radius:8px;margin-bottom:16px;">
-            <tr><td style="padding:18px 20px;">
-              <h3 style="margin:0 0 10px;color:#9A3412;font-size:15px;font-weight:600;">Reason for Objection</h3>
-              <p style="margin:0;color:#2C3E50;font-size:14px;line-height:1.6;white-space:pre-wrap;">${esc(data.objectionReason)}</p>
-              ${data.triggeredBy?.name ? `<p style="margin:10px 0 0;color:#7F8C8D;font-size:12px;">Raised by: ${esc(data.triggeredBy.name)}</p>` : ""}
-            </td></tr>
-          </table>`
-              : ""
-          }
-        ${footerRow(cfg)}
-      </table>
-    </td></tr>
-  </table>
-</body></html>`;
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6f9;padding:30px 0;"><tr><td align="center">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
+<tr><td style="background:linear-gradient(135deg,#DC2626 0%,#EF4444 100%);padding:28px 32px;">
+  <h1 style="margin:0;color:#ffffff;font-size:20px;font-weight:600;">⚠️ Objection Raised</h1>
+  <p style="margin:6px 0 0;color:#FEE2E2;font-size:13px;">A partner has disputed a commission settlement — Action Required</p>
+</td></tr>
+<tr><td style="padding:28px 32px;">
+  <p style="margin:0 0 18px;color:#2C3E50;font-size:14px;line-height:1.6;">Hi Team,</p>
+  <p style="margin:0 0 20px;color:#2C3E50;font-size:14px;line-height:1.6;">A partner has raised an objection on a commission settlement. Please review the details and take appropriate action.</p>
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#FEF2F2;border:1px solid #FECACA;border-radius:8px;margin-bottom:16px;"><tr><td style="padding:18px 20px;">
+    <h3 style="margin:0 0 14px;color:#991B1B;font-size:15px;font-weight:600;border-bottom:1px solid #FECACA;padding-bottom:10px;">Settlement Details</h3>
+    <table width="100%" cellpadding="0" cellspacing="0">
+      ${row("Reference", data.settlementRefNumber, true)}
+      <tr><td width="180" style="padding:6px 0;color:#7F8C8D;font-size:13px;">Partner</td><td style="padding:6px 0;color:#2C3E50;font-size:13px;font-weight:600;">${esc(data.partnerName || "—")}</td></tr>
+      <tr><td style="padding:6px 0;color:#7F8C8D;font-size:13px;">Student</td><td style="padding:6px 0;color:#2C3E50;font-size:13px;">${esc(data.studentName || "—")}</td></tr>
+      ${row("Lender", data.lenderName)}
+      <tr><td style="padding:6px 0;color:#7F8C8D;font-size:13px;">Disbursed Amount</td><td style="padding:6px 0;color:#2C3E50;font-size:14px;font-weight:700;">${fmtCurrency(data.loanAmountDisbursed)}</td></tr>
+      <tr><td style="padding:6px 0;color:#7F8C8D;font-size:13px;">Commission Amount</td><td style="padding:6px 0;color:#2C3E50;font-size:14px;font-weight:700;">${fmtCurrency(data.grossCommissionAmount)}</td></tr>
+    </table>
+  </td></tr></table>
+  ${
+    data.objectionReason
+      ? `
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#FFF7ED;border:1px solid #FDBA74;border-radius:8px;margin-bottom:16px;"><tr><td style="padding:18px 20px;">
+    <h3 style="margin:0 0 10px;color:#9A3412;font-size:15px;font-weight:600;">Reason for Objection</h3>
+    <p style="margin:0;color:#2C3E50;font-size:14px;line-height:1.6;white-space:pre-wrap;">${esc(data.objectionReason)}</p>
+    ${data.triggeredBy?.name ? `<p style="margin:10px 0 0;color:#7F8C8D;font-size:12px;">Raised by: ${esc(data.triggeredBy.name)}</p>` : ""}
+  </td></tr></table>`
+      : ""
+  }
+  <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:8px 0 16px;">
+    <a href="${portalUrl}" target="_blank" style="display:inline-block;padding:12px 32px;background:linear-gradient(135deg,#DC2626 0%,#EF4444 100%);color:#ffffff;text-decoration:none;border-radius:8px;font-size:14px;font-weight:600;">Review &amp; Resolve Dispute →</a>
+  </td></tr></table>
+</td></tr>
+${footerRow(cfg)}
+</table></td></tr></table></body></html>`;
 }
 
-// ── Generic template for approval workflow emails (L1/L2/Invoice) ──
 interface ApprovalTemplateOpts {
-  headerColor: string; // "from,to" gradient e.g. "#27AE60,#2ECC71"
+  headerColor: string;
   icon: string;
   title: string;
   subtitle: string;
@@ -1228,53 +1122,45 @@ function buildGenericApprovalTemplate(
   const fmtCurrency = (v: number | null | undefined) =>
     v != null ? `₹${Number(v).toLocaleString("en-IN")}` : "—";
 
-  return `
-<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /></head>
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/></head>
 <body style="margin:0;padding:0;background-color:#f4f6f9;font-family:'Segoe UI',Roboto,Arial,sans-serif;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6f9;padding:30px 0;">
-    <tr><td align="center">
-      <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
-        <tr><td style="background:linear-gradient(135deg,${colorFrom} 0%,${colorTo} 100%);padding:28px 32px;">
-          <h1 style="margin:0;color:#ffffff;font-size:20px;font-weight:600;">${opts.icon} ${esc(opts.title)}</h1>
-          <p style="margin:6px 0 0;color:rgba(255,255,255,0.8);font-size:13px;">${esc(opts.subtitle)}</p>
-        </td></tr>
-        <tr><td style="padding:28px 32px;">
-          <p style="margin:0 0 18px;color:#2C3E50;font-size:14px;line-height:1.6;">Hi Team,</p>
-          <p style="margin:0 0 20px;color:#2C3E50;font-size:14px;line-height:1.6;">${esc(opts.bodyText)}</p>
-          <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#F8F9FA;border:1px solid #E5E8EB;border-radius:8px;margin-bottom:16px;">
-            <tr><td style="padding:18px 20px;">
-              <h3 style="margin:0 0 14px;color:#1B4F72;font-size:15px;font-weight:600;border-bottom:1px solid #E5E8EB;padding-bottom:10px;">Settlement Details</h3>
-              <table width="100%" cellpadding="0" cellspacing="0">
-                ${row("Reference", data.settlementRefNumber, true)}
-                <tr><td width="180" style="padding:6px 0;color:#7F8C8D;font-size:13px;">Partner</td><td style="padding:6px 0;color:#2C3E50;font-size:13px;font-weight:600;">${esc(data.partnerName || "—")}</td></tr>
-                <tr><td style="padding:6px 0;color:#7F8C8D;font-size:13px;">Student</td><td style="padding:6px 0;color:#2C3E50;font-size:13px;">${esc(data.studentName || "—")}</td></tr>
-                ${row("Lender", data.lenderName)}
-                <tr><td style="padding:6px 0;color:#7F8C8D;font-size:13px;">Disbursed Amount</td><td style="padding:6px 0;color:#2C3E50;font-size:14px;font-weight:700;">${fmtCurrency(data.loanAmountDisbursed)}</td></tr>
-                <tr><td style="padding:6px 0;color:#7F8C8D;font-size:13px;">Commission Amount</td><td style="padding:6px 0;color:#2C3E50;font-size:14px;font-weight:700;">${fmtCurrency(data.grossCommissionAmount)}</td></tr>
-                ${data.invoiceNumber ? row("Invoice #", data.invoiceNumber, true) : ""}
-                ${data.invoiceAmount != null ? `<tr><td style="padding:6px 0;color:#7F8C8D;font-size:13px;">Invoice Amount</td><td style="padding:6px 0;color:#2C3E50;font-size:14px;font-weight:700;">${fmtCurrency(data.invoiceAmount)}</td></tr>` : ""}
-              </table>
-            </td></tr>
-          </table>
-          ${
-            data.rejectionReason
-              ? `
-          <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#FEF2F2;border:1px solid #FECACA;border-radius:8px;margin-bottom:16px;">
-            <tr><td style="padding:16px 20px;">
-              <h4 style="margin:0 0 8px;color:#991B1B;font-size:14px;">Rejection Reason</h4>
-              <p style="margin:0;color:#2C3E50;font-size:14px;line-height:1.6;white-space:pre-wrap;">${esc(data.rejectionReason)}</p>
-            </td></tr>
-          </table>`
-              : ""
-          }
-        </td></tr>
-        ${footerRow(cfg)}
-      </table>
-    </td></tr>
-  </table>
-</body></html>`;
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6f9;padding:30px 0;"><tr><td align="center">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
+<tr><td style="background:linear-gradient(135deg,${colorFrom} 0%,${colorTo} 100%);padding:28px 32px;">
+  <h1 style="margin:0;color:#ffffff;font-size:20px;font-weight:600;">${opts.icon} ${esc(opts.title)}</h1>
+  <p style="margin:6px 0 0;color:rgba(255,255,255,0.8);font-size:13px;">${esc(opts.subtitle)}</p>
+</td></tr>
+<tr><td style="padding:28px 32px;">
+  <p style="margin:0 0 18px;color:#2C3E50;font-size:14px;line-height:1.6;">Hi Team,</p>
+  <p style="margin:0 0 20px;color:#2C3E50;font-size:14px;line-height:1.6;">${esc(opts.bodyText)}</p>
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#F8F9FA;border:1px solid #E5E8EB;border-radius:8px;margin-bottom:16px;"><tr><td style="padding:18px 20px;">
+    <h3 style="margin:0 0 14px;color:#1B4F72;font-size:15px;font-weight:600;border-bottom:1px solid #E5E8EB;padding-bottom:10px;">Settlement Details</h3>
+    <table width="100%" cellpadding="0" cellspacing="0">
+      ${row("Reference", data.settlementRefNumber, true)}
+      <tr><td width="180" style="padding:6px 0;color:#7F8C8D;font-size:13px;">Partner</td><td style="padding:6px 0;color:#2C3E50;font-size:13px;font-weight:600;">${esc(data.partnerName || "—")}</td></tr>
+      <tr><td style="padding:6px 0;color:#7F8C8D;font-size:13px;">Student</td><td style="padding:6px 0;color:#2C3E50;font-size:13px;">${esc(data.studentName || "—")}</td></tr>
+      ${row("Lender", data.lenderName)}
+      <tr><td style="padding:6px 0;color:#7F8C8D;font-size:13px;">Disbursed Amount</td><td style="padding:6px 0;color:#2C3E50;font-size:14px;font-weight:700;">${fmtCurrency(data.loanAmountDisbursed)}</td></tr>
+      <tr><td style="padding:6px 0;color:#7F8C8D;font-size:13px;">Commission Amount</td><td style="padding:6px 0;color:#2C3E50;font-size:14px;font-weight:700;">${fmtCurrency(data.grossCommissionAmount)}</td></tr>
+      ${data.invoiceNumber ? row("Invoice #", data.invoiceNumber, true) : ""}
+      ${data.invoiceAmount != null ? `<tr><td style="padding:6px 0;color:#7F8C8D;font-size:13px;">Invoice Amount</td><td style="padding:6px 0;color:#2C3E50;font-size:14px;font-weight:700;">${fmtCurrency(data.invoiceAmount)}</td></tr>` : ""}
+    </table>
+  </td></tr></table>
+  ${
+    data.rejectionReason
+      ? `
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#FEF2F2;border:1px solid #FECACA;border-radius:8px;margin-bottom:16px;"><tr><td style="padding:16px 20px;">
+    <h4 style="margin:0 0 8px;color:#991B1B;font-size:14px;">Rejection Reason</h4>
+    <p style="margin:0;color:#2C3E50;font-size:14px;line-height:1.6;white-space:pre-wrap;">${esc(data.rejectionReason)}</p>
+  </td></tr></table>`
+      : ""
+  }
+  <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:8px 0 16px;">
+    <a href="${opts.ctaUrl}" target="_blank" style="display:inline-block;padding:12px 32px;background:linear-gradient(135deg,${colorFrom} 0%,${colorTo} 100%);color:#ffffff;text-decoration:none;border-radius:8px;font-size:14px;font-weight:600;">${esc(opts.ctaText || "View Details →")}</a>
+  </td></tr></table>
+</td></tr>
+${footerRow(cfg)}
+</table></td></tr></table></body></html>`;
 }
 
 // ============================================================================
@@ -1300,6 +1186,6 @@ function row(label: string, value?: string | null, mono = false): string {
 
 function footerRow(cfg: ResolvedNotificationConfig): string {
   return `<tr><td style="background-color:#F8F9FA;padding:18px 32px;border-top:1px solid #E5E8EB;">
-    <p style="margin:0;color:#7F8C8D;font-size:11px;text-align:center;">This is an automated notification from ${esc(cfg.companyName)} Commission System.<br/>Do not reply to this email. For queries, contact the tech team.<br/>© ${CURRENT_YEAR} ${esc(cfg.companyName)}. All rights reserved.</p>
-  </td></tr>`;
+  <p style="margin:0;color:#7F8C8D;font-size:11px;text-align:center;">This is an automated notification from ${esc(cfg.companyName)} Commission System.<br/>Do not reply to this email. For queries, contact the tech team.<br/>© ${CURRENT_YEAR} ${esc(cfg.companyName)}. All rights reserved.</p>
+</td></tr>`;
 }
