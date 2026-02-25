@@ -497,8 +497,7 @@ function transformCommissionSettlementsToHubSpotFormat(
       : null,
     course_name: loanDetails.course_name || "",
     university_name: loanDetails.university_name || "",
-    student_destination_country:
-      loanDetails.student_destination_country || "",
+    student_destination_country: loanDetails.student_destination_country || "",
 
     payment_method: paymentDetails.payment_method || "",
     payment_status: paymentDetails.payment_status || "",
@@ -515,8 +514,7 @@ function transformCommissionSettlementsToHubSpotFormat(
     payment_reference_number: paymentDetails.payment_reference_number || "",
     payment_gateway_reference: paymentDetails.payment_gateway_reference || "",
     bank_transaction_id: paymentDetails.bank_transaction_id || "",
-    beneficiary_account_number:
-      paymentDetails.beneficiary_account_number || "",
+    beneficiary_account_number: paymentDetails.beneficiary_account_number || "",
     beneficiary_bank_name: paymentDetails.beneficiary_bank_name || "",
     beneficiary_ifsc_code: paymentDetails.beneficiary_ifsc_code || "",
     payment_failure_reason: paymentDetails.payment_failure_reason || "",

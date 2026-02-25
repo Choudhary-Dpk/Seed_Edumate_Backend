@@ -1033,12 +1033,5 @@ export const mapAllCommissionSettlementFields = async (
     });
   }
 
-  if (!mapped.settlement_status) {
-    mapped.settlement_status = "Calculated";
-  }
-  if (!mapped.verification_status) {
-    mapped.verification_status = "Pending";
-  }
-  console.log("mapped", mapped);
   return mapped;
 };
