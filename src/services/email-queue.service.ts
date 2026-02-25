@@ -194,15 +194,12 @@ export async function getPendingEmails(limit: number = 10): Promise<any[]> {
       where: {
         status: "PENDING",
         scheduled_at: { lte: now },
-        // ✅ Removed the incorrect attempts comparison
+        //  Removed the incorrect attempts comparison
       },
-      orderBy: [
-        { priority: "desc" },
-        { scheduled_at: "asc" },
-      ],
+      orderBy: [{ priority: "desc" }, { scheduled_at: "asc" }],
     });
 
-    // ✅ Filter in application code
+    //  Filter in application code
     const eligibleEmails = emails
       .filter((email: any) => email.attempts < email.max_attempts)
       .slice(0, limit);

@@ -1,6 +1,3 @@
-// src/controllers/dashboard.controller.ts
-// COMPLETE VERSION WITH FILTERING - Phase 1 & 2
-
 import { Request, Response } from "express";
 import {
   getKeyMetrics,
@@ -106,7 +103,7 @@ const parseFilters = (query: any) => {
 export const fetchKeyMetrics = async (req: Request, res: Response) => {
   try {
     const filters = parseFilters(req.query);
-    
+
     logger.debug("Fetching key metrics via API", { filters });
 
     const metrics = await getKeyMetrics(filters);
@@ -137,7 +134,7 @@ export const fetchKeyMetrics = async (req: Request, res: Response) => {
 export const fetchTopPartners = async (req: Request, res: Response) => {
   try {
     const filters = parseFilters(req.query);
-    
+
     logger.debug("Fetching top partners via API", { filters });
 
     const result = await getTopPartners(filters);
@@ -170,7 +167,7 @@ export const fetchTopPartners = async (req: Request, res: Response) => {
 export const fetchMonthlyTrends = async (req: Request, res: Response) => {
   try {
     const filters = parseFilters(req.query);
-    
+
     logger.debug("Fetching monthly trends via API", { filters });
 
     const trends = await getMonthlyTrends(filters);
@@ -202,7 +199,7 @@ export const fetchMonthlyTrends = async (req: Request, res: Response) => {
 export const fetchPipelineStatus = async (req: Request, res: Response) => {
   try {
     const filters = parseFilters(req.query);
-    
+
     logger.debug("Fetching pipeline status via API", { filters });
 
     const pipeline = await getPipelineStatus(filters);
@@ -261,7 +258,7 @@ export const fetchPartnerActivity = async (req: Request, res: Response) => {
 export const fetchDashboardOverview = async (req: Request, res: Response) => {
   try {
     const filters = parseFilters(req.query);
-    
+
     logger.debug("Fetching complete dashboard overview via API", { filters });
 
     // Fetch all data in parallel
@@ -312,8 +309,10 @@ export const fetchFilterOptions = async (req: Request, res: Response) => {
       orderBy: [{ report_year: "desc" }, { report_month: "desc" }],
     });
 
-    const years = [...new Set(reports.map(r => r.report_year))].sort((a, b) => b - a);
-    
+    const years = [...new Set(reports.map((r) => r.report_year))].sort(
+      (a, b) => b - a,
+    );
+
     // Get available partners
     const partners = await prisma.hSB2BPartners.findMany({
       where: {
@@ -338,7 +337,7 @@ export const fetchFilterOptions = async (req: Request, res: Response) => {
         { value: "ytd", label: "Year to Date" },
         { value: "last_year", label: "Last Year" },
       ],
-      years: years.map(year => ({ value: year, label: year.toString() })),
+      years: years.map((year) => ({ value: year, label: year.toString() })),
       months: Array.from({ length: 12 }, (_, i) => ({
         value: i + 1,
         label: new Date(2024, i).toLocaleString("default", { month: "long" }),
@@ -348,7 +347,7 @@ export const fetchFilterOptions = async (req: Request, res: Response) => {
         { value: "previous", label: "Previous Period" },
         { value: "last_year", label: "Same Period Last Year" },
       ],
-      partners: partners.map(p => ({
+      partners: partners.map((p) => ({
         value: p.id,
         label: p.partner_name || "Unknown",
       })),
@@ -391,7 +390,7 @@ export const exportKeyMetricsCSV = async (req: Request, res: Response) => {
   try {
     const filters = parseFilters(req.query);
     const metrics = await getKeyMetrics(filters);
-    
+
     // Import export utility
     const { exportKeyMetricsToCSV } = require("../utils/dashboard-export.util");
     exportKeyMetricsToCSV(metrics, res);
@@ -417,8 +416,10 @@ export const exportTopPartnersCSV = async (req: Request, res: Response) => {
   try {
     const filters = parseFilters(req.query);
     const result = await getTopPartners(filters);
-    
-    const { exportTopPartnersToCSV } = require("../utils/dashboard-export.util");
+
+    const {
+      exportTopPartnersToCSV,
+    } = require("../utils/dashboard-export.util");
     exportTopPartnersToCSV(result, res);
   } catch (error) {
     logger.error("Error exporting top partners", {
@@ -442,8 +443,10 @@ export const exportTrendsCSV = async (req: Request, res: Response) => {
   try {
     const filters = parseFilters(req.query);
     const trends = await getMonthlyTrends(filters);
-    
-    const { exportMonthlyTrendsToCSV } = require("../utils/dashboard-export.util");
+
+    const {
+      exportMonthlyTrendsToCSV,
+    } = require("../utils/dashboard-export.util");
     exportMonthlyTrendsToCSV(trends, res);
   } catch (error) {
     logger.error("Error exporting trends", {
@@ -467,8 +470,10 @@ export const exportPipelineStatusCSV = async (req: Request, res: Response) => {
   try {
     const filters = parseFilters(req.query);
     const pipeline = await getPipelineStatus(filters);
-    
-    const { exportPipelineStatusToCSV } = require("../utils/dashboard-export.util");
+
+    const {
+      exportPipelineStatusToCSV,
+    } = require("../utils/dashboard-export.util");
     exportPipelineStatusToCSV(pipeline, res);
   } catch (error) {
     logger.error("Error exporting pipeline status", {

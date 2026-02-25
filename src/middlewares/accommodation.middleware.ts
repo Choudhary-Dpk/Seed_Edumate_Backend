@@ -1,9 +1,3 @@
-/**
- * Accommodation API Validation Middleware
- * 
- * Validates request payloads before forwarding to University Living API
- */
-
 import { Response, NextFunction } from "express";
 import { sendResponse } from "../utils/api";
 import { RequestWithPayload } from "../types/api.types";

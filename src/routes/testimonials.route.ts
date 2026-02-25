@@ -15,4 +15,4 @@ router.get("/:id", getTestimonailByIdController);
 router.put("/:id", editTestimonialController);
 router.delete("/:id", deleteTestimonialController);
 
-export { router as testimonialRoutes };
+export { router as testimonialsRoutes };

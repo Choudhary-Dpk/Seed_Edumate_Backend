@@ -838,7 +838,7 @@ export const fetchLoanProductsList = async (
       }
     }
 
-    // ✅ Apply all collected conditions
+    //  Apply all collected conditions
     if (financialTermsConditions.length > 0) {
       where.financial_terms.AND = financialTermsConditions;
     }
@@ -1150,7 +1150,7 @@ export const fetchLoanProductsList = async (
     rows.map((r) => r.id),
   );
 
-  // ✅ POST-FETCH FILTERING for string fields that store numeric values
+  //  POST-FETCH FILTERING for string fields that store numeric values
   let filteredRows = rows;
 
   // Filter by processing fee (string field that contains numeric value)
@@ -1173,7 +1173,7 @@ export const fetchLoanProductsList = async (
     });
   }
 
-  // ✅ POST-FETCH SORTING for max_loan_amount (handles both secured and unsecured)
+  //  POST-FETCH SORTING for max_loan_amount (handles both secured and unsecured)
   if (sortKey === "max_loan_amount") {
     filteredRows = filteredRows.sort((a, b) => {
       // Get max amount from both secured and unsecured, pick the higher one

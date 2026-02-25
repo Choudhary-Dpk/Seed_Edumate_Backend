@@ -6,7 +6,6 @@ import {
   MappedContact,
   MappedCompany,
   MappedDeal,
-  MappedEdumateContact,
   MappedEdumateContactEduToFrontend,
 } from "../types";
 

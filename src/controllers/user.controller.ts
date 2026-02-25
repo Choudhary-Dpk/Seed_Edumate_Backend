@@ -55,7 +55,7 @@ export const getAllUsers = async (_: Request, res: Response) => {
 };
 
 /**
- * ✅ UPDATED: Create partner user and send set password email
+ *  UPDATED: Create partner user and send set password email
  * 
  * Changes:
  * - Removed old emailQueue.push() and logEmailHistory()
@@ -115,7 +115,7 @@ export const createUser = async (
     await saveEmailToken(user.id, emailToken);
     logger.debug(`Email token saved successfully`);
 
-    // ✅ NEW: Use unified email queue system
+    //  NEW: Use unified email queue system
     logger.debug(`Queueing set password email for ${email}`);
     await queueEmail({
       to: email,
@@ -145,7 +145,7 @@ export const createUser = async (
 };
 
 /**
- * ✅ UPDATED: UNIFIED CHANGE PASSWORD
+ *  UPDATED: UNIFIED CHANGE PASSWORD
  * Works for both Admin and Partner portals
  * Portal type is automatically detected by authenticate() middleware
  * Requires authenticated user to provide current password before changing
@@ -180,7 +180,7 @@ export const changePassword = async (
     }
     logger.debug(`Password updated successfully`);
 
-    // ✅ NEW: Optionally send password change notification email
+    //  NEW: Optionally send password change notification email
     if (sendNotification && email) {
       logger.debug(`Sending password change notification to ${email}`);
       

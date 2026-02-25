@@ -275,7 +275,7 @@ export const getLoanList = async (
     where.product_id = Number(filters.loanProduct);
   }
 
-  // ✅ FIXED - Case-insensitive filter for application status
+  //  FIXED - Case-insensitive filter for application status
   if (filters.applicationStatus) {
     where.loan_application_status = {
       is: {

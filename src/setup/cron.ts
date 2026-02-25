@@ -37,7 +37,7 @@ function log(taskName: string, message: string): void {
 }
 
 /**
- * ✅ UPDATED: Send email notification using unified email system
+ *  UPDATED: Send email notification using unified email system
  * 
  * Changes:
  * - Uses queueEmail() instead of emailQueue.push()
@@ -53,7 +53,7 @@ async function sendNotification(
   error?: any,
 ): Promise<void> {
   const status = success ? "Success" : "Failed";
-  const statusEmoji = success ? "✅" : "❌";
+  const statusEmoji = success ? "" : "❌";
   const subject = `[Cron Job] ${taskName} - ${statusEmoji} ${status}`;
 
   const html = `
@@ -85,7 +85,7 @@ async function sendNotification(
 </html>`;
 
   try {
-    // ✅ NEW: Use unified email queue service
+    //  NEW: Use unified email queue service
     for (const email of NOTIFICATION_EMAILS) {
       await queueEmail({
         to: email,
@@ -184,7 +184,7 @@ export async function partnerAutoDeactivation(): Promise<void> {
       Date.now() - INACTIVE_AFTER_DAYS * 24 * 60 * 60 * 1000, // 90 days in milliseconds
     );
 
-    // ✅ Find partners inactive for > 3 months using last_activity_at
+    //  Find partners inactive for > 3 months using last_activity_at
     const inactivePartners = await prisma.b2BPartnersUsers.findMany({
       where: {
         is_active: true,

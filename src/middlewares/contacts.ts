@@ -4,9 +4,7 @@ import { LoginPayload } from "../types/auth";
 import { sendResponse } from "../utils/api";
 import {
   getContactLeadById,
-  getEdumateContactByEmail,
   getEdumateContactByEmailAndPartnerId,
-  getEdumateContactByPhone,
   getEdumateContactByPhoneAndPartnerId,
 } from "../models/helpers/contact.helper";
 import logger from "../utils/logger";

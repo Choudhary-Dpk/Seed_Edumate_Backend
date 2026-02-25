@@ -4,10 +4,7 @@ import {
   createLoanApplication,
   updateLoanApplication,
   deleteLoanApplication,
-  HubSpotLoanApplication,
 } from "../services/hubspot-loan.service";
-import { mapLoanEnumValue } from "../constants/loanEnumMappingDbToHs";
-
 const POLL_INTERVAL = 60000; // 60 seconds
 const MAX_RETRIES = 5;
 

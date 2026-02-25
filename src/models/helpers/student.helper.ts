@@ -395,7 +395,7 @@ export const getUpdatedStudentProfile = async (
     },
   });
 
-  // ✅ Fetch contact with ALL relations (matching login/signup)
+  //  Fetch contact with ALL relations (matching login/signup)
   const contactData = await prisma.hSEdumateContacts.findUnique({
     where: {
       id: contact_id,
@@ -416,7 +416,7 @@ export const getUpdatedStudentProfile = async (
       updated_at: true,
       concent: true,
       interested: true,
-      // ✅ Added all missing relations
+      //  Added all missing relations
       academic_profile: true,
       application_journey: true,
       financial_Info: true,
@@ -446,7 +446,7 @@ export const getUpdatedStudentProfile = async (
     },
   });
 
-  // ✅ Destructure ALL relations (matching login/signup structure)
+  //  Destructure ALL relations (matching login/signup structure)
   const {
     personal_information,
     academic_profile,
@@ -458,7 +458,7 @@ export const getUpdatedStudentProfile = async (
     ...contactBase
   } = contactData || {};
 
-  // ✅ Structure contact with all relations (matching login/signup)
+  //  Structure contact with all relations (matching login/signup)
   const contact = {
     ...contactBase,
     personal_information,

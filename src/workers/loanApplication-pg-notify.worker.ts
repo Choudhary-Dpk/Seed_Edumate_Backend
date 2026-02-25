@@ -1,6 +1,6 @@
 import PQueue from "p-queue";
 import prisma from "../config/prisma";
-import { getInstance, registerChannel } from "../config/pg-notify-client"; // Import shared client
+import { getInstance, registerChannel } from "../config/pg-notify-client";
 import logger from "../utils/logger";
 import {
   createLoanApplication,
