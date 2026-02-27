@@ -187,7 +187,7 @@ const NOTIFICATION_CONFIGS: Record<
 
     getSubject: (data) =>
       data.overrideSubject ||
-      `🔔 New Partner Onboarded — ${data.partnerName || "Unknown"} | Action Required: Upload Bank Details`,
+      `New Partner Onboarded — ${data.partnerName || "Unknown"} | Action Required: Upload Bank Details`,
 
     getHtml: (data, cfg) => buildFinanceNotificationTemplate(data, cfg),
     getReferenceId: (data) => data.partnerId,
@@ -240,7 +240,7 @@ const NOTIFICATION_CONFIGS: Record<
         : "N/A";
       return (
         data.overrideSubject ||
-        `💰 New Commission Entry — ${data.studentName || "Student"} | ${amount} Disbursed | Review on Portal`
+        `New Commission Entry — ${data.studentName || "Student"} | ${amount} Disbursed | Review on Portal`
       );
     },
 
@@ -317,7 +317,7 @@ const NOTIFICATION_CONFIGS: Record<
 
     getSubject: (data) =>
       data.overrideSubject ||
-      `⚠️ Objection Raised — ${data.studentName || "Student"} | ${data.partnerName || "Partner"} | ${data.settlementRefNumber || "N/A"}`,
+      `Objection Raised — ${data.studentName || "Student"} | ${data.partnerName || "Partner"} | ${data.settlementRefNumber || "N/A"}`,
 
     getHtml: (data, cfg) => buildObjectionNotificationTemplate(data, cfg),
     getReferenceId: (data) => data.settlementId,
@@ -603,7 +603,7 @@ const NOTIFICATION_CONFIGS: Record<
     getHtml: (data, cfg) =>
       buildGenericApprovalTemplate(data, cfg, {
         headerColor: "#DC2626,#EF4444",
-        icon: "❌",
+        icon: "",
         title: "Settlement Rejected by Business Head",
         subtitle: data.rejectionReason
           ? `Reason: ${data.rejectionReason}`
@@ -963,7 +963,7 @@ function buildFinanceNotificationTemplate(
 <tr><td align="center">
 <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
 <tr><td style="background:linear-gradient(135deg,#1B4F72 0%,#2E86C1 100%);padding:28px 32px;">
-  <h1 style="margin:0;color:#ffffff;font-size:20px;font-weight:600;">🔔 New Partner Onboarded</h1>
+  <h1 style="margin:0;color:#ffffff;font-size:20px;font-weight:600;">New Partner Onboarded</h1>
   <p style="margin:6px 0 0;color:#D6EAF8;font-size:13px;">Action Required: Upload Bank Details in HubSpot</p>
 </td></tr>
 <tr><td style="padding:28px 32px;">
@@ -1005,7 +1005,7 @@ function buildPartnerCommissionTemplate(
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6f9;padding:30px 0;"><tr><td align="center">
 <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
 <tr><td style="background:linear-gradient(135deg,#27AE60 0%,#2ECC71 100%);padding:28px 32px;">
-  <h1 style="margin:0;color:#ffffff;font-size:20px;font-weight:600;">💰 New Commission Entry</h1>
+  <h1 style="margin:0;color:#ffffff;font-size:20px;font-weight:600;">New Commission Entry</h1>
   <p style="margin:6px 0 0;color:#D5F5E3;font-size:13px;">A new disbursement entry is available for your review</p>
 </td></tr>
 <tr><td style="padding:28px 32px;">
@@ -1068,7 +1068,7 @@ function buildObjectionNotificationTemplate(
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6f9;padding:30px 0;"><tr><td align="center">
 <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
 <tr><td style="background:linear-gradient(135deg,#DC2626 0%,#EF4444 100%);padding:28px 32px;">
-  <h1 style="margin:0;color:#ffffff;font-size:20px;font-weight:600;">⚠️ Objection Raised</h1>
+  <h1 style="margin:0;color:#ffffff;font-size:20px;font-weight:600;">Objection Raised</h1>
   <p style="margin:6px 0 0;color:#FEE2E2;font-size:13px;">A partner has disputed a commission settlement — Action Required</p>
 </td></tr>
 <tr><td style="padding:28px 32px;">
@@ -1186,6 +1186,6 @@ function row(label: string, value?: string | null, mono = false): string {
 
 function footerRow(cfg: ResolvedNotificationConfig): string {
   return `<tr><td style="background-color:#F8F9FA;padding:18px 32px;border-top:1px solid #E5E8EB;">
-  <p style="margin:0;color:#7F8C8D;font-size:11px;text-align:center;">This is an automated notification from ${esc(cfg.companyName)} Commission System.<br/>Do not reply to this email. For queries, contact the tech team.<br/>© ${CURRENT_YEAR} ${esc(cfg.companyName)}. All rights reserved.</p>
+  <p style="margin:0;color:#7F8C8D;font-size:11px;text-align:center;">This is an automated notification from ${esc(cfg.companyName)}.<br/>Do not reply to this email. For queries, contact the team.<br/>© ${CURRENT_YEAR} ${esc(cfg.companyName)}. All rights reserved.</p>
 </td></tr>`;
 }
