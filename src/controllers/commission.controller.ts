@@ -1749,6 +1749,7 @@ export const l2ApproveController = async (
     const settlementId = parseInt(req.params.id);
     const { notes } = req.body;
     const settlement = (req as any).settlement;
+    console.log("settlement", settlement);
     const user = (req as any).user;
 
     const statusBefore = settlement.status_history?.settlement_status || null;
@@ -1803,7 +1804,12 @@ export const l2ApproveController = async (
       settlementRefNumber: settlement.settlement_reference_number,
       partnerB2BId: settlement.b2b_partner_id || undefined,
       partnerName,
-      studentName: settlement.student_name,
+      studentName:
+        settlement.student_name || settlement.loan_details?.student_name, // ✅ fallback
+      loanAmountDisbursed: settlement.loan_details?.loan_amount_disbursed // ✅ ADD THIS
+        ? Number(settlement.loan_details.loan_amount_disbursed)
+        : null,
+      lenderName: settlement.loan_details?.lender_name, // ✅ ADD THIS
       grossCommissionAmount: settlement.calculation_details
         ?.gross_commission_amount
         ? Number(settlement.calculation_details.gross_commission_amount)
@@ -1815,6 +1821,19 @@ export const l2ApproveController = async (
         name: user?.fullName || user?.email,
         type: "admin",
       },
+      disbursementDate: settlement.loan_details?.loan_disbursement_date ?? null,
+      loanProductName: settlement.loan_details?.loan_product_name ?? null,
+      universityName: settlement.loan_details?.university_name ?? null,
+      courseName: settlement.loan_details?.course_name ?? null,
+      destinationCountry:
+        settlement.loan_details?.student_destination_country ?? null,
+
+      settlementMonth: settlement.settlement_month ?? null,
+      settlementYear: settlement.settlement_year ?? null,
+      settlementDate: settlement.settlement_date ?? null,
+      commissionRate: settlement.calculation_details?.commission_rate_applied
+        ? Number(settlement.calculation_details.commission_rate_applied)
+        : null,
     }).catch((err: any) =>
       logger.warn("[Commission] L2 approve notification failed", {
         error: err.message,
