@@ -988,19 +988,33 @@ export const raiseObjectionController = async (
       user?.partnerName ||
       "Partner";
 
+    // Re-fetch with full relations so loan/commission amounts are available for email
+    const fullSettlementForObjection =
+      await prisma.hSCommissionSettlements.findUnique({
+        where: { id: settlementId },
+        include: {
+          loan_details: true,
+          calculation_details: true,
+        },
+      });
+
     sendCommissionNotification("PARTNER_OBJECTION_RAISED", {
       settlementId,
       settlementRefNumber: settlement.settlement_reference_number,
       partnerB2BId: settlement.b2b_partner_id || undefined,
       partnerName,
       studentName: settlement.student_name,
-      lenderName: settlement.loan_details?.lender_name,
-      loanAmountDisbursed: settlement.loan_details?.loan_amount_disbursed
-        ? Number(settlement.loan_details.loan_amount_disbursed)
+      lenderName: fullSettlementForObjection?.loan_details?.lender_name,
+      loanAmountDisbursed: fullSettlementForObjection?.loan_details
+        ?.loan_amount_disbursed
+        ? Number(fullSettlementForObjection.loan_details.loan_amount_disbursed)
         : null,
-      grossCommissionAmount: settlement.calculation_details
+      grossCommissionAmount: fullSettlementForObjection?.calculation_details
         ?.gross_commission_amount
-        ? Number(settlement.calculation_details.gross_commission_amount)
+        ? Number(
+            fullSettlementForObjection.calculation_details
+              .gross_commission_amount,
+          )
         : null,
       settlementMonth: settlement.settlement_month,
       settlementYear: settlement.settlement_year,
@@ -1116,9 +1130,21 @@ export const resolveDisputeController = async (
       });
     });
 
+    // Re-fetch with full relations so loan/commission amounts are available for email
+    const fullSettlement = await prisma.hSCommissionSettlements.findUnique({
+      where: { id: settlementId },
+      include: {
+        loan_details: true,
+        calculation_details: true,
+        b2b_partner: {
+          select: { id: true, partner_name: true, partner_display_name: true },
+        },
+      },
+    });
+
     const partnerName =
-      settlement.b2b_partner?.partner_display_name ||
-      settlement.b2b_partner?.partner_name ||
+      fullSettlement?.b2b_partner?.partner_display_name ||
+      fullSettlement?.b2b_partner?.partner_name ||
       settlement.partner_name ||
       "Partner";
 
@@ -1128,6 +1154,13 @@ export const resolveDisputeController = async (
       partnerB2BId: settlement.b2b_partner_id || undefined,
       partnerName,
       studentName: settlement.student_name,
+      loanAmountDisbursed: fullSettlement?.loan_details?.loan_amount_disbursed
+        ? Number(fullSettlement.loan_details.loan_amount_disbursed)
+        : undefined,
+      grossCommissionAmount: fullSettlement?.calculation_details
+        ?.gross_commission_amount
+        ? Number(fullSettlement.calculation_details.gross_commission_amount)
+        : undefined,
       disputeResolution: resolution.trim(),
       disputeResolvedBy: user?.fullName || user?.email || "Admin",
       triggeredBy: {
