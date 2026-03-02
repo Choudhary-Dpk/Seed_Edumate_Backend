@@ -348,12 +348,12 @@ const NOTIFICATION_CONFIGS: Record<
 
     getSubject: (data) =>
       data.overrideSubject ||
-      `📄 Invoice Submitted — ${data.partnerName || "Partner"} | ${data.settlementRefNumber || "N/A"} | Review Required`,
+      `Invoice Submitted — ${data.partnerName || "Partner"} | ${data.settlementRefNumber || "N/A"} | Review Required`,
 
     getHtml: (data, cfg) =>
       buildGenericApprovalTemplate(data, cfg, {
         headerColor: "#1B4F72,#2E86C1",
-        icon: "📄",
+        icon: "",
         title: "Invoice Submitted for Review",
         subtitle:
           "A partner has submitted an invoice for commission settlement",
@@ -451,12 +451,12 @@ const NOTIFICATION_CONFIGS: Record<
 
     getSubject: (data) =>
       data.overrideSubject ||
-      `❌ Settlement Returned — ${data.studentName || "Student"} | ${data.settlementRefNumber || "N/A"} | Action Required`,
+      `Settlement Returned — ${data.studentName || "Student"} | ${data.settlementRefNumber || "N/A"} | Action Required`,
 
     getHtml: (data, cfg) =>
       buildGenericApprovalTemplate(data, cfg, {
         headerColor: "#DC2626,#EF4444",
-        icon: "❌",
+        icon: "",
         title: "Settlement Returned by L1 Reviewer",
         subtitle: data.rejectionReason
           ? `Reason: ${data.rejectionReason}`
@@ -492,12 +492,12 @@ const NOTIFICATION_CONFIGS: Record<
 
     getSubject: (data) =>
       data.overrideSubject ||
-      `🎉 L2 Approved — ${data.partnerName || "Partner"} | ${data.settlementRefNumber || "N/A"} | Ready for Payout`,
+      `L2 Approved — ${data.partnerName || "Partner"} | ${data.settlementRefNumber || "N/A"} | Ready for Payout`,
 
     getHtml: (data, cfg) =>
       buildGenericApprovalTemplate(data, cfg, {
         headerColor: "#059669,#10B981",
-        icon: "🎉",
+        icon: "",
         title: "Final Approval Complete — Ready for Payout",
         subtitle: `Approved by ${data.approverName || "Business Head"}`,
         bodyText:
@@ -536,12 +536,12 @@ const NOTIFICATION_CONFIGS: Record<
 
     getSubject: (data) =>
       data.overrideSubject ||
-      `🔙 L2 Sent Back — ${data.partnerName || "Partner"} | ${data.settlementRefNumber || "N/A"} | Re-review Required`,
+      `L2 Sent Back — ${data.partnerName || "Partner"} | ${data.settlementRefNumber || "N/A"} | Re-review Required`,
 
     getHtml: (data, cfg) =>
       buildGenericApprovalTemplate(data, cfg, {
         headerColor: "#D97706,#F59E0B",
-        icon: "🔙",
+        icon: "",
         title: "Settlement Sent Back by Business Head",
         subtitle: data.rejectionReason
           ? `Reason: ${data.rejectionReason}`
@@ -598,7 +598,7 @@ const NOTIFICATION_CONFIGS: Record<
 
     getSubject: (data) =>
       data.overrideSubject ||
-      `❌ Settlement Rejected — ${data.studentName || "Student"} | ${data.settlementRefNumber || "N/A"} | Re-upload Required`,
+      `Settlement Rejected — ${data.studentName || "Student"} | ${data.settlementRefNumber || "N/A"} | Re-upload Required`,
 
     getHtml: (data, cfg) =>
       buildGenericApprovalTemplate(data, cfg, {
@@ -1040,7 +1040,7 @@ function buildPartnerCommissionTemplate(
       : ""
   }
   <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#FFF7ED;border:1px solid #FDBA74;border-radius:8px;margin-bottom:20px;"><tr><td style="padding:16px 20px;">
-    <h4 style="margin:0 0 8px;color:#9A3412;font-size:14px;">📋 What to do next</h4>
+    <h4 style="margin:0 0 8px;color:#9A3412;font-size:14px;">What to do next</h4>
     <ol style="margin:0;padding:0 0 0 18px;color:#9A3412;font-size:13px;line-height:1.8;">
       <li>Log in to the partner portal</li><li>Review the disbursement entry (student name, amount, date)</li><li>Approve or raise an objection if any discrepancy found</li>
     </ol>
