@@ -142,7 +142,7 @@ router.patch(
 
 // ── Phase 4: L1 Approve (Finance/Ops reviewer) ──
 router.patch(
-  "/:id/l1-approve",
+  "/l1-approve",
   authenticate({
     method: AuthMethod.JWT,
     allowedRoles: [
@@ -155,13 +155,13 @@ router.patch(
       "commission_viewer",
     ],
   }),
-  validateSettlementStatus(["Pending Approval"], "settlement_status"),
+  // validateSettlementStatus(["Pending Approval"], "settlement_status"),
   l1ApproveController,
 );
 
 // ── Phase 4: L1 Reject (Finance/Ops reviewer) ──
 router.patch(
-  "/:id/l1-reject",
+  "/l1-reject",
   authenticate({
     method: AuthMethod.JWT,
     allowedRoles: [
@@ -174,13 +174,13 @@ router.patch(
       "commission_viewer",
     ],
   }),
-  validateSettlementStatus(["Pending Approval"], "settlement_status"),
+  // validateSettlementStatus(["Pending Approval"], "settlement_status"),
   l1RejectController,
 );
 
 // ── Phase 4: L2 Approve (Business Head) ──
 router.patch(
-  "/:id/l2-approve",
+  "/l2-approve",
   authenticate({
     method: AuthMethod.JWT,
     allowedRoles: [
@@ -193,13 +193,13 @@ router.patch(
       "commission_viewer",
     ],
   }),
-  validateSettlementStatus(["L1 Approved"], "settlement_status"),
+  // validateSettlementStatus(["L1 Approved"], "settlement_status"),
   l2ApproveController,
 );
 
 // ── Phase 4: L2 Reject (Business Head) ──
 router.patch(
-  "/:id/l2-reject",
+  "/l2-reject",
   authenticate({
     method: AuthMethod.JWT,
     allowedRoles: [
@@ -212,10 +212,10 @@ router.patch(
       "commission_viewer",
     ],
   }),
-  validateSettlementStatus(
-    ["L1 Approved", "Pending Approval"],
-    "settlement_status",
-  ),
+  // validateSettlementStatus(
+  //   ["L1 Approved", "Pending Approval"],
+  //   "settlement_status",
+  // ),
   l2RejectController,
 );
 

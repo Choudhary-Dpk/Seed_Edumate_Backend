@@ -53,6 +53,51 @@ import {
 } from "../services/EmailNotifications/commission.notification.service";
 import { buildSystemInvoiceHTML } from "../utils/helper";
 
+// ============================================================================
+// PHASE 4 HELPERS — used by the unified approval controllers below
+// ============================================================================
+
+// Parse & validate settlement_ids from request body.
+// Accepts a single number, an array, or a JSON string of an array.
+const parseSettlementIds = (
+  raw: any,
+): { ids: number[] } | { error: string } => {
+  if (raw == null) return { error: "settlement_ids is required" };
+  const arr = Array.isArray(raw) ? raw : [raw];
+  if (arr.length === 0) return { error: "settlement_ids must not be empty" };
+  const ids = arr.map((v: any) => parseInt(v, 10));
+  if (ids.some(isNaN))
+    return { error: "All settlement_ids must be valid numbers" };
+  return { ids };
+};
+
+// Fetch settlements with every relation needed by the approval controllers.
+const fetchSettlementsForApproval = (ids: number[]) =>
+  prisma.hSCommissionSettlements.findMany({
+    where: { id: { in: ids }, is_deleted: false, is_active: true },
+    include: {
+      status_history: true,
+      documentaion: true,
+      calculation_details: true,
+      tax_deductions: true,
+      loan_details: true,
+      b2b_partner: {
+        select: { id: true, partner_name: true, partner_display_name: true },
+      },
+    },
+  });
+
+// Sum net_payable_amount across all settlements in a group.
+const sumNetPayable = (settlements: any[]): number =>
+  settlements.reduce((acc, s) => {
+    const v = parseFloat(s.tax_deductions?.net_payable_amount ?? "0");
+    return acc + (isNaN(v) ? 0 : v);
+  }, 0);
+
+// ============================================================================
+// CREATE
+// ============================================================================
+
 export const createCommissionSettlementController = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
@@ -229,6 +274,10 @@ export const createCommissionSettlementController = async (
   }
 };
 
+// ============================================================================
+// UPDATE
+// ============================================================================
+
 export const updateCommissionSettlementController = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
@@ -366,6 +415,10 @@ export const updateCommissionSettlementController = async (
   }
 };
 
+// ============================================================================
+// DELETE
+// ============================================================================
+
 export const deleteCommissionSettlementController = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
@@ -384,6 +437,10 @@ export const deleteCommissionSettlementController = async (
     next(error);
   }
 };
+
+// ============================================================================
+// GET DETAILS
+// ============================================================================
 
 export const getCommissionSettlementDetails = async (
   req: RequestWithPayload<LoginPayload>,
@@ -411,6 +468,10 @@ export const getCommissionSettlementDetails = async (
   }
 };
 
+// ============================================================================
+// GET LIST (PAGINATION)
+// ============================================================================
+
 export const getCommissionSettlementsListController = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
@@ -427,7 +488,6 @@ export const getCommissionSettlementsListController = async (
 
     let partnerId = null;
     if (id && !isAdmin) {
-      // Only look up partner ID for non-admin users
       const partnerRecord = await getPartnerIdByUserId(id);
       partnerId = partnerRecord?.b2b_id || null;
 
@@ -454,14 +514,13 @@ export const getCommissionSettlementsListController = async (
         endDate?: string;
       }) || {};
 
-    // For admin: default date range = Jan 1 of current year → today (if not explicitly provided)
     let startDate = filtersFromQuery.startDate || null;
     let endDate = filtersFromQuery.endDate || null;
 
     if (isAdmin && !startDate && !endDate) {
       const now = new Date();
       startDate = `${now.getFullYear()}-01-01`;
-      endDate = now.toISOString().split("T")[0]; // YYYY-MM-DD
+      endDate = now.toISOString().split("T")[0];
     }
 
     const filters = {
@@ -502,6 +561,10 @@ export const getCommissionSettlementsListController = async (
   }
 };
 
+// ============================================================================
+// GET BY LEAD
+// ============================================================================
+
 export const getCommissionSettlementsByLead = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
@@ -536,6 +599,10 @@ export const getCommissionSettlementsByLead = async (
   }
 };
 
+// ============================================================================
+// UPLOAD INVOICE (Partner manual upload)
+// ============================================================================
+
 export const uploadInvoiceController = async (
   req: Request,
   res: Response,
@@ -544,15 +611,14 @@ export const uploadInvoiceController = async (
   try {
     const { status = "pending", date } = req.body;
     const file = req.file;
-    // Check if file is uploaded
+
     if (!file) {
       return sendResponse(res, 400, "Invoice file is required");
     }
 
-    // Get validated settlements from middleware
     const { settlements, settlementIds } = (req as any).validatedSettlements;
 
-    // Race condition guard: re-check settlement status hasn't changed since middleware
+    // Race condition guard
     const currentStatuses =
       await prisma.hSCommissionSettlementsSettlementStatus.findMany({
         where: { settlement_id: { in: settlementIds } },
@@ -576,37 +642,30 @@ export const uploadInvoiceController = async (
       );
     }
 
-    // Get the first settlement to extract data
     const firstSettlement = settlements[0];
 
-    // Calculate total invoice amount from all settlements
     const totalAmount = settlements.reduce((sum: number, settlement: any) => {
       const grossAmount =
         settlement.calculation_details?.total_gross_amount || 0;
       return sum + parseFloat(grossAmount.toString());
     }, 0);
 
-    // Since you're using memory storage, save file to disk
     const uploadDir = path.join(process.cwd(), "uploads", "invoices");
 
-    // Create directory if doesn't exist
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
 
-    // Generate unique filename
     const timestamp = Date.now();
     const uniqueSuffix = Math.round(Math.random() * 1e9);
     const fileExt = path.extname(file.originalname);
     const fileName = `invoice-${timestamp}-${uniqueSuffix}${fileExt}`;
     const filePath = path.join(uploadDir, fileName);
 
-    // Write buffer to file
     fs.writeFileSync(filePath, file.buffer);
 
-    // Generate file URL
     const fileUrl = `${BACKEND_URL}/uploads/invoices/${fileName}`;
-    // Create invoice record - extract data from first settlement
+
     const invoice = await prisma.invoice.create({
       data: {
         file: fileName,
@@ -629,17 +688,13 @@ export const uploadInvoiceController = async (
       },
     });
 
-    // Generate invoice number
     const invoiceNumber = req.body.invoice_number || `${invoice.id}`;
 
-    // Update HSCommissionSettlementsDocumentation for each settlement ID
     const documentationUpdates = await Promise.all(
       settlements.map(async (settlement: any) => {
         const settlementAmount = req.body.invoice_amount;
 
-        // Check if documentation record exists for this settlement
         if (settlement.documentaion) {
-          // Update existing documentation
           return await prisma.hSCommissionSettlementsDocumentation.update({
             where: { settlement_id: settlement.id },
             data: {
@@ -656,7 +711,6 @@ export const uploadInvoiceController = async (
             },
           });
         } else {
-          // Create new documentation record
           return await prisma.hSCommissionSettlementsDocumentation.create({
             data: {
               settlement_id: settlement.id,
@@ -676,7 +730,6 @@ export const uploadInvoiceController = async (
       }),
     );
 
-    // ── Phase 3: Update settlement_status to "Pending Approval" for all settlements ──
     await Promise.all(
       settlementIds.map((id: number) =>
         prisma.hSCommissionSettlementsSettlementStatus.updateMany({
@@ -686,7 +739,6 @@ export const uploadInvoiceController = async (
       ),
     );
 
-    // ── Timeline entry for each settlement ──
     await Promise.all(
       settlements.map((settlement: any) =>
         prisma.commissionDisputeLog.create({
@@ -713,7 +765,6 @@ export const uploadInvoiceController = async (
       ),
     );
 
-    // ── Phase 3: Notify Finance about invoice submission (non-blocking) ──
     notifyFinanceForInvoice(
       settlementIds,
       {
@@ -770,7 +821,7 @@ export const uploadInvoiceController = async (
 };
 
 // ============================================================================
-// PHASE 3: Accept Settlement (Partner verifies the entry is correct)
+// PHASE 3: Accept Settlement
 // ============================================================================
 
 export const acceptSettlementController = async (
@@ -782,7 +833,6 @@ export const acceptSettlementController = async (
     const settlementId = parseInt(req.params.id);
     const settlement = (req as any).settlement;
 
-    // Update verification_status to "Verified" (with race condition guard)
     await prisma.$transaction(async (tx) => {
       const currentStatus =
         await tx.hSCommissionSettlementsSettlementStatus.findUnique({
@@ -800,7 +850,6 @@ export const acceptSettlementController = async (
         },
       });
 
-      // Timeline entry
       await tx.commissionDisputeLog.create({
         data: {
           settlement_id: settlementId,
@@ -837,9 +886,7 @@ export const acceptSettlementController = async (
     if (error.message === "ALREADY_PROCESSED") {
       logger.warn(
         "[Commission] Duplicate accept request blocked (race condition)",
-        {
-          settlementId: req.params.id,
-        },
+        { settlementId: req.params.id },
       );
       return sendResponse(
         res,
@@ -856,7 +903,7 @@ export const acceptSettlementController = async (
 };
 
 // ============================================================================
-// PHASE 3: Raise Objection (Partner disputes the settlement entry)
+// PHASE 3: Raise Objection
 // ============================================================================
 
 export const raiseObjectionController = async (
@@ -870,20 +917,16 @@ export const raiseObjectionController = async (
     const settlement = (req as any).settlement;
     const user = (req as any).user;
 
-    // Validate: reason is required
     if (!reason || !reason.trim()) {
       return sendResponse(res, 400, "Objection reason is required");
     }
 
-    // Capture current statuses for dispute log snapshot
     const settlementStatusBefore =
       settlement.status_history?.settlement_status || null;
     const verificationStatusBefore =
       settlement.status_history?.verification_status || null;
 
-    // Execute all DB changes in a single transaction
     await prisma.$transaction(async (tx) => {
-      // 0. Re-check status INSIDE transaction to prevent race condition (double-click / parallel requests)
       const currentStatus =
         await tx.hSCommissionSettlementsSettlementStatus.findUnique({
           where: { settlement_id: settlementId },
@@ -892,7 +935,6 @@ export const raiseObjectionController = async (
         throw new Error("ALREADY_PROCESSED");
       }
 
-      // 1. Update settlement status → "Disputed" + "Additional Info Required"
       await tx.hSCommissionSettlementsSettlementStatus.update({
         where: { settlement_id: settlementId },
         data: {
@@ -901,7 +943,6 @@ export const raiseObjectionController = async (
         },
       });
 
-      // 2. Upsert hold_dispute table (current state — gets overwritten on re-raise)
       await tx.hSCommissionSettlementsHoldAndDisputes.upsert({
         where: { settlement_id: settlementId },
         update: {
@@ -909,7 +950,6 @@ export const raiseObjectionController = async (
           dispute_date: new Date(),
           dispute_raised_by: user?.fullName || user?.email || "Partner",
           dispute_description: reason.trim(),
-          // Clear previous resolution
           dispute_resolution: null,
           dispute_resolution_date: null,
           dispute_resolved_by: null,
@@ -923,7 +963,6 @@ export const raiseObjectionController = async (
         },
       });
 
-      // 3. INSERT dispute log (permanent audit trail — never overwritten)
       await tx.commissionDisputeLog.create({
         data: {
           settlement_id: settlementId,
@@ -942,7 +981,6 @@ export const raiseObjectionController = async (
       });
     });
 
-    // Fire notification (non-blocking — outside transaction)
     const partnerName =
       settlement.b2b_partner?.partner_display_name ||
       settlement.b2b_partner?.partner_name ||
@@ -991,13 +1029,10 @@ export const raiseObjectionController = async (
       verification_status: "Additional Info Required",
     });
   } catch (error: any) {
-    // Race condition guard: second parallel request gets this
     if (error.message === "ALREADY_PROCESSED") {
       logger.warn(
         "[Commission] Duplicate objection request blocked (race condition)",
-        {
-          settlementId: req.params.id,
-        },
+        { settlementId: req.params.id },
       );
       return sendResponse(
         res,
@@ -1014,7 +1049,7 @@ export const raiseObjectionController = async (
 };
 
 // ============================================================================
-// PHASE 3: Resolve Dispute (Admin resolves partner's objection)
+// PHASE 3: Resolve Dispute
 // ============================================================================
 
 export const resolveDisputeController = async (
@@ -1028,20 +1063,16 @@ export const resolveDisputeController = async (
     const settlement = (req as any).settlement;
     const user = (req as any).user;
 
-    // Validate: resolution is required
     if (!resolution || !resolution.trim()) {
       return sendResponse(res, 400, "Resolution text is required");
     }
 
-    // Capture current statuses for dispute log snapshot
     const settlementStatusBefore =
       settlement.status_history?.settlement_status || null;
     const verificationStatusBefore =
       settlement.status_history?.verification_status || null;
 
-    // Execute all DB changes in a single transaction
     await prisma.$transaction(async (tx) => {
-      // 0. Re-check status INSIDE transaction to prevent race condition
       const currentStatus =
         await tx.hSCommissionSettlementsSettlementStatus.findUnique({
           where: { settlement_id: settlementId },
@@ -1050,7 +1081,6 @@ export const resolveDisputeController = async (
         throw new Error("ALREADY_PROCESSED");
       }
 
-      // 1. Update settlement status → back to "Calculated" + "Pending" (partner re-reviews)
       await tx.hSCommissionSettlementsSettlementStatus.update({
         where: { settlement_id: settlementId },
         data: {
@@ -1059,7 +1089,6 @@ export const resolveDisputeController = async (
         },
       });
 
-      // 2. Update hold_dispute table with resolution info
       await tx.hSCommissionSettlementsHoldAndDisputes.update({
         where: { settlement_id: settlementId },
         data: {
@@ -1069,7 +1098,6 @@ export const resolveDisputeController = async (
         },
       });
 
-      // 3. INSERT dispute log (permanent audit trail)
       await tx.commissionDisputeLog.create({
         data: {
           settlement_id: settlementId,
@@ -1088,7 +1116,6 @@ export const resolveDisputeController = async (
       });
     });
 
-    // Fire notification to partner (non-blocking)
     const partnerName =
       settlement.b2b_partner?.partner_display_name ||
       settlement.b2b_partner?.partner_name ||
@@ -1129,9 +1156,7 @@ export const resolveDisputeController = async (
     if (error.message === "ALREADY_PROCESSED") {
       logger.warn(
         "[Commission] Duplicate resolve dispute request blocked (race condition)",
-        {
-          settlementId: req.params.id,
-        },
+        { settlementId: req.params.id },
       );
       return sendResponse(
         res,
@@ -1148,7 +1173,7 @@ export const resolveDisputeController = async (
 };
 
 // ============================================================================
-// PHASE 3: Generate System Invoice (Auto-generate PDF & upload)
+// PHASE 3: Generate System Invoice
 // ============================================================================
 
 export const generateInvoiceController = async (
@@ -1160,7 +1185,6 @@ export const generateInvoiceController = async (
     let { commission_settlement_ids } = req.body;
     const user = (req as any).user;
 
-    // Parse IDs
     if (typeof commission_settlement_ids === "string") {
       commission_settlement_ids = JSON.parse(commission_settlement_ids);
     }
@@ -1175,7 +1199,6 @@ export const generateInvoiceController = async (
       .map((id: any) => parseInt(id))
       .filter((id: number) => !isNaN(id));
 
-    // Fetch settlements with all related data
     const settlements = await prisma.hSCommissionSettlements.findMany({
       where: {
         id: { in: settlementIds },
@@ -1209,7 +1232,6 @@ export const generateInvoiceController = async (
       return sendResponse(res, 404, "No settlements found");
     }
 
-    // Validate ownership (partner user)
     if (user?.partnerId) {
       const unauthorized = settlements.filter(
         (s) => s.b2b_partner_id !== user.partnerId,
@@ -1223,7 +1245,6 @@ export const generateInvoiceController = async (
       }
     }
 
-    // Validate all are verified
     const unverified = settlements.filter(
       (s) => s.status_history?.verification_status !== "Verified",
     );
@@ -1232,13 +1253,10 @@ export const generateInvoiceController = async (
         res,
         400,
         "All settlements must be accepted (verified) before generating invoice",
-        {
-          unverifiedIds: unverified.map((s) => s.id),
-        },
+        { unverifiedIds: unverified.map((s) => s.id) },
       );
     }
 
-    // Race condition guard
     const alreadySubmitted = settlements.filter(
       (s) => s.status_history?.settlement_status === "Pending Approval",
     );
@@ -1250,7 +1268,6 @@ export const generateInvoiceController = async (
       );
     }
 
-    // ── Build Invoice Data ──
     const partner = settlements[0].b2b_partner;
     const partnerName =
       partner?.partner_display_name ||
@@ -1258,9 +1275,7 @@ export const generateInvoiceController = async (
       settlements[0].partner_name ||
       "Partner";
     const invoiceDate = new Date();
-    const invoiceDateStr = moment(invoiceDate).format("YYYY-MM-DD");
 
-    // Calculate totals
     let subtotal = 0;
     let totalGst = 0;
     let totalTds = 0;
@@ -1313,7 +1328,6 @@ export const generateInvoiceController = async (
 
     const netPayableTotal = subtotal + totalGst - totalTds - totalDeductions;
 
-    // ── Create Invoice Record first (to get invoice number) ──
     const invoice = await prisma.invoice.create({
       data: {
         file: "pending",
@@ -1331,7 +1345,6 @@ export const generateInvoiceController = async (
 
     const invoiceNumber = `INV-${moment(invoiceDate).format("YYYY")}-${String(invoice.id).padStart(5, "0")}`;
 
-    // ── Generate PDF ──
     const htmlContent = buildSystemInvoiceHTML({
       invoiceNumber,
       invoiceDate: moment(invoiceDate).format("DD MMM YYYY"),
@@ -1370,7 +1383,6 @@ export const generateInvoiceController = async (
     });
     await browser.close();
 
-    // ── Save PDF to disk ──
     const uploadDir = path.join(process.cwd(), "uploads", "invoices");
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
@@ -1382,16 +1394,11 @@ export const generateInvoiceController = async (
 
     const fileUrl = `${BACKEND_URL}/uploads/invoices/${fileName}`;
 
-    // ── Update Invoice Record ──
     await prisma.invoice.update({
       where: { id: invoice.id },
-      data: {
-        file: fileName,
-        url: fileUrl,
-      },
+      data: { file: fileName, url: fileUrl },
     });
 
-    // ── Update Documentation for each settlement ──
     const totalInvoiceAmount = netPayableTotal;
 
     await Promise.all(
@@ -1431,7 +1438,6 @@ export const generateInvoiceController = async (
       }),
     );
 
-    // ── Update settlement_status to "Pending Approval" ──
     await Promise.all(
       settlementIds.map((id: number) =>
         prisma.hSCommissionSettlementsSettlementStatus.updateMany({
@@ -1441,7 +1447,6 @@ export const generateInvoiceController = async (
       ),
     );
 
-    // ── Notify Finance (non-blocking) ──
     notifyFinanceForInvoice(
       settlementIds,
       {
@@ -1495,11 +1500,9 @@ export const generateInvoiceController = async (
 };
 
 // ============================================================================
-// HELPER: Build System Invoice HTML Template
-// ============================================================================
-
-// ============================================================================
-// PHASE 4: L1 Approve (Finance/Ops reviewer approves)
+// PHASE 4: L1 APPROVE
+// Accepts: { settlement_ids: number[], notes?: string }
+// Works for single tranche [id] or grouped tranches [id1, id2, ...]
 // ============================================================================
 
 export const l1ApproveController = async (
@@ -1508,113 +1511,135 @@ export const l1ApproveController = async (
   next: NextFunction,
 ) => {
   try {
-    const settlementId = parseInt(req.params.id);
+    const parsed = parseSettlementIds(req.body.settlement_ids);
+    if ("error" in parsed) return sendResponse(res, 400, parsed.error);
+    const { ids } = parsed;
+
     const { notes } = req.body;
-    const settlement = (req as any).settlement;
     const user = (req as any).user;
 
-    const statusBefore = settlement.status_history?.settlement_status || null;
+    const settlements = await fetchSettlementsForApproval(ids);
+    if (settlements.length !== ids.length) {
+      const missing = ids.filter((id) => !settlements.find((s) => s.id === id));
+      return sendResponse(res, 404, "Some settlements not found", { missing });
+    }
+
+    const invalid = settlements.filter(
+      (s) =>
+        s.status_history?.settlement_status?.toLowerCase() !==
+        "pending approval",
+    );
+    if (invalid.length > 0) {
+      return sendResponse(
+        res,
+        400,
+        "All settlements must be in Pending Approval status",
+        { invalidIds: invalid.map((s) => s.id) },
+      );
+    }
 
     await prisma.$transaction(async (tx) => {
-      // Race condition guard
-      const current =
-        await tx.hSCommissionSettlementsSettlementStatus.findUnique({
-          where: { settlement_id: settlementId },
-        });
-      if (!current || current.settlement_status !== "Pending Approval") {
-        throw new Error("ALREADY_PROCESSED");
-      }
+      // Race-condition guard: re-check inside transaction
+      const current = await tx.hSCommissionSettlementsSettlementStatus.findMany(
+        {
+          where: { settlement_id: { in: ids } },
+          select: { settlement_id: true, settlement_status: true },
+        },
+      );
+      const stale = current.filter(
+        (s) => s.settlement_status !== "Pending Approval",
+      );
+      if (stale.length > 0) throw new Error("ALREADY_PROCESSED");
 
-      await tx.hSCommissionSettlementsSettlementStatus.update({
-        where: { settlement_id: settlementId },
+      await tx.hSCommissionSettlementsSettlementStatus.updateMany({
+        where: { settlement_id: { in: ids } },
         data: { settlement_status: "L1 Approved" },
       });
 
-      await tx.commissionDisputeLog.create({
-        data: {
-          settlement_id: settlementId,
+      await tx.commissionDisputeLog.createMany({
+        data: settlements.map((s) => ({
+          settlement_id: s.id,
           action: "L1_APPROVED",
-          performed_by_user_id: user?.id || null,
-          performed_by_name: user?.fullName || null,
-          performed_by_email: user?.email || null,
+          performed_by_user_id: user?.id ?? null,
+          performed_by_name: user?.fullName ?? null,
+          performed_by_email: user?.email ?? null,
           performed_by_type: "admin",
-          reason: notes || null,
-          settlement_status_before: statusBefore,
+          reason: notes ?? null,
+          settlement_status_before: s.status_history?.settlement_status ?? null,
           settlement_status_after: "L1 Approved",
           verification_status_before:
-            settlement.status_history?.verification_status,
+            s.status_history?.verification_status ?? null,
           verification_status_after:
-            settlement.status_history?.verification_status,
-        },
+            s.status_history?.verification_status ?? null,
+        })),
       });
     });
 
-    await prisma.hSCommissionSettlementsSettlementStatus.update({
-      where: { settlement_id: settlementId },
-      data: { settlement_status: "L1 Approved" },
-    });
+    // Notifications — one per settlement (non-blocking)
+    for (const s of settlements) {
+      const partnerName =
+        s.b2b_partner?.partner_display_name ??
+        s.b2b_partner?.partner_name ??
+        s.partner_name ??
+        "Partner";
+      sendCommissionNotification("L1_APPROVED", {
+        settlementId: s.id,
+        settlementRefNumber: s.settlement_reference_number,
+        partnerB2BId: s.b2b_partner_id ?? undefined,
+        partnerName,
+        studentName: s.student_name,
+        lenderName: s.loan_details?.lender_name,
+        loanAmountDisbursed: s.loan_details?.loan_amount_disbursed
+          ? Number(s.loan_details.loan_amount_disbursed)
+          : null,
+        grossCommissionAmount: s.calculation_details?.gross_commission_amount
+          ? Number(s.calculation_details.gross_commission_amount)
+          : null,
+        approverName: user?.fullName ?? user?.email ?? "Reviewer",
+        approverNotes: notes ?? null,
+        triggeredBy: {
+          userId: user?.id,
+          name: user?.fullName ?? user?.email,
+          type: "admin",
+        },
+      }).catch((err: any) =>
+        logger.warn("[Commission] L1 approve notification failed", {
+          error: err.message,
+        }),
+      );
+    }
 
-    // Notification (non-blocking)
-    const partnerName =
-      settlement.b2b_partner?.partner_display_name ||
-      settlement.b2b_partner?.partner_name ||
-      settlement.partner_name ||
-      "Partner";
-
-    sendCommissionNotification("L1_APPROVED", {
-      settlementId,
-      settlementRefNumber: settlement.settlement_reference_number,
-      partnerB2BId: settlement.b2b_partner_id || undefined,
-      partnerName,
-      studentName: settlement.student_name,
-      lenderName: settlement.loan_details?.lender_name,
-      loanAmountDisbursed: settlement.loan_details?.loan_amount_disbursed
-        ? Number(settlement.loan_details.loan_amount_disbursed)
-        : null,
-      grossCommissionAmount: settlement.calculation_details
-        ?.gross_commission_amount
-        ? Number(settlement.calculation_details.gross_commission_amount)
-        : null,
-      approverName: user?.fullName || user?.email || "Reviewer",
-      approverNotes: notes || null,
-      triggeredBy: {
-        userId: user?.id,
-        name: user?.fullName || user?.email,
-        type: "admin",
-      },
-    }).catch((err: any) =>
-      logger.warn("[Commission] L1 approve notification failed", {
-        error: err.message,
-      }),
-    );
+    const total = sumNetPayable(settlements);
+    const label = ids.length > 1 ? `${ids.length} tranches` : "Settlement";
 
     logger.info("[Commission] L1 Approved", {
-      settlementId,
-      approvedBy: user?.fullName || user?.email,
+      ids,
+      approvedBy: user?.fullName ?? user?.email,
     });
 
-    return sendResponse(res, 200, "Settlement approved at L1", {
-      settlementId,
+    return sendResponse(res, 200, `${label} approved at L1`, {
+      settlement_ids: ids,
       settlement_status: "L1 Approved",
+      count: ids.length,
+      total_net_payable: total,
     });
   } catch (error: any) {
     if (error.message === "ALREADY_PROCESSED") {
       return sendResponse(
         res,
         409,
-        "This settlement has already been processed. Please refresh.",
+        "One or more settlements already processed. Please refresh.",
       );
     }
-    logger.error("[Commission] L1 approve failed", {
-      error: error.message,
-      settlementId: req.params.id,
-    });
+    logger.error("[Commission] L1 approve failed", { error: error.message });
     return sendResponse(res, 500, "Failed to approve at L1");
   }
 };
 
 // ============================================================================
-// PHASE 4: L1 Reject (Finance/Ops reviewer rejects → back to partner)
+// PHASE 4: L1 REJECT
+// Accepts: { settlement_ids: number[], reason: string }
+// Clears invoice on all tranches so partner can re-upload.
 // ============================================================================
 
 export const l1RejectController = async (
@@ -1623,90 +1648,122 @@ export const l1RejectController = async (
   next: NextFunction,
 ) => {
   try {
-    const settlementId = parseInt(req.params.id);
+    const parsed = parseSettlementIds(req.body.settlement_ids);
+    if ("error" in parsed) return sendResponse(res, 400, parsed.error);
+    const { ids } = parsed;
+
     const { reason } = req.body;
-    const settlement = (req as any).settlement;
     const user = (req as any).user;
 
-    if (!reason || !reason.trim()) {
+    if (!reason?.trim()) {
       return sendResponse(res, 400, "Rejection reason is required");
     }
 
-    const statusBefore = settlement.status_history?.settlement_status || null;
+    const settlements = await fetchSettlementsForApproval(ids);
+    if (settlements.length !== ids.length) {
+      const missing = ids.filter((id) => !settlements.find((s) => s.id === id));
+      return sendResponse(res, 404, "Some settlements not found", { missing });
+    }
+
+    const invalid = settlements.filter(
+      (s) =>
+        s.status_history?.settlement_status?.toLowerCase() !==
+        "pending approval",
+    );
+    if (invalid.length > 0) {
+      return sendResponse(
+        res,
+        400,
+        "All settlements must be in Pending Approval status",
+        { invalidIds: invalid.map((s) => s.id) },
+      );
+    }
 
     await prisma.$transaction(async (tx) => {
-      const current =
-        await tx.hSCommissionSettlementsSettlementStatus.findUnique({
-          where: { settlement_id: settlementId },
-        });
-      if (!current || current.settlement_status !== "Pending Approval") {
-        throw new Error("ALREADY_PROCESSED");
-      }
+      const current = await tx.hSCommissionSettlementsSettlementStatus.findMany(
+        {
+          where: { settlement_id: { in: ids } },
+          select: { settlement_id: true, settlement_status: true },
+        },
+      );
+      const stale = current.filter(
+        (s) => s.settlement_status !== "Pending Approval",
+      );
+      if (stale.length > 0) throw new Error("ALREADY_PROCESSED");
 
-      await tx.hSCommissionSettlementsSettlementStatus.update({
-        where: { settlement_id: settlementId },
+      await tx.hSCommissionSettlementsSettlementStatus.updateMany({
+        where: { settlement_id: { in: ids } },
         data: { settlement_status: "L1 Rejected" },
       });
 
-      // Clear invoice so partner can re-upload
+      // Keep invoice data so partner can still see it in Invoices tab
+      // Only flag status as Rejected — partner uses Replace button to re-upload
       await tx.hSCommissionSettlementsDocumentation.updateMany({
-        where: { settlement_id: settlementId },
+        where: { settlement_id: { in: ids } },
         data: {
-          invoice_number: null,
-          invoice_date: null,
-          invoice_amount: null,
           invoice_status: "Rejected",
-          invoice_url: null,
+          // invoice_url, invoice_number, invoice_date, invoice_amount kept intentionally
+          // so the invoice remains visible in partner's Invoices tab for replacement
         },
       });
 
-      await tx.commissionDisputeLog.create({
-        data: {
-          settlement_id: settlementId,
+      await tx.commissionDisputeLog.createMany({
+        data: settlements.map((s) => ({
+          settlement_id: s.id,
           action: "L1_REJECTED",
-          performed_by_user_id: user?.id || null,
-          performed_by_name: user?.fullName || null,
-          performed_by_email: user?.email || null,
+          performed_by_user_id: user?.id ?? null,
+          performed_by_name: user?.fullName ?? null,
+          performed_by_email: user?.email ?? null,
           performed_by_type: "admin",
           reason: reason.trim(),
-          settlement_status_before: statusBefore,
+          settlement_status_before: s.status_history?.settlement_status ?? null,
           settlement_status_after: "L1 Rejected",
           verification_status_before:
-            settlement.status_history?.verification_status,
+            s.status_history?.verification_status ?? null,
           verification_status_after:
-            settlement.status_history?.verification_status,
-        },
+            s.status_history?.verification_status ?? null,
+        })),
       });
     });
 
-    // Notify partner
-    const partnerName =
-      settlement.b2b_partner?.partner_display_name ||
-      settlement.b2b_partner?.partner_name ||
-      settlement.partner_name ||
-      "Partner";
+    // Notifications — one per settlement (non-blocking)
+    for (const s of settlements) {
+      const partnerName =
+        s.b2b_partner?.partner_display_name ??
+        s.b2b_partner?.partner_name ??
+        s.partner_name ??
+        "Partner";
+      sendCommissionNotification("L1_REJECTED", {
+        settlementId: s.id,
+        settlementRefNumber: s.settlement_reference_number,
+        partnerB2BId: s.b2b_partner_id ?? undefined,
+        partnerName,
+        studentName: s.student_name,
+        loanAmountDisbursed: s.loan_details?.loan_amount_disbursed
+          ? Number(s.loan_details.loan_amount_disbursed)
+          : undefined,
+        grossCommissionAmount: s.calculation_details?.gross_commission_amount
+          ? Number(s.calculation_details.gross_commission_amount)
+          : undefined,
+        rejectionReason: reason.trim(),
+        rejectedBy: user?.fullName ?? user?.email ?? "Reviewer",
+        triggeredBy: {
+          userId: user?.id,
+          name: user?.fullName ?? user?.email,
+          type: "admin",
+        },
+      }).catch((err: any) =>
+        logger.warn("[Commission] L1 reject notification failed", {
+          error: err.message,
+        }),
+      );
+    }
 
-    sendCommissionNotification("L1_REJECTED", {
-      settlementId,
-      settlementRefNumber: settlement.settlement_reference_number,
-      partnerB2BId: settlement.b2b_partner_id || undefined,
-      partnerName,
-      studentName: settlement.student_name,
-      rejectionReason: reason.trim(),
-      rejectedBy: user?.fullName || user?.email || "Reviewer",
-      triggeredBy: {
-        userId: user?.id,
-        name: user?.fullName || user?.email,
-        type: "admin",
-      },
-    }).catch((err: any) =>
-      logger.warn("[Commission] L1 reject notification failed", {
-        error: err.message,
-      }),
-    );
+    const total = sumNetPayable(settlements);
+    const label = ids.length > 1 ? `${ids.length} tranches` : "Settlement";
 
     logger.info("[Commission] L1 Rejected", {
-      settlementId,
+      ids,
       rejectedBy: user?.fullName,
       reason: reason.trim(),
     });
@@ -1714,10 +1771,12 @@ export const l1RejectController = async (
     return sendResponse(
       res,
       200,
-      "Settlement rejected at L1. Partner will be notified to re-upload.",
+      `${label} rejected at L1. Partner will be notified to re-upload.`,
       {
-        settlementId,
+        settlement_ids: ids,
         settlement_status: "L1 Rejected",
+        count: ids.length,
+        total_net_payable: total,
       },
     );
   } catch (error: any) {
@@ -1725,19 +1784,18 @@ export const l1RejectController = async (
       return sendResponse(
         res,
         409,
-        "This settlement has already been processed. Please refresh.",
+        "One or more settlements already processed. Please refresh.",
       );
     }
-    logger.error("[Commission] L1 reject failed", {
-      error: error.message,
-      settlementId: req.params.id,
-    });
+    logger.error("[Commission] L1 reject failed", { error: error.message });
     return sendResponse(res, 500, "Failed to reject at L1");
   }
 };
 
 // ============================================================================
-// PHASE 4: L2 Approve (Business Head final approval)
+// PHASE 4: L2 APPROVE
+// Accepts: { settlement_ids: number[], notes?: string }
+// Also marks invoice_status → "Approved" on all tranches.
 // ============================================================================
 
 export const l2ApproveController = async (
@@ -1746,112 +1804,136 @@ export const l2ApproveController = async (
   next: NextFunction,
 ) => {
   try {
-    const settlementId = parseInt(req.params.id);
+    const parsed = parseSettlementIds(req.body.settlement_ids);
+    if ("error" in parsed) return sendResponse(res, 400, parsed.error);
+    const { ids } = parsed;
+
     const { notes } = req.body;
-    const settlement = (req as any).settlement;
-    console.log("settlement", settlement);
     const user = (req as any).user;
 
-    const statusBefore = settlement.status_history?.settlement_status || null;
+    const settlements = await fetchSettlementsForApproval(ids);
+    if (settlements.length !== ids.length) {
+      const missing = ids.filter((id) => !settlements.find((s) => s.id === id));
+      return sendResponse(res, 404, "Some settlements not found", { missing });
+    }
+
+    const invalid = settlements.filter(
+      (s) =>
+        s.status_history?.settlement_status?.toLowerCase() !== "l1 approved",
+    );
+    if (invalid.length > 0) {
+      return sendResponse(
+        res,
+        400,
+        "All settlements must be in L1 Approved status",
+        { invalidIds: invalid.map((s) => s.id) },
+      );
+    }
 
     await prisma.$transaction(async (tx) => {
-      const current =
-        await tx.hSCommissionSettlementsSettlementStatus.findUnique({
-          where: { settlement_id: settlementId },
-        });
-      if (!current || current.settlement_status !== "L1 Approved") {
-        throw new Error("ALREADY_PROCESSED");
-      }
+      const current = await tx.hSCommissionSettlementsSettlementStatus.findMany(
+        {
+          where: { settlement_id: { in: ids } },
+          select: { settlement_id: true, settlement_status: true },
+        },
+      );
+      const stale = current.filter(
+        (s) => s.settlement_status !== "L1 Approved",
+      );
+      if (stale.length > 0) throw new Error("ALREADY_PROCESSED");
 
-      await tx.hSCommissionSettlementsSettlementStatus.update({
-        where: { settlement_id: settlementId },
+      await tx.hSCommissionSettlementsSettlementStatus.updateMany({
+        where: { settlement_id: { in: ids } },
         data: { settlement_status: "Approved" },
       });
 
-      await tx.hSCommissionSettlementsDocumentation.update({
-        where: { settlement_id: settlementId },
+      // Mark invoice as Approved on all tranches
+      await tx.hSCommissionSettlementsDocumentation.updateMany({
+        where: { settlement_id: { in: ids } },
         data: { invoice_status: "Approved" },
       });
 
-      await tx.commissionDisputeLog.create({
-        data: {
-          settlement_id: settlementId,
+      await tx.commissionDisputeLog.createMany({
+        data: settlements.map((s) => ({
+          settlement_id: s.id,
           action: "L2_APPROVED",
-          performed_by_user_id: user?.id || null,
-          performed_by_name: user?.fullName || null,
-          performed_by_email: user?.email || null,
+          performed_by_user_id: user?.id ?? null,
+          performed_by_name: user?.fullName ?? null,
+          performed_by_email: user?.email ?? null,
           performed_by_type: "admin",
-          reason: notes || null,
-          settlement_status_before: statusBefore,
+          reason: notes ?? null,
+          settlement_status_before: s.status_history?.settlement_status ?? null,
           settlement_status_after: "Approved",
           verification_status_before:
-            settlement.status_history?.verification_status,
+            s.status_history?.verification_status ?? null,
           verification_status_after:
-            settlement.status_history?.verification_status,
-        },
+            s.status_history?.verification_status ?? null,
+        })),
       });
     });
 
-    // Notify partner — approved & ready for payout
-    const partnerName =
-      settlement.b2b_partner?.partner_display_name ||
-      settlement.b2b_partner?.partner_name ||
-      settlement.partner_name ||
-      "Partner";
+    // Notifications — one per settlement (non-blocking)
+    for (const s of settlements) {
+      const partnerName =
+        s.b2b_partner?.partner_display_name ??
+        s.b2b_partner?.partner_name ??
+        s.partner_name ??
+        "Partner";
+      sendCommissionNotification("L2_APPROVED", {
+        settlementId: s.id,
+        settlementRefNumber: s.settlement_reference_number,
+        partnerB2BId: s.b2b_partner_id ?? undefined,
+        partnerName,
+        studentName: s.student_name,
+        lenderName: s.loan_details?.lender_name,
+        loanAmountDisbursed: s.loan_details?.loan_amount_disbursed
+          ? Number(s.loan_details.loan_amount_disbursed)
+          : null,
+        grossCommissionAmount: s.calculation_details?.gross_commission_amount
+          ? Number(s.calculation_details.gross_commission_amount)
+          : null,
+        approverName: user?.fullName ?? user?.email ?? "Business Head",
+        approverNotes: notes ?? null,
+        triggeredBy: {
+          userId: user?.id,
+          name: user?.fullName ?? user?.email,
+          type: "admin",
+        },
+        disbursementDate: s.loan_details?.loan_disbursement_date ?? null,
+        loanProductName: s.loan_details?.loan_product_name ?? null,
+        universityName: s.loan_details?.university_name ?? null,
+        courseName: s.loan_details?.course_name ?? null,
+        destinationCountry: s.loan_details?.student_destination_country ?? null,
+        settlementMonth: s.settlement_month ?? null,
+        settlementYear: s.settlement_year ?? null,
+        settlementDate: s.settlement_date ?? null,
+        commissionRate: s.calculation_details?.commission_rate_applied
+          ? Number(s.calculation_details.commission_rate_applied)
+          : null,
+      }).catch((err: any) =>
+        logger.warn("[Commission] L2 approve notification failed", {
+          error: err.message,
+        }),
+      );
+    }
 
-    sendCommissionNotification("L2_APPROVED", {
-      settlementId,
-      settlementRefNumber: settlement.settlement_reference_number,
-      partnerB2BId: settlement.b2b_partner_id || undefined,
-      partnerName,
-      studentName:
-        settlement.student_name || settlement.loan_details?.student_name, // ✅ fallback
-      loanAmountDisbursed: settlement.loan_details?.loan_amount_disbursed // ✅ ADD THIS
-        ? Number(settlement.loan_details.loan_amount_disbursed)
-        : null,
-      lenderName: settlement.loan_details?.lender_name, // ✅ ADD THIS
-      grossCommissionAmount: settlement.calculation_details
-        ?.gross_commission_amount
-        ? Number(settlement.calculation_details.gross_commission_amount)
-        : null,
-      approverName: user?.fullName || user?.email || "Approver",
-      approverNotes: notes || null,
-      triggeredBy: {
-        userId: user?.id,
-        name: user?.fullName || user?.email,
-        type: "admin",
-      },
-      disbursementDate: settlement.loan_details?.loan_disbursement_date ?? null,
-      loanProductName: settlement.loan_details?.loan_product_name ?? null,
-      universityName: settlement.loan_details?.university_name ?? null,
-      courseName: settlement.loan_details?.course_name ?? null,
-      destinationCountry:
-        settlement.loan_details?.student_destination_country ?? null,
-
-      settlementMonth: settlement.settlement_month ?? null,
-      settlementYear: settlement.settlement_year ?? null,
-      settlementDate: settlement.settlement_date ?? null,
-      commissionRate: settlement.calculation_details?.commission_rate_applied
-        ? Number(settlement.calculation_details.commission_rate_applied)
-        : null,
-    }).catch((err: any) =>
-      logger.warn("[Commission] L2 approve notification failed", {
-        error: err.message,
-      }),
-    );
+    const total = sumNetPayable(settlements);
+    const label = ids.length > 1 ? `${ids.length} tranches` : "Settlement";
 
     logger.info("[Commission] L2 Approved (Final)", {
-      settlementId,
-      approvedBy: user?.fullName || user?.email,
+      ids,
+      approvedBy: user?.fullName ?? user?.email,
     });
 
     return sendResponse(
       res,
       200,
-      "Settlement approved (final). Ready for payout.",
+      `${label} fully approved. Ready for payout.`,
       {
-        settlementId,
+        settlement_ids: ids,
         settlement_status: "Approved",
+        count: ids.length,
+        total_net_payable: total,
       },
     );
   } catch (error: any) {
@@ -1859,19 +1941,19 @@ export const l2ApproveController = async (
       return sendResponse(
         res,
         409,
-        "This settlement has already been processed. Please refresh.",
+        "One or more settlements already processed. Please refresh.",
       );
     }
-    logger.error("[Commission] L2 approve failed", {
-      error: error.message,
-      settlementId: req.params.id,
-    });
+    logger.error("[Commission] L2 approve failed", { error: error.message });
     return sendResponse(res, 500, "Failed to approve at L2");
   }
 };
 
 // ============================================================================
-// PHASE 4: L2 Reject (Business Head rejects → to L1 or Partner)
+// PHASE 4: L2 REJECT
+// Accepts: { settlement_ids: number[], reason: string, reject_to: "l1" | "partner" }
+//   reject_to: "l1"      → status → "Pending Approval" (back to L1 queue), invoice kept
+//   reject_to: "partner" → status → "L2 Rejected", invoice cleared (partner re-uploads)
 // ============================================================================
 
 export const l2RejectController = async (
@@ -1880,127 +1962,162 @@ export const l2RejectController = async (
   next: NextFunction,
 ) => {
   try {
-    const settlementId = parseInt(req.params.id);
+    const parsed = parseSettlementIds(req.body.settlement_ids);
+    if ("error" in parsed) return sendResponse(res, 400, parsed.error);
+    const { ids } = parsed;
+
     const { reason, reject_to } = req.body;
-    const settlement = (req as any).settlement;
     const user = (req as any).user;
 
-    if (!reason || !reason.trim()) {
+    if (!reason?.trim()) {
       return sendResponse(res, 400, "Rejection reason is required");
     }
     if (!reject_to || !["l1", "partner"].includes(reject_to)) {
       return sendResponse(res, 400, "reject_to must be 'l1' or 'partner'");
     }
 
-    const statusBefore = settlement.status_history?.settlement_status || null;
+    const settlements = await fetchSettlementsForApproval(ids);
+    if (settlements.length !== ids.length) {
+      const missing = ids.filter((id) => !settlements.find((s) => s.id === id));
+      return sendResponse(res, 404, "Some settlements not found", { missing });
+    }
+
+    const validStatuses = ["l1 approved", "pending approval"];
+    const invalid = settlements.filter(
+      (s) =>
+        !validStatuses.includes(
+          s.status_history?.settlement_status?.toLowerCase() ?? "",
+        ),
+    );
+    if (invalid.length > 0) {
+      return sendResponse(
+        res,
+        400,
+        "All settlements must be in L1 Approved or Pending Approval status",
+        { invalidIds: invalid.map((s) => s.id) },
+      );
+    }
+
+    // reject_to="l1" → send back to L1 queue as "Pending Approval"
+    // reject_to="partner" → finalize rejection as "L2 Rejected"
     const newStatus = reject_to === "l1" ? "Pending Approval" : "L2 Rejected";
 
     await prisma.$transaction(async (tx) => {
-      const current =
-        await tx.hSCommissionSettlementsSettlementStatus.findUnique({
-          where: { settlement_id: settlementId },
-        });
-      if (!current || current.settlement_status !== "L1 Approved") {
-        throw new Error("ALREADY_PROCESSED");
-      }
+      const current = await tx.hSCommissionSettlementsSettlementStatus.findMany(
+        {
+          where: { settlement_id: { in: ids } },
+          select: { settlement_id: true, settlement_status: true },
+        },
+      );
+      const stale = current.filter(
+        (s) =>
+          !validStatuses.includes(s.settlement_status?.toLowerCase() ?? ""),
+      );
+      if (stale.length > 0) throw new Error("ALREADY_PROCESSED");
 
-      await tx.hSCommissionSettlementsSettlementStatus.update({
-        where: { settlement_id: settlementId },
+      await tx.hSCommissionSettlementsSettlementStatus.updateMany({
+        where: { settlement_id: { in: ids } },
         data: { settlement_status: newStatus },
       });
 
-      // If rejecting back to partner, clear invoice so they can re-upload
+      // When rejecting back to partner: keep invoice visible in Invoices tab
+      // Partner will see it with "Replace Invoice" button — don't wipe the data
       if (reject_to === "partner") {
         await tx.hSCommissionSettlementsDocumentation.updateMany({
-          where: { settlement_id: settlementId },
+          where: { settlement_id: { in: ids } },
           data: {
-            invoice_number: null,
-            invoice_date: null,
-            invoice_amount: null,
             invoice_status: "Rejected",
-            invoice_url: null,
+            // invoice_url, invoice_number, invoice_date, invoice_amount kept intentionally
+            // so the invoice remains visible in partner's Invoices tab for replacement
           },
         });
       }
 
-      await tx.commissionDisputeLog.create({
-        data: {
-          settlement_id: settlementId,
+      await tx.commissionDisputeLog.createMany({
+        data: settlements.map((s) => ({
+          settlement_id: s.id,
           action:
             reject_to === "l1" ? "L2_REJECTED_TO_L1" : "L2_REJECTED_TO_PARTNER",
-          performed_by_user_id: user?.id || null,
-          performed_by_name: user?.fullName || null,
-          performed_by_email: user?.email || null,
+          performed_by_user_id: user?.id ?? null,
+          performed_by_name: user?.fullName ?? null,
+          performed_by_email: user?.email ?? null,
           performed_by_type: "admin",
           reason: reason.trim(),
-          settlement_status_before: statusBefore,
+          settlement_status_before: s.status_history?.settlement_status ?? null,
           settlement_status_after: newStatus,
           verification_status_before:
-            settlement.status_history?.verification_status,
+            s.status_history?.verification_status ?? null,
           verification_status_after:
-            settlement.status_history?.verification_status,
-        },
+            s.status_history?.verification_status ?? null,
+        })),
       });
     });
 
-    // Notification
-    const partnerName =
-      settlement.b2b_partner?.partner_display_name ||
-      settlement.b2b_partner?.partner_name ||
-      settlement.partner_name ||
-      "Partner";
+    // Notifications — one per settlement (non-blocking)
+    for (const s of settlements) {
+      const partnerName =
+        s.b2b_partner?.partner_display_name ??
+        s.b2b_partner?.partner_name ??
+        s.partner_name ??
+        "Partner";
+      const notificationType =
+        reject_to === "l1" ? "L2_REJECTED_TO_L1" : "L2_REJECTED_TO_PARTNER";
+      sendCommissionNotification(notificationType as any, {
+        settlementId: s.id,
+        settlementRefNumber: s.settlement_reference_number,
+        partnerB2BId: s.b2b_partner_id ?? undefined,
+        partnerName,
+        studentName: s.student_name,
+        loanAmountDisbursed: s.loan_details?.loan_amount_disbursed
+          ? Number(s.loan_details.loan_amount_disbursed)
+          : undefined,
+        grossCommissionAmount: s.calculation_details?.gross_commission_amount
+          ? Number(s.calculation_details.gross_commission_amount)
+          : undefined,
+        rejectionReason: reason.trim(),
+        rejectedBy: user?.fullName ?? user?.email ?? "Business Head",
+        rejectTo: reject_to,
+        triggeredBy: {
+          userId: user?.id,
+          name: user?.fullName ?? user?.email,
+          type: "admin",
+        },
+      }).catch((err: any) =>
+        logger.warn("[Commission] L2 reject notification failed", {
+          error: err.message,
+        }),
+      );
+    }
 
-    const notificationType =
-      reject_to === "l1" ? "L2_REJECTED_TO_L1" : "L2_REJECTED_TO_PARTNER";
-
-    sendCommissionNotification(notificationType as any, {
-      settlementId,
-      settlementRefNumber: settlement.settlement_reference_number,
-      partnerB2BId: settlement.b2b_partner_id || undefined,
-      partnerName,
-      studentName: settlement.student_name,
-      rejectionReason: reason.trim(),
-      rejectedBy: user?.fullName || user?.email || "Approver",
-      rejectTo: reject_to,
-      triggeredBy: {
-        userId: user?.id,
-        name: user?.fullName || user?.email,
-        type: "admin",
-      },
-    }).catch((err: any) =>
-      logger.warn("[Commission] L2 reject notification failed", {
-        error: err.message,
-      }),
-    );
-
+    const total = sumNetPayable(settlements);
+    const label = ids.length > 1 ? `${ids.length} tranches` : "Settlement";
     const msg =
       reject_to === "l1"
-        ? "Sent back to L1 for re-review."
-        : "Rejected. Partner will be notified to re-upload.";
+        ? `${label} sent back to L1 for re-review.`
+        : `${label} rejected. Partner will be notified to re-upload.`;
 
     logger.info("[Commission] L2 Rejected", {
-      settlementId,
+      ids,
       rejectTo: reject_to,
       rejectedBy: user?.fullName,
     });
 
     return sendResponse(res, 200, msg, {
-      settlementId,
+      settlement_ids: ids,
       settlement_status: newStatus,
       reject_to,
+      count: ids.length,
+      total_net_payable: total,
     });
   } catch (error: any) {
     if (error.message === "ALREADY_PROCESSED") {
       return sendResponse(
         res,
         409,
-        "This settlement has already been processed. Please refresh.",
+        "One or more settlements already processed. Please refresh.",
       );
     }
-    logger.error("[Commission] L2 reject failed", {
-      error: error.message,
-      settlementId: req.params.id,
-    });
+    logger.error("[Commission] L2 reject failed", { error: error.message });
     return sendResponse(res, 500, "Failed to reject at L2");
   }
 };
@@ -2037,14 +2154,12 @@ export const getApprovalTimelineController = async (
       },
     });
 
-    // Fetch settlement creation date to show as first timeline entry
     const settlement = await prisma.hSCommissionSettlements.findUnique({
       where: { id: settlementId },
       select: { created_at: true },
     });
 
     const timeline = [
-      // First entry: settlement creation
       ...(settlement?.created_at
         ? [
             {
@@ -2075,7 +2190,7 @@ export const getApprovalTimelineController = async (
 };
 
 // ============================================================================
-// PHASE 4: Serve Invoice File (production-safe — no CORS / URL issues)
+// PHASE 4: Serve Invoice File (production-safe)
 // ============================================================================
 
 export const getInvoiceFileController = async (
@@ -2098,7 +2213,6 @@ export const getInvoiceFileController = async (
       return sendResponse(res, 404, "No invoice found for this settlement");
     }
 
-    // Extract filename from URL (handles both full URLs and relative paths)
     let fileName: string;
     try {
       const parsed = new URL(doc.invoice_url);
@@ -2117,7 +2231,6 @@ export const getInvoiceFileController = async (
       return sendResponse(res, 404, "Invoice file not found on server");
     }
 
-    // Determine content type
     const ext = path.extname(fileName).toLowerCase();
     const contentTypes: Record<string, string> = {
       ".pdf": "application/pdf",
