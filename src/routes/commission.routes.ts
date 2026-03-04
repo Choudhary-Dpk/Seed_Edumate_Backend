@@ -24,7 +24,6 @@ import {
   validateSettlementIds,
   validateSettlementOwnership,
   validateSettlementStatus,
-  validateApprovalRole,
 } from "../middlewares/commission.middleware";
 import multer from "../setup/multer";
 import { getB2bPartnersList } from "../controllers/partner.controller";

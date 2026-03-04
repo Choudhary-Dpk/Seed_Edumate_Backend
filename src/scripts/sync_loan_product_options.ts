@@ -1,12 +1,10 @@
 import dotenv from "dotenv";
 import axios from "axios";
-
-//  NEW: Import unified email services
 import { queueEmail } from "../services/email-queue.service";
-import { 
-  EmailType, 
-  EmailCategory, 
-  SenderType 
+import {
+  EmailType,
+  EmailCategory,
+  SenderType,
 } from "../services/email-log.service";
 import logger from "../utils/logger";
 
@@ -53,7 +51,7 @@ const NOTIFICATION_EMAILS = ["deepak@seedglobaleducation.com"];
 
 /**
  *  UPDATED: Send email notification using unified email system
- * 
+ *
  * Changes:
  * - Uses queueEmail() instead of emailQueue.push()
  * - Uses EmailType.SYSTEM_ALERT
@@ -69,7 +67,7 @@ async function sendNotification(
   error?: any,
 ): Promise<void> {
   const status = success ? "Success" : "Failed";
-  const statusEmoji = success ? "" : "❌";
+  const statusEmoji = success ? "" : "";
   const subject = `[Cron Job] HubSpot Property Sync - ${statusEmoji} ${status}`;
 
   const html = `
@@ -132,7 +130,7 @@ async function sendNotification(
         },
       });
     }
-    
+
     logger.debug(`HubSpot sync notification emails queued`);
   } catch (emailError) {
     logger.error(`Failed to queue HubSpot sync notification`, {

@@ -7,10 +7,10 @@ import prisma from "../config/prisma";
 import logger from "../utils/logger";
 import { generateMonthlyMISReports } from "../services/mis-report.service";
 import { queueEmail } from "../services/email-queue.service";
-import { 
-  EmailType, 
-  EmailCategory, 
-  SenderType 
+import {
+  EmailType,
+  EmailCategory,
+  SenderType,
 } from "../services/email-log.service";
 
 dotenv.config();
@@ -38,7 +38,7 @@ function log(taskName: string, message: string): void {
 
 /**
  *  UPDATED: Send email notification using unified email system
- * 
+ *
  * Changes:
  * - Uses queueEmail() instead of emailQueue.push()
  * - Uses EmailType.CRON_NOTIFICATION
@@ -53,7 +53,7 @@ async function sendNotification(
   error?: any,
 ): Promise<void> {
   const status = success ? "Success" : "Failed";
-  const statusEmoji = success ? "" : "❌";
+  const statusEmoji = success ? "" : "";
   const subject = `[Cron Job] ${taskName} - ${statusEmoji} ${status}`;
 
   const html = `
@@ -103,7 +103,7 @@ async function sendNotification(
         },
       });
     }
-    
+
     logger.debug(`Cron notification emails queued for ${taskName}`);
   } catch (emailError) {
     logger.error(`Failed to queue cron notification email`, {

@@ -74,22 +74,6 @@ export const getUserRole = async (userId: number) => {
   };
 };
 
-export const getIsCommissionApplicable = async (userId: number) => {
-  const user = await prisma.b2BPartnersUsers.findUnique({
-    where: {
-      id: userId,
-    },
-    select: {
-      b2b_partner: {
-        select: {
-          is_commission_applicable: true,
-        },
-      },
-    },
-  });
-  return user?.b2b_partner?.is_commission_applicable || false;
-};
-
 export const getAdminRole = async (userId: number) => {
   const userWithRoles = await prisma.adminUsers.findUnique({
     where: { id: userId },
@@ -123,30 +107,6 @@ export const getPartnerIdByUserId = async (userId: number) => {
     },
   });
   return partnerId;
-};
-
-export const getHubspotIdByUserId = async (
-  userId: number
-): Promise<string | null> => {
-  try {
-    const user = await prisma.b2BPartnersUsers.findUnique({
-      where: {
-        id: userId,
-      },
-      select: {
-        b2b_partner: {
-          select: {
-            hs_object_id: true,
-          },
-        },
-      },
-    });
-
-    return user?.b2b_partner?.hs_object_id || null;
-  } catch (error) {
-    console.error("Error fetching Hubspot ID:", error);
-    throw error;
-  }
 };
 
 export const createB2BPartner = async (tx: any, mainData: any) => {

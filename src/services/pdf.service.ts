@@ -90,13 +90,13 @@ class BrowserManager {
 
       // Handle unexpected disconnections
       this.browser.on("disconnected", () => {
-        logger.debug("⚠️ Browser disconnected unexpectedly");
+        logger.debug(" Browser disconnected unexpectedly");
         this.browser = null;
       });
 
       return this.browser;
     } catch (error) {
-      logger.debug("❌ Failed to launch browser:", error);
+      logger.debug("Failed to launch browser:", error);
       this.browser = null;
       throw error;
     } finally {

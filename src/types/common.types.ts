@@ -20,11 +20,3 @@ export interface PaginationOptions {
   limit?: number;
   after?: string;
 }
-
-export interface SearchOptions extends PaginationOptions {
-  properties?: string[];
-  sorts?: {
-    propertyName: string;
-    direction: "ASCENDING" | "DESCENDING";
-  }[];
-}

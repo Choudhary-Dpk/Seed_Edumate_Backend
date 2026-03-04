@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { sendResponse } from "../utils/api";
-import { getLendersList } from "../models/helpers/lender.helper";
+import { getLendersList } from "../models/helpers/lenders.helper";
 import { getLoanProductsByLender } from "../models/helpers/loanProduct.helper";
 import { RequestWithPayload } from "../types/api.types";
 import { LoginPayload } from "../types/auth";
@@ -31,7 +31,7 @@ import {
 export const getLenderListController = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const lenderList = await getLendersList();
@@ -44,7 +44,7 @@ export const getLenderListController = async (
 export const getLoanProductsByLenderController = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const lenderId = Number(req.query.id);
@@ -64,7 +64,7 @@ export const getLoanProductsByLenderController = async (
 export const createLenderController = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.body.lender_name) {
@@ -90,60 +90,60 @@ export const createLenderController = async (
       const contactInfo = await createHSLendersContactInfo(
         tx,
         lender.id,
-        categorized["hsLendersContactInfo"]
+        categorized["hsLendersContactInfo"],
       );
       logger.debug(
-        `Contact info created successfully for lender: ${lender.id}`
+        `Contact info created successfully for lender: ${lender.id}`,
       );
 
       logger.debug(`Creating business metrics for lender: ${lender.id}`);
       const businessMetrics = await createHSLendersBusinessMetrics(
         tx,
         lender.id,
-        categorized["hsLendersBusinessMetrics"]
+        categorized["hsLendersBusinessMetrics"],
       );
       logger.debug(
-        `Business metrics created successfully for lender: ${lender.id}`
+        `Business metrics created successfully for lender: ${lender.id}`,
       );
 
       logger.debug(`Creating loan offerings for lender: ${lender.id}`);
       const loanOfferings = await createHSLendersLoanOfferings(
         tx,
         lender.id,
-        categorized["hsLendersLoanOfferings"]
+        categorized["hsLendersLoanOfferings"],
       );
       logger.debug(
-        `Loan offerings created successfully for lender: ${lender.id}`
+        `Loan offerings created successfully for lender: ${lender.id}`,
       );
 
       logger.debug(`Creating operational details for lender: ${lender.id}`);
       const operationalDetails = await createHSLendersOperationalDetails(
         tx,
         lender.id,
-        categorized["hsLendersOperationalDetails"]
+        categorized["hsLendersOperationalDetails"],
       );
       logger.debug(
-        `Operational details created successfully for lender: ${lender.id}`
+        `Operational details created successfully for lender: ${lender.id}`,
       );
 
       logger.debug(`Creating partnership details for lender: ${lender.id}`);
       const partnershipDetails = await createHSLendersPartnershipsDetails(
         tx,
         lender.id,
-        categorized["hsLendersPartnershipsDetails"]
+        categorized["hsLendersPartnershipsDetails"],
       );
       logger.debug(
-        `Partnership details created successfully for lender: ${lender.id}`
+        `Partnership details created successfully for lender: ${lender.id}`,
       );
 
       logger.debug(`Creating system tracking for lender: ${lender.id}`);
       const systemTracking = await createHSLendersSystemTracking(
         tx,
         lender.id,
-        categorized["hsLendersSystemTracking"]
+        categorized["hsLendersSystemTracking"],
       );
       logger.debug(
-        `System tracking created successfully for lender: ${lender.id}`
+        `System tracking created successfully for lender: ${lender.id}`,
       );
 
       data = {
@@ -175,7 +175,7 @@ export const createLenderController = async (
 
     logger.debug(
       `HSLender creation transaction completed successfully`,
-      result.id
+      result.id,
     );
 
     sendResponse(res, 201, "Lender created successfully", data);
@@ -188,7 +188,7 @@ export const createLenderController = async (
 export const updateLenderController = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const lenderId = parseInt(req.params.id);
@@ -217,7 +217,7 @@ export const updateLenderController = async (
       const lender = await updateHSLender(
         tx,
         lenderId,
-        categorized["hsLenders"]
+        categorized["hsLenders"],
       );
       logger.debug(`HSLender updated successfully: ${lenderId}`);
 
@@ -225,7 +225,7 @@ export const updateLenderController = async (
       await updateHSLendersContactInfo(
         tx,
         lenderId,
-        categorized["hsLendersContactInfo"]
+        categorized["hsLendersContactInfo"],
       );
       logger.debug(`Contact info updated successfully for lender: ${lenderId}`);
 
@@ -233,40 +233,40 @@ export const updateLenderController = async (
       await updateHSLendersBusinessMetrics(
         tx,
         lenderId,
-        categorized["hsLendersBusinessMetrics"]
+        categorized["hsLendersBusinessMetrics"],
       );
       logger.debug(
-        `Business metrics updated successfully for lender: ${lenderId}`
+        `Business metrics updated successfully for lender: ${lenderId}`,
       );
 
       logger.debug(`Updating operational details for lender: ${lenderId}`);
       await updateHSLendersOperationalDetails(
         tx,
         lenderId,
-        categorized["hsLendersOperationalDetails"]
+        categorized["hsLendersOperationalDetails"],
       );
       logger.debug(
-        `Operational details updated successfully for lender: ${lenderId}`
+        `Operational details updated successfully for lender: ${lenderId}`,
       );
 
       logger.debug(`Updating partnership details for lender: ${lenderId}`);
       await updateHSLendersPartnershipsDetails(
         tx,
         lenderId,
-        categorized["hsLendersPartnershipsDetails"]
+        categorized["hsLendersPartnershipsDetails"],
       );
       logger.debug(
-        `Partnership details updated successfully for lender: ${lenderId}`
+        `Partnership details updated successfully for lender: ${lenderId}`,
       );
 
       logger.debug(`Updating system tracking for lender: ${lenderId}`);
       await updateHSLendersSystemTracking(
         tx,
         lenderId,
-        categorized["hsLendersSystemTracking"]
+        categorized["hsLendersSystemTracking"],
       );
       logger.debug(
-        `System tracking updated successfully for lender: ${lenderId}`
+        `System tracking updated successfully for lender: ${lenderId}`,
       );
 
       return lender;
@@ -284,7 +284,7 @@ export const updateLenderController = async (
 export const deleteLendersController = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const lenderId = parseInt(req.params.id);
@@ -316,7 +316,7 @@ export const deleteLendersController = async (
 export const getLendersListController = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const size = parseInt(req.query.size as string) || 10;
@@ -343,7 +343,7 @@ export const getLendersListController = async (
 
     logger.debug(
       `Fetching lenders list with page: ${page}, size: ${size}, sortKey: ${sortKey}, sortDir: ${sortDir}, search: ${search}, filters:`,
-      filters
+      filters,
     );
     const { rows, count } = await fetchLendersList(
       size,
@@ -351,7 +351,7 @@ export const getLendersListController = async (
       sortKey,
       sortDir,
       search,
-      filters
+      filters,
     );
     logger.debug(`Lenders list fetched successfully. Count: ${count}`);
 
@@ -370,7 +370,7 @@ export const getLendersListController = async (
 export const getLenderDetailsController = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const lenderId = parseInt(req.params.id);

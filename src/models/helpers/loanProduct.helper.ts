@@ -1,7 +1,6 @@
 import { Prisma } from "@prisma/client";
 import prisma from "../../config/prisma";
 import { LoanProductFilters } from "../../types/loanProduct.types";
-import logger from "../../utils/logger";
 
 export const createLoanProduct = async (tx: any, mainData: any) => {
   const product = await tx.hSLoanProducts.create({

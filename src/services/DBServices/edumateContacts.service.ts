@@ -290,21 +290,6 @@ export const categorizeByTable = (mappedFields: Record<string, any>) => {
   return categorized;
 };
 
-/**
- * Filters object to only include specified fields
- */
-const filterFields = (data: Record<string, any>, fields: string[]) => {
-  const filtered: Record<string, any> = {};
-
-  for (const field of fields) {
-    if (field in data && data[field] !== undefined && data[field] !== null) {
-      filtered[field] = data[field];
-    }
-  }
-
-  return Object.keys(filtered).length > 0 ? filtered : null;
-};
-
 // ==================== SERVICE FUNCTIONS ====================
 /**
  * Create a contact

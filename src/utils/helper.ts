@@ -2,10 +2,7 @@ import crypto from "crypto";
 import { Row, ValidationResult } from "../types/leads.types";
 import { findLeads } from "../models/helpers/loanApplication.helper";
 import { parse } from "csv-parse";
-import {
-  findContacts,
-  findContactsByPartnerId,
-} from "../models/helpers/contact.helper";
+import { findContactsByPartnerId } from "../models/helpers/contact.helper";
 import { ContactsLead, ContactsValidationResult } from "../types/contact.types";
 import moment from "moment";
 
@@ -270,7 +267,7 @@ export const validateContactRows = (
     const dateOfBirthRaw = r["Date of Birth"];
     const preferredStudyDestination = r["Preferred Study Destination"]
       ?.toString()
-      .trim()
+      .trim();
     const targetDegreeLevel = r["Target Degree Level"]?.toString().trim();
     const intakeMonth = r["Intake Month"]?.toString().trim();
     const admissionStatus = r["Admission Status"]?.toString().trim();

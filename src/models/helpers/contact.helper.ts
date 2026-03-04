@@ -555,23 +555,6 @@ export const fetchContactsLeadList = async (
   return { rows, count };
 };
 
-export const findContacts = async (batch: any[]) => {
-  const contacts = await prisma.hSEdumateContactsPersonalInformation.findMany({
-    where: {
-      OR: batch.map((v) => ({
-        OR: [{ email: v.email }, { phone_number: v.phoneNumber }],
-        is_deleted: false,
-      })),
-    },
-    select: {
-      email: true,
-      phone_number: true,
-    },
-  });
-
-  return contacts;
-};
-
 export const findContactsByPartnerId = async (
   batch: any[],
   partnerId: number,

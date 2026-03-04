@@ -21,7 +21,7 @@ process.on("SIGINT", () => {
  * Main worker function
  */
 export async function startHubSpotSyncWorker() {
-  logger.info("🚀 HubSpot Sync Worker started");
+  logger.info(" HubSpot Sync Worker started");
   // Continuous polling
   while (true) {
     try {
@@ -192,7 +192,7 @@ async function processBatchEntries(entries: any[]) {
           hsObjectId: b2bPartnerHsObjectId,
         });
       } else {
-        logger.warn("⚠️ B2B Partner found but no hs_object_id", {
+        logger.warn(" B2B Partner found but no hs_object_id", {
           b2bPartnerId: b2b_partner_id,
         });
       }
@@ -200,13 +200,13 @@ async function processBatchEntries(entries: any[]) {
 
     // Transform all to HubSpot format
     const hubspotPayloads = completeContactsData.map((contact: any) =>
-      transformToHubSpotFormat(contact)
+      transformToHubSpotFormat(contact),
     );
 
     // Batch create in HubSpot
     const hubspotResults = await createContactsLoanLeads(
       hubspotPayloads,
-      b2bPartnerHsObjectId
+      b2bPartnerHsObjectId,
     );
 
     if (!hubspotResults || hubspotResults.length === 0) {
@@ -279,7 +279,7 @@ async function handleCreate(payload: any, entityId: number): Promise<string> {
         hsObjectId: b2bPartnerHsObjectId,
       });
     } else {
-      logger.warn("⚠️ B2B Partner found but no hs_object_id", {
+      logger.warn(" B2B Partner found but no hs_object_id", {
         b2bPartnerId: completeContactData.b2b_partner_id,
       });
     }
@@ -290,7 +290,7 @@ async function handleCreate(payload: any, entityId: number): Promise<string> {
 
   const hubspotResults = await createContactsLoanLeads(
     [hubspotPayload],
-    b2bPartnerHsObjectId
+    b2bPartnerHsObjectId,
   );
 
   if (!hubspotResults || hubspotResults.length === 0) {

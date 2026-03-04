@@ -226,7 +226,7 @@ export async function resolveNotificationConfig(): Promise<ResolvedNotificationC
     l2ApproverName,
     bdmEmails,
     companyName: process.env.COMPANY_NAME || "Edumate Global",
-    supportEmail: process.env.SUPPORT_EMAIL || "support@edumateglobal.com",
+    supportEmail: process.env.SUPPORT_EMAIL || "tech@edumateglobal.com",
     portalBaseUrl:
       process.env.FRONTEND_URL || "https://portal.edumateglobal.com",
   };
@@ -242,16 +242,4 @@ function parseEmailList(csv?: string): string[] {
     .split(",")
     .map((e) => e.trim())
     .filter((e) => e.length > 0 && e.includes("@"));
-}
-
-/**
- * Force-clear the role cache (call after admin user/role changes).
- */
-export function invalidateRecipientCache(role?: string): void {
-  if (role) {
-    roleCache.delete(role);
-  } else {
-    roleCache.clear();
-  }
-  logger.debug(`[NotificationRecipients] Cache invalidated: ${role || "ALL"}`);
 }

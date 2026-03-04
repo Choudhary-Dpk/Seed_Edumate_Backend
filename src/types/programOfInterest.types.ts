@@ -1,8 +1,4 @@
 /**
- * Type definitions for Program of Interest API
- */
-
-/**
  * Program of Interest structure matching database schema
  */
 export interface ProgramOfInterest {
@@ -51,15 +47,6 @@ export interface InsertionError {
 }
 
 /**
- * API response structure (success)
- */
-export interface RecreateProgramsSuccessResponse {
-  statusCode: 201;
-  message: string;
-  data: RecreateProgramsResponseData;
-}
-
-/**
  * Pagination structure
  */
 export interface Pagination {
@@ -67,35 +54,4 @@ export interface Pagination {
   limit: number;
   total: number;
   totalPages: number;
-}
-
-/**
- * Response for get all programs
- */
-export interface GetAllProgramsResponseData {
-  programs: ProgramOfInterest[];
-  pagination: Pagination;
-}
-
-/**
- * Response for get count
- */
-export interface GetCountResponseData {
-  count: number;
-}
-
-/**
- * Response for truncate operation
- */
-export interface TruncateProgramsResponseData {
-  deletedCount: number;
-}
-
-/**
- * Generic API error response
- */
-export interface ApiErrorResponse {
-  statusCode: 400 | 401 | 403 | 404 | 409 | 500;
-  message: string;
-  data?: any;
 }

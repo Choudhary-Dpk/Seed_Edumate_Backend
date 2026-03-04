@@ -6,11 +6,11 @@ export interface SendDashboardEmailRequest {
   subject: string;
   message?: string;
   filters: DashboardFilters;
-  
+
   // Either PDF or HTML content (or both)
-  pdfBase64?: string;      // For PDF attachment (existing)
-  htmlContent?: string;    // For HTML-only reports (new)
-  
+  pdfBase64?: string; // For PDF attachment (existing)
+  htmlContent?: string; // For HTML-only reports (new)
+
   emailSource?: "auto" | "manual";
 }
 
@@ -26,24 +26,6 @@ export interface SendBulkDashboardEmailRequest {
   message?: string;
   templateId?: number;
   filters: DashboardFilters;
-}
-
-export interface EmailTemplate {
-  id: number;
-  name: string;
-  subject: string;
-  body: string;
-  variables?: Record<string, string>;
-  createdBy?: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface CreateEmailTemplateRequest {
-  name: string;
-  subject: string;
-  body: string;
-  variables?: Record<string, string>;
 }
 
 export interface EmailLogEntry {
@@ -77,11 +59,3 @@ export interface EmailHistoryQuery {
 }
 
 export interface EmailHistoryFilters extends EmailHistoryQuery {}
-
-export interface PartnerWithEmail {
-  id: number;
-  partner_name: string;
-  partner_display_name?: string;
-  email?: string;
-  hasEmail: boolean;
-}

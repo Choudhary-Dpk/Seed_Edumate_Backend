@@ -20,9 +20,9 @@ export const gmailConfig: EmailConfig = {
 
 export const EMAIL_TEMPLATES = {
   subjects: {
-    eligible: "🎉 Loan Pre-Approval Confirmed - Next Steps Inside",
-    notEligible: "📋 Loan Application Received - Under Review",
-    processing: "📋 Loan Application Received - Processing",
+    eligible: "Loan Pre-Approval Confirmed - Next Steps Inside",
+    notEligible: "Loan Application Received - Under Review",
+    processing: "Loan Application Received - Processing",
   },
   links: {
     contactTeam:

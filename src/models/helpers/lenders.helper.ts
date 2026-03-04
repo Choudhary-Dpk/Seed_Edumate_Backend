@@ -17,7 +17,7 @@ export const createHSLender = async (tx: any, mainData: any) => {
 export const createHSLendersContactInfo = async (
   tx: any,
   lenderId: number,
-  contactData: any
+  contactData: any,
 ) => {
   const contactInfo = await tx.hSLendersContactInfo.create({
     data: {
@@ -36,7 +36,7 @@ export const createHSLendersContactInfo = async (
 export const createHSLendersBusinessMetrics = async (
   tx: any,
   lenderId: number,
-  metricsData: any
+  metricsData: any,
 ) => {
   const businessMetrics = await tx.hSLendersBusinessMetrics.create({
     data: {
@@ -55,7 +55,7 @@ export const createHSLendersBusinessMetrics = async (
 export const createHSLendersLoanOfferings = async (
   tx: any,
   lenderId: number,
-  offeringsData: any
+  offeringsData: any,
 ) => {
   const loanOfferings = await tx.hSLendersLoanOfferings.create({
     data: {
@@ -74,7 +74,7 @@ export const createHSLendersLoanOfferings = async (
 export const createHSLendersOperationalDetails = async (
   tx: any,
   lenderId: number,
-  operationalData: any
+  operationalData: any,
 ) => {
   const operationalDetails = await tx.hSLendersOperationalDetails.create({
     data: {
@@ -93,7 +93,7 @@ export const createHSLendersOperationalDetails = async (
 export const createHSLendersPartnershipsDetails = async (
   tx: any,
   lenderId: number,
-  partnershipData: any
+  partnershipData: any,
 ) => {
   const partnershipDetails = await tx.hSLendersPartnershipsDetails.create({
     data: {
@@ -112,7 +112,7 @@ export const createHSLendersPartnershipsDetails = async (
 export const createHSLendersSystemTracking = async (
   tx: any,
   lenderId: number,
-  trackingData: any
+  trackingData: any,
 ) => {
   const systemTracking = await tx.hSLendersSystemTracking.create({
     data: {
@@ -132,7 +132,7 @@ export const createHSLendersSystemTracking = async (
 export const updateHSLender = async (
   tx: any,
   lenderId: number,
-  updateData: any
+  updateData: any,
 ) => {
   const lender = await tx.hSLenders.update({
     where: { id: lenderId },
@@ -148,7 +148,7 @@ export const updateHSLender = async (
 export const updateHSLendersContactInfo = async (
   tx: any,
   lenderId: number,
-  contactData: any
+  contactData: any,
 ) => {
   const existingContact = await tx.hSLendersContactInfo.findUnique({
     where: { lender_id: lenderId },
@@ -172,7 +172,7 @@ export const updateHSLendersContactInfo = async (
 export const updateHSLendersBusinessMetrics = async (
   tx: any,
   lenderId: number,
-  metricsData: any
+  metricsData: any,
 ) => {
   const existingMetrics = await tx.hSLendersBusinessMetrics.findUnique({
     where: { lender_id: lenderId },
@@ -196,7 +196,7 @@ export const updateHSLendersBusinessMetrics = async (
 export const updateHSLendersOperationalDetails = async (
   tx: any,
   lenderId: number,
-  operationalData: any
+  operationalData: any,
 ) => {
   const existingDetails = await tx.hSLendersOperationalDetails.findUnique({
     where: { lender_id: lenderId },
@@ -206,7 +206,7 @@ export const updateHSLendersOperationalDetails = async (
     return await createHSLendersOperationalDetails(
       tx,
       lenderId,
-      operationalData
+      operationalData,
     );
   }
 
@@ -224,7 +224,7 @@ export const updateHSLendersOperationalDetails = async (
 export const updateHSLendersPartnershipsDetails = async (
   tx: any,
   lenderId: number,
-  partnershipData: any
+  partnershipData: any,
 ) => {
   const existingPartnership = await tx.hSLendersPartnershipsDetails.findUnique({
     where: { lender_id: lenderId },
@@ -234,7 +234,7 @@ export const updateHSLendersPartnershipsDetails = async (
     return await createHSLendersPartnershipsDetails(
       tx,
       lenderId,
-      partnershipData
+      partnershipData,
     );
   }
 
@@ -252,7 +252,7 @@ export const updateHSLendersPartnershipsDetails = async (
 export const updateHSLendersSystemTracking = async (
   tx: any,
   lenderId: number,
-  trackingData: any
+  trackingData: any,
 ) => {
   const existingTracking = await tx.hSLendersSystemTracking.findUnique({
     where: { lender_id: lenderId },
@@ -287,15 +287,6 @@ export const softDeleteHSLender = async (tx: any, lenderId: number) => {
   return lender;
 };
 
-export const hardDeleteHSLender = async (tx: any, lenderId: number) => {
-  // Due to cascade deletes, this will remove all related records
-  const lender = await tx.hSLenders.delete({
-    where: { id: lenderId },
-  });
-
-  return lender;
-};
-
 export const fetchHSLenderById = async (tx: any, lenderId: number) => {
   const lender = await tx.hSLenders.findUnique({
     where: { id: lenderId, is_deleted: false },
@@ -312,81 +303,6 @@ export const fetchHSLenderById = async (tx: any, lenderId: number) => {
   return lender;
 };
 
-export const fetchHSLenderByExternalId = async (
-  tx: any,
-  externalId: string
-) => {
-  const lender = await tx.hSLenders.findUnique({
-    where: { external_id: externalId },
-    include: {
-      contact_info: true,
-      business_metrics: true,
-      loan_products: true,
-      operational_details: true,
-      partnership: true,
-      lender_system_tracking: true,
-    },
-  });
-
-  return lender;
-};
-
-export const fetchAllHSLenders = async (
-  tx: any,
-  filters?: any,
-  pagination?: { skip?: number; take?: number }
-) => {
-  const { skip = 0, take = 50 } = pagination || {};
-
-  const lenders = await tx.hSLenders.findMany({
-    where: filters,
-    skip,
-    take,
-    include: {
-      contact_info: true,
-      business_metrics: true,
-      operational_details: true,
-      partnership: true,
-      lender_system_tracking: true,
-    },
-    orderBy: {
-      created_at: "desc",
-    },
-  });
-
-  return lenders;
-};
-
-export const fetchActiveHSLenders = async (
-  tx: any,
-  pagination?: { skip?: number; take?: number }
-) => {
-  const { skip = 0, take = 50 } = pagination || {};
-
-  const lenders = await tx.hSLenders.findMany({
-    where: {
-      is_active: true,
-      lender_system_tracking: {
-        lender_record_status: "ACTIVE",
-      },
-    },
-    skip,
-    take,
-    include: {
-      contact_info: true,
-      business_metrics: true,
-      operational_details: true,
-      partnership: true,
-      lender_system_tracking: true,
-    },
-    orderBy: {
-      created_at: "desc",
-    },
-  });
-
-  return lenders;
-};
-
 export const fetchLendersList = async (
   limit: number,
   offset: number,
@@ -397,7 +313,7 @@ export const fetchLendersList = async (
     lender_name: string | null;
     lender_type: string | null;
     lender_category: string | null;
-  }
+  },
 ) => {
   const where: Prisma.HSLendersWhereInput = {
     is_active: true,
@@ -523,5 +439,31 @@ export const fetchLendersList = async (
 export const getLenderById = async (lenderId: number) => {
   return prisma.hSLenders.findUnique({
     where: { id: lenderId },
+  });
+};
+
+export const getLendersList = async () => {
+  const lendersList = await prisma.hSLenders.findMany();
+  return lendersList;
+};
+
+export const checkLenderFields = async (criteria: Record<string, any>) => {
+  const orConditions: any[] = [];
+
+  if (criteria.lender_name)
+    orConditions.push({ lender_name: criteria.lender_name });
+  if (criteria.lender_display_name)
+    orConditions.push({ lender_display_name: criteria.lender_display_name });
+
+  if (orConditions.length === 0) {
+    return null;
+  }
+
+  return await prisma.hSLenders.findFirst({
+    where: {
+      is_active: true,
+      is_deleted: false,
+      OR: orConditions,
+    },
   });
 };
