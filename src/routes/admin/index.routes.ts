@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { adminAuthRoutes } from "./adminAuth.routes";
+import { userManagementRoutes } from "./user-management.routes";
 import { shortUrlRoutes } from "../shorturl.routes";
 import { loanApplicationRouter } from "../loanApplication.routes";
 import { contactRoutes } from "../contact.routes";
@@ -11,6 +12,7 @@ import { commissionRoutes } from "../commission.routes";
 const router = Router();
 
 router.use("/auth", adminAuthRoutes);
+router.use("/users", userManagementRoutes);
 router.use("/loanApplications", loanApplicationRouter);
 router.use("/contacts", contactRoutes);
 router.use("/partners", partnerRoutes);
