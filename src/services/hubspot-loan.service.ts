@@ -150,7 +150,7 @@ export async function createLoanApplication(
 
     return convertToHubSpotLoanObject<HubSpotLoanApplication>(response);
   } catch (error) {
-    logger.error("❌ Error creating loan application in HubSpot", {
+    logger.error("Error creating loan application in HubSpot", {
       error,
       properties,
     });
@@ -185,7 +185,7 @@ export async function createMultipleLoanApplications(
       convertToHubSpotLoanObject<HubSpotLoanApplication>(res)
     );
   } catch (error) {
-    logger.error("❌ Error creating multiple loan applications in HubSpot", {
+    logger.error("Error creating multiple loan applications in HubSpot", {
       error,
       count: propertiesList.length,
     });
@@ -215,7 +215,7 @@ export async function updateLoanApplication(
 
     return convertToHubSpotLoanObject<HubSpotLoanApplication>(response);
   } catch (error) {
-    logger.error("❌ Error updating loan application in HubSpot", {
+    logger.error("Error updating loan application in HubSpot", {
       error,
       hubspotId,
       properties,
@@ -251,7 +251,7 @@ export async function updateMultipleLoanApplications(
       convertToHubSpotLoanObject<HubSpotLoanApplication>(res)
     );
   } catch (error) {
-    logger.error("❌ Error updating multiple loan applications in HubSpot", {
+    logger.error("Error updating multiple loan applications in HubSpot", {
       error,
       count: updates.length,
     });
@@ -273,7 +273,7 @@ export async function deleteLoanApplication(hubspotId: string): Promise<void> {
       hubspotId,
     });
   } catch (error) {
-    logger.error("❌ Error archiving loan application in HubSpot", {
+    logger.error("Error archiving loan application in HubSpot", {
       error,
       hubspotId,
     });
@@ -302,7 +302,7 @@ export async function getLoanApplicationById(
 
     return convertToHubSpotLoanObject<HubSpotLoanApplication>(response);
   } catch (error) {
-    logger.error("❌ Error retrieving loan application from HubSpot", {
+    logger.error("Error retrieving loan application from HubSpot", {
       error,
       hubspotId,
     });
@@ -335,7 +335,7 @@ export async function getMultipleLoanApplications(
     );
   } catch (error) {
     logger.error(
-      "❌ Error retrieving multiple loan applications from HubSpot",
+      "Error retrieving multiple loan applications from HubSpot",
       {
         error,
         count: hubspotIds.length,

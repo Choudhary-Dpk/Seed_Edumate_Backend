@@ -12,7 +12,7 @@ const MAX_RETRIES = 5;
  * Start Loan Application HubSpot Sync Worker
  */
 export async function startLoanHubSpotSyncWorker() {
-  logger.info("🚀 Loan Application HubSpot Sync Worker started");
+  logger.info("Loan Application HubSpot Sync Worker started");
 
   // Continuous polling
   while (true) {
@@ -53,7 +53,7 @@ async function processLoanOutboxEntries() {
   }
 
   logger.info(
-    `Processing ${pendingEntries.length} pending loan application outbox entries`
+    `Processing ${pendingEntries.length} pending loan application outbox entries`,
   );
 
   // Process each entry individually
@@ -119,7 +119,7 @@ async function processSingleLoanEntry(entry: any) {
     }
 
     logger.debug(
-      ` Loan Synced: ${operation} ${entity_type}#${entry.entity_id}`
+      ` Loan Synced: ${operation} ${entity_type}#${entry.entity_id}`,
     );
   } catch (error: any) {
     await handleLoanSyncError(entry.id, error);
@@ -131,7 +131,7 @@ async function processSingleLoanEntry(entry: any) {
  */
 async function handleLoanCreate(
   payload: any,
-  loanId: number
+  loanId: number,
 ): Promise<string | undefined> {
   // Fetch complete loan application data
   const loanApplication = await prisma.hSLoanApplications.findUnique({
@@ -173,7 +173,7 @@ async function handleLoanCreate(
         hsObjectId: edumateContactHsObjectId,
       });
     } else {
-      logger.warn("⚠️ Edumate Contact found but no hs_object_id", {
+      logger.warn(" Edumate Contact found but no hs_object_id", {
         contactId: loanApplication.contact_id,
       });
     }
@@ -192,7 +192,7 @@ async function handleLoanCreate(
         hsObjectId: b2bPartnerHsObjectId,
       });
     } else {
-      logger.warn("⚠️ B2B Partner found but no hs_object_id", {
+      logger.warn(" B2B Partner found but no hs_object_id", {
         b2bPartnerId: loanApplication.b2b_partner_id,
       });
     }
@@ -211,7 +211,7 @@ async function handleLoanCreate(
         hsObjectId: lenderHsObjectId,
       });
     } else {
-      logger.warn("⚠️ Lender found but no hs_object_id", {
+      logger.warn(" Lender found but no hs_object_id", {
         lenderId: loanApplication.lender_id,
       });
     }
@@ -229,7 +229,7 @@ async function handleLoanCreate(
         hsObjectId: loanProductHsObjectId,
       });
     } else {
-      logger.warn("⚠️ Loan Product found but no hs_object_id", {
+      logger.warn(" Loan Product found but no hs_object_id", {
         productId: loanApplication.product_id,
       });
     }
@@ -244,7 +244,7 @@ async function handleLoanCreate(
     edumateContactHsObjectId,
     b2bPartnerHsObjectId,
     lenderHsObjectId,
-    loanProductHsObjectId
+    loanProductHsObjectId,
   );
 
   return result.id;

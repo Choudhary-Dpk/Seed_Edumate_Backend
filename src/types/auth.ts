@@ -40,6 +40,8 @@ export type AllowedRoles = "Admin" | "Manager" | "User";
 
 export type AllowedAdminRoles = "Admin";
 
+export type AllowedPemissions = "view" | "edit" | "add" | "delete";
+
 // Portal types
 export enum PortalType {
   ADMIN = "ADMIN",

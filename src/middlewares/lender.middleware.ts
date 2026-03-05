@@ -1,17 +1,14 @@
-import { Request,Response,NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
 import { sendResponse } from "../utils/api";
-import { checkLenderFields } from "../models/helpers/lender.helper";
+import { checkLenderFields } from "../models/helpers/lenders.helper";
 
 export const checkDuplicateLenderFields = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
-    const {
-      lender_name,
-      lender_display_name,
-    } = req.body;
+    const { lender_name, lender_display_name } = req.body;
 
     // Check for duplicates
     const existing = await checkLenderFields({
@@ -25,9 +22,6 @@ export const checkDuplicateLenderFields = async (
 
     next();
   } catch (error) {
-    console.error(
-      "Error in duplicate Lender field",
-      error
-    );
+    console.error("Error in duplicate Lender field", error);
   }
 };

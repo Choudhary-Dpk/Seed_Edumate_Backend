@@ -87,23 +87,6 @@ export const createSystemTracking = async (loanId: number) => {
   return financialRequirements;
 };
 
-export const getLeadByEmail = async (email: string) => {
-  const lead = await prisma.hSLoanApplications.findFirst({
-    select: {
-      id: true,
-      student_name: true,
-      student_email: true,
-      is_deleted: true,
-    },
-    where: {
-      student_email: email,
-      is_deleted: false,
-    },
-  });
-
-  return lead;
-};
-
 // Find existing leads for deduplication
 export const findLeads = async (batch: Row[]) => {
   const leads = await prisma.hSLoanApplications.findMany({
@@ -391,15 +374,6 @@ export const updateSystemTracking = async (hubspotResults: HubspotResult[]) => {
         });
       }
     }
-  });
-};
-
-export const getHubspotByLeadId = async (leadId: number) => {
-  return prisma.hSLoanApplications.findUnique({
-    where: { id: leadId },
-    select: {
-      hs_object_id: true,
-    },
   });
 };
 
@@ -1017,35 +991,4 @@ export const fetchLoanApplicationsList = async (
   ]);
 
   return { rows, count };
-};
-
-export const checkLoanApplicationFields = async (
-  lead_reference_code?: string,
-  student_id?: string,
-  student_email?: string,
-) => {
-  const conditions: any[] = [];
-  if (lead_reference_code) conditions.push({ lead_reference_code });
-  if (student_id) conditions.push({ student_id });
-  if (student_email) conditions.push({ student_email });
-
-  if (conditions.length === 0) {
-    return null;
-  }
-
-  const result = await prisma.hSLoanApplications.findFirst({
-    where: {
-      is_active: true,
-      is_deleted: false,
-      OR: conditions,
-    },
-    select: {
-      id: true,
-      lead_reference_code: true,
-      student_id: true,
-      student_email: true,
-    },
-  });
-
-  return result;
 };

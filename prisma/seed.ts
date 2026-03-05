@@ -164,7 +164,7 @@ const seedCurrencies = async () => {
     } catch (error) {
       errorCount++;
       console.error(
-        `❌ Error seeding ${currency.code}:`,
+        `Error seeding ${currency.code}:`,
         (error as Error).message,
       );
     }

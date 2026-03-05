@@ -359,7 +359,6 @@ const NOTIFICATION_CONFIGS: Record<
           "A partner has submitted an invoice for commission settlement",
         bodyText:
           "Please review the invoice details and proceed with verification.",
-        ctaUrl: `${cfg.portalBaseUrl}/admin/commissions/${data.settlementId}`,
       }),
     getReferenceId: (data) => data.settlementId,
     afterSend: (data, email) =>
@@ -401,7 +400,6 @@ const NOTIFICATION_CONFIGS: Record<
         subtitle: `Approved by ${data.approverName || "L1 Reviewer"}`,
         bodyText:
           "This settlement has passed L1 verification and requires your final approval to proceed with payment.",
-        ctaUrl: `${cfg.portalBaseUrl}/admin/commissions/${data.settlementId}`,
       }),
     getReferenceId: (data) => data.settlementId,
     afterSend: (data, email) =>
@@ -463,7 +461,6 @@ const NOTIFICATION_CONFIGS: Record<
           : "Please review and resubmit",
         bodyText:
           "Your commission settlement has been returned during L1 review. Please check the details and take corrective action.",
-        ctaUrl: `${cfg.portalBaseUrl}/partners/commissions`,
       }),
     getReferenceId: (data) => data.settlementId,
     afterSend: (data, email) =>
@@ -502,7 +499,6 @@ const NOTIFICATION_CONFIGS: Record<
         subtitle: `Approved by ${data.approverName || "Business Head"}`,
         bodyText:
           "This settlement has received final business approval. Please proceed with payment initiation.",
-        ctaUrl: `${cfg.portalBaseUrl}/admin/commissions/${data.settlementId}`,
       }),
     getReferenceId: (data) => data.settlementId,
     afterSend: (data, email) =>
@@ -548,7 +544,6 @@ const NOTIFICATION_CONFIGS: Record<
           : "Sent back for re-review",
         bodyText:
           "This settlement was sent back during L2 business approval and requires your re-review before resubmission.",
-        ctaUrl: `${cfg.portalBaseUrl}/admin/commissions/${data.settlementId}`,
       }),
     getReferenceId: (data) => data.settlementId,
     afterSend: (data, email) =>
@@ -610,7 +605,6 @@ const NOTIFICATION_CONFIGS: Record<
           : "Please re-upload your invoice",
         bodyText:
           "Your commission settlement has been rejected during L2 review. Please check the details and re-upload your invoice.",
-        ctaUrl: `${cfg.portalBaseUrl}/partners/commissions`,
       }),
     getReferenceId: (data) => data.settlementId,
     afterSend: (data, email) =>
@@ -673,7 +667,6 @@ const NOTIFICATION_CONFIGS: Record<
           : "Your objection has been reviewed and resolved",
         bodyText:
           "The admin team has reviewed and resolved the dispute on your commission settlement. Please log in to the portal to check the updated status.",
-        ctaUrl: `${cfg.portalBaseUrl}/partners/commissions`,
       }),
     getReferenceId: (data) => data.settlementId,
     afterSend: (data, email) =>
@@ -1110,7 +1103,7 @@ interface ApprovalTemplateOpts {
   subtitle: string;
   bodyText: string;
   ctaText?: string;
-  ctaUrl: string;
+  ctaUrl?: string;
 }
 
 function buildGenericApprovalTemplate(
@@ -1155,9 +1148,6 @@ function buildGenericApprovalTemplate(
   </td></tr></table>`
       : ""
   }
-  <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:8px 0 16px;">
-    <a href="${opts.ctaUrl}" target="_blank" style="display:inline-block;padding:12px 32px;background:linear-gradient(135deg,${colorFrom} 0%,${colorTo} 100%);color:#ffffff;text-decoration:none;border-radius:8px;font-size:14px;font-weight:600;">${esc(opts.ctaText || "View Details →")}</a>
-  </td></tr></table>
 </td></tr>
 ${footerRow(cfg)}
 </table></td></tr></table></body></html>`;

@@ -28,7 +28,7 @@ export const isHubSpotEdumateContact = (
 };
 
 export const isMappedEdumateContact = (
-  obj: any
+  obj: any,
 ): obj is import("./mapped.types").MappedEdumateContact => {
   return (
     obj &&
@@ -39,5 +39,3 @@ export const isMappedEdumateContact = (
     obj.updatedAt
   );
 };
-
-export type AllowedPemissions = "view" | "edit" | "add" | "delete";

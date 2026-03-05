@@ -1,5 +1,3 @@
-// src/types/mis-report.types.ts
-
 export interface MonthlyMISMetrics {
   total_leads: number;
   applications_initiated: number;

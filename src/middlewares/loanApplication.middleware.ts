@@ -1,11 +1,7 @@
-import { Response, NextFunction, Request } from "express";
+import { Response, NextFunction } from "express";
 import { sendResponse } from "../utils/api";
 import { RequestWithPayload } from "../types/api.types";
 import { LoginPayload } from "../types/auth";
-import {
-  checkLoanApplicationFields,
-  getLeadById,
-} from "../models/helpers/loanApplication.helper";
 import multer from "../setup/multer";
 import { FileData } from "../types/leads.types";
 import { parseCSVWithCsvParse } from "../utils/helper";

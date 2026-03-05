@@ -19,6 +19,7 @@ import {
 import { validateUserPassword } from "../utils/auth";
 import { RequestWithPayload } from "../types/api.types";
 import {
+  AllowedPemissions,
   AuthMethod,
   AuthOptions,
   LoginPayload,
@@ -33,7 +34,6 @@ import {
 import { fetchIpDetails } from "../services/user.service";
 import { UAParser } from "ua-parser-js";
 import moment from "moment";
-import { AllowedPemissions } from "../types";
 import { getEdumateContactByEmail } from "../models/helpers/contact.helper";
 import logger from "../utils/logger";
 
