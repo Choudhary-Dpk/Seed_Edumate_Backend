@@ -1022,7 +1022,6 @@ function buildPartnerCommissionTemplate(
       <tr><td width="180" style="padding:6px 0;color:#7F8C8D;font-size:13px;">Student Name</td><td style="padding:6px 0;color:#2C3E50;font-size:13px;font-weight:600;">${esc(data.studentName || "—")}</td></tr>
       ${row("Student ID", data.studentId)}${row("Lender", data.lenderName)}${row("Loan Product", data.loanProductName)}
       <tr><td style="padding:6px 0;color:#7F8C8D;font-size:13px;">Disbursed Amount</td><td style="padding:6px 0;color:#2C3E50;font-size:14px;font-weight:700;">${fmtCurrency(data.loanAmountDisbursed)}</td></tr>
-      <tr><td style="padding:6px 0;color:#7F8C8D;font-size:13px;">Disbursement Date</td><td style="padding:6px 0;color:#2C3E50;font-size:13px;">${fmtDate(data.disbursementDate)}</td></tr>
       ${row("University", data.universityName)}${row("Course", data.courseName)}${row("Destination", data.destinationCountry)}
     </table>
   </td></tr></table>
