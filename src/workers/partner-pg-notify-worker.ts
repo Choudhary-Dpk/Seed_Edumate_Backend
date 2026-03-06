@@ -822,7 +822,18 @@ async function processRetry(item: any): Promise<void> {
 // PHASE 1: Finance Notification for New Partner
 // ============================================================================
 
+// Track sent notifications to prevent duplicates (in-memory, resets on restart)
+const sentPartnerNotifications = new Set<number>();
+
 async function notifyFinanceForNewPartner(partnerId: number): Promise<void> {
+  // Prevent duplicate notifications
+  if (sentPartnerNotifications.has(partnerId)) {
+    logger.debug(
+      `[B2B Partner PG NOTIFY] Skipping duplicate notification for partner #${partnerId}`,
+    );
+    return;
+  }
+
   const partner = await prisma.hSB2BPartners.findUnique({
     where: { id: partnerId },
     include: {
@@ -836,6 +847,29 @@ async function notifyFinanceForNewPartner(partnerId: number): Promise<void> {
     );
     return;
   }
+
+  // Check if notification was already sent (database check for persistence across restarts)
+  const existingNotification = await prisma.emailLog.findFirst({
+    where: {
+      reference_type: "partner",
+      reference_id: partnerId,
+      email_type: "COMMISSION_FINANCE_NOTIFY",
+      created_at: {
+        gte: new Date(Date.now() - 24 * 60 * 60 * 1000), // Within last 24 hours
+      },
+    },
+  });
+
+  if (existingNotification) {
+    logger.debug(
+      `[B2B Partner PG NOTIFY] Notification already sent for partner #${partnerId} within 24h, skipping`,
+    );
+    sentPartnerNotifications.add(partnerId);
+    return;
+  }
+
+  // Mark as sent BEFORE sending to prevent race conditions
+  sentPartnerNotifications.add(partnerId);
 
   logger.info(
     `[B2B Partner PG NOTIFY] Sending finance notification for partner #${partnerId}`,

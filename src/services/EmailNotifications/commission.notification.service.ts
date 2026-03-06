@@ -359,6 +359,7 @@ const NOTIFICATION_CONFIGS: Record<
           "A partner has submitted an invoice for commission settlement",
         bodyText:
           "Please review the invoice details and proceed with verification.",
+        ctaUrl: `${cfg.portalBaseUrl}/admin/commissions/${data.settlementId}`,
       }),
     getReferenceId: (data) => data.settlementId,
     afterSend: (data, email) =>
@@ -400,6 +401,7 @@ const NOTIFICATION_CONFIGS: Record<
         subtitle: `Approved by ${data.approverName || "L1 Reviewer"}`,
         bodyText:
           "This settlement has passed L1 verification and requires your final approval to proceed with payment.",
+        ctaUrl: `${cfg.portalBaseUrl}/admin/commissions/${data.settlementId}`,
       }),
     getReferenceId: (data) => data.settlementId,
     afterSend: (data, email) =>
@@ -461,6 +463,7 @@ const NOTIFICATION_CONFIGS: Record<
           : "Please review and resubmit",
         bodyText:
           "Your commission settlement has been returned during L1 review. Please check the details and take corrective action.",
+        ctaUrl: `${cfg.portalBaseUrl}/partners/commissions`,
       }),
     getReferenceId: (data) => data.settlementId,
     afterSend: (data, email) =>
@@ -499,6 +502,7 @@ const NOTIFICATION_CONFIGS: Record<
         subtitle: `Approved by ${data.approverName || "Business Head"}`,
         bodyText:
           "This settlement has received final business approval. Please proceed with payment initiation.",
+        ctaUrl: `${cfg.portalBaseUrl}/admin/commissions/${data.settlementId}`,
       }),
     getReferenceId: (data) => data.settlementId,
     afterSend: (data, email) =>
@@ -544,6 +548,7 @@ const NOTIFICATION_CONFIGS: Record<
           : "Sent back for re-review",
         bodyText:
           "This settlement was sent back during L2 business approval and requires your re-review before resubmission.",
+        ctaUrl: `${cfg.portalBaseUrl}/admin/commissions/${data.settlementId}`,
       }),
     getReferenceId: (data) => data.settlementId,
     afterSend: (data, email) =>
@@ -605,6 +610,7 @@ const NOTIFICATION_CONFIGS: Record<
           : "Please re-upload your invoice",
         bodyText:
           "Your commission settlement has been rejected during L2 review. Please check the details and re-upload your invoice.",
+        ctaUrl: `${cfg.portalBaseUrl}/partners/commissions`,
       }),
     getReferenceId: (data) => data.settlementId,
     afterSend: (data, email) =>
@@ -667,6 +673,7 @@ const NOTIFICATION_CONFIGS: Record<
           : "Your objection has been reviewed and resolved",
         bodyText:
           "The admin team has reviewed and resolved the dispute on your commission settlement. Please log in to the portal to check the updated status.",
+        ctaUrl: `${cfg.portalBaseUrl}/partners/commissions`,
       }),
     getReferenceId: (data) => data.settlementId,
     afterSend: (data, email) =>
@@ -970,9 +977,6 @@ function buildFinanceNotificationTemplate(
       <tr><td style="padding:6px 0;color:#7F8C8D;font-size:13px;">Onboarded At</td><td style="padding:6px 0;color:#2C3E50;font-size:13px;">${onboardedDate}</td></tr>
     </table>
   </td></tr></table>
-  <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:8px 0 16px;">
-    <a href="${partnerPortalUrl}" target="_blank" style="display:inline-block;padding:12px 32px;background:linear-gradient(135deg,#1B4F72 0%,#2E86C1 100%);color:#ffffff;text-decoration:none;border-radius:8px;font-size:14px;font-weight:600;">View Partner Details →</a>
-  </td></tr></table>
 </td></tr>
 ${footerRow(cfg)}
 </table></td></tr></table></body></html>`;
@@ -1038,9 +1042,6 @@ function buildPartnerCommissionTemplate(
       <li>Log in to the partner portal</li><li>Review the disbursement entry (student name, amount, date)</li><li>Approve or raise an objection if any discrepancy found</li>
     </ol>
   </td></tr></table>
-  <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:8px 0 16px;">
-    <a href="${portalUrl}" target="_blank" style="display:inline-block;padding:12px 32px;background:linear-gradient(135deg,#27AE60 0%,#2ECC71 100%);color:#ffffff;text-decoration:none;border-radius:8px;font-size:14px;font-weight:600;">Review on Partner Portal →</a>
-  </td></tr></table>
 </td></tr>
 <tr><td style="background-color:#F8F9FA;padding:18px 32px;border-top:1px solid #E5E8EB;">
   <p style="margin:0;color:#7F8C8D;font-size:11px;text-align:center;">This is an automated notification from ${esc(cfg.companyName)}.<br/>For support, reach out to your account manager or email ${esc(cfg.supportEmail)}<br/>© ${CURRENT_YEAR} ${esc(cfg.companyName)}. All rights reserved.</p>
@@ -1088,9 +1089,6 @@ function buildObjectionNotificationTemplate(
   </td></tr></table>`
       : ""
   }
-  <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:8px 0 16px;">
-    <a href="${portalUrl}" target="_blank" style="display:inline-block;padding:12px 32px;background:linear-gradient(135deg,#DC2626 0%,#EF4444 100%);color:#ffffff;text-decoration:none;border-radius:8px;font-size:14px;font-weight:600;">Review &amp; Resolve Dispute →</a>
-  </td></tr></table>
 </td></tr>
 ${footerRow(cfg)}
 </table></td></tr></table></body></html>`;
@@ -1103,7 +1101,7 @@ interface ApprovalTemplateOpts {
   subtitle: string;
   bodyText: string;
   ctaText?: string;
-  ctaUrl?: string;
+  ctaUrl: string;
 }
 
 function buildGenericApprovalTemplate(
