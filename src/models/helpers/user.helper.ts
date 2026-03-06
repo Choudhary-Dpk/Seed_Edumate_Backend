@@ -109,6 +109,31 @@ export const getUserProfile = async (userId: number) => {
           partner_display_name: true,
           is_commission_applicable: true,
           logo_url: true,
+          // Include commission structure
+          commission_structure: {
+            select: {
+              id: true,
+              commission_model: true,
+              commission_type: true,
+              commission_rate: true,
+              fixed_commission_amount: true,
+              tiered_commission_structure: true,
+              bonus_structure: true,
+              gst_applicable: true,
+              tds_applicable: true,
+              tds_rate: true,
+              payment_frequency: true,
+              payment_method: true,
+              payment_terms: true,
+              invoice_requirements: true,
+              // Bank details
+              bank_name: true,
+              bank_branch: true,
+              bank_account_number: true,
+              beneficiary_name: true,
+              ifsc_code: true,
+            },
+          },
         },
       },
       roles: {
