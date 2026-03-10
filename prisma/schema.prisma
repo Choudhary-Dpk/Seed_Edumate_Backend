@@ -1855,6 +1855,7 @@ model HSCommissionSettlements {
   hs_product_id               String?
   hs_created_by_user_id       Int?
   hs_updated_by_user_id       Int?
+  dispute_logs                CommissionDisputeLog[]
   loan_application            HSLoanApplications?                           @relation(fields: [application_id], references: [id], onDelete: Cascade)
   b2b_partner                 HSB2BPartners?                                @relation(fields: [b2b_partner_id], references: [id], onDelete: Cascade)
   edumate_contacts            HSEdumateContacts?                            @relation(fields: [lead_reference_id], references: [id], onDelete: Cascade)
@@ -1864,7 +1865,6 @@ model HSCommissionSettlements {
   communication               HSCommissionSettlementsCommunication?
   documentaion                HSCommissionSettlementsDocumentation?
   hold_dispute                HSCommissionSettlementsHoldAndDisputes?
-  dispute_logs                CommissionDisputeLog[]
   loan_details                HSCommissionSettlementsLoanDetails?
   payment_details             HSCommissionSettlementsPaymentProcessing?
   performance_metrics         HSCommissionSettlementsPerformanceAnalytics?
@@ -1997,14 +1997,14 @@ model CommissionDisputeLog {
   performed_by_name          String?
   performed_by_email         String?
   performed_by_type          String?
-  reason                     String?                 @db.Text
-  resolution                 String?                 @db.Text
+  reason                     String?
+  resolution                 String?
   settlement_status_before   String?
   settlement_status_after    String?
   verification_status_before String?
   verification_status_after  String?
   created_at                 DateTime                @default(now())
-  settlement                 HSCommissionSettlements  @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
+  settlement                 HSCommissionSettlements @relation(fields: [settlement_id], references: [id], onDelete: Cascade)
 
   @@index([settlement_id])
   @@index([created_at])
@@ -2488,6 +2488,22 @@ model email_history {
   @@index([sent_at])
 }
 
+model adminRoleChangeAuditLog {
+  id                 Int       @id @default(autoincrement())
+  admin_user_id      Int
+  previous_role_id   Int?
+  new_role_id        Int
+  changed_by_user_id Int
+  changed_by_name    String    @db.VarChar(255)
+  reason             String?
+  created_at         DateTime? @default(now())
+
+  @@index([admin_user_id])
+  @@index([created_at(sort: Desc)])
+  @@index([changed_by_user_id])
+  @@map("admin_role_change_audit_log")
+}
+
 view leads_view {
   contact_id                  Int?
   b2b_partner_id              Int?
@@ -2514,7 +2530,7 @@ view leads_view {
   lifecycle_stages            String?
   lifecycle_stages_status     String?
   loan_application_id         Int?
-  application_date            DateTime?
+  application_date            DateTime? @db.Timestamp(6)
   student_id                  String?
   student_name                String?
   student_email               String?
@@ -2524,27 +2540,13 @@ view leads_view {
   application_status          String?
   integration_status          String?
   commission_status           String?
-  commission_amount           Decimal?  @db.Decimal(16, 4)
-  loan_amount_requested       Decimal?  @db.Decimal(16, 4)
-  loan_amount_approved        Decimal?  @db.Decimal(16, 4)
-  loan_amount_disbursed       Decimal?  @db.Decimal(16, 4)
-  processing_fee              Decimal?  @db.Decimal(16, 4)
-}
-
-model adminRoleChangeAuditLog {
-  id                 Int       @id @default(autoincrement())
-  admin_user_id      Int
-  previous_role_id   Int?
-  new_role_id        Int
-  changed_by_user_id Int
-  changed_by_name    String    @db.VarChar(255)
-  reason             String?   @db.Text
-  created_at         DateTime? @default(now()) @db.Timestamp(3)
-
-  @@index([admin_user_id])
-  @@index([created_at(sort: Desc)])
-  @@index([changed_by_user_id])
-  @@map("admin_role_change_audit_log")
+  commission_amount           Decimal?  @db.Decimal
+  loan_amount_requested       Decimal?  @db.Decimal
+  loan_amount_approved        Decimal?  @db.Decimal
+  loan_amount_disbursed       Decimal?  @db.Decimal
+  processing_fee              Decimal?  @db.Decimal
+  loan_application_count      BigInt?
+  loan_application_ids        Int[]
 }
 
 enum EmailQueueStatus {
@@ -3170,29 +3172,29 @@ enum EmailCategory {
 }
 
 enum EmailType {
-  OTP                       @map("Otp")
-  FORGOT_PASSWORD           @map("Forgot Password")
-  SET_PASSWORD              @map("Set Password")
-  RESET_PASSWORD            @map("Reset Password")
-  EMAIL_VERIFICATION        @map("Email Verification")
-  PASSWORD_CHANGED          @map("Password Changed")
-  DASHBOARD_REPORT          @map("Dashboard Report")
-  MONTHLY_REPORT            @map("Monthly Report")
-  LOAN_ELIGIBILITY          @map("Loan Eligibility Result")
-  REPAYMENT_SCHEDULE        @map("Repayment Schedule Email")
-  CRON_NOTIFICATION         @map("Cron Notification")
-  SYSTEM_ALERT              @map("System Alert")
-  SHOW_INTEREST             @map("Show Interest")
-  WELCOME                   @map("Welcome")
-  UNKNOWN                   @map("Unknown")
+  OTP                                      @map("Otp")
+  FORGOT_PASSWORD                          @map("Forgot Password")
+  SET_PASSWORD                             @map("Set Password")
+  RESET_PASSWORD                           @map("Reset Password")
+  EMAIL_VERIFICATION                       @map("Email Verification")
+  PASSWORD_CHANGED                         @map("Password Changed")
+  DASHBOARD_REPORT                         @map("Dashboard Report")
+  MONTHLY_REPORT                           @map("Monthly Report")
+  LOAN_ELIGIBILITY                         @map("Loan Eligibility Result")
+  REPAYMENT_SCHEDULE                       @map("Repayment Schedule Email")
+  CRON_NOTIFICATION                        @map("Cron Notification")
+  SYSTEM_ALERT                             @map("System Alert")
+  SHOW_INTEREST                            @map("Show Interest")
+  WELCOME                                  @map("Welcome")
+  UNKNOWN                                  @map("Unknown")
   COMMISSION_FINANCE_NOTIFY
   COMMISSION_PARTNER_NOTIFY
-  COMMISSION_OBJECTION_NOTIFY         
-  COMMISSION_DISPUTE_RESOLVED_NOTIFY 
+  COMMISSION_OBJECTION_NOTIFY
+  COMMISSION_DISPUTE_RESOLVED_NOTIFY
   COMMISSION_INVOICE_SUBMITTED_NOTIFY
-  COMMISSION_L1_APPROVED_NOTIFY          
-  COMMISSION_L1_REJECTED_NOTIFY         
-  COMMISSION_L2_APPROVED_NOTIFY       
+  COMMISSION_L1_APPROVED_NOTIFY
+  COMMISSION_L1_REJECTED_NOTIFY
+  COMMISSION_L2_APPROVED_NOTIFY
   COMMISSION_L2_REJECTED_TO_L1_NOTIFY
   COMMISSION_L2_REJECTED_TO_PARTNER_NOTIFY
 
