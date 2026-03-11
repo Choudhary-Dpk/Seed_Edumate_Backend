@@ -45,13 +45,16 @@ import {
   fetchCommissionSettlementsByLead,
 } from "../models/helpers/commission.helper";
 import { getContactLeadById } from "../models/helpers/contact.helper";
-import { BACKEND_URL } from "../setup/secrets";
 import { getPartnerIdByUserId } from "../models/helpers/partners.helper";
 import {
   sendCommissionNotification,
   notifyFinanceForInvoice,
 } from "../services/EmailNotifications/commission.notification.service";
-import { buildSystemInvoiceHTML } from "../utils/helper";
+import { BACKEND_URL } from "../setup/secrets";
+import {
+  buildSystemInvoiceHTML,
+  buildSystemInvoiceHTMLDetailed,
+} from "../utils/helper";
 
 // ============================================================================
 // PHASE 4 HELPERS — used by the unified approval controllers below
@@ -1302,6 +1305,7 @@ export const generateInvoiceController = async (
     }
 
     const partner = settlements[0].b2b_partner;
+    const partnerId = settlements[0].b2b_partner_id;
     const partnerName =
       partner?.partner_display_name ||
       partner?.partner_name ||
@@ -1309,10 +1313,58 @@ export const generateInvoiceController = async (
       "Partner";
     const invoiceDate = new Date();
 
+    // Fetch partner contact info for email
+    let partnerContactInfo: { primary_contact_email: string | null } | null =
+      null;
+    if (partnerId) {
+      partnerContactInfo = await prisma.hSB2BPartnersContactInfo.findFirst({
+        where: { partner_id: partnerId },
+        select: { primary_contact_email: true },
+      });
+    }
+
+    // Fetch bank details from commission structure
+    let partnerBankDetails: {
+      beneficiary_name: string | null;
+      bank_name: string | null;
+      bank_account_number: string | null;
+      bank_branch: string | null;
+      ifsc_code: string | null;
+    } | null = null;
+    if (partnerId) {
+      partnerBankDetails =
+        await prisma.hSB2BPartnersCommissionStructure.findFirst({
+          where: { partner_id: partnerId },
+          select: {
+            beneficiary_name: true,
+            bank_name: true,
+            bank_account_number: true,
+            bank_branch: true,
+            ifsc_code: true,
+          },
+        });
+    }
+
+    // Fetch student contact info
+    const firstSettlement = settlements[0];
+    let studentContactInfo: {
+      email: string | null;
+      phone_number: string | null;
+    } | null = null;
+    if (firstSettlement.lead_reference_id) {
+      studentContactInfo =
+        await prisma.hSEdumateContactsPersonalInformation.findFirst({
+          where: { contact_id: firstSettlement.lead_reference_id },
+          select: { email: true, phone_number: true },
+        });
+    }
+
+    // Calculate totals
     let subtotal = 0;
     let totalGst = 0;
     let totalTds = 0;
     let totalDeductions = 0;
+    let grossCommission = 0;
 
     const lineItems = settlements.map((s, idx) => {
       const calc = s.calculation_details;
@@ -1330,14 +1382,12 @@ export const generateInvoiceController = async (
       const deductions = tax?.total_deductions
         ? Number(tax.total_deductions)
         : 0;
-      const netPayable = tax?.net_payable_amount
-        ? Number(tax.net_payable_amount)
-        : totalGrossAmount - deductions;
 
       subtotal += totalGrossAmount;
       totalGst += gstAmount;
       totalTds += tdsAmount;
       totalDeductions += deductions;
+      grossCommission += grossAmount;
 
       return {
         sno: idx + 1,
@@ -1352,7 +1402,7 @@ export const generateInvoiceController = async (
         grossAmount: totalGrossAmount,
         gstAmount,
         tdsAmount,
-        netPayable,
+        netPayable: totalGrossAmount + gstAmount - tdsAmount - deductions,
         refNumber: s.settlement_reference_number || `SET-${s.id}`,
         university: loan?.university_name || "",
         course: loan?.course_name || "",
@@ -1360,6 +1410,15 @@ export const generateInvoiceController = async (
     });
 
     const netPayableTotal = subtotal + totalGst - totalTds - totalDeductions;
+
+    // Calculate due date
+    const dueDate = new Date(invoiceDate);
+    dueDate.setDate(dueDate.getDate() + 30);
+
+    // Get first settlement's data for details
+    const firstCalc = firstSettlement.calculation_details;
+    const firstTax = firstSettlement.tax_deductions;
+    const firstLoan = firstSettlement.loan_details;
 
     const invoice = await prisma.invoice.create({
       data: {
@@ -1376,29 +1435,76 @@ export const generateInvoiceController = async (
       },
     });
 
-    const invoiceNumber = `INV-${moment(invoiceDate).format("YYYY")}-${String(invoice.id).padStart(5, "0")}`;
+    const invoiceNumber = `EDUMATE/${moment(invoiceDate).format("YYYY")}-${moment(invoiceDate).add(1, "year").format("YY")}/${String(invoice.id).padStart(4, "0")}`;
 
-    const htmlContent = buildSystemInvoiceHTML({
+    // Build HTML with cleaned data
+    const htmlContent = buildSystemInvoiceHTMLDetailed({
       invoiceNumber,
       invoiceDate: moment(invoiceDate).format("DD MMM YYYY"),
-      partnerName,
+      dueDate: moment(dueDate).format("DD MMM YYYY"),
+      // Seller Info
+      partnerName: partner?.partner_name || partnerName,
+      partnerDisplayName: partner?.partner_display_name || "",
       partnerGst: partner?.gst_number || "",
       partnerPan: partner?.pan_number || "",
-      partnerAddress: [
-        partner?.business_address,
-        partner?.city,
-        partner?.state,
-        partner?.pincode,
-        partner?.country,
-      ]
-        .filter(Boolean)
-        .join(", "),
+      partnerAddress: partner?.business_address || "",
+      partnerCity: partner?.city || "",
+      partnerState: partner?.state || "",
+      partnerStateCode: "",
+      partnerPincode: partner?.pincode || "",
+      partnerCountry: partner?.country || "",
+      partnerCin: "",
+      partnerEmail: partnerContactInfo?.primary_contact_email || "",
+      // Bank Details
+      bankAccountHolder: partnerBankDetails?.beneficiary_name || "",
+      bankName: partnerBankDetails?.bank_name || "",
+      bankAccountNumber: partnerBankDetails?.bank_account_number || "",
+      bankBranch: partnerBankDetails?.bank_branch || "",
+      bankIfsc: partnerBankDetails?.ifsc_code || "",
+      // Line Items
       lineItems,
+      // Commission Calculation
+      commissionModel: firstCalc?.commission_model || "",
+      grossCommission,
+      // Tax Details
       subtotal,
       totalGst,
+      gstApplicable: firstTax?.gst_applicable || "",
+      igstRate: firstTax?.gst_rate_applied
+        ? Number(firstTax.gst_rate_applied)
+        : 0,
+      cgstRate: 0,
+      cgstAmount: 0,
+      sgstRate: 0,
+      sgstAmount: 0,
       totalTds,
+      tdsApplicable: firstTax?.tds_applicable || "",
+      tdsRate: firstTax?.tds_rate_applied
+        ? Number(firstTax.tds_rate_applied)
+        : 0,
       totalDeductions,
       netPayableTotal,
+      // Loan Details
+      lenderName: firstLoan?.lender_name || "",
+      loanProduct: firstLoan?.loan_product_name || "",
+      loanAmountDisbursed: firstLoan?.loan_amount_disbursed
+        ? Number(firstLoan.loan_amount_disbursed)
+        : 0,
+      disbursementDate: firstLoan?.loan_disbursement_date
+        ? moment(firstLoan.loan_disbursement_date).format("DD MMM YYYY")
+        : "",
+      universityName: firstLoan?.university_name || "",
+      courseName: firstLoan?.course_name || "",
+      destinationCountry: firstLoan?.student_destination_country || "",
+      // Student Details
+      studentName: firstSettlement.student_name || "",
+      studentEmail: studentContactInfo?.email || "",
+      studentPhone: studentContactInfo?.phone_number || "",
+      // Payment Details - empty since we removed payment_processing
+      paymentMethod: "",
+      paymentReference: "",
+      bankTransactionId: "",
+      // Meta
       settlementsCount: settlements.length,
     });
 
@@ -1412,7 +1518,7 @@ export const generateInvoiceController = async (
     const pdfBuffer = await page.pdf({
       format: "A4",
       printBackground: true,
-      margin: { top: "15mm", bottom: "15mm", left: "10mm", right: "10mm" },
+      margin: { top: "10mm", bottom: "10mm", left: "10mm", right: "10mm" },
     });
     await browser.close();
 
