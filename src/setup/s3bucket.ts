@@ -9,5 +9,5 @@ export const s3Client = new S3Client({
   },
 });
 
-export const BUCKET_NAME = process.env.AWS_S3_BUCKET_NAME || "edumate-invoices";
+export const BUCKET_NAME = process.env.AWS_S3_BUCKET_NAME || "application-invoices";
 export const AWS_REGION = process.env.AWS_REGION || "ap-south-1";

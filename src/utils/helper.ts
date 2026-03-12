@@ -623,6 +623,7 @@ export interface DetailedInvoiceData {
   bankAccountNumber?: string;
   bankBranch?: string;
   bankIfsc?: string;
+  partnerLogo?: string;
   // Line Items
   lineItems: InvoiceLineItem[];
   // Commission Calculation
@@ -836,27 +837,6 @@ export function buildSystemInvoiceHTMLDetailed(
   const d = displayValue;
   const amountInWords = numberToWords(data.netPayableTotal || 0);
 
-  // Build line items rows
-  const lineItemsRows = data.lineItems
-    .map(
-      (item) => `
-    <tr style="background:${item.sno % 2 === 0 ? "#f8fafc" : "#ffffff"};">
-      <td style="padding:6px 8px;text-align:center;font-weight:700;color:#94a3b8;font-size:9px;border-bottom:1px solid #f1f5f9;">${String(item.sno).padStart(2, "0")}</td>
-      <td style="padding:6px 8px;border-bottom:1px solid #f1f5f9;">
-        <div style="font-size:10px;font-weight:600;color:#0f172a;">Commission for Education Loan Disbursement</div>
-        <div style="font-size:8.5px;color:#64748b;margin-top:1px;">Student: ${d(item.studentName)}&nbsp;&bull;&nbsp;Ref: ${d(item.refNumber)}</div>
-        ${item.university ? `<div style="font-size:8px;color:#94a3b8;margin-top:1px;">${item.university}${item.course ? ` &ndash; ${item.course}` : ""}</div>` : ""}
-      </td>
-      <td style="padding:6px 8px;text-align:right;font-size:10px;font-weight:600;color:#0f172a;border-bottom:1px solid #f1f5f9;">&#8377;${formatCurrency(item.loanAmount)}</td>
-      <td style="padding:6px 8px;text-align:center;border-bottom:1px solid #f1f5f9;">
-        <span style="display:inline-block;background:#f0fdfa;color:#0d9488;border:1px solid #99f6e4;border-radius:20px;padding:1px 7px;font-size:8.5px;font-weight:600;">${item.commissionRate ? item.commissionRate + "%" : "-"}</span>
-      </td>
-      <td style="padding:6px 8px;text-align:right;font-size:10px;font-weight:600;color:#0d9488;border-bottom:1px solid #f1f5f9;">&#8377;${formatCurrency(item.grossAmount)}</td>
-    </tr>
-  `,
-    )
-    .join("");
-
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -867,420 +847,187 @@ export function buildSystemInvoiceHTMLDetailed(
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
+      font-family: Arial, 'Helvetica Neue', sans-serif;
       background: #fff;
-      color: #1a202c;
-      font-size: 10px;
+      color: #000;
+      font-size: 11px;
       line-height: 1.4;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
     }
-    @page { size: A4; margin: 6mm; }
+    @page { size: A4; margin: 12mm; }
 
-    /* ── HEADER ── */
-    .hdr {
-      background: linear-gradient(135deg, #0d9488 0%, #0f766e 50%, #115e59 100%);
-      padding: 13px 20px 10px;
-      position: relative;
-      overflow: hidden;
-    }
-    .hdr::before {
-      content:''; position:absolute; top:-30px; right:-30px;
-      width:130px; height:130px; border-radius:50%;
-      background:rgba(255,255,255,0.06);
-    }
-    .hdr::after {
-      content:''; position:absolute; bottom:-40px; left:30%;
-      width:180px; height:180px; border-radius:50%;
-      background:rgba(255,255,255,0.04);
-    }
-    .hdr-inner { display:flex; justify-content:space-between; align-items:flex-start; position:relative; z-index:1; }
-    .brand-logo { display:flex; align-items:center; gap:8px; margin-bottom:2px; }
-    .brand-icon {
-      width:28px; height:28px;
-      background:rgba(255,255,255,0.2);
-      border-radius:7px;
-      display:flex; align-items:center; justify-content:center;
-      font-size:13px; font-weight:900; color:#fff;
-      border:1.5px solid rgba(255,255,255,0.3);
-    }
-    .brand-name { font-size:17px; font-weight:800; color:#fff; letter-spacing:2px; }
-    .brand-tagline { font-size:8.5px; color:rgba(255,255,255,0.7); padding-left:36px; }
-    .inv-title { font-size:22px; font-weight:900; color:rgba(255,255,255,0.95); letter-spacing:4px; line-height:1; text-align:right; }
-    .inv-badge {
-      display:inline-block; margin-top:4px;
-      background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.3);
-      border-radius:20px; padding:2px 10px;
-      font-size:8.5px; color:#fff; font-weight:500; letter-spacing:0.5px;
-    }
-
-    /* ── META STRIP ── */
-    .meta-strip { background:#f8fafc; border-bottom:1px solid #e2e8f0; display:table; width:100%; }
-    .meta-cell { display:table-cell; padding:6px 12px; text-align:center; border-right:1px solid #e2e8f0; }
-    .meta-cell:last-child { border-right:none; }
-    .meta-lbl { font-size:7px; color:#94a3b8; text-transform:uppercase; letter-spacing:0.8px; font-weight:600; margin-bottom:1px; }
-    .meta-val { font-size:10.5px; font-weight:700; color:#0f172a; }
-    .meta-val.ac { color:#0d9488; }
-
-    /* ── BODY ── */
-    .body { padding:10px 16px; }
-
-    /* ── SECTION LABEL ── */
-    .sec-lbl {
-      font-size:7.5px; font-weight:700; color:#94a3b8;
-      text-transform:uppercase; letter-spacing:1px;
-      margin-bottom:5px; display:table; width:100%;
-    }
-    .sec-lbl span { display:table-cell; white-space:nowrap; padding-right:8px; }
-    .sec-lbl::after { content:''; display:table-cell; width:100%; border-bottom:1px solid #e2e8f0; vertical-align:middle; }
-
-    /* ── CARD ── */
-    .card { border-radius:6px; border:1px solid #e2e8f0; overflow:hidden; background:#fff; }
-    .card-hdr {
-      padding:4px 10px; font-size:7.5px; font-weight:700;
-      text-transform:uppercase; letter-spacing:0.8px;
-      display:flex; align-items:center; gap:5px;
-      background:linear-gradient(90deg,#f0fdfa 0%,#f8fffe 100%);
-      color:#0d9488; border-bottom:1px solid #ccfbf1;
-    }
-    .dot { width:5px; height:5px; border-radius:50%; background:#0d9488; flex-shrink:0; }
-    .card-body { padding:7px 10px; }
-
-    /* ── TWO COL ── */
-    .two-col { display:table; width:100%; margin-bottom:8px; }
-    .col-l { display:table-cell; width:50%; vertical-align:top; padding-right:5px; }
-    .col-r { display:table-cell; width:50%; vertical-align:top; padding-left:5px; }
-
-    /* ── INFO GRID ── */
-    .ig { display:table; width:100%; margin-top:3px; }
-    .ig-row { display:table-row; }
-    .ig-k { display:table-cell; font-size:8.5px; color:#94a3b8; font-weight:500; padding:1px 5px 1px 0; width:76px; }
-    .ig-v { display:table-cell; font-size:8.5px; color:#334155; font-weight:500; padding:1px 0; }
-    .ig-v.b { font-weight:700; color:#0f172a; }
-    .ig-v.ac { font-weight:700; color:#0d9488; }
-
-    .ent-name { font-size:11px; font-weight:700; color:#0f172a; margin-bottom:3px; }
-    .ent-sub { font-size:8.5px; color:#64748b; margin-bottom:1px; }
-    .hdivider { border:none; border-top:1px dashed #e2e8f0; margin:4px 0; }
-
-    /* ── TABLE ── */
-    .tbl-wrap { border-radius:6px; border:1px solid #e2e8f0; overflow:hidden; margin-bottom:8px; }
-    .inv-tbl { width:100%; border-collapse:collapse; }
-    .inv-tbl thead tr { background:linear-gradient(90deg,#0d9488 0%,#0f766e 100%); }
-    .inv-tbl thead th { padding:6px 8px; font-size:7.5px; font-weight:600; color:rgba(255,255,255,0.9); text-transform:uppercase; letter-spacing:0.5px; }
-    .inv-tbl tbody td { padding:6px 8px; border-bottom:1px solid #f1f5f9; vertical-align:middle; }
-    .inv-tbl tbody tr:last-child td { border-bottom:none; }
-
-    /* ── SUMMARY ── */
-    .sum-wrap { display:table; width:100%; margin-bottom:8px; }
-    .sum-l { display:table-cell; width:50%; vertical-align:top; padding-right:5px; }
-    .sum-r { display:table-cell; width:50%; vertical-align:top; padding-left:5px; }
-    .calc-row { display:flex; justify-content:space-between; padding:3px 0; font-size:9px; color:#475569; border-bottom:1px dashed #f1f5f9; }
-    .calc-row:last-child { border-bottom:none; }
-    .calc-row.strong { font-weight:700; color:#0f172a; font-size:9.5px; border-bottom:none; padding-top:4px; border-top:1px solid #e2e8f0; margin-top:3px; }
-    .calc-row .lbl { font-weight:500; }
-    .calc-row .val { font-weight:600; }
-    .calc-row.ded .val { color:#dc2626; }
-    .tag { display:inline-block; padding:1px 7px; border-radius:20px; font-size:7.5px; font-weight:600; }
-    .tg-g { background:#dcfce7; color:#15803d; }
-    .tg-b { background:#dbeafe; color:#1d4ed8; }
-    .tg-s { background:#f1f5f9; color:#475569; }
-    .net-block {
-      background:linear-gradient(135deg,#0d9488 0%,#0f766e 100%);
-      border-radius:5px; padding:7px 10px; margin-top:5px;
-      display:flex; justify-content:space-between; align-items:center;
-    }
-    .net-lbl { font-size:9px; color:rgba(255,255,255,0.8); font-weight:600; letter-spacing:0.5px; }
-    .net-amt { font-size:15px; font-weight:800; color:#fff; letter-spacing:-0.5px; }
-
-    /* ── AMOUNT IN WORDS ── */
-    .words-block {
-      background:linear-gradient(90deg,#fffbeb 0%,#fefce8 100%);
-      border:1px solid #fde68a; border-radius:6px;
-      padding:7px 12px; margin-bottom:8px;
-      display:flex; align-items:center; gap:8px;
-    }
-    .words-icon {
-      width:24px; height:24px; background:#f59e0b; border-radius:6px;
-      display:flex; align-items:center; justify-content:center;
-      font-size:11px; color:#fff; font-weight:700; flex-shrink:0;
-    }
-    .words-lbl { font-size:7.5px; color:#92400e; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:1px; }
-    .words-txt { font-size:9.5px; font-weight:600; color:#78350f; }
-
-    /* ── BANK GRID ── */
-    .bk-grid { display:table; width:100%; }
-    .bk-item { display:table-cell; width:25%; font-size:9px; padding-right:6px; }
-    .bk-lbl { font-size:7px; color:#94a3b8; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:1px; }
-    .bk-val { font-size:9.5px; font-weight:700; color:#0f172a; }
-    .bk-val.ac { color:#0d9488; }
-
-    /* ── SIGN BLOCK ── */
-    .sign-block {
-      border:1px dashed #e2e8f0; border-radius:6px;
-      padding:6px 10px; text-align:center; background:#fafafa;
-    }
-    .sign-line { border-top:1px solid #334155; width:100px; margin:16px auto 3px; }
-
-    /* ── FOOTER ── */
-    .footer {
-      background:linear-gradient(90deg,#f8fafc 0%,#f0fdfa 100%);
-      border-top:2px solid #0d9488;
-      padding:7px 16px;
-      display:table; width:100%;
-    }
-    .ftr-l { display:table-cell; font-size:7.5px; color:#64748b; line-height:1.6; vertical-align:middle; }
-    .ftr-l strong { color:#0d9488; }
-    .ftr-r { display:table-cell; text-align:right; vertical-align:middle; }
-    .ftr-brand { font-size:12px; font-weight:800; color:#0d9488; letter-spacing:1px; }
-    .ftr-thanks { font-size:7.5px; color:#94a3b8; margin-top:1px; }
-    .stamp {
-      display:inline-block; border:2px solid #0d9488; border-radius:50%;
-      width:36px; height:36px; line-height:36px; text-align:center;
-      font-size:7px; color:#0d9488; font-weight:700; opacity:0.3;
-      letter-spacing:0.3px; margin-top:3px;
-    }
+    table { border-collapse: collapse; width: 100%; }
+    .inv-table { border: 1px solid #555; }
+    .inv-table td, .inv-table th { border: 1px solid #ccc; vertical-align: top; }
+    .th-gray { background: #e8e8e8; color: #000; font-weight: 700; padding: 7px 10px; border: 1px solid #aaa; }
+    .th-gray-sub { background: #f2f2f2; color: #000; font-weight: 700; padding: 6px 10px; border: 1px solid #ccc; }
+    .th-dark { background: #444; color: #fff; font-weight: 700; padding: 7px 10px; }
   </style>
 </head>
 <body>
 
-  <!-- ══ HEADER ══ -->
-  <div class="hdr">
-    <div class="hdr-inner">
-      <div>
-        <div class="brand-logo">
-          <div class="brand-icon">E</div>
-          <div class="brand-name">EDUMATE</div>
+  <!-- PARTNER LETTERHEAD -->
+  <table style="margin-bottom:12px;border:none;border-collapse:collapse;width:100%;">
+    <tr>
+      <!-- LOGO -->
+      <td style="width:70px;vertical-align:middle;padding-right:12px;border:none;">
+        ${
+          data.partnerLogo
+            ? `<img src="${data.partnerLogo}" alt="Logo" style="width:60px;height:60px;object-fit:contain;">`
+            : `<div style="width:60px;height:60px;background:#444;border-radius:4px;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1;"><span style="font-size:18px;font-weight:900;color:#fff;letter-spacing:1px;display:block;padding-top:16px;">${d(data.partnerName).substring(0, 2).toUpperCase()}</span></div>`
+        }
+      </td>
+      <!-- COMPANY DETAILS -->
+      <td style="vertical-align:middle;border:none;">
+        <div style="font-size:18px;font-weight:800;color:#000;">${d(data.partnerName)}</div>
+        ${data.partnerDisplayName && data.partnerDisplayName !== data.partnerName ? `<div style="font-size:10px;color:#444;margin-top:1px;">${data.partnerDisplayName}</div>` : ""}
+        <div style="font-size:10px;color:#333;margin-top:3px;">${d(data.partnerAddress)}${data.partnerCity ? `, ${d(data.partnerCity)}` : ""}${data.partnerState ? `, ${d(data.partnerState)}` : ""}${data.partnerPincode ? ` &ndash; ${d(data.partnerPincode)}` : ""}${data.partnerCountry ? `. ${d(data.partnerCountry)}` : ""}</div>
+        <div style="font-size:10px;color:#333;margin-top:2px;"><b>PAN:</b> ${d(data.partnerPan)} &nbsp;&nbsp; <b>GSTIN:</b> ${d(data.partnerGst)}</div>
+        ${data.partnerCin ? `<div style="font-size:10px;color:#333;margin-top:1px;"><b>MSME ID:</b> ${d(data.partnerCin)}</div>` : ""}
+      </td>
+      <!-- TAX INVOICE BADGE -->
+      <td style="vertical-align:bottom;text-align:right;border:none;white-space:nowrap;padding-bottom:4px;">
+        <div style="font-size:30px;font-weight:900;color:#000;letter-spacing:2px;text-transform:uppercase;">TAX INVOICE</div>
+      </td>
+    </tr>
+  </table>
+
+  <!-- MAIN TAX INVOICE TABLE -->
+  <table class="inv-table">
+
+    <!-- ── INVOICE NO / DATE / PLACE OF SUPPLY ── -->
+    <tr>
+      <td colspan="2" style="padding:5px 10px;width:20%;font-weight:700;border-right:1px solid #ccc;color:#000;">Invoice No</td>
+      <td style="padding:5px 10px;width:30%;border-right:2px solid #555;font-weight:700;">${d(data.invoiceNumber)}</td>
+      <td colspan="2" style="padding:5px 10px;width:22%;font-weight:700;border-right:1px solid #ccc;">Place Of Supply</td>
+      <td style="padding:5px 10px;font-weight:700;">${d(data.partnerState)}${data.partnerStateCode ? ` (${d(data.partnerStateCode)})` : ""}</td>
+    </tr>
+    <tr>
+      <td colspan="2" style="padding:5px 10px;font-weight:700;border-right:1px solid #ccc;">Invoice Date</td>
+      <td style="padding:5px 10px;border-right:2px solid #555;font-weight:700;">${d(data.invoiceDate)}</td>
+      <td colspan="2" style="padding:5px 10px;font-weight:700;border-right:1px solid #ccc;">Terms</td>
+      <td style="padding:5px 10px;font-weight:700;">Due On Receipt</td>
+    </tr>
+    <tr>
+      <td colspan="2" style="padding:5px 10px;font-weight:700;border-right:1px solid #ccc;border-bottom:2px solid #555;">Due Date</td>
+      <td style="padding:5px 10px;border-right:2px solid #555;border-bottom:2px solid #555;font-weight:700;">${d(data.dueDate ?? data.invoiceDate)}</td>
+      <td colspan="3" style="padding:5px 10px;border-bottom:2px solid #555;"></td>
+    </tr>
+
+    <!-- ── BILL TO / SHIP TO HEADER ── -->
+    <tr>
+      <td colspan="3" class="th-gray" style="border-right:2px solid #555;font-size:11px;">Bill To</td>
+      <td colspan="3" class="th-gray" style="font-size:11px;">Ship To</td>
+    </tr>
+
+    <!-- ── BILL TO + SHIP TO CONTENT ── -->
+    <tr>
+      <td colspan="3" style="padding:8px 10px;border-right:2px solid #555;vertical-align:top;">
+        <div style="font-weight:700;font-size:12px;">Edumate Solutions India Private Limited</div>
+        <div style="margin-top:3px;font-size:10px;">Flat No. 11-E, Orchid, Cosmos Lounge,</div>
+        <div style="font-size:10px;">Mulla Baug, Manpada, Thane,</div>
+        <div style="font-size:10px;">400607 Maharashtra</div>
+        <div style="font-size:10px;">India</div>
+        <div style="font-size:10px;margin-top:3px;"><b>GSTIN</b> 27AAJCE2013K1ZR</div>
+      </td>
+      <td colspan="3" style="padding:8px 10px;vertical-align:top;">
+        <div style="font-weight:700;font-size:12px;">${d(data.partnerName)}</div>
+        <div style="margin-top:3px;font-size:10px;">${d(data.partnerAddress)}${data.partnerCity ? `, ${d(data.partnerCity)}` : ""}</div>
+        ${data.partnerPincode || data.partnerState ? `<div style="font-size:10px;">${data.partnerPincode ? d(data.partnerPincode) + " " : ""}${d(data.partnerState)}</div>` : ""}
+        ${data.partnerCountry ? `<div style="font-size:10px;">${d(data.partnerCountry)}</div>` : ""}
+        ${data.partnerGst ? `<div style="font-size:10px;margin-top:3px;"><b>GSTIN</b> ${d(data.partnerGst)}</div>` : ""}
+      </td>
+    </tr>
+
+    <!-- ── LINE ITEMS HEADER ── -->
+    <tr style="border-top:2px solid #555;">
+      <th class="th-gray" style="text-align:center;border-right:1px solid #aaa;width:24px;border-top:2px solid #555;">Sr.<br>No.</th>
+      <th class="th-gray" style="text-align:center;border-right:1px solid #aaa;width:70px;border-top:2px solid #555;">HSN/SAC</th>
+      <th class="th-gray" colspan="2" style="text-align:left;border-right:1px solid #aaa;border-top:2px solid #555;min-width:220px;">Item &amp; Description</th>
+      <th class="th-gray" style="text-align:center;border-right:1px solid #aaa;width:40px;border-top:2px solid #555;">Qty</th>
+      <th class="th-gray" style="text-align:right;width:105px;border-top:2px solid #555;">Amount</th>
+    </tr>
+
+    <!-- ── LINE ITEMS ── -->
+    ${data.lineItems
+      .map(
+        (item) => `
+    <tr>
+      <td style="padding:6px 8px;text-align:center;border-right:1px solid #ccc;border-bottom:1px solid #ccc;font-size:11px;font-weight:600;vertical-align:top;">${item.sno}</td>
+      <td style="padding:6px 8px;text-align:center;border-right:1px solid #ccc;border-bottom:1px solid #ccc;font-size:11px;vertical-align:top;">998315</td>
+      <td colspan="2" style="padding:6px 8px;border-right:1px solid #ccc;border-bottom:1px solid #ccc;font-size:11px;vertical-align:top;">
+        <div style="font-weight:600;margin-top:1px;">Commission for Education Loan Disbursement</div>
+        <div style="font-size:9.5px;color:#444;margin-top:2px;">Student: ${d(item.studentName)} &bull; Ref: ${d(item.refNumber)}</div>
+        ${item.university ? `<div style="font-size:9px;color:#555;margin-top:1px;">${item.university}${item.course ? ` &ndash; ${item.course}` : ""}</div>` : ""}
+        <div style="font-size:9.5px;color:#444;margin-top:2px;">Lender: ${d(item.lenderName)} &bull; Loan: &#8377;${formatCurrency(item.loanAmount)} @ ${item.commissionRate ? item.commissionRate + "%" : "-"}</div>
+      </td>
+      <td style="padding:6px 8px;text-align:center;border-right:1px solid #ccc;border-bottom:1px solid #ccc;font-size:11px;vertical-align:top;">1.00</td>
+      <td style="padding:6px 8px;text-align:right;border-bottom:1px solid #ccc;font-size:11px;font-weight:700;vertical-align:top;">&#8377;${formatCurrency(item.grossAmount)}</td>
+    </tr>
+    `,
+      )
+      .join("")}
+
+    <!-- ── TOTALS SECTION ── -->
+    <!-- Left cell (rowspan=6) spans all tax rows; right cells: Sub Total, CGST, SGST, IGST, TDS, Total -->
+    <tr style="border-top:2px solid #555;">
+      <td colspan="3" rowspan="6" style="padding:10px;border-right:2px solid #555;border-top:2px solid #555;vertical-align:top;font-size:10px;">
+        <div style="font-weight:700;font-size:10.5px;">Total In Words</div>
+        <div style="font-style:italic;font-weight:700;font-size:10px;margin-top:4px;">${amountInWords}</div>
+        <div style="margin-top:10px;font-size:10px;color:#555;">Notes</div>
+        <div style="margin-top:3px;font-size:10px;">Looking forward to your business.</div>
+        <div style="margin-top:12px;">
+          <div style="font-weight:700;margin-bottom:5px;font-size:11px;">Bank Details</div>
+          ${data.bankAccountHolder ? `<div><b>Account Holder:</b> ${d(data.bankAccountHolder)}</div>` : ""}
+          ${data.bankName ? `<div><b>Bank:</b> ${d(data.bankName)}</div>` : ""}
+          ${data.bankAccountNumber ? `<div><b>Account No:</b> ${d(data.bankAccountNumber)}</div>` : ""}
+          ${data.bankIfsc ? `<div><b>IFSC:</b> ${d(data.bankIfsc)}</div>` : ""}
+          <div><b>Account Type:</b> Current</div>
         </div>
-        <div class="brand-tagline">Your Trusted Education Loan Partner</div>
-      </div>
-      <div>
-        <div class="inv-title">INVOICE</div>
-        <div style="text-align:right;"><span class="inv-badge">&#10003; GENERATED</span></div>
-      </div>
-    </div>
-  </div>
+      </td>
+      <td colspan="2" style="padding:5px 10px;border-right:1px solid #ccc;border-top:2px solid #555;">Sub Total</td>
+      <td style="padding:5px 10px;text-align:right;border-top:2px solid #555;">&#8377;${formatCurrency(data.subtotal)}</td>
+    </tr>
+    <tr>
+      <td colspan="2" style="padding:5px 10px;border-right:1px solid #ccc;border-top:1px solid #ccc;">CGST${data.cgstRate ? ` (${data.cgstRate}%)` : ""}</td>
+      <td style="padding:5px 10px;text-align:right;border-top:1px solid #ccc;">&#8377;${formatCurrency(data.cgstAmount ?? 0)}</td>
+    </tr>
+    <tr>
+      <td colspan="2" style="padding:5px 10px;border-right:1px solid #ccc;border-top:1px solid #ccc;">SGST${data.sgstRate ? ` (${data.sgstRate}%)` : ""}</td>
+      <td style="padding:5px 10px;text-align:right;border-top:1px solid #ccc;">&#8377;${formatCurrency(data.sgstAmount ?? 0)}</td>
+    </tr>
+    <tr>
+      <td colspan="2" style="padding:5px 10px;border-right:1px solid #ccc;border-top:1px solid #ccc;">IGST${data.igstRate ? ` (${data.igstRate}%)` : ""}</td>
+      <td style="padding:5px 10px;text-align:right;border-top:1px solid #ccc;">&#8377;${formatCurrency(data.totalGst && !data.cgstAmount && !data.sgstAmount ? data.totalGst : 0)}</td>
+    </tr>
+    <tr>
+      <td colspan="2" style="padding:5px 10px;border-right:1px solid #ccc;border-top:1px solid #ccc;">Less: TDS${data.tdsRate ? ` (${data.tdsRate}%)` : ""}</td>
+      <td style="padding:5px 10px;text-align:right;border-top:1px solid #ccc;color:#c0392b;">(-) &#8377;${formatCurrency(data.totalTds ?? 0)}</td>
+    </tr>
+    <tr>
+      <td colspan="2" style="padding:6px 10px;border-right:1px solid #ccc;border-top:2px solid #555;font-weight:700;font-size:12px;">Total</td>
+      <td style="padding:6px 10px;text-align:right;border-top:2px solid #555;font-weight:700;font-size:12px;">&#8377;${formatCurrency(data.netPayableTotal)}</td>
+    </tr>
 
-  <!-- ══ META STRIP ══ -->
-  <div class="meta-strip">
-    <div class="meta-cell">
-      <div class="meta-lbl">Invoice Number</div>
-      <div class="meta-val ac">${d(data.invoiceNumber)}</div>
-    </div>
-    <div class="meta-cell">
-      <div class="meta-lbl">Invoice Date</div>
-      <div class="meta-val">${d(data.invoiceDate)}</div>
-    </div>
-    <div class="meta-cell">
-      <div class="meta-lbl">Due Date</div>
-      <div class="meta-val">${d(data.dueDate)}</div>
-    </div>
-    <div class="meta-cell">
-      <div class="meta-lbl">Settlements</div>
-      <div class="meta-val">${data.settlementsCount} Item${data.settlementsCount !== 1 ? "s" : ""}</div>
-    </div>
-  </div>
+    <!-- ── SIGNATORY ROW ── -->
+    <tr style="border-top:2px solid #555;">
+      <td colspan="3" style="border-right:2px solid #555;border-top:2px solid #555;"></td>
+      <td colspan="3" style="padding:10px;border-top:2px solid #555;vertical-align:top;text-align:center;">
+        <div style="font-size:10px;color:#555;margin-bottom:5px;">Invoice Sign</div>
+        <div style="height:50px;"></div>
+        <div style="font-size:10px;border-top:1px solid #ccc;padding-top:5px;margin-top:5px;">Authorized Signature</div>
+      </td>
+    </tr>
 
-  <!-- ══ BODY ══ -->
-  <div class="body">
+    <!-- ── DECLARATION ── -->
+    <tr>
+      <td colspan="6" style="padding:8px 10px;font-size:9.5px;color:#444;border-top:1px solid #ccc;font-style:italic;">
+        Declaration: Certified that the particulars given above are true and correct to the best of my knowledge and belief.
+      </td>
+    </tr>
 
-    <!-- Party Details -->
-    <div class="sec-lbl"><span>Party Details</span></div>
-    <div class="two-col">
-      <div class="col-l">
-        <div class="card">
-          <div class="card-hdr"><span class="dot"></span> From (Partner / Seller)</div>
-          <div class="card-body">
-            <div class="ent-name">${d(data.partnerName)}</div>
-            ${data.partnerDisplayName && data.partnerDisplayName !== data.partnerName ? `<div class="ent-sub">${data.partnerDisplayName}</div>` : ""}
-            <div class="ent-sub">${d(data.partnerAddress)}</div>
-            <div class="ent-sub">${d(data.partnerCity)}, ${d(data.partnerState)} &ndash; ${d(data.partnerPincode)}</div>
-            <div class="ent-sub">State Code: ${d(data.partnerStateCode)} &nbsp;|&nbsp; Country: ${d(data.partnerCountry)}</div>
-            <hr class="hdivider">
-            <div class="ig">
-              <div class="ig-row"><span class="ig-k">GSTIN</span><span class="ig-v b ac">${d(data.partnerGst)}</span></div>
-              <div class="ig-row"><span class="ig-k">PAN</span><span class="ig-v b">${d(data.partnerPan)}</span></div>
-              <div class="ig-row"><span class="ig-k">CIN</span><span class="ig-v">${d(data.partnerCin)}</span></div>
-              <div class="ig-row"><span class="ig-k">Email</span><span class="ig-v">${d(data.partnerEmail)}</span></div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-r">
-        <div class="card">
-          <div class="card-hdr"><span class="dot"></span> Student &amp; Loan Details</div>
-          <div class="card-body">
-            <div class="ent-name">${d(data.studentName)}</div>
-            <div class="ig">
-              <div class="ig-row"><span class="ig-k">Email</span><span class="ig-v">${d(data.studentEmail)}</span></div>
-              <div class="ig-row"><span class="ig-k">Phone</span><span class="ig-v">${d(data.studentPhone)}</span></div>
-            </div>
-            <hr class="hdivider">
-            <div class="ig">
-              <div class="ig-row"><span class="ig-k">Lender</span><span class="ig-v b">${d(data.lenderName)}</span></div>
-              <div class="ig-row"><span class="ig-k">Loan Product</span><span class="ig-v">${d(data.loanProduct)}</span></div>
-              <div class="ig-row"><span class="ig-k">Disbursed</span><span class="ig-v b ac">&#8377;${formatCurrency(data.loanAmountDisbursed)}</span></div>
-              <div class="ig-row"><span class="ig-k">Disb. Date</span><span class="ig-v">${d(data.disbursementDate)}</span></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Line Items -->
-    <div class="sec-lbl"><span>Line Items</span></div>
-    <div class="tbl-wrap">
-      <table class="inv-tbl">
-        <thead>
-          <tr>
-            <th style="width:32px;text-align:center;">#</th>
-            <th style="text-align:left;">Description</th>
-            <th style="width:105px;text-align:right;">Loan Disbursed</th>
-            <th style="width:65px;text-align:center;">Rate</th>
-            <th style="width:100px;text-align:right;">Gross Amount</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${lineItemsRows}
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Financial Summary -->
-    <div class="sec-lbl"><span>Financial Summary</span></div>
-    <div class="sum-wrap">
-      <div class="sum-l">
-        <div class="card">
-          <div class="card-hdr"><span class="dot"></span> Commission Calculation</div>
-          <div class="card-body">
-            <div class="calc-row">
-              <span class="lbl">Commission Model</span>
-              <span class="val"><span class="tag tg-b">${d(data.commissionModel)}</span></span>
-            </div>
-            <div class="calc-row">
-              <span class="lbl">Commission Rate</span>
-              <span class="val">${data.lineItems[0]?.commissionRate ? data.lineItems[0].commissionRate + "%" : "-"}</span>
-            </div>
-            <div class="calc-row">
-              <span class="lbl">Gross Commission</span>
-              <span class="val">&#8377;${formatCurrency(data.grossCommission || data.subtotal)}</span>
-            </div>
-            <div class="calc-row strong">
-              <span class="lbl">Total Gross Amount</span>
-              <span class="val">&#8377;${formatCurrency(data.subtotal)}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="sum-r">
-        <div class="card">
-          <div class="card-hdr"><span class="dot"></span> Tax &amp; Deductions</div>
-          <div class="card-body">
-            <div class="calc-row">
-              <span class="lbl">Taxable Value</span>
-              <span class="val">&#8377;${formatCurrency(data.subtotal)}</span>
-            </div>
-            <div class="calc-row">
-              <span class="lbl">GST Applicable</span>
-              <span class="val"><span class="tag tg-g">${d(data.gstApplicable)}</span></span>
-            </div>
-            <div class="calc-row">
-              <span class="lbl">IGST @ ${data.igstRate ? data.igstRate + "%" : "-"}</span>
-              <span class="val">&#8377;${formatCurrency(data.totalGst)}</span>
-            </div>
-            <div class="calc-row">
-              <span class="lbl">CGST @ ${data.cgstRate ? data.cgstRate + "%" : "-"}</span>
-              <span class="val">&#8377;${formatCurrency(data.cgstAmount)}</span>
-            </div>
-            <div class="calc-row">
-              <span class="lbl">SGST @ ${data.sgstRate ? data.sgstRate + "%" : "-"}</span>
-              <span class="val">&#8377;${formatCurrency(data.sgstAmount)}</span>
-            </div>
-            <div class="calc-row ded">
-              <span class="lbl">TDS Applicable</span>
-              <span class="val"><span class="tag tg-s">@ ${data.tdsRate ? data.tdsRate + "%" : "-"}</span></span>
-            </div>
-            <div class="calc-row ded">
-              <span class="lbl">TDS Deduction</span>
-              <span class="val">&ndash; &#8377;${formatCurrency(data.totalTds)}</span>
-            </div>
-            <div class="calc-row ded">
-              <span class="lbl">Total Deductions</span>
-              <span class="val">&ndash; &#8377;${formatCurrency(data.totalDeductions)}</span>
-            </div>
-            <div class="net-block">
-              <span class="net-lbl">NET PAYABLE</span>
-              <span class="net-amt">&#8377;${formatCurrency(data.netPayableTotal)}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Amount in Words -->
-    <div class="words-block">
-      <div class="words-icon">&#8377;</div>
-      <div>
-        <div class="words-lbl">Amount in Words</div>
-        <div class="words-txt">${amountInWords}</div>
-      </div>
-    </div>
-
-    <!-- Bank & Payment Details -->
-    <div class="sec-lbl"><span>Bank &amp; Payment Details</span></div>
-    <div class="two-col">
-      <div class="col-l">
-        <div class="card">
-          <div class="card-hdr"><span class="dot"></span> Bank Details for Payment</div>
-          <div class="card-body">
-            <div style="font-size:7.5px;color:#94a3b8;font-weight:600;margin-bottom:1px;">ACCOUNT HOLDER</div>
-            <div style="font-size:10px;font-weight:700;color:#0f172a;margin-bottom:7px;">${d(data.bankAccountHolder)}</div>
-            <div class="bk-grid">
-              <div class="bk-item"><div class="bk-lbl">Bank Name</div><div class="bk-val">${d(data.bankName)}</div></div>
-              <div class="bk-item"><div class="bk-lbl">Account No</div><div class="bk-val">${d(data.bankAccountNumber)}</div></div>
-              <div class="bk-item"><div class="bk-lbl">IFSC Code</div><div class="bk-val ac">${d(data.bankIfsc)}</div></div>
-              <div class="bk-item"><div class="bk-lbl">Branch</div><div class="bk-val">${d(data.bankBranch)}</div></div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-r" style="vertical-align:top;">
-        <div class="card" style="margin-bottom:6px;">
-          <div class="card-hdr"><span class="dot"></span> Payment Details</div>
-          <div class="card-body">
-            <div class="bk-grid">
-              <div class="bk-item"><div class="bk-lbl">Method</div><div class="bk-val">${d(data.paymentMethod)}</div></div>
-              <div class="bk-item"><div class="bk-lbl">Reference</div><div class="bk-val">${d(data.paymentReference)}</div></div>
-              <div class="bk-item"><div class="bk-lbl">Bank TXN ID</div><div class="bk-val">${d(data.bankTransactionId)}</div></div>
-              <div class="bk-item"><div class="bk-lbl">Payment Terms</div><div class="bk-val">Net 30 Days</div></div>
-            </div>
-          </div>
-        </div>
-        <div class="sign-block">
-          <div style="font-size:7.5px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">Authorised Signatory</div>
-          <div class="sign-line"></div>
-          <div style="font-size:8.5px;color:#64748b;font-weight:500;">${d(data.partnerName)}</div>
-          <div style="font-size:7.5px;color:#94a3b8;margin-top:1px;">Computer generated invoice</div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- ══ FOOTER ══ -->
-  <div class="footer">
-    <div class="ftr-l">
-      <strong>Payment Terms:</strong> Net 30 Days &nbsp;&bull;&nbsp;
-      <strong>Late Fee:</strong> 18% p.a. &nbsp;&bull;&nbsp;
-      <strong>Jurisdiction:</strong> Mumbai Courts<br>
-      This invoice is computer generated and does not require a physical signature.
-    </div>
-    <div class="ftr-r">
-      <div class="ftr-brand">EDUMATE</div>
-      <div class="ftr-thanks">Thank you for your business!</div>
-      <div class="stamp">PAID</div>
-    </div>
-  </div>
+  </table>
 
 </body>
 </html>`;

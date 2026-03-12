@@ -55,6 +55,7 @@ import {
   buildSystemInvoiceHTML,
   buildSystemInvoiceHTMLDetailed,
 } from "../utils/helper";
+import { uploadToS3 } from "../utils/s3";
 
 // ============================================================================
 // PHASE 4 HELPERS — used by the unified approval controllers below
@@ -653,21 +654,14 @@ export const uploadInvoiceController = async (
       return sum + parseFloat(grossAmount.toString());
     }, 0);
 
-    const uploadDir = path.join(process.cwd(), "uploads", "invoices");
-
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-
-    const timestamp = Date.now();
-    const uniqueSuffix = Math.round(Math.random() * 1e9);
-    const fileExt = path.extname(file.originalname);
-    const fileName = `invoice-${timestamp}-${uniqueSuffix}${fileExt}`;
-    const filePath = path.join(uploadDir, fileName);
-
-    fs.writeFileSync(filePath, file.buffer);
-
-    const fileUrl = `${BACKEND_URL}/uploads/invoices/${fileName}`;
+    // ═══════════════════════════════════════════════════════════════════════
+    // CHANGED: Upload to S3 instead of local disk
+    // ═══════════════════════════════════════════════════════════════════════
+    const {
+      key,
+      url: fileUrl,
+      fileName,
+    } = await uploadToS3(file.buffer, file.originalname, "invoices");
 
     const invoice = await prisma.invoice.create({
       data: {
@@ -1522,16 +1516,15 @@ export const generateInvoiceController = async (
     });
     await browser.close();
 
-    const uploadDir = path.join(process.cwd(), "uploads", "invoices");
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-
+    // ═══════════════════════════════════════════════════════════════════════
+    // CHANGED: Upload to S3 instead of local disk
+    // ═══════════════════════════════════════════════════════════════════════
     const fileName = `invoice-system-${invoiceNumber.replace(/[^a-zA-Z0-9-]/g, "")}-${Date.now()}.pdf`;
-    const filePath = path.join(uploadDir, fileName);
-    fs.writeFileSync(filePath, pdfBuffer);
-
-    const fileUrl = `${BACKEND_URL}/uploads/invoices/${fileName}`;
+    const { key, url: fileUrl } = await uploadToS3(
+      Buffer.from(pdfBuffer),
+      fileName,
+      "invoices",
+    );
 
     await prisma.invoice.update({
       where: { id: invoice.id },
