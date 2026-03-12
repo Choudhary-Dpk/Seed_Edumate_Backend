@@ -2530,7 +2530,7 @@ view leads_view {
   lifecycle_stages            String?
   lifecycle_stages_status     String?
   loan_application_id         Int?
-  application_date            DateTime? @db.Timestamp(6)
+  application_date            DateTime? @db.Timestamp()
   student_id                  String?
   student_name                String?
   student_email               String?
