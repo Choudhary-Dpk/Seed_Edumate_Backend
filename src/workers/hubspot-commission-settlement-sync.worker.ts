@@ -147,7 +147,7 @@ const processSingleCommissionSettlementsSingleEntry = async (
 
 const handleCommissionSettlementsCreate = async (
   payload: any,
-  commissionId: number
+  commissionId: number,
 ): Promise<string | undefined> => {
   const commissionSettlement = await prisma.hSCommissionSettlements.findUnique({
     where: {
@@ -157,7 +157,7 @@ const handleCommissionSettlementsCreate = async (
       calculation_details: true,
       communication: true,
       tax_deductions: true,
-      documentaion: true,
+      documentation: true,
       hold_dispute: true,
       loan_details: true,
       payment_details: true,
@@ -268,7 +268,7 @@ const handleCommissionSettlementsCreate = async (
  */
 async function handleCommissionSettlementsUpdate(
   payload: any,
-  commissionId: number
+  commissionId: number,
 ): Promise<string | undefined> {
   // Fetch complete commission settlement data
   const loanApplication = await prisma.hSCommissionSettlements.findUnique({
@@ -277,7 +277,7 @@ async function handleCommissionSettlementsUpdate(
       calculation_details: true,
       communication: true,
       tax_deductions: true,
-      documentaion: true,
+      documentation: true,
       hold_dispute: true,
       loan_details: true,
       payment_details: true,
@@ -299,7 +299,7 @@ async function handleCommissionSettlementsUpdate(
   if (!hubspotId) {
     // If no HubSpot ID exists, create new entry
     logger.warn(
-      `No HubSpot ID for commission settlement ${commissionId}, creating new entry`
+      `No HubSpot ID for commission settlement ${commissionId}, creating new entry`,
     );
     return await handleCommissionSettlementsCreate(payload, commissionId);
   }
@@ -311,7 +311,7 @@ async function handleCommissionSettlementsUpdate(
   // Update in HubSpot
   const result = await updateCommissionSettlementsApplication(
     hubspotId,
-    hubspotPayload
+    hubspotPayload,
   );
 
   return result.id;
@@ -321,7 +321,7 @@ async function handleCommissionSettlementsUpdate(
  * Handle DELETE operation for commission settlements
  */
 async function handleCommissionSettlementsDelete(
-  hs_object_id: string
+  hs_object_id: string,
 ): Promise<void> {
   // Try to find the loan application (might be soft-deleted)
   // const loanApplication = await prisma.hSLoanApplications.findUnique({
@@ -332,7 +332,7 @@ async function handleCommissionSettlementsDelete(
 
   if (!hs_object_id) {
     logger.warn(
-      `No HubSpot ID found for commission settlement ${hs_object_id}, skipping delete`
+      `No HubSpot ID found for commission settlement ${hs_object_id}, skipping delete`,
     );
     return;
   }
@@ -346,11 +346,11 @@ async function handleCommissionSettlementsDelete(
  * Maps all 13 tables (main + 12 normalized) to HubSpot properties
  */
 function transformCommissionSettlementsToHubSpotFormat(
-  commissionSettlement: any
+  commissionSettlement: any,
 ): any {
   const calculation = commissionSettlement.calculation_details || {};
   const communication = commissionSettlement.communication || {};
-  const documentation = commissionSettlement.documentaion || {};
+  const documentation = commissionSettlement.documentation || {};
   const holdDispute = commissionSettlement.hold_dispute || {};
   const loanDetails = commissionSettlement.loan_details || {};
   const paymentDetails = commissionSettlement.payment_details || {};

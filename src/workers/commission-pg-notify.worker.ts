@@ -235,7 +235,7 @@ async function handleCommissionCreate(settlementId: number): Promise<string> {
       calculation_details: true,
       communication: true,
       tax_deductions: true,
-      documentaion: true,
+      documentation: true,
       hold_dispute: true,
       loan_details: true,
       payment_details: true,
@@ -308,7 +308,7 @@ async function handleCommissionUpdate(settlementId: number): Promise<string> {
       calculation_details: true,
       communication: true,
       tax_deductions: true,
-      documentaion: true,
+      documentation: true,
       hold_dispute: true,
       loan_details: true,
       payment_details: true,
@@ -405,7 +405,7 @@ function transformCommissionSettlementsToHubSpotFormat(
 ): any {
   const calculation = commissionSettlement.calculation_details || {};
   const communication = commissionSettlement.communication || {};
-  const documentation = commissionSettlement.documentaion || {};
+  const documentation = commissionSettlement.documentation || {};
   const holdDispute = commissionSettlement.hold_dispute || {};
   const loanDetails = commissionSettlement.loan_details || {};
   const paymentDetails = commissionSettlement.payment_details || {};

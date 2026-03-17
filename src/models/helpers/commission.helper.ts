@@ -319,7 +319,7 @@ export const getCommissionSettlement = async (settlementId: number) => {
       calculation_details: true,
       communication: true,
       tax_deductions: true,
-      documentaion: true,
+      documentation: true,
       hold_dispute: true,
       loan_details: true,
       payment_details: true,
@@ -384,7 +384,7 @@ export const fetchCommissionSettlementsList = async (
 
   // Apply invoice status filter (in documentation table)
   if (filters?.invoiceStatus) {
-    where.documentaion = {
+    where.documentation = {
       invoice_status: filters.invoiceStatus,
     };
   }
@@ -468,7 +468,7 @@ export const fetchCommissionSettlementsList = async (
         calculation_details: true,
         communication: true,
         tax_deductions: true,
-        documentaion: true,
+        documentation: true,
         hold_dispute: true,
         loan_details: true,
         payment_details: true,
@@ -558,7 +558,7 @@ export const fetchCommissionSettlementsByLead = async (leadId: number) => {
         calculation_details: true,
         communication: true,
         tax_deductions: true,
-        documentaion: true,
+        documentation: true,
         hold_dispute: true,
         loan_details: true,
         payment_details: true,

@@ -61,7 +61,7 @@ export const createContactsLead = async (
   try {
     const id = req.payload?.id || null;
     let data: any = {};
-    let leadAttribution: any;
+    let lead_attribution: any;
     let partnerId = req?.body?.b2b_partner_db_id || null;
 
     if (!partnerId && id) {
@@ -87,7 +87,7 @@ export const createContactsLead = async (
       logger.debug(`Contact created successfully with id: ${contact.id}`);
 
       logger.debug(`Creating personal information for contact: ${contact.id}`);
-      const personalInfo = await createEdumatePersonalInformation(
+      const personal_info = await createEdumatePersonalInformation(
         tx,
         contact.id,
         categorized["personalInformation"],
@@ -97,7 +97,7 @@ export const createContactsLead = async (
       );
 
       logger.debug(`Creating academic profile for contact: ${contact.id}`);
-      const academicsProfile = await createEdumateAcademicProfile(
+      const academics_profile = await createEdumateAcademicProfile(
         tx,
         contact.id,
         categorized["academicProfile"],
@@ -107,7 +107,7 @@ export const createContactsLead = async (
       );
 
       logger.debug(`Creating lead attribution for contact: ${contact.id}`);
-      leadAttribution = await createEdumateLeadAttribution(
+      lead_attribution = await createEdumateLeadAttribution(
         tx,
         contact.id,
         categorized["leadAttribution"],
@@ -155,13 +155,13 @@ export const createContactsLead = async (
           ...contact,
         },
         personalInfo: {
-          ...personalInfo,
+          ...personal_info,
         },
         academicsProfile: {
-          ...academicsProfile,
+          ...academics_profile,
         },
         leadAttribution: {
-          ...leadAttribution,
+          ...lead_attribution,
         },
       };
 
@@ -192,7 +192,7 @@ export const upsertContactsLead = async (
     // const { id } = req.payload!;
     const { email, formType, phoneNumber } = req.body;
     let data: any = {};
-    let leadAttribution: any;
+    let lead_attribution: any;
 
     logger.debug(`Fetching partner id from request`);
     // const partnerId = await getPartnerIdByUserId(id);
@@ -227,7 +227,7 @@ export const upsertContactsLead = async (
           logger.debug(
             `Updating personal information for contact: ${contact.id}`,
           );
-          const personalInfo = await updateEdumatePersonalInformation(
+          const personal_info = await updateEdumatePersonalInformation(
             tx,
             contact.id,
             categorized["personalInformation"],
@@ -237,7 +237,7 @@ export const upsertContactsLead = async (
           );
 
           logger.debug(`Updating academic profile for contact: ${contact.id}`);
-          const academicsProfile = await updateEdumateAcademicProfile(
+          const academics_profile = await updateEdumateAcademicProfile(
             tx,
             contact.id,
             categorized["academicProfile"],
@@ -247,7 +247,7 @@ export const upsertContactsLead = async (
           );
 
           logger.debug(`Updating lead attribution for contact: ${contact.id}`);
-          const leadAttribution = await updateEdumateLeadAttribution(
+          const lead_attribution = await updateEdumateLeadAttribution(
             tx,
             contact.id,
             categorized["leadAttribution"],
@@ -262,13 +262,13 @@ export const upsertContactsLead = async (
               ...contact,
             },
             personalInfo: {
-              ...personalInfo,
+              ...personal_info,
             },
             academicsProfile: {
-              ...academicsProfile,
+              ...academics_profile,
             },
             leadAttribution: {
-              ...leadAttribution,
+              ...lead_attribution,
             },
           };
 
@@ -290,7 +290,7 @@ export const upsertContactsLead = async (
           logger.debug(
             `Creating personal information for contact: ${contact.id}`,
           );
-          const personalInfo = await createEdumatePersonalInformation(
+          const personal_info = await createEdumatePersonalInformation(
             tx,
             contact.id,
             categorized["personalInformation"],
@@ -300,7 +300,7 @@ export const upsertContactsLead = async (
           );
 
           logger.debug(`Creating academic profile for contact: ${contact.id}`);
-          const academicsProfile = await createEdumateAcademicProfile(
+          const academics_profile = await createEdumateAcademicProfile(
             tx,
             contact.id,
             categorized["academicProfile"],
@@ -310,7 +310,7 @@ export const upsertContactsLead = async (
           );
 
           logger.debug(`Creating lead attribution for contact: ${contact.id}`);
-          leadAttribution = await createEdumateLeadAttribution(
+          lead_attribution = await createEdumateLeadAttribution(
             tx,
             contact.id,
             categorized["leadAttribution"],
@@ -366,13 +366,13 @@ export const upsertContactsLead = async (
               ...contact,
             },
             personalInfo: {
-              ...personalInfo,
+              ...personal_info,
             },
             academicsProfile: {
-              ...academicsProfile,
+              ...academics_profile,
             },
             leadAttribution: {
-              ...leadAttribution,
+              ...lead_attribution,
             },
           };
 
@@ -951,7 +951,7 @@ export const getLeadStats = async (
     // Parse partner query parameter (default: false)
     const partnerParam = req.query.partner;
     const isPartnerFilter = String(partnerParam).toLowerCase() === "true";
-    const id = parseInt(req.payload?.id || req.body?.id);
+    const id = parseInt(req.payload?.id || req.body?.id || (req.query?.id as string));
 
     // Build where clause
     const whereClause: any = {};

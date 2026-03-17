@@ -51,7 +51,7 @@ export const getIpInfo = async (
 
 export const getAllUsers = async (_: Request, res: Response) => {
   const users = await prisma.b2BPartnersUsers.findMany();
-  res.json(users);
+  sendResponse(res, 200, "Users fetched successfully", users);
 };
 
 /**

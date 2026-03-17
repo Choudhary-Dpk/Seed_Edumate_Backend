@@ -159,7 +159,7 @@ export const validateSettlementIds = async (
       },
       include: {
         calculation_details: true,
-        documentaion: true,
+        documentation: true,
         status_history: true,
       },
     });
@@ -228,7 +228,7 @@ export const validateSettlementOwnership = async (
       include: {
         status_history: true,
         hold_dispute: true,
-        documentaion: true,
+        documentation: true,
         calculation_details: true,
         loan_details: true,
         b2b_partner: {
@@ -311,7 +311,7 @@ export const validateSettlementStatus = (
           include: {
             status_history: true,
             hold_dispute: true,
-            documentaion: true,
+            documentation: true,
             calculation_details: true,
             loan_details: true,
             b2b_partner: {

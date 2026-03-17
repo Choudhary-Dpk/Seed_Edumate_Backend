@@ -8,6 +8,7 @@ import {
 } from "../services/dashboard.service";
 import { logger } from "../utils/logger";
 import prisma from "../config/prisma";
+import { sendResponse } from "../utils/api";
 
 /**
  * Parse and validate query parameters
@@ -108,21 +109,14 @@ export const fetchKeyMetrics = async (req: Request, res: Response) => {
 
     const metrics = await getKeyMetrics(filters);
 
-    res.status(200).json({
-      success: true,
-      data: metrics,
-    });
+    sendResponse(res, 200, "Key metrics fetched successfully", metrics);
   } catch (error) {
     logger.error("Error fetching key metrics via API", {
       error: error instanceof Error ? error.message : "Unknown error",
       stack: error instanceof Error ? error.stack : undefined,
     });
 
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch key metrics",
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
+    sendResponse(res, 500, "Failed to fetch key metrics");
   }
 };
 
@@ -139,8 +133,7 @@ export const fetchTopPartners = async (req: Request, res: Response) => {
 
     const result = await getTopPartners(filters);
 
-    res.status(200).json({
-      success: true,
+    sendResponse(res, 200, "Top partners fetched successfully", {
       count: result.partners.length,
       period: result.period,
       data: result.partners,
@@ -151,11 +144,7 @@ export const fetchTopPartners = async (req: Request, res: Response) => {
       stack: error instanceof Error ? error.stack : undefined,
     });
 
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch top partners",
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
+    sendResponse(res, 500, "Failed to fetch top partners");
   }
 };
 
@@ -172,8 +161,7 @@ export const fetchMonthlyTrends = async (req: Request, res: Response) => {
 
     const trends = await getMonthlyTrends(filters);
 
-    res.status(200).json({
-      success: true,
+    sendResponse(res, 200, "Monthly trends fetched successfully", {
       count: trends.length,
       data: trends,
     });
@@ -183,11 +171,7 @@ export const fetchMonthlyTrends = async (req: Request, res: Response) => {
       stack: error instanceof Error ? error.stack : undefined,
     });
 
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch monthly trends",
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
+    sendResponse(res, 500, "Failed to fetch monthly trends");
   }
 };
 
@@ -204,21 +188,14 @@ export const fetchPipelineStatus = async (req: Request, res: Response) => {
 
     const pipeline = await getPipelineStatus(filters);
 
-    res.status(200).json({
-      success: true,
-      data: pipeline,
-    });
+    sendResponse(res, 200, "Pipeline status fetched successfully", pipeline);
   } catch (error) {
     logger.error("Error fetching pipeline status via API", {
       error: error instanceof Error ? error.message : "Unknown error",
       stack: error instanceof Error ? error.stack : undefined,
     });
 
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch pipeline status",
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
+    sendResponse(res, 500, "Failed to fetch pipeline status");
   }
 };
 
@@ -232,21 +209,14 @@ export const fetchPartnerActivity = async (req: Request, res: Response) => {
 
     const activity = await getPartnerActivityStatus();
 
-    res.status(200).json({
-      success: true,
-      data: activity,
-    });
+    sendResponse(res, 200, "Partner activity fetched successfully", activity);
   } catch (error) {
     logger.error("Error fetching partner activity via API", {
       error: error instanceof Error ? error.message : "Unknown error",
       stack: error instanceof Error ? error.stack : undefined,
     });
 
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch partner activity status",
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
+    sendResponse(res, 500, "Failed to fetch partner activity status");
   }
 };
 
@@ -268,14 +238,11 @@ export const fetchDashboardOverview = async (req: Request, res: Response) => {
       getPartnerActivityStatus(),
     ]);
 
-    res.status(200).json({
-      success: true,
-      data: {
-        key_metrics: keyMetrics,
-        top_partners: topPartners,
-        partner_activity: partnerActivity,
-      },
-      filters: filters,
+    sendResponse(res, 200, "Dashboard overview fetched successfully", {
+      key_metrics: keyMetrics,
+      top_partners: topPartners,
+      partner_activity: partnerActivity,
+      filters,
     });
   } catch (error) {
     logger.error("Error fetching dashboard overview via API", {
@@ -283,11 +250,7 @@ export const fetchDashboardOverview = async (req: Request, res: Response) => {
       stack: error instanceof Error ? error.stack : undefined,
     });
 
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch dashboard overview",
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
+    sendResponse(res, 500, "Failed to fetch dashboard overview");
   }
 };
 
@@ -360,20 +323,13 @@ export const fetchFilterOptions = async (req: Request, res: Response) => {
       ],
     };
 
-    res.status(200).json({
-      success: true,
-      data: filterOptions,
-    });
+    sendResponse(res, 200, "Filter options fetched successfully", filterOptions);
   } catch (error) {
     logger.error("Error fetching filter options via API", {
       error: error instanceof Error ? error.message : "Unknown error",
     });
 
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch filter options",
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
+    sendResponse(res, 500, "Failed to fetch filter options");
   }
 };
 
@@ -399,11 +355,7 @@ export const exportKeyMetricsCSV = async (req: Request, res: Response) => {
       error: error instanceof Error ? error.message : "Unknown error",
     });
 
-    res.status(500).json({
-      success: false,
-      message: "Failed to export key metrics",
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
+    sendResponse(res, 500, "Failed to export key metrics");
   }
 };
 
@@ -426,11 +378,7 @@ export const exportTopPartnersCSV = async (req: Request, res: Response) => {
       error: error instanceof Error ? error.message : "Unknown error",
     });
 
-    res.status(500).json({
-      success: false,
-      message: "Failed to export top partners",
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
+    sendResponse(res, 500, "Failed to export top partners");
   }
 };
 
@@ -453,11 +401,7 @@ export const exportTrendsCSV = async (req: Request, res: Response) => {
       error: error instanceof Error ? error.message : "Unknown error",
     });
 
-    res.status(500).json({
-      success: false,
-      message: "Failed to export trends",
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
+    sendResponse(res, 500, "Failed to export trends");
   }
 };
 
@@ -480,10 +424,6 @@ export const exportPipelineStatusCSV = async (req: Request, res: Response) => {
       error: error instanceof Error ? error.message : "Unknown error",
     });
 
-    res.status(500).json({
-      success: false,
-      message: "Failed to export pipeline status",
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
+    sendResponse(res, 500, "Failed to export pipeline status");
   }
 };

@@ -1863,7 +1863,7 @@ model HSCommissionSettlements {
   loan_product                HSLoanProducts?                               @relation(fields: [product_id], references: [id], onDelete: Cascade)
   calculation_details         HSCommissionSettlementsCommissionCalculation?
   communication               HSCommissionSettlementsCommunication?
-  documentaion                HSCommissionSettlementsDocumentation?
+  documentation                HSCommissionSettlementsDocumentation?
   hold_dispute                HSCommissionSettlementsHoldAndDisputes?
   loan_details                HSCommissionSettlementsLoanDetails?
   payment_details             HSCommissionSettlementsPaymentProcessing?

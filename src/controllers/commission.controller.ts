@@ -81,7 +81,7 @@ const fetchSettlementsForApproval = (ids: number[]) =>
     where: { id: { in: ids }, is_deleted: false, is_active: true },
     include: {
       status_history: true,
-      documentaion: true,
+      documentation: true,
       calculation_details: true,
       tax_deductions: true,
       loan_details: true,
@@ -691,7 +691,7 @@ export const uploadInvoiceController = async (
       settlements.map(async (settlement: any) => {
         const settlementAmount = req.body.invoice_amount;
 
-        if (settlement.documentaion) {
+        if (settlement.documentation) {
           return await prisma.hSCommissionSettlementsDocumentation.update({
             where: { settlement_id: settlement.id },
             data: {
@@ -1253,7 +1253,7 @@ export const generateInvoiceController = async (
         calculation_details: true,
         tax_deductions: true,
         loan_details: true,
-        documentaion: true,
+        documentation: true,
         status_history: true,
       },
     });
@@ -1542,7 +1542,7 @@ export const generateInvoiceController = async (
             ? Number(settlement.calculation_details.total_gross_amount)
             : 0;
 
-        if (settlement.documentaion) {
+        if (settlement.documentation) {
           return prisma.hSCommissionSettlementsDocumentation.update({
             where: { settlement_id: settlement.id },
             data: {
