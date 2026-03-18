@@ -63,10 +63,14 @@ export const studentSignupController = async (
 
       result = await prisma.$transaction(
         async (tx: any) => {
+          const partnerId = categorized["mainContact"]?.b2b_partner_id
+            ? Number(categorized["mainContact"].b2b_partner_id)
+            : undefined;
           const contact = await updateEdumateContact(
             tx,
             leadId,
-            categorized["mainContact"]
+            categorized["mainContact"],
+            partnerId
           );
 
           await updateEdumatePersonalInformation(
@@ -112,9 +116,13 @@ export const studentSignupController = async (
     } else {
       result = await prisma.$transaction(
         async (tx: any) => {
+          const newPartnerId = categorized["mainContact"]?.b2b_partner_id
+            ? Number(categorized["mainContact"].b2b_partner_id)
+            : undefined;
           const contact = await createEdumateContact(
             tx,
-            categorized["mainContact"]
+            categorized["mainContact"],
+            newPartnerId
           );
 
           await createEdumatePersonalInformation(
