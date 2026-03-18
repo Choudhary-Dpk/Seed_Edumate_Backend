@@ -267,11 +267,15 @@ export async function partnerAutoDeactivation(): Promise<void> {
   }
 }
 
-export async function triggerMonthlyMISReportManually() {
-  logger.info("Manually triggering monthly MIS report generation");
+export async function triggerMonthlyMISReportManually(
+  duration?: "previous" | "current",
+) {
+  logger.info("Manually triggering monthly MIS report generation", {
+    duration: duration || "current",
+  });
 
   try {
-    const result = await generateMonthlyMISReports();
+    const result = await generateMonthlyMISReports(duration);
 
     logger.info("Manual MIS report generation completed", {
       reports_generated: result.reports_generated,

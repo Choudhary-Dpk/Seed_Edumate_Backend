@@ -29,21 +29,34 @@ const toNumber = (value: Decimal | number | null | undefined): number => {
 
 /**
  * Generate monthly MIS reports for all active B2B partners
- * Runs automatically on the 1st of each month for the previous month
+ * @param duration - "previous" for previous month, defaults to current month up to today
  */
-export const generateMonthlyMISReports =
-  async (): Promise<MISReportGenerationResult> => {
+export const generateMonthlyMISReports = async (
+  duration?: "previous" | "current",
+): Promise<MISReportGenerationResult> => {
     const startTime = Date.now();
 
-    // Calculate previous month
     const now = new Date();
-    const previousMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const reportMonth = previousMonth.getMonth() + 1; // 1-12
-    const reportYear = previousMonth.getFullYear();
+    let reportMonth: number;
+    let reportYear: number;
+    let reportEndDate: Date | undefined;
+
+    if (duration === "previous") {
+      // Previous month (full month)
+      const previousMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      reportMonth = previousMonth.getMonth() + 1; // 1-12
+      reportYear = previousMonth.getFullYear();
+    } else {
+      // Current month up to current date (default)
+      reportMonth = now.getMonth() + 1; // 1-12
+      reportYear = now.getFullYear();
+      reportEndDate = now;
+    }
 
     logger.info("Starting monthly MIS report generation", {
       report_month: reportMonth,
       report_year: reportYear,
+      duration: duration || "current",
     });
 
     // Get all active B2B partners
@@ -85,6 +98,7 @@ export const generateMonthlyMISReports =
           partner.hs_object_id,
           reportMonth,
           reportYear,
+          reportEndDate,
         );
 
         // Store report in database
@@ -150,6 +164,7 @@ export const generatePartnerMISReport = async (
   partnerHubSpotId: string | null,
   month: number,
   year: number,
+  endDateOverride?: Date,
 ): Promise<MonthlyMISReport> => {
   const startTime = Date.now();
   let apiCallsCount = 0;
@@ -162,7 +177,7 @@ export const generatePartnerMISReport = async (
 
   // Calculate date range
   const startDate = new Date(year, month - 1, 1);
-  const endDate = new Date(year, month, 0, 23, 59, 59);
+  const endDate = endDateOverride || new Date(year, month, 0, 23, 59, 59);
 
   // Metric 2: Total Leads (from local DB)
   const totalLeads = await getLeadsCount(partnerId, startDate, endDate);

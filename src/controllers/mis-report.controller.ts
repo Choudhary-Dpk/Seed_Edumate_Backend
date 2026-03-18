@@ -29,12 +29,29 @@ export const generateAllReports = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
+    const duration = req.query.duration as string | undefined;
+
+    // Validate duration parameter
+    if (duration && duration !== "previous" && duration !== "current") {
+      sendResponse(
+        res,
+        400,
+        "Invalid duration parameter. Use 'previous' for previous month or omit for current month",
+        null,
+        [{ field: "duration", message: "Must be 'previous' or 'current'" }],
+      );
+      return;
+    }
+
     logger.info("Manual MIS report generation triggered via API", {
       user: req.user || "system",
       ip: req.ip,
+      duration: duration || "current",
     });
 
-    const result = await triggerMonthlyMISReportManually();
+    const result = await triggerMonthlyMISReportManually(
+      (duration as "previous" | "current") || undefined,
+    );
 
     // Handle undefined result
     if (!result) {
