@@ -2397,17 +2397,40 @@ model HSMonthlyMISReports {
   @@map("hs_monthly_mis_reports")
 }
 
-model DashboardEmailTemplate {
-  id        Int      @id @default(autoincrement())
-  name      String   @db.VarChar(100)
-  subject   String   @db.VarChar(200)
-  body      String
-  variables Json?
-  createdBy Int?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+// ============================================================================
+// EMAIL TEMPLATE EDITOR (Super Admin Only)
+// ============================================================================
 
-  @@map("dashboard_email_templates")
+model EmailTemplate {
+  id            Int                    @id @default(autoincrement())
+  slug          String                 @unique @db.VarChar(100)
+  name          String                 @db.VarChar(150)
+  subject       String                 @db.VarChar(300)
+  html_content  String                 @db.Text
+  variables     Json?
+  category      EmailTemplateCategory  @default(TRANSACTIONAL)
+  is_active     Boolean                @default(true)
+  is_deleted    Boolean                @default(false)
+  created_by    Int?
+  updated_by    Int?
+  created_at    DateTime               @default(now())
+  updated_at    DateTime               @default(now()) @updatedAt
+
+  @@index([slug])
+  @@index([category])
+  @@index([is_active, is_deleted])
+  @@map("email_templates")
+}
+
+enum EmailTemplateCategory {
+  TRANSACTIONAL @map("transactional")
+  NOTIFICATION  @map("notification")
+  MARKETING     @map("marketing")
+  COMMISSION    @map("commission")
+  DASHBOARD     @map("dashboard")
+  LOAN          @map("loan")
+
+  @@map("email_template_category")
 }
 
 model EmailQueue {

@@ -19,7 +19,8 @@
     "pm2:restart": "pm2 restart ecosystem.config.js",
     "db:triggers": "node scripts/index.js",
     "cron:loanProductOptions": "npx ts-node src/scripts/sync_loan_product_options.ts",
-    "cron:currencyUpdate": "npx ts-node src/scripts/curreny_update.ts"
+    "cron:currencyUpdate": "npx ts-node src/scripts/curreny_update.ts",
+    "seed:emailTemplates": "ts-node src/seeders/seedEmailTemplates.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1006.0",

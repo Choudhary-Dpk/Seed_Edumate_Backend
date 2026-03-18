@@ -8,11 +8,13 @@ import { partnerRoutes } from "../partner.routes";
 import { lenderRoutes } from "../lender.routes";
 import { loanProuductRoutes } from "../loanProudct.routes";
 import { commissionRoutes } from "../commission.routes";
+import { emailTemplateRoutes } from "./email-template.routes";
 
 const router = Router();
 
 router.use("/auth", adminAuthRoutes);
 router.use("/users", userManagementRoutes);
+router.use("/email-templates", emailTemplateRoutes);
 router.use("/loanApplications", loanApplicationRouter);
 router.use("/contacts", contactRoutes);
 router.use("/partners", partnerRoutes);
