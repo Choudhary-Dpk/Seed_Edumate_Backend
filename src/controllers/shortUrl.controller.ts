@@ -90,8 +90,20 @@ export const listShortUrls = async (
     const where: any = {};
 
     if (search && typeof search === "string") {
+      // Extract code from full short URL (e.g. "https://edmt.co/RVpX30" → "RVpX30")
+      let codeSearch = search;
+      try {
+        const url = new URL(search);
+        const pathCode = url.pathname.replace("/", "");
+        if (pathCode) {
+          codeSearch = pathCode;
+        }
+      } catch {
+        // Not a valid URL, use search as-is
+      }
+
       where.OR = [
-        { code: { contains: search, mode: "insensitive" } },
+        { code: { contains: codeSearch, mode: "insensitive" } },
         { longUrl: { contains: search, mode: "insensitive" } },
       ];
     }
