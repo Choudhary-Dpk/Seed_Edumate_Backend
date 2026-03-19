@@ -5,9 +5,11 @@ export const mapAllB2BPartnerFields = async (
 ): Promise<Record<string, any>> => {
   const mapped: Record<string, any> = {};
   // ===== MAIN PARTNER FIELDS =====
-  if (input.logo_url !== undefined) {
+  if (input.logo_url !== undefined || input.school_logo !== undefined) {
     mapped.logo_url =
-      input.logo_url !== null && input.logo_url !== "" ? input.logo_url : null;
+      input.logo_url !== null && input.logo_url !== "" ? input.logo_url : 
+      input.school_logo !== null && input.school_logo !== "" ? input.school_logo
+        : null;
   }
   
   if (input.company_id !== undefined || input.hs_company_id !== undefined) {
