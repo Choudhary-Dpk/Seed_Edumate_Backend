@@ -84,60 +84,72 @@ export const generateMonthlyMISReports = async (
       errors: [],
     };
 
-    // Process each partner
-    for (const partner of activePartners) {
-      try {
-        logger.debug("Processing partner", {
-          partner_id: partner.id,
-          partner_name: partner.partner_name,
-        });
+    // Process partners in parallel batches of 5 (to respect HubSpot rate limits)
+    const BATCH_SIZE = 5;
+    for (let i = 0; i < activePartners.length; i += BATCH_SIZE) {
+      const batch = activePartners.slice(i, i + BATCH_SIZE);
 
-        const report = await generatePartnerMISReport(
-          partner.id,
-          partner.partner_name || "Unknown",
-          partner.hs_object_id,
-          reportMonth,
-          reportYear,
-          reportEndDate,
-        );
+      const batchResults = await Promise.allSettled(
+        batch.map(async (partner) => {
+          logger.debug("Processing partner", {
+            partner_id: partner.id,
+            partner_name: partner.partner_name,
+          });
 
-        // Store report in database
-        await storeMonthlyReport(report);
+          const report = await generatePartnerMISReport(
+            partner.id,
+            partner.partner_name || "Unknown",
+            partner.hs_object_id,
+            reportMonth,
+            reportYear,
+            reportEndDate,
+          );
 
-        results.reports_generated++;
+          await storeMonthlyReport(report);
+          return { partner, report };
+        }),
+      );
 
-        logger.info("Successfully generated report for partner", {
-          partner_id: partner.id,
-          partner_name: partner.partner_name,
-        });
-      } catch (error) {
-        results.reports_failed++;
-        results.success = false;
+      for (let j = 0; j < batchResults.length; j++) {
+        const batchResult = batchResults[j];
+        const partner = batch[j];
 
-        const errorMessage =
-          error instanceof Error ? error.message : "Unknown error";
+        if (batchResult.status === "fulfilled") {
+          results.reports_generated++;
+          logger.info("Successfully generated report for partner", {
+            partner_id: partner.id,
+            partner_name: partner.partner_name,
+          });
+        } else {
+          results.reports_failed++;
+          results.success = false;
 
-        results.errors.push({
-          partner_id: partner.id,
-          partner_name: partner.partner_name || "Unknown",
-          error: errorMessage,
-        });
+          const errorMessage =
+            batchResult.reason instanceof Error
+              ? batchResult.reason.message
+              : "Unknown error";
 
-        logger.error("Failed to generate report for partner", {
-          partner_id: partner.id,
-          partner_name: partner.partner_name,
-          error: errorMessage,
-        });
+          results.errors.push({
+            partner_id: partner.id,
+            partner_name: partner.partner_name || "Unknown",
+            error: errorMessage,
+          });
 
-        // Store error report
-        await storeErrorReport(
-          partner.id,
-          partner.partner_name || "Unknown",
-          partner.hs_object_id,
-          reportMonth,
-          reportYear,
-          errorMessage,
-        );
+          logger.error("Failed to generate report for partner", {
+            partner_id: partner.id,
+            partner_name: partner.partner_name,
+            error: errorMessage,
+          });
+
+          await storeErrorReport(
+            partner.id,
+            partner.partner_name || "Unknown",
+            partner.hs_object_id,
+            reportMonth,
+            reportYear,
+            errorMessage,
+          );
+        }
       }
     }
 
@@ -179,35 +191,26 @@ export const generatePartnerMISReport = async (
   const startDate = new Date(year, month - 1, 1);
   const endDate = endDateOverride || new Date(year, month, 0, 23, 59, 59);
 
-  // Metric 2: Total Leads (from local DB)
-  const totalLeads = await getLeadsCount(partnerId, startDate, endDate);
+  // Run all local DB queries + HubSpot call in parallel
+  const [
+    totalLeads,
+    { count: applicationsInitiated, totalAmount: totalRequestedAmount },
+    { count: applicationsApproved, totalAmount: totalApprovedAmount },
+    disbursementResult,
+  ] = await Promise.all([
+    getLeadsCount(partnerId, startDate, endDate),
+    getApplicationsInitiated(partnerId, startDate, endDate),
+    getApplicationsApproved(partnerId, startDate, endDate),
+    partnerHubSpotId
+      ? getDisbursements(partnerId, partnerHubSpotId, month, year, startDate, endDate)
+      : Promise.resolve({ count: 0, totalAmount: 0, apiCallsCount: 0 }),
+  ]);
 
-  // Metrics 3 & 4: Applications Initiated (from local DB)
-  const { count: applicationsInitiated, totalAmount: totalRequestedAmount } =
-    await getApplicationsInitiated(partnerId, startDate, endDate);
+  const disbursementsInitiated = disbursementResult.count;
+  const totalDisbursementAmount = disbursementResult.totalAmount;
+  apiCallsCount = disbursementResult.apiCallsCount;
 
-  // Metrics 5 & 6: Applications Approved (from local DB)
-  const { count: applicationsApproved, totalAmount: totalApprovedAmount } =
-    await getApplicationsApproved(partnerId, startDate, endDate);
-
-  // Metrics 7 & 8: Disbursements (from HubSpot)
-  let disbursementsInitiated = 0;
-  let totalDisbursementAmount = 0;
-
-  if (partnerHubSpotId) {
-    const disbursementResult = await getDisbursements(
-      partnerId,
-      partnerHubSpotId,
-      month,
-      year,
-      startDate,
-      endDate,
-    );
-
-    disbursementsInitiated = disbursementResult.count;
-    totalDisbursementAmount = disbursementResult.totalAmount;
-    apiCallsCount = disbursementResult.apiCallsCount;
-  } else {
+  if (!partnerHubSpotId) {
     logger.warn("Partner has no HubSpot ID, skipping disbursement metrics", {
       partner_id: partnerId,
     });
@@ -269,29 +272,28 @@ const getApplicationsInitiated = async (
   startDate: Date,
   endDate: Date,
 ): Promise<{ count: number; totalAmount: number }> => {
-  const applications = await prisma.hSLoanApplications.findMany({
-    where: {
-      b2b_partner_id: partnerId,
-      application_date: {
-        gte: startDate,
-        lte: endDate,
-      },
-      is_deleted: false,
+  const where = {
+    b2b_partner_id: partnerId,
+    application_date: {
+      gte: startDate,
+      lte: endDate,
     },
-    include: {
-      financial_requirements: {
-        select: {
-          loan_amount_requested: true,
-        },
-      },
-    },
-  });
+    is_deleted: false,
+  };
 
-  const count = applications.length;
-  const totalAmount = applications.reduce((sum, app) => {
-    const amount = app.financial_requirements?.loan_amount_requested;
-    return sum + toNumber(amount);
-  }, 0);
+  const [count, aggregation] = await Promise.all([
+    prisma.hSLoanApplications.count({ where }),
+    prisma.hSLoanApplicationsFinancialRequirements.aggregate({
+      where: {
+        application: where,
+      },
+      _sum: {
+        loan_amount_requested: true,
+      },
+    }),
+  ]);
+
+  const totalAmount = toNumber(aggregation._sum.loan_amount_requested);
 
   logger.debug("Retrieved applications initiated", {
     partner_id: partnerId,
@@ -310,32 +312,31 @@ const getApplicationsApproved = async (
   startDate: Date,
   endDate: Date,
 ): Promise<{ count: number; totalAmount: number }> => {
-  const applications = await prisma.hSLoanApplications.findMany({
-    where: {
-      b2b_partner_id: partnerId,
-      is_deleted: false,
-      processing_timeline: {
-        approval_date: {
-          gte: startDate,
-          lte: endDate,
-          not: null,
-        },
+  const where = {
+    b2b_partner_id: partnerId,
+    is_deleted: false,
+    processing_timeline: {
+      approval_date: {
+        gte: startDate,
+        lte: endDate,
+        not: null,
       },
     },
-    include: {
-      financial_requirements: {
-        select: {
-          loan_amount_approved: true,
-        },
-      },
-    },
-  });
+  };
 
-  const count = applications.length;
-  const totalAmount = applications.reduce((sum, app) => {
-    const amount = app.financial_requirements?.loan_amount_approved;
-    return sum + toNumber(amount);
-  }, 0);
+  const [count, aggregation] = await Promise.all([
+    prisma.hSLoanApplications.count({ where }),
+    prisma.hSLoanApplicationsFinancialRequirements.aggregate({
+      where: {
+        application: where,
+      },
+      _sum: {
+        loan_amount_approved: true,
+      },
+    }),
+  ]);
+
+  const totalAmount = toNumber(aggregation._sum.loan_amount_approved);
 
   logger.debug("Retrieved applications approved", {
     partner_id: partnerId,
