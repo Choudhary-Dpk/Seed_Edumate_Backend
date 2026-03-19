@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   createSingleShortUrl,
   createBulkShortUrls,
+  listShortUrls,
   redirectShortUrl,
 } from "../controllers/shortUrl.controller";
 import { authenticate } from "../middlewares";
@@ -12,12 +13,12 @@ const router = Router();
 /**
  * POST /api/short-url
  * Create a single short URL
- * Requires API Key authentication
+ * Requires JWT authentication
  */
 router.post(
   "/",
   authenticate({
-    method: AuthMethod.API_KEY,
+    method: AuthMethod.JWT,
   }),
   createSingleShortUrl
 );
@@ -25,14 +26,28 @@ router.post(
 /**
  * POST /api/short-url/bulk
  * Create multiple short URLs for the same long URL
- * Requires API Key authentication
+ * Requires JWT authentication
  */
 router.post(
   "/bulk",
   authenticate({
-    method: AuthMethod.API_KEY,
+    method: AuthMethod.JWT,
   }),
   createBulkShortUrls
+);
+
+/**
+ * GET /api/short-url/list
+ * List all short URLs with pagination and search
+ * Requires JWT authentication
+ * @query search, page, size
+ */
+router.get(
+  "/list",
+  authenticate({
+    method: AuthMethod.JWT,
+  }),
+  listShortUrls
 );
 
 /**

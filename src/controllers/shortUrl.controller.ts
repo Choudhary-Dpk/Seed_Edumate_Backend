@@ -18,8 +18,11 @@ export const createSingleShortUrl = async (
       return sendResponse(res, 400, "longUrl is required and must be a string");
     }
 
+    const user = (req as any).user;
+    const createdBy = user?.email || user?.fullName || undefined;
+
     logger.debug(`Creating single short URL for: ${longUrl}`);
-    const result = await shortUrlServices.createShortUrl(longUrl);
+    const result = await shortUrlServices.createShortUrl(longUrl, createdBy);
     logger.debug(`Short URL created successfully: ${result.shortUrl}`);
 
     sendResponse(res, 201, "Short URL created successfully", {
@@ -50,8 +53,11 @@ export const createBulkShortUrls = async (
       return sendResponse(res, 400, "count is required and must be a number");
     }
 
+    const user = (req as any).user;
+    const createdBy = user?.email || user?.fullName || undefined;
+
     logger.debug(`Creating ${count} short URLs for: ${longUrl}`);
-    const shortUrls = await shortUrlServices.createBulkShortUrls(longUrl, count);
+    const shortUrls = await shortUrlServices.createBulkShortUrls(longUrl, count, createdBy);
     logger.debug(`${count} short URLs created successfully`);
 
     sendResponse(res, 201, "Bulk short URLs created successfully", {
@@ -59,6 +65,53 @@ export const createBulkShortUrls = async (
     });
   } catch (error: any) {
     logger.error(`Error creating bulk short URLs: ${error.message}`);
+    next(error);
+  }
+};
+
+/**
+ * Controller for listing short URLs with pagination and search
+ */
+export const listShortUrls = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { search, page, size } = req.query;
+
+    const pageNum = page ? parseInt(page as string, 10) : 1;
+    const pageSize = size ? parseInt(size as string, 10) : 20;
+
+    // Cap at 100 per page
+    const take = Math.min(pageSize, 100);
+    const skip = (pageNum - 1) * take;
+
+    const where: any = {};
+
+    if (search && typeof search === "string") {
+      where.OR = [
+        { code: { contains: search, mode: "insensitive" } },
+        { longUrl: { contains: search, mode: "insensitive" } },
+      ];
+    }
+
+    const [shortUrls, total] = await Promise.all([
+      shortUrlServices.listShortUrls(where, skip, take),
+      shortUrlServices.countShortUrls(where),
+    ]);
+
+    sendResponse(res, 200, "Short URLs fetched successfully", {
+      short_urls: shortUrls,
+      pagination: {
+        page: pageNum,
+        size: take,
+        total,
+        total_pages: Math.ceil(total / take),
+      },
+    });
+  } catch (error: any) {
+    logger.error(`Error listing short URLs: ${error.message}`);
     next(error);
   }
 };

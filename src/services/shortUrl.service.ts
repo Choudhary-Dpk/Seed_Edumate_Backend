@@ -65,7 +65,8 @@ const generateUniqueCode = async (
  * Create a single short URL
  */
 export const createShortUrl = async (
-  longUrl: string
+  longUrl: string,
+  createdBy?: string
 ): Promise<{ shortUrl: string; code: string }> => {
   logger.debug(`Validating long URL: ${longUrl}`);
 
@@ -82,6 +83,7 @@ export const createShortUrl = async (
     data: {
       code,
       longUrl,
+      ...(createdBy && { createdBy }),
     },
   });
   logger.debug(`Short URL saved successfully`);
@@ -95,7 +97,8 @@ export const createShortUrl = async (
  */
 export const createBulkShortUrls = async (
   longUrl: string,
-  count: number
+  count: number,
+  createdBy?: string
 ): Promise<string[]> => {
   logger.debug(`Validating long URL: ${longUrl}`);
 
@@ -120,12 +123,36 @@ export const createBulkShortUrls = async (
     data: codes.map((code) => ({
       code,
       longUrl,
+      ...(createdBy && { createdBy }),
     })),
   });
   logger.debug(`Bulk short URLs saved successfully`);
 
   const shortUrls = codes.map((code) => `${BASE_DOMAIN}/${code}`);
   return shortUrls;
+};
+
+/**
+ * List short URLs with filtering, newest first
+ */
+export const listShortUrls = async (
+  where: any,
+  skip: number,
+  take: number
+) => {
+  return prisma.shortUrl.findMany({
+    where,
+    skip,
+    take,
+    orderBy: { createdAt: "desc" },
+  });
+};
+
+/**
+ * Count short URLs with filtering
+ */
+export const countShortUrls = async (where: any) => {
+  return prisma.shortUrl.count({ where });
 };
 
 /**

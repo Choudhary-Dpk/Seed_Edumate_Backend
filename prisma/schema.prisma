@@ -1863,7 +1863,7 @@ model HSCommissionSettlements {
   loan_product                HSLoanProducts?                               @relation(fields: [product_id], references: [id], onDelete: Cascade)
   calculation_details         HSCommissionSettlementsCommissionCalculation?
   communication               HSCommissionSettlementsCommunication?
-  documentation                HSCommissionSettlementsDocumentation?
+  documentation               HSCommissionSettlementsDocumentation?
   hold_dispute                HSCommissionSettlementsHoldAndDisputes?
   loan_details                HSCommissionSettlementsLoanDetails?
   payment_details             HSCommissionSettlementsPaymentProcessing?
@@ -2397,40 +2397,25 @@ model HSMonthlyMISReports {
   @@map("hs_monthly_mis_reports")
 }
 
-// ============================================================================
-// EMAIL TEMPLATE EDITOR (Super Admin Only)
-// ============================================================================
-
 model EmailTemplate {
-  id            Int                    @id @default(autoincrement())
-  slug          String                 @unique @db.VarChar(100)
-  name          String                 @db.VarChar(150)
-  subject       String                 @db.VarChar(300)
-  html_content  String                 @db.Text
-  variables     Json?
-  category      EmailTemplateCategory  @default(TRANSACTIONAL)
-  is_active     Boolean                @default(true)
-  is_deleted    Boolean                @default(false)
-  created_by    Int?
-  updated_by    Int?
-  created_at    DateTime               @default(now())
-  updated_at    DateTime               @default(now()) @updatedAt
+  id           Int                   @id @default(autoincrement())
+  slug         String                @unique @db.VarChar(100)
+  name         String                @db.VarChar(150)
+  subject      String                @db.VarChar(300)
+  html_content String
+  variables    Json?
+  category     EmailTemplateCategory @default(TRANSACTIONAL)
+  is_active    Boolean               @default(true)
+  is_deleted   Boolean               @default(false)
+  created_by   Int?
+  updated_by   Int?
+  created_at   DateTime              @default(now())
+  updated_at   DateTime              @default(now()) @updatedAt
 
   @@index([slug])
   @@index([category])
   @@index([is_active, is_deleted])
   @@map("email_templates")
-}
-
-enum EmailTemplateCategory {
-  TRANSACTIONAL @map("transactional")
-  NOTIFICATION  @map("notification")
-  MARKETING     @map("marketing")
-  COMMISSION    @map("commission")
-  DASHBOARD     @map("dashboard")
-  LOAN          @map("loan")
-
-  @@map("email_template_category")
 }
 
 model EmailQueue {
@@ -2527,6 +2512,17 @@ model adminRoleChangeAuditLog {
   @@map("admin_role_change_audit_log")
 }
 
+model dashboard_email_templates {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(100)
+  subject   String   @db.VarChar(200)
+  body      String
+  variables Json?
+  createdBy Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}
+
 view leads_view {
   contact_id                  Int?
   b2b_partner_id              Int?
@@ -2553,7 +2549,7 @@ view leads_view {
   lifecycle_stages            String?
   lifecycle_stages_status     String?
   loan_application_id         Int?
-  application_date            DateTime? @db.Timestamp()
+  application_date            DateTime? @db.Timestamp(6)
   student_id                  String?
   student_name                String?
   student_email               String?
@@ -2570,6 +2566,17 @@ view leads_view {
   processing_fee              Decimal?  @db.Decimal
   loan_application_count      BigInt?
   loan_application_ids        Int[]
+}
+
+enum EmailTemplateCategory {
+  TRANSACTIONAL @map("transactional")
+  NOTIFICATION  @map("notification")
+  MARKETING     @map("marketing")
+  COMMISSION    @map("commission")
+  DASHBOARD     @map("dashboard")
+  LOAN          @map("loan")
+
+  @@map("email_template_category")
 }
 
 enum EmailQueueStatus {

@@ -8,6 +8,7 @@ import {
   updateEmailTemplate,
   softDeleteEmailTemplate,
 } from "../../models/helpers/email-template.helper";
+import { sendUnifiedEmail } from "../../services/unified-email.service";
 
 // ============================================================================
 // LIST ALL TEMPLATES (with pagination, search, category filter)
@@ -265,6 +266,108 @@ export const previewEmailTemplateController = async (
     });
   } catch (error: any) {
     logger.error("[EmailTemplate] Preview error", { error: error.message });
+    next(error);
+  }
+};
+
+// ============================================================================
+// SEND TEST EMAIL (send template to a given email for real preview)
+// ============================================================================
+
+export const sendTestEmailController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) {
+      return sendResponse(res, 400, "Invalid template ID");
+    }
+
+    const { email, variables: sampleData } = req.body;
+
+    if (!email) {
+      return sendResponse(res, 400, "email is required");
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return sendResponse(res, 400, "Invalid email address");
+    }
+
+    const template = await getEmailTemplateById(id);
+    if (!template) {
+      return sendResponse(res, 404, "Email template not found");
+    }
+
+    // Replace {%variable%} placeholders with sample data
+    const replacements = sampleData || {};
+    let emailHtml = template.html_content.replace(
+      /\{%(\w[\w-]*)%\}/g,
+      (match: string, varName: string) => {
+        return replacements[varName] || `[${varName}]`;
+      },
+    );
+
+    // Always replace currentYear
+    emailHtml = emailHtml.replace(
+      /\{%currentYear%\}/g,
+      new Date().getFullYear().toString(),
+    );
+
+    // Replace subject placeholders too
+    let emailSubject = template.subject.replace(
+      /\{%(\w[\w-]*)%\}/g,
+      (match: string, varName: string) => {
+        return replacements[varName] || `[${varName}]`;
+      },
+    );
+    emailSubject = `[TEST] ${emailSubject}`;
+
+    const result = await sendUnifiedEmail({
+      to: email,
+      subject: emailSubject,
+      html: emailHtml,
+      metadata: {
+        type: "test_email_template",
+        emailSource: "manual",
+        templateId: template.id,
+        templateSlug: template.slug,
+      },
+    });
+
+    if (!result.success) {
+      logger.error("[EmailTemplate] Test email failed", {
+        templateId: id,
+        email,
+        error: result.error,
+      });
+      return sendResponse(res, 500, "Failed to send test email", {
+        error: result.error,
+      });
+    }
+
+    const user = (req as any).user;
+    logger.info("[EmailTemplate] Test email sent", {
+      templateId: id,
+      slug: template.slug,
+      sentTo: email,
+      sentBy: user?.id,
+    });
+
+    return sendResponse(res, 200, "Test email sent successfully", {
+      template_id: template.id,
+      template_slug: template.slug,
+      sent_to: email,
+      subject: emailSubject,
+      message_id: result.messageId,
+    });
+  } catch (error: any) {
+    logger.error("[EmailTemplate] Send test email error", {
+      error: error.message,
+    });
     next(error);
   }
 };

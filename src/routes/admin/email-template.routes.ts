@@ -8,6 +8,7 @@ import {
   updateEmailTemplateController,
   deleteEmailTemplateController,
   previewEmailTemplateController,
+  sendTestEmailController,
 } from "../../controllers/admin/email-template.controller";
 
 const router = Router();
@@ -70,5 +71,13 @@ router.delete("/:id", superAdminAuth, deleteEmailTemplateController);
  * @access  Super Admin only
  */
 router.post("/:id/preview", superAdminAuth, previewEmailTemplateController);
+
+/**
+ * @route   POST /admin/email-templates/:id/send-test
+ * @desc    Send test email to a given email address to preview how template looks
+ * @body    { email: "test@example.com", variables?: { name: "John", ... } }
+ * @access  Super Admin only
+ */
+router.post("/:id/send-test", superAdminAuth, sendTestEmailController);
 
 export { router as emailTemplateRoutes };
