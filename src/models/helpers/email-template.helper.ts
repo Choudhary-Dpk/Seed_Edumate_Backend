@@ -2,6 +2,40 @@ import prisma from "../../config/prisma";
 import { EmailTemplateCategory } from "@prisma/client";
 
 // ============================================================================
+// UTILITY: Extract dynamic variables from template HTML
+// ============================================================================
+
+/**
+ * Extracts all {%variableName%} placeholders from template content (html + subject).
+ * Returns unique variable names, excluding system variables like currentYear.
+ */
+export const extractTemplateVariables = (
+  html_content: string,
+  subject?: string,
+): string[] => {
+  const systemVars = new Set(["currentYear"]);
+  const varSet = new Set<string>();
+  const regex = /\{%(\w[\w-]*)%\}/g;
+
+  let match;
+  while ((match = regex.exec(html_content)) !== null) {
+    if (!systemVars.has(match[1])) {
+      varSet.add(match[1]);
+    }
+  }
+
+  if (subject) {
+    while ((match = regex.exec(subject)) !== null) {
+      if (!systemVars.has(match[1])) {
+        varSet.add(match[1]);
+      }
+    }
+  }
+
+  return Array.from(varSet);
+};
+
+// ============================================================================
 // TYPES
 // ============================================================================
 

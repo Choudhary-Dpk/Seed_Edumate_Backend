@@ -7,6 +7,7 @@ import {
   listEmailTemplates,
   updateEmailTemplate,
   softDeleteEmailTemplate,
+  extractTemplateVariables,
 } from "../../models/helpers/email-template.helper";
 import { sendUnifiedEmail } from "../../services/unified-email.service";
 
@@ -57,7 +58,15 @@ export const getEmailTemplateController = async (
       return sendResponse(res, 404, "Email template not found");
     }
 
-    return sendResponse(res, 200, "Email template fetched successfully", template);
+    const extracted_variables = extractTemplateVariables(
+      template.html_content,
+      template.subject,
+    );
+
+    return sendResponse(res, 200, "Email template fetched successfully", {
+      ...template,
+      extracted_variables,
+    });
   } catch (error: any) {
     logger.error("[EmailTemplate] Get error", { error: error.message });
     next(error);
@@ -95,12 +104,15 @@ export const createEmailTemplateController = async (
 
     const user = (req as any).user;
 
+    // Auto-extract variables from html_content and subject
+    const extracted_variables = extractTemplateVariables(html_content, subject);
+
     const template = await createEmailTemplate({
       slug,
       name,
       subject,
       html_content,
-      variables,
+      variables: variables || extracted_variables.map((v) => ({ key: v, default_value: "" })),
       category,
       created_by: user?.id,
     });
@@ -111,7 +123,10 @@ export const createEmailTemplateController = async (
       createdBy: user?.id,
     });
 
-    return sendResponse(res, 201, "Email template created successfully", template);
+    return sendResponse(res, 201, "Email template created successfully", {
+      ...template,
+      extracted_variables,
+    });
   } catch (error: any) {
     if (error.code === "P2002") {
       return sendResponse(res, 409, "A template with this slug already exists");
@@ -158,11 +173,16 @@ export const updateEmailTemplateController = async (
 
     const user = (req as any).user;
 
+    // Auto-extract variables if html_content or subject changed
+    const finalHtml = html_content ?? existing.html_content;
+    const finalSubject = subject ?? existing.subject;
+    const extracted_variables = extractTemplateVariables(finalHtml, finalSubject);
+
     const updated = await updateEmailTemplate(id, {
       name,
       subject,
       html_content,
-      variables,
+      variables: variables ?? extracted_variables.map((v) => ({ key: v, default_value: "" })),
       category,
       is_active,
       updated_by: user?.id,
@@ -175,7 +195,10 @@ export const updateEmailTemplateController = async (
       fieldsUpdated: Object.keys(req.body),
     });
 
-    return sendResponse(res, 200, "Email template updated successfully", updated);
+    return sendResponse(res, 200, "Email template updated successfully", {
+      ...updated,
+      extracted_variables,
+    });
   } catch (error: any) {
     logger.error("[EmailTemplate] Update error", { error: error.message });
     next(error);
