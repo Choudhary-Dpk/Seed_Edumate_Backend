@@ -153,33 +153,6 @@ export const saveOtp = async (userId: number, otp: string) => {
   });
 };
 
-export const validateOtp = async (userId: number, otp: string) => {
-  const otpData = await prisma.b2BPartnersUserOtps.findFirst({
-    where: {
-      user_id: userId,
-      otp,
-      createdOn: {
-        gte: moment().subtract(5, "minutes").toDate(),
-      },
-    },
-  });
-
-  return otpData;
-};
-
-export const useOtp = async (userId: number, otp: string) => {
-  const result = await prisma.b2BPartnersUserOtps.deleteMany({
-    where: {
-      user_id: userId,
-      otp,
-    },
-  });
-
-  if (result.count === 0) {
-    throw new Error("Unable to use otp");
-  }
-};
-
 export const updateUserLastLoggedIn = async (
   userId: number,
   userType: "partner" | "admin",
@@ -218,34 +191,6 @@ export const updateUserLastLoggedIn = async (
       },
     });
   }
-};
-
-export const getUserById = async (userId: number, isActive: boolean) => {
-  const userData = await prisma.b2BPartnersUsers.findUnique({
-    where: {
-      id: userId,
-      is_active: isActive,
-    },
-    select: {
-      id: true,
-      is_active: true,
-      email: true,
-      password_hash: true,
-      roles: {
-        select: {
-          role: {
-            select: {
-              id: true,
-              role: true,
-              display_name: true,
-            },
-          },
-        },
-      },
-    },
-  });
-
-  return userData;
 };
 
 export const getAdminUserById = async (userId: number, isActive: boolean) => {
@@ -398,32 +343,4 @@ export const deleteAdminSession = async (
       status,
     },
   });
-};
-
-export const getUserSessionById = async (userId: number) => {
-  const userSession = await prisma.b2BPartnersSessions.findFirst({
-    select: {
-      id: true,
-      is_valid: true,
-    },
-    where: {
-      user_id: userId,
-    },
-  });
-
-  return userSession;
-};
-
-export const getAdminUserSessionById = async (userId: number) => {
-  const adminUserSession = await prisma.adminSessions.findFirst({
-    select: {
-      id: true,
-      is_valid: true,
-    },
-    where: {
-      user_id: userId,
-    },
-  });
-
-  return adminUserSession;
 };

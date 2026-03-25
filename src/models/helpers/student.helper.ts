@@ -331,47 +331,6 @@ export const getStudentForUpdate = async (student_id: number) => {
   };
 };
 
-// Update student concent and interested
-export const updateStudentFavouriteInterested = async (
-  student_id: number,
-  concent?: number[],
-  interested?: number[]
-) => {
-  const updateData: any = {};
-
-  if (concent !== undefined) {
-    updateData.concent = concent;
-  }
-
-  if (interested !== undefined) {
-    updateData.interested = interested;
-  }
-
-  if (Object.keys(updateData).length === 0) {
-    return null;
-  }
-
-  const updatedStudent = await prisma.contactUsers.update({
-    where: { id: student_id },
-    data: updateData,
-    select: {
-      id: true,
-      contact_id: true,
-      email: true,
-      full_name: true,
-      phone: true,
-      is_active: true,
-      concent: true,
-      interested: true,
-      source: true,
-      created_at: true,
-      updated_at: true,
-    },
-  });
-
-  return updatedStudent;
-};
-
 // Fetch updated student and contact data
 export const getUpdatedStudentProfile = async (
   student_id: number,

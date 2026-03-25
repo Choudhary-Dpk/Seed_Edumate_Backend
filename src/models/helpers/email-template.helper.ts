@@ -92,12 +92,6 @@ export const getEmailTemplateById = async (id: number) => {
   });
 };
 
-export const getEmailTemplateBySlug = async (slug: string) => {
-  return prisma.emailTemplate.findFirst({
-    where: { slug, is_deleted: false, is_active: true },
-  });
-};
-
 export const listEmailTemplates = async (filters: EmailTemplateFilters) => {
   const page = filters.page || 1;
   const size = filters.size || 20;

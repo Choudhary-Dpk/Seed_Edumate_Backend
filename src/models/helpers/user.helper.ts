@@ -109,6 +109,15 @@ export const getUserProfile = async (userId: number) => {
           partner_display_name: true,
           is_commission_applicable: true,
           logo_url: true,
+          partner_type: true,
+          registration_number: true,
+          business_type: true,
+          country: true,
+          state: true,
+          city: true,
+          website_url: true,
+          gst_number: true,
+          pan_number: true,
           // Include commission structure
           commission_structure: {
             select: {
