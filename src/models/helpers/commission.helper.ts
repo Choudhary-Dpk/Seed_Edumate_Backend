@@ -539,6 +539,263 @@ export const checkCommissionSettlementFields = async (
   return result;
 };
 
+// ============================================================================
+// COMMISSION SUMMARY — period-based dashboard metrics
+// ============================================================================
+
+const getDateRange = (
+  period: string,
+): { current: { gte?: Date; lte?: Date }; previous: { gte?: Date; lte?: Date } } => {
+  const now = new Date();
+
+  switch (period) {
+    case "this_month": {
+      const currentStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const previousStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const previousEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
+      return {
+        current: { gte: currentStart, lte: now },
+        previous: { gte: previousStart, lte: previousEnd },
+      };
+    }
+    case "last_month": {
+      const currentStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const currentEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
+      const previousStart = new Date(now.getFullYear(), now.getMonth() - 2, 1);
+      const previousEnd = new Date(now.getFullYear(), now.getMonth() - 1, 0, 23, 59, 59, 999);
+      return {
+        current: { gte: currentStart, lte: currentEnd },
+        previous: { gte: previousStart, lte: previousEnd },
+      };
+    }
+    case "3_months": {
+      const currentStart = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+      const previousStart = new Date(now.getFullYear(), now.getMonth() - 6, now.getDate());
+      const previousEnd = new Date(currentStart.getTime() - 1);
+      return {
+        current: { gte: currentStart, lte: now },
+        previous: { gte: previousStart, lte: previousEnd },
+      };
+    }
+    case "6_months": {
+      const currentStart = new Date(now.getFullYear(), now.getMonth() - 6, now.getDate());
+      const previousStart = new Date(now.getFullYear(), now.getMonth() - 12, now.getDate());
+      const previousEnd = new Date(currentStart.getTime() - 1);
+      return {
+        current: { gte: currentStart, lte: now },
+        previous: { gte: previousStart, lte: previousEnd },
+      };
+    }
+    case "all_time":
+    default:
+      return { current: {}, previous: {} };
+  }
+};
+
+const calcPercentChange = (current: number, previous: number): number => {
+  if (previous === 0 && current > 0) return 100;
+  if (previous === 0 && current === 0) return 0;
+  if (previous > 0 && current === 0) return -100;
+  return Math.round(((current - previous) / previous) * 100);
+};
+
+export const getCommissionSummary = async (
+  period: string,
+  partnerId?: number,
+) => {
+  const { current, previous } = getDateRange(period);
+
+  // Base where clause for settlements
+  const baseWhere: any = { is_active: true, is_deleted: false };
+  if (partnerId) baseWhere.b2b_partner_id = partnerId;
+
+  // Settlement date filter for current and previous period
+  const currentSettlementWhere: any = { ...baseWhere };
+  const previousSettlementWhere: any = { ...baseWhere };
+  if (current.gte) currentSettlementWhere.created_at = { gte: current.gte, lte: current.lte };
+  if (previous.gte) previousSettlementWhere.created_at = { gte: previous.gte, lte: previous.lte };
+
+  // Dispute date filter (from CommissionDisputeLog)
+  const currentDisputeWhere: any = { action: { in: ["DISPUTE_RAISED", "OBJECTION_RAISED"] } };
+  const previousDisputeWhere: any = { action: { in: ["DISPUTE_RAISED", "OBJECTION_RAISED"] } };
+  if (partnerId) {
+    currentDisputeWhere.settlement = { b2b_partner_id: partnerId, is_active: true, is_deleted: false };
+    previousDisputeWhere.settlement = { b2b_partner_id: partnerId, is_active: true, is_deleted: false };
+  }
+  if (current.gte) currentDisputeWhere.created_at = { gte: current.gte, lte: current.lte };
+  if (previous.gte) previousDisputeWhere.created_at = { gte: previous.gte, lte: previous.lte };
+
+  // Payment date filter for settled amount
+  const currentPaymentWhere: any = {
+    payment_status: { in: ["Completed", "Settled", "Paid"] },
+    settlement: { ...baseWhere },
+  };
+  const previousPaymentWhere: any = {
+    payment_status: { in: ["Completed", "Settled", "Paid"] },
+    settlement: { ...baseWhere },
+  };
+  if (current.gte) currentPaymentWhere.payment_completion_date = { gte: current.gte, lte: current.lte };
+  if (previous.gte) previousPaymentWhere.payment_completion_date = { gte: previous.gte, lte: previous.lte };
+
+  const [
+    // Current period
+    currentTotalEarnings,
+    currentPendingPayout,
+    currentSettledPayments,
+    currentDisputeCount,
+    currentStatusBreakdown,
+    currentInvoicePending,
+    currentTotalCount,
+    // Previous period (for % change)
+    previousTotalEarnings,
+    previousPendingPayout,
+    previousSettledPayments,
+    previousDisputeCount,
+  ] = await Promise.all([
+    // 1. Total Earnings — SUM of net_payable_amount for settlements created in period
+    prisma.hSCommissionSettlementsTaxAndDeductions.aggregate({
+      where: { settlement: currentSettlementWhere },
+      _sum: { net_payable_amount: true },
+    }),
+
+    // 2. Pending Payout — SUM where settlement is NOT yet paid/settled
+    //    Only exclude: Settled, Paid (actually paid out) — everything else is still pending
+    prisma.hSCommissionSettlementsTaxAndDeductions.aggregate({
+      where: {
+        settlement: {
+          ...currentSettlementWhere,
+          status_history: {
+            settlement_status: {
+              notIn: ["Settled", "Paid"],
+            },
+          },
+        },
+      },
+      _sum: { net_payable_amount: true },
+    }),
+
+    // 3. Settled — SUM where payment was actually completed in period
+    prisma.hSCommissionSettlementsTaxAndDeductions.aggregate({
+      where: {
+        settlement: {
+          ...baseWhere,
+          payment_details: {
+            payment_status: { in: ["Completed", "Settled", "Paid"] },
+            ...(current.gte ? { payment_completion_date: { gte: current.gte, lte: current.lte } } : {}),
+          },
+        },
+      },
+      _sum: { net_payable_amount: true },
+    }),
+
+    // 4. Disputes — count from CommissionDisputeLog (disputes RAISED in period)
+    prisma.commissionDisputeLog.count({ where: currentDisputeWhere }),
+
+    // 5. Status breakdown — groupBy on current status for settlements in period
+    prisma.hSCommissionSettlementsSettlementStatus.groupBy({
+      by: ["settlement_status"],
+      where: { settlement: currentSettlementWhere },
+      _count: { settlement_status: true },
+    }),
+
+    // 6. Invoice pending — settlements in period where status is Verified but no invoice
+    prisma.hSCommissionSettlements.count({
+      where: {
+        ...currentSettlementWhere,
+        status_history: {
+          settlement_status: { in: ["Verified", "Calculated"] },
+        },
+        OR: [
+          { documentation: null },
+          { documentation: { invoice_url: null } },
+          { documentation: { invoice_url: "" } },
+          { documentation: { invoice_status: { in: ["Pending", "Not Received"] } } },
+        ],
+      },
+    }),
+
+    // 7. Total settlements count in period
+    prisma.hSCommissionSettlements.count({ where: currentSettlementWhere }),
+
+    // --- Previous period for % change ---
+    // 8. Previous total earnings
+    prisma.hSCommissionSettlementsTaxAndDeductions.aggregate({
+      where: { settlement: previousSettlementWhere },
+      _sum: { net_payable_amount: true },
+    }),
+
+    // 9. Previous pending payout
+    prisma.hSCommissionSettlementsTaxAndDeductions.aggregate({
+      where: {
+        settlement: {
+          ...previousSettlementWhere,
+          status_history: {
+            settlement_status: {
+              notIn: ["Settled", "Paid"],
+            },
+          },
+        },
+      },
+      _sum: { net_payable_amount: true },
+    }),
+
+    // 10. Previous settled
+    prisma.hSCommissionSettlementsTaxAndDeductions.aggregate({
+      where: {
+        settlement: {
+          ...baseWhere,
+          payment_details: {
+            payment_status: { in: ["Completed", "Settled", "Paid"] },
+            ...(previous.gte ? { payment_completion_date: { gte: previous.gte, lte: previous.lte } } : {}),
+          },
+        },
+      },
+      _sum: { net_payable_amount: true },
+    }),
+
+    // 11. Previous dispute count
+    prisma.commissionDisputeLog.count({ where: previousDisputeWhere }),
+  ]);
+
+  // Build status breakdown object
+  const statusBreakdown: Record<string, number> = {};
+  for (const row of currentStatusBreakdown) {
+    if (row.settlement_status) {
+      statusBreakdown[row.settlement_status] = row._count.settlement_status;
+    }
+  }
+
+  const curEarnings = Number(currentTotalEarnings._sum.net_payable_amount || 0);
+  const prevEarnings = Number(previousTotalEarnings._sum.net_payable_amount || 0);
+  const curPending = Number(currentPendingPayout._sum.net_payable_amount || 0);
+  const prevPending = Number(previousPendingPayout._sum.net_payable_amount || 0);
+  const curSettled = Number(currentSettledPayments._sum.net_payable_amount || 0);
+  const prevSettled = Number(previousSettledPayments._sum.net_payable_amount || 0);
+
+  return {
+    period,
+    total_earnings: {
+      amount: curEarnings,
+      change_percent: calcPercentChange(curEarnings, prevEarnings),
+    },
+    pending_payout: {
+      amount: curPending,
+      change_percent: calcPercentChange(curPending, prevPending),
+    },
+    settled: {
+      amount: curSettled,
+      change_percent: calcPercentChange(curSettled, prevSettled),
+    },
+    disputes: {
+      count: currentDisputeCount,
+      change_percent: calcPercentChange(currentDisputeCount, previousDisputeCount),
+    },
+    status_breakdown: statusBreakdown,
+    invoices_pending_upload: currentInvoicePending,
+    total_settlements: currentTotalCount,
+  };
+};
+
 export const fetchCommissionSettlementsByLead = async (leadId: number) => {
   const where: Prisma.HSCommissionSettlementsWhereInput = {
     is_active: true,

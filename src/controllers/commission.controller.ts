@@ -43,6 +43,7 @@ import {
   getCommissionSettlement,
   fetchCommissionSettlementsList,
   fetchCommissionSettlementsByLead,
+  getCommissionSummary,
 } from "../models/helpers/commission.helper";
 import { getContactLeadById } from "../models/helpers/contact.helper";
 import { getPartnerIdByUserId } from "../models/helpers/partners.helper";
@@ -97,6 +98,38 @@ const sumNetPayable = (settlements: any[]): number =>
     const v = parseFloat(s.tax_deductions?.net_payable_amount ?? "0");
     return acc + (isNaN(v) ? 0 : v);
   }, 0);
+
+// ============================================================================
+// COMMISSION SUMMARY — period-based dashboard metrics
+// ============================================================================
+
+export const getCommissionSummaryController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const period = (req.query.period as string) || "all_time";
+    const validPeriods = ["this_month", "last_month", "3_months", "6_months", "all_time"];
+
+    if (!validPeriods.includes(period)) {
+      return sendResponse(res, 400, `Invalid period. Must be one of: ${validPeriods.join(", ")}`);
+    }
+
+    // Optional partner filter (for partner portal view)
+    const partnerId = req.query.partner_id ? Number(req.query.partner_id) : undefined;
+    if (req.query.partner_id && isNaN(partnerId!)) {
+      return sendResponse(res, 400, "Invalid partner_id");
+    }
+
+    const summary = await getCommissionSummary(period, partnerId);
+
+    return sendResponse(res, 200, "Commission summary fetched successfully", summary);
+  } catch (error: any) {
+    logger.error("[Commission] Summary fetch failed", { error: error.message });
+    return sendResponse(res, 500, "Failed to fetch commission summary");
+  }
+};
 
 // ============================================================================
 // CREATE

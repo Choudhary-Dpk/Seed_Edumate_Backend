@@ -18,6 +18,7 @@ import {
   l2RejectController,
   getApprovalTimelineController,
   getInvoiceFileController,
+  getCommissionSummaryController,
 } from "../controllers/commission.controller";
 import {
   checkDuplicateCommissionSettlementFields,
@@ -77,6 +78,22 @@ router.get(
     ],
   }),
   getCommissionSettlementsListController,
+);
+router.get(
+  "/summary",
+  authenticate({
+    method: AuthMethod.BOTH,
+    allowedRoles: [
+      "Admin",
+      "Manager",
+      "User",
+      "super_admin",
+      "commission_reviewer",
+      "commission_approver",
+      "commission_viewer",
+    ],
+  }),
+  getCommissionSummaryController,
 );
 router.get("/lead", getCommissionSettlementsByLead);
 router.post(
