@@ -142,7 +142,7 @@ export const mapLeadAttribution = (data: Record<string, any>) => {
     lead_source_detail: data.lead_source_detail,
     lead_quality_score: data.lead_quality_score,
     lead_reference_code: data.lead_reference_code,
-    b2b_partner_id: data.b2b_partner_id,
+    hs_b2b_partner_id: data.hs_b2b_partner_id,
     b2b_partner_name: data.b2b_partner_name,
     partner_commission_applicable: data.partner_commission_applicable as any,
     referral_person_name: data.referral_person_name,

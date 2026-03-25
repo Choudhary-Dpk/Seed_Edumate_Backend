@@ -35,6 +35,7 @@ import {
 import { mapAllFields } from "../../mappers/edumateContact/mapping";
 import { categorizeByTable } from "../../services/DBServices/edumateContacts.service";
 import prisma from "../../config/prisma";
+import { getPartnerById } from "../../models/helpers/partners.helper";
 
 export const studentSignupController = async (
   req: Request,
@@ -48,6 +49,19 @@ export const studentSignupController = async (
     // 1. Map fields to internal structure
     const mappedFields = await mapAllFields(req.body);
     const categorized = categorizeByTable(mappedFields);
+
+    // Inject B2B partner details into lead attribution if partner ID is in payload
+    const payloadPartnerId = categorized["mainContact"]?.b2b_partner_id;
+    if (payloadPartnerId) {
+      const partnerDetails = await getPartnerById(Number(payloadPartnerId));
+      if (partnerDetails) {
+        categorized["leadAttribution"] = {
+          ...categorized["leadAttribution"],
+          hs_b2b_partner_id: partnerDetails.hs_object_id || null,
+          b2b_partner_name: partnerDetails.partner_display_name || partnerDetails.partner_name || null,
+        };
+      }
+    }
 
     let existingContactDb = null;
     if (phoneNumber) {

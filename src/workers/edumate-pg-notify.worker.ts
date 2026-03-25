@@ -487,7 +487,7 @@ async function transformToHubSpotFormat(contact: any): Promise<any> {
     lead_source_detail: leadAttribution.lead_source_detail || null,
     lead_quality_score: leadAttribution.lead_quality_score || null,
     lead_reference_code: leadAttribution.lead_reference_code || null,
-    b2b_partner_id: leadAttribution.b2b_partner_id || null,
+    b2b_partner_id: leadAttribution.b2b_partner_id || leadAttribution.hs_b2b_partner_id || null,
     b2b_partner_name: leadAttribution.b2b_partner_name || null,
     partner_commission_applicable:
       leadAttribution.partner_commission_applicable || null,
