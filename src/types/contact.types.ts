@@ -557,6 +557,7 @@ export type CategorizedContactData = {
     lead_source_detail?: string | null;
     lead_quality_score?: number | null;
     lead_reference_code?: string | null;
+    hs_b2b_partner_id?: string | null;
     b2b_partner_name?: string | null;
     partner_commission_applicable?: string | null;
     referral_person_name?: string | null;

@@ -42,7 +42,7 @@ import {
   addFileType,
   updateFileRecord,
 } from "../models/helpers";
-import { getPartnerIdByUserId } from "../models/helpers/partners.helper";
+import { getPartnerIdByUserId, getPartnerById } from "../models/helpers/partners.helper";
 import {
   ContactsLead,
   LeadStatsResponse,
@@ -74,6 +74,18 @@ export const createContactsLead = async (
     console.log("mappedFields", mappedFields);
     const categorized = categorizeByTable(mappedFields);
     console.log("categorized", categorized);
+
+    // Inject B2B partner details into lead attribution
+    if (partnerId) {
+      const partnerDetails = await getPartnerById(partnerId);
+      if (partnerDetails) {
+        categorized["leadAttribution"] = {
+          ...categorized["leadAttribution"],
+          hs_b2b_partner_id: partnerDetails.hs_object_id || null,
+          b2b_partner_name: partnerDetails.partner_display_name || partnerDetails.partner_name || null,
+        };
+      }
+    }
 
     const result = await prisma.$transaction(async (tx: any) => {
       logger.debug(`Creating edumate contact for userId: ${id}`);
@@ -587,6 +599,18 @@ export const uploadContactsCSV = async (
       logger.debug(`Partner id fetched successfully`);
     }
 
+    // Look up B2B partner details for lead attribution (once for entire upload)
+    let partnerLeadAttrData: { hs_b2b_partner_id: string | null; b2b_partner_name: string | null } | null = null;
+    if (partnerId?.b2b_id) {
+      const partnerDetails = await getPartnerById(partnerId.b2b_id);
+      if (partnerDetails) {
+        partnerLeadAttrData = {
+          hs_b2b_partner_id: partnerDetails.hs_object_id || null,
+          b2b_partner_name: partnerDetails.partner_display_name || partnerDetails.partner_name || null,
+        };
+      }
+    }
+
     if (!fileData) {
       return sendResponse(res, 400, "Invalid or missing file data");
     }
@@ -682,6 +706,17 @@ export const uploadContactsCSV = async (
       const categorizedRecords = await Promise.all(
         batch.map((contact) => categorizeByTable(contact)),
       );
+
+      // Inject B2B partner details into lead attribution for each record
+      if (partnerLeadAttrData) {
+        categorizedRecords.forEach((record) => {
+          record["leadAttribution"] = {
+            ...record["leadAttribution"],
+            ...partnerLeadAttrData,
+          };
+        });
+      }
+
       console.log("categorizedRecords", categorizedRecords);
       try {
         logger.debug(`Processing batch ${batchNumber}/${batches.length}`);
@@ -757,6 +792,19 @@ export const uploadContactsJSON = async (
     const id = parseInt(req.payload?.id || req.body?.id);
     const { transformedContacts, totalRecords } = req.body;
     const partnerId = (await getPartnerIdByUserId(id))!.b2b_id;
+
+    // Look up B2B partner details for lead attribution (once for entire upload)
+    let partnerLeadAttrData: { hs_b2b_partner_id: string | null; b2b_partner_name: string | null } | null = null;
+    if (partnerId) {
+      const partnerDetails = await getPartnerById(partnerId);
+      if (partnerDetails) {
+        partnerLeadAttrData = {
+          hs_b2b_partner_id: partnerDetails.hs_object_id || null,
+          b2b_partner_name: partnerDetails.partner_display_name || partnerDetails.partner_name || null,
+        };
+      }
+    }
+
     if (!transformedContacts || !Array.isArray(transformedContacts)) {
       return sendResponse(res, 400, "Invalid or missing contact data");
     }
@@ -861,6 +909,16 @@ export const uploadContactsJSON = async (
       const categorizedRecords = await Promise.all(
         batch.map((contact) => categorizeByTable(contact)),
       );
+
+      // Inject B2B partner details into lead attribution for each record
+      if (partnerLeadAttrData) {
+        categorizedRecords.forEach((record) => {
+          record["leadAttribution"] = {
+            ...record["leadAttribution"],
+            ...partnerLeadAttrData,
+          };
+        });
+      }
 
       try {
         logger.debug(

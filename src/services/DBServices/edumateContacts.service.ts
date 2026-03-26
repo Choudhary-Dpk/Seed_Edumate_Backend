@@ -169,6 +169,7 @@ export const categorizeByTable = (mappedFields: Record<string, any>) => {
     "lead_source_detail",
     "lead_quality_score",
     "lead_reference_code",
+    "hs_b2b_partner_id",
     "b2b_partner_name",
     "partner_commission_applicable",
     "referral_person_name",
