@@ -942,16 +942,99 @@ export const uploadContactsJSON = async (
  *
  * If partner=true, filters by authenticated user's b2b_partner_id
  */
+// Helper: convert period string to current + previous date ranges
+const getLeadStatsDateRange = (
+  period: string,
+): { current: { gte?: Date; lte?: Date }; previous: { gte?: Date; lte?: Date } } => {
+  const now = new Date();
+
+  switch (period) {
+    case "this_month": {
+      const currentStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const previousStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const previousEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
+      return {
+        current: { gte: currentStart, lte: now },
+        previous: { gte: previousStart, lte: previousEnd },
+      };
+    }
+    case "last_month": {
+      const currentStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const currentEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
+      const previousStart = new Date(now.getFullYear(), now.getMonth() - 2, 1);
+      const previousEnd = new Date(now.getFullYear(), now.getMonth() - 1, 0, 23, 59, 59, 999);
+      return {
+        current: { gte: currentStart, lte: currentEnd },
+        previous: { gte: previousStart, lte: previousEnd },
+      };
+    }
+    case "3_months": {
+      const currentStart = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+      const previousStart = new Date(now.getFullYear(), now.getMonth() - 6, now.getDate());
+      const previousEnd = new Date(currentStart.getTime() - 1);
+      return {
+        current: { gte: currentStart, lte: now },
+        previous: { gte: previousStart, lte: previousEnd },
+      };
+    }
+    case "6_months": {
+      const currentStart = new Date(now.getFullYear(), now.getMonth() - 6, now.getDate());
+      const previousStart = new Date(now.getFullYear(), now.getMonth() - 12, now.getDate());
+      const previousEnd = new Date(currentStart.getTime() - 1);
+      return {
+        current: { gte: currentStart, lte: now },
+        previous: { gte: previousStart, lte: previousEnd },
+      };
+    }
+    case "all_time":
+    default:
+      return { current: {}, previous: {} };
+  }
+};
+
+// Helper: calculate percent change
+const calcLeadPercentChange = (current: number, previous: number): number => {
+  if (previous === 0 && current > 0) return 100;
+  if (previous === 0 && current === 0) return 0;
+  if (previous > 0 && current === 0) return -100;
+  return Math.round(((current - previous) / previous) * 100);
+};
+
+// Helper: aggregate leads into stage/status counts
+const aggregateLeads = (leads: { lifecycle_stages: string | null; lifecycle_stages_status: string | null }[]) => {
+  const lifecycleStages: LifecycleStageCount = {};
+  const lifecycleStagesStatus: LifecycleStatusCount = {};
+
+  leads.forEach((lead) => {
+    if (lead.lifecycle_stages) {
+      const stage = lead.lifecycle_stages;
+      lifecycleStages[stage] = (lifecycleStages[stage] || 0) + 1;
+    }
+    if (lead.lifecycle_stages_status) {
+      const status = lead.lifecycle_stages_status;
+      lifecycleStagesStatus[status] = (lifecycleStagesStatus[status] || 0) + 1;
+    }
+  });
+
+  return { lifecycleStages, lifecycleStagesStatus, totalLeads: leads.length };
+};
+
 export const getLeadStats = async (
   req: RequestWithPayload<LoginPayload>,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    // Parse partner query parameter (default: false)
+    // Parse query parameters
     const partnerParam = req.query.partner;
     const isPartnerFilter = String(partnerParam).toLowerCase() === "true";
     const id = parseInt(req.payload?.id || req.body?.id || (req.query?.id as string));
+    const period = (req.query.period as string) || "all_time";
+
+    const validPeriods = ["this_month", "last_month", "3_months", "6_months", "all_time"];
+    if (!validPeriods.includes(period)) {
+      return sendResponse(res, 400, `Invalid period. Must be one of: ${validPeriods.join(", ")}`);
+    }
 
     // Build where clause
     const whereClause: any = {};
@@ -979,39 +1062,64 @@ export const getLeadStats = async (
       whereClause.b2b_partner_id = partnerId;
     }
 
-    // Fetch all leads from the view with optional filtering
-    const leads = await prisma.leads_view.findMany({
-      where: whereClause,
-      select: {
-        lifecycle_stages: true,
-        lifecycle_stages_status: true,
-      },
-    });
+    // Get date ranges for current and previous periods
+    const { current, previous } = getLeadStatsDateRange(period);
 
-    // Aggregate counts for lifecycle_stages
-    const lifecycleStages: LifecycleStageCount = {};
-    const lifecycleStagesStatus: LifecycleStatusCount = {};
+    // Build current and previous where clauses
+    const currentWhere: any = { ...whereClause };
+    const previousWhere: any = { ...whereClause };
+    if (current.gte) currentWhere.created_at = { gte: current.gte, lte: current.lte };
+    if (previous.gte) previousWhere.created_at = { gte: previous.gte, lte: previous.lte };
 
-    leads.forEach((lead) => {
-      // Count lifecycle_stages
-      if (lead.lifecycle_stages) {
-        const stage = lead.lifecycle_stages;
-        lifecycleStages[stage] = (lifecycleStages[stage] || 0) + 1;
-      }
+    // Fetch current and previous period leads in parallel
+    const [currentLeads, previousLeads] = await Promise.all([
+      prisma.leads_view.findMany({
+        where: currentWhere,
+        select: {
+          lifecycle_stages: true,
+          lifecycle_stages_status: true,
+        },
+      }),
+      // Only fetch previous if we need % change (not all_time)
+      period !== "all_time"
+        ? prisma.leads_view.findMany({
+            where: previousWhere,
+            select: {
+              lifecycle_stages: true,
+              lifecycle_stages_status: true,
+            },
+          })
+        : Promise.resolve([]),
+    ]);
 
-      // Count lifecycle_stages_status
-      if (lead.lifecycle_stages_status) {
-        const status = lead.lifecycle_stages_status;
-        lifecycleStagesStatus[status] =
-          (lifecycleStagesStatus[status] || 0) + 1;
-      }
-    });
+    // Aggregate current period
+    const currentStats = aggregateLeads(currentLeads);
+    const previousStats = aggregateLeads(previousLeads);
+
+    // Calculate % change for total and each stage
+    const changePercent: Record<string, number> = {
+      totalLeads: calcLeadPercentChange(currentStats.totalLeads, previousStats.totalLeads),
+    };
+
+    // Get all unique stage names from both periods
+    const allStages = new Set([
+      ...Object.keys(currentStats.lifecycleStages),
+      ...Object.keys(previousStats.lifecycleStages),
+    ]);
+    for (const stage of allStages) {
+      changePercent[stage] = calcLeadPercentChange(
+        currentStats.lifecycleStages[stage] || 0,
+        previousStats.lifecycleStages[stage] || 0,
+      );
+    }
 
     // Build response
     const response: LeadStatsResponse = {
-      lifecycleStages,
-      lifecycleStagesStatus,
-      totalLeads: leads.length,
+      lifecycleStages: currentStats.lifecycleStages,
+      lifecycleStagesStatus: currentStats.lifecycleStagesStatus,
+      totalLeads: currentStats.totalLeads,
+      period,
+      change_percent: changePercent,
       filteredBy: {
         partner: isPartnerFilter,
         ...(isPartnerFilter && { partnerId: whereClause.b2b_partner_id }),

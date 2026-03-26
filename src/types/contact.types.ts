@@ -622,6 +622,8 @@ export interface LeadStatsResponse {
   lifecycleStages: LifecycleStageCount;
   lifecycleStagesStatus: LifecycleStatusCount;
   totalLeads: number;
+  period?: string;
+  change_percent?: Record<string, number>;
   filteredBy?: {
     partner: boolean;
     partnerId?: number;
