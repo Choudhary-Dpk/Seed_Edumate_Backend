@@ -1054,6 +1054,8 @@ export const mapAllFields = async (
         enumName: "admissionStatus",
         sourceValue: status,
       });
+    } else {
+      mapped.admission_status = null;
     }
   }
 
@@ -1073,6 +1075,8 @@ export const mapAllFields = async (
         enumName: "currentEducationLevel",
         sourceValue: level,
       });
+    } else {
+      mapped.current_education_level = null;
     }
   }
 
@@ -1088,6 +1092,8 @@ export const mapAllFields = async (
         enumName: "intendedStartTerm",
         sourceValue: term,
       });
+    } else {
+      mapped.intended_start_term = null;
     }
   }
 
@@ -1112,6 +1118,8 @@ export const mapAllFields = async (
         enumName: "preferredStudyDestination",
         sourceValue: destination,
       });
+    } else {
+      mapped.preferred_study_destination = null;
     }
   }
 
@@ -1137,6 +1145,8 @@ export const mapAllFields = async (
         enumName: "targetDegreeLevel",
         sourceValue: degree,
       });
+    } else {
+      mapped.target_degree_level = null;
     }
   }
 
@@ -1153,6 +1163,8 @@ export const mapAllFields = async (
         enumName: "currentStatusDisposition",
         sourceValue: disp,
       });
+    } else {
+      mapped.current_status_disposition = null;
     }
   }
 
@@ -1170,6 +1182,8 @@ export const mapAllFields = async (
         enumName: "currentStatusDispositionReason",
         sourceValue: reason,
       });
+    } else {
+      mapped.current_status_disposition_reason = null;
     }
   }
 
@@ -1182,6 +1196,8 @@ export const mapAllFields = async (
         enumName: "priorityLevel",
         sourceValue: priority,
       });
+    } else {
+      mapped.priority_level = null;
     }
   }
 
@@ -1194,6 +1210,8 @@ export const mapAllFields = async (
         enumName: "courseType",
         sourceValue: type,
       });
+    } else {
+      mapped.course_type = null;
     }
   }
 
@@ -1209,6 +1227,8 @@ export const mapAllFields = async (
         enumName: "gender",
         sourceValue: input.gender,
       });
+    } else {
+      mapped.gender = null;
     }
   }
 
@@ -1224,6 +1244,8 @@ export const mapAllFields = async (
         enumName: "currency",
         sourceValue: input.currency,
       });
+    } else {
+      mapped.currency = null;
     }
   }
 
@@ -1239,6 +1261,8 @@ export const mapAllFields = async (
         enumName: "coApplicant1Occupation",
         sourceValue: occ,
       });
+    } else {
+      mapped.co_applicant_1_occupation = null;
     }
   }
 
@@ -1254,6 +1278,8 @@ export const mapAllFields = async (
         enumName: "coApplicant1Relationship",
         sourceValue: rel,
       });
+    } else {
+      mapped.co_applicant_1_relationship = null;
     }
   }
 
@@ -1269,6 +1295,8 @@ export const mapAllFields = async (
         enumName: "coApplicant2Occupation",
         sourceValue: occ,
       });
+    } else {
+      mapped.co_applicant_2_occupation = null;
     }
   }
 
@@ -1285,6 +1313,8 @@ export const mapAllFields = async (
         enumName: "coApplicant2Relationship",
         sourceValue: rel,
       });
+    } else {
+      mapped.co_applicant_2_relationship = null;
     }
   }
 
@@ -1300,6 +1330,8 @@ export const mapAllFields = async (
         enumName: "coApplicant3Occupation",
         sourceValue: occ,
       });
+    } else {
+      mapped.co_applicant_3_occupation = null;
     }
   }
 
@@ -1316,6 +1348,8 @@ export const mapAllFields = async (
         enumName: "coApplicant3Relationship",
         sourceValue: rel,
       });
+    } else {
+      mapped.co_applicant_3_relationship = null;
     }
   }
 
@@ -1331,6 +1365,8 @@ export const mapAllFields = async (
         enumName: "collateralAvailable",
         sourceValue: val,
       });
+    } else {
+      mapped.collateral_available = null;
     }
   }
 
@@ -1346,6 +1382,8 @@ export const mapAllFields = async (
         enumName: "collateralType",
         sourceValue: type,
       });
+    } else {
+      mapped.collateral_type = null;
     }
   }
 
@@ -1361,6 +1399,8 @@ export const mapAllFields = async (
         enumName: "collateral2Available",
         sourceValue: val,
       });
+    } else {
+      mapped.collateral_2_available = null;
     }
   }
 
@@ -1376,6 +1416,8 @@ export const mapAllFields = async (
         enumName: "collateral2Type",
         sourceValue: type,
       });
+    } else {
+      mapped.collateral_2_type = null;
     }
   }
 
@@ -1388,6 +1430,8 @@ export const mapAllFields = async (
         enumName: "leadSource",
         sourceValue: src,
       });
+    } else {
+      mapped.lead_source = null;
     }
   }
 
@@ -1404,6 +1448,8 @@ export const mapAllFields = async (
         enumName: "partnerCommissionApplicable",
         sourceValue: val,
       });
+    } else {
+      mapped.partner_commission_applicable = null;
     }
   }
 
@@ -1419,6 +1465,8 @@ export const mapAllFields = async (
         enumName: "loanTypePreference",
         sourceValue: pref,
       });
+    } else {
+      mapped.loan_type_preference = null;
     }
   }
 
@@ -1435,6 +1483,8 @@ export const mapAllFields = async (
         enumName: "repaymentTypePreference",
         sourceValue: rep,
       });
+    } else {
+      mapped.repayment_type_preference = null;
     }
   }
 
@@ -1447,6 +1497,8 @@ export const mapAllFields = async (
         enumName: "dataSource",
         sourceValue: ds,
       });
+    } else {
+      mapped.data_source = null;
     }
   }
 
@@ -1462,6 +1514,8 @@ export const mapAllFields = async (
         enumName: "studentRecordStatus",
         sourceValue: status,
       });
+    } else {
+      mapped.student_record_status = null;
     }
   }
 
@@ -1474,6 +1528,8 @@ export const mapAllFields = async (
         enumName: "gdprConsent",
         sourceValue: val,
       });
+    } else {
+      mapped.gdpr_consent = null;
     }
   }
 
@@ -1489,6 +1545,8 @@ export const mapAllFields = async (
         enumName: "marketingConsent",
         sourceValue: val,
       });
+    } else {
+      mapped.marketing_consent = null;
     }
   }
 

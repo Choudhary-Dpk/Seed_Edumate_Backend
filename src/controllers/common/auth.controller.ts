@@ -140,7 +140,8 @@ export const sendOtp = async (
   next: NextFunction,
 ) => {
   try {
-    const { email, id, name } = req.payload!;
+    const { email, id, name: payloadName } = req.payload!;
+    const name = payloadName || email.split("@")[0];
 
     logger.debug(`Generating otp for userId: ${id}`);
     const otp = await generateOtp();
@@ -166,7 +167,7 @@ export const sendOtp = async (
     );
     emailTemplate = emailTemplate.replace(
       /{%name%}/g,
-      name!.charAt(0).toUpperCase() + name!.slice(1),
+      name.charAt(0).toUpperCase() + name.slice(1),
     );
     const html = emailTemplate.replace(`{%otp%}`, otp);
     const subject = "EDUMATE - One time password";
@@ -207,7 +208,8 @@ export const forgotPassword = async (
   next: NextFunction,
 ) => {
   try {
-    const { email, id, name } = req.payload!;
+    const { email, id, name: payloadName } = req.payload!;
+    const name = payloadName || email.split("@")[0];
 
     logger.debug(
       `Generating emailToken for userId: ${id}, portal: ${req.portalType}`,

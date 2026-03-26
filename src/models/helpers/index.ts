@@ -7,6 +7,7 @@ const TITLE_TO_SLUG: Record<string, string> = {
   "Otp": "otp",
   "Forgot Password": "forgot-password",
   "Show Interest": "show-interest",
+  "Monthly MIS Performance Report": "monthly-mis-report",
 };
 
 /**

@@ -157,6 +157,7 @@ export const validateEmail = async (
         ...req.payload,
         id: adminUser.id,
         email: adminUser.email,
+        name: adminUser.full_name ?? undefined,
         is_active: adminUser.is_active,
         passwordHash: adminUser.password_hash,
       };
@@ -172,6 +173,7 @@ export const validateEmail = async (
         ...req.payload,
         id: partnerUser.id,
         email: partnerUser.email,
+        name: partnerUser.full_name ?? undefined,
         passwordHash: partnerUser.password_hash,
         is_active: partnerUser.is_active,
       };
