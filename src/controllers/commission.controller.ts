@@ -104,7 +104,7 @@ const sumNetPayable = (settlements: any[]): number =>
 // ============================================================================
 
 export const getCommissionSummaryController = async (
-  req: Request,
+  req: RequestWithPayload<LoginPayload>,
   res: Response,
   next: NextFunction,
 ) => {
@@ -116,10 +116,25 @@ export const getCommissionSummaryController = async (
       return sendResponse(res, 400, `Invalid period. Must be one of: ${validPeriods.join(", ")}`);
     }
 
-    // Optional partner filter (for partner portal view)
-    const partnerId = req.query.partner_id ? Number(req.query.partner_id) : undefined;
-    if (req.query.partner_id && isNaN(partnerId!)) {
-      return sendResponse(res, 400, "Invalid partner_id");
+    const isAdmin = (req as any).portalType === "ADMIN";
+    let partnerId: number | undefined;
+
+    if (!isAdmin) {
+      // For partner portal users, enforce their own partner ID
+      const id = parseInt(req.payload?.id || req.body?.id);
+      if (id) {
+        const partnerRecord = await getPartnerIdByUserId(id);
+        partnerId = partnerRecord?.b2b_id || undefined;
+        if (!partnerId) {
+          return sendResponse(res, 400, "Partner filter requires authentication with b2b_partner_id");
+        }
+      }
+    } else {
+      // Admin can optionally filter by partner_id
+      partnerId = req.query.partner_id ? Number(req.query.partner_id) : undefined;
+      if (req.query.partner_id && isNaN(partnerId!)) {
+        return sendResponse(res, 400, "Invalid partner_id");
+      }
     }
 
     const summary = await getCommissionSummary(period, partnerId);
