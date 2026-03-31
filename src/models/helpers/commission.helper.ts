@@ -615,16 +615,6 @@ export const getCommissionSummary = async (
   if (current.gte) currentSettlementWhere.created_at = { gte: current.gte, lte: current.lte };
   if (previous.gte) previousSettlementWhere.created_at = { gte: previous.gte, lte: previous.lte };
 
-  // Dispute date filter (from CommissionDisputeLog)
-  const currentDisputeWhere: any = { action: { in: ["DISPUTE_RAISED", "OBJECTION_RAISED"] } };
-  const previousDisputeWhere: any = { action: { in: ["DISPUTE_RAISED", "OBJECTION_RAISED"] } };
-  if (partnerId) {
-    currentDisputeWhere.settlement = { b2b_partner_id: partnerId, is_active: true, is_deleted: false };
-    previousDisputeWhere.settlement = { b2b_partner_id: partnerId, is_active: true, is_deleted: false };
-  }
-  if (current.gte) currentDisputeWhere.created_at = { gte: current.gte, lte: current.lte };
-  if (previous.gte) previousDisputeWhere.created_at = { gte: previous.gte, lte: previous.lte };
-
   // Payment date filter for settled amount
   const currentPaymentWhere: any = {
     payment_status: { in: ["Completed", "Settled", "Paid"] },
@@ -642,7 +632,7 @@ export const getCommissionSummary = async (
     currentTotalEarnings,
     currentPendingPayout,
     currentSettledPayments,
-    currentDisputeCount,
+    currentTranchesCount,
     currentStatusBreakdown,
     currentInvoicePending,
     currentTotalCount,
@@ -650,7 +640,7 @@ export const getCommissionSummary = async (
     previousTotalEarnings,
     previousPendingPayout,
     previousSettledPayments,
-    previousDisputeCount,
+    previousTranchesCount,
   ] = await Promise.all([
     // 1. Total Earnings — SUM of net_payable_amount for settlements created in period
     prisma.hSCommissionSettlementsTaxAndDeductions.aggregate({
@@ -688,8 +678,8 @@ export const getCommissionSummary = async (
       _sum: { net_payable_amount: true },
     }),
 
-    // 4. Disputes — count from CommissionDisputeLog (disputes RAISED in period)
-    prisma.commissionDisputeLog.count({ where: currentDisputeWhere }),
+    // 4. Tranches — total commission settlements count in current period
+    prisma.hSCommissionSettlements.count({ where: currentSettlementWhere }),
 
     // 5. Status breakdown — groupBy on current status for settlements in period
     prisma.hSCommissionSettlementsSettlementStatus.groupBy({
@@ -753,8 +743,8 @@ export const getCommissionSummary = async (
       _sum: { net_payable_amount: true },
     }),
 
-    // 11. Previous dispute count
-    prisma.commissionDisputeLog.count({ where: previousDisputeWhere }),
+    // 11. Previous tranches count
+    prisma.hSCommissionSettlements.count({ where: previousSettlementWhere }),
   ]);
 
   // Build status breakdown object
@@ -786,9 +776,9 @@ export const getCommissionSummary = async (
       amount: curSettled,
       change_percent: calcPercentChange(curSettled, prevSettled),
     },
-    disputes: {
-      count: currentDisputeCount,
-      change_percent: calcPercentChange(currentDisputeCount, previousDisputeCount),
+    tranches: {
+      count: currentTranchesCount,
+      change_percent: calcPercentChange(currentTranchesCount, previousTranchesCount),
     },
     status_breakdown: statusBreakdown,
     invoices_pending_upload: currentInvoicePending,
