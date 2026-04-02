@@ -350,17 +350,7 @@ const NOTIFICATION_CONFIGS: Record<
       data.overrideSubject ||
       `Invoice Submitted — ${data.partnerName || "Partner"} | ${data.settlementRefNumber || "N/A"} | Review Required`,
 
-    getHtml: (data, cfg) =>
-      buildGenericApprovalTemplate(data, cfg, {
-        headerColor: "#1B4F72,#2E86C1",
-        icon: "",
-        title: "Invoice Submitted for Review",
-        subtitle:
-          "A partner has submitted an invoice for commission settlement",
-        bodyText:
-          "Please review the invoice details and proceed with verification.",
-        ctaUrl: `${cfg.portalBaseUrl}/admin/commissions/${data.settlementId}`,
-      }),
+    getHtml: (data) => buildInvoiceSubmittedTemplate(data),
     getReferenceId: (data) => data.settlementId,
     afterSend: (data, email) =>
       updateSettlementCommunication(
@@ -393,16 +383,7 @@ const NOTIFICATION_CONFIGS: Record<
       data.overrideSubject ||
       ` L1 Approved — ${data.partnerName || "Partner"} | ${data.settlementRefNumber || "N/A"} | Awaiting L2 Approval`,
 
-    getHtml: (data, cfg) =>
-      buildGenericApprovalTemplate(data, cfg, {
-        headerColor: "#27AE60,#2ECC71",
-        icon: "",
-        title: "L1 Verification Complete — Awaiting Your Approval",
-        subtitle: `Approved by ${data.approverName || "L1 Reviewer"}`,
-        bodyText:
-          "This settlement has passed L1 verification and requires your final approval to proceed with payment.",
-        ctaUrl: `${cfg.portalBaseUrl}/admin/commissions/${data.settlementId}`,
-      }),
+    getHtml: (data) => buildL1ApprovedTemplate(data),
     getReferenceId: (data) => data.settlementId,
     afterSend: (data, email) =>
       updateSettlementCommunication(
@@ -453,18 +434,7 @@ const NOTIFICATION_CONFIGS: Record<
       data.overrideSubject ||
       `Settlement Returned — ${data.studentName || "Student"} | ${data.settlementRefNumber || "N/A"} | Action Required`,
 
-    getHtml: (data, cfg) =>
-      buildGenericApprovalTemplate(data, cfg, {
-        headerColor: "#DC2626,#EF4444",
-        icon: "",
-        title: "Settlement Returned by L1 Reviewer",
-        subtitle: data.rejectionReason
-          ? `Reason: ${data.rejectionReason}`
-          : "Please review and resubmit",
-        bodyText:
-          "Your commission settlement has been returned during L1 review. Please check the details and take corrective action.",
-        ctaUrl: `${cfg.portalBaseUrl}/partners/commissions`,
-      }),
+    getHtml: (data) => buildSettlementReturnedTemplate(data),
     getReferenceId: (data) => data.settlementId,
     afterSend: (data, email) =>
       updateSettlementCommunication(
@@ -494,16 +464,7 @@ const NOTIFICATION_CONFIGS: Record<
       data.overrideSubject ||
       `L2 Approved — ${data.partnerName || "Partner"} | ${data.settlementRefNumber || "N/A"} | Ready for Payout`,
 
-    getHtml: (data, cfg) =>
-      buildGenericApprovalTemplate(data, cfg, {
-        headerColor: "#059669,#10B981",
-        icon: "",
-        title: "Final Approval Complete — Ready for Payout",
-        subtitle: `Approved by ${data.approverName || "Business Head"}`,
-        bodyText:
-          "This settlement has received final business approval. Please proceed with payment initiation.",
-        ctaUrl: `${cfg.portalBaseUrl}/admin/commissions/${data.settlementId}`,
-      }),
+    getHtml: (data) => buildFinalApprovalTemplate(data),
     getReferenceId: (data) => data.settlementId,
     afterSend: (data, email) =>
       updateSettlementCommunication(
@@ -538,18 +499,7 @@ const NOTIFICATION_CONFIGS: Record<
       data.overrideSubject ||
       `L2 Sent Back — ${data.partnerName || "Partner"} | ${data.settlementRefNumber || "N/A"} | Re-review Required`,
 
-    getHtml: (data, cfg) =>
-      buildGenericApprovalTemplate(data, cfg, {
-        headerColor: "#D97706,#F59E0B",
-        icon: "",
-        title: "Settlement Sent Back by Business Head",
-        subtitle: data.rejectionReason
-          ? `Reason: ${data.rejectionReason}`
-          : "Sent back for re-review",
-        bodyText:
-          "This settlement was sent back during L2 business approval and requires your re-review before resubmission.",
-        ctaUrl: `${cfg.portalBaseUrl}/admin/commissions/${data.settlementId}`,
-      }),
+    getHtml: (data) => buildL2SentBackToL1Template(data),
     getReferenceId: (data) => data.settlementId,
     afterSend: (data, email) =>
       updateSettlementCommunication(
@@ -600,18 +550,7 @@ const NOTIFICATION_CONFIGS: Record<
       data.overrideSubject ||
       `Settlement Rejected — ${data.studentName || "Student"} | ${data.settlementRefNumber || "N/A"} | Re-upload Required`,
 
-    getHtml: (data, cfg) =>
-      buildGenericApprovalTemplate(data, cfg, {
-        headerColor: "#DC2626,#EF4444",
-        icon: "",
-        title: "Settlement Rejected by Business Head",
-        subtitle: data.rejectionReason
-          ? `Reason: ${data.rejectionReason}`
-          : "Please re-upload your invoice",
-        bodyText:
-          "Your commission settlement has been rejected during L2 review. Please check the details and re-upload your invoice.",
-        ctaUrl: `${cfg.portalBaseUrl}/partners/commissions`,
-      }),
+    getHtml: (data) => buildL2RejectedToPartnerTemplate(data),
     getReferenceId: (data) => data.settlementId,
     afterSend: (data, email) =>
       updateSettlementCommunication(
@@ -663,18 +602,7 @@ const NOTIFICATION_CONFIGS: Record<
       data.overrideSubject ||
       ` Dispute Resolved — ${data.studentName || "Student"} | ${data.partnerName || "Partner"} | ${data.settlementRefNumber || "N/A"}`,
 
-    getHtml: (data, cfg) =>
-      buildGenericApprovalTemplate(data, cfg, {
-        headerColor: "#059669,#10B981",
-        icon: "",
-        title: "Dispute Resolved",
-        subtitle: data.disputeResolution
-          ? `Resolution: ${data.disputeResolution}`
-          : "Your objection has been reviewed and resolved",
-        bodyText:
-          "The admin team has reviewed and resolved the dispute on your commission settlement. Please log in to the portal to check the updated status.",
-        ctaUrl: `${cfg.portalBaseUrl}/partners/commissions`,
-      }),
+    getHtml: (data) => buildDisputeResolvedTemplate(data),
     getReferenceId: (data) => data.settlementId,
     afterSend: (data, email) =>
       updateSettlementCommunication(
@@ -950,203 +878,663 @@ export async function notifyFinanceForInvoice(
 
 function buildFinanceNotificationTemplate(
   data: CommissionNotificationData,
-  cfg: ResolvedNotificationConfig,
+  _cfg: ResolvedNotificationConfig,
 ): string {
-  const partnerPortalUrl = `${cfg.portalBaseUrl}/admin/partners/${data.partnerId}`;
   const onboardedDate = data.onboardedAt
     ? moment(data.onboardedAt).format("DD MMM YYYY, hh:mm A")
     : moment().format("DD MMM YYYY, hh:mm A");
 
-  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/></head>
-<body style="margin:0;padding:0;background-color:#f4f6f9;font-family:'Segoe UI',Roboto,Arial,sans-serif;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6f9;padding:30px 0;">
-<tr><td align="center">
-<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
-<tr><td style="background:linear-gradient(135deg,#1B4F72 0%,#2E86C1 100%);padding:28px 32px;">
-  <h1 style="margin:0;color:#ffffff;font-size:20px;font-weight:600;">New Partner Onboarded</h1>
-  <p style="margin:6px 0 0;color:#D6EAF8;font-size:13px;">Action Required: Upload Bank Details in HubSpot</p>
+  const tableRow = (label: string, value: string, idx: number, bold = false, mono = false, blueText = false) => {
+    const bg = idx % 2 === 0 ? "#ffffff" : "#eef0f3";
+    const fontWeight = bold ? "font-weight:700;" : "font-weight:600;";
+    const fontFamily = mono ? "font-family:monospace;" : "";
+    const color = blueText ? "color:#1e5fad;" : "color:#132a45;";
+    return `<tr><td style="padding:12px 16px;font-size:13px;color:#132a45;background:${bg};">${esc(label)}</td><td style="padding:12px 16px;font-size:13px;${color}${fontWeight}${fontFamily}background:${bg};">${esc(value)}</td></tr>`;
+  };
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>New Partner Onboarded</title></head>
+<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:#eef0f3;-webkit-font-smoothing:antialiased;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#eef0f3;"><tr><td align="center" style="padding:40px 20px;">
+<table width="640" cellpadding="0" cellspacing="0" border="0" style="background:#ffffff;box-shadow:0 2px 12px rgba(10,22,40,0.08);">
+<tr><td style="padding:32px 44px 24px 44px;border-bottom:1px solid #d4dbe6;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+    <td><span style="font-size:20px;font-weight:700;color:#1e5fad;">Edumate</span><span style="font-size:20px;font-weight:700;color:#e87722;"> Global</span></td>
+    <td align="right"><span style="display:inline-block;background:#1e5fad;color:#ffffff;font-size:11px;font-weight:600;padding:6px 14px;text-transform:uppercase;letter-spacing:0.5px;">New Partner</span></td>
+  </tr></table>
 </td></tr>
-<tr><td style="padding:28px 32px;">
-  <p style="margin:0 0 18px;color:#2C3E50;font-size:14px;line-height:1.6;">Hi Finance Team,</p>
-  <p style="margin:0 0 20px;color:#2C3E50;font-size:14px;line-height:1.6;">A new B2B partner has been onboarded. Please review their details and ensure bank information is uploaded in HubSpot for future commission payouts.</p>
-  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#F8F9FA;border:1px solid #E5E8EB;border-radius:8px;margin-bottom:20px;"><tr><td style="padding:18px 20px;">
-    <h3 style="margin:0 0 14px;color:#1B4F72;font-size:15px;font-weight:600;border-bottom:1px solid #E5E8EB;padding-bottom:10px;">Partner Details</h3>
-    <table width="100%" cellpadding="0" cellspacing="0">
-      <tr><td width="180" style="padding:6px 0;color:#7F8C8D;font-size:13px;">Partner Name</td><td style="padding:6px 0;color:#2C3E50;font-size:13px;font-weight:600;">${esc(data.partnerName)}</td></tr>
-      ${row("Partner Type", data.partnerType)}${row("Business Type", data.businessType)}${row("GST Number", data.gstNumber)}${row("PAN Number", data.panNumber)}${row("City", data.city)}${row("State", data.state)}${row("Country", data.country)}${row("Commission Applicable", data.isCommissionApplicable)}${row("Contact Email", data.contactEmail)}${row("Contact Phone", data.contactPhone)}
-      <tr><td style="padding:6px 0;color:#7F8C8D;font-size:13px;">Onboarded At</td><td style="padding:6px 0;color:#2C3E50;font-size:13px;">${onboardedDate}</td></tr>
-    </table>
+<tr><td style="padding:32px 44px 24px 44px;">
+  <h1 style="margin:0 0 8px 0;font-size:24px;font-weight:700;color:#132a45;">New Partner Onboarded</h1>
+  <p style="margin:0;font-size:14px;color:#e87722;font-weight:500;line-height:1.5;">Action Required: Upload Bank Details in HubSpot</p>
+</td></tr>
+<tr><td style="padding:0 44px 28px 44px;">
+  <p style="margin:0 0 12px 0;font-size:14px;color:#132a45;line-height:1.7;">Hi Finance Team,</p>
+  <p style="margin:0;font-size:14px;color:#132a45;line-height:1.7;">A new B2B partner has been onboarded. Please review their details and ensure bank information is uploaded in HubSpot for future commission payouts.</p>
+</td></tr>
+<tr><td style="padding:0 44px 28px 44px;">
+  <p style="margin:0 0 12px 0;font-size:11px;font-weight:700;color:#1e5fad;letter-spacing:1px;text-transform:uppercase;">Partner Details</p>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr><td style="background:#1e5fad;padding:12px 16px;font-size:12px;font-weight:600;color:#ffffff;">Field</td><td style="background:#1e5fad;padding:12px 16px;font-size:12px;font-weight:600;color:#ffffff;">Value</td></tr>
+    ${tableRow("Partner Name", data.partnerName || "—", 0, true)}
+    ${tableRow("Partner Type", data.partnerType || "—", 1)}
+    ${tableRow("Business Type", data.businessType || "—", 2)}
+    ${tableRow("GST Number", data.gstNumber || "—", 3, false, true, true)}
+    ${tableRow("PAN Number", data.panNumber || "—", 4, false, true, true)}
+    ${tableRow("City", data.city || "—", 5)}
+    ${tableRow("State", data.state || "—", 6)}
+    ${tableRow("Country", data.country || "—", 7)}
+    ${tableRow("Commission Applicable", data.isCommissionApplicable || "—", 8)}
+    ${tableRow("Contact Email", data.contactEmail || "—", 9, false, false, true)}
+    ${tableRow("Contact Phone", data.contactPhone || "—", 10, false, false, true)}
+    ${tableRow("Onboarded At", onboardedDate, 11)}
+  </table>
+</td></tr>
+<tr><td style="padding:0 44px;"><div style="height:1px;background:#d4dbe6;"></div></td></tr>
+<tr><td style="padding:24px 44px;background:#eef0f3;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td align="center">
+    <p style="margin:0 0 6px 0;font-size:12px;color:#5d6d7e;">This is an automated notification from <span style="color:#1e5fad;font-weight:600;">Edumate</span> <span style="color:#e87722;font-weight:600;">Global</span>.</p>
+    <p style="margin:0 0 6px 0;font-size:11px;color:#5d6d7e;">Do not reply to this email. For queries, contact the team.</p>
+    <p style="margin:0;font-size:11px;color:#5d6d7e;">&copy; ${CURRENT_YEAR} Edumate Global. All rights reserved.</p>
   </td></tr></table>
 </td></tr>
-${footerRow(cfg)}
 </table></td></tr></table></body></html>`;
 }
 
 function buildPartnerCommissionTemplate(
   data: CommissionNotificationData,
-  cfg: ResolvedNotificationConfig,
+  _cfg: ResolvedNotificationConfig,
   recipientName?: string | null,
 ): string {
-  const portalUrl = `${cfg.portalBaseUrl}/partners/commissions`;
   const greeting = recipientName
     ? recipientName.charAt(0).toUpperCase() + recipientName.slice(1)
     : "Partner";
   const fmtCurrency = (v: number | null | undefined) =>
     v != null ? `₹${Number(v).toLocaleString("en-IN")}` : "—";
-  const fmtDate = (d: Date | null | undefined) =>
-    d ? moment(d).format("DD MMM YYYY") : "—";
   const fmtPct = (v: number | null | undefined) => (v != null ? `${v}%` : "—");
 
-  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/></head>
-<body style="margin:0;padding:0;background-color:#f4f6f9;font-family:'Segoe UI',Roboto,Arial,sans-serif;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6f9;padding:30px 0;"><tr><td align="center">
-<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
-<tr><td style="background:linear-gradient(135deg,#27AE60 0%,#2ECC71 100%);padding:28px 32px;">
-  <h1 style="margin:0;color:#ffffff;font-size:20px;font-weight:600;">New Commission Entry</h1>
-  <p style="margin:6px 0 0;color:#D5F5E3;font-size:13px;">A new disbursement entry is available for your review</p>
+  const tableRow = (label: string, value: string, idx: number, bold = false, mono = false, blueText = false) => {
+    const bg = idx % 2 === 0 ? "#ffffff" : "#eef0f3";
+    const fontWeight = bold ? "font-weight:700;" : "font-weight:600;";
+    const fontFamily = mono ? "font-family:monospace;" : "";
+    const color = blueText ? "color:#1e5fad;" : "color:#132a45;";
+    return `<tr><td style="padding:12px 16px;font-size:13px;color:#132a45;background:${bg};">${esc(label)}</td><td style="padding:12px 16px;font-size:${bold ? "14" : "13"}px;${color}${fontWeight}${fontFamily}background:${bg};">${esc(value)}</td></tr>`;
+  };
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>New Commission Entry</title></head>
+<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:#eef0f3;-webkit-font-smoothing:antialiased;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#eef0f3;"><tr><td align="center" style="padding:40px 20px;">
+<table width="640" cellpadding="0" cellspacing="0" border="0" style="background:#ffffff;box-shadow:0 2px 12px rgba(10,22,40,0.08);">
+<tr><td style="padding:32px 44px 24px 44px;border-bottom:1px solid #d4dbe6;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+    <td><span style="font-size:20px;font-weight:700;color:#1e5fad;">Edumate</span><span style="font-size:20px;font-weight:700;color:#e87722;"> Global</span></td>
+    <td align="right"><span style="display:inline-block;background:#1e5fad;color:#ffffff;font-size:11px;font-weight:600;padding:6px 14px;text-transform:uppercase;letter-spacing:0.5px;">New Entry</span></td>
+  </tr></table>
 </td></tr>
-<tr><td style="padding:28px 32px;">
-  <p style="margin:0 0 18px;color:#2C3E50;font-size:14px;line-height:1.6;">Hi ${esc(greeting)},</p>
-  <p style="margin:0 0 20px;color:#2C3E50;font-size:14px;line-height:1.6;">A new commission settlement entry has been created for your review. Please log in to the partner portal to verify the details and proceed accordingly.</p>
-  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#F0FFF4;border:1px solid #C6F6D5;border-radius:8px;margin-bottom:16px;"><tr><td style="padding:18px 20px;">
-    <h3 style="margin:0 0 14px;color:#276749;font-size:15px;font-weight:600;border-bottom:1px solid #C6F6D5;padding-bottom:10px;">Settlement Summary</h3>
-    <table width="100%" cellpadding="0" cellspacing="0">
-      ${row("Reference Number", data.settlementRefNumber, true)}
-      ${data.settlementMonth && data.settlementYear ? `<tr><td width="180" style="padding:6px 0;color:#718096;font-size:13px;">Settlement Period</td><td style="padding:6px 0;color:#2D3748;font-size:13px;">${esc(data.settlementMonth)} ${data.settlementYear}</td></tr>` : ""}
-      ${data.settlementDate ? `<tr><td style="padding:6px 0;color:#718096;font-size:13px;">Settlement Date</td><td style="padding:6px 0;color:#2D3748;font-size:13px;">${fmtDate(data.settlementDate)}</td></tr>` : ""}
+<tr><td style="padding:32px 44px 24px 44px;">
+  <h1 style="margin:0 0 8px 0;font-size:24px;font-weight:700;color:#132a45;">New Commission Entry</h1>
+  <p style="margin:0;font-size:14px;color:#5d6d7e;line-height:1.5;">A new disbursement entry is available for your review</p>
+</td></tr>
+<tr><td style="padding:0 44px 28px 44px;">
+  <p style="margin:0 0 12px 0;font-size:14px;color:#132a45;line-height:1.7;">Hi ${esc(greeting)},</p>
+  <p style="margin:0;font-size:14px;color:#132a45;line-height:1.7;">A new commission settlement entry has been created for your review. Please log in to the partner portal to verify the details and proceed accordingly.</p>
+</td></tr>
+<tr><td style="padding:0 44px 24px 44px;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-left:4px solid #1e5fad;background:#f0f7ff;"><tr><td style="padding:20px 24px;">
+    <p style="margin:0 0 14px 0;font-size:12px;font-weight:700;color:#1e5fad;letter-spacing:1px;text-transform:uppercase;">Settlement Summary</p>
+    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+      <tr><td width="160" style="padding:8px 0;font-size:13px;color:#5d6d7e;">Reference Number</td><td style="padding:8px 0;font-size:13px;color:#1e5fad;font-weight:600;font-family:monospace;">${esc(data.settlementRefNumber || "—")}</td></tr>
+      ${data.settlementMonth && data.settlementYear ? `<tr><td width="160" style="padding:8px 0;font-size:13px;color:#5d6d7e;">Settlement Period</td><td style="padding:8px 0;font-size:13px;color:#132a45;font-weight:600;">${esc(data.settlementMonth)} ${data.settlementYear}</td></tr>` : ""}
     </table>
   </td></tr></table>
-  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#F8F9FA;border:1px solid #E5E8EB;border-radius:8px;margin-bottom:16px;"><tr><td style="padding:18px 20px;">
-    <h3 style="margin:0 0 14px;color:#1B4F72;font-size:15px;font-weight:600;border-bottom:1px solid #E5E8EB;padding-bottom:10px;">Disbursement Details</h3>
-    <table width="100%" cellpadding="0" cellspacing="0">
-      <tr><td width="180" style="padding:6px 0;color:#7F8C8D;font-size:13px;">Student Name</td><td style="padding:6px 0;color:#2C3E50;font-size:13px;font-weight:600;">${esc(data.studentName || "—")}</td></tr>
-      ${row("Student ID", data.studentId)}${row("Lender", data.lenderName)}${row("Loan Product", data.loanProductName)}
-      <tr><td style="padding:6px 0;color:#7F8C8D;font-size:13px;">Disbursed Amount</td><td style="padding:6px 0;color:#2C3E50;font-size:14px;font-weight:700;">${fmtCurrency(data.loanAmountDisbursed)}</td></tr>
-      ${row("University", data.universityName)}${row("Course", data.courseName)}${row("Destination", data.destinationCountry)}
+</td></tr>
+<tr><td style="padding:0 44px 24px 44px;">
+  <p style="margin:0 0 12px 0;font-size:11px;font-weight:700;color:#1e5fad;letter-spacing:1px;text-transform:uppercase;">Disbursement Details</p>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr><td style="background:#1e5fad;padding:12px 16px;font-size:12px;font-weight:600;color:#ffffff;">Field</td><td style="background:#1e5fad;padding:12px 16px;font-size:12px;font-weight:600;color:#ffffff;">Value</td></tr>
+    ${tableRow("Student Name", data.studentName || "—", 0, true)}
+    ${tableRow("Student ID", data.studentId || "—", 1, false, true, true)}
+    ${tableRow("Lender", data.lenderName || "—", 2)}
+    ${tableRow("Loan Product", data.loanProductName || "—", 3)}
+    ${tableRow("Disbursed Amount", fmtCurrency(data.loanAmountDisbursed), 4, true, false, true)}
+    ${tableRow("University", data.universityName || "—", 5)}
+    ${tableRow("Course", data.courseName || "—", 6)}
+    ${tableRow("Destination", data.destinationCountry || "—", 7)}
+  </table>
+</td></tr>
+${
+  data.grossCommissionAmount != null
+    ? `<tr><td style="padding:0 44px 24px 44px;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#EBF5FF;"><tr><td align="center" style="padding:24px;">
+    <p style="margin:0 0 6px 0;font-size:11px;font-weight:700;color:#1e5fad;letter-spacing:1px;text-transform:uppercase;">Estimated Commission</p>
+    <p style="margin:0;font-size:32px;font-weight:700;color:#1e5fad;">${fmtCurrency(data.grossCommissionAmount)}</p>
+    ${data.commissionRate != null ? `<p style="margin:8px 0 0;font-size:12px;color:#5d6d7e;">@ ${fmtPct(data.commissionRate)} commission rate</p>` : ""}
+  </td></tr></table>
+</td></tr>`
+    : ""
+}
+<tr><td style="padding:0 44px 28px 44px;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-left:4px solid #e87722;background:#fff8f3;"><tr><td style="padding:20px 24px;">
+    <p style="margin:0 0 12px 0;font-size:12px;font-weight:700;color:#e87722;letter-spacing:1px;text-transform:uppercase;">What to do next</p>
+    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+      <tr><td style="padding:6px 0;font-size:13px;color:#132a45;line-height:1.6;">1. Log in to the partner portal</td></tr>
+      <tr><td style="padding:6px 0;font-size:13px;color:#132a45;line-height:1.6;">2. Review the disbursement entry (student name, amount, date)</td></tr>
+      <tr><td style="padding:6px 0;font-size:13px;color:#132a45;line-height:1.6;">3. Approve or raise an objection if any discrepancy found</td></tr>
     </table>
   </td></tr></table>
-  ${
-    data.grossCommissionAmount != null
-      ? `
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:linear-gradient(135deg,#EBF8FF 0%,#DBEAFE 100%);border:1px solid #93C5FD;border-radius:8px;margin-bottom:20px;"><tr><td align="center" style="padding:20px;">
-    <p style="margin:0 0 4px;color:#1E40AF;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Estimated Commission</p>
-    <p style="margin:0;color:#1E3A5F;font-size:28px;font-weight:700;">${fmtCurrency(data.grossCommissionAmount)}</p>
-    ${data.commissionRate != null ? `<p style="margin:4px 0 0;color:#3B82F6;font-size:12px;">@ ${fmtPct(data.commissionRate)} commission rate</p>` : ""}
-  </td></tr></table>`
-      : ""
-  }
-  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#FFF7ED;border:1px solid #FDBA74;border-radius:8px;margin-bottom:20px;"><tr><td style="padding:16px 20px;">
-    <h4 style="margin:0 0 8px;color:#9A3412;font-size:14px;">What to do next</h4>
-    <ol style="margin:0;padding:0 0 0 18px;color:#9A3412;font-size:13px;line-height:1.8;">
-      <li>Log in to the partner portal</li><li>Review the disbursement entry (student name, amount, date)</li><li>Approve or raise an objection if any discrepancy found</li>
-    </ol>
-  </td></tr></table>
 </td></tr>
-<tr><td style="background-color:#F8F9FA;padding:18px 32px;border-top:1px solid #E5E8EB;">
-  <p style="margin:0;color:#7F8C8D;font-size:11px;text-align:center;">This is an automated notification from ${esc(cfg.companyName)}.<br/>For support, reach out to your account manager or email ${esc(cfg.supportEmail)}<br/>© ${CURRENT_YEAR} ${esc(cfg.companyName)}. All rights reserved.</p>
+<tr><td style="padding:0 44px;"><div style="height:1px;background:#d4dbe6;"></div></td></tr>
+<tr><td style="padding:24px 44px;background:#eef0f3;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td align="center">
+    <p style="margin:0 0 6px 0;font-size:12px;color:#5d6d7e;">This is an automated notification from <span style="color:#1e5fad;font-weight:600;">Edumate</span> <span style="color:#e87722;font-weight:600;">Global</span>.</p>
+    <p style="margin:0 0 6px 0;font-size:11px;color:#5d6d7e;">For support, reach out to your account manager.</p>
+    <p style="margin:0;font-size:11px;color:#5d6d7e;">&copy; ${CURRENT_YEAR} Edumate Global. All rights reserved.</p>
+  </td></tr></table>
 </td></tr>
 </table></td></tr></table></body></html>`;
 }
 
 function buildObjectionNotificationTemplate(
   data: CommissionNotificationData,
-  cfg: ResolvedNotificationConfig,
+  _cfg: ResolvedNotificationConfig,
 ): string {
-  const portalUrl = `${cfg.portalBaseUrl}/admin/commissions/${data.settlementId}`;
   const fmtCurrency = (v: number | null | undefined) =>
     v != null ? `₹${Number(v).toLocaleString("en-IN")}` : "—";
 
-  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/></head>
-<body style="margin:0;padding:0;background-color:#f4f6f9;font-family:'Segoe UI',Roboto,Arial,sans-serif;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6f9;padding:30px 0;"><tr><td align="center">
-<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
-<tr><td style="background:linear-gradient(135deg,#DC2626 0%,#EF4444 100%);padding:28px 32px;">
-  <h1 style="margin:0;color:#ffffff;font-size:20px;font-weight:600;">Objection Raised</h1>
-  <p style="margin:6px 0 0;color:#FEE2E2;font-size:13px;">A partner has disputed a commission settlement — Action Required</p>
+  const tableRow = (label: string, value: string, idx: number, bold = false, mono = false, blueText = false) => {
+    const bg = idx % 2 === 0 ? "#ffffff" : "#eef0f3";
+    const fontWeight = bold ? "font-weight:700;" : "font-weight:600;";
+    const fontFamily = mono ? "font-family:monospace;" : "";
+    const color = blueText ? "color:#1e5fad;" : "color:#132a45;";
+    return `<tr><td style="padding:12px 16px;font-size:13px;color:#132a45;background:${bg};">${esc(label)}</td><td style="padding:12px 16px;font-size:${bold ? "14" : "13"}px;${color}${fontWeight}${fontFamily}background:${bg};">${esc(value)}</td></tr>`;
+  };
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Objection Raised</title></head>
+<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:#eef0f3;-webkit-font-smoothing:antialiased;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#eef0f3;"><tr><td align="center" style="padding:40px 20px;">
+<table width="640" cellpadding="0" cellspacing="0" border="0" style="background:#ffffff;box-shadow:0 2px 12px rgba(10,22,40,0.08);">
+<tr><td style="padding:32px 44px 24px 44px;border-bottom:1px solid #d4dbe6;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+    <td><span style="font-size:20px;font-weight:700;color:#1e5fad;">Edumate</span><span style="font-size:20px;font-weight:700;color:#e87722;"> Global</span></td>
+    <td align="right"><span style="display:inline-block;background:#e87722;color:#ffffff;font-size:11px;font-weight:600;padding:6px 14px;text-transform:uppercase;letter-spacing:0.5px;">Action Required</span></td>
+  </tr></table>
 </td></tr>
-<tr><td style="padding:28px 32px;">
-  <p style="margin:0 0 18px;color:#2C3E50;font-size:14px;line-height:1.6;">Hi Team,</p>
-  <p style="margin:0 0 20px;color:#2C3E50;font-size:14px;line-height:1.6;">A partner has raised an objection on a commission settlement. Please review the details and take appropriate action.</p>
-  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#FEF2F2;border:1px solid #FECACA;border-radius:8px;margin-bottom:16px;"><tr><td style="padding:18px 20px;">
-    <h3 style="margin:0 0 14px;color:#991B1B;font-size:15px;font-weight:600;border-bottom:1px solid #FECACA;padding-bottom:10px;">Settlement Details</h3>
-    <table width="100%" cellpadding="0" cellspacing="0">
-      ${row("Reference", data.settlementRefNumber, true)}
-      <tr><td width="180" style="padding:6px 0;color:#7F8C8D;font-size:13px;">Partner</td><td style="padding:6px 0;color:#2C3E50;font-size:13px;font-weight:600;">${esc(data.partnerName || "—")}</td></tr>
-      <tr><td style="padding:6px 0;color:#7F8C8D;font-size:13px;">Student</td><td style="padding:6px 0;color:#2C3E50;font-size:13px;">${esc(data.studentName || "—")}</td></tr>
-      ${row("Lender", data.lenderName)}
-      <tr><td style="padding:6px 0;color:#7F8C8D;font-size:13px;">Disbursed Amount</td><td style="padding:6px 0;color:#2C3E50;font-size:14px;font-weight:700;">${fmtCurrency(data.loanAmountDisbursed)}</td></tr>
-      <tr><td style="padding:6px 0;color:#7F8C8D;font-size:13px;">Commission Amount</td><td style="padding:6px 0;color:#2C3E50;font-size:14px;font-weight:700;">${fmtCurrency(data.grossCommissionAmount)}</td></tr>
-    </table>
+<tr><td style="padding:32px 44px 24px 44px;">
+  <h1 style="margin:0 0 8px 0;font-size:24px;font-weight:700;color:#132a45;">Objection Raised</h1>
+  <p style="margin:0;font-size:14px;color:#5d6d7e;line-height:1.5;">A partner has disputed a commission settlement</p>
+</td></tr>
+<tr><td style="padding:0 44px 28px 44px;">
+  <p style="margin:0 0 12px 0;font-size:14px;color:#132a45;line-height:1.7;">Hi Team,</p>
+  <p style="margin:0;font-size:14px;color:#132a45;line-height:1.7;">A partner has raised an objection on a commission settlement. Please review the details below and take appropriate action.</p>
+</td></tr>
+<tr><td style="padding:0 44px 24px 44px;">
+  <p style="margin:0 0 12px 0;font-size:11px;font-weight:700;color:#1e5fad;letter-spacing:1px;text-transform:uppercase;">Settlement Details</p>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr><td style="background:#1e5fad;padding:12px 16px;font-size:12px;font-weight:600;color:#ffffff;">Field</td><td style="background:#1e5fad;padding:12px 16px;font-size:12px;font-weight:600;color:#ffffff;">Value</td></tr>
+    ${tableRow("Reference", data.settlementRefNumber || "—", 0, false, true, true)}
+    ${tableRow("Partner", data.partnerName || "—", 1, true)}
+    ${tableRow("Student", data.studentName || "—", 2)}
+    ${tableRow("Lender", data.lenderName || "—", 3)}
+    ${tableRow("Disbursed Amount", fmtCurrency(data.loanAmountDisbursed), 4, true, false, true)}
+    ${tableRow("Commission Amount", fmtCurrency(data.grossCommissionAmount), 5, true, false, true)}
+  </table>
+</td></tr>
+${
+  data.objectionReason
+    ? `<tr><td style="padding:0 44px 28px 44px;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-left:4px solid #e87722;background:#f7f6f3;"><tr><td style="padding:24px 28px;">
+    <p style="margin:0 0 16px 0;font-size:12px;font-weight:700;color:#e87722;letter-spacing:1px;text-transform:uppercase;">Reason for Objection</p>
+    <p style="margin:0 0 16px 0;font-size:14px;color:#132a45;line-height:1.7;">${esc(data.objectionReason)}</p>
+    ${data.triggeredBy?.name ? `<p style="margin:0;font-size:13px;color:#5d6d7e;">Raised by: <strong style="color:#1e5fad;">${esc(data.triggeredBy.name)}</strong></p>` : ""}
   </td></tr></table>
-  ${
-    data.objectionReason
-      ? `
-  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#FFF7ED;border:1px solid #FDBA74;border-radius:8px;margin-bottom:16px;"><tr><td style="padding:18px 20px;">
-    <h3 style="margin:0 0 10px;color:#9A3412;font-size:15px;font-weight:600;">Reason for Objection</h3>
-    <p style="margin:0;color:#2C3E50;font-size:14px;line-height:1.6;white-space:pre-wrap;">${esc(data.objectionReason)}</p>
-    ${data.triggeredBy?.name ? `<p style="margin:10px 0 0;color:#7F8C8D;font-size:12px;">Raised by: ${esc(data.triggeredBy.name)}</p>` : ""}
-  </td></tr></table>`
-      : ""
-  }
+</td></tr>`
+    : ""
+}
+<tr><td style="padding:0 44px;"><div style="height:1px;background:#d4dbe6;"></div></td></tr>
+<tr><td style="padding:24px 44px;background:#eef0f3;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td align="center">
+    <p style="margin:0 0 6px 0;font-size:12px;color:#5d6d7e;">This is an automated notification from <span style="color:#1e5fad;font-weight:600;">Edumate</span> <span style="color:#e87722;font-weight:600;">Global</span>.</p>
+    <p style="margin:0 0 6px 0;font-size:11px;color:#5d6d7e;">Do not reply to this email. For queries, contact the team.</p>
+    <p style="margin:0;font-size:11px;color:#5d6d7e;">&copy; ${CURRENT_YEAR} Edumate Global. All rights reserved.</p>
+  </td></tr></table>
 </td></tr>
-${footerRow(cfg)}
 </table></td></tr></table></body></html>`;
 }
 
-interface ApprovalTemplateOpts {
-  headerColor: string;
-  icon: string;
-  title: string;
-  subtitle: string;
-  bodyText: string;
-  ctaText?: string;
-  ctaUrl: string;
-}
-
-function buildGenericApprovalTemplate(
+function buildL1ApprovedTemplate(
   data: CommissionNotificationData,
-  cfg: ResolvedNotificationConfig,
-  opts: ApprovalTemplateOpts,
 ): string {
-  const [colorFrom, colorTo] = opts.headerColor.split(",");
   const fmtCurrency = (v: number | null | undefined) =>
     v != null ? `₹${Number(v).toLocaleString("en-IN")}` : "—";
 
-  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/></head>
-<body style="margin:0;padding:0;background-color:#f4f6f9;font-family:'Segoe UI',Roboto,Arial,sans-serif;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6f9;padding:30px 0;"><tr><td align="center">
-<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
-<tr><td style="background:linear-gradient(135deg,${colorFrom} 0%,${colorTo} 100%);padding:28px 32px;">
-  <h1 style="margin:0;color:#ffffff;font-size:20px;font-weight:600;">${opts.icon} ${esc(opts.title)}</h1>
-  <p style="margin:6px 0 0;color:rgba(255,255,255,0.8);font-size:13px;">${esc(opts.subtitle)}</p>
+  const tableRow = (label: string, value: string, idx: number, bold = false, mono = false, blueText = false) => {
+    const bg = idx % 2 === 0 ? "#ffffff" : "#eef0f3";
+    const fontWeight = bold ? "font-weight:700;" : "font-weight:600;";
+    const fontFamily = mono ? "font-family:monospace;" : "";
+    const color = blueText ? "color:#1e5fad;" : "color:#132a45;";
+    return `<tr><td style="padding:12px 16px;font-size:13px;color:#132a45;background:${bg};">${esc(label)}</td><td style="padding:12px 16px;font-size:${bold ? "14" : "13"}px;${color}${fontWeight}${fontFamily}background:${bg};">${esc(value)}</td></tr>`;
+  };
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>L1 Verification Complete</title></head>
+<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:#eef0f3;-webkit-font-smoothing:antialiased;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#eef0f3;"><tr><td align="center" style="padding:40px 20px;">
+<table width="640" cellpadding="0" cellspacing="0" border="0" style="background:#ffffff;box-shadow:0 2px 12px rgba(10,22,40,0.08);">
+<tr><td style="padding:32px 44px 24px 44px;border-bottom:1px solid #d4dbe6;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+    <td><span style="font-size:20px;font-weight:700;color:#1e5fad;">Edumate</span><span style="font-size:20px;font-weight:700;color:#e87722;"> Global</span></td>
+    <td align="right"><span style="display:inline-block;background:#e87722;color:#ffffff;font-size:11px;font-weight:600;padding:6px 14px;text-transform:uppercase;letter-spacing:0.5px;">Approval Required</span></td>
+  </tr></table>
 </td></tr>
-<tr><td style="padding:28px 32px;">
-  <p style="margin:0 0 18px;color:#2C3E50;font-size:14px;line-height:1.6;">Hi Team,</p>
-  <p style="margin:0 0 20px;color:#2C3E50;font-size:14px;line-height:1.6;">${esc(opts.bodyText)}</p>
-  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#F8F9FA;border:1px solid #E5E8EB;border-radius:8px;margin-bottom:16px;"><tr><td style="padding:18px 20px;">
-    <h3 style="margin:0 0 14px;color:#1B4F72;font-size:15px;font-weight:600;border-bottom:1px solid #E5E8EB;padding-bottom:10px;">Settlement Details</h3>
-    <table width="100%" cellpadding="0" cellspacing="0">
-      ${row("Reference", data.settlementRefNumber, true)}
-      <tr><td width="180" style="padding:6px 0;color:#7F8C8D;font-size:13px;">Partner</td><td style="padding:6px 0;color:#2C3E50;font-size:13px;font-weight:600;">${esc(data.partnerName || "—")}</td></tr>
-      <tr><td style="padding:6px 0;color:#7F8C8D;font-size:13px;">Student</td><td style="padding:6px 0;color:#2C3E50;font-size:13px;">${esc(data.studentName || "—")}</td></tr>
-      ${row("Lender", data.lenderName)}
-      <tr><td style="padding:6px 0;color:#7F8C8D;font-size:13px;">Disbursed Amount</td><td style="padding:6px 0;color:#2C3E50;font-size:14px;font-weight:700;">${fmtCurrency(data.loanAmountDisbursed)}</td></tr>
-      <tr><td style="padding:6px 0;color:#7F8C8D;font-size:13px;">Commission Amount</td><td style="padding:6px 0;color:#2C3E50;font-size:14px;font-weight:700;">${fmtCurrency(data.grossCommissionAmount)}</td></tr>
-      ${data.invoiceNumber ? row("Invoice #", data.invoiceNumber, true) : ""}
-      ${data.invoiceAmount != null ? `<tr><td style="padding:6px 0;color:#7F8C8D;font-size:13px;">Invoice Amount</td><td style="padding:6px 0;color:#2C3E50;font-size:14px;font-weight:700;">${fmtCurrency(data.invoiceAmount)}</td></tr>` : ""}
+<tr><td style="padding:32px 44px 24px 44px;">
+  <h1 style="margin:0 0 8px 0;font-size:22px;font-weight:700;color:#132a45;">L1 Verification Complete — Awaiting Your Approval</h1>
+  <p style="margin:0;font-size:14px;color:#5d6d7e;line-height:1.5;">Approved by <strong style="color:#1e5fad;">${esc(data.approverName || "L1 Reviewer")}</strong></p>
+</td></tr>
+<tr><td style="padding:0 44px 28px 44px;">
+  <p style="margin:0 0 12px 0;font-size:14px;color:#132a45;line-height:1.7;">Hi Team,</p>
+  <p style="margin:0;font-size:14px;color:#132a45;line-height:1.7;">This settlement has passed L1 verification and requires your final approval to proceed with payment.</p>
+</td></tr>
+<tr><td style="padding:0 44px 28px 44px;">
+  <p style="margin:0 0 12px 0;font-size:11px;font-weight:700;color:#1e5fad;letter-spacing:1px;text-transform:uppercase;">Settlement Details</p>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr><td style="background:#1e5fad;padding:12px 16px;font-size:12px;font-weight:600;color:#ffffff;">Field</td><td style="background:#1e5fad;padding:12px 16px;font-size:12px;font-weight:600;color:#ffffff;">Value</td></tr>
+    ${tableRow("Reference", data.settlementRefNumber || "—", 0, false, true, true)}
+    ${tableRow("Partner", data.partnerName || "—", 1, true)}
+    ${tableRow("Student", data.studentName || "—", 2)}
+    ${tableRow("Lender", data.lenderName || "—", 3)}
+    ${tableRow("Disbursed Amount", fmtCurrency(data.loanAmountDisbursed), 4, true, false, true)}
+    ${tableRow("Commission Amount", fmtCurrency(data.grossCommissionAmount), 5, true, false, true)}
+  </table>
+</td></tr>
+<tr><td style="padding:0 44px;"><div style="height:1px;background:#d4dbe6;"></div></td></tr>
+<tr><td style="padding:24px 44px;background:#eef0f3;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td align="center">
+    <p style="margin:0 0 6px 0;font-size:12px;color:#5d6d7e;">This is an automated notification from <span style="color:#1e5fad;font-weight:600;">Edumate</span> <span style="color:#e87722;font-weight:600;">Global</span>.</p>
+    <p style="margin:0 0 6px 0;font-size:11px;color:#5d6d7e;">Do not reply to this email. For queries, contact the team.</p>
+    <p style="margin:0;font-size:11px;color:#5d6d7e;">&copy; ${CURRENT_YEAR} Edumate Global. All rights reserved.</p>
+  </td></tr></table>
+</td></tr>
+</table></td></tr></table></body></html>`;
+}
+
+function buildSettlementReturnedTemplate(
+  data: CommissionNotificationData,
+): string {
+  const fmtCurrency = (v: number | null | undefined) =>
+    v != null ? `₹${Number(v).toLocaleString("en-IN")}` : "—";
+
+  const tableRow = (label: string, value: string, idx: number, bold = false, mono = false, blueText = false) => {
+    const bg = idx % 2 === 0 ? "#ffffff" : "#eef0f3";
+    const fontWeight = bold ? "font-weight:700;" : "font-weight:600;";
+    const fontFamily = mono ? "font-family:monospace;" : "";
+    const color = blueText ? "color:#1e5fad;" : "color:#132a45;";
+    return `<tr><td style="padding:12px 16px;font-size:13px;color:#132a45;background:${bg};">${esc(label)}</td><td style="padding:12px 16px;font-size:${bold ? "14" : "13"}px;${color}${fontWeight}${fontFamily}background:${bg};">${esc(value)}</td></tr>`;
+  };
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Settlement Returned</title></head>
+<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:#eef0f3;-webkit-font-smoothing:antialiased;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#eef0f3;"><tr><td align="center" style="padding:40px 20px;">
+<table width="640" cellpadding="0" cellspacing="0" border="0" style="background:#ffffff;box-shadow:0 2px 12px rgba(10,22,40,0.08);">
+<tr><td style="padding:32px 44px 24px 44px;border-bottom:1px solid #d4dbe6;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+    <td><span style="font-size:20px;font-weight:700;color:#1e5fad;">Edumate</span><span style="font-size:20px;font-weight:700;color:#e87722;"> Global</span></td>
+    <td align="right"><span style="display:inline-block;background:#e87722;color:#ffffff;font-size:11px;font-weight:600;padding:6px 14px;text-transform:uppercase;letter-spacing:0.5px;">Action Required</span></td>
+  </tr></table>
+</td></tr>
+<tr><td style="padding:32px 44px 24px 44px;">
+  <h1 style="margin:0 0 8px 0;font-size:22px;font-weight:700;color:#132a45;">Settlement Returned — Review &amp; Resubmit</h1>
+  <p style="margin:0;font-size:14px;color:#5d6d7e;line-height:1.5;">L1 Reviewer has returned this settlement for correction</p>
+</td></tr>
+<tr><td style="padding:0 44px 28px 44px;">
+  <p style="margin:0 0 12px 0;font-size:14px;color:#132a45;line-height:1.7;">Hi Team,</p>
+  <p style="margin:0;font-size:14px;color:#132a45;line-height:1.7;">Your commission settlement has been returned during L1 review. Please check the details and take corrective action.</p>
+</td></tr>
+<tr><td style="padding:0 44px 24px 44px;">
+  <p style="margin:0 0 12px 0;font-size:11px;font-weight:700;color:#1e5fad;letter-spacing:1px;text-transform:uppercase;">Settlement Details</p>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr><td style="background:#1e5fad;padding:12px 16px;font-size:12px;font-weight:600;color:#ffffff;">Field</td><td style="background:#1e5fad;padding:12px 16px;font-size:12px;font-weight:600;color:#ffffff;">Value</td></tr>
+    ${tableRow("Reference", data.settlementRefNumber || "—", 0, false, true, true)}
+    ${tableRow("Partner", data.partnerName || "—", 1, true)}
+    ${tableRow("Student", data.studentName || "—", 2)}
+    ${tableRow("Lender", data.lenderName || "—", 3)}
+    ${tableRow("Disbursed Amount", fmtCurrency(data.loanAmountDisbursed), 4, true, false, true)}
+    ${tableRow("Commission Amount", fmtCurrency(data.grossCommissionAmount), 5, true, false, true)}
+  </table>
+</td></tr>
+${
+  data.rejectionReason
+    ? `<tr><td style="padding:0 44px 28px 44px;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-left:4px solid #e87722;background:#fff8f3;"><tr><td style="padding:24px 28px;">
+    <p style="margin:0 0 12px 0;font-size:12px;font-weight:700;color:#e87722;letter-spacing:1px;text-transform:uppercase;">Rejection Reason</p>
+    <p style="margin:0;font-size:14px;color:#132a45;line-height:1.7;">${esc(data.rejectionReason)}</p>
+  </td></tr></table>
+</td></tr>`
+    : ""
+}
+<tr><td style="padding:0 44px;"><div style="height:1px;background:#d4dbe6;"></div></td></tr>
+<tr><td style="padding:24px 44px;background:#eef0f3;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td align="center">
+    <p style="margin:0 0 6px 0;font-size:12px;color:#5d6d7e;">This is an automated notification from <span style="color:#1e5fad;font-weight:600;">Edumate</span> <span style="color:#e87722;font-weight:600;">Global</span>.</p>
+    <p style="margin:0 0 6px 0;font-size:11px;color:#5d6d7e;">Do not reply to this email. For queries, contact the team.</p>
+    <p style="margin:0;font-size:11px;color:#5d6d7e;">&copy; ${CURRENT_YEAR} Edumate Global. All rights reserved.</p>
+  </td></tr></table>
+</td></tr>
+</table></td></tr></table></body></html>`;
+}
+
+function buildL2SentBackToL1Template(
+  data: CommissionNotificationData,
+): string {
+  const fmtCurrency = (v: number | null | undefined) =>
+    v != null ? `₹${Number(v).toLocaleString("en-IN")}` : "—";
+
+  const tableRow = (label: string, value: string, idx: number, bold = false, mono = false, blueText = false) => {
+    const bg = idx % 2 === 0 ? "#ffffff" : "#eef0f3";
+    const fontWeight = bold ? "font-weight:700;" : "font-weight:600;";
+    const fontFamily = mono ? "font-family:monospace;" : "";
+    const color = blueText ? "color:#1e5fad;" : "color:#132a45;";
+    return `<tr><td style="padding:12px 16px;font-size:13px;color:#132a45;background:${bg};">${esc(label)}</td><td style="padding:12px 16px;font-size:${bold ? "14" : "13"}px;${color}${fontWeight}${fontFamily}background:${bg};">${esc(value)}</td></tr>`;
+  };
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Settlement Sent Back</title></head>
+<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:#eef0f3;-webkit-font-smoothing:antialiased;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#eef0f3;"><tr><td align="center" style="padding:40px 20px;">
+<table width="640" cellpadding="0" cellspacing="0" border="0" style="background:#ffffff;box-shadow:0 2px 12px rgba(10,22,40,0.08);">
+<tr><td style="padding:32px 44px 24px 44px;border-bottom:1px solid #d4dbe6;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+    <td><span style="font-size:20px;font-weight:700;color:#1e5fad;">Edumate</span><span style="font-size:20px;font-weight:700;color:#e87722;"> Global</span></td>
+    <td align="right"><span style="display:inline-block;background:#e87722;color:#ffffff;font-size:11px;font-weight:600;padding:6px 14px;text-transform:uppercase;letter-spacing:0.5px;">Re-Review Required</span></td>
+  </tr></table>
+</td></tr>
+<tr><td style="padding:32px 44px 24px 44px;">
+  <h1 style="margin:0 0 8px 0;font-size:22px;font-weight:700;color:#132a45;">Settlement Sent Back by Business Head</h1>
+  <p style="margin:0;font-size:14px;color:#5d6d7e;line-height:1.5;">L2 review requires re-examination before resubmission</p>
+</td></tr>
+<tr><td style="padding:0 44px 28px 44px;">
+  <p style="margin:0 0 12px 0;font-size:14px;color:#132a45;line-height:1.7;">Hi Team,</p>
+  <p style="margin:0;font-size:14px;color:#132a45;line-height:1.7;">This settlement was sent back during L2 business approval and requires your re-review before resubmission.</p>
+</td></tr>
+<tr><td style="padding:0 44px 24px 44px;">
+  <p style="margin:0 0 12px 0;font-size:11px;font-weight:700;color:#1e5fad;letter-spacing:1px;text-transform:uppercase;">Settlement Details</p>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr><td style="background:#1e5fad;padding:12px 16px;font-size:12px;font-weight:600;color:#ffffff;">Field</td><td style="background:#1e5fad;padding:12px 16px;font-size:12px;font-weight:600;color:#ffffff;">Value</td></tr>
+    ${tableRow("Reference", data.settlementRefNumber || "—", 0, false, true, true)}
+    ${tableRow("Partner", data.partnerName || "—", 1, true)}
+    ${tableRow("Student", data.studentName || "—", 2)}
+    ${tableRow("Lender", data.lenderName || "—", 3)}
+    ${tableRow("Disbursed Amount", fmtCurrency(data.loanAmountDisbursed), 4, true, false, true)}
+    ${tableRow("Commission Amount", fmtCurrency(data.grossCommissionAmount), 5, true, false, true)}
+  </table>
+</td></tr>
+${
+  data.rejectionReason
+    ? `<tr><td style="padding:0 44px 28px 44px;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-left:4px solid #e87722;background:#fff8f3;"><tr><td style="padding:24px 28px;">
+    <p style="margin:0 0 12px 0;font-size:12px;font-weight:700;color:#e87722;letter-spacing:1px;text-transform:uppercase;">Rejection Reason</p>
+    <p style="margin:0;font-size:14px;color:#132a45;line-height:1.7;">${esc(data.rejectionReason)}</p>
+  </td></tr></table>
+</td></tr>`
+    : ""
+}
+<tr><td style="padding:0 44px;"><div style="height:1px;background:#d4dbe6;"></div></td></tr>
+<tr><td style="padding:24px 44px;background:#eef0f3;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td align="center">
+    <p style="margin:0 0 6px 0;font-size:12px;color:#5d6d7e;">This is an automated notification from <span style="color:#1e5fad;font-weight:600;">Edumate</span> <span style="color:#e87722;font-weight:600;">Global</span>.</p>
+    <p style="margin:0 0 6px 0;font-size:11px;color:#5d6d7e;">Do not reply to this email. For queries, contact the team.</p>
+    <p style="margin:0;font-size:11px;color:#5d6d7e;">&copy; ${CURRENT_YEAR} Edumate Global. All rights reserved.</p>
+  </td></tr></table>
+</td></tr>
+</table></td></tr></table></body></html>`;
+}
+
+function buildL2RejectedToPartnerTemplate(
+  data: CommissionNotificationData,
+): string {
+  const fmtCurrency = (v: number | null | undefined) =>
+    v != null ? `₹${Number(v).toLocaleString("en-IN")}` : "—";
+
+  const tableRow = (label: string, value: string, idx: number, bold = false, mono = false, blueText = false) => {
+    const bg = idx % 2 === 0 ? "#ffffff" : "#eef0f3";
+    const fontWeight = bold ? "font-weight:700;" : "font-weight:600;";
+    const fontFamily = mono ? "font-family:monospace;" : "";
+    const color = blueText ? "color:#1e5fad;" : "color:#132a45;";
+    return `<tr><td style="padding:12px 16px;font-size:13px;color:#132a45;background:${bg};">${esc(label)}</td><td style="padding:12px 16px;font-size:${bold ? "14" : "13"}px;${color}${fontWeight}${fontFamily}background:${bg};">${esc(value)}</td></tr>`;
+  };
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Settlement Rejected</title></head>
+<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:#eef0f3;-webkit-font-smoothing:antialiased;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#eef0f3;"><tr><td align="center" style="padding:40px 20px;">
+<table width="640" cellpadding="0" cellspacing="0" border="0" style="background:#ffffff;box-shadow:0 2px 12px rgba(10,22,40,0.08);">
+<tr><td style="padding:32px 44px 24px 44px;border-bottom:1px solid #d4dbe6;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+    <td><span style="font-size:20px;font-weight:700;color:#1e5fad;">Edumate</span><span style="font-size:20px;font-weight:700;color:#e87722;"> Global</span></td>
+    <td align="right"><span style="display:inline-block;background:#e87722;color:#ffffff;font-size:11px;font-weight:600;padding:6px 14px;text-transform:uppercase;letter-spacing:0.5px;">Rejected</span></td>
+  </tr></table>
+</td></tr>
+<tr><td style="padding:32px 44px 24px 44px;">
+  <h1 style="margin:0 0 8px 0;font-size:22px;font-weight:700;color:#132a45;">Settlement Rejected by Business Head</h1>
+  <p style="margin:0;font-size:14px;color:#e87722;font-weight:500;line-height:1.5;">Please re-upload your invoice</p>
+</td></tr>
+<tr><td style="padding:0 44px 28px 44px;">
+  <p style="margin:0 0 12px 0;font-size:14px;color:#132a45;line-height:1.7;">Hi Team,</p>
+  <p style="margin:0;font-size:14px;color:#132a45;line-height:1.7;">Your commission settlement has been rejected during L2 review. Please check the details and re-upload your invoice.</p>
+</td></tr>
+<tr><td style="padding:0 44px 24px 44px;">
+  <p style="margin:0 0 12px 0;font-size:11px;font-weight:700;color:#1e5fad;letter-spacing:1px;text-transform:uppercase;">Settlement Details</p>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr><td style="background:#1e5fad;padding:12px 16px;font-size:12px;font-weight:600;color:#ffffff;">Field</td><td style="background:#1e5fad;padding:12px 16px;font-size:12px;font-weight:600;color:#ffffff;">Value</td></tr>
+    ${tableRow("Reference", data.settlementRefNumber || "—", 0, false, true, true)}
+    ${tableRow("Partner", data.partnerName || "—", 1, true)}
+    ${tableRow("Student", data.studentName || "—", 2)}
+    ${tableRow("Lender", data.lenderName || "—", 3)}
+    ${tableRow("Disbursed Amount", fmtCurrency(data.loanAmountDisbursed), 4, true, false, true)}
+    ${tableRow("Commission Amount", fmtCurrency(data.grossCommissionAmount), 5, true, false, true)}
+  </table>
+</td></tr>
+${
+  data.rejectionReason
+    ? `<tr><td style="padding:0 44px 28px 44px;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-left:4px solid #e87722;background:#fff8f3;"><tr><td style="padding:24px 28px;">
+    <p style="margin:0 0 12px 0;font-size:12px;font-weight:700;color:#e87722;letter-spacing:1px;text-transform:uppercase;">Rejection Reason</p>
+    <p style="margin:0;font-size:14px;color:#132a45;line-height:1.7;">${esc(data.rejectionReason)}</p>
+  </td></tr></table>
+</td></tr>`
+    : ""
+}
+<tr><td style="padding:0 44px;"><div style="height:1px;background:#d4dbe6;"></div></td></tr>
+<tr><td style="padding:24px 44px;background:#eef0f3;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td align="center">
+    <p style="margin:0 0 6px 0;font-size:12px;color:#5d6d7e;">This is an automated notification from <span style="color:#1e5fad;font-weight:600;">Edumate</span> <span style="color:#e87722;font-weight:600;">Global</span>.</p>
+    <p style="margin:0 0 6px 0;font-size:11px;color:#5d6d7e;">Do not reply to this email. For queries, contact the team.</p>
+    <p style="margin:0;font-size:11px;color:#5d6d7e;">&copy; ${CURRENT_YEAR} Edumate Global. All rights reserved.</p>
+  </td></tr></table>
+</td></tr>
+</table></td></tr></table></body></html>`;
+}
+
+function buildInvoiceSubmittedTemplate(
+  data: CommissionNotificationData,
+): string {
+  const fmtCurrency = (v: number | null | undefined) =>
+    v != null ? `₹${Number(v).toLocaleString("en-IN")}` : "—";
+
+  const tableRow = (label: string, value: string, idx: number, bold = false, mono = false, blueText = false) => {
+    const bg = idx % 2 === 0 ? "#ffffff" : "#eef0f3";
+    const fontWeight = bold ? "font-weight:700;" : "font-weight:600;";
+    const fontFamily = mono ? "font-family:monospace;" : "";
+    const color = blueText ? "color:#1e5fad;" : "color:#132a45;";
+    return `<tr><td style="padding:12px 16px;font-size:13px;color:#132a45;background:${bg};">${esc(label)}</td><td style="padding:12px 16px;font-size:${bold ? "14" : "13"}px;${color}${fontWeight}${fontFamily}background:${bg};">${esc(value)}</td></tr>`;
+  };
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Invoice Submitted for Review</title></head>
+<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:#eef0f3;-webkit-font-smoothing:antialiased;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#eef0f3;"><tr><td align="center" style="padding:40px 20px;">
+<table width="640" cellpadding="0" cellspacing="0" border="0" style="background:#ffffff;box-shadow:0 2px 12px rgba(10,22,40,0.08);">
+<tr><td style="padding:32px 44px 24px 44px;border-bottom:1px solid #d4dbe6;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+    <td><span style="font-size:20px;font-weight:700;color:#1e5fad;">Edumate</span><span style="font-size:20px;font-weight:700;color:#e87722;"> Global</span></td>
+    <td align="right"><span style="display:inline-block;background:#1e5fad;color:#ffffff;font-size:11px;font-weight:600;padding:6px 14px;text-transform:uppercase;letter-spacing:0.5px;">Pending Review</span></td>
+  </tr></table>
+</td></tr>
+<tr><td style="padding:32px 44px 24px 44px;">
+  <h1 style="margin:0 0 8px 0;font-size:22px;font-weight:700;color:#132a45;">Invoice Submitted for Review</h1>
+  <p style="margin:0;font-size:14px;color:#5d6d7e;line-height:1.5;">A partner has submitted an invoice for commission settlement</p>
+</td></tr>
+<tr><td style="padding:0 44px 28px 44px;">
+  <p style="margin:0 0 12px 0;font-size:14px;color:#132a45;line-height:1.7;">Hi Team,</p>
+  <p style="margin:0;font-size:14px;color:#132a45;line-height:1.7;">Please review the invoice details and proceed with verification.</p>
+</td></tr>
+<tr><td style="padding:0 44px 24px 44px;">
+  <p style="margin:0 0 12px 0;font-size:11px;font-weight:700;color:#1e5fad;letter-spacing:1px;text-transform:uppercase;">Settlement Details</p>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr><td style="background:#1e5fad;padding:12px 16px;font-size:12px;font-weight:600;color:#ffffff;">Field</td><td style="background:#1e5fad;padding:12px 16px;font-size:12px;font-weight:600;color:#ffffff;">Value</td></tr>
+    ${tableRow("Reference", data.settlementRefNumber || "—", 0, false, true, true)}
+    ${tableRow("Partner", data.partnerName || "—", 1, true)}
+    ${tableRow("Student", data.studentName || "—", 2)}
+    ${tableRow("Lender", data.lenderName || "—", 3)}
+    ${tableRow("Disbursed Amount", fmtCurrency(data.loanAmountDisbursed), 4, true, false, true)}
+    ${tableRow("Commission Amount", fmtCurrency(data.grossCommissionAmount), 5, true, false, true)}
+  </table>
+</td></tr>
+${
+  data.invoiceNumber || data.invoiceAmount != null
+    ? `<tr><td style="padding:0 44px 28px 44px;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-left:4px solid #1e5fad;background:#f0f7ff;"><tr><td style="padding:20px 24px;">
+    <p style="margin:0 0 14px 0;font-size:12px;font-weight:700;color:#1e5fad;letter-spacing:1px;text-transform:uppercase;">Invoice Details</p>
+    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+      ${data.invoiceNumber ? `<tr><td width="140" style="padding:8px 0;font-size:13px;color:#5d6d7e;">Invoice #</td><td style="padding:8px 0;font-size:13px;color:#1e5fad;font-weight:600;font-family:monospace;">${esc(data.invoiceNumber)}</td></tr>` : ""}
+      ${data.invoiceAmount != null ? `<tr><td width="140" style="padding:8px 0;font-size:13px;color:#5d6d7e;">Invoice Amount</td><td style="padding:8px 0;font-size:15px;color:#1e5fad;font-weight:700;">${fmtCurrency(data.invoiceAmount)}</td></tr>` : ""}
     </table>
   </td></tr></table>
-  ${
-    data.rejectionReason
-      ? `
-  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#FEF2F2;border:1px solid #FECACA;border-radius:8px;margin-bottom:16px;"><tr><td style="padding:16px 20px;">
-    <h4 style="margin:0 0 8px;color:#991B1B;font-size:14px;">Rejection Reason</h4>
-    <p style="margin:0;color:#2C3E50;font-size:14px;line-height:1.6;white-space:pre-wrap;">${esc(data.rejectionReason)}</p>
-  </td></tr></table>`
-      : ""
-  }
+</td></tr>`
+    : ""
+}
+<tr><td style="padding:0 44px;"><div style="height:1px;background:#d4dbe6;"></div></td></tr>
+<tr><td style="padding:24px 44px;background:#eef0f3;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td align="center">
+    <p style="margin:0 0 6px 0;font-size:12px;color:#5d6d7e;">This is an automated notification from <span style="color:#1e5fad;font-weight:600;">Edumate</span> <span style="color:#e87722;font-weight:600;">Global</span>.</p>
+    <p style="margin:0 0 6px 0;font-size:11px;color:#5d6d7e;">Do not reply to this email. For queries, contact the team.</p>
+    <p style="margin:0;font-size:11px;color:#5d6d7e;">&copy; ${CURRENT_YEAR} Edumate Global. All rights reserved.</p>
+  </td></tr></table>
 </td></tr>
-${footerRow(cfg)}
+</table></td></tr></table></body></html>`;
+}
+
+function buildDisputeResolvedTemplate(
+  data: CommissionNotificationData,
+): string {
+  const fmtCurrency = (v: number | null | undefined) =>
+    v != null ? `₹${Number(v).toLocaleString("en-IN")}` : "—";
+
+  const tableRow = (label: string, value: string, idx: number, bold = false, mono = false, blueText = false) => {
+    const bg = idx % 2 === 0 ? "#ffffff" : "#eef0f3";
+    const fontWeight = bold ? "font-weight:700;" : "font-weight:600;";
+    const fontFamily = mono ? "font-family:monospace;" : "";
+    const color = blueText ? "color:#1e5fad;" : "color:#132a45;";
+    return `<tr><td style="padding:12px 16px;font-size:13px;color:#132a45;background:${bg};">${esc(label)}</td><td style="padding:12px 16px;font-size:${bold ? "14" : "13"}px;${color}${fontWeight}${fontFamily}background:${bg};">${esc(value)}</td></tr>`;
+  };
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Dispute Resolved</title></head>
+<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:#eef0f3;-webkit-font-smoothing:antialiased;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#eef0f3;"><tr><td align="center" style="padding:40px 20px;">
+<table width="640" cellpadding="0" cellspacing="0" border="0" style="background:#ffffff;box-shadow:0 2px 12px rgba(10,22,40,0.08);">
+<tr><td style="padding:32px 44px 24px 44px;border-bottom:1px solid #d4dbe6;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+    <td><span style="font-size:20px;font-weight:700;color:#1e5fad;">Edumate</span><span style="font-size:20px;font-weight:700;color:#e87722;"> Global</span></td>
+    <td align="right"><span style="display:inline-block;background:#1e5fad;color:#ffffff;font-size:11px;font-weight:600;padding:6px 14px;text-transform:uppercase;letter-spacing:0.5px;">Resolved</span></td>
+  </tr></table>
+</td></tr>
+<tr><td style="padding:32px 44px 24px 44px;">
+  <h1 style="margin:0 0 8px 0;font-size:22px;font-weight:700;color:#132a45;">Dispute Resolved</h1>
+  <p style="margin:0;font-size:14px;color:#5d6d7e;line-height:1.5;">Your objection has been reviewed and resolved</p>
+</td></tr>
+<tr><td style="padding:0 44px 28px 44px;">
+  <p style="margin:0 0 12px 0;font-size:14px;color:#132a45;line-height:1.7;">Hi Team,</p>
+  <p style="margin:0;font-size:14px;color:#132a45;line-height:1.7;">The admin team has reviewed and resolved the dispute on your commission settlement. Please log in to the portal to check the updated status.</p>
+</td></tr>
+<tr><td style="padding:0 44px 24px 44px;">
+  <p style="margin:0 0 12px 0;font-size:11px;font-weight:700;color:#1e5fad;letter-spacing:1px;text-transform:uppercase;">Settlement Details</p>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr><td style="background:#1e5fad;padding:12px 16px;font-size:12px;font-weight:600;color:#ffffff;">Field</td><td style="background:#1e5fad;padding:12px 16px;font-size:12px;font-weight:600;color:#ffffff;">Value</td></tr>
+    ${tableRow("Reference", data.settlementRefNumber || "—", 0, false, true, true)}
+    ${tableRow("Partner", data.partnerName || "—", 1, true)}
+    ${tableRow("Student", data.studentName || "—", 2)}
+    ${tableRow("Lender", data.lenderName || "—", 3)}
+    ${tableRow("Disbursed Amount", fmtCurrency(data.loanAmountDisbursed), 4, true, false, true)}
+    ${tableRow("Commission Amount", fmtCurrency(data.grossCommissionAmount), 5, true, false, true)}
+  </table>
+</td></tr>
+${
+  data.disputeResolution
+    ? `<tr><td style="padding:0 44px 28px 44px;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-left:4px solid #1e5fad;background:#f0f7ff;"><tr><td style="padding:24px 28px;">
+    <p style="margin:0 0 12px 0;font-size:12px;font-weight:700;color:#1e5fad;letter-spacing:1px;text-transform:uppercase;">Resolution</p>
+    <p style="margin:0 0 14px 0;font-size:14px;color:#132a45;line-height:1.7;">${esc(data.disputeResolution)}</p>
+    ${data.disputeResolvedBy ? `<p style="margin:0;font-size:13px;color:#5d6d7e;">Resolved by: <strong style="color:#1e5fad;">${esc(data.disputeResolvedBy)}</strong></p>` : ""}
+  </td></tr></table>
+</td></tr>`
+    : ""
+}
+<tr><td style="padding:0 44px;"><div style="height:1px;background:#d4dbe6;"></div></td></tr>
+<tr><td style="padding:24px 44px;background:#eef0f3;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td align="center">
+    <p style="margin:0 0 6px 0;font-size:12px;color:#5d6d7e;">This is an automated notification from <span style="color:#1e5fad;font-weight:600;">Edumate</span> <span style="color:#e87722;font-weight:600;">Global</span>.</p>
+    <p style="margin:0 0 6px 0;font-size:11px;color:#5d6d7e;">Do not reply to this email. For queries, contact the team.</p>
+    <p style="margin:0;font-size:11px;color:#5d6d7e;">&copy; ${CURRENT_YEAR} Edumate Global. All rights reserved.</p>
+  </td></tr></table>
+</td></tr>
+</table></td></tr></table></body></html>`;
+}
+
+function buildFinalApprovalTemplate(
+  data: CommissionNotificationData,
+): string {
+  const fmtCurrency = (v: number | null | undefined) =>
+    v != null ? `₹${Number(v).toLocaleString("en-IN")}` : "—";
+
+  const tableRow = (label: string, value: string, idx: number, bold = false, mono = false, blueText = false) => {
+    const bg = idx % 2 === 0 ? "#ffffff" : "#eef0f3";
+    const fontWeight = bold ? "font-weight:700;" : "font-weight:600;";
+    const fontFamily = mono ? "font-family:monospace;" : "";
+    const color = blueText ? "color:#1e5fad;" : "color:#132a45;";
+    return `<tr><td style="padding:12px 16px;font-size:13px;color:#132a45;background:${bg};">${esc(label)}</td><td style="padding:12px 16px;font-size:${bold ? "14" : "13"}px;${color}${fontWeight}${fontFamily}background:${bg};">${esc(value)}</td></tr>`;
+  };
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Final Approval Complete</title></head>
+<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:#eef0f3;-webkit-font-smoothing:antialiased;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#eef0f3;"><tr><td align="center" style="padding:40px 20px;">
+<table width="640" cellpadding="0" cellspacing="0" border="0" style="background:#ffffff;box-shadow:0 2px 12px rgba(10,22,40,0.08);">
+<tr><td style="padding:32px 44px 24px 44px;border-bottom:1px solid #d4dbe6;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+    <td><span style="font-size:20px;font-weight:700;color:#1e5fad;">Edumate</span><span style="font-size:20px;font-weight:700;color:#e87722;"> Global</span></td>
+    <td align="right"><span style="display:inline-block;background:#1e5fad;color:#ffffff;font-size:11px;font-weight:600;padding:6px 14px;text-transform:uppercase;letter-spacing:0.5px;">Ready for Payout</span></td>
+  </tr></table>
+</td></tr>
+<tr><td style="padding:32px 44px 24px 44px;">
+  <h1 style="margin:0 0 8px 0;font-size:22px;font-weight:700;color:#132a45;">Final Approval Complete — Proceed to Payment</h1>
+  <p style="margin:0;font-size:14px;color:#5d6d7e;line-height:1.5;">Approved by <strong style="color:#1e5fad;">${esc(data.approverName || "Business Head")}</strong></p>
+</td></tr>
+<tr><td style="padding:0 44px 28px 44px;">
+  <p style="margin:0 0 12px 0;font-size:14px;color:#132a45;line-height:1.7;">Hi Team,</p>
+  <p style="margin:0;font-size:14px;color:#132a45;line-height:1.7;">This settlement has received final business approval. Please proceed with payment initiation.</p>
+</td></tr>
+<tr><td style="padding:0 44px 24px 44px;">
+  <p style="margin:0 0 12px 0;font-size:11px;font-weight:700;color:#1e5fad;letter-spacing:1px;text-transform:uppercase;">Settlement Details</p>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr><td style="background:#1e5fad;padding:12px 16px;font-size:12px;font-weight:600;color:#ffffff;">Field</td><td style="background:#1e5fad;padding:12px 16px;font-size:12px;font-weight:600;color:#ffffff;">Value</td></tr>
+    ${tableRow("Reference", data.settlementRefNumber || "—", 0, false, true, true)}
+    ${tableRow("Partner", data.partnerName || "—", 1, true)}
+    ${tableRow("Student", data.studentName || "—", 2)}
+    ${tableRow("Lender", data.lenderName || "—", 3)}
+    ${tableRow("Disbursed Amount", fmtCurrency(data.loanAmountDisbursed), 4, true, false, true)}
+    <tr><td style="padding:12px 16px;font-size:13px;color:#132a45;background:#EBF5FF;font-weight:600;">${esc("Commission Amount")}</td><td style="padding:12px 16px;font-size:15px;color:#1e5fad;font-weight:700;background:#EBF5FF;">${esc(fmtCurrency(data.grossCommissionAmount))}</td></tr>
+  </table>
+</td></tr>
+<tr><td style="padding:0 44px;"><div style="height:1px;background:#d4dbe6;"></div></td></tr>
+<tr><td style="padding:24px 44px;background:#eef0f3;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td align="center">
+    <p style="margin:0 0 6px 0;font-size:12px;color:#5d6d7e;">This is an automated notification from <span style="color:#1e5fad;font-weight:600;">Edumate</span> <span style="color:#e87722;font-weight:600;">Global</span>.</p>
+    <p style="margin:0 0 6px 0;font-size:11px;color:#5d6d7e;">Do not reply to this email. For queries, contact the team.</p>
+    <p style="margin:0;font-size:11px;color:#5d6d7e;">&copy; ${CURRENT_YEAR} Edumate Global. All rights reserved.</p>
+  </td></tr></table>
+</td></tr>
 </table></td></tr></table></body></html>`;
 }
 
@@ -1164,15 +1552,4 @@ function esc(str?: string | null): string {
     "'": "&#039;",
   };
   return str.replace(/[&<>"']/g, (c) => map[c] || c);
-}
-
-function row(label: string, value?: string | null, mono = false): string {
-  if (!value) return "";
-  return `<tr><td width="180" style="padding:6px 0;color:#7F8C8D;font-size:13px;vertical-align:top;">${label}</td><td style="padding:6px 0;color:#2C3E50;font-size:13px;${mono ? "font-family:monospace;" : ""}">${esc(value)}</td></tr>`;
-}
-
-function footerRow(cfg: ResolvedNotificationConfig): string {
-  return `<tr><td style="background-color:#F8F9FA;padding:18px 32px;border-top:1px solid #E5E8EB;">
-  <p style="margin:0;color:#7F8C8D;font-size:11px;text-align:center;">This is an automated notification from ${esc(cfg.companyName)}.<br/>Do not reply to this email. For queries, contact the team.<br/>© ${CURRENT_YEAR} ${esc(cfg.companyName)}. All rights reserved.</p>
-</td></tr>`;
 }
