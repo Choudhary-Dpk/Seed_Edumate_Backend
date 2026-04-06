@@ -387,20 +387,25 @@ const templates: TemplateSeed[] = [
     category: "DASHBOARD",
     variables: [
       { name: "partnerName", description: "Partner's display name" },
-      { name: "message", description: "Custom message from admin (optional)" },
-      { name: "adminName", description: "Sender admin's name" },
       { name: "reportMonth", description: "Report month name (e.g., March)" },
       { name: "reportYear", description: "Report year (e.g., 2026)" },
+      { name: "periodLabel", description: "Period badge label (e.g., March 2026)" },
       { name: "totalLeads", description: "Total leads count" },
       { name: "applicationsInitiated", description: "Applications initiated count" },
-      { name: "totalRequestedAmount", description: "Total requested amount (formatted)" },
       { name: "applicationsApproved", description: "Applications approved count" },
-      { name: "totalApprovedAmount", description: "Total approved amount (formatted)" },
       { name: "disbursementsInitiated", description: "Disbursements initiated count" },
+      { name: "grandTotal", description: "Sum of all lead metrics" },
+      { name: "totalRequestedAmount", description: "Total requested amount (formatted)" },
+      { name: "totalApprovedAmount", description: "Total approved amount (formatted)" },
       { name: "totalDisbursementAmount", description: "Total disbursement amount (formatted)" },
+      { name: "totalAmount", description: "Sum of all amounts (formatted)" },
+      { name: "approvalRate", description: "Approval rate percentage" },
+      { name: "disbursementRate", description: "Disbursement rate percentage" },
+      { name: "avgLoanSize", description: "Average loan size (formatted)" },
+      { name: "portalUrl", description: "Partner portal dashboard URL" },
       { name: "currentYear", description: "Current year (auto-replaced)" },
     ],
-    html_content: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Monthly Performance Report</title></head><body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:#f5f5f5;"><div style="max-width:600px;margin:0 auto;background:white;border-radius:8px;overflow:hidden;box-shadow:0 2px 4px rgba(0,0,0,0.1);"><div style="background:linear-gradient(135deg,#1e5fad 0%,#0f2744 100%);padding:32px;text-align:center;"><h1 style="color:white;margin:0;font-size:24px;font-weight:600;">Monthly Performance Report</h1><p style="color:rgba(255,255,255,0.8);margin:8px 0 0;font-size:14px;">{%reportMonth%} {%reportYear%}</p></div><div style="padding:32px;"><p style="font-size:16px;color:#333;line-height:1.6;margin:0 0 16px 0;">Dear <strong>{%partnerName%}</strong>,</p><div style="background:#f0f9ff;border-left:4px solid #1e5fad;padding:16px;margin:24px 0;border-radius:4px;"><p style="font-size:15px;color:#0f2744;margin:0;line-height:1.6;">{%message%}</p></div><p style="font-size:15px;color:#666;line-height:1.6;margin:16px 0;">Here is a summary of your performance for <strong>{%reportMonth%} {%reportYear%}</strong>:</p><table width="100%" cellpadding="0" cellspacing="0" style="background-color:#F8F9FA;border:1px solid #E5E8EB;border-radius:8px;margin:20px 0;"><tr><td style="padding:18px 20px;"><h3 style="margin:0 0 14px;color:#1B4F72;font-size:15px;font-weight:600;border-bottom:1px solid #E5E8EB;padding-bottom:10px;">Key Metrics</h3><table width="100%" cellpadding="0" cellspacing="0"><tr><td width="200" style="padding:8px 0;color:#7F8C8D;font-size:13px;">Total Leads</td><td style="padding:8px 0;color:#2C3E50;font-size:14px;font-weight:700;">{%totalLeads%}</td></tr><tr><td width="200" style="padding:8px 0;color:#7F8C8D;font-size:13px;">Applications Initiated</td><td style="padding:8px 0;color:#2C3E50;font-size:14px;font-weight:700;">{%applicationsInitiated%}</td></tr><tr><td width="200" style="padding:8px 0;color:#7F8C8D;font-size:13px;">Total Requested Amount</td><td style="padding:8px 0;color:#2C3E50;font-size:14px;font-weight:700;">{%totalRequestedAmount%}</td></tr><tr><td width="200" style="padding:8px 0;color:#7F8C8D;font-size:13px;">Applications Approved</td><td style="padding:8px 0;color:#27AE60;font-size:14px;font-weight:700;">{%applicationsApproved%}</td></tr><tr><td width="200" style="padding:8px 0;color:#7F8C8D;font-size:13px;">Total Approved Amount</td><td style="padding:8px 0;color:#27AE60;font-size:14px;font-weight:700;">{%totalApprovedAmount%}</td></tr><tr><td width="200" style="padding:8px 0;color:#7F8C8D;font-size:13px;">Disbursements Initiated</td><td style="padding:8px 0;color:#1e5fad;font-size:14px;font-weight:700;">{%disbursementsInitiated%}</td></tr><tr><td width="200" style="padding:8px 0;color:#7F8C8D;font-size:13px;">Total Disbursement Amount</td><td style="padding:8px 0;color:#1e5fad;font-size:14px;font-weight:700;">{%totalDisbursementAmount%}</td></tr></table></td></tr></table><p style="font-size:15px;color:#666;line-height:1.6;margin:16px 0;">The detailed report is attached as a PDF. If you have any questions, please don't hesitate to reach out.</p><p style="font-size:14px;color:#999;margin:24px 0 0 0;padding-top:24px;border-top:1px solid #eee;">Best regards,<br><strong style="color:#333;">{%adminName%}</strong><br>Edumate Global</p></div><div style="background:#f5f5f5;padding:24px;text-align:center;border-top:1px solid #e5e5e5;"><p style="font-size:12px;color:#999;margin:0 0 8px 0;">&copy; {%currentYear%} Edumate Global. All rights reserved.</p><p style="font-size:12px;color:#999;margin:0;">This is an automated monthly performance report.</p></div></div></body></html>`,
+    html_content: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Monthly Performance Report</title></head><body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:#eef0f3;-webkit-font-smoothing:antialiased;"><table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#eef0f3;"><tr><td align="center" style="padding:40px 20px;"><table width="680" cellpadding="0" cellspacing="0" border="0" style="background:#ffffff;box-shadow:0 2px 12px rgba(10,22,40,0.08);"><tr><td style="padding:36px 44px 28px 44px;border-bottom:1px solid #d4dbe6;"><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td><span style="font-size:22px;font-weight:700;color:#1e5fad;">Edumate</span><span style="font-size:22px;font-weight:700;color:#e87722;"> Global</span></td><td align="right"><span style="display:inline-block;background:#1e5fad;color:#ffffff;font-size:12px;font-weight:600;padding:8px 16px;">{%periodLabel%}</span></td></tr></table></td></tr><tr><td style="padding:32px 44px 28px 44px;"><h1 style="margin:0 0 8px 0;font-size:26px;font-weight:700;color:#132a45;letter-spacing:-0.3px;">Monthly Performance Report</h1><p style="margin:0;font-size:14px;color:#5d6d7e;line-height:1.6;">Performance summary for the reporting period. Track your progress and key metrics below.</p></td></tr><tr><td style="padding:0 44px 28px 44px;"><table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#eef0f3;"><tr><td style="padding:20px 24px;"><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td><p style="margin:0 0 4px 0;font-size:11px;color:#5d6d7e;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;">Partner</p><p style="margin:0;font-size:18px;font-weight:700;color:#1e5fad;">{%partnerName%}</p></td><td align="right"><p style="margin:0 0 4px 0;font-size:11px;color:#5d6d7e;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;">Company</p><p style="margin:0;font-size:14px;font-weight:500;color:#132a45;">Edumate Global Pvt Ltd</p></td></tr></table></td></tr></table></td></tr><tr><td style="padding:0 44px 28px 44px;"><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="48%" valign="top"><p style="margin:0 0 12px 0;font-size:11px;font-weight:700;color:#1e5fad;letter-spacing:1px;text-transform:uppercase;">Lead Metrics</p><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="background:#1e5fad;padding:12px 16px;font-size:12px;font-weight:600;color:#ffffff;">Metric</td><td align="right" style="background:#1e5fad;padding:12px 16px;font-size:12px;font-weight:600;color:#ffffff;">Count</td></tr><tr><td style="padding:12px 16px;font-size:13px;color:#132a45;background:#ffffff;">Total Leads</td><td align="right" style="padding:12px 16px;font-size:14px;font-weight:700;color:#1e5fad;background:#ffffff;">{%totalLeads%}</td></tr><tr><td style="padding:12px 16px;font-size:13px;color:#132a45;background:#eef0f3;">Applications Initiated</td><td align="right" style="padding:12px 16px;font-size:14px;font-weight:700;color:#1e5fad;background:#eef0f3;">{%applicationsInitiated%}</td></tr><tr><td style="padding:12px 16px;font-size:13px;color:#132a45;background:#ffffff;">Applications Approved</td><td align="right" style="padding:12px 16px;font-size:14px;font-weight:700;color:#1e5fad;background:#ffffff;">{%applicationsApproved%}</td></tr><tr><td style="padding:12px 16px;font-size:13px;color:#132a45;background:#eef0f3;">Disbursements Initiated</td><td align="right" style="padding:12px 16px;font-size:14px;font-weight:700;color:#1e5fad;background:#eef0f3;">{%disbursementsInitiated%}</td></tr><tr><td style="background:#EBF5FF;padding:12px 16px;font-size:13px;font-weight:700;color:#1e5fad;">Grand Total</td><td align="right" style="background:#EBF5FF;padding:12px 16px;font-size:15px;font-weight:800;color:#1e5fad;">{%grandTotal%}</td></tr></table></td><td width="4%"></td><td width="48%" valign="top"><p style="margin:0 0 12px 0;font-size:11px;font-weight:700;color:#1e5fad;letter-spacing:1px;text-transform:uppercase;">Amount Metrics</p><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="background:#1e5fad;padding:12px 16px;font-size:12px;font-weight:600;color:#ffffff;">Metric</td><td align="right" style="background:#1e5fad;padding:12px 16px;font-size:12px;font-weight:600;color:#ffffff;">Amount</td></tr><tr><td style="padding:12px 16px;font-size:13px;color:#132a45;background:#ffffff;">Requested Amount</td><td align="right" style="padding:12px 16px;font-size:14px;font-weight:700;color:#1e5fad;background:#ffffff;">{%totalRequestedAmount%}</td></tr><tr><td style="padding:12px 16px;font-size:13px;color:#132a45;background:#eef0f3;">Approved Amount</td><td align="right" style="padding:12px 16px;font-size:14px;font-weight:700;color:#1e5fad;background:#eef0f3;">{%totalApprovedAmount%}</td></tr><tr><td style="padding:12px 16px;font-size:13px;color:#132a45;background:#ffffff;">Disbursed Amount</td><td align="right" style="padding:12px 16px;font-size:14px;font-weight:700;color:#1e5fad;background:#ffffff;">{%totalDisbursementAmount%}</td></tr><tr><td style="background:#EBF5FF;padding:12px 16px;font-size:13px;font-weight:700;color:#1e5fad;">Total</td><td align="right" style="background:#EBF5FF;padding:12px 16px;font-size:15px;font-weight:800;color:#1e5fad;">{%totalAmount%}</td></tr></table></td></tr></table></td></tr><tr><td style="padding:0 44px 32px 44px;"><table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-left:4px solid #e87722;background:#eef0f3;"><tr><td style="padding:24px 28px;"><p style="margin:0 0 16px 0;font-size:12px;font-weight:700;color:#1e5fad;letter-spacing:1px;text-transform:uppercase;">Key Highlights</p><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding:6px 0;font-size:14px;color:#132a45;line-height:1.6;">&bull; Approval Rate: <strong style="color:#1e5fad;">{%approvalRate%}%</strong></td></tr><tr><td style="padding:6px 0;font-size:14px;color:#132a45;line-height:1.6;">&bull; Disbursement Rate: <strong style="color:#1e5fad;">{%disbursementRate%}%</strong></td></tr><tr><td style="padding:6px 0;font-size:14px;color:#132a45;line-height:1.6;">&bull; Average Loan Size: <strong style="color:#1e5fad;">{%avgLoanSize%}</strong></td></tr></table></td></tr></table></td></tr><tr><td align="center" style="padding:0 44px 36px 44px;"><a href="{%portalUrl%}" style="display:inline-block;background:#e87722;color:#ffffff;text-decoration:none;padding:14px 32px;font-size:14px;font-weight:600;">View Live Dashboard</a></td></tr><tr><td style="padding:0 44px;"><div style="height:1px;background:#d4dbe6;"></div></td></tr><tr><td style="padding:32px 44px;"><p style="margin:0 0 12px 0;font-size:14px;color:#5d6d7e;line-height:1.7;">Thank you for your continued partnership. If you have any questions about this report, please don&rsquo;t hesitate to reach out to our team.</p><p style="margin:0;font-size:14px;color:#5d6d7e;line-height:1.7;">Best regards,<br><strong style="color:#1e5fad;">Edumate</strong> <strong style="color:#e87722;">Global</strong> Team</p></td></tr><tr><td style="padding:24px 44px;background:#eef0f3;"><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td align="center"><p style="margin:0 0 6px 0;font-size:12px;color:#5d6d7e;">&copy; {%currentYear%} <span style="color:#1e5fad;font-weight:600;">Edumate</span> <span style="color:#e87722;font-weight:600;">Global</span>. All rights reserved.</p><p style="margin:0;font-size:11px;color:#8a9aac;">This is an automated monthly performance report.</p></td></tr></table></td></tr></table></td></tr></table></body></html>`,
   },
 
   // =========================================================================
@@ -428,21 +433,23 @@ async function seedEmailTemplates() {
   console.log("Seeding email templates...\n");
 
   let created = 0;
-  let skipped = 0;
+  let updated = 0;
 
   for (const tpl of templates) {
     const existing = await prisma.emailTemplate.findUnique({
       where: { slug: tpl.slug },
     });
 
-    if (existing) {
-      console.log(`  SKIP: "${tpl.slug}" already exists (id: ${existing.id})`);
-      skipped++;
-      continue;
-    }
-
-    const result = await prisma.emailTemplate.create({
-      data: {
+    const result = await prisma.emailTemplate.upsert({
+      where: { slug: tpl.slug },
+      update: {
+        name: tpl.name,
+        subject: tpl.subject,
+        html_content: tpl.html_content,
+        variables: tpl.variables,
+        category: tpl.category,
+      },
+      create: {
         slug: tpl.slug,
         name: tpl.name,
         subject: tpl.subject,
@@ -452,11 +459,16 @@ async function seedEmailTemplates() {
       },
     });
 
-    console.log(`  CREATED: "${tpl.slug}" (id: ${result.id})`);
-    created++;
+    if (existing) {
+      console.log(`  UPDATED: "${tpl.slug}" (id: ${result.id})`);
+      updated++;
+    } else {
+      console.log(`  CREATED: "${tpl.slug}" (id: ${result.id})`);
+      created++;
+    }
   }
 
-  console.log(`\nDone! Created: ${created}, Skipped: ${skipped}, Total: ${templates.length}`);
+  console.log(`\nDone! Created: ${created}, Updated: ${updated}, Total: ${templates.length}`);
 }
 
 seedEmailTemplates()

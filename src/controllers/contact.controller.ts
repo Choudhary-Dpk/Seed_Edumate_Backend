@@ -1328,11 +1328,77 @@ export const getLeadsViewList = async (
     );
     logger.debug(`Leads view list fetched successfully`);
 
+    // Collect all loan_application_ids from all rows and batch-fetch details
+    const allLoanAppIds = list.rows.reduce<number[]>((ids, row: any) => {
+      if (row.loan_application_ids?.length) {
+        ids.push(...row.loan_application_ids);
+      }
+      return ids;
+    }, []);
+
+    let loanAppDetailsMap = new Map<number, any>();
+
+    if (allLoanAppIds.length > 0) {
+      const uniqueIds = [...new Set(allLoanAppIds)];
+      const loanApps = await prisma.hSLoanApplications.findMany({
+        where: { id: { in: uniqueIds } },
+        select: {
+          id: true,
+          student_name: true,
+          student_email: true,
+          application_date: true,
+          application_source: true,
+          financial_requirements: {
+            select: {
+              loan_amount_requested: true,
+              loan_amount_approved: true,
+              loan_amount_disbursed: true,
+            },
+          },
+          loan_application_status: {
+            select: {
+              application_status: true,
+            },
+          },
+          lender_information: {
+            select: {
+              primary_lender_name: true,
+              loan_product_name: true,
+            },
+          },
+        },
+      });
+
+      for (const app of loanApps) {
+        loanAppDetailsMap.set(app.id, {
+          id: app.id,
+          student_name: app.student_name,
+          student_email: app.student_email,
+          application_date: app.application_date,
+          application_source: app.application_source,
+          application_status: app.loan_application_status?.application_status || null,
+          primary_lender_name: app.lender_information?.primary_lender_name || null,
+          loan_product_name: app.lender_information?.loan_product_name || null,
+          loan_amount_requested: app.financial_requirements?.loan_amount_requested || null,
+          loan_amount_approved: app.financial_requirements?.loan_amount_approved || null,
+          loan_amount_disbursed: app.financial_requirements?.loan_amount_disbursed || null,
+        });
+      }
+    }
+
+    // Attach loan_applications array to each row
+    const enrichedRows = list.rows.map((row: any) => ({
+      ...row,
+      loan_applications: (row.loan_application_ids || [])
+        .map((id: number) => loanAppDetailsMap.get(id))
+        .filter(Boolean),
+    }));
+
     sendResponse(res, 200, "Leads list fetched successfully", {
       total: list.count,
       page,
       size,
-      data: list.rows,
+      data: enrichedRows,
     });
   } catch (error) {
     next(error);

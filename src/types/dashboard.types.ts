@@ -10,6 +10,7 @@ export type DatePeriod =
   | "last_6_months"
   | "ytd" // Year to date
   | "last_year"
+  | "all_time"
   | "custom";
 
 /**

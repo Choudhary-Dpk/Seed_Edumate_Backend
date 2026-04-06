@@ -15,7 +15,7 @@ import {
   exportTrendsCSV,
   exportPipelineStatusCSV,
 } from "../controllers/dashboard.controller";
-import { getEmailHistory, sendBulkDashboardEmails, sendDashboardEmail } from "../controllers/dashboard-email.controller";
+import { getEmailHistory, sendBulkDashboardEmails, sendDashboardEmail, sendPerformanceReport } from "../controllers/dashboard-email.controller";
 
 const router = Router();
 
@@ -169,6 +169,12 @@ router.post("/email-report", sendDashboardEmail);
  * Send dashboard reports to multiple partners
  */
 router.post("/email-bulk", sendBulkDashboardEmails);
+
+/**
+ * POST /admin/dashboard/performance-report
+ * Generate and send aggregated performance report (all partners or single partner)
+ */
+router.post("/performance-report", sendPerformanceReport);
 
 /**
  * GET /admin/dashboard/email-history

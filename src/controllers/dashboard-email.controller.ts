@@ -28,23 +28,65 @@ export const sendDashboardEmail = async (req: Request, res: Response) => {
       return sendResponse(res, 400, "recipientEmail and subject are required");
     }
 
-    if (!pdfBase64 && !htmlContent) {
-      return sendResponse(res, 400, "Either pdfBase64 or htmlContent must be provided");
-    }
-
     const adminUser = {
       id: req.user?.id || 0,
       full_name: req.user?.full_name || "Admin",
     };
 
+    let finalHtmlContent = htmlContent;
+    let finalSubject = subject;
+
+    // Always generate report server-side (ignore frontend htmlContent)
+    if (!pdfBase64) {
+      // Resolve period from filters
+      let resolvedPeriod = filters?.period;
+      let resolvedMonth: number | undefined;
+      let resolvedYear: number | undefined;
+
+      const rawStartDate = filters?.startDate;
+      const rawEndDate = filters?.endDate;
+
+      if ((resolvedPeriod === "custom" || (!resolvedPeriod && rawStartDate)) && rawStartDate) {
+        const start = new Date(rawStartDate);
+        const end = rawEndDate ? new Date(rawEndDate) : start;
+        const startM = start.getMonth() + 1;
+        const startY = start.getFullYear();
+        const endM = end.getMonth() + 1;
+        const endY = end.getFullYear();
+
+        if (startM === endM && startY === endY) {
+          resolvedMonth = startM;
+          resolvedYear = startY;
+        } else {
+          resolvedMonth = startM;
+          resolvedYear = startY;
+        }
+        resolvedPeriod = undefined;
+      }
+
+      if (resolvedPeriod === "custom") {
+        resolvedPeriod = undefined;
+      }
+
+      const report = await DashboardEmailService.generateAggregatedReportHtml({
+        period: resolvedPeriod,
+        month: resolvedMonth,
+        year: resolvedYear,
+        partnerId: partnerId || filters?.partnerId,
+      });
+
+      finalHtmlContent = report.html;
+      finalSubject = subject || report.subject;
+    }
+
     const result = await DashboardEmailService.sendDashboardEmail(
       {
         partnerId,
         recipientEmail,
-        subject,
+        subject: finalSubject,
         message,
         pdfBase64,
-        htmlContent,
+        htmlContent: finalHtmlContent,
         filters,
         emailSource,
       },
@@ -108,5 +150,97 @@ export const getEmailHistory = async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error("Error getting email history:", error);
     return sendResponse(res, 500, error.message || "Failed to get email history");
+  }
+};
+
+/**
+ * Send server-generated performance report email
+ * Aggregates data for all partners when no partnerId is provided
+ */
+export const sendPerformanceReport = async (req: Request, res: Response) => {
+  try {
+    const {
+      recipientEmail,
+      partnerId,
+      period,
+      month,
+      year,
+      message,
+      filters,
+      startDate,
+      endDate,
+    } = req.body;
+
+    if (!recipientEmail) {
+      return sendResponse(res, 400, "recipientEmail is required");
+    }
+
+    const adminUser = {
+      id: req.user?.id || 0,
+      full_name: req.user?.full_name || "Admin",
+    };
+
+    // Resolve filters — support both direct params and nested filters object (from frontend)
+    let resolvedPeriod = period || filters?.period;
+    let resolvedMonth = month ? parseInt(month) : undefined;
+    let resolvedYear = year ? parseInt(year) : undefined;
+    const resolvedPartnerId = partnerId ? parseInt(partnerId) : (filters?.partnerId ? parseInt(filters.partnerId) : undefined);
+
+    // If period is "custom" or dates are provided, parse startDate/endDate into month/year
+    const rawStartDate = startDate || filters?.startDate;
+    const rawEndDate = endDate || filters?.endDate;
+
+    if ((resolvedPeriod === "custom" || (!resolvedMonth && rawStartDate)) && rawStartDate) {
+      const start = new Date(rawStartDate);
+      const end = rawEndDate ? new Date(rawEndDate) : start;
+      const startM = start.getMonth() + 1;
+      const startY = start.getFullYear();
+      const endM = end.getMonth() + 1;
+      const endY = end.getFullYear();
+
+      // If same month, use month/year directly
+      if (startM === endM && startY === endY) {
+        resolvedMonth = startM;
+        resolvedYear = startY;
+        resolvedPeriod = undefined;
+      } else {
+        // Multi-month range — find the best matching period preset or use start month
+        resolvedMonth = startM;
+        resolvedYear = startY;
+        resolvedPeriod = undefined;
+      }
+    }
+
+    // If period is "custom" but no dates resolved, clear it so it doesn't hit default
+    if (resolvedPeriod === "custom") {
+      resolvedPeriod = undefined;
+    }
+
+    // Generate report HTML with aggregated data
+    const { html, subject } = await DashboardEmailService.generateAggregatedReportHtml({
+      period: resolvedPeriod,
+      month: resolvedMonth,
+      year: resolvedYear,
+      partnerId: resolvedPartnerId,
+    });
+
+    // Send using existing email infrastructure
+    const result = await DashboardEmailService.sendDashboardEmail(
+      {
+        partnerId: partnerId ? parseInt(partnerId) : undefined,
+        recipientEmail,
+        subject,
+        message,
+        htmlContent: html,
+        filters: { period, month, year, partnerId },
+        emailSource: "manual",
+      },
+      adminUser,
+    );
+
+    return sendResponse(res, 200, "Performance report email sent successfully", result);
+  } catch (error: any) {
+    console.error("Error sending performance report:", error);
+    return sendResponse(res, 500, error.message || "Failed to send performance report");
   }
 };

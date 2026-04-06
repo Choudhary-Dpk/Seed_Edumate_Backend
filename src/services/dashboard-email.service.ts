@@ -7,13 +7,14 @@ import {
 } from "../types/dashboard-email.types";
 import logger from "../utils/logger";
 import { validateSingleEmail } from "./unified-email.service";
+import { getKeyMetrics } from "./dashboard.service";
 
 //  NEW: Import unified email services
 import { queueEmail } from "./email-queue.service";
-import { 
-  EmailType, 
-  EmailCategory, 
-  SenderType 
+import {
+  EmailType,
+  EmailCategory,
+  SenderType
 } from "./email-log.service";
 
 /**
@@ -558,4 +559,116 @@ export async function getDashboardEmailAnalytics(filters?: {
       count: item._count,
     })),
   };
+}
+
+/**
+ * Generate aggregated report HTML for all partners (or a single partner)
+ * Fetches the email template from the database and replaces variables with actual data
+ */
+export async function generateAggregatedReportHtml(filters: {
+  period?: string;
+  month?: number;
+  year?: number;
+  partnerId?: number;
+}): Promise<{ html: string; subject: string }> {
+  const metrics = await getKeyMetrics(filters);
+  const currentYear = new Date().getFullYear();
+
+  // Determine period label
+  let periodLabel = "This Month";
+  if (filters.period) {
+    const periodLabels: Record<string, string> = {
+      this_month: "This Month",
+      last_month: "Last Month",
+      last_3_months: "Last 3 Months",
+      last_6_months: "Last 6 Months",
+      ytd: "Year to Date",
+      last_year: "Last Year",
+      all_time: "All Time",
+    };
+    periodLabel = periodLabels[filters.period] || filters.period;
+  } else if (filters.month && filters.year) {
+    const monthName = new Date(filters.year, (filters.month || 1) - 1).toLocaleString("default", { month: "long" });
+    periodLabel = `${monthName} ${filters.year}`;
+  }
+
+  // Determine report month/year for template
+  let reportMonth = periodLabel;
+  let reportYear = String(currentYear);
+  if (filters.month && filters.year) {
+    reportMonth = new Date(filters.year, filters.month - 1).toLocaleString("default", { month: "long" });
+    reportYear = String(filters.year);
+  }
+
+  // Determine partner name
+  let partnerName = "All Partners";
+  if (filters.partnerId) {
+    const partner = await prisma.hSB2BPartners.findUnique({
+      where: { id: filters.partnerId },
+      select: { partner_name: true, partner_display_name: true },
+    });
+    if (partner) {
+      partnerName = partner.partner_display_name || partner.partner_name || "Partner";
+    }
+  }
+
+  const fmtCurrency = (amount: number): string => {
+    if (amount >= 10000000) return `₹${(amount / 10000000).toFixed(2)} Cr`;
+    if (amount >= 100000) return `₹${(amount / 100000).toFixed(2)} L`;
+    return `₹${amount.toLocaleString("en-IN")}`;
+  };
+
+  // Compute derived metrics
+  const grandTotal = metrics.leads + metrics.applications + metrics.approvals + metrics.disbursements;
+  const totalAmount = metrics.requested_amount + metrics.approved_amount + metrics.disbursed_amount;
+  const approvalRate = metrics.applications > 0
+    ? ((metrics.approvals / metrics.applications) * 100).toFixed(2)
+    : "0";
+  const disbursementRate = metrics.approvals > 0
+    ? ((metrics.disbursements / metrics.approvals) * 100).toFixed(2)
+    : "0";
+  const avgLoanSize = metrics.disbursements > 0
+    ? fmtCurrency(metrics.disbursed_amount / metrics.disbursements)
+    : "₹0";
+
+  const portalUrl = filters.partnerId
+    ? "https://portal.edumateglobal.com/partners/dashboard"
+    : "https://portal.edumateglobal.com/admin/dashboard";
+
+  const subject = filters.partnerId
+    ? `Performance Report — ${partnerName} | ${periodLabel}`
+    : `Performance Report — All Partners | ${periodLabel}`;
+
+  // Fetch the template from the database
+  const template = await prisma.emailTemplate.findFirst({
+    where: { slug: "monthly-mis-report", is_active: true, is_deleted: false },
+    select: { html_content: true },
+  });
+
+  if (!template?.html_content) {
+    throw new Error("Email template 'monthly-mis-report' not found in database");
+  }
+
+  // Replace all {%variable%} placeholders with actual data
+  const html = template.html_content
+    .replace(/{%partnerName%}/g, partnerName)
+    .replace(/{%periodLabel%}/g, periodLabel)
+    .replace(/{%reportMonth%}/g, reportMonth)
+    .replace(/{%reportYear%}/g, reportYear)
+    .replace(/{%totalLeads%}/g, String(metrics.leads))
+    .replace(/{%applicationsInitiated%}/g, String(metrics.applications))
+    .replace(/{%applicationsApproved%}/g, String(metrics.approvals))
+    .replace(/{%disbursementsInitiated%}/g, String(metrics.disbursements))
+    .replace(/{%grandTotal%}/g, String(grandTotal))
+    .replace(/{%totalRequestedAmount%}/g, fmtCurrency(metrics.requested_amount))
+    .replace(/{%totalApprovedAmount%}/g, fmtCurrency(metrics.approved_amount))
+    .replace(/{%totalDisbursementAmount%}/g, fmtCurrency(metrics.disbursed_amount))
+    .replace(/{%totalAmount%}/g, fmtCurrency(totalAmount))
+    .replace(/{%approvalRate%}/g, approvalRate)
+    .replace(/{%disbursementRate%}/g, disbursementRate)
+    .replace(/{%avgLoanSize%}/g, avgLoanSize)
+    .replace(/{%portalUrl%}/g, portalUrl)
+    .replace(/{%currentYear%}/g, String(currentYear));
+
+  return { html, subject };
 }

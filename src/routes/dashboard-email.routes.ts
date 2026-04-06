@@ -5,6 +5,7 @@ import {
   sendDashboardEmail,
   sendBulkDashboardEmails,
   getEmailHistory,
+  sendPerformanceReport,
 } from "../controllers/dashboard-email.controller";
 import { authenticate } from "../middlewares";
 import { AuthMethod } from "../types/auth";
@@ -29,6 +30,12 @@ router.post("/email-report", sendDashboardEmail);
  * Send dashboard reports to multiple partners
  */
 router.post("/email-bulk", sendBulkDashboardEmails);
+
+/**
+ * POST /admin/dashboard/performance-report
+ * Generate and send aggregated performance report (all partners or single partner)
+ */
+router.post("/performance-report", sendPerformanceReport);
 
 /**
  * GET /admin/dashboard/email-history

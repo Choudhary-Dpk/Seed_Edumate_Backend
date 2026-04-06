@@ -95,6 +95,16 @@ export const parsePeriodPreset = (period: string): DateRange => {
       };
     }
 
+    case "all_time": {
+      // Marker for all_time — queries will use report_generated_at < now instead of month filter
+      return {
+        startMonth: -1,
+        startYear: -1,
+        endMonth: currentMonth,
+        endYear: currentYear,
+      };
+    }
+
     default:
       // Default to current month
       return {
@@ -143,6 +153,10 @@ const getComparisonPeriod = (
   compareMode: string,
 ): DateRange | null => {
   if (!compareMode || compareMode === "none") return null;
+
+  // No comparison possible for "all_time"
+  const isAllTime = dateRange.startYear === -1 && dateRange.startMonth === -1;
+  if (isAllTime) return null;
 
   const months = getMonthsInRange(dateRange);
   const periodLength = months.length;
@@ -200,23 +214,33 @@ const fetchMetricsForRange = async (
   disbursed_amount: number;
   partners_count: number;
 }> => {
-  const months = getMonthsInRange(dateRange);
+  const isAllTime = dateRange.startYear === -1 && dateRange.startMonth === -1;
+
+  // For "all_time", use report_generated_at <= now instead of month filter
+  const monthFilter = isAllTime
+    ? { report_generated_at: { lte: new Date() } }
+    : {
+        OR: getMonthsInRange(dateRange).map(({ month, year }) => ({
+          report_month: month,
+          report_year: year,
+        })),
+      };
 
   const whereClause: any = {
-    has_errors: false,
-    OR: months.map(({ month, year }) => ({
-      report_month: month,
-      report_year: year,
-    })),
+    ...monthFilter,
   };
 
   if (partnerId) {
     whereClause.b2b_partner_id = partnerId;
   }
 
+  // Fetch all reports for metric aggregation (regardless of has_errors)
   const reports = await prisma.hSMonthlyMISReports.findMany({
     where: whereClause,
   });
+
+  // Count unique partners in period
+  const uniquePartners = new Set(reports.map((r) => r.b2b_partner_id));
 
   // Aggregate metrics
   const leads = reports.reduce((sum, r) => sum + r.total_leads, 0);
@@ -244,9 +268,6 @@ const fetchMetricsForRange = async (
     (sum, r) => sum + toNumber(r.total_disbursement_amount),
     0,
   );
-
-  // Count unique partners
-  const uniquePartners = new Set(reports.map((r) => r.b2b_partner_id));
 
   return {
     leads,
@@ -464,14 +485,17 @@ export const getTopPartners = async (filters: {
       };
     }
 
-    const months = getMonthsInRange(dateRange);
+    const isAllTime = dateRange.startYear === -1 && dateRange.startMonth === -1;
 
     const whereClause: any = {
-      has_errors: false,
-      OR: months.map(({ month, year }) => ({
-        report_month: month,
-        report_year: year,
-      })),
+      ...(isAllTime
+        ? { report_generated_at: { lte: new Date() } }
+        : {
+            OR: getMonthsInRange(dateRange).map(({ month, year }) => ({
+              report_month: month,
+              report_year: year,
+            })),
+          }),
     };
 
     if (filters.partnerId) {
@@ -609,7 +633,6 @@ export const getMonthlyTrends = async (filters: {
 
     // Fetch reports for all months
     const whereClause: any = {
-      has_errors: false,
       OR: months.map(({ month, year }) => ({
         report_month: month,
         report_year: year,
@@ -836,13 +859,12 @@ export const getPartnerActivityStatus = async () => {
         where: { is_active: true, is_deleted: false },
       }),
       prisma.hSMonthlyMISReports.count({
-        where: { report_month: month, report_year: year, has_errors: false },
+        where: { report_month: month, report_year: year },
       }),
       prisma.hSMonthlyMISReports.count({
         where: {
           report_month: month,
           report_year: year,
-          has_errors: false,
           total_leads: 0,
           applications_initiated: 0,
         },

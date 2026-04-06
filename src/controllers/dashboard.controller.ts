@@ -41,6 +41,7 @@ const parseFilters = (query: any) => {
       "last_6_months",
       "ytd",
       "last_year",
+      "all_time",
     ];
     if (validPeriods.includes(query.period)) {
       filters.period = query.period;
@@ -299,6 +300,7 @@ export const fetchFilterOptions = async (req: Request, res: Response) => {
         { value: "last_6_months", label: "Last 6 Months" },
         { value: "ytd", label: "Year to Date" },
         { value: "last_year", label: "Last Year" },
+        { value: "all_time", label: "All Time" },
       ],
       years: years.map((year) => ({ value: year, label: year.toString() })),
       months: Array.from({ length: 12 }, (_, i) => ({
