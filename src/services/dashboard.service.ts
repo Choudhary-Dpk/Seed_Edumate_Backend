@@ -452,14 +452,17 @@ export const getKeyMetrics = async (filters: {
  */
 export const getTopPartners = async (filters: {
   limit?: number;
+  page?: number;
   month?: number;
   year?: number;
   period?: string;
   partnerId?: number;
   sortBy?: string;
+  search?: string;
 }) => {
   try {
     const limit = filters.limit || 10;
+    const page = filters.page || 1;
 
     logger.debug("Fetching top partners with filters", filters);
 
@@ -500,6 +503,14 @@ export const getTopPartners = async (filters: {
 
     if (filters.partnerId) {
       whereClause.b2b_partner_id = filters.partnerId;
+    }
+
+    // Search by partner name
+    if (filters.search) {
+      whereClause.partner_name = {
+        contains: filters.search,
+        mode: "insensitive",
+      };
     }
 
     // Fetch reports
@@ -576,15 +587,23 @@ export const getTopPartners = async (filters: {
       return bValue - aValue;
     });
 
-    const topPartners = partnersArray.slice(0, limit);
+    // Pagination
+    const total = partnersArray.length;
+    const offset = (page - 1) * limit;
+    const topPartners = partnersArray.slice(offset, offset + limit);
 
     logger.info("Top partners fetched successfully", {
       count: topPartners.length,
+      total,
+      page,
       period: dateRange,
     });
 
     return {
       partners: topPartners,
+      total,
+      page,
+      limit,
       period: {
         start_month: dateRange.startMonth,
         start_year: dateRange.startYear,

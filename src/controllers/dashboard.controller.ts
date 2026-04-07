@@ -72,6 +72,11 @@ const parseFilters = (query: any) => {
     }
   }
 
+  // Search by partner name
+  if (query.search) {
+    filters.search = query.search.toString().trim();
+  }
+
   // Sort by field
   if (query.sortBy) {
     const validSortFields = [
@@ -83,6 +88,14 @@ const parseFilters = (query: any) => {
     ];
     if (validSortFields.includes(query.sortBy)) {
       filters.sortBy = query.sortBy;
+    }
+  }
+
+  // Page for pagination
+  if (query.page) {
+    const page = parseInt(query.page);
+    if (!isNaN(page) && page >= 1) {
+      filters.page = page;
     }
   }
 
@@ -124,7 +137,7 @@ export const fetchKeyMetrics = async (req: Request, res: Response) => {
 /**
  * Get top performing partners
  * @route GET /api/dashboard/top-partners
- * @query limit, month, year, period, partnerId, sortBy
+ * @query limit, page, month, year, period, partnerId, sortBy, search
  */
 export const fetchTopPartners = async (req: Request, res: Response) => {
   try {
@@ -135,6 +148,9 @@ export const fetchTopPartners = async (req: Request, res: Response) => {
     const result = await getTopPartners(filters);
 
     sendResponse(res, 200, "Top partners fetched successfully", {
+      total: result.total,
+      page: result.page,
+      limit: result.limit,
       count: result.partners.length,
       period: result.period,
       data: result.partners,
