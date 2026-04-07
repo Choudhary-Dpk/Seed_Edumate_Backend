@@ -1348,6 +1348,19 @@ export const getLeadsViewList = async (
           student_email: true,
           application_date: true,
           application_source: true,
+          lender: {
+            select: {
+              id: true,
+              lender_name: true,
+              lender_display_name: true,
+            },
+          },
+          loan_product: {
+            select: {
+              id: true,
+              product_name: true,
+            },
+          },
           financial_requirements: {
             select: {
               loan_amount_requested: true,
@@ -1377,8 +1390,10 @@ export const getLeadsViewList = async (
           application_date: app.application_date,
           application_source: app.application_source,
           application_status: app.loan_application_status?.application_status || null,
-          primary_lender_name: app.lender_information?.primary_lender_name || null,
-          loan_product_name: app.lender_information?.loan_product_name || null,
+          lender_name: app.lender?.lender_display_name || app.lender?.lender_name || app.lender_information?.primary_lender_name || null,
+          lender_id: app.lender?.id || null,
+          loan_product_name: app.loan_product?.product_name || app.lender_information?.loan_product_name || null,
+          loan_product_id: app.loan_product?.id || null,
           loan_amount_requested: app.financial_requirements?.loan_amount_requested || null,
           loan_amount_approved: app.financial_requirements?.loan_amount_approved || null,
           loan_amount_disbursed: app.financial_requirements?.loan_amount_disbursed || null,
