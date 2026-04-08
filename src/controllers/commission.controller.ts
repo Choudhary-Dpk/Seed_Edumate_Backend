@@ -1557,6 +1557,8 @@ export const generateInvoiceController = async (
 
     const page = await browser.newPage();
     await page.setContent(htmlContent, { waitUntil: "networkidle0" });
+    // Wait for Google Fonts to load and render
+    await page.evaluateHandle("document.fonts.ready");
     const pdfBuffer = await page.pdf({
       format: "A4",
       printBackground: true,

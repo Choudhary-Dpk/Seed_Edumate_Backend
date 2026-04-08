@@ -700,10 +700,11 @@ export function buildSystemInvoiceHTMLSimple(data: SimpleInvoiceData): string {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
   <title>Commission Invoice ${data.invoiceNumber}</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Segoe UI', Roboto, Arial, sans-serif; color: #2C3E50; background: #fff; }
+    body { font-family: 'Noto Sans', 'Segoe UI', Roboto, Arial, sans-serif; color: #2C3E50; background: #fff; }
     @page { margin: 0; }
   </style>
 </head>
@@ -843,11 +844,12 @@ export function buildSystemInvoiceHTMLDetailed(
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
   <title>Invoice - ${data.invoiceNumber}</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: Arial, 'Helvetica Neue', sans-serif;
+      font-family: 'Noto Sans', Arial, 'Helvetica Neue', sans-serif;
       background: #fff;
       color: #000;
       font-size: 11px;
