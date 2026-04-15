@@ -27,6 +27,7 @@ import { docsRoutes } from "./routes/docs.routes";
 import { misReportRoutes } from "./routes/misReport.routes";
 import { dashboardRoutes } from "./routes/dashboard.routes";
 import { startEmailQueueWorker } from "./workers/email-queue-worker";
+import { programRoutes } from "./routes/programs.routes";
 const PORT = process.env.PORT || 3031;
 
 // API Routes
@@ -50,6 +51,7 @@ app.use("/programs-of-interest", programOfInterestRoutes);
 app.use("/api-docs", docsRoutes);
 app.use("/mis-report", misReportRoutes);
 app.use("/admin/dashboard", dashboardRoutes);
+app.use("/api/programs", programRoutes);
 app.use("/", redirectRoutes);
 
 // 404 handler
@@ -67,8 +69,8 @@ app.listen(PORT, async () => {
   await checkPrismaConnection();
 
   //  Start HS sync workers
-  await startWorkers();
+  // await startWorkers();
 
   // Start email worker on app startup
-  startEmailQueueWorker();
+  // startEmailQueueWorker();
 });
