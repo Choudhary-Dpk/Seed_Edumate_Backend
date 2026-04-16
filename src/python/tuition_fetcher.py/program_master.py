@@ -532,6 +532,7 @@ def _expand_keys(raw) -> dict:
         "f": "found", "u": "university", "dt": "degree_type", "st": "student_type",
         "p": "programs", "r": "reason", "cs": "closest_source", "pi": "partial_info",
         "su": "source_urls", "ay": "academic_year", "conf": "confidence", "n": "notes",
+        "cc": "country_code", "dc": "default_currency",
     }
     PROG_MAP = {
         "pn": "program_name", "cat": "category", "aos": "area_of_study",
@@ -1923,10 +1924,25 @@ CRITICAL RULES:
 - DELIVERY MODE: Use exactly one of: on_campus, online, hybrid, blended
 - If the university charges NO tuition (e.g., tuition-free public universities in Germany, Norway, etc.), still set tf to null but mention "tuition-free" in notes.
 
+REQUIRED top-level fields:
+- "cc": ISO 3166-1 alpha-2 country code where the university campus is physically located.
+        Use the CAMPUS country, not the parent institution's. Examples:
+        MIT (Cambridge, MA, USA) → "US"
+        University of Cambridge (UK) → "GB"
+        NYU Abu Dhabi → "AE" (NOT "US")
+        TUM Munich → "DE"
+        Sorbonne Paris → "FR"
+        University of Tokyo → "JP"
+        VIA University College → "DK"
+        Universidad Mariana (Pasto, Colombia) → "CO"
+- "dc": ISO 4217 currency code in which tuition is normally quoted.
+        Examples: US→USD, UK→GBP, Germany→EUR, Denmark→DKK, India→INR,
+        Australia→AUD, Japan→JPY, Singapore→SGD, UAE→AED, Colombia→COP
+
 Category codes: AH=Arts & Humanities, BM=Business & Management, ET=Engineering & Technology, LW=Law, LS=Life Sciences & Medicine, NS=Natural Sciences, PI=Political Science & International Relations, OT=Other
 
 Return ONLY JSON:
-{{"f":true,"u":"name","dt":"degree","st":"type","p":[{{"pn":"English name","cat":"CODE","aos":"CODE","dept":"English dept","dur":"X years","cr":0,"tf":null,"dm":"on_campus","url":"exact URL"}}],"su":["urls including PDFs"],"ay":"academic year","conf":"low","n":"notes in English"}}"""
+{{"f":true,"u":"name","dt":"degree","st":"type","cc":"US","dc":"USD","p":[{{"pn":"English name","cat":"CODE","aos":"CODE","dept":"English dept","dur":"X years","cr":0,"tf":null,"dm":"on_campus","url":"exact URL"}}],"su":["urls including PDFs"],"ay":"academic year","conf":"low","n":"notes in English"}}"""
 
 
 def fetch_programs(university: str, degree: str = "Undergraduate",
@@ -2069,14 +2085,23 @@ Return JSON with ALL programs found."""
     print(f"   ✅ Duration, currency, numbers standardized")
     print(f"   ✅ Null/empty fields removed")
 
-    # ── Inject top-level country_code and default_currency ──
-    # Makes it easier for API consumers (e.g., Node.js) to read these directly
-    if "country_code" not in result or not result.get("country_code"):
-        # Infer from first source URL
-        cc = ""
-        for src in result.get("source_urls", []):
-            try:
-                from urllib.parse import urlparse
+    # ──────────────────────────────────────────────────────────────────
+    # Top-level country_code & default_currency (hybrid resolution)
+    # ──────────────────────────────────────────────────────────────────
+    # Priority order:
+    #   1. What the LLM returned (most accurate — LLM knows university locations)
+    #   2. ccTLD inference from source URLs (.dk → DK, .uk → GB, etc.)
+    #   3. Most common currency among extracted fee amounts (very reliable)
+    #   4. Cross-derive missing one from the other (cc → currency, currency → cc)
+
+    cc = (result.get("country_code") or "").strip().upper()
+    dc = (result.get("default_currency") or "").strip().upper()
+
+    # Step 2: ccTLD fallback if LLM didn't provide country
+    if not cc:
+        try:
+            from urllib.parse import urlparse
+            for src in result.get("source_urls", []):
                 host = urlparse(src).netloc.lower()
                 parts = host.split(".")
                 if len(parts) >= 2:
@@ -2087,20 +2112,48 @@ Return JSON with ALL programs found."""
                     if len(parts) >= 3 and parts[-1] in COUNTRY_TO_CURRENCY:
                         cc = parts[-1].upper()
                         break
-            except Exception:
-                pass
-        if cc:
-            result["country_code"] = cc
+        except Exception:
+            pass
 
-    if "default_currency" not in result or not result.get("default_currency"):
-        dc = _infer_currency_from_university_name(result.get("university", ""))
-        if not dc:
-            for src in result.get("source_urls", []):
-                dc = _infer_currency_from_url(src)
-                if dc:
-                    break
-        if dc:
-            result["default_currency"] = dc
+    # Step 3: Currency from extracted fees (highly reliable signal)
+    if not dc and result.get("programs"):
+        from collections import Counter
+        currencies = []
+        for p in result["programs"]:
+            tf = p.get("tuition_fee")
+            if tf and tf.get("currency"):
+                currencies.append(tf["currency"].upper())
+        if currencies:
+            most_common, count = Counter(currencies).most_common(1)[0]
+            # Only trust if it appears in 2+ programs OR is the only currency seen
+            if count >= 2 or len(currencies) == 1:
+                dc = most_common
+
+    # Step 4: Cross-derive missing field
+    # Country → currency (use existing COUNTRY_TO_CURRENCY map)
+    if cc and not dc:
+        cc_lower = cc.lower()
+        if cc_lower in COUNTRY_TO_CURRENCY:
+            dc = COUNTRY_TO_CURRENCY[cc_lower]
+
+    # Currency → country (single-country currencies only; skip ambiguous EUR/etc.)
+    if dc and not cc:
+        currency_to_cc = {
+            "USD": "US", "GBP": "GB", "CAD": "CA", "AUD": "AU", "NZD": "NZ",
+            "JPY": "JP", "CNY": "CN", "INR": "IN", "KRW": "KR", "SGD": "SG",
+            "HKD": "HK", "TWD": "TW", "CHF": "CH", "SEK": "SE", "NOK": "NO",
+            "DKK": "DK", "BRL": "BR", "MXN": "MX", "COP": "CO", "AED": "AE",
+            "SAR": "SA", "QAR": "QA", "ZAR": "ZA", "TRY": "TR", "MYR": "MY",
+            "THB": "TH", "PHP": "PH", "IDR": "ID", "VND": "VN", "RUB": "RU",
+        }
+        if dc in currency_to_cc:
+            cc = currency_to_cc[dc]
+
+    # Persist whatever we resolved
+    if cc:
+        result["country_code"] = cc
+    if dc:
+        result["default_currency"] = dc
 
     phase_timings["Phase 6 (Normalize)"] = round(time.time() - t_phase6, 1)
 

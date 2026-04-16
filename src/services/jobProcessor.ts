@@ -54,7 +54,14 @@ export async function processJobAsync(
     }
 
     // 4. Save result to DB
-    const { status } = await saveResult(result, fetchRunId);
+    // Pass the original request so saveResult can:
+    //   (a) store rows under the request's degree/student type (LLM normalizes inconsistently)
+    //   (b) record the user's query as an alias for future cache hits
+    const { status } = await saveResult(result, fetchRunId, {
+      university,
+      degreeType: degree,
+      studentType,
+    });
 
     // 5. Mark progress as complete
     await updateJobProgress(fetchRunId, "complete", 100, "Done").catch((err) =>

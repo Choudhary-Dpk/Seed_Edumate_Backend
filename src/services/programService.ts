@@ -51,8 +51,11 @@ export async function getCachedResult(
   degreeType: string,
   studentType: string
 ): Promise<{ data: PythonFetchResult; fetchedAt: Date } | null> {
-  // Find the most recent successful/partial fetch run for these request params
-  const runs: any[] = await prisma.$queryRawUnsafe(
+  const querySlug = slugify(university);
+
+  // Step 1: Direct match on the request's exact university_name + degree + student_type.
+  // This is the fast path — same user, same query, returns cached row.
+  let runs: any[] = await prisma.$queryRawUnsafe(
     `SELECT id FROM f_program_fetch_runs
      WHERE university_name = $1
        AND degree_type = $2
@@ -65,6 +68,29 @@ export async function getCachedResult(
     degreeType,
     studentType
   );
+
+  // Step 2: Alias-based fallback. If the user types the same university with
+  // a different name (e.g. "MIT" vs "Massachusetts Institute of Technology"),
+  // their query slug will already exist in d_universities.aliases from a
+  // previous fetch — so we can reuse that data instead of re-running Python.
+  if (!runs.length) {
+    runs = await prisma.$queryRawUnsafe(
+      `SELECT r.id
+         FROM f_program_fetch_runs r
+         JOIN d_universities u ON u.id = r.university_id
+        WHERE (u.slug = $1 OR u.aliases @> $2::jsonb)
+          AND r.degree_type = $3
+          AND r.student_type = $4
+          AND r.status IN ('success', 'partial')
+          AND r.completed_at IS NOT NULL
+        ORDER BY r.completed_at DESC
+        LIMIT 1`,
+      querySlug,
+      JSON.stringify([querySlug]),
+      degreeType,
+      studentType
+    );
+  }
 
   if (!runs.length) return null;
 
@@ -438,9 +464,19 @@ export async function updateFetchRun(
 
 export async function saveResult(
   result: PythonFetchResult,
-  fetchRunId: bigint
+  fetchRunId: bigint,
+  request?: { university: string; degreeType: string; studentType: string }
 ): Promise<{ programsInserted: number; feesInserted: number; programsSkipped: number; status: string }> {
-  const uniSlug = slugify(result.university);
+  // Canonical slug from LLM-resolved name (e.g. "MIT Sloan School of Management" → "mit-sloan-school-of-management")
+  const canonicalSlug = slugify(result.university);
+  // User's query slug (e.g. "MIT" → "mit") — used as alias for future cache hits
+  const querySlug = request ? slugify(request.university) : canonicalSlug;
+
+  // CRITICAL: store programs under REQUEST's degree_type & student_type, not the LLM's.
+  // The LLM normalizes "MBA" → "Bachelor"/"Masters"/etc. inconsistently, which would
+  // cause cache misses and duplicate program rows. The user's input is the stable key.
+  const storedDegreeType = request?.degreeType ?? result.degree_type;
+  const storedStudentType = request?.studentType ?? result.student_type;
 
   let programsInserted = 0;
   let feesInserted = 0;
@@ -448,22 +484,69 @@ export async function saveResult(
 
   try {
     await prisma.$transaction(async (tx) => {
-      // Upsert university
-      const uniRows: any[] = await tx.$queryRawUnsafe(
-        `INSERT INTO d_universities (name, slug, country_code, default_currency, updated_at)
-         VALUES ($1, $2, $3, $4, NOW())
-         ON CONFLICT (slug) DO UPDATE SET
-           name = EXCLUDED.name,
-           country_code = COALESCE(EXCLUDED.country_code, d_universities.country_code),
-           default_currency = COALESCE(EXCLUDED.default_currency, d_universities.default_currency),
-           updated_at = NOW()
-         RETURNING id`,
-        result.university,
-        uniSlug,
-        result.country_code ?? null,
-        result.default_currency ?? null
+      // ── Step 1: Find or create university (with alias-based dedup) ──
+      // First try to find an existing row that matches by either:
+      //   (a) canonical slug (LLM returned the same name we've seen before), OR
+      //   (b) any alias (this user query has previously resolved to a row)
+      const existing: any[] = await tx.$queryRawUnsafe(
+        `SELECT id FROM d_universities
+         WHERE slug = $1
+            OR aliases @> $2::jsonb
+         LIMIT 1`,
+        canonicalSlug,
+        JSON.stringify([querySlug])
       );
-      const universityId: bigint = uniRows[0].id;
+
+      let universityId: bigint;
+
+      if (existing.length > 0) {
+        // Reuse — append both slugs to aliases (DISTINCT) and refresh metadata
+        universityId = existing[0].id;
+        await tx.$queryRawUnsafe(
+          `UPDATE d_universities
+             SET name = $1,
+                 country_code = COALESCE($2, country_code),
+                 default_currency = COALESCE($3, default_currency),
+                 aliases = (
+                   SELECT jsonb_agg(DISTINCT a)
+                   FROM jsonb_array_elements_text(
+                     COALESCE(aliases, '[]'::jsonb) || $4::jsonb
+                   ) AS a
+                 ),
+                 updated_at = NOW()
+           WHERE id = $5`,
+          result.university,
+          result.country_code ?? null,
+          result.default_currency ?? null,
+          JSON.stringify([querySlug, canonicalSlug]),
+          universityId
+        );
+      } else {
+        // Insert new — store both slugs as aliases for future lookups
+        const uniRows: any[] = await tx.$queryRawUnsafe(
+          `INSERT INTO d_universities
+             (name, slug, country_code, default_currency, aliases, updated_at)
+           VALUES ($1, $2, $3, $4, $5::jsonb, NOW())
+           ON CONFLICT (slug) DO UPDATE SET
+             name = EXCLUDED.name,
+             country_code = COALESCE(EXCLUDED.country_code, d_universities.country_code),
+             default_currency = COALESCE(EXCLUDED.default_currency, d_universities.default_currency),
+             aliases = (
+               SELECT jsonb_agg(DISTINCT a)
+               FROM jsonb_array_elements_text(
+                 COALESCE(d_universities.aliases, '[]'::jsonb) || EXCLUDED.aliases
+               ) AS a
+             ),
+             updated_at = NOW()
+           RETURNING id`,
+          result.university,
+          canonicalSlug,
+          result.country_code ?? null,
+          result.default_currency ?? null,
+          JSON.stringify([querySlug, canonicalSlug])
+        );
+        universityId = uniRows[0].id;
+      }
 
       // Link fetch run to university
       await tx.$queryRawUnsafe(
@@ -549,8 +632,8 @@ export async function saveResult(
             universityId,
             truncate(prog.program_name, 500),
             truncate(progSlug, 500),
-            truncate(result.degree_type, 100),
-            truncate(result.student_type, 200),
+            truncate(storedDegreeType, 100),
+            truncate(storedStudentType, 200),
             truncate(result.academic_year, 100),
             truncate(prog.category, 100),
             truncate(prog.area_of_study, 100),
