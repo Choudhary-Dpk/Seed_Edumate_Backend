@@ -8,14 +8,21 @@ const TITLE_TO_SLUG: Record<string, string> = {
   "Forgot Password": "forgot-password",
   "Show Interest": "show-interest",
   "Monthly MIS Performance Report": "monthly-mis-report",
+  "Event Registration Confirmation": "event-registration-confirmation",
 };
+
+/**
+ * Also accept the slug directly as the emailType — useful for new templates
+ * that don't need a legacy title alias.
+ */
+const KNOWN_SLUGS = new Set(Object.values(TITLE_TO_SLUG));
 
 /**
  * Fetches email template HTML by title.
  * Looks up the DB first (editable by super admin), falls back to empty string.
  */
 export const getEmailTemplate = async (title: string): Promise<string> => {
-  const slug = TITLE_TO_SLUG[title];
+  const slug = TITLE_TO_SLUG[title] ?? (KNOWN_SLUGS.has(title) ? title : undefined);
 
   if (slug) {
     try {

@@ -83,4 +83,5 @@ export type SendEmailRequest = {
   emailToken?: string; // For password-related emails
   portalType?: PortalType; // For admin/partner portal differentiation
   exploreLoansUrl?: string; // For show interest emails
+  params?: Record<string, string | number>; // Generic template variables — keys match {%key%} placeholders
 };

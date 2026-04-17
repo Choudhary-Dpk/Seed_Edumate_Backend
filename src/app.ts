@@ -72,5 +72,5 @@ app.listen(PORT, async () => {
   // await startWorkers();
 
   // Start email worker on app startup
-  // startEmailQueueWorker();
+  startEmailQueueWorker();
 });

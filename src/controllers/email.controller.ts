@@ -148,6 +148,7 @@ export const sendEmailController = async (
       attachments,
       otp,
       portalType,
+      params,
     } = req.body;
 
     if (!emailType) {
@@ -232,6 +233,17 @@ export const sendEmailController = async (
           `Using default variable replacement for emailType: ${emailType}`,
         );
         break;
+    }
+
+    if (params && typeof params === "object") {
+      for (const [key, value] of Object.entries(params)) {
+        const safeValue = value == null ? "" : String(value);
+        const pattern = new RegExp(
+          `{%${key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}%}`,
+          "g",
+        );
+        content = content.replace(pattern, safeValue);
+      }
     }
 
     const html = content;
