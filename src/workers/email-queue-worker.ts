@@ -1,8 +1,7 @@
 import * as cron from "node-cron";
 import logger from "../utils/logger";
 import {
-  getPendingEmails,
-  markEmailAsProcessing,
+  claimPendingEmails,
   markEmailAsSent,
   markEmailAsFailed,
 } from "../services/email-queue.service";
@@ -20,6 +19,11 @@ const ENABLE_WORKER = process.env.ENABLE_EMAIL_WORKER !== "false";
 const BATCH_SIZE = parseInt(process.env.EMAIL_BATCH_SIZE || "10", 10);
 const INTERVAL = process.env.EMAIL_WORKER_INTERVAL || "*/1 * * * *"; // Every minute
 
+// Guards against (a) the worker being started twice in the same process and
+// (b) a slow batch being re-entered by the next cron tick.
+let workerStarted = false;
+let batchInFlight = false;
+
 // ============================================================================
 // WORKER FUNCTIONS
 // ============================================================================
@@ -30,9 +34,14 @@ const INTERVAL = process.env.EMAIL_WORKER_INTERVAL || "*/1 * * * *"; // Every mi
  * UPDATED: Now updates EmailLog status for each email
  */
 async function processBatch(): Promise<void> {
+  if (batchInFlight) {
+    logger.debug("Skipping tick — previous batch still running");
+    return;
+  }
+  batchInFlight = true;
   try {
-    // Fetch pending emails
-    const emails = await getPendingEmails(BATCH_SIZE);
+    // Atomically claim pending emails (flips PENDING → PROCESSING in one shot)
+    const emails = await claimPendingEmails(BATCH_SIZE);
 
     if (emails.length === 0) {
       logger.debug("No pending emails to process");
@@ -59,6 +68,8 @@ async function processBatch(): Promise<void> {
     logger.error("Error processing email batch", {
       error: error instanceof Error ? error.message : "Unknown error",
     });
+  } finally {
+    batchInFlight = false;
   }
 }
 
@@ -71,9 +82,7 @@ async function processEmail(email: any): Promise<void> {
   const emailLogId = email.metadata?.email_log_id;
 
   try {
-    // Mark as processing in queue
-    await markEmailAsProcessing(email.id);
-
+    // Row was already atomically flipped to PROCESSING by claimPendingEmails.
     logger.info("Processing email", {
       queueItemId: email.id,
       emailLogId,
@@ -201,6 +210,12 @@ export function startEmailQueueWorker(): void {
     return;
   }
 
+  if (workerStarted) {
+    logger.warn("startEmailQueueWorker() called more than once — ignoring");
+    return;
+  }
+  workerStarted = true;
+
   logger.info("Starting email queue worker", {
     interval: INTERVAL,
     batchSize: BATCH_SIZE,
@@ -243,7 +258,7 @@ export async function triggerManualProcessing(): Promise<{
 }> {
   logger.info("Manual email processing triggered");
 
-  const emails = await getPendingEmails(BATCH_SIZE);
+  const emails = await claimPendingEmails(BATCH_SIZE);
   const results = await Promise.allSettled(
     emails.map((email) => processEmail(email))
   );

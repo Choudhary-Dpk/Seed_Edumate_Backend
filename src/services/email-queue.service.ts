@@ -214,10 +214,58 @@ export async function getPendingEmails(limit: number = 10): Promise<any[]> {
 }
 
 /**
+ * Atomically claim a batch of pending emails: flips status PENDING → PROCESSING
+ * in a single DB operation so no other worker can pick the same rows.
+ *
+ * This replaces the non-atomic `getPendingEmails` + `markEmailAsProcessing`
+ * pair that allowed duplicate sends when multiple workers ran concurrently.
+ */
+export async function claimPendingEmails(limit: number = 10): Promise<any[]> {
+  try {
+    const now = new Date();
+
+    const candidates = await prisma.emailQueue.findMany({
+      where: {
+        status: "PENDING",
+        scheduled_at: { lte: now },
+      },
+      orderBy: [{ priority: "desc" }, { scheduled_at: "asc" }],
+      take: limit,
+      select: { id: true, attempts: true, max_attempts: true },
+    });
+
+    const eligibleIds = candidates
+      .filter((c) => c.attempts < c.max_attempts)
+      .map((c) => c.id);
+
+    if (eligibleIds.length === 0) return [];
+
+    // Atomic claim — only rows still PENDING flip. Any row another worker
+    // already flipped will be skipped by the status filter.
+    await prisma.emailQueue.updateMany({
+      where: { id: { in: eligibleIds }, status: "PENDING" },
+      data: { status: "PROCESSING", updated_at: now },
+    });
+
+    const claimed = await prisma.emailQueue.findMany({
+      where: { id: { in: eligibleIds }, status: "PROCESSING" },
+      orderBy: [{ priority: "desc" }, { scheduled_at: "asc" }],
+    });
+
+    return claimed;
+  } catch (error) {
+    logger.error("Failed to claim pending emails", {
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
+    throw error;
+  }
+}
+
+/**
  * Mark email as processing
- * 
+ *
  * Prevents duplicate processing by multiple workers
- * 
+ *
  * @param id - Email queue ID
  * @returns Updated queue item
  */
