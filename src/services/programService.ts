@@ -53,8 +53,8 @@ export async function getCachedResult(
 ): Promise<{ data: PythonFetchResult; fetchedAt: Date } | null> {
   const querySlug = slugify(university);
 
-  // Step 1: Direct match on the request's exact university_name + degree + student_type.
-  // This is the fast path — same user, same query, returns cached row.
+  // Step 1: Direct match by the request's exact university_name
+  // (fast path — same user, same query text)
   let runs: any[] = await prisma.$queryRawUnsafe(
     `SELECT id FROM f_program_fetch_runs
      WHERE university_name = $1
@@ -69,10 +69,9 @@ export async function getCachedResult(
     studentType
   );
 
-  // Step 2: Alias-based fallback. If the user types the same university with
-  // a different name (e.g. "MIT" vs "Massachusetts Institute of Technology"),
-  // their query slug will already exist in d_universities.aliases from a
-  // previous fetch — so we can reuse that data instead of re-running Python.
+  // Step 2: Alias-based fallback
+  // Handles different user inputs resolving to the same university
+  // (e.g. "MIT" vs "Massachusetts Institute of Technology")
   if (!runs.length) {
     runs = await prisma.$queryRawUnsafe(
       `SELECT r.id
@@ -467,14 +466,14 @@ export async function saveResult(
   fetchRunId: bigint,
   request?: { university: string; degreeType: string; studentType: string }
 ): Promise<{ programsInserted: number; feesInserted: number; programsSkipped: number; status: string }> {
-  // Canonical slug from LLM-resolved name (e.g. "MIT Sloan School of Management" → "mit-sloan-school-of-management")
+  // Canonical slug from the LLM-resolved name (e.g. "MIT Sloan School of Management" → "mit-sloan-school-of-management")
   const canonicalSlug = slugify(result.university);
-  // User's query slug (e.g. "MIT" → "mit") — used as alias for future cache hits
+  // User's query slug (e.g. "MIT" → "mit") — stored as alias so future lookups match
   const querySlug = request ? slugify(request.university) : canonicalSlug;
 
   // CRITICAL: store programs under REQUEST's degree_type & student_type, not the LLM's.
-  // The LLM normalizes "MBA" → "Bachelor"/"Masters"/etc. inconsistently, which would
-  // cause cache misses and duplicate program rows. The user's input is the stable key.
+  // The LLM normalizes "MBA" → "Bachelor"/"Masters"/etc. inconsistently, which causes
+  // cache misses and duplicate program rows. The user's input is the stable key.
   const storedDegreeType = request?.degreeType ?? result.degree_type;
   const storedStudentType = request?.studentType ?? result.student_type;
 
@@ -484,10 +483,12 @@ export async function saveResult(
 
   try {
     await prisma.$transaction(async (tx) => {
-      // ── Step 1: Find or create university (with alias-based dedup) ──
-      // First try to find an existing row that matches by either:
-      //   (a) canonical slug (LLM returned the same name we've seen before), OR
-      //   (b) any alias (this user query has previously resolved to a row)
+      // ── Step 1: Find or create university (alias-based dedup) ──
+      // First check if an existing university row matches by canonical slug OR
+      // if the user's query slug is already in the aliases list. This prevents
+      // creating duplicate university rows when the LLM returns slightly different
+      // canonical names for the same input (e.g. "MIT" → "MIT Sloan" one run,
+      // "Massachusetts Institute of Technology" another run).
       const existing: any[] = await tx.$queryRawUnsafe(
         `SELECT id FROM d_universities
          WHERE slug = $1
@@ -500,7 +501,7 @@ export async function saveResult(
       let universityId: bigint;
 
       if (existing.length > 0) {
-        // Reuse — append both slugs to aliases (DISTINCT) and refresh metadata
+        // Reuse existing row; merge aliases and refresh metadata
         universityId = existing[0].id;
         await tx.$queryRawUnsafe(
           `UPDATE d_universities
@@ -522,7 +523,7 @@ export async function saveResult(
           universityId
         );
       } else {
-        // Insert new — store both slugs as aliases for future lookups
+        // Insert new university with both slugs stored as aliases
         const uniRows: any[] = await tx.$queryRawUnsafe(
           `INSERT INTO d_universities
              (name, slug, country_code, default_currency, aliases, updated_at)
@@ -568,7 +569,16 @@ export async function saveResult(
       }
       const expiresAt = getTTL(status);
 
-      // Upsert each program (use SAVEPOINTs so one bad row doesn't abort the tx)
+      // Upsert each program (SAVEPOINTs so one bad row doesn't abort the tx)
+      //
+      // Program identity strategy:
+      //   1. If program has a URL → match existing row by (university_id, program_url)
+      //   2. Otherwise → fall back to (university_id, slug, degree_type, student_type)
+      //
+      // URL is far more stable than slug across LLM runs. The LLM returns slightly
+      // different program names each fetch ("Sloan Fellows MBA" vs "MIT Sloan Fellows MBA")
+      // which would create duplicates if matched by slug — but the URL it copies from
+      // the source page stays the same.
       for (let i = 0; i < result.programs.length; i++) {
         const prog = result.programs[i];
         const sp = `sp_prog_${i}`;
@@ -576,92 +586,177 @@ export async function saveResult(
           await tx.$executeRawUnsafe(`SAVEPOINT ${sp}`);
           const progSlug = slugify(prog.program_name);
           const fee = prog.tuition_fee;
+          const programUrl = prog.url ?? null;
 
-          await tx.$queryRawUnsafe(
-            `INSERT INTO d_university_programs (
-               university_id, name, slug, degree_type, student_type,
-               academic_year, category, area_of_study, department, duration,
-               credits_required, delivery_mode, program_url,
-               fee_amount, fee_amount_min, fee_amount_max, fee_is_range,
-               fee_currency, fee_currency_inferred, fee_period,
-               fee_per_credit_cost, fee_total_estimated_cost, fee_includes,
-               fee_source_url, fee_exact_quote, fee_type,
-               fee_validated, fee_match_method, fee_match_score, fee_confidence,
-               fetch_run_id, fetched_at, expires_at
-             ) VALUES (
-               $1, $2, $3, $4, $5,
-               $6, $7, $8, $9, $10,
-               $11, $12, $13,
-               $14, $15, $16, $17,
-               $18, $19, $20,
-               $21, $22, $23,
-               $24, $25, $26,
-               $27, $28, $29, $30,
-               $31, NOW(), $32
-             )
-             ON CONFLICT (university_id, slug, degree_type, student_type) DO UPDATE SET
-               name = EXCLUDED.name,
-               category = EXCLUDED.category,
-               area_of_study = EXCLUDED.area_of_study,
-               department = EXCLUDED.department,
-               duration = EXCLUDED.duration,
-               credits_required = EXCLUDED.credits_required,
-               delivery_mode = EXCLUDED.delivery_mode,
-               program_url = EXCLUDED.program_url,
-               academic_year = EXCLUDED.academic_year,
-               fee_amount = CASE WHEN d_university_programs.manual_override THEN d_university_programs.fee_amount ELSE EXCLUDED.fee_amount END,
-               fee_currency = CASE WHEN d_university_programs.manual_override THEN d_university_programs.fee_currency ELSE EXCLUDED.fee_currency END,
-               fee_period = CASE WHEN d_university_programs.manual_override THEN d_university_programs.fee_period ELSE EXCLUDED.fee_period END,
-               fee_amount_min = CASE WHEN d_university_programs.manual_override THEN d_university_programs.fee_amount_min ELSE EXCLUDED.fee_amount_min END,
-               fee_amount_max = CASE WHEN d_university_programs.manual_override THEN d_university_programs.fee_amount_max ELSE EXCLUDED.fee_amount_max END,
-               fee_is_range = CASE WHEN d_university_programs.manual_override THEN d_university_programs.fee_is_range ELSE EXCLUDED.fee_is_range END,
-               fee_currency_inferred = CASE WHEN d_university_programs.manual_override THEN d_university_programs.fee_currency_inferred ELSE EXCLUDED.fee_currency_inferred END,
-               fee_per_credit_cost = CASE WHEN d_university_programs.manual_override THEN d_university_programs.fee_per_credit_cost ELSE EXCLUDED.fee_per_credit_cost END,
-               fee_total_estimated_cost = CASE WHEN d_university_programs.manual_override THEN d_university_programs.fee_total_estimated_cost ELSE EXCLUDED.fee_total_estimated_cost END,
-               fee_source_url = CASE WHEN d_university_programs.manual_override THEN d_university_programs.fee_source_url ELSE EXCLUDED.fee_source_url END,
-               fee_exact_quote = CASE WHEN d_university_programs.manual_override THEN d_university_programs.fee_exact_quote ELSE EXCLUDED.fee_exact_quote END,
-               fee_validated = CASE WHEN d_university_programs.manual_override THEN d_university_programs.fee_validated ELSE EXCLUDED.fee_validated END,
-               fee_match_method = CASE WHEN d_university_programs.manual_override THEN d_university_programs.fee_match_method ELSE EXCLUDED.fee_match_method END,
-               fee_match_score = CASE WHEN d_university_programs.manual_override THEN d_university_programs.fee_match_score ELSE EXCLUDED.fee_match_score END,
-               fee_confidence = CASE WHEN d_university_programs.manual_override THEN d_university_programs.fee_confidence ELSE EXCLUDED.fee_confidence END,
-               fetch_run_id = EXCLUDED.fetch_run_id,
-               fetched_at = NOW(),
-               expires_at = EXCLUDED.expires_at,
-               is_active = TRUE,
-               updated_at = NOW()`,
-            universityId,
-            truncate(prog.program_name, 500),
-            truncate(progSlug, 500),
-            truncate(storedDegreeType, 100),
-            truncate(storedStudentType, 200),
-            truncate(result.academic_year, 100),
-            truncate(prog.category, 100),
-            truncate(prog.area_of_study, 100),
-            truncate(prog.department, 500),
-            truncate(prog.duration, 100),
-            prog.credits_required ?? null,
-            truncate(prog.delivery_mode, 200),
-            prog.url ?? null,
-            amountToBigint(fee?.amount),
-            amountToBigint(fee?.amount_min),
-            amountToBigint(fee?.amount_max),
-            fee?.is_range ?? false,
-            truncate(fee?.currency, 3),
-            fee?.currency_inferred ?? false,
-            truncate(fee?.fee_period, 200),
-            amountToBigint(fee?.per_credit_cost),
-            amountToBigint(fee?.total_estimated_cost),
-            truncate(fee?.includes, 100),
-            fee?.fee_source_url  ?? null,
-            fee?.exact_quote ?? null,
-            truncate(fee?.fee_type, 200) ?? "tuition",
-            fee?.validated ?? false,
-            truncate(fee?.match_method, 200),
-            fee?.match_score ?? null,
-            truncate(fee?.confidence, 100),
-            fetchRunId,
-            expiresAt
-          );
+          // Step 1: Try to find an existing row (URL first, then slug)
+          let existingRows: any[] = [];
+          if (programUrl) {
+            existingRows = await tx.$queryRawUnsafe(
+              `SELECT id, manual_override
+                 FROM d_university_programs
+                WHERE university_id = $1
+                  AND program_url = $2
+                  AND degree_type = $3
+                  AND student_type = $4
+                LIMIT 1`,
+              universityId,
+              programUrl,
+              truncate(storedDegreeType, 100),
+              truncate(storedStudentType, 200)
+            );
+          }
+          if (!existingRows.length) {
+            existingRows = await tx.$queryRawUnsafe(
+              `SELECT id, manual_override
+                 FROM d_university_programs
+                WHERE university_id = $1
+                  AND slug = $2
+                  AND degree_type = $3
+                  AND student_type = $4
+                LIMIT 1`,
+              universityId,
+              truncate(progSlug, 500),
+              truncate(storedDegreeType, 100),
+              truncate(storedStudentType, 200)
+            );
+          }
+
+          if (existingRows.length) {
+            // Step 2a: UPDATE in place
+            const existingId: bigint = existingRows[0].id;
+            const manualOverride: boolean = !!existingRows[0].manual_override;
+
+            if (manualOverride) {
+              // Only update program metadata; leave fee_* columns untouched
+              await tx.$queryRawUnsafe(
+                `UPDATE d_university_programs SET
+                   name = $1, slug = $2, category = $3, area_of_study = $4,
+                   department = $5, duration = $6, credits_required = $7,
+                   delivery_mode = $8, program_url = $9, academic_year = $10,
+                   fetch_run_id = $11, fetched_at = NOW(),
+                   expires_at = $12, is_active = TRUE, updated_at = NOW()
+                 WHERE id = $13`,
+                truncate(prog.program_name, 500),
+                truncate(progSlug, 500),
+                truncate(prog.category, 100),
+                truncate(prog.area_of_study, 100),
+                truncate(prog.department, 500),
+                truncate(prog.duration, 100),
+                prog.credits_required ?? null,
+                truncate(prog.delivery_mode, 200),
+                programUrl,
+                truncate(result.academic_year, 100),
+                fetchRunId,
+                expiresAt,
+                existingId
+              );
+            } else {
+              // Update everything including fees
+              await tx.$queryRawUnsafe(
+                `UPDATE d_university_programs SET
+                   name = $1, slug = $2, category = $3, area_of_study = $4,
+                   department = $5, duration = $6, credits_required = $7,
+                   delivery_mode = $8, program_url = $9, academic_year = $10,
+                   fee_amount = $11, fee_amount_min = $12, fee_amount_max = $13,
+                   fee_is_range = $14, fee_currency = $15, fee_currency_inferred = $16,
+                   fee_period = $17, fee_per_credit_cost = $18,
+                   fee_total_estimated_cost = $19, fee_includes = $20,
+                   fee_source_url = $21, fee_exact_quote = $22, fee_type = $23,
+                   fee_validated = $24, fee_match_method = $25,
+                   fee_match_score = $26, fee_confidence = $27,
+                   fetch_run_id = $28, fetched_at = NOW(),
+                   expires_at = $29, is_active = TRUE, updated_at = NOW()
+                 WHERE id = $30`,
+                truncate(prog.program_name, 500),
+                truncate(progSlug, 500),
+                truncate(prog.category, 100),
+                truncate(prog.area_of_study, 100),
+                truncate(prog.department, 500),
+                truncate(prog.duration, 100),
+                prog.credits_required ?? null,
+                truncate(prog.delivery_mode, 200),
+                programUrl,
+                truncate(result.academic_year, 100),
+                amountToBigint(fee?.amount),
+                amountToBigint(fee?.amount_min),
+                amountToBigint(fee?.amount_max),
+                fee?.is_range ?? false,
+                truncate(fee?.currency, 3),
+                fee?.currency_inferred ?? false,
+                truncate(fee?.fee_period, 200),
+                amountToBigint(fee?.per_credit_cost),
+                amountToBigint(fee?.total_estimated_cost),
+                truncate(fee?.includes, 100),
+                fee?.fee_source_url ?? null,
+                fee?.exact_quote ?? null,
+                truncate(fee?.fee_type, 200) ?? "tuition",
+                fee?.validated ?? false,
+                truncate(fee?.match_method, 200),
+                fee?.match_score ?? null,
+                truncate(fee?.confidence, 100),
+                fetchRunId,
+                expiresAt,
+                existingId
+              );
+            }
+          } else {
+            // Step 2b: INSERT a new row
+            await tx.$queryRawUnsafe(
+              `INSERT INTO d_university_programs (
+                 university_id, name, slug, degree_type, student_type,
+                 academic_year, category, area_of_study, department, duration,
+                 credits_required, delivery_mode, program_url,
+                 fee_amount, fee_amount_min, fee_amount_max, fee_is_range,
+                 fee_currency, fee_currency_inferred, fee_period,
+                 fee_per_credit_cost, fee_total_estimated_cost, fee_includes,
+                 fee_source_url, fee_exact_quote, fee_type,
+                 fee_validated, fee_match_method, fee_match_score, fee_confidence,
+                 fetch_run_id, fetched_at, expires_at
+               ) VALUES (
+                 $1, $2, $3, $4, $5,
+                 $6, $7, $8, $9, $10,
+                 $11, $12, $13,
+                 $14, $15, $16, $17,
+                 $18, $19, $20,
+                 $21, $22, $23,
+                 $24, $25, $26,
+                 $27, $28, $29, $30,
+                 $31, NOW(), $32
+               )`,
+              universityId,
+              truncate(prog.program_name, 500),
+              truncate(progSlug, 500),
+              truncate(storedDegreeType, 100),
+              truncate(storedStudentType, 200),
+              truncate(result.academic_year, 100),
+              truncate(prog.category, 100),
+              truncate(prog.area_of_study, 100),
+              truncate(prog.department, 500),
+              truncate(prog.duration, 100),
+              prog.credits_required ?? null,
+              truncate(prog.delivery_mode, 200),
+              programUrl,
+              amountToBigint(fee?.amount),
+              amountToBigint(fee?.amount_min),
+              amountToBigint(fee?.amount_max),
+              fee?.is_range ?? false,
+              truncate(fee?.currency, 3),
+              fee?.currency_inferred ?? false,
+              truncate(fee?.fee_period, 200),
+              amountToBigint(fee?.per_credit_cost),
+              amountToBigint(fee?.total_estimated_cost),
+              truncate(fee?.includes, 100),
+              fee?.fee_source_url ?? null,
+              fee?.exact_quote ?? null,
+              truncate(fee?.fee_type, 200) ?? "tuition",
+              fee?.validated ?? false,
+              truncate(fee?.match_method, 200),
+              fee?.match_score ?? null,
+              truncate(fee?.confidence, 100),
+              fetchRunId,
+              expiresAt
+            );
+          }
 
           await tx.$executeRawUnsafe(`RELEASE SAVEPOINT ${sp}`);
           programsInserted++;

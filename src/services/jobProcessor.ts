@@ -54,9 +54,10 @@ export async function processJobAsync(
     }
 
     // 4. Save result to DB
+    // 4. Save result to DB
     // Pass the original request so saveResult can:
-    //   (a) store rows under the request's degree/student type (LLM normalizes inconsistently)
-    //   (b) record the user's query as an alias for future cache hits
+    //   (a) store programs under the request's degree/student type (LLM drifts)
+    //   (b) record the user's query slug as an alias for future cache hits
     const { status } = await saveResult(result, fetchRunId, {
       university,
       degreeType: degree,
