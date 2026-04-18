@@ -9,7 +9,7 @@ import {
   validateReqParams,
   validEmailValidator,
 } from "../middlewares/validators/validator";
-import { authenticate, validateEmail } from "../middlewares";
+import { authenticate } from "../middlewares";
 import { AuthMethod } from "../types/auth";
 
 const router = Router();
@@ -31,7 +31,6 @@ router.post(
   "/",
   validEmailValidator(),
   validateReqParams,
-  validateEmail,
   sendEmailController
 );
 
