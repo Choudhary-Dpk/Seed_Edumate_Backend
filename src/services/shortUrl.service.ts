@@ -3,6 +3,12 @@ import logger from "../utils/logger";
 
 const BASE_DOMAIN = process.env.BACKEND_URL || "http://localhost:3031";
 
+export interface ShortUrlRecord {
+  code: string;
+  shortUrl: string;
+  longUrl: string;
+}
+
 /**
  * Generate a random Base62 short code
  */
@@ -62,12 +68,49 @@ const generateUniqueCode = async (
 };
 
 /**
+ * Build the canonical short URL string for a given code.
+ */
+const buildShortUrl = (code: string): string => `${BASE_DOMAIN}/${code}`;
+
+/**
+ * Produce a variant of `longUrl` where the trailing integer of the utm_source
+ * value is offset by `offset`. If utm_source has no trailing digits, the
+ * offset is appended. If utm_source is absent, the URL is returned unchanged.
+ *
+ * Example: utm_source=Edumate100 with offset=2 → utm_source=Edumate102
+ */
+const incrementUtmSource = (longUrl: string, offset: number): string => {
+  if (offset === 0) return longUrl;
+
+  try {
+    const url = new URL(longUrl);
+    const currentSource = url.searchParams.get("utm_source");
+    if (currentSource === null) return longUrl;
+
+    const match = currentSource.match(/^(.*?)(\d+)$/);
+    let nextSource: string;
+    if (match) {
+      const prefix = match[1];
+      const num = parseInt(match[2], 10);
+      nextSource = `${prefix}${num + offset}`;
+    } else {
+      nextSource = `${currentSource}${offset}`;
+    }
+
+    url.searchParams.set("utm_source", nextSource);
+    return url.toString();
+  } catch {
+    return longUrl;
+  }
+};
+
+/**
  * Create a single short URL
  */
 export const createShortUrl = async (
   longUrl: string,
   createdBy?: string
-): Promise<{ shortUrl: string; code: string }> => {
+): Promise<ShortUrlRecord> => {
   logger.debug(`Validating long URL: ${longUrl}`);
 
   if (!isValidUrl(longUrl)) {
@@ -78,28 +121,32 @@ export const createShortUrl = async (
   const code = await generateUniqueCode();
   logger.debug(`Short code generated: ${code}`);
 
+  const shortUrl = buildShortUrl(code);
+
   logger.debug(`Saving short URL to database`);
   await prisma.shortUrl.create({
     data: {
       code,
       longUrl,
+      shortUrl,
       ...(createdBy && { createdBy }),
     },
   });
   logger.debug(`Short URL saved successfully`);
 
-  const shortUrl = `${BASE_DOMAIN}/${code}`;
-  return { shortUrl, code };
+  return { code, shortUrl, longUrl };
 };
 
 /**
- * Create multiple short URLs for the same long URL
+ * Create multiple short URLs. Each generated row gets a unique long URL where
+ * the utm_source trailing number is incremented by the row index, so clicking
+ * a given short URL redirects to its own distinct long URL.
  */
 export const createBulkShortUrls = async (
   longUrl: string,
   count: number,
   createdBy?: string
-): Promise<string[]> => {
+): Promise<ShortUrlRecord[]> => {
   logger.debug(`Validating long URL: ${longUrl}`);
 
   if (!isValidUrl(longUrl)) {
@@ -111,25 +158,30 @@ export const createBulkShortUrls = async (
   }
 
   logger.debug(`Generating ${count} unique short codes`);
-  const codes: string[] = [];
+  const records: ShortUrlRecord[] = [];
 
   for (let i = 0; i < count; i++) {
     const code = await generateUniqueCode();
-    codes.push(code);
+    const itemLongUrl = incrementUtmSource(longUrl, i);
+    records.push({
+      code,
+      shortUrl: buildShortUrl(code),
+      longUrl: itemLongUrl,
+    });
   }
 
   logger.debug(`Saving ${count} short URLs to database`);
   await prisma.shortUrl.createMany({
-    data: codes.map((code) => ({
-      code,
-      longUrl,
+    data: records.map((r) => ({
+      code: r.code,
+      longUrl: r.longUrl,
+      shortUrl: r.shortUrl,
       ...(createdBy && { createdBy }),
     })),
   });
   logger.debug(`Bulk short URLs saved successfully`);
 
-  const shortUrls = codes.map((code) => `${BASE_DOMAIN}/${code}`);
-  return shortUrls;
+  return records;
 };
 
 /**

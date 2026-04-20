@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import Papa from "papaparse";
 import * as shortUrlServices from "../services/shortUrl.service";
 import { sendResponse } from "../utils/api";
 import logger from "../utils/logger";
@@ -26,7 +27,9 @@ export const createSingleShortUrl = async (
     logger.debug(`Short URL created successfully: ${result.shortUrl}`);
 
     sendResponse(res, 201, "Short URL created successfully", {
+      code: result.code,
       shortUrl: result.shortUrl,
+      longUrl: result.longUrl,
     });
   } catch (error: any) {
     logger.error(`Error creating short URL: ${error.message}`);
@@ -57,11 +60,37 @@ export const createBulkShortUrls = async (
     const createdBy = user?.email || user?.fullName || undefined;
 
     logger.debug(`Creating ${count} short URLs for: ${longUrl}`);
-    const shortUrls = await shortUrlServices.createBulkShortUrls(longUrl, count, createdBy);
+    const records = await shortUrlServices.createBulkShortUrls(longUrl, count, createdBy);
     logger.debug(`${count} short URLs created successfully`);
 
+    const rows = records.map((r) => ({
+      code: r.code,
+      short_url: r.shortUrl,
+      long_url: r.longUrl,
+    }));
+
+    const csv = Papa.unparse(rows, {
+      columns: ["code", "short_url", "long_url"],
+    });
+
+    const format = (req.query.format as string | undefined)?.toLowerCase();
+    if (format === "csv") {
+      // Raw CSV file download (for clients using responseType: "blob")
+      res.setHeader("Content-Type", "text/csv; charset=utf-8");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="short-urls-${Date.now()}.csv"`
+      );
+      return res.status(201).send(csv);
+    }
+
+    // Default: JSON response including a ready-to-save CSV string,
+    // so the frontend can save `data.csv` as a file without any
+    // client-side CSV generation.
     sendResponse(res, 201, "Bulk short URLs created successfully", {
-      shortUrls,
+      shortUrls: rows,
+      csv,
+      filename: `short-urls-${Date.now()}.csv`,
     });
   } catch (error: any) {
     logger.error(`Error creating bulk short URLs: ${error.message}`);

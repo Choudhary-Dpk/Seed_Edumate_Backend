@@ -2326,6 +2326,7 @@ model FieldMapping {
 model ShortUrl {
   id             String    @id @default(cuid())
   code           String    @unique @db.VarChar(10)
+  shortUrl       String?
   createdAt      DateTime  @default(now())
   createdBy      String?   @db.VarChar(255)
   lastAccessedAt DateTime?
