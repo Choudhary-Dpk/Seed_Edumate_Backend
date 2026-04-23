@@ -101,26 +101,26 @@ export const getInstitutionCosts = async (
   try {
     const payload: ExtractCostsRequest = req?.body || {};
 
-    const { institution_name, study_level } = payload;
+    const { institution_name, study_level, faculty } = payload;
 
     // Validation
-    if (!institution_name || !study_level) {
+    if (!institution_name || !study_level || !faculty) {
       sendResponse(
         res,
         400,
-        "Missing required fields: institution_name, study_level",
+        "Missing required fields: institution_name, study_level, faculty",
       );
       return;
     }
 
     // Validate study_level
     const validStudyLevels = [
-      "undergraduate",
-      "graduate_mba",
-      "graduate_masters",
-      "phd",
+      "Undergraduate",
+      "Graduate - Masters",
+      "Graduate - MBA",
+      "PhD",
     ];
-    if (!validStudyLevels.includes(study_level.toLowerCase())) {
+    if (!validStudyLevels.includes(study_level)) {
       sendResponse(
         res,
         400,
@@ -129,10 +129,31 @@ export const getInstitutionCosts = async (
       return;
     }
 
-    // Call the external API
+    // Validate faculty
+    const validFaculties = [
+      "Arts & Humanities",
+      "Business & Management",
+      "Engineering & Technology",
+      "Law",
+      "Political Science & International Relations",
+      "Life Sciences & Medicine",
+      "Natural Sciences",
+      "Other",
+    ];
+    if (!validFaculties.includes(faculty)) {
+      sendResponse(
+        res,
+        400,
+        `Invalid faculty. Must be one of: ${validFaculties.join(", ")}`,
+      );
+      return;
+    }
+
+    // Call the external APIs (primary with fallback)
     const result = await extractInstitutionCosts({
       institution_name,
-      study_level: study_level.toLowerCase(),
+      study_level,
+      faculty,
     });
 
     // Return successful result

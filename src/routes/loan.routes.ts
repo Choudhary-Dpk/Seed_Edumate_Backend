@@ -43,7 +43,7 @@ router.post(
 
 /**
  * Extract institution costs (tuition, living expenses, etc.)
- * POST /api/loan/extract-costs
+ * POST /loans/extract-costs
  * Body: { institution_name: string, study_level: string }
  */
 router.post(

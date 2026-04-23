@@ -3,6 +3,7 @@ import currencyData from "../src/seeders/currencyConfigs.json";
 import rolesData from "../src/seeders/b2bPartnersRoles.json";
 import adminRolesData from "../src/seeders/adminRoles.json";
 import { hashPassword } from "../src/utils/auth";
+import { seedUniversities } from "../src/seeders/seedUniversities";
 
 const prisma = new PrismaClient();
 
@@ -11463,6 +11464,7 @@ const main = async () => {
     await seedEdumateContactEnumMappings();
     await seedLoanApplicationEnumMappings();
     await seedLoanProductEnumMappings();
+    await seedUniversities();
     console.log("All seeding completed successfully!");
   } catch (error) {
     console.error("Seeding failed:", error);
