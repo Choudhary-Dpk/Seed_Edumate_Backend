@@ -29,14 +29,21 @@ export interface ExtractCostsResponse {
 // Internal types for external API responses
 interface PrimaryApiResponse {
   success: boolean;
-  data?: Array<{
-    program_name?: string;
-    tuition_per_year?: number;
-    duration?: number;
+  data?: {
+    institution_name?: string;
     country?: string;
     currency?: string;
+    study_level?: string;
+    faculty?: string;
+    programs?: Array<{
+      program_name?: string;
+      tuition_per_year?: number;
+      minimum_duration?: number;
+      maximum_duration?: number;
+      [key: string]: any;
+    }>;
     [key: string]: any;
-  }>;
+  };
   [key: string]: any;
 }
 
@@ -109,24 +116,28 @@ const fetchFromPrimaryApi = async (
 
     const result = response.data;
 
-    if (!result.success) {
+    if (!result.success || !result.data) {
       logger.info("Primary costs API returned success=false", { institution_name });
       return null;
     }
 
-    const programs = Array.isArray(result.data) ? result.data : [];
-    const firstEntry = programs[0] || {};
+    const apiData = result.data;
+    const programs = Array.isArray(apiData.programs) ? apiData.programs : [];
 
     return {
-      institution_name,
+      institution_name: apiData.institution_name ?? institution_name,
       study_level,
       faculty,
-      country: firstEntry.country ?? result.country ?? "",
-      currency: firstEntry.currency ?? result.currency ?? "",
-      programs: programs.map((p) => ({
-        program_name: p.program_name ?? "",
-        total_tuition: (Number(p.tuition_per_year) || 0) * (Number(p.duration) || 1),
-      })),
+      country: apiData.country ?? "",
+      currency: apiData.currency ?? "",
+      programs: programs.map((p) => {
+        const tuitionPerYear = Number(p.tuition_per_year) || 0;
+        const durationMonths = Number(p.minimum_duration) || 12;
+        return {
+          program_name: p.program_name ?? "",
+          total_tuition: tuitionPerYear * (durationMonths / 12),
+        };
+      }),
     };
   } catch (error) {
     logger.error("Error calling primary costs API", {
