@@ -37,7 +37,7 @@ interface PrimaryApiResponse {
     faculty?: string;
     programs?: Array<{
       program_name?: string;
-      tuition_per_year?: number;
+      tuition_fees?: number;
       minimum_duration?: number;
       maximum_duration?: number;
       [key: string]: any;
@@ -130,14 +130,10 @@ const fetchFromPrimaryApi = async (
       faculty,
       country: apiData.country ?? "",
       currency: apiData.currency ?? "",
-      programs: programs.map((p) => {
-        const tuitionPerYear = Number(p.tuition_per_year) || 0;
-        const durationMonths = Number(p.minimum_duration) || 12;
-        return {
-          program_name: p.program_name ?? "",
-          total_tuition: tuitionPerYear * (durationMonths / 12),
-        };
-      }),
+      programs: programs.map((p) => ({
+        program_name: p.program_name ?? "",
+        total_tuition: Number(p.tuition_fees) || 0,
+      })),
     };
   } catch (error) {
     logger.error("Error calling primary costs API", {
