@@ -2326,13 +2326,13 @@ model FieldMapping {
 model ShortUrl {
   id             String    @id @default(cuid())
   code           String    @unique @db.VarChar(10)
-  shortUrl       String?
   createdAt      DateTime  @default(now())
   createdBy      String?   @db.VarChar(255)
   lastAccessedAt DateTime?
   longUrl        String
   redirectCount  Int       @default(0)
   updatedAt      DateTime  @updatedAt
+  shortUrl       String?
 
   @@index([code])
   @@index([createdBy])
