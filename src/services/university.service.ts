@@ -12,7 +12,7 @@ export async function searchUniversities(
 
   const [rows, countRows] = await Promise.all([
     prisma.$queryRawUnsafe<any[]>(
-      `SELECT id, name, slug, country_code, default_currency, website, aliases, created_at, updated_at,
+      `SELECT id, name, slug, country_code, country, default_currency, website, aliases, created_at, updated_at,
          CASE
            WHEN slug = $1 THEN 1
            WHEN aliases @> $2::jsonb THEN 2
