@@ -1132,11 +1132,21 @@ export const fetchLoanProductsList = async (
     }
   }
 
+  // When the sort spans both secured and unsecured columns we cannot express it
+  // in a single Prisma orderBy, so we sort in JS. That requires fetching the full
+  // matching set first and paginating after the in-memory sort — otherwise the DB
+  // pre-paginates by created_at and the JS sort only reorders that one page.
+  const isInterestRateSortNoProductType =
+    sortKey === "interest_rate" &&
+    !anyStartsWith(filters.product_type, "secured") &&
+    !anyStartsWith(filters.product_type, "unsecured");
+  const needsPostFetchSort =
+    sortKey === "max_loan_amount" || isInterestRateSortNoProductType;
+
   const [rows, count] = await Promise.all([
     prisma.hSLoanProducts.findMany({
       where,
-      skip: offset,
-      take: limit,
+      ...(needsPostFetchSort ? {} : { skip: offset, take: limit }),
       orderBy,
       include: {
         lender: {
@@ -1218,6 +1228,37 @@ export const fetchLoanProductsList = async (
         return bMax - aMax;
       }
     });
+  }
+
+  //  POST-FETCH SORTING for interest_rate when no product_type is specified
+  if (isInterestRateSortNoProductType) {
+    const dir = sortDir === "desc" ? "desc" : "asc";
+    const pickRate = (row: (typeof filteredRows)[number]) => {
+      const secured = row.financial_terms?.interest_rate_range_min_secured;
+      const unsecured = row.financial_terms?.interest_rate_range_min_unsecured;
+      const securedNum = secured != null ? Number(secured) : null;
+      const unsecuredNum = unsecured != null ? Number(unsecured) : null;
+      const candidates = [securedNum, unsecuredNum].filter(
+        (v): v is number => v != null && !isNaN(v),
+      );
+      if (candidates.length === 0) return null;
+      // For asc, lowest available rate wins; for desc, highest.
+      return dir === "asc" ? Math.min(...candidates) : Math.max(...candidates);
+    };
+    filteredRows = filteredRows.sort((a, b) => {
+      const aRate = pickRate(a);
+      const bRate = pickRate(b);
+      // Push rows with no rate to the end regardless of direction.
+      if (aRate === null && bRate === null) return 0;
+      if (aRate === null) return 1;
+      if (bRate === null) return -1;
+      return dir === "asc" ? aRate - bRate : bRate - aRate;
+    });
+  }
+
+  // When we fetched the full set for an in-memory sort, paginate now.
+  if (needsPostFetchSort) {
+    filteredRows = filteredRows.slice(offset, offset + limit);
   }
 
   return { rows: filteredRows, count: count };
