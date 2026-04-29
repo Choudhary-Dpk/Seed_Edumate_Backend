@@ -5,6 +5,7 @@ import {
   deleteLoanProductController,
   getLoanProductDetails,
   getLoanProductsListController,
+  getLoanProductsListControllerV2,
   updateLoanProductController,
 } from "../controllers/loanProduct.controller";
 import { checkDuplicateLoanProductFields } from "../middlewares/loanProduct.middleware";
@@ -46,6 +47,13 @@ router.get(
     method: AuthMethod.API_KEY,
   }),
   getLoanProductsListController,
+);
+router.post(
+  "/pagination/v2",
+  authenticate({
+    method: AuthMethod.API_KEY,
+  }),
+  getLoanProductsListControllerV2,
 );
 
 export { router as loanProuductRoutes };

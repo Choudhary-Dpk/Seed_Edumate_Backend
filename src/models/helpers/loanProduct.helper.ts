@@ -2,6 +2,47 @@ import { Prisma } from "@prisma/client";
 import prisma from "../../config/prisma";
 import { LoanProductFilters } from "../../types/loanProduct.types";
 
+const toArray = (v: string | string[] | null | undefined): string[] => {
+  if (v == null) return [];
+  const arr = Array.isArray(v) ? v : [v];
+  return arr.map((s) => String(s).trim()).filter((s) => s.length > 0);
+};
+
+const hasFilterValue = (v: string | string[] | null | undefined): boolean =>
+  toArray(v).length > 0;
+
+const anyStartsWith = (
+  v: string | string[] | null | undefined,
+  prefix: string
+): boolean => toArray(v).some((s) => s.toLowerCase().startsWith(prefix));
+
+const pushAndCondition = (where: any, condition: any) => {
+  if (!where.AND) {
+    where.AND = [];
+  } else if (!Array.isArray(where.AND)) {
+    where.AND = [where.AND];
+  }
+  where.AND.push(condition);
+};
+
+const applyStringMatch = (
+  where: any,
+  field: string,
+  values: string[],
+  mode: "contains" | "equals"
+) => {
+  if (values.length === 0) return;
+  if (values.length === 1) {
+    where[field] = { [mode]: values[0], mode: "insensitive" };
+    return;
+  }
+  pushAndCondition(where, {
+    OR: values.map((v) => ({
+      [field]: { [mode]: v, mode: "insensitive" },
+    })),
+  });
+};
+
 export const createLoanProduct = async (tx: any, mainData: any) => {
   const product = await tx.hSLoanProducts.create({
     data: {
@@ -522,13 +563,9 @@ export const fetchLoanProductsList = async (
   }
 
   // Apply basic filters
-  if (filters.lender_name) {
-    where.lender_name = { contains: filters.lender_name, mode: "insensitive" };
-  }
+  applyStringMatch(where, "lender_name", toArray(filters.lender_name), "contains");
 
-  if (filters.product_type) {
-    where.product_type = { equals: filters.product_type, mode: "insensitive" };
-  }
+  applyStringMatch(where, "product_type", toArray(filters.product_type), "equals");
 
   if (filters.product_category) {
     where.product_category = filters.product_category;
@@ -561,8 +598,7 @@ export const fetchLoanProductsList = async (
     if (filters.interest_rate !== null && filters.interest_rate_max !== null) {
       // Both min and max specified
       if (
-        filters.product_type &&
-        filters.product_type.toLowerCase().startsWith("secured")
+        anyStartsWith(filters.product_type, "secured")
       ) {
         // Secured loans only - show products where ENTIRE range is within user's budget
         financialTermsConditions.push({
@@ -576,8 +612,7 @@ export const fetchLoanProductsList = async (
           },
         });
       } else if (
-        filters.product_type &&
-        filters.product_type.toLowerCase().startsWith("unsecured")
+        anyStartsWith(filters.product_type, "unsecured")
       ) {
         // Unsecured loans only
         financialTermsConditions.push({
@@ -628,8 +663,7 @@ export const fetchLoanProductsList = async (
     } else if (filters.interest_rate !== null) {
       // Only min specified - products starting at or above this rate
       if (
-        filters.product_type &&
-        filters.product_type.toLowerCase().startsWith("secured")
+        anyStartsWith(filters.product_type, "secured")
       ) {
         financialTermsConditions.push({
           interest_rate_range_max_secured: {
@@ -637,8 +671,7 @@ export const fetchLoanProductsList = async (
           },
         });
       } else if (
-        filters.product_type &&
-        filters.product_type.toLowerCase().startsWith("unsecured")
+        anyStartsWith(filters.product_type, "unsecured")
       ) {
         financialTermsConditions.push({
           interest_rate_range_max_unsecured: {
@@ -665,8 +698,7 @@ export const fetchLoanProductsList = async (
     } else if (filters.interest_rate_max !== null) {
       // Only max specified - products ending at or below this rate
       if (
-        filters.product_type &&
-        filters.product_type.toLowerCase().startsWith("secured")
+        anyStartsWith(filters.product_type, "secured")
       ) {
         financialTermsConditions.push({
           interest_rate_range_max_secured: {
@@ -674,8 +706,7 @@ export const fetchLoanProductsList = async (
           },
         });
       } else if (
-        filters.product_type &&
-        filters.product_type.toLowerCase().startsWith("unsecured")
+        anyStartsWith(filters.product_type, "unsecured")
       ) {
         financialTermsConditions.push({
           interest_rate_range_max_unsecured: {
@@ -705,8 +736,7 @@ export const fetchLoanProductsList = async (
     if (filters.loan_amount_min !== null && filters.loan_amount_max !== null) {
       // Determine which loan amount fields to check based on product_type
       if (
-        filters.product_type &&
-        filters.product_type.toLowerCase().startsWith("secured")
+        anyStartsWith(filters.product_type, "secured")
       ) {
         // Secured loans only
         financialTermsConditions.push({
@@ -718,9 +748,11 @@ export const fetchLoanProductsList = async (
             { minimum_loan_amount_secured: null },
           ],
         });
+        financialTermsConditions.push({
+          maximum_loan_amount_secured: { lte: filters.loan_amount_max },
+        });
       } else if (
-        filters.product_type &&
-        filters.product_type.toLowerCase().startsWith("unsecured")
+        anyStartsWith(filters.product_type, "unsecured")
       ) {
         // Unsecured loans only
         financialTermsConditions.push({
@@ -731,6 +763,9 @@ export const fetchLoanProductsList = async (
             { minimum_loan_amount_unsecured: { lte: filters.loan_amount_min } },
             { minimum_loan_amount_unsecured: null },
           ],
+        });
+        financialTermsConditions.push({
+          maximum_loan_amount_unsecured: { lte: filters.loan_amount_max },
         });
       } else {
         // No product type specified - check both
@@ -748,12 +783,17 @@ export const fetchLoanProductsList = async (
             { minimum_loan_amount_unsecured: null },
           ],
         });
+        financialTermsConditions.push({
+          OR: [
+            { maximum_loan_amount_secured: { lte: filters.loan_amount_max } },
+            { maximum_loan_amount_unsecured: { lte: filters.loan_amount_max } },
+          ],
+        });
       }
     } else if (filters.loan_amount_min !== null) {
       // Only min specified
       if (
-        filters.product_type &&
-        filters.product_type.toLowerCase().startsWith("secured")
+        anyStartsWith(filters.product_type, "secured")
       ) {
         // Secured loans only
         financialTermsConditions.push({
@@ -766,8 +806,7 @@ export const fetchLoanProductsList = async (
           ],
         });
       } else if (
-        filters.product_type &&
-        filters.product_type.toLowerCase().startsWith("unsecured")
+        anyStartsWith(filters.product_type, "unsecured")
       ) {
         // Unsecured loans only
         financialTermsConditions.push({
@@ -797,41 +836,24 @@ export const fetchLoanProductsList = async (
         });
       }
     } else if (filters.loan_amount_max !== null) {
-      // Only max specified
+      // Only max specified - strict ceiling on product's max
       if (
-        filters.product_type &&
-        filters.product_type.toLowerCase().startsWith("secured")
+        anyStartsWith(filters.product_type, "secured")
       ) {
-        // Secured loans only
         financialTermsConditions.push({
-          OR: [
-            { minimum_loan_amount_secured: { lte: filters.loan_amount_max } },
-            { minimum_loan_amount_secured: null },
-          ],
+          maximum_loan_amount_secured: { lte: filters.loan_amount_max },
         });
       } else if (
-        filters.product_type &&
-        filters.product_type.toLowerCase().startsWith("unsecured")
+        anyStartsWith(filters.product_type, "unsecured")
       ) {
-        // Unsecured loans only
         financialTermsConditions.push({
-          OR: [
-            {
-              minimum_loan_amount_unsecured: { lte: filters.loan_amount_max },
-            },
-            { minimum_loan_amount_unsecured: null },
-          ],
+          maximum_loan_amount_unsecured: { lte: filters.loan_amount_max },
         });
       } else {
-        // No product type specified - check both
         financialTermsConditions.push({
           OR: [
-            { minimum_loan_amount_secured: { lte: filters.loan_amount_max } },
-            {
-              minimum_loan_amount_unsecured: { lte: filters.loan_amount_max },
-            },
-            { minimum_loan_amount_secured: null },
-            { minimum_loan_amount_unsecured: null },
+            { maximum_loan_amount_secured: { lte: filters.loan_amount_max } },
+            { maximum_loan_amount_unsecured: { lte: filters.loan_amount_max } },
           ],
         });
       }
@@ -845,7 +867,7 @@ export const fetchLoanProductsList = async (
 
   // Eligibility criteria filters
   if (
-    filters.study_level ||
+    hasFilterValue(filters.study_level) ||
     filters.target_segment ||
     filters.minimum_age !== null ||
     filters.maximum_age !== null ||
@@ -854,11 +876,14 @@ export const fetchLoanProductsList = async (
     where.eligibility_criteria = {};
 
     //  Map study_level to target_segment
-    if (filters.study_level) {
-      where.eligibility_criteria.target_segment = {
-        contains: filters.study_level,
-        mode: "insensitive",
-      };
+    const studyLevels = toArray(filters.study_level);
+    if (studyLevels.length > 0) {
+      applyStringMatch(
+        where.eligibility_criteria,
+        "target_segment",
+        studyLevels,
+        "contains"
+      );
     }
 
     // Also handle direct target_segment filter
@@ -897,8 +922,8 @@ export const fetchLoanProductsList = async (
     filters.course_duration_max !== null ||
     filters.school_name ||
     filters.program_name ||
-    filters.supported_countries ||
-    filters.supported_nationality
+    hasFilterValue(filters.supported_countries) ||
+    hasFilterValue(filters.supported_nationality)
   ) {
     where.geographic_coverage = {};
 
@@ -969,19 +994,19 @@ export const fetchLoanProductsList = async (
       ];
     }
 
-    if (filters.supported_countries) {
-      where.geographic_coverage.supported_countries = {
-        equals: filters.supported_countries,
-        mode: "insensitive",
-      };
-    }
+    applyStringMatch(
+      where.geographic_coverage,
+      "supported_countries",
+      toArray(filters.supported_countries),
+      "equals"
+    );
 
-    if (filters.supported_nationality) {
-      where.geographic_coverage.supported_nationality = {
-        contains: filters.supported_nationality,
-        mode: "insensitive",
-      };
-    }
+    applyStringMatch(
+      where.geographic_coverage,
+      "supported_nationality",
+      toArray(filters.supported_nationality),
+      "contains"
+    );
   }
 
   // Collateral and security filters
@@ -1044,20 +1069,14 @@ export const fetchLoanProductsList = async (
     switch (sortKey) {
       case "interest_rate":
         // Product type aware sorting for interest rates
-        if (
-          filters.product_type &&
-          filters.product_type.toLowerCase().startsWith("secured")
-        ) {
+        if (anyStartsWith(filters.product_type, "secured")) {
           // Secured loans - sort by secured interest rate
           orderBy = {
             financial_terms: {
               interest_rate_range_min_secured: sortDir || "asc",
             },
           };
-        } else if (
-          filters.product_type &&
-          filters.product_type.toLowerCase().startsWith("unsecured")
-        ) {
+        } else if (anyStartsWith(filters.product_type, "unsecured")) {
           // Unsecured loans - sort by unsecured interest rate
           orderBy = {
             financial_terms: {

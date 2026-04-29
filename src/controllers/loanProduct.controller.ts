@@ -505,3 +505,146 @@ export const getLoanProductsListController = async (
     next(error);
   }
 };
+
+export const getLoanProductsListControllerV2 = async (
+  req: RequestWithPayload<LoginPayload>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const size = Number(req.body.size) || 10;
+    const page = Number(req.body.page) || 1;
+    const sortKey = (req.body.sortKey as string) || null;
+    const sortDir = (req.body.sortDir as "asc" | "desc") || null;
+    const search = (req.body.search as string) || null;
+
+    const filtersFromBody = (req.body.filters as any) || {};
+
+    const filters: LoanProductFilters = {
+      ids: filtersFromBody.interested
+        ? Array.isArray(filtersFromBody.interested)
+          ? filtersFromBody.interested
+              .map((id: any) => parseInt(id))
+              .filter((id: number) => !isNaN(id))
+          : [parseInt(filtersFromBody.interested)].filter(
+              (id: number) => !isNaN(id)
+            )
+        : null,
+      lender_name: filtersFromBody.lender_name || null,
+      product_type: filtersFromBody.loan_type || null,
+      product_category: filtersFromBody.product_category || null,
+      product_status: filtersFromBody.product_status || null,
+      partner_name: filtersFromBody.partner_name || null,
+      supported_countries: filtersFromBody.supported_countries || null,
+      supported_nationality: filtersFromBody.supported_nationality || null,
+
+      interest_rate:
+        filtersFromBody.interest_rate != null
+          ? Number(filtersFromBody.interest_rate)
+          : null,
+      interest_rate_max:
+        filtersFromBody.interest_rate_max != null
+          ? Number(filtersFromBody.interest_rate_max)
+          : null,
+      loan_amount_min:
+        filtersFromBody.loan_amount_min != null
+          ? Number(filtersFromBody.loan_amount_min)
+          : null,
+      loan_amount_max:
+        filtersFromBody.loan_amount_max != null
+          ? Number(filtersFromBody.loan_amount_max)
+          : null,
+      processing_fee_max:
+        filtersFromBody.processing_fee_max != null
+          ? Number(filtersFromBody.processing_fee_max)
+          : null,
+
+      study_level: filtersFromBody.study_level || null,
+      target_segment: filtersFromBody.target_segment || null,
+      minimum_age:
+        filtersFromBody.minimum_age != null
+          ? Number(filtersFromBody.minimum_age)
+          : null,
+      maximum_age:
+        filtersFromBody.maximum_age != null
+          ? Number(filtersFromBody.maximum_age)
+          : null,
+      nationality_restrictions:
+        filtersFromBody.nationality_restrictions || null,
+
+      supported_course_types: filtersFromBody.supported_course_types || null,
+      restricted_countries: filtersFromBody.restricted_countries || null,
+      course_duration_min:
+        filtersFromBody.course_duration_min != null
+          ? Number(filtersFromBody.course_duration_min)
+          : null,
+      course_duration_max:
+        filtersFromBody.course_duration_max != null
+          ? Number(filtersFromBody.course_duration_max)
+          : null,
+
+      intake_month: filtersFromBody.intake_month || null,
+      intake_year:
+        filtersFromBody.intake_year != null
+          ? Number(filtersFromBody.intake_year)
+          : null,
+
+      school_name: filtersFromBody.school_name || null,
+      program_name: filtersFromBody.program_name || null,
+
+      total_tuition_fee:
+        filtersFromBody.total_tuition_fee != null
+          ? Number(filtersFromBody.total_tuition_fee)
+          : null,
+      cost_of_living:
+        filtersFromBody.cost_of_living != null
+          ? Number(filtersFromBody.cost_of_living)
+          : null,
+
+      collateral_required: filtersFromBody.collateral_required || null,
+      guarantor_required: filtersFromBody.guarantor_required || null,
+
+      repayment_period_min:
+        filtersFromBody.repayment_period_min != null
+          ? Number(filtersFromBody.repayment_period_min)
+          : null,
+      repayment_period_max:
+        filtersFromBody.repayment_period_max != null
+          ? Number(filtersFromBody.repayment_period_max)
+          : null,
+      moratorium_available:
+        typeof filtersFromBody.moratorium_available === "boolean"
+          ? filtersFromBody.moratorium_available
+          : filtersFromBody.moratorium_available != null
+            ? filtersFromBody.moratorium_available === "true"
+            : null,
+
+      tax_benefits_available: filtersFromBody.tax_benefits_available || null,
+      digital_features: filtersFromBody.digital_features || null,
+    };
+
+    const offset = (page - 1) * size;
+
+    const { rows, count } = await fetchLoanProductsList(
+      size,
+      offset,
+      sortKey,
+      sortDir,
+      search,
+      filters
+    );
+
+    logger.debug(`Loan products list (v2) fetched successfully. Count: ${count}`);
+
+    sendResponse(res, 200, "Loan products list fetched successfully", {
+      data: rows,
+      total: count,
+      page,
+      size,
+      totalPages: Math.ceil(count / size),
+    });
+  } catch (error) {
+    console.error(`Error fetching loan products list (v2): ${error}`);
+    next(error);
+  }
+};

@@ -1,8 +1,8 @@
 export type LoanProductFilters = {
   // Existing filters
   ids?: number[] | null;
-  lender_name?: string | null;
-  product_type?: string | null;
+  lender_name?: string | string[] | null;
+  product_type?: string | string[] | null;
   product_category?: string | null;
   product_status?: string | null;
   partner_name?: string | null;
@@ -15,7 +15,7 @@ export type LoanProductFilters = {
   processing_fee_max?: number | null;
 
   // Eligibility filters
-  study_level?: string | null;
+  study_level?: string | string[] | null;
   target_segment?: string | null;
   minimum_age?: number | null;
   maximum_age?: number | null;
@@ -26,8 +26,8 @@ export type LoanProductFilters = {
   restricted_countries?: string | null;
   course_duration_min?: number | null;
   course_duration_max?: number | null;
-  supported_nationality?: string | null;
-  supported_countries?: string | null;
+  supported_nationality?: string | string[] | null;
+  supported_countries?: string | string[] | null;
 
   // Intake period filters
   intake_month?: string | null;
