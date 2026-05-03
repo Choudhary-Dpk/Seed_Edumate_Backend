@@ -50,6 +50,49 @@ export const studentSignupController = async (
     const mappedFields = await mapAllFields(req.body);
     const categorized = categorizeByTable(mappedFields);
 
+    // Resolve partner id. Priority order:
+    //   1. b2b_partner_id directly in payload (already populated by mapAllFields).
+    //   2. hs_company_id in payload → look up HSB2BPartners.company_id and set the
+    //      internal id. Frontend usually only has hs_company_id from the URL
+    //      (e.g. /explore-loans?hs_company_id=...), not the internal id.
+    const rawPartnerId = categorized["mainContact"]?.b2b_partner_id;
+    const numericPartnerId = Number(rawPartnerId);
+    const hasDirectPartnerId =
+      rawPartnerId !== null &&
+      rawPartnerId !== undefined &&
+      String(rawPartnerId).trim() !== "" &&
+      !isNaN(numericPartnerId) &&
+      numericPartnerId > 0;
+
+    if (!hasDirectPartnerId) {
+      const rawHsCompanyId =
+        req.body?.hs_company_id ?? req.body?.hsCompanyId ?? null;
+      const hsCompanyId =
+        rawHsCompanyId != null ? String(rawHsCompanyId).trim() : "";
+      if (hsCompanyId) {
+        const partner = await prisma.hSB2BPartners.findFirst({
+          where: { company_id: hsCompanyId, is_deleted: false },
+          select: { id: true },
+        });
+        if (partner) {
+          categorized["mainContact"] = {
+            ...(categorized["mainContact"] || {}),
+            b2b_partner_id: String(partner.id),
+          };
+        } else {
+          logger.warn(
+            `[signup] hs_company_id ${hsCompanyId} did not match any partner; contact will be created without b2b_partner_id`
+          );
+        }
+      }
+    } else if (rawPartnerId !== String(numericPartnerId)) {
+      // Normalize to string so downstream code (and DB column) gets a consistent type.
+      categorized["mainContact"] = {
+        ...(categorized["mainContact"] || {}),
+        b2b_partner_id: String(numericPartnerId),
+      };
+    }
+
     // Inject B2B partner details into lead attribution if partner ID is in payload
     const payloadPartnerId = categorized["mainContact"]?.b2b_partner_id;
     if (payloadPartnerId) {
