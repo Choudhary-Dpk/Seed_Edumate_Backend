@@ -11,12 +11,12 @@ import {
   updateEdumatePersonalInformation,
   updateEdumateAcademicProfile,
   updateEdumateLeadAttribution,
-  getEdumateContactByEmail,
+  getEdumateContactsByEmail,
   updateEdumateContactSystemTracking,
   updateEdumateContactApplicationJourney,
   updateEdumateContactLoanPreference,
   updateEdumateContactFinancialInfo,
-  getEdumateContactByPhone,
+  getEdumateContactsByPhone,
   createApplicationJourney,
   createFinancialInfo,
   createLoanPreferences,
@@ -106,11 +106,100 @@ export const studentSignupController = async (
       }
     }
 
-    let existingContactDb = null;
+    // Multi-partner dedup. Each (phone/email, b2b_partner_id) pair gets its
+    // own contact row, so the same person registering through two different
+    // partner schools shows up as two leads (one per partner).
+    //
+    // Decision priority:
+    //   1. If signup resolved a b2b_partner_id (directly or via hs_company_id),
+    //      match the existing contact whose b2b_partner_id is the same.
+    //      No match → CREATE a fresh contact, leaving the prior partner's
+    //      contact untouched (its b2b_partner_id is NOT overwritten).
+    //   2. If no partner id but a target university is present, fall back to
+    //      university-based dedup (case-insensitive match on
+    //      academic_profile.target_universities).
+    //   3. Otherwise, legacy: take the most recent matching contact.
+    //
+    // All comparisons are done in JS so we don't depend on Prisma's nested
+    // relation filter behavior for case-insensitive equals.
+    const resolvedPartnerIdStr = categorized["mainContact"]?.b2b_partner_id;
+    const resolvedPartnerId =
+      resolvedPartnerIdStr !== null &&
+      resolvedPartnerIdStr !== undefined &&
+      String(resolvedPartnerIdStr).trim() !== "" &&
+      Number(resolvedPartnerIdStr) > 0
+        ? String(Number(resolvedPartnerIdStr))
+        : null;
+
+    const incomingUniversity = (
+      req.body?.targetUniversities ??
+      req.body?.target_universities ??
+      ""
+    )
+      .toString()
+      .trim();
+    const incomingUniversityKey = incomingUniversity.toLowerCase();
+
+    let candidateContacts: Array<any> = [];
     if (phoneNumber) {
-      existingContactDb = await getEdumateContactByPhone(phoneNumber);
+      candidateContacts = await getEdumateContactsByPhone(phoneNumber);
     } else if (email) {
-      existingContactDb = await getEdumateContactByEmail(email);
+      candidateContacts = await getEdumateContactsByEmail(email);
+    }
+
+    // Verbose decision-log — easier to diagnose dedup misses in production.
+    const candidateSummary = candidateContacts.map((c) => ({
+      id: c?.id,
+      b2b_partner_id: c?.b2b_partner_id ?? null,
+      target_universities: c?.academic_profile?.target_universities ?? null,
+    }));
+    logger.info(
+      `[signup] dedup lookup — incoming partner=${resolvedPartnerId ?? "null"}, university="${incomingUniversity || ""}", candidates=${JSON.stringify(candidateSummary)}`
+    );
+
+    let existingContactDb: any = null;
+
+    if (resolvedPartnerId) {
+      // Primary: match by b2b_partner_id on the contact row itself.
+      existingContactDb =
+        candidateContacts.find((c) => {
+          const cPartner =
+            c?.b2b_partner_id != null ? String(c.b2b_partner_id) : null;
+          return cPartner === resolvedPartnerId;
+        }) || null;
+
+      if (!existingContactDb) {
+        logger.info(
+          `[signup] phone/email matched ${candidateContacts.length} existing contact(s) but none with b2b_partner_id=${resolvedPartnerId} — CREATE new contact for this (user, partner) pair`
+        );
+      } else {
+        logger.info(
+          `[signup] reusing existing contact ${existingContactDb.id} for (user, partner=${resolvedPartnerId}) — UPDATE`
+        );
+      }
+    } else if (incomingUniversity) {
+      // Secondary: no partner id, fall back to university-based match.
+      existingContactDb =
+        candidateContacts.find((c) => {
+          const u = (c?.academic_profile?.target_universities ?? "")
+            .toString()
+            .trim()
+            .toLowerCase();
+          return u && u === incomingUniversityKey;
+        }) || null;
+
+      if (!existingContactDb) {
+        logger.info(
+          `[signup] phone/email matched ${candidateContacts.length} existing contact(s) but none with university "${incomingUniversity}" — CREATE new contact for this (user, university) pair`
+        );
+      } else {
+        logger.info(
+          `[signup] reusing existing contact ${existingContactDb.id} for (user, "${incomingUniversity}") — UPDATE`
+        );
+      }
+    } else {
+      // Legacy: no partner id and no university → take the latest match.
+      existingContactDb = candidateContacts[0] || null;
     }
 
     let result;
@@ -338,8 +427,31 @@ export const studentSigninController = async (
       return sendResponse(res, 400, "Phone number is required");
     }
 
+    // Optional: scope to a specific partner so the same phone can be associated
+    // with multiple partner-specific contact rows (e.g. Riyaz @ Emory vs Riyaz
+    // @ Penn) and login returns the right "view". Frontend may pass either
+    // b2b_partner_id directly or hs_company_id (we resolve it).
+    let resolvedPartnerId: number | null = null;
+    const rawPartnerId =
+      req.body?.b2b_partner_id ?? req.body?.b2bPartnerId ?? null;
+    if (rawPartnerId !== null && rawPartnerId !== undefined) {
+      const n = Number(rawPartnerId);
+      if (!isNaN(n) && n > 0) resolvedPartnerId = n;
+    }
+    if (!resolvedPartnerId) {
+      const rawHs = req.body?.hs_company_id ?? req.body?.hsCompanyId ?? null;
+      const hsCompanyId = rawHs != null ? String(rawHs).trim() : "";
+      if (hsCompanyId) {
+        const partner = await prisma.hSB2BPartners.findFirst({
+          where: { company_id: hsCompanyId, is_deleted: false },
+          select: { id: true },
+        });
+        if (partner) resolvedPartnerId = partner.id;
+      }
+    }
+
     // Get student and contact data using helper
-    const data = await findStudentByPhoneNumber(phoneNumber);
+    const data = await findStudentByPhoneNumber(phoneNumber, resolvedPartnerId);
 
     return sendResponse(res, 200, "Student logged in successfully", data);
   } catch (error: any) {

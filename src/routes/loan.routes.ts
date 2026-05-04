@@ -5,6 +5,7 @@ import {
   generateRepaymentScheduleAndEmail,
   getConvertedCurrency,
   getInstitutionCosts,
+  getInstitutionCostsV3,
   getInstitutionProgram,
 } from "../controllers/loan.controller";
 import { AuthMethod } from "../types/auth";
@@ -52,6 +53,21 @@ router.post(
     method: AuthMethod.API_KEY,
   }),
   getInstitutionCosts
+);
+
+/**
+ * V3 — Extract institution costs with 3-tier fallback:
+ *   Local DB (d_universities + seed_client_programs) → seed PHP API → Anthropic AI
+ * POST /loans/extract-costs/v3
+ * Body: { institution_name, study_level, faculty }
+ * Response includes `source: "db" | "seed_api" | "ai"`
+ */
+router.post(
+  "/extract-costs/v3",
+  authenticate({
+    method: AuthMethod.API_KEY,
+  }),
+  getInstitutionCostsV3
 );
 
 /**

@@ -250,68 +250,70 @@ model B2BPartnersRolePermissions {
 }
 
 model HSB2BPartners {
-  id                         Int                                      @id @default(autoincrement())
-  business_address           String?
-  business_type              String?
-  city                       String?
-  country                    String?
-  gst_number                 String?
-  incorporation_date         DateTime?
-  pan_number                 String?
-  partner_display_name       String?
-  partner_name               String?
-  partner_type               String?
-  pincode                    String?
-  registration_number        String?
-  state                      String?
-  website_url                String?
-  hs_createdate              DateTime?
-  hs_lastmodifieddate        DateTime?
-  hs_merged_object_ids       String?
-  hs_object_id               String?                                  @unique
-  hs_object_source_detail_1  String?
-  hs_object_source_detail_2  String?
-  hs_object_source_detail_3  String?
-  hs_object_source_label     String?
-  hs_shared_team_ids         String?
-  hs_shared_user_ids         String?
-  hubspot_owner_assigneddate DateTime?
-  hubspot_owner_id           String?
-  hubspot_team_id            String?
-  is_active                  Boolean                                  @default(true)
-  is_deleted                 Boolean                                  @default(false)
-  created_by                 Int?
-  created_at                 DateTime                                 @default(now())
-  updated_by                 Int?
-  updated_at                 DateTime                                 @default(now()) @updatedAt
-  deleted_by                 Int?
-  deleted_on                 DateTime?
-  gst_rate                   Int?
-  source                     String?                                  @default("webportal")
-  hs_created_by_user_id      Int?
-  hs_updated_by_user_id      Int?
-  is_commission_applicable   String?
-  company_id                 String?
-  university_id              String?
-  logo_url                   String?
-  users                      B2BPartnersUsers[]
-  deleted_by_user            B2BPartnersUsers?                        @relation("PartnerDeletedBy", fields: [deleted_by], references: [id], onDelete: Cascade)
-  business_capabilities      HSB2BPartnersBusinessCapabilities?
-  commission_structure       HSB2BPartnersCommissionStructure?
-  compliance                 HSB2BPartnersComplianceAndDocumentation?
-  contact_info               HSB2BPartnersContactInfo?
-  financial_tracking         HSB2BPartnersFinancialTracking?
-  lead_attribution           HSB2BPartnersLeadAttribution?
-  marketing_promo            HSB2BPartnersMarketingAndPromotion?
-  partnership_details        HSB2BPartnersPartnershipDetails?
-  performance_metrics        HSB2BPartnersPerformanceMetrics?
-  relationship_management    HSB2BPartnersRelationshipManagement?
-  system_tracking            HSB2BPartnersSystemTracking?
-  commission_settlements     HSCommissionSettlements[]
-  b2b_partner_contacts       HSEdumateContacts[]                      @relation("B2BPartnerContacts")
-  loan_applications          HSLoanApplications[]
-  monthly_mis_reports        HSMonthlyMISReports[]
-  invoice                    Invoice[]
+  id                           Int                                      @id @default(autoincrement())
+  business_address             String?
+  business_type                String?
+  city                         String?
+  country                      String?
+  gst_number                   String?
+  incorporation_date           DateTime?
+  pan_number                   String?
+  partner_display_name         String?
+  partner_name                 String?
+  partner_type                 String?
+  pincode                      String?
+  registration_number          String?
+  state                        String?
+  website_url                  String?
+  hs_createdate                DateTime?
+  hs_lastmodifieddate          DateTime?
+  hs_merged_object_ids         String?
+  hs_object_id                 String?                                  @unique
+  hs_object_source_detail_1    String?
+  hs_object_source_detail_2    String?
+  hs_object_source_detail_3    String?
+  hs_object_source_label       String?
+  hs_shared_team_ids           String?
+  hs_shared_user_ids           String?
+  hubspot_owner_assigneddate   DateTime?
+  hubspot_owner_id             String?
+  hubspot_team_id              String?
+  is_active                    Boolean                                  @default(true)
+  is_deleted                   Boolean                                  @default(false)
+  created_by                   Int?
+  created_at                   DateTime                                 @default(now())
+  updated_by                   Int?
+  updated_at                   DateTime                                 @default(now()) @updatedAt
+  deleted_by                   Int?
+  deleted_on                   DateTime?
+  gst_rate                     Int?
+  source                       String?                                  @default("webportal")
+  hs_created_by_user_id        Int?
+  hs_updated_by_user_id        Int?
+  is_commission_applicable     String?
+  company_id                   String?
+  university_id                String?
+  logo_url                     String?
+  users                        B2BPartnersUsers[]
+  deleted_by_user              B2BPartnersUsers?                        @relation("PartnerDeletedBy", fields: [deleted_by], references: [id], onDelete: Cascade)
+  business_capabilities        HSB2BPartnersBusinessCapabilities?
+  commission_structure         HSB2BPartnersCommissionStructure?
+  compliance                   HSB2BPartnersComplianceAndDocumentation?
+  contact_info                 HSB2BPartnersContactInfo?
+  financial_tracking           HSB2BPartnersFinancialTracking?
+  lead_attribution             HSB2BPartnersLeadAttribution?
+  marketing_promo              HSB2BPartnersMarketingAndPromotion?
+  partnership_details          HSB2BPartnersPartnershipDetails?
+  performance_metrics          HSB2BPartnersPerformanceMetrics?
+  relationship_management      HSB2BPartnersRelationshipManagement?
+  system_tracking              HSB2BPartnersSystemTracking?
+  commission_settlements       HSCommissionSettlements[]
+  b2b_partner_contacts         HSEdumateContacts[]                      @relation("B2BPartnerContacts")
+  loan_applications            HSLoanApplications[]
+  monthly_mis_reports          HSMonthlyMISReports[]
+  invoice                      Invoice[]
+  contact_university_interests HSEdumateContactUniversityInterests[]    @relation("ContactUniversityInterestsPartner")
+  contact_program_interests    HSEdumateContactProgramInterests[]       @relation("ContactProgramInterestsPartner")
 
   @@index([partner_name])
   @@index([partner_type])
@@ -972,6 +974,8 @@ model HSEdumateContacts {
   invoice                    Invoice[]
   eligibility_lead           MktEligibilityCheckerLeads?
   emi_lead                   MktEmiCalculatorLeads?
+  university_interests       HSEdumateContactUniversityInterests[]
+  program_interests          HSEdumateContactProgramInterests[]
 
   @@index([hs_object_id])
   @@index([seed_contact])
@@ -2525,18 +2529,22 @@ model dashboard_email_templates {
 }
 
 model d_universities {
-  id                    BigInt                  @id @default(autoincrement())
-  name                  String                  @db.VarChar(500)
-  slug                  String                  @unique @db.VarChar(500)
-  country_code          String?                 @db.Char(2)
-  country               String?                 @db.VarChar(100)
-  default_currency      String?                 @db.Char(3)
-  website               String?                 @db.VarChar(500)
-  created_at            DateTime?               @default(now()) @db.Timestamptz(6)
-  updated_at            DateTime?               @default(now()) @db.Timestamptz(6)
-  aliases               Json?                   @default("[]")
-  d_university_programs d_university_programs[]
-  f_program_fetch_runs  f_program_fetch_runs[]
+  id                        BigInt                                @id @default(autoincrement())
+  name                      String                                @db.VarChar(500)
+  slug                      String                                @unique @db.VarChar(500)
+  country_code              String?                               @db.Char(2)
+  country                   String?                               @db.VarChar(100)
+  default_currency          String?                               @db.Char(3)
+  website                   String?                               @db.VarChar(500)
+  created_at                DateTime?                             @default(now()) @db.Timestamptz(6)
+  updated_at                DateTime?                             @default(now()) @db.Timestamptz(6)
+  aliases                   Json?                                 @default("[]")
+  hs_company_id             BigInt?
+  d_university_programs     d_university_programs[]
+  f_program_fetch_runs      f_program_fetch_runs[]
+  seed_programs             Seed_Client_Programs[]
+  contact_interests         HSEdumateContactUniversityInterests[]
+  contact_program_interests HSEdumateContactProgramInterests[]    @relation("ProgramInterestsUniversity")
 
   @@index([slug], map: "idx_d_universities_slug")
   @@index([aliases], map: "idx_d_universities_aliases", type: Gin)
@@ -2656,6 +2664,191 @@ view leads_view {
   processing_fee              Decimal?  @db.Decimal
   loan_application_count      BigInt?
   loan_application_ids        Int[]
+}
+
+model Seed_Client_Programs {
+  id Int @id @default(autoincrement())
+
+  // HubSpot linkage — used to resolve b2b_partner_id & hs_company_id
+  // for the loan signup flow (Extract Cost → Universities API).
+  // Nullable because AI/PHP-sourced programs (auto-ingested from V3) don't
+  // have a HubSpot record. Manually-added rows from HubSpot sync DO have these
+  // populated. Source distinction lives on `source` below.
+  hs_record_id  BigInt? @unique // HubSpot Program record ID (NULL for AI-ingested)
+  hs_company_id BigInt? // HubSpot University/Company record ID (NULL for AI-ingested)
+
+  // Provenance — "hubspot" (manually curated, default) vs "ai" / "php" (auto-ingested from V3)
+  source String? @default("hubspot") @db.VarChar(50)
+
+  // FK to d_universities — one university has many seed_client_programs.
+  // Nullable so legacy rows can be backfilled later via name/slug match.
+  university_id BigInt?
+
+  // Core program info
+  university_name String? @db.VarChar(255)
+  school_name     String? @db.VarChar(255) // 123 rows have null school
+  program_name    String? @db.VarChar(500)
+
+  // Cost
+  tuition_fees  Decimal? @db.Decimal(12, 2) // 1 row has null
+  currency_code String?
+
+  // Duration in months
+  minimum_duration Int?
+  maximum_duration Int?
+
+  // Categorization (kept as String — values are semicolon-separated and free-form)
+  specialization_of_interest String? @db.Text
+  subject_area               String? @db.VarChar(255)
+
+  study_level String?
+  study_type  String?
+
+  created_at DateTime? @default(now())
+  updated_at DateTime? @updatedAt
+
+  university        d_universities?                    @relation(fields: [university_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  contact_interests HSEdumateContactProgramInterests[]
+
+  @@index([hs_company_id])
+  @@index([university_name])
+  @@index([study_level])
+  @@index([subject_area])
+  @@index([study_level, subject_area]) // common filter combo for Extract Cost
+  @@index([university_id])
+  @@map("seed_client_programs")
+}
+
+/// Student (HSEdumateContacts) ↔ d_universities junction.
+/// Captures which universities a contact has expressed interest in,
+/// along with the lifecycle of that interest (target → applied → admitted → enrolled / rejected / withdrawn).
+/// One row per (contact, university) pair (enforced by @@unique).
+model HSEdumateContactUniversityInterests {
+  id            Int    @id @default(autoincrement())
+  contact_id    Int
+  university_id BigInt
+
+  // Lifecycle
+  interest_type      String    @default("target") // target | applied | admitted | rejected | enrolled | withdrawn
+  application_status String?
+  application_date   DateTime?
+  decision_date      DateTime?
+
+  // Snapshot of intake & target captured at the time the interest was recorded
+  intake_month        String?
+  intake_year         String?
+  target_degree_level String? // Undergraduate | Graduate - Masters | Graduate - MBA | PhD
+  target_course_major String?
+
+  // Priority / ordering
+  ranking    Int? // 1 = top choice, 2 = second, etc.
+  is_primary Boolean @default(false)
+
+  // Attribution
+  source           String? @default("signup") // signup | import | manual | partner_referral | hubspot_sync
+  hubspot_owner_id String?
+
+  // Optional: which b2b partner brought this specific interest (may differ from contact-level partner)
+  b2b_partner_id Int?
+
+  // Free-form
+  notes String? @db.Text
+
+  // Audit
+  is_deleted Boolean   @default(false)
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  created_by Int?
+  deleted_by Int?
+  deleted_at DateTime?
+
+  // Relations
+  contact     HSEdumateContacts @relation(fields: [contact_id], references: [id], onDelete: Cascade)
+  university  d_universities    @relation(fields: [university_id], references: [id], onDelete: Cascade)
+  b2b_partner HSB2BPartners?    @relation("ContactUniversityInterestsPartner", fields: [b2b_partner_id], references: [id], onDelete: SetNull)
+
+  @@unique([contact_id, university_id])
+  @@index([contact_id])
+  @@index([university_id])
+  @@index([interest_type])
+  @@index([intake_year, intake_month])
+  @@index([b2b_partner_id])
+  @@index([is_deleted])
+  @@map("hs_edumate_contact_university_interests")
+}
+
+/// Student (HSEdumateContacts) ↔ Seed_Client_Programs junction.
+/// Captures which specific programs (sourced from the seed catalogue) a contact
+/// has shown interest in. Includes a price snapshot because seed_client_programs
+/// rows can be re-priced over time and we want to remember the figure that was
+/// shown to the user when they expressed interest.
+model HSEdumateContactProgramInterests {
+  id         Int @id @default(autoincrement())
+  contact_id Int
+
+  // Optional FK to seed_client_programs. Populated when program data came from
+  // our local catalogue (V3 source = "db"). NULL when source is PHP / AI — in
+  // that case we still capture program_name + tuition snapshot below so the
+  // interest is recorded even without a canonical seed_client_programs row.
+  seed_client_program_id Int?
+
+  // Optional university link — useful for "all program interests at uni X"
+  // queries and for FK-less rows where seed_client_program_id is NULL.
+  university_id BigInt?
+
+  // Snapshot of the program identity (populated even when seed_client_program_id
+  // is NULL, so the data is self-contained).
+  program_name String? @db.VarChar(500)
+
+  // Lifecycle
+  interest_type      String    @default("target") // target | applied | admitted | rejected | enrolled | withdrawn
+  application_status String?
+  application_date   DateTime?
+  decision_date      DateTime?
+
+  // Intake snapshot
+  intake_month String?
+  intake_year  String?
+
+  // Cost snapshot (program prices change — we capture what the student saw)
+  expected_tuition  Decimal? @db.Decimal(12, 2)
+  expected_currency String?
+
+  // Priority / ordering
+  ranking    Int?
+  is_primary Boolean @default(false)
+
+  // Attribution
+  source           String? @default("signup")
+  hubspot_owner_id String?
+  b2b_partner_id   Int?
+
+  // Free-form
+  notes String? @db.Text
+
+  // Audit
+  is_deleted Boolean   @default(false)
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  created_by Int?
+  deleted_by Int?
+  deleted_at DateTime?
+
+  // Relations
+  contact     HSEdumateContacts     @relation(fields: [contact_id], references: [id], onDelete: Cascade)
+  program     Seed_Client_Programs? @relation(fields: [seed_client_program_id], references: [id], onDelete: Cascade)
+  university  d_universities?       @relation("ProgramInterestsUniversity", fields: [university_id], references: [id], onDelete: SetNull)
+  b2b_partner HSB2BPartners?        @relation("ContactProgramInterestsPartner", fields: [b2b_partner_id], references: [id], onDelete: SetNull)
+
+  @@index([contact_id])
+  @@index([seed_client_program_id])
+  @@index([university_id])
+  @@index([contact_id, university_id])
+  @@index([interest_type])
+  @@index([intake_year, intake_month])
+  @@index([b2b_partner_id])
+  @@index([is_deleted])
+  @@map("hs_edumate_contact_program_interests")
 }
 
 enum EmailTemplateCategory {

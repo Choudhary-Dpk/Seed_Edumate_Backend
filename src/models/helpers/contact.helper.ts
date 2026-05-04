@@ -169,6 +169,165 @@ export const getEdumateContactByPhone = async (phone: string) => {
   return contact;
 };
 
+/**
+ * Fetch ALL non-deleted contacts whose personal_information.phone_number matches.
+ * The signup flow needs this to support multi-university users — one contact per
+ * (phone, target_universities) pair. The caller picks the right one in JS so we
+ * don't rely on Prisma's nested relation filter (which has subtle behavior
+ * around case-insensitive equals on related String fields).
+ */
+export const getEdumateContactsByPhone = async (phone: string) => {
+  return await prisma.hSEdumateContacts.findMany({
+    include: {
+      personal_information: {
+        select: {
+          id: true,
+          first_name: true,
+          last_name: true,
+          email: true,
+          is_deleted: true,
+        },
+      },
+      application_journey: true,
+      system_tracking: true,
+      loan_preference: true,
+      academic_profile: true,
+      lead_attribution: true,
+    },
+    where: {
+      personal_information: {
+        phone_number: phone,
+        is_deleted: false,
+      },
+    },
+    orderBy: { created_at: "desc" },
+  });
+};
+
+/**
+ * Email-keyed variant of {@link getEdumateContactsByPhone}.
+ */
+export const getEdumateContactsByEmail = async (email: string) => {
+  return await prisma.hSEdumateContacts.findMany({
+    include: {
+      personal_information: {
+        select: {
+          id: true,
+          first_name: true,
+          last_name: true,
+          email: true,
+          is_deleted: true,
+        },
+      },
+      application_journey: true,
+      system_tracking: true,
+      loan_preference: true,
+      academic_profile: true,
+      lead_attribution: true,
+    },
+    where: {
+      personal_information: {
+        email: email,
+        is_deleted: false,
+      },
+    },
+    orderBy: { created_at: "desc" },
+  });
+};
+
+/**
+ * Look up a contact scoped to a target university (case-insensitive equals).
+ * If `university` is null/empty, falls back to a phone-only lookup.
+ *
+ * Used by signup: same person can register again for a different university —
+ * each registration becomes its own contact row, instead of overwriting the
+ * earlier one.
+ */
+export const getEdumateContactByPhoneAndUniversity = async (
+  phone: string,
+  university: string | null,
+) => {
+  const trimmedUniversity = (university ?? "").trim();
+  return await prisma.hSEdumateContacts.findFirst({
+    include: {
+      personal_information: {
+        select: {
+          id: true,
+          first_name: true,
+          last_name: true,
+          email: true,
+          is_deleted: true,
+        },
+      },
+      application_journey: true,
+      system_tracking: true,
+      loan_preference: true,
+      academic_profile: true,
+      lead_attribution: true,
+    },
+    where: {
+      personal_information: {
+        phone_number: phone,
+        is_deleted: false,
+      },
+      ...(trimmedUniversity
+        ? {
+            academic_profile: {
+              target_universities: {
+                equals: trimmedUniversity,
+                mode: "insensitive",
+              },
+            },
+          }
+        : {}),
+    },
+  });
+};
+
+/**
+ * Email-keyed variant of {@link getEdumateContactByPhoneAndUniversity}.
+ */
+export const getEdumateContactByEmailAndUniversity = async (
+  email: string,
+  university: string | null,
+) => {
+  const trimmedUniversity = (university ?? "").trim();
+  return await prisma.hSEdumateContacts.findFirst({
+    include: {
+      personal_information: {
+        select: {
+          id: true,
+          first_name: true,
+          last_name: true,
+          email: true,
+          is_deleted: true,
+        },
+      },
+      application_journey: true,
+      system_tracking: true,
+      loan_preference: true,
+      academic_profile: true,
+      lead_attribution: true,
+    },
+    where: {
+      personal_information: {
+        email: email,
+        is_deleted: false,
+      },
+      ...(trimmedUniversity
+        ? {
+            academic_profile: {
+              target_universities: {
+                equals: trimmedUniversity,
+                mode: "insensitive",
+              },
+            },
+          }
+        : {}),
+    },
+  });
+};
+
 export const getEdumateContactByEmailAndPartnerId = async (
   email: string,
   partnerId: number,

@@ -51,7 +51,10 @@ export const createStudentUser = async (
   });
 };
 
-export const findStudentByPhoneNumber = async (phone_number: string) => {
+export const findStudentByPhoneNumber = async (
+  phone_number: string,
+  b2b_partner_id: number | null = null,
+) => {
   const student = await prisma.contactUsers.findFirst({
     where: {
       phone: phone_number,
@@ -82,10 +85,36 @@ export const findStudentByPhoneNumber = async (phone_number: string) => {
     throw new Error("Contact information not linked to this student");
   }
 
+  // If a partner scope is provided, find the contact for THIS user (matched by
+  // phone) that belongs to the requested partner. Otherwise fall back to the
+  // contact_id linked on contactUsers (latest one).
+  let scopedContactId: number = student.contact_id;
+  if (b2b_partner_id != null) {
+    const partnerScopedContact = await prisma.hSEdumateContacts.findFirst({
+      where: {
+        b2b_partner_id,
+        is_deleted: false,
+        personal_information: {
+          phone_number,
+          is_deleted: false,
+        },
+      },
+      select: { id: true },
+      orderBy: { created_at: "desc" },
+    });
+    if (partnerScopedContact) {
+      scopedContactId = partnerScopedContact.id;
+    } else {
+      throw new Error(
+        `No contact found for this phone with b2b_partner_id=${b2b_partner_id}`,
+      );
+    }
+  }
+
   // Fetch contact with personal information
   const contactData = await prisma.hSEdumateContacts.findUnique({
     where: {
-      id: student.contact_id,
+      id: scopedContactId,
       is_deleted: false,
     },
     select: {
