@@ -169,10 +169,14 @@ export const categorizeLoanProductByTable = (
   // Financial Terms Fields (HSLoanProductsFinancialTerms)
   const financialTermsFields = [
     "administrative_charges",
+    "interest_rate_max",
+    "interest_rate_min",
     "interest_rate_range_max",
     "interest_rate_range_min",
     "interest_rate_type",
     "legal_charges",
+    "loan_amount_max",
+    "loan_amount_min",
     "loan_to_value_ratio",
     "margin_money_percentage",
     "maximum_loan_amount_secured",

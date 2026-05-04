@@ -1015,6 +1015,20 @@ export const mapAllLoanProductFields = async (
         : null;
   }
 
+  if (input.interest_rate_min !== undefined) {
+    mapped.interest_rate_min =
+      input.interest_rate_min !== null && input.interest_rate_min !== ""
+        ? input.interest_rate_min
+        : null;
+  }
+
+  if (input.interest_rate_max !== undefined) {
+    mapped.interest_rate_max =
+      input.interest_rate_max !== null && input.interest_rate_max !== ""
+        ? input.interest_rate_max
+        : null;
+  }
+
   if (input.legal_charges !== undefined) {
     mapped.legal_charges =
       input.legal_charges !== null && input.legal_charges !== ""
@@ -1151,6 +1165,20 @@ export const mapAllLoanProductFields = async (
       input.minimum_loan_amount_unsecured !== null &&
         input.minimum_loan_amount_unsecured !== ""
         ? input.minimum_loan_amount_unsecured
+        : null;
+  }
+
+  if (input.loan_amount_min !== undefined) {
+    mapped.loan_amount_min =
+      input.loan_amount_min !== null && input.loan_amount_min !== ""
+        ? input.loan_amount_min
+        : null;
+  }
+
+  if (input.loan_amount_max !== undefined) {
+    mapped.loan_amount_max =
+      input.loan_amount_max !== null && input.loan_amount_max !== ""
+        ? input.loan_amount_max
         : null;
   }
 
