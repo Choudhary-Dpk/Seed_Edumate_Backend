@@ -540,8 +540,8 @@ async function transformToHubSpotFormat(contact: any): Promise<any> {
       ? parseFloat(financialInfo.collateral_2_value)
       : null,
     co_applicant_1_name: financialInfo.co_applicant_1_name || null,
-    co_applicant_1_email: contact.co_applicant_1_email || null,
-    co_applicant_1_mobile_number: contact.co_applicant_1_mobile_number || null,
+    co_applicant_1_email: financialInfo.co_applicant_1_email || null,
+    co_applicant_1_mobile_number: financialInfo.co_applicant_1_mobile_number || null,
     co_applicant_1_income: financialInfo.co_applicant_1_income
       ? parseFloat(financialInfo.co_applicant_1_income)
       : null,
