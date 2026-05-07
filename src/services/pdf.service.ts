@@ -589,14 +589,27 @@ const generateHTMLTemplate = (
 };
 
 // ========== PDF GENERATOR ==========
+const sanitizeForFilename = (value: string): string =>
+  value
+    .normalize("NFKD")
+    .replace(/[^\w\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "_")
+    .slice(0, 40);
+
 export const generatePDF = async (
   calculationResult: CalculationResult,
   options: PDFGenerationOptions = {}
 ): Promise<{ buffer: Buffer; fileName: string }> => {
-  const { fromName = "Edumate", requestId, customerDetails } = options;
+  const { fromName = "Edumate", customerDetails } = options;
 
-  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-  const fileName = `repayment-schedule-${requestId || timestamp}.pdf`;
+  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const namePart = customerDetails?.name
+    ? sanitizeForFilename(customerDetails.name)
+    : "";
+  const fileName = namePart
+    ? `Loan_Repayment_Schedule_${namePart}_${today}.pdf`
+    : `Loan_Repayment_Schedule_${today}.pdf`;
 
   let page: Page | null = null;
 

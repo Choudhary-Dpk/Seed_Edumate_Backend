@@ -90,9 +90,41 @@ async function processEmail(email: any): Promise<void> {
       subject: email.subject,
     });
 
-    // Parse attachments if present
-    const attachments = email.attachments
-      ? JSON.parse(JSON.stringify(email.attachments))
+    // Queue stores `content` as a base64 string (Prisma JSON column can't hold
+    // a Buffer). Nodemailer treats a plain string as UTF-8 text unless told
+    // otherwise — sending the base64 text as-is produces a corrupted PDF on
+    // the recipient side. Decode back to a Buffer here so the binary survives.
+    let rawAttachments: any = email.attachments ?? undefined;
+    if (typeof rawAttachments === "string") {
+      try {
+        rawAttachments = JSON.parse(rawAttachments);
+      } catch {
+        rawAttachments = undefined;
+      }
+    }
+
+    const attachments = Array.isArray(rawAttachments)
+      ? rawAttachments.map((att: any) => {
+          const buffer =
+            typeof att.content === "string"
+              ? Buffer.from(att.content, "base64")
+              : Buffer.isBuffer(att.content)
+                ? att.content
+                : att.content?.data
+                  ? Buffer.from(att.content.data)
+                  : undefined;
+          logger.debug("Prepared attachment", {
+            filename: att.filename,
+            contentType: att.contentType,
+            bufferBytes: buffer?.length,
+          });
+          return {
+            filename: att.filename,
+            content: buffer,
+            contentType: att.contentType,
+            ...(att.path && { path: att.path }),
+          };
+        })
       : undefined;
 
     // Send email

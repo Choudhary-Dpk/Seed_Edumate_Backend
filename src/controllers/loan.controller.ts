@@ -25,12 +25,15 @@ import { generateRequestIdFromPayload } from "../utils/helper";
 import logger from "../utils/logger";
 import { generateEMIRepaymentScheduleEmail } from "../utils/email templates/repaymentScheduleDetails";
 
-import { queueEmail } from "../services/email-queue.service";
 import {
   EmailType,
   EmailCategory,
   SenderType,
+  createEmailLog,
+  updateEmailLogStatus,
+  EmailLogStatus,
 } from "../services/email-log.service";
+import { sendUnifiedEmail } from "../services/unified-email.service";
 
 export const checkLoanEligibility = async (
   req: Request,
@@ -556,46 +559,33 @@ export const generateRepaymentScheduleAndEmail = async (
       //Don't return - continue with email and response
     }
 
-    // Send email (with or without PDF)
+    // Send email (with or without PDF) — synchronous path with raw Buffer.
+    // Bypasses the email queue's JSON column round-trip so the binary PDF goes
+    // straight to nodemailer as bytes, not as a base64 string.
     if (sendEmail && email) {
+      const emailSubject = strategyType
+        ? `${subject} - ${getStrategyDisplayName(strategyType)}`
+        : subject;
+      const emailMessage = strategyType
+        ? `${message}\n\nThis schedule includes your ${getStrategyDisplayName(
+            strategyType,
+          )} optimization.`
+        : message;
+      const htmlMessage = generateEMIRepaymentScheduleEmail(name);
+
+      let emailLogId: number | undefined;
       try {
-        logger.debug(`Preparing to send email to: ${email} (${name})`);
+        logger.debug(`Sending email to: ${email} (${name})`);
 
-        const emailSubject = strategyType
-          ? `${subject} - ${getStrategyDisplayName(strategyType)}`
-          : subject;
-
-        const emailMessage = strategyType
-          ? `${message}\n\nThis schedule includes your ${getStrategyDisplayName(
-              strategyType,
-            )} optimization.`
-          : message;
-
-        // Generate HTML email template
-        const htmlMessage = generateEMIRepaymentScheduleEmail(name);
-
-        // Prepare attachments if PDF is available
-        const attachments =
-          pdfBuffer && pdfFileName
-            ? [
-                {
-                  filename: pdfFileName,
-                  content: pdfBuffer.toString("base64"),
-                  contentType: "application/pdf",
-                },
-              ]
-            : [];
-
-        //  NEW: Use unified email queue system
-        await queueEmail({
-          to: email,
+        const emailLog = await createEmailLog({
+          recipient: email,
           subject: emailSubject,
-          html: htmlMessage,
-          text: emailMessage,
-          attachments: attachments.length > 0 ? attachments : undefined,
           email_type: EmailType.REPAYMENT_SCHEDULE,
           category: EmailCategory.LOAN,
           sent_by_type: SenderType.SYSTEM,
+          has_attachment: !!pdfBuffer,
+          attachment_count: pdfBuffer ? 1 : 0,
+          status: EmailLogStatus.PENDING,
           metadata: {
             fromName,
             requestId,
@@ -603,15 +593,42 @@ export const generateRepaymentScheduleAndEmail = async (
             annualRate,
             tenureYears,
             strategyType: strategyType || null,
-            hasPdfAttachment: !!pdfBuffer,
             customerName: name,
           },
         });
+        emailLogId = emailLog.id;
 
-        logger.debug(
-          `Email queued successfully: ${email} | PDF: ${pdfFileName || "none"} ${
+        const result = await sendUnifiedEmail({
+          to: email,
+          subject: emailSubject,
+          html: htmlMessage,
+          text: emailMessage,
+          attachments:
+            pdfBuffer && pdfFileName
+              ? [
+                  {
+                    filename: pdfFileName,
+                    content: pdfBuffer,
+                    contentType: "application/pdf",
+                  },
+                ]
+              : undefined,
+        });
+
+        if (!result.success) {
+          throw new Error(result.error || "Unknown email send failure");
+        }
+
+        if (emailLogId) {
+          await updateEmailLogStatus(emailLogId, EmailLogStatus.SENT, {
+            sent_at: new Date(),
+          });
+        }
+
+        logger.info(
+          `Email sent: ${email} | PDF: ${pdfFileName || "none"} ${
             pdfBuffer ? `(${pdfBuffer.length} bytes)` : ""
-          }`,
+          } | messageId: ${result.messageId}`,
         );
 
         emailResponse = {
@@ -620,18 +637,17 @@ export const generateRepaymentScheduleAndEmail = async (
           sentAt: new Date().toISOString(),
           hasPdfAttachment: !!pdfBuffer,
         };
-
-        logger.debug(
-          `Email queued for delivery: ${email} at ${emailResponse.sentAt}`,
-        );
       } catch (error) {
-        logger.error(
-          `Email queueing failed for: ${email} - ${
-            error instanceof Error ? error.message : String(error)
-          }`,
-        );
-        // Don't fail the entire request if email fails
-        // Just log the error and continue
+        const errMsg =
+          error instanceof Error ? error.message : String(error);
+        logger.error(`Email send failed for: ${email} - ${errMsg}`);
+        if (emailLogId) {
+          await updateEmailLogStatus(emailLogId, EmailLogStatus.FAILED, {
+            error_message: errMsg,
+            failed_at: new Date(),
+          }).catch(() => {});
+        }
+        // Don't fail the whole request — calculation result still goes back.
       }
     }
 
