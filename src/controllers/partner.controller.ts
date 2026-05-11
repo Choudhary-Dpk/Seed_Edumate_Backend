@@ -498,23 +498,26 @@ export const upsertUniversityController = async (
       client_name,
     } = req.body;
 
-    if (!hs_company_id || !school_id) {
+    if (!hs_company_id && !school_id) {
       return sendResponse(
         res,
         400,
-        "Company Id and University Id are required",
+        "Either Company Id or University Id is required",
       );
     }
 
     logger.debug(
-      `Checking if B2B partner exists with company_id: ${hs_company_id} and university_id: ${school_id}`,
+      `Checking if B2B partner exists with company_id: ${hs_company_id} or university_id: ${school_id}`,
     );
 
     // Check if partner exists
+    const orConditions = [];
+    if (hs_company_id) orConditions.push({ company_id: hs_company_id });
+    if (school_id) orConditions.push({ university_id: school_id });
+
     const existingPartner = await prisma.hSB2BPartners.findFirst({
       where: {
-        company_id: hs_company_id,
-        university_id: school_id,
+        OR: orConditions,
         is_deleted: false,
       },
     });

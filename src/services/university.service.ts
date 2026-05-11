@@ -59,12 +59,6 @@ export interface UniversityProgramsFilters {
   search?: string | null;
 }
 
-export type UniversityMatchSource =
-  | "partner_university_id"
-  | "partner_name_slug"
-  | "partner_name_alias"
-  | "partner_name_ilike";
-
 export type UniversityNameMatchSource =
   | "name_slug"
   | "name_alias"
@@ -98,6 +92,10 @@ const serializeUniversity = (u: any) =>
     ? {
         ...u,
         id: typeof u.id === "bigint" ? u.id.toString() : u.id,
+        hs_company_id:
+          typeof u.hs_company_id === "bigint"
+            ? u.hs_company_id.toString()
+            : u.hs_company_id ?? null,
       }
     : null;
 
@@ -114,88 +112,15 @@ const serializeProgram = (p: any) => ({
 });
 
 export async function findUniversityByHsCompanyId(hsCompanyId: string) {
-  const partner = await prisma.hSB2BPartners.findFirst({
-    where: { company_id: hsCompanyId, is_deleted: false },
-    select: partnerSelect,
+  if (!/^\d+$/.test(hsCompanyId)) {
+    return { university: null };
+  }
+
+  const university = await prisma.d_universities.findFirst({
+    where: { hs_company_id: BigInt(hsCompanyId) },
   });
 
-  if (!partner) {
-    return { partner: null, university: null, matchSource: null };
-  }
-
-  // Strategy 1: partner.university_id is a numeric d_universities.id
-  if (partner.university_id && /^\d+$/.test(partner.university_id)) {
-    try {
-      const byId = await prisma.d_universities.findUnique({
-        where: { id: BigInt(partner.university_id) },
-        select: universitySelect,
-      });
-      if (byId) {
-        return {
-          partner,
-          university: byId,
-          matchSource: "partner_university_id" as UniversityMatchSource,
-        };
-      }
-    } catch {
-      // fall through to name-based strategies
-    }
-  }
-
-  const candidate = (
-    partner.partner_display_name ||
-    partner.partner_name ||
-    ""
-  ).trim();
-  if (!candidate) {
-    return { partner, university: null, matchSource: null };
-  }
-
-  // Strategy 2: name → slug
-  const slug = slugify(candidate);
-  const bySlug = await prisma.d_universities.findUnique({
-    where: { slug },
-    select: universitySelect,
-  });
-  if (bySlug) {
-    return {
-      partner,
-      university: bySlug,
-      matchSource: "partner_name_slug" as UniversityMatchSource,
-    };
-  }
-
-  // Strategy 3: aliases JSON contains slug
-  const byAlias = await prisma.$queryRawUnsafe<any[]>(
-    `SELECT id, name, slug, country_code, country, default_currency, website, aliases
-     FROM d_universities
-     WHERE aliases @> $1::jsonb
-     LIMIT 1`,
-    JSON.stringify([slug])
-  );
-  if (byAlias?.[0]) {
-    return {
-      partner,
-      university: byAlias[0],
-      matchSource: "partner_name_alias" as UniversityMatchSource,
-    };
-  }
-
-  // Strategy 4: ILIKE contains
-  const byIlike = await prisma.d_universities.findFirst({
-    where: { name: { contains: candidate, mode: "insensitive" } },
-    select: universitySelect,
-    orderBy: { name: "asc" },
-  });
-  if (byIlike) {
-    return {
-      partner,
-      university: byIlike,
-      matchSource: "partner_name_ilike" as UniversityMatchSource,
-    };
-  }
-
-  return { partner, university: null, matchSource: null };
+  return { university };
 }
 
 export type PartnerMatchSource =

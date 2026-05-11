@@ -64,29 +64,13 @@ export const getUniversityByCompanyController = async (
     const studentType = (req.query.student_type as string)?.trim() || null;
     const search = (req.query.search as string)?.trim() || null;
 
-    const { partner, university, matchSource } =
-      await findUniversityByHsCompanyId(hsCompanyId);
-
-    if (!partner) {
-      return sendResponse(res, 404, "No partner found for this hs_company_id");
-    }
-
-    // b2b_partner_id is the most important field for the caller — surface it explicitly.
-    const partnerOut = {
-      b2b_partner_id: partner.id,
-      ...partner,
-    };
+    const { university } = await findUniversityByHsCompanyId(hsCompanyId);
 
     if (!university) {
       return sendResponse(
         res,
-        200,
-        "Partner found but no matching university in d_universities",
-        {
-          partner: partnerOut,
-          university: null,
-          matchSource: null,
-        }
+        404,
+        "No university found for this hs_company_id"
       );
     }
 
@@ -94,9 +78,7 @@ export const getUniversityByCompanyController = async (
 
     if (!includePrograms) {
       return sendResponse(res, 200, "University resolved successfully", {
-        partner: partnerOut,
         university: universityOut,
-        matchSource,
       });
     }
 
@@ -112,9 +94,7 @@ export const getUniversityByCompanyController = async (
       200,
       "University and programs resolved successfully",
       {
-        partner: partnerOut,
         university: universityOut,
-        matchSource,
         programs,
       }
     );
