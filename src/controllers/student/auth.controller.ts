@@ -699,23 +699,36 @@ export const updateStudentController = async (
       }
 
       // Mirror concent into the dedicated contact_consents table.
+      //
+      // When the request expresses a per-product intent
+      // (`loan_product_data_consent` + `loan_product_id`), skip the bulk
+      // replace. The downstream `recordLoanProductConsentEvent` call already
+      // maintains the cumulative `loan_product_consent` row for the targeted
+      // (contact, loan_product_id) pair, and the bulk replace would otherwise
+      // deactivate active rows for OTHER products the frontend didn't mention.
       if (concentForConsentTable !== undefined) {
-        const partnerIdForConsent = (categorized.mainContact as any)
-          ?.b2b_partner_id
-          ? Number((categorized.mainContact as any).b2b_partner_id)
-          : null;
-        await replaceConcentForContact(
-          student.contact_id,
-          concentForConsentTable,
-          {
-            b2bPartnerId: partnerIdForConsent,
-            email: updateData.email ?? null,
-            phone: updateData.phone ?? null,
-            ipAddress: req.ip ?? null,
-            createdBy: "student_update",
-          },
-          tx
-        );
+        if (perProductConsent.present) {
+          logger.info(
+            `[student_update] per-product consent event present (loan_product_id=${perProductConsent.payload?.loanProductId}); skipping replaceConcentForContact to preserve other products' cumulative rows`
+          );
+        } else {
+          const partnerIdForConsent = (categorized.mainContact as any)
+            ?.b2b_partner_id
+            ? Number((categorized.mainContact as any).b2b_partner_id)
+            : null;
+          await replaceConcentForContact(
+            student.contact_id,
+            concentForConsentTable,
+            {
+              b2bPartnerId: partnerIdForConsent,
+              email: updateData.email ?? null,
+              phone: updateData.phone ?? null,
+              ipAddress: req.ip ?? null,
+              createdBy: "student_update",
+            },
+            tx
+          );
+        }
       }
 
       // Update edumate contact tables using categorized data
