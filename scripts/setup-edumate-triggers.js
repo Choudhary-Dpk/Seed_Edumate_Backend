@@ -16,8 +16,12 @@ BEGIN
     source_value := COALESCE(NEW.source, OLD.source);
   ELSE
     contact_id_value := COALESCE(NEW.contact_id, OLD.contact_id);
-    hs_object_id_value := NULL;
-    source_value := NULL;
+    -- Child table: fetch source and hs_object_id from parent (hs_edumate_contacts)
+    -- so that the same "source = hubspot" skip logic applies to child updates too.
+    SELECT source, hs_object_id
+      INTO source_value, hs_object_id_value
+    FROM hs_edumate_contacts
+    WHERE id = contact_id_value;
   END IF;
 
   payload := json_build_object(

@@ -252,13 +252,8 @@ export const mapAllFields = async (
       input.source !== null && input.source !== "" ? input.source : null;
   }
 
-  if (input.concent !== undefined) {
-    mapped.concent = Array.isArray(input.concent)
-      ? input.concent.filter(
-          (id: any) => typeof id === "number" && !isNaN(id),
-        )
-      : [];
-  }
+  // NOTE: `concent` is intentionally not mapped here anymore. It is now persisted
+  // in the dedicated `contact_consents` table via consent.helper.ts.
 
   if (input.interested !== undefined) {
     mapped.interested = Array.isArray(input.interested)

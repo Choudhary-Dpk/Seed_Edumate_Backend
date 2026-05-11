@@ -314,6 +314,7 @@ model HSB2BPartners {
   invoice                      Invoice[]
   contact_university_interests HSEdumateContactUniversityInterests[]    @relation("ContactUniversityInterestsPartner")
   contact_program_interests    HSEdumateContactProgramInterests[]       @relation("ContactProgramInterestsPartner")
+  contact_consents             ContactConsents[]
 
   @@index([partner_name])
   @@index([partner_type])
@@ -959,7 +960,6 @@ model HSEdumateContacts {
   preferred_currency         String?
   batch_id                   String?
   email                      String?
-  concent                    Int[]                                 @default([])
   student                    ContactUsers[]                        @relation("ContactUser")
   commission_settlements     HSCommissionSettlements[]
   b2b_partner                HSB2BPartners?                        @relation("B2BPartnerContacts", fields: [b2b_partner_id], references: [id], onDelete: Cascade)
@@ -976,6 +976,7 @@ model HSEdumateContacts {
   emi_lead                   MktEmiCalculatorLeads?
   university_interests       HSEdumateContactUniversityInterests[]
   program_interests          HSEdumateContactProgramInterests[]
+  contact_consents           ContactConsents[]
 
   @@index([hs_object_id])
   @@index([seed_contact])
@@ -1393,6 +1394,7 @@ model HSLoanProducts {
   system_integration                HSLoanProductsSystemIntegration?
   system_tracking                   HSLoanProductsSystemTracking?
   invoice                           Invoice[]
+  contact_consents                  ContactConsents[]
 
   @@index([product_name])
   @@index([lender_id])
@@ -2853,6 +2855,48 @@ model HSEdumateContactProgramInterests {
   @@index([b2b_partner_id])
   @@index([is_deleted])
   @@map("hs_edumate_contact_program_interests")
+}
+
+model ContactConsents {
+  id              Int       @id @default(autoincrement())
+
+  // Who — all nullable
+  contact_id      Int?
+  loan_product_id Int?
+  b2b_partner_id  Int?
+  type            String?
+
+  // Identifier jab contact_id null ho (anonymous user)
+  email           String?
+  phone           String?
+
+  // The actual response
+  response_value  Boolean
+
+  // Audit
+  ip_address      String?
+  is_active       Boolean   @default(true)
+
+  // Timestamps
+  responded_at    DateTime  @default(now())
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+  created_by      String?
+
+  // Relations
+  contact         HSEdumateContacts? @relation(fields: [contact_id], references: [id], onDelete: SetNull)
+  loan_product    HSLoanProducts?    @relation(fields: [loan_product_id], references: [id], onDelete: SetNull)
+  b2b_partner     HSB2BPartners?     @relation(fields: [b2b_partner_id], references: [id], onDelete: SetNull)
+
+  // Indexes
+  @@index([contact_id])
+  @@index([loan_product_id])
+  @@index([b2b_partner_id])
+  @@index([email])
+  @@index([phone])
+  @@index([type])
+  @@index([contact_id, loan_product_id, is_active])
+  @@map("contact_consents")
 }
 
 enum EmailTemplateCategory {

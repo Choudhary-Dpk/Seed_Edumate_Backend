@@ -9,6 +9,7 @@ import {
 } from "../services/hubspot.service";
 import { mapEnumValue } from "../constants/enumMappingDbToHs";
 import { getPartnerById } from "../models/helpers/partners.helper";
+import { getConcentByContactId } from "../models/helpers/consent.helper";
 
 const MAX_RETRIES = 5;
 const DEBOUNCE_DELAY = 5000;
@@ -251,6 +252,7 @@ async function handleEdumateCreate(contactId: number): Promise<string> {
     where: { id: contactId },
     data: {
       hs_object_id: results[0].id,
+      // source: "hubspot"
     },
   });
 
@@ -401,9 +403,10 @@ async function transformToHubSpotFormat(contact: any): Promise<any> {
     contact.interested || []
   );
 
-  // Map concent loan product IDs to HubSpot object IDs (if you need this field too)
+  // Concent now lives in `contact_consents`. Fetch the active list at sync time.
+  const concentIds = await getConcentByContactId(contact.id);
   const favouriteLoanProductsHsIds = await mapLoanProductIdsToHsObjectIds(
-    contact.concent || []
+    concentIds
   );
 
   logger.debug(
@@ -411,7 +414,7 @@ async function transformToHubSpotFormat(contact: any): Promise<any> {
     {
       interested_db_ids: contact.interested,
       interested_hs_ids_formatted: interestedLoanProductsHsIds,
-      favourite_db_ids: contact.concent,
+      favourite_db_ids: concentIds,
       favourite_hs_ids_formatted: favouriteLoanProductsHsIds,
     }
   );

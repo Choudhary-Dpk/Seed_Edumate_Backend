@@ -36,6 +36,11 @@ import { mapAllFields } from "../../mappers/edumateContact/mapping";
 import { categorizeByTable } from "../../services/DBServices/edumateContacts.service";
 import prisma from "../../config/prisma";
 import { getPartnerById } from "../../models/helpers/partners.helper";
+import {
+  getConcentByContactId,
+  replaceConcentForContact,
+  recordConsent,
+} from "../../models/helpers/consent.helper";
 
 export const studentSignupController = async (
   req: Request,
@@ -322,6 +327,30 @@ export const studentSignupController = async (
       full_name
     );
 
+    // Persist consent record whenever the partner_data_consent flag is
+    // present in the signup payload (true or false).
+    //   - true  → type = "Partner",      b2b_partner_id taken from payload
+    //   - false → type = "Loan Product", b2b_partner_id stays null
+    if (req.body?.partner_data_consent !== undefined) {
+      const isPartnerConsent = req.body.partner_data_consent === true;
+      const partnerIdForConsent =
+        isPartnerConsent && categorized["mainContact"]?.b2b_partner_id
+          ? Number(categorized["mainContact"].b2b_partner_id)
+          : null;
+
+      await recordConsent({
+        contactId: result.id,
+        type: isPartnerConsent ? "Partner" : "Loan Product",
+        responseValue: isPartnerConsent,
+        b2bPartnerId: partnerIdForConsent,
+        email: email ?? null,
+        phone: phoneNumber ?? null,
+        ipAddress: req.ip ?? null,
+        createdBy: "student_signup",
+        deactivatePrevious: true,
+      });
+    }
+
     const completeContactData = await prisma.hSEdumateContacts.findUnique({
       where: {
         id: result.id,
@@ -340,7 +369,6 @@ export const studentSignupController = async (
         source: true,
         created_at: true,
         updated_at: true,
-        concent: true,
         interested: true,
         academic_profile: true,
         application_journey: true,
@@ -386,8 +414,13 @@ export const studentSignupController = async (
       ...contactBase
     } = completeContactData;
 
+    // Reconstruct `concent` from contact_consents so the response shape
+    // remains identical to the previous behaviour.
+    const concent = await getConcentByContactId(contactBase.id);
+
     const contact = {
       ...contactBase,
+      concent,
       personal_information,
       academic_profile,
       financial_Info,
@@ -600,13 +633,14 @@ export const updateStudentController = async (
       categorized.mainContact = {};
     }
 
-    // Add concent to mainContact for HSEdumateContacts update
-    if (updateData.concent !== undefined) {
-      (categorized.mainContact as any).concent =
-        validationResults.concent.valid.length > 0
+    // Concent is now persisted in contact_consents, NOT on hs_edumate_contacts.
+    // We still keep ContactUsers.concent in sync for backwards compatibility.
+    const concentForConsentTable =
+      updateData.concent !== undefined
+        ? validationResults.concent.valid.length > 0
           ? validationResults.concent.valid
-          : updateData.concent;
-    }
+          : updateData.concent
+        : undefined;
 
     // Add interested to mainContact for HSEdumateContacts update
     if (updateData.interested !== undefined) {
@@ -623,8 +657,27 @@ export const updateStudentController = async (
         await updateContactUser(studentId, contactUserUpdateData);
       }
 
+      // Mirror concent into the dedicated contact_consents table.
+      if (concentForConsentTable !== undefined) {
+        const partnerIdForConsent = (categorized.mainContact as any)
+          ?.b2b_partner_id
+          ? Number((categorized.mainContact as any).b2b_partner_id)
+          : null;
+        await replaceConcentForContact(
+          student.contact_id,
+          concentForConsentTable,
+          {
+            b2bPartnerId: partnerIdForConsent,
+            email: updateData.email ?? null,
+            phone: updateData.phone ?? null,
+            ipAddress: req.ip ?? null,
+            createdBy: "student_update",
+          },
+          tx
+        );
+      }
+
       // Update edumate contact tables using categorized data
-      // NOTE: This will now include concent and interested fields
       if (
         categorized.mainContact &&
         Object.keys(categorized.mainContact).length > 0

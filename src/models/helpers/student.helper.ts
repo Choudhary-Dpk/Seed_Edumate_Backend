@@ -1,4 +1,5 @@
 import prisma from "../../config/prisma";
+import { getConcentByContactId } from "./consent.helper";
 
 export const createStudentUser = async (
   contactId: number,
@@ -130,7 +131,6 @@ export const findStudentByPhoneNumber = async (
       source: true,
       created_at: true,
       updated_at: true,
-      concent: true,
       interested: true,
       academic_profile: true,
       application_journey: true,
@@ -177,8 +177,12 @@ export const findStudentByPhoneNumber = async (
     ...contactBase
   } = contactData;
 
+  // Reconstruct `concent` from the new contact_consents table to keep
+  // response shape backwards-compatible.
+  const concent = await getConcentByContactId(contactBase.id);
+
   const contact = {
-    contactBase,
+    contactBase: { ...contactBase, concent },
     personal_information,
     academic_profile,
     financial_Info,
@@ -249,7 +253,6 @@ export const getStudentProfileById = async (student_id: number) => {
       source: true,
       created_at: true,
       updated_at: true,
-      concent: true,
       interested: true,
       personal_information: {
         select: {
@@ -282,9 +285,12 @@ export const getStudentProfileById = async (student_id: number) => {
   // Flatten personal information into contact object
   const { personal_information, ...contactBase } = contactData;
 
+  const concent = await getConcentByContactId(contactBase.id);
+
   const contact = {
     ...contactBase,
     ...personal_information,
+    concent,
   };
 
   return {
@@ -402,7 +408,6 @@ export const getUpdatedStudentProfile = async (
       source: true,
       created_at: true,
       updated_at: true,
-      concent: true,
       interested: true,
       //  Added all missing relations
       academic_profile: true,
@@ -444,11 +449,16 @@ export const getUpdatedStudentProfile = async (
     loan_preference,
     system_tracking,
     ...contactBase
-  } = contactData || {};
+  } = contactData || ({} as any);
+
+  const concent = contactBase?.id
+    ? await getConcentByContactId(contactBase.id)
+    : [];
 
   //  Structure contact with all relations (matching login/signup)
   const contact = {
     ...contactBase,
+    concent,
     personal_information,
     academic_profile,
     financial_Info,

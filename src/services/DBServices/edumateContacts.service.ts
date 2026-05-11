@@ -14,7 +14,6 @@ export const categorizeByTable = (mappedFields: Record<string, any>) => {
     "deleted_by_id",
     "b2b_partner_id",
     "hs_b2b_partner_id",
-    "concent",
     "interested",
 
     // HubSpot System Fields
