@@ -251,7 +251,6 @@ async function handleEdumateCreate(contactId: number): Promise<string> {
     where: { id: contactId },
     data: {
       hs_object_id: results[0].id,
-      source: "hubspot",
     },
   });
 
