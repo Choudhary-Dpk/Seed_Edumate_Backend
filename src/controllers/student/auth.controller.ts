@@ -364,11 +364,11 @@ export const studentSignupController = async (
       full_name
     );
 
-    // Persist consent record ONLY when partner_concent_data is true.
+    // Persist consent record ONLY when partner_data_consent is true.
     //   - true  → insert record with type = "Partner", response_value = true,
     //             b2b_partner_id taken from payload
     //   - false → no-op (no record inserted)
-    if (req.body?.partner_concent_data === true) {
+    if (req.body?.partner_data_consent === true) {
       const partnerIdForConsent = categorized["mainContact"]?.b2b_partner_id
         ? Number(categorized["mainContact"].b2b_partner_id)
         : null;
