@@ -327,21 +327,19 @@ export const studentSignupController = async (
       full_name
     );
 
-    // Persist consent record whenever the partner_data_consent flag is
-    // present in the signup payload (true or false).
-    //   - true  → type = "Partner",      b2b_partner_id taken from payload
-    //   - false → type = "Loan Product", b2b_partner_id stays null
-    if (req.body?.partner_data_consent !== undefined) {
-      const isPartnerConsent = req.body.partner_data_consent === true;
-      const partnerIdForConsent =
-        isPartnerConsent && categorized["mainContact"]?.b2b_partner_id
-          ? Number(categorized["mainContact"].b2b_partner_id)
-          : null;
+    // Persist consent record ONLY when partner_concent_data is true.
+    //   - true  → insert record with type = "Partner", response_value = true,
+    //             b2b_partner_id taken from payload
+    //   - false → no-op (no record inserted)
+    if (req.body?.partner_concent_data === true) {
+      const partnerIdForConsent = categorized["mainContact"]?.b2b_partner_id
+        ? Number(categorized["mainContact"].b2b_partner_id)
+        : null;
 
       await recordConsent({
         contactId: result.id,
-        type: isPartnerConsent ? "Partner" : "Loan Product",
-        responseValue: isPartnerConsent,
+        type: "Partner",
+        responseValue: true,
         b2bPartnerId: partnerIdForConsent,
         email: email ?? null,
         phone: phoneNumber ?? null,
