@@ -40,7 +40,9 @@ import {
   getConcentByContactId,
   replaceConcentForContact,
   recordConsent,
+  recordLoanProductConsentEvent,
 } from "../../models/helpers/consent.helper";
+import { validatePerProductConsent } from "../../models/helpers/perProductConsent.helper";
 
 export const studentSignupController = async (
   req: Request,
@@ -50,6 +52,13 @@ export const studentSignupController = async (
   try {
     const { email, formType, phoneNumber, full_name } = req.body;
     let data: any = {};
+
+    // Validate paired per-product consent fields (loan_product_data_consent + loan_product_id).
+    // Reject early so a bad loan_product_id never starts a transaction.
+    const perProductConsent = await validatePerProductConsent(req.body);
+    if (perProductConsent.error) {
+      return sendResponse(res, 400, perProductConsent.error);
+    }
 
     // 1. Map fields to internal structure
     const mappedFields = await mapAllFields(req.body);
@@ -260,6 +269,20 @@ export const studentSignupController = async (
             categorized["leadAttribution"]
           );
 
+          if (perProductConsent.present && perProductConsent.payload) {
+            await recordLoanProductConsentEvent({
+              contactId: contact.id,
+              loanProductId: perProductConsent.payload.loanProductId,
+              consent: perProductConsent.payload.consent,
+              b2bPartnerId: partnerId ?? null,
+              email: email ?? null,
+              phone: phoneNumber ?? null,
+              ipAddress: req.ip ?? null,
+              createdBy: "student_signup",
+              tx,
+            });
+          }
+
           return contact;
         },
         { timeout: 180000 }
@@ -313,6 +336,20 @@ export const studentSignupController = async (
           );
 
           await createEdumateSystemTracking(tx, contact.id);
+
+          if (perProductConsent.present && perProductConsent.payload) {
+            await recordLoanProductConsentEvent({
+              contactId: contact.id,
+              loanProductId: perProductConsent.payload.loanProductId,
+              consent: perProductConsent.payload.consent,
+              b2bPartnerId: newPartnerId ?? null,
+              email: email ?? null,
+              phone: phoneNumber ?? null,
+              ipAddress: req.ip ?? null,
+              createdBy: "student_signup",
+              tx,
+            });
+          }
 
           return contact;
         },
@@ -547,6 +584,12 @@ export const updateStudentController = async (
       return sendResponse(res, 400, "No update data provided");
     }
 
+    // Validate paired per-product consent fields if present.
+    const perProductConsent = await validatePerProductConsent(req.body);
+    if (perProductConsent.error) {
+      return sendResponse(res, 400, perProductConsent.error);
+    }
+
     // Map and categorize fields
     const mappedFields = await mapAllFields(req.body);
     console.log("mappedFields", mappedFields);
@@ -763,6 +806,26 @@ export const updateStudentController = async (
           student.contact_id,
           categorized.systemTracking
         );
+      }
+
+      // Record the explicit per-product consent event AFTER the cumulative
+      // `concent[]` replacement above, so the single-product event wins.
+      if (perProductConsent.present && perProductConsent.payload) {
+        const partnerIdForConsent = (categorized.mainContact as any)
+          ?.b2b_partner_id
+          ? Number((categorized.mainContact as any).b2b_partner_id)
+          : null;
+        await recordLoanProductConsentEvent({
+          contactId: student.contact_id,
+          loanProductId: perProductConsent.payload.loanProductId,
+          consent: perProductConsent.payload.consent,
+          b2bPartnerId: partnerIdForConsent,
+          email: updateData.email ?? null,
+          phone: updateData.phone ?? null,
+          ipAddress: req.ip ?? null,
+          createdBy: "student_update",
+          tx,
+        });
       }
     });
 

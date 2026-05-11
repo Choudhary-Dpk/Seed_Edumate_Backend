@@ -52,6 +52,8 @@ import {
 import { mapAllFields } from "../mappers/edumateContact/mapping";
 import { categorizeByTable } from "../services/DBServices/edumateContacts.service";
 import { handleLeadCreation } from "../services/DBServices/loan.services";
+import { recordLoanProductConsentEvent } from "../models/helpers/consent.helper";
+import { validatePerProductConsent } from "../models/helpers/perProductConsent.helper";
 
 export const createContactsLead = async (
   req: RequestWithPayload<LoginPayload>,
@@ -63,6 +65,12 @@ export const createContactsLead = async (
     let data: any = {};
     let lead_attribution: any;
     let partnerId = req?.body?.b2b_partner_db_id || null;
+
+    // Validate paired per-product consent fields up-front.
+    const perProductConsent = await validatePerProductConsent(req.body);
+    if (perProductConsent.error) {
+      return sendResponse(res, 400, perProductConsent.error);
+    }
 
     if (!partnerId && id) {
       logger.debug(`Fetching partner id from request`);
@@ -162,6 +170,20 @@ export const createContactsLead = async (
         `System tracking created successfully for contact: ${contact.id}`,
       );
 
+      if (perProductConsent.present && perProductConsent.payload) {
+        await recordLoanProductConsentEvent({
+          contactId: contact.id,
+          loanProductId: perProductConsent.payload.loanProductId,
+          consent: perProductConsent.payload.consent,
+          b2bPartnerId: partnerId ?? null,
+          email: req.body?.email ?? null,
+          phone: req.body?.phoneNumber ?? req.body?.phone ?? null,
+          ipAddress: req.ip ?? null,
+          createdBy: "contact_create",
+          tx,
+        });
+      }
+
       data = {
         contact: {
           ...contact,
@@ -205,6 +227,12 @@ export const upsertContactsLead = async (
     const { email, formType, phoneNumber } = req.body;
     let data: any = {};
     let lead_attribution: any;
+
+    // Validate paired per-product consent fields up-front.
+    const perProductConsent = await validatePerProductConsent(req.body);
+    if (perProductConsent.error) {
+      return sendResponse(res, 400, perProductConsent.error);
+    }
 
     logger.debug(`Fetching partner id from request`);
     // const partnerId = await getPartnerIdByUserId(id);
@@ -267,6 +295,23 @@ export const upsertContactsLead = async (
           logger.debug(
             `Lead attribution updated successfully for contact: ${contact.id}`,
           );
+
+          if (perProductConsent.present && perProductConsent.payload) {
+            await recordLoanProductConsentEvent({
+              contactId: contact.id,
+              loanProductId: perProductConsent.payload.loanProductId,
+              consent: perProductConsent.payload.consent,
+              b2bPartnerId:
+                (categorized["mainContact"] as any)?.b2b_partner_id != null
+                  ? Number((categorized["mainContact"] as any).b2b_partner_id)
+                  : null,
+              email: email ?? null,
+              phone: phoneNumber ?? null,
+              ipAddress: req.ip ?? null,
+              createdBy: "contact_upsert",
+              tx,
+            });
+          }
 
           // populate response data similarly to creation flow
           data = {
@@ -373,6 +418,23 @@ export const upsertContactsLead = async (
             `System tracking created successfully for contact: ${contact.id}`,
           );
 
+          if (perProductConsent.present && perProductConsent.payload) {
+            await recordLoanProductConsentEvent({
+              contactId: contact.id,
+              loanProductId: perProductConsent.payload.loanProductId,
+              consent: perProductConsent.payload.consent,
+              b2bPartnerId:
+                (categorized["mainContact"] as any)?.b2b_partner_id != null
+                  ? Number((categorized["mainContact"] as any).b2b_partner_id)
+                  : null,
+              email: email ?? null,
+              phone: phoneNumber ?? null,
+              ipAddress: req.ip ?? null,
+              createdBy: "contact_upsert",
+              tx,
+            });
+          }
+
           data = {
             contact: {
               ...contact,
@@ -461,6 +523,12 @@ export const editContactsLead = async (
     const id = req.payload?.id || null;
     const leadId = req.params.id;
     let partnerId = req?.body?.b2b_partner_db_id || null;
+
+    // Validate paired per-product consent fields up-front.
+    const perProductConsent = await validatePerProductConsent(req.body);
+    if (perProductConsent.error) {
+      return sendResponse(res, 400, perProductConsent.error);
+    }
 
     if (!partnerId && id) {
       logger.debug(`Fetching partner id from request`);
@@ -557,6 +625,23 @@ export const editContactsLead = async (
       logger.debug(
         `System tracking updated successfully for contact: ${contact.id}`,
       );
+
+      if (perProductConsent.present && perProductConsent.payload) {
+        await recordLoanProductConsentEvent({
+          contactId: contact.id,
+          loanProductId: perProductConsent.payload.loanProductId,
+          consent: perProductConsent.payload.consent,
+          b2bPartnerId:
+            (categorized["mainContact"] as any)?.b2b_partner_id != null
+              ? Number((categorized["mainContact"] as any).b2b_partner_id)
+              : partnerId?.b2b_id ?? null,
+          email: req.body?.email ?? null,
+          phone: req.body?.phoneNumber ?? req.body?.phone ?? null,
+          ipAddress: req.ip ?? null,
+          createdBy: "contact_edit",
+          tx,
+        });
+      }
 
       return contact;
     });

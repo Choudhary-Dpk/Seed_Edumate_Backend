@@ -12,6 +12,15 @@ export const LOAN_PRODUCT_CONSENT_TYPE = "loan_product_consent";
  */
 export const PARTNER_DATA_CONSENT_TYPE = "partner_data_consent";
 
+/**
+ * Type used for the explicit per-product grant/revoke events sent from the
+ * loan products list & detail pages (paired `loan_product_data_consent`
+ * boolean + `loan_product_id`). These rows are append-only audit history;
+ * they are never deactivated. The cumulative current state continues to
+ * live on `LOAN_PRODUCT_CONSENT_TYPE` rows so HubSpot sync is unchanged.
+ */
+export const LOAN_PRODUCT_DATA_CONSENT_EVENT_TYPE = "loan_product_data_consent";
+
 export interface RecordConsentParams {
   contactId: number;
   type: string;
@@ -172,4 +181,97 @@ export const replaceConcentForContact = async (
       created_by: meta.createdBy ?? null,
     })),
   });
+};
+
+export interface RecordLoanProductConsentEventParams {
+  contactId: number;
+  loanProductId: number;
+  consent: boolean;
+  b2bPartnerId?: number | null;
+  email?: string | null;
+  phone?: string | null;
+  ipAddress?: string | null;
+  createdBy?: string | null;
+  tx?: any;
+}
+
+/**
+ * Records an explicit per-product consent grant or revoke event.
+ *
+ *  1. Always inserts an append-only audit row of type
+ *     `LOAN_PRODUCT_DATA_CONSENT_EVENT_TYPE` with the boolean response.
+ *  2. Mirrors the current cumulative-state row of type
+ *     `LOAN_PRODUCT_CONSENT_TYPE` for the (contact, product) pair so the
+ *     existing `getConcentByContactId` / HubSpot `favourite_loan_products`
+ *     sync reflects the latest state without any worker changes.
+ *
+ * Call AFTER `replaceConcentForContact` in flows that also send the
+ * cumulative `concent[]` array — the explicit single-product event wins.
+ */
+export const recordLoanProductConsentEvent = async (
+  params: RecordLoanProductConsentEventParams,
+): Promise<void> => {
+  const client = params.tx ?? prisma;
+
+  await client.contactConsents.create({
+    data: {
+      contact_id: params.contactId,
+      loan_product_id: params.loanProductId,
+      b2b_partner_id: params.b2bPartnerId ?? null,
+      type: LOAN_PRODUCT_DATA_CONSENT_EVENT_TYPE,
+      email: params.email ?? null,
+      phone: params.phone ?? null,
+      response_value: params.consent,
+      ip_address: params.ipAddress ?? null,
+      created_by: params.createdBy ?? null,
+    },
+  });
+
+  if (params.consent) {
+    await client.contactConsents.updateMany({
+      where: {
+        contact_id: params.contactId,
+        loan_product_id: params.loanProductId,
+        type: LOAN_PRODUCT_CONSENT_TYPE,
+        is_active: false,
+      },
+      data: { is_active: true },
+    });
+
+    const existing = await client.contactConsents.findFirst({
+      where: {
+        contact_id: params.contactId,
+        loan_product_id: params.loanProductId,
+        type: LOAN_PRODUCT_CONSENT_TYPE,
+        is_active: true,
+      },
+      select: { id: true },
+    });
+
+    if (!existing) {
+      await client.contactConsents.create({
+        data: {
+          contact_id: params.contactId,
+          loan_product_id: params.loanProductId,
+          b2b_partner_id: params.b2bPartnerId ?? null,
+          type: LOAN_PRODUCT_CONSENT_TYPE,
+          email: params.email ?? null,
+          phone: params.phone ?? null,
+          response_value: true,
+          ip_address: params.ipAddress ?? null,
+          created_by: params.createdBy ?? null,
+        },
+      });
+    }
+  } else {
+    await client.contactConsents.updateMany({
+      where: {
+        contact_id: params.contactId,
+        loan_product_id: params.loanProductId,
+        type: LOAN_PRODUCT_CONSENT_TYPE,
+        is_active: true,
+      },
+      data: { is_active: false },
+    });
+  }
 };
