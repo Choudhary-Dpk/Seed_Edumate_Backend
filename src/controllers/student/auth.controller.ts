@@ -39,7 +39,7 @@ import { getPartnerById } from "../../models/helpers/partners.helper";
 import {
   getConcentByContactId,
   replaceConcentForContact,
-  recordConsent,
+  recordPartnerConsentEvent,
   recordLoanProductConsentEvent,
 } from "../../models/helpers/consent.helper";
 import { validatePerProductConsent } from "../../models/helpers/perProductConsent.helper";
@@ -274,7 +274,6 @@ export const studentSignupController = async (
               contactId: contact.id,
               loanProductId: perProductConsent.payload.loanProductId,
               consent: perProductConsent.payload.consent,
-              b2bPartnerId: partnerId ?? null,
               email: email ?? null,
               phone: phoneNumber ?? null,
               ipAddress: req.ip ?? null,
@@ -342,7 +341,6 @@ export const studentSignupController = async (
               contactId: contact.id,
               loanProductId: perProductConsent.payload.loanProductId,
               consent: perProductConsent.payload.consent,
-              b2bPartnerId: newPartnerId ?? null,
               email: email ?? null,
               phone: phoneNumber ?? null,
               ipAddress: req.ip ?? null,
@@ -364,26 +362,26 @@ export const studentSignupController = async (
       full_name
     );
 
-    // Persist consent record ONLY when partner_data_consent is true.
-    //   - true  → insert record with type = "Partner", response_value = true,
-    //             b2b_partner_id taken from payload
-    //   - false → no-op (no record inserted)
+    // Persist consent event ONLY when partner_data_consent is true AND a
+    // partner id is resolvable from the payload. The new `partner`-typed
+    // row requires a non-null `b2b_partner_id`, so skip silently when the
+    // payload has no partner — the consent has no target without it.
     if (req.body?.partner_data_consent === true) {
       const partnerIdForConsent = categorized["mainContact"]?.b2b_partner_id
         ? Number(categorized["mainContact"].b2b_partner_id)
         : null;
 
-      await recordConsent({
-        contactId: result.id,
-        type: "Partner",
-        responseValue: true,
-        b2bPartnerId: partnerIdForConsent,
-        email: email ?? null,
-        phone: phoneNumber ?? null,
-        ipAddress: req.ip ?? null,
-        createdBy: "student_signup",
-        deactivatePrevious: true,
-      });
+      if (partnerIdForConsent) {
+        await recordPartnerConsentEvent({
+          contactId: result.id,
+          b2bPartnerId: partnerIdForConsent,
+          consent: true,
+          email: email ?? null,
+          phone: phoneNumber ?? null,
+          ipAddress: req.ip ?? null,
+          createdBy: "student_signup",
+        });
+      }
     }
 
     const completeContactData = await prisma.hSEdumateContacts.findUnique({
@@ -701,26 +699,20 @@ export const updateStudentController = async (
       // Mirror concent into the dedicated contact_consents table.
       //
       // When the request expresses a per-product intent
-      // (`loan_product_data_consent` + `loan_product_id`), skip the bulk
-      // replace. The downstream `recordLoanProductConsentEvent` call already
-      // maintains the cumulative `loan_product_consent` row for the targeted
-      // (contact, loan_product_id) pair, and the bulk replace would otherwise
-      // deactivate active rows for OTHER products the frontend didn't mention.
+      // (`loan_product_data_consent` + `loan_product_id`), skip the bulk diff
+      // path — `recordLoanProductConsentEvent` below will emit the single
+      // grant/revoke event for the targeted product. Running both would
+      // emit a redundant event for the same product in the same request.
       if (concentForConsentTable !== undefined) {
         if (perProductConsent.present) {
           logger.info(
-            `[student_update] per-product consent event present (loan_product_id=${perProductConsent.payload?.loanProductId}); skipping replaceConcentForContact to preserve other products' cumulative rows`
+            `[student_update] per-product consent event present (loan_product_id=${perProductConsent.payload?.loanProductId}); skipping replaceConcentForContact to avoid duplicate event`
           );
         } else {
-          const partnerIdForConsent = (categorized.mainContact as any)
-            ?.b2b_partner_id
-            ? Number((categorized.mainContact as any).b2b_partner_id)
-            : null;
           await replaceConcentForContact(
             student.contact_id,
             concentForConsentTable,
             {
-              b2bPartnerId: partnerIdForConsent,
               email: updateData.email ?? null,
               phone: updateData.phone ?? null,
               ipAddress: req.ip ?? null,
@@ -824,15 +816,10 @@ export const updateStudentController = async (
       // Record the explicit per-product consent event AFTER the cumulative
       // `concent[]` replacement above, so the single-product event wins.
       if (perProductConsent.present && perProductConsent.payload) {
-        const partnerIdForConsent = (categorized.mainContact as any)
-          ?.b2b_partner_id
-          ? Number((categorized.mainContact as any).b2b_partner_id)
-          : null;
         await recordLoanProductConsentEvent({
           contactId: student.contact_id,
           loanProductId: perProductConsent.payload.loanProductId,
           consent: perProductConsent.payload.consent,
-          b2bPartnerId: partnerIdForConsent,
           email: updateData.email ?? null,
           phone: updateData.phone ?? null,
           ipAddress: req.ip ?? null,

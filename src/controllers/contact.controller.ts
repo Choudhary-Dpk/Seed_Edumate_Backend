@@ -175,7 +175,6 @@ export const createContactsLead = async (
           contactId: contact.id,
           loanProductId: perProductConsent.payload.loanProductId,
           consent: perProductConsent.payload.consent,
-          b2bPartnerId: partnerId ?? null,
           email: req.body?.email ?? null,
           phone: req.body?.phoneNumber ?? req.body?.phone ?? null,
           ipAddress: req.ip ?? null,
@@ -301,10 +300,6 @@ export const upsertContactsLead = async (
               contactId: contact.id,
               loanProductId: perProductConsent.payload.loanProductId,
               consent: perProductConsent.payload.consent,
-              b2bPartnerId:
-                (categorized["mainContact"] as any)?.b2b_partner_id != null
-                  ? Number((categorized["mainContact"] as any).b2b_partner_id)
-                  : null,
               email: email ?? null,
               phone: phoneNumber ?? null,
               ipAddress: req.ip ?? null,
@@ -423,10 +418,6 @@ export const upsertContactsLead = async (
               contactId: contact.id,
               loanProductId: perProductConsent.payload.loanProductId,
               consent: perProductConsent.payload.consent,
-              b2bPartnerId:
-                (categorized["mainContact"] as any)?.b2b_partner_id != null
-                  ? Number((categorized["mainContact"] as any).b2b_partner_id)
-                  : null,
               email: email ?? null,
               phone: phoneNumber ?? null,
               ipAddress: req.ip ?? null,
@@ -631,10 +622,6 @@ export const editContactsLead = async (
           contactId: contact.id,
           loanProductId: perProductConsent.payload.loanProductId,
           consent: perProductConsent.payload.consent,
-          b2bPartnerId:
-            (categorized["mainContact"] as any)?.b2b_partner_id != null
-              ? Number((categorized["mainContact"] as any).b2b_partner_id)
-              : partnerId?.b2b_id ?? null,
           email: req.body?.email ?? null,
           phone: req.body?.phoneNumber ?? req.body?.phone ?? null,
           ipAddress: req.ip ?? null,
