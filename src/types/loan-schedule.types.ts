@@ -26,6 +26,10 @@ export interface RepaymentScheduleRequest {
   strategyType?: 'stepup' | 'prepayment' | 'secured';
   strategyConfig?: StrategyConfig;
   emi?: number;
+  /** IANA timezone (e.g. "Asia/Kolkata", "Asia/Tokyo", "America/New_York"). */
+  timezone?: string;
+  /** BCP 47 locale (e.g. "en-IN", "en-US", "ja-JP"). */
+  locale?: string;
 }
 
 // Response and calculation interfaces (unchanged)
