@@ -295,6 +295,7 @@ model HSB2BPartners {
   university_id                String?
   logo_url                     String?
   users                        B2BPartnersUsers[]
+  contact_consents             ContactConsents[]
   deleted_by_user              B2BPartnersUsers?                        @relation("PartnerDeletedBy", fields: [deleted_by], references: [id], onDelete: Cascade)
   business_capabilities        HSB2BPartnersBusinessCapabilities?
   commission_structure         HSB2BPartnersCommissionStructure?
@@ -308,13 +309,12 @@ model HSB2BPartners {
   relationship_management      HSB2BPartnersRelationshipManagement?
   system_tracking              HSB2BPartnersSystemTracking?
   commission_settlements       HSCommissionSettlements[]
+  contact_program_interests    HSEdumateContactProgramInterests[]       @relation("ContactProgramInterestsPartner")
+  contact_university_interests HSEdumateContactUniversityInterests[]    @relation("ContactUniversityInterestsPartner")
   b2b_partner_contacts         HSEdumateContacts[]                      @relation("B2BPartnerContacts")
   loan_applications            HSLoanApplications[]
   monthly_mis_reports          HSMonthlyMISReports[]
   invoice                      Invoice[]
-  contact_university_interests HSEdumateContactUniversityInterests[]    @relation("ContactUniversityInterestsPartner")
-  contact_program_interests    HSEdumateContactProgramInterests[]       @relation("ContactProgramInterestsPartner")
-  contact_consents             ContactConsents[]
 
   @@index([partner_name])
   @@index([partner_type])
@@ -960,8 +960,11 @@ model HSEdumateContacts {
   preferred_currency         String?
   batch_id                   String?
   email                      String?
+  contact_consents           ContactConsents[]
   student                    ContactUsers[]                        @relation("ContactUser")
   commission_settlements     HSCommissionSettlements[]
+  program_interests          HSEdumateContactProgramInterests[]
+  university_interests       HSEdumateContactUniversityInterests[]
   b2b_partner                HSB2BPartners?                        @relation("B2BPartnerContacts", fields: [b2b_partner_id], references: [id], onDelete: Cascade)
   academic_profile           HSEdumateContactsAcademicProfiles?
   application_journey        HSEdumateContactsApplicationJourney?
@@ -974,9 +977,6 @@ model HSEdumateContacts {
   invoice                    Invoice[]
   eligibility_lead           MktEligibilityCheckerLeads?
   emi_lead                   MktEmiCalculatorLeads?
-  university_interests       HSEdumateContactUniversityInterests[]
-  program_interests          HSEdumateContactProgramInterests[]
-  contact_consents           ContactConsents[]
 
   @@index([hs_object_id])
   @@index([seed_contact])
@@ -1378,6 +1378,7 @@ model HSLoanProducts {
   hs_updated_by_user_id             Int?
   supported_countries               String?
   logo_url                          String?
+  contact_consents                  ContactConsents[]
   commission_settlement             HSCommissionSettlements[]
   loan_application                  HSLoanApplications[]
   lender_information_records        HSLoanApplicationsLenderInformation[]
@@ -1394,7 +1395,6 @@ model HSLoanProducts {
   system_integration                HSLoanProductsSystemIntegration?
   system_tracking                   HSLoanProductsSystemTracking?
   invoice                           Invoice[]
-  contact_consents                  ContactConsents[]
 
   @@index([product_name])
   @@index([lender_id])
@@ -1486,8 +1486,6 @@ model HSLoanProductsFinancialTerms {
   maximum_loan_amount_unsecured     Decimal?       @db.Decimal(16, 4)
   minimum_loan_amount_secured       Decimal?       @db.Decimal(16, 4)
   minimum_loan_amount_unsecured     Decimal?       @db.Decimal(16, 4)
-  loan_amount_min                   Decimal?       @db.Decimal(16, 4)
-  loan_amount_max                   Decimal?       @db.Decimal(16, 4)
   processing_fee_amount             Decimal?       @db.Decimal(16, 4)
   processing_fee_maximum            Decimal?       @db.Decimal(16, 4)
   processing_fee_minimum            Decimal?       @db.Decimal(16, 4)
@@ -1501,9 +1499,11 @@ model HSLoanProductsFinancialTerms {
   interest_rate_range_max_unsecured Decimal?       @db.Decimal(16, 4)
   interest_rate_range_min_secured   Decimal?       @db.Decimal(16, 4)
   interest_rate_range_min_unsecured Decimal?       @db.Decimal(16, 4)
-  interest_rate_min                 Decimal?       @db.Decimal(16, 4)
-  interest_rate_max                 Decimal?       @db.Decimal(16, 4)
   currency                          String?        @default("INR")
+  interest_rate_max                 Decimal?       @db.Decimal(16, 4)
+  interest_rate_min                 Decimal?       @db.Decimal(16, 4)
+  loan_amount_max                   Decimal?       @db.Decimal(16, 4)
+  loan_amount_min                   Decimal?       @db.Decimal(16, 4)
   product                           HSLoanProducts @relation(fields: [product_id], references: [id], onDelete: Cascade)
 
   @@map("hs_loan_products_financial_terms")
@@ -2539,18 +2539,20 @@ model d_universities {
   name                      String                                @db.VarChar(500)
   slug                      String                                @unique @db.VarChar(500)
   country_code              String?                               @db.Char(2)
-  country                   String?                               @db.VarChar(100)
   default_currency          String?                               @db.Char(3)
   website                   String?                               @db.VarChar(500)
   created_at                DateTime?                             @default(now()) @db.Timestamptz(6)
   updated_at                DateTime?                             @default(now()) @db.Timestamptz(6)
   aliases                   Json?                                 @default("[]")
+  country                   String?                               @db.VarChar(100)
   hs_company_id             BigInt?
+  university_type           String?
+  university_logo           String?
   d_university_programs     d_university_programs[]
   f_program_fetch_runs      f_program_fetch_runs[]
-  seed_programs             Seed_Client_Programs[]
-  contact_interests         HSEdumateContactUniversityInterests[]
   contact_program_interests HSEdumateContactProgramInterests[]    @relation("ProgramInterestsUniversity")
+  contact_interests         HSEdumateContactUniversityInterests[]
+  seed_programs             Seed_Client_Programs[]
 
   @@index([slug], map: "idx_d_universities_slug")
   @@index([aliases], map: "idx_d_universities_aliases", type: Gin)
@@ -2627,6 +2629,155 @@ model f_program_fetch_runs {
   @@index([job_id], map: "idx_f_fetch_runs_job_id")
 }
 
+model Seed_Client_Programs {
+  hs_record_id               BigInt?                            @unique
+  hs_company_id              BigInt?
+  university_name            String?                            @db.VarChar(255)
+  school_name                String?                            @db.VarChar(255)
+  program_name               String?                            @db.VarChar(500)
+  tuition_fees               Decimal?                           @db.Decimal(12, 2)
+  currency_code              String?
+  minimum_duration           Int?
+  maximum_duration           Int?
+  specialization_of_interest String?
+  subject_area               String?                            @db.VarChar(255)
+  study_level                String?
+  study_type                 String?
+  created_at                 DateTime?                          @default(now())
+  updated_at                 DateTime?                          @updatedAt
+  id                         Int                                @id @default(autoincrement())
+  university_id              BigInt?
+  source                     String?                            @default("hubspot") @db.VarChar(50)
+  contact_interests          HSEdumateContactProgramInterests[]
+  university                 d_universities?                    @relation(fields: [university_id], references: [id], onUpdate: NoAction)
+
+  @@index([hs_company_id])
+  @@index([university_name])
+  @@index([study_level])
+  @@index([subject_area])
+  @@index([study_level, subject_area])
+  @@index([university_id])
+  @@map("seed_client_programs")
+}
+
+/// Student (HSEdumateContacts) ↔ d_universities junction.
+/// Captures which universities a contact has expressed interest in,
+/// along with the lifecycle of that interest (target → applied → admitted → enrolled / rejected / withdrawn).
+/// One row per (contact, university) pair (enforced by @@unique).
+model HSEdumateContactUniversityInterests {
+  id                  Int               @id @default(autoincrement())
+  contact_id          Int
+  university_id       BigInt
+  interest_type       String            @default("target")
+  application_status  String?
+  application_date    DateTime?
+  decision_date       DateTime?
+  intake_month        String?
+  intake_year         String?
+  target_degree_level String?
+  target_course_major String?
+  ranking             Int?
+  is_primary          Boolean           @default(false)
+  source              String?           @default("signup")
+  hubspot_owner_id    String?
+  b2b_partner_id      Int?
+  notes               String?
+  is_deleted          Boolean           @default(false)
+  created_at          DateTime          @default(now())
+  updated_at          DateTime          @updatedAt
+  created_by          Int?
+  deleted_by          Int?
+  deleted_at          DateTime?
+  b2b_partner         HSB2BPartners?    @relation("ContactUniversityInterestsPartner", fields: [b2b_partner_id], references: [id])
+  contact             HSEdumateContacts @relation(fields: [contact_id], references: [id], onDelete: Cascade)
+  university          d_universities    @relation(fields: [university_id], references: [id], onDelete: Cascade)
+
+  @@unique([contact_id, university_id])
+  @@index([contact_id])
+  @@index([university_id])
+  @@index([interest_type])
+  @@index([intake_year, intake_month])
+  @@index([b2b_partner_id])
+  @@index([is_deleted])
+  @@map("hs_edumate_contact_university_interests")
+}
+
+/// Student (HSEdumateContacts) ↔ Seed_Client_Programs junction.
+/// Captures which specific programs (sourced from the seed catalogue) a contact
+/// has shown interest in. Includes a price snapshot because seed_client_programs
+/// rows can be re-priced over time and we want to remember the figure that was
+/// shown to the user when they expressed interest.
+model HSEdumateContactProgramInterests {
+  id                     Int                   @id @default(autoincrement())
+  contact_id             Int
+  seed_client_program_id Int?
+  interest_type          String                @default("target")
+  application_status     String?
+  application_date       DateTime?
+  decision_date          DateTime?
+  intake_month           String?
+  intake_year            String?
+  expected_tuition       Decimal?              @db.Decimal(12, 2)
+  expected_currency      String?
+  ranking                Int?
+  is_primary             Boolean               @default(false)
+  source                 String?               @default("signup")
+  hubspot_owner_id       String?
+  b2b_partner_id         Int?
+  notes                  String?
+  is_deleted             Boolean               @default(false)
+  created_at             DateTime              @default(now())
+  updated_at             DateTime              @updatedAt
+  created_by             Int?
+  deleted_by             Int?
+  deleted_at             DateTime?
+  program_name           String?               @db.VarChar(500)
+  university_id          BigInt?
+  b2b_partner            HSB2BPartners?        @relation("ContactProgramInterestsPartner", fields: [b2b_partner_id], references: [id])
+  contact                HSEdumateContacts     @relation(fields: [contact_id], references: [id], onDelete: Cascade)
+  program                Seed_Client_Programs? @relation(fields: [seed_client_program_id], references: [id], onDelete: Cascade)
+  university             d_universities?       @relation("ProgramInterestsUniversity", fields: [university_id], references: [id])
+
+  @@index([contact_id])
+  @@index([seed_client_program_id])
+  @@index([university_id])
+  @@index([contact_id, university_id])
+  @@index([interest_type])
+  @@index([intake_year, intake_month])
+  @@index([b2b_partner_id])
+  @@index([is_deleted])
+  @@map("hs_edumate_contact_program_interests")
+}
+
+model ContactConsents {
+  id              Int                @id @default(autoincrement())
+  contact_id      Int?
+  loan_product_id Int?
+  b2b_partner_id  Int?
+  type            String?
+  email           String?
+  phone           String?
+  response_value  Boolean
+  ip_address      String?
+  responded_at    DateTime           @default(now())
+  created_at      DateTime           @default(now())
+  updated_at      DateTime           @updatedAt
+  created_by      String?
+  b2b_partner     HSB2BPartners?     @relation(fields: [b2b_partner_id], references: [id])
+  contact         HSEdumateContacts? @relation(fields: [contact_id], references: [id])
+  loan_product    HSLoanProducts?    @relation(fields: [loan_product_id], references: [id])
+
+  @@index([contact_id])
+  @@index([loan_product_id])
+  @@index([b2b_partner_id])
+  @@index([email])
+  @@index([phone])
+  @@index([type])
+  @@index([contact_id, type, loan_product_id, responded_at(sort: Desc)])
+  @@index([contact_id, type, b2b_partner_id, responded_at(sort: Desc)])
+  @@map("contact_consents")
+}
+
 view leads_view {
   contact_id                  Int?
   b2b_partner_id              Int?
@@ -2670,244 +2821,6 @@ view leads_view {
   processing_fee              Decimal?  @db.Decimal
   loan_application_count      BigInt?
   loan_application_ids        Int[]
-}
-
-model Seed_Client_Programs {
-  id Int @id @default(autoincrement())
-
-  // HubSpot linkage — used to resolve b2b_partner_id & hs_company_id
-  // for the loan signup flow (Extract Cost → Universities API).
-  // Nullable because AI/PHP-sourced programs (auto-ingested from V3) don't
-  // have a HubSpot record. Manually-added rows from HubSpot sync DO have these
-  // populated. Source distinction lives on `source` below.
-  hs_record_id  BigInt? @unique // HubSpot Program record ID (NULL for AI-ingested)
-  hs_company_id BigInt? // HubSpot University/Company record ID (NULL for AI-ingested)
-
-  // Provenance — "hubspot" (manually curated, default) vs "ai" / "php" (auto-ingested from V3)
-  source String? @default("hubspot") @db.VarChar(50)
-
-  // FK to d_universities — one university has many seed_client_programs.
-  // Nullable so legacy rows can be backfilled later via name/slug match.
-  university_id BigInt?
-
-  // Core program info
-  university_name String? @db.VarChar(255)
-  school_name     String? @db.VarChar(255) // 123 rows have null school
-  program_name    String? @db.VarChar(500)
-
-  // Cost
-  tuition_fees  Decimal? @db.Decimal(12, 2) // 1 row has null
-  currency_code String?
-
-  // Duration in months
-  minimum_duration Int?
-  maximum_duration Int?
-
-  // Categorization (kept as String — values are semicolon-separated and free-form)
-  specialization_of_interest String? @db.Text
-  subject_area               String? @db.VarChar(255)
-
-  study_level String?
-  study_type  String?
-
-  created_at DateTime? @default(now())
-  updated_at DateTime? @updatedAt
-
-  university        d_universities?                    @relation(fields: [university_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
-  contact_interests HSEdumateContactProgramInterests[]
-
-  @@index([hs_company_id])
-  @@index([university_name])
-  @@index([study_level])
-  @@index([subject_area])
-  @@index([study_level, subject_area]) // common filter combo for Extract Cost
-  @@index([university_id])
-  @@map("seed_client_programs")
-}
-
-/// Student (HSEdumateContacts) ↔ d_universities junction.
-/// Captures which universities a contact has expressed interest in,
-/// along with the lifecycle of that interest (target → applied → admitted → enrolled / rejected / withdrawn).
-/// One row per (contact, university) pair (enforced by @@unique).
-model HSEdumateContactUniversityInterests {
-  id            Int    @id @default(autoincrement())
-  contact_id    Int
-  university_id BigInt
-
-  // Lifecycle
-  interest_type      String    @default("target") // target | applied | admitted | rejected | enrolled | withdrawn
-  application_status String?
-  application_date   DateTime?
-  decision_date      DateTime?
-
-  // Snapshot of intake & target captured at the time the interest was recorded
-  intake_month        String?
-  intake_year         String?
-  target_degree_level String? // Undergraduate | Graduate - Masters | Graduate - MBA | PhD
-  target_course_major String?
-
-  // Priority / ordering
-  ranking    Int? // 1 = top choice, 2 = second, etc.
-  is_primary Boolean @default(false)
-
-  // Attribution
-  source           String? @default("signup") // signup | import | manual | partner_referral | hubspot_sync
-  hubspot_owner_id String?
-
-  // Optional: which b2b partner brought this specific interest (may differ from contact-level partner)
-  b2b_partner_id Int?
-
-  // Free-form
-  notes String? @db.Text
-
-  // Audit
-  is_deleted Boolean   @default(false)
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
-  created_by Int?
-  deleted_by Int?
-  deleted_at DateTime?
-
-  // Relations
-  contact     HSEdumateContacts @relation(fields: [contact_id], references: [id], onDelete: Cascade)
-  university  d_universities    @relation(fields: [university_id], references: [id], onDelete: Cascade)
-  b2b_partner HSB2BPartners?    @relation("ContactUniversityInterestsPartner", fields: [b2b_partner_id], references: [id], onDelete: SetNull)
-
-  @@unique([contact_id, university_id])
-  @@index([contact_id])
-  @@index([university_id])
-  @@index([interest_type])
-  @@index([intake_year, intake_month])
-  @@index([b2b_partner_id])
-  @@index([is_deleted])
-  @@map("hs_edumate_contact_university_interests")
-}
-
-/// Student (HSEdumateContacts) ↔ Seed_Client_Programs junction.
-/// Captures which specific programs (sourced from the seed catalogue) a contact
-/// has shown interest in. Includes a price snapshot because seed_client_programs
-/// rows can be re-priced over time and we want to remember the figure that was
-/// shown to the user when they expressed interest.
-model HSEdumateContactProgramInterests {
-  id         Int @id @default(autoincrement())
-  contact_id Int
-
-  // Optional FK to seed_client_programs. Populated when program data came from
-  // our local catalogue (V3 source = "db"). NULL when source is PHP / AI — in
-  // that case we still capture program_name + tuition snapshot below so the
-  // interest is recorded even without a canonical seed_client_programs row.
-  seed_client_program_id Int?
-
-  // Optional university link — useful for "all program interests at uni X"
-  // queries and for FK-less rows where seed_client_program_id is NULL.
-  university_id BigInt?
-
-  // Snapshot of the program identity (populated even when seed_client_program_id
-  // is NULL, so the data is self-contained).
-  program_name String? @db.VarChar(500)
-
-  // Lifecycle
-  interest_type      String    @default("target") // target | applied | admitted | rejected | enrolled | withdrawn
-  application_status String?
-  application_date   DateTime?
-  decision_date      DateTime?
-
-  // Intake snapshot
-  intake_month String?
-  intake_year  String?
-
-  // Cost snapshot (program prices change — we capture what the student saw)
-  expected_tuition  Decimal? @db.Decimal(12, 2)
-  expected_currency String?
-
-  // Priority / ordering
-  ranking    Int?
-  is_primary Boolean @default(false)
-
-  // Attribution
-  source           String? @default("signup")
-  hubspot_owner_id String?
-  b2b_partner_id   Int?
-
-  // Free-form
-  notes String? @db.Text
-
-  // Audit
-  is_deleted Boolean   @default(false)
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
-  created_by Int?
-  deleted_by Int?
-  deleted_at DateTime?
-
-  // Relations
-  contact     HSEdumateContacts     @relation(fields: [contact_id], references: [id], onDelete: Cascade)
-  program     Seed_Client_Programs? @relation(fields: [seed_client_program_id], references: [id], onDelete: Cascade)
-  university  d_universities?       @relation("ProgramInterestsUniversity", fields: [university_id], references: [id], onDelete: SetNull)
-  b2b_partner HSB2BPartners?        @relation("ContactProgramInterestsPartner", fields: [b2b_partner_id], references: [id], onDelete: SetNull)
-
-  @@index([contact_id])
-  @@index([seed_client_program_id])
-  @@index([university_id])
-  @@index([contact_id, university_id])
-  @@index([interest_type])
-  @@index([intake_year, intake_month])
-  @@index([b2b_partner_id])
-  @@index([is_deleted])
-  @@map("hs_edumate_contact_program_interests")
-}
-
-model ContactConsents {
-  id              Int       @id @default(autoincrement())
-
-  // Append-only event log. Current state for any (contact, target) is
-  // derived from the latest event's `response_value`. Rows are never
-  // updated or deleted.
-  //
-  // `type` is constrained at the DB level to 'loan_product' | 'partner'.
-  // A DB CHECK constraint enforces that:
-  //   type = 'loan_product' → loan_product_id NOT NULL, b2b_partner_id NULL
-  //   type = 'partner'      → b2b_partner_id  NOT NULL, loan_product_id NULL
-
-  // Who — all nullable
-  contact_id      Int?
-  loan_product_id Int?
-  b2b_partner_id  Int?
-  type            String?
-
-  // Identifier jab contact_id null ho (anonymous user)
-  email           String?
-  phone           String?
-
-  // The actual response — true = grant, false = revoke
-  response_value  Boolean
-
-  // Audit
-  ip_address      String?
-
-  // Timestamps
-  responded_at    DateTime  @default(now())
-  created_at      DateTime  @default(now())
-  updated_at      DateTime  @updatedAt
-  created_by      String?
-
-  // Relations
-  contact         HSEdumateContacts? @relation(fields: [contact_id], references: [id], onDelete: SetNull)
-  loan_product    HSLoanProducts?    @relation(fields: [loan_product_id], references: [id], onDelete: SetNull)
-  b2b_partner     HSB2BPartners?     @relation(fields: [b2b_partner_id], references: [id], onDelete: SetNull)
-
-  // Indexes
-  @@index([contact_id])
-  @@index([loan_product_id])
-  @@index([b2b_partner_id])
-  @@index([email])
-  @@index([phone])
-  @@index([type])
-  // Composite indexes that back the "latest event per (contact, target)"
-  // derivation queries in `getConcentByContactId` / `getConcentMapForContacts`.
-  @@index([contact_id, type, loan_product_id, responded_at(sort: Desc)])
-  @@index([contact_id, type, b2b_partner_id, responded_at(sort: Desc)])
-  @@map("contact_consents")
 }
 
 enum EmailTemplateCategory {

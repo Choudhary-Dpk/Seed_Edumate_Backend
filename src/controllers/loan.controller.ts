@@ -483,6 +483,19 @@ export const generateRepaymentScheduleAndEmail = async (
     const requestId = generateRequestIdFromPayload(payload);
     const customerDetails = { name, email, mobileNumber, address };
 
+    // Pick up the caller's IANA timezone + BCP 47 locale from the request.
+    // Header takes precedence (clients can set "x-timezone" / "x-locale" once
+    // in their HTTP client); body fields work as an explicit override per call.
+    const timezone =
+      (req.headers["x-timezone"] as string | undefined) ||
+      (payload as any).timezone ||
+      undefined;
+    const locale =
+      (req.headers["x-locale"] as string | undefined) ||
+      (req.headers["accept-language"]?.toString().split(",")[0]?.trim()) ||
+      (payload as any).locale ||
+      undefined;
+
     // Check for idempotency - if request was already processed
     if (processedRequests.has(requestId)) {
       const cachedResponse = processedRequests.get(requestId)!;
@@ -540,6 +553,8 @@ export const generateRepaymentScheduleAndEmail = async (
         fromName,
         requestId,
         customerDetails,
+        ...(timezone && { timezone }),
+        ...(locale && { locale }),
         ...(strategyType && { strategyType, strategyConfig }),
       };
 
