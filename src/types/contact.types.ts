@@ -212,9 +212,10 @@ export type ContactsLead = {
   target_course_major?: string | null;
   targetCourseMajor?: string | null;
 
-  preferred_study_destination?: string | null;
-  countryOfStudy?: string;
-  studyDestination?: string | null;
+  /** Single value or array of values; mapper joins into ';'-separated string. */
+  preferred_study_destination?: string | string[] | null;
+  countryOfStudy?: string | string[];
+  studyDestination?: string | string[] | null;
 
   target_universities?: string | null;
   targetUniversities?: string | null;
@@ -502,7 +503,7 @@ export type CategorizedContactData = {
     studyLevel?: string | null;
     target_degree_level?: string | null;
     target_course_major?: string | null;
-    preferred_study_destination?: string | null;
+    preferred_study_destination?: string | string[] | null;
     target_universities?: string | null;
     intended_start_term?: string | null;
     intended_start_date?: string | Date | null;

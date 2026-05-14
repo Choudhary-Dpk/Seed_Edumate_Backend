@@ -449,6 +449,32 @@ export const searchEdumateContactsByStudyDestination = async (
 };
 
 /**
+ * Normalize an array-or-string value into a ';'-separated string for
+ * HubSpot multi-checkbox properties. Returns null when input is empty.
+ */
+const toHubSpotMultiValue = (value: any): string | null => {
+  if (value == null) return null;
+  if (Array.isArray(value)) {
+    const cleaned = value
+      .map((v) => (v == null ? "" : String(v).trim()))
+      .filter((v) => v !== "");
+    if (cleaned.length === 0) return null;
+    return Array.from(new Set(cleaned)).join(";");
+  }
+  const str = String(value).trim();
+  if (str === "") return null;
+  // Accept comma-separated input from older callers and normalize to ';'.
+  if (str.includes(",")) {
+    const parts = str
+      .split(",")
+      .map((v) => v.trim())
+      .filter((v) => v !== "");
+    return Array.from(new Set(parts)).join(";");
+  }
+  return str;
+};
+
+/**
  * Convert mapped contact data back to HubSpot properties format
  */
 const mapToHubSpotProperties = async (
@@ -493,9 +519,12 @@ const mapToHubSpotProperties = async (
 
   if (contactData.levelOfEducation)
     properties.current_education_level = contactData.levelOfEducation;
-  if (contactData.studyDestination || contactData.countryOfStudy)
-    properties.preferred_study_destination =
-      contactData.studyDestination || contactData.countryOfStudy;
+  if (contactData.studyDestination || contactData.countryOfStudy) {
+    const psd = toHubSpotMultiValue(
+      contactData.studyDestination || contactData.countryOfStudy,
+    );
+    if (psd != null) properties.preferred_study_destination = psd;
+  }
   // if (contactData.nonUsaCountry) properties.nationality = contactData.nonUsaCountry;
   if (contactData.courseType) properties.course_type = contactData.courseType;
   if (contactData.loanPreference)
@@ -549,8 +578,10 @@ const mapToHubSpotProperties = async (
     properties.admission_status = contactData.admissionStatus;
   if (contactData.educationLevel)
     properties.current_education_level = contactData.educationLevel;
-  if (contactData.studyDestination)
-    properties.preferred_study_destination = contactData.studyDestination;
+  if (contactData.studyDestination) {
+    const psd = toHubSpotMultiValue(contactData.studyDestination);
+    if (psd != null) properties.preferred_study_destination = psd;
+  }
   if (contactData.partnerName)
     properties.b2b_partner_name = contactData.partnerName;
   if (contactData.phone) properties.phone_number = contactData.phone;
@@ -789,8 +820,10 @@ export const mapLeadToHubSpotProperties = (
   if (lead.targetDegreeLevel)
     properties.target_degree_level = lead.targetDegreeLevel;
   if (lead.courseType) properties.course_type = lead.courseType;
-  if (lead.studyDestination)
-    properties.preferred_study_destination = lead.studyDestination;
+  if (lead.studyDestination) {
+    const psd = toHubSpotMultiValue(lead.studyDestination);
+    if (psd != null) properties.preferred_study_destination = psd;
+  }
   if (lead.dateOfBirth)
     properties.date_of_birth = lead.dateOfBirth.toISOString().split("T")[0];
   if (lead.gender) properties.gender = lead.gender;

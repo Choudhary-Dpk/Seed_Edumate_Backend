@@ -177,9 +177,7 @@ export const mapSystemTracking = (data: Record<string, any>) => {
   };
 };
 
-export const mapAllFields = async (
-  input: ContactsLead,
-): Promise<Partial<ContactsLead>> => {
+export const mapAllFields = async (input: ContactsLead): Promise<Partial<ContactsLead>> => {
   const mapped: Record<string, any> = {};
   // Currency conversions
   // const loanAmount =
@@ -1092,30 +1090,41 @@ export const mapAllFields = async (
     }
   }
 
-  // 4. Preferred Study Destination
+  // 4. Preferred Study Destination — supports single value OR multiple values.
+  // Frontend can send:
+  //   - "France"                                     (single string)
+  //   - "France, Singapore"  /  "France;Singapore"   (delimited string)
+  //   - ["France", "Singapore"]                      (array)
+  // Stored as a ';'-separated string in DB so it matches HubSpot's
+  // multi-checkbox wire format and the existing pattern for
+  // `interested_loan_products`. Each value is enum-validated individually;
+  // unknown values are dropped silently.
   if (
     input.studyDestination !== undefined ||
     input.countryOfStudy !== undefined ||
     input.preferred_study_destination !== undefined
   ) {
-    const destination =
-      input.countryOfStudy?.trim() ||
-      input.studyDestination?.trim() ||
-      input.preferred_study_destination?.trim() ||
+    const raw =
+      input.countryOfStudy ??
+      input.studyDestination ??
+      input.preferred_study_destination ??
       null;
-    if (
-      destination !== null &&
-      destination !== "" &&
-      destination !== undefined
-    ) {
-      enumTranslations.push({
-        field: "preferred_study_destination",
-        enumName: "preferredStudyDestination",
-        sourceValue: destination,
-      });
-    } else {
-      mapped.preferred_study_destination = null;
+
+    let candidates: string[] = [];
+    if (Array.isArray(raw)) {
+      candidates = raw
+        .map((v) => (v == null ? "" : String(v).trim()))
+        .filter((v) => v !== "");
+    } else if (typeof raw === "string") {
+      candidates = raw
+        .split(",")
+        .map((v) => v.trim())
+        .filter((v) => v !== "");
     }
+
+    mapped.preferred_study_destination = candidates.join(";");
+  } else {
+    mapped.preferred_study_destination = null;
   }
 
   // 5. Target Degree Level
@@ -1562,4 +1571,4 @@ export const mapAllFields = async (
   }
 
   return mapped;
-};
+};;
