@@ -10,6 +10,7 @@ const TITLE_TO_SLUG: Record<string, string> = {
   "Monthly MIS Performance Report": "monthly-mis-report",
   "Event Registration Confirmation": "event-registration-confirmation",
   "Loan Connect Reminder": "loan-connect-reminder",
+  "Login League Intro": "login-league-intro",
 };
 
 /**
