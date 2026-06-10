@@ -10,35 +10,30 @@ const TITLE_TO_SLUG: Record<string, string> = {
   "Monthly MIS Performance Report": "monthly-mis-report",
   "Event Registration Confirmation": "event-registration-confirmation",
   "Loan Connect Reminder": "loan-connect-reminder",
-  "Login League Intro": "login-league-intro",
 };
 
 /**
- * Also accept the slug directly as the emailType — useful for new templates
- * that don't need a legacy title alias.
- */
-const KNOWN_SLUGS = new Set(Object.values(TITLE_TO_SLUG));
-
-/**
- * Fetches email template HTML by title.
- * Looks up the DB first (editable by super admin), falls back to empty string.
+ * Fetches email template HTML by emailType.
+ *
+ * Accepts either a legacy title (mapped to its slug via TITLE_TO_SLUG) OR a
+ * slug directly. New templates only need to be seeded — no entry here is
+ * required; the value is treated as a slug and looked up in the DB.
+ * Falls back to an empty string if no active template matches.
  */
 export const getEmailTemplate = async (title: string): Promise<string> => {
-  const slug = TITLE_TO_SLUG[title] ?? (KNOWN_SLUGS.has(title) ? title : undefined);
+  const slug = TITLE_TO_SLUG[title] ?? title;
 
-  if (slug) {
-    try {
-      const template = await prisma.emailTemplate.findFirst({
-        where: { slug, is_active: true, is_deleted: false },
-        select: { html_content: true },
-      });
+  try {
+    const template = await prisma.emailTemplate.findFirst({
+      where: { slug, is_active: true, is_deleted: false },
+      select: { html_content: true },
+    });
 
-      if (template?.html_content) {
-        return template.html_content;
-      }
-    } catch {
-      // DB not migrated yet or query failed — fall through
+    if (template?.html_content) {
+      return template.html_content;
     }
+  } catch {
+    // DB not migrated yet or query failed — fall through
   }
 
   return "";
