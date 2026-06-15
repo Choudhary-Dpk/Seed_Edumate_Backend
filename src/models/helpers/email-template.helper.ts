@@ -13,7 +13,8 @@ export const extractTemplateVariables = (
   html_content: string,
   subject?: string,
 ): string[] => {
-  const systemVars = new Set(["currentYear"]);
+  // System/derived variables filled by the backend — not caller-supplied
+  const systemVars = new Set(["currentYear", "encouragement"]);
   const varSet = new Set<string>();
   const regex = /\{%(\w[\w-]*)%\}/g;
 

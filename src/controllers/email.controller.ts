@@ -227,6 +227,17 @@ export const sendEmailController = async (
       case "Show Interest":
         break;
 
+      case "login-league-performance-snapshot": {
+        // Encouragement line is derived from performance, not passed by caller
+        const loginCount = Number(params?.totalLogins) || 0;
+        const encouragement =
+          loginCount > 0
+            ? "You're making great progress towards maximizing your campaign rewards. Continue referring eligible students to increase your approvals and earnings before the campaign closes."
+            : "It's not too late to get started! Begin referring eligible students today to unlock your campaign rewards before the campaign closes.";
+        content = content.replace(/{%encouragement%}/g, encouragement);
+        break;
+      }
+
       default:
         // For any other email type, just use name replacement (already done above)
         logger.debug(
