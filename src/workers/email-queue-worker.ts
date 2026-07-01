@@ -139,6 +139,13 @@ async function processEmail(email: any): Promise<void> {
       attachments,
     });
 
+    // sendUnifiedEmail swallows errors and returns { success: false } instead
+    // of throwing. Surface that here so the email is marked failed + retried
+    // rather than silently marked as sent.
+    if (!result.success) {
+      throw new Error(result.error || "Email send failed");
+    }
+
     // ========================================================================
     // SUCCESS: Update both queue and email log
     // ========================================================================
