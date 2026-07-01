@@ -8,7 +8,7 @@ import moment from "moment";
 import { FRONTEND_URL } from "../setup/secrets";
 import { generateEmailToken } from "../utils/auth";
 import { generateLoanApplicationEmail } from "../utils/email templates/loanEligibilityResult";
-import { queueEmail } from "../services/email-queue.service";
+import { queueEmail, QueueEmailOptions } from "../services/email-queue.service";
 import {
   EmailType,
   EmailCategory,
@@ -289,6 +289,10 @@ export const sendEmailController = async (
       from,
       cc: ccList,
       bcc: bccList,
+      ...(attachments &&
+        attachments.length > 0 && {
+          attachments: attachments as QueueEmailOptions["attachments"],
+        }),
       email_type: mappedEmailType,
       category,
       sent_by_user_id: userId,
